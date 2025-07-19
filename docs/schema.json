@@ -1,0 +1,375 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gmnap.org/schema/v1.5.json",
+  "title": "GMNAP Entry Schema v1.5",
+  "description": "Schema for Global Mathematician Name Authority Project entries",
+  "type": "object",
+  "patternProperties": {
+    "^[^,]+, [^,]+$": {
+      "type": "object",
+      "properties": {
+        "GlobalID": {
+          "type": "string",
+          "pattern": "^[A-Z2-7]{22}$",
+          "description": "128-bit truncated SHA-256 as 22-character Base32"
+        },
+        "UpdatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 UTC timestamp"
+        },
+        "CanonicalLatin": {
+          "type": "string",
+          "pattern": "^[^,]+, [^,]+$",
+          "description": "Preferred Latin-script form in Family, Given order"
+        },
+        "CanonicalNative": {
+          "type": "string",
+          "description": "Authoritative form in author's own script"
+        },
+        "LanguageOfPublication": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z]{2,3}$"
+          },
+          "maxItems": 10,
+          "description": "ISO 639-3 language codes"
+        },
+        "AffiliationTimeline": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "country": {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "from": {
+                "type": ["integer", "null"],
+                "minimum": 1000,
+                "maximum": 2100
+              },
+              "to": {
+                "type": ["integer", "null"],
+                "minimum": 1000,
+                "maximum": 2100
+              }
+            },
+            "required": ["country", "from", "to"],
+            "additionalProperties": false
+          },
+          "description": "Timeline of country affiliations"
+        },
+        "Variants": {
+          "type": "object",
+          "properties": {
+            "Observed": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "str": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": ["OpenAlex", "Crossref", "MathSciNet", "zbMATH", "ORCID", "Scopus", "Dimensions", "ResearcherID", "DBLP", "MGP", "ISNI", "GND", "BNF", "Lattes", "ADS", "HAL", "SciELO", "RSL", "Magiran", "Vidwan", "CNKI", "CiNii", "JStage", "GS"]
+                  },
+                  "accessed": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                },
+                "required": ["str", "source", "accessed"],
+                "additionalProperties": false
+              }
+            },
+            "Synthesised": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "str": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["ascii-lossy", "tone-number", "diac-drop", "order-swap", "romanisation-alt", "particle-drop", "initial-collapse"]
+                  }
+                },
+                "required": ["str", "type"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "FamilyNameType": {
+          "type": "string",
+          "enum": ["surname", "patronymic", "mononym"],
+          "default": "surname"
+        },
+        "Gender": {
+          "type": "string",
+          "enum": ["male", "female", "nonbinary", "unspecified"],
+          "default": "unspecified"
+        },
+        "GenderProvided": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether gender is self-declared"
+        },
+        "PreferredPronouns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10
+        },
+        "BirthYear": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": -3000,
+              "maximum": 2100
+            },
+            {
+              "type": "string",
+              "pattern": "^(\\d{4}s|c\\d{4}|\\d{4}/\\d{4}|-\\d+)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "DeathYear": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": -3000,
+              "maximum": 2100
+            },
+            {
+              "type": "string",
+              "pattern": "^(\\d{4}s|c\\d{4}|\\d{4}/\\d{4}|-\\d+)$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "CountryCodes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$"
+          },
+          "description": "ISO 3166-1 alpha-2 country codes"
+        },
+        "DiasporaCodes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}:\\d{4}-$"
+          },
+          "description": "Diaspora codes with year ranges"
+        },
+        "PrimaryMSC": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "pattern": "^\\d{2}[A-Z]\\d{2}$"
+              },
+              "source": {
+                "type": "string",
+                "enum": ["zbMATH", "MathSciNet", "MSC2020"]
+              }
+            },
+            "required": ["code", "source"],
+            "additionalProperties": false
+          }
+        },
+        "NameEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["marriage", "religious", "passport", "transition", "legal_change", "alias"]
+              },
+              "year": {
+                "type": "integer",
+                "minimum": 1000,
+                "maximum": 2100
+              },
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            },
+            "required": ["type", "year", "from", "to"],
+            "additionalProperties": false
+          }
+        },
+        "Advisors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z2-7]{22}(--\\d+)?$"
+          },
+          "description": "GlobalIDs of PhD advisors"
+        },
+        "ShortFormClusters": {
+          "type": "object",
+          "patternProperties": {
+            "^.+$": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "additionalProperties": false,
+          "description": "Mapping of short forms to occurrence counts"
+        },
+        "AuthorityIDs": {
+          "type": "object",
+          "properties": {
+            "MathSciNet": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "ORCID": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{4}-\\d{4}-\\d{4}$"
+            },
+            "Scopus": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^\\d+$"
+                },
+                "license": {
+                  "type": "string",
+                  "const": "Elsevier"
+                }
+              },
+              "required": ["id", "license"],
+              "additionalProperties": false
+            },
+            "RSL": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "OpenAlex": {
+              "type": "string",
+              "pattern": "^A\\d+$"
+            },
+            "Crossref": {
+              "type": "string"
+            },
+            "zbMATH": {
+              "type": "string"
+            },
+            "DBLP": {
+              "type": "string"
+            },
+            "MGP": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "ISNI": {
+              "type": "string",
+              "pattern": "^\\d{4} \\d{4} \\d{4} \\d{4}$"
+            },
+            "GND": {
+              "type": "string",
+              "pattern": "^\\d+(-\\d+)?$"
+            },
+            "BNF": {
+              "type": "string"
+            },
+            "Lattes": {
+              "type": "string"
+            },
+            "ADS": {
+              "type": "string"
+            },
+            "HAL": {
+              "type": "string"
+            },
+            "SciELO": {
+              "type": "string"
+            },
+            "Magiran": {
+              "type": "string"
+            },
+            "Vidwan": {
+              "type": "string"
+            },
+            "CNKI": {
+              "type": "string"
+            },
+            "CiNii": {
+              "type": "string"
+            },
+            "JStage": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "Confidence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Confidence score 0-100"
+        },
+        "RegionalExtras": {
+          "type": "object",
+          "description": "Region-specific additional fields"
+        },
+        "Historic": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this is a historical entry (≤1850)"
+        },
+        "GDPR_DATA": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether entry contains GDPR-relevant personal data"
+        },
+        "SourceNote": {
+          "type": "string",
+          "description": "Note about data source"
+        },
+        "Comments": {
+          "type": "string",
+          "description": "Free-form curator notes"
+        }
+      },
+      "required": [
+        "GlobalID",
+        "UpdatedAt",
+        "CanonicalLatin",
+        "CanonicalNative",
+        "LanguageOfPublication",
+        "FamilyNameType",
+        "Gender",
+        "GenderProvided",
+        "CountryCodes",
+        "Confidence",
+        "Historic",
+        "GDPR_DATA"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

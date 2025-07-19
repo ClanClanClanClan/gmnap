@@ -1,0 +1,485 @@
+{
+  "spec_version": "6",
+  "published": "2025-07-15",
+  "sections": {
+    "glossary": [
+      {"term": "Entry", "definition": "One mathematician’s authority record (all names, identifiers, metadata)."},
+      {"term": "CanonicalLatin", "definition": "Preferred Latin‑script form in “Family, Given” order."},
+      {"term": "CanonicalNative", "definition": "Authoritative form in the author’s own script; equals CanonicalLatin if author publishes only in Latin script."},
+      {"term": "Variant-Observed", "definition": "Object {str, source, accessed} exactly as seen in an external source."},
+      {"term": "Variant-Synthesised", "definition": "Object {str, type} with type ∈ {ascii-lossy, tone-number, diac-drop, order-swap, romanisation-alt, particle-drop, initial-collapse}."},
+      {"term": "FamilyNameType", "definition": "Enumerated: surname (default), patronymic, mononym."},
+      {"term": "GlobalID", "definition": "128‑bit truncated SHA‑256 (22 Base32 symbols) of {CanonicalNative, BirthYear?, DeathYear?}; collisions → --1, --2 …"},
+      {"term": "MSC", "definition": "Object {code: 5‑digit string, source: authority}."},
+      {"term": "NameEvent", "definition": "{type, year, from, to} with type ∈ {marriage, religious, passport, transition, legal_change, alias}."},
+      {"term": "LanguageOfPublication", "definition": "ISO 639‑3 list (≤10 codes)."},
+      {"term": "AffiliationTimeline", "definition": "Optional list of {country, from, to} objects used for diaspora disambiguation."},
+      {"term": "Confidence", "definition": "0–100 score; weights stored in config/weights.yaml and must sum to 1."},
+      {"term": "Gender", "definition": "Enumerated: male, female, nonbinary, unspecified. Boolean GenderProvided records self‑declaration."},
+      {"term": "PipelineModes", "definition": "Quick – tier‑0; Full – tier‑0+1; Extreme – Full+tier‑2 (requires --force‑extreme)."},
+      {"term": "CatchAllGroup_R0", "definition": "Residual bucket for unmapped ISO codes or detector confidence <50%."},
+      {"term": "ShortFormClusters", "definition": "Map {short_form → count} where count = number of distinct external occurrences."},
+      {"term": "GDPR_DATA", "definition": "Boolean per field that can identify a living person under EU GDPR."}
+    ],
+
+    "region_groups": [
+      {
+        "code": "A1",
+        "name": "Core Anglo‑Sphere",
+        "iso_territories": ["US","GB","CA","AU","NZ","IE","AG","AI","BB","BM","BS","DM","GD","GY","JM","KN","LC","MS","TC","TT","VC","VG","VI","GU","AS","MP","UM","FK"],
+        "primary_scripts": ["Latin ASCII"],
+        "distinct_features": "Middle initials; generational suffixes"
+      },
+      {
+        "code": "A2",
+        "name": "Western Europe",
+        "iso_territories": ["FR","DE","IT","ES","PT","NL","BE","CH-FR","AT","LU","LI","SM","MC","GI","AD","MT","VA"],
+        "primary_scripts": ["Latin with diacritics"],
+        "distinct_features": "Iberian dual surnames; de/von/van particles"
+      },
+      {
+        "code": "A3",
+        "name": "Nordic–Baltic",
+        "iso_territories": ["DK","NO","SE","FI","IS","FO","AX","EE","LV","LT"],
+        "primary_scripts": ["Latin with diacritics"],
+        "distinct_features": "Icelandic patronymic system"
+      },
+      {
+        "code": "A4",
+        "name": "Oceania Island States",
+        "iso_territories": ["FJ","PG","SB","VU","WS","TO","KI","TV","NR","CK","NU","PF","NC"],
+        "primary_scripts": ["Latin with macrons"],
+        "distinct_features": "Polynesian macron restoration"
+      },
+      {
+        "code": "A5",
+        "name": "Dutch/French Caribbean",
+        "iso_territories": ["CW","SX","BQ","MQ","GF","GP","RE","YT","PM"],
+        "primary_scripts": ["Latin"],
+        "distinct_features": "Apostrophes; Creole particles"
+      },
+      {
+        "code": "B1",
+        "name": "East‑Slavic",
+        "iso_territories": ["RU","UA","BY"],
+        "primary_scripts": ["Cyrillic"],
+        "distinct_features": "Patronymic endings; gender suffixes"
+      },
+      {
+        "code": "B2",
+        "name": "South‑Slavic & Central Europe",
+        "iso_territories": ["BG","RS","ME","HR","SI","BA","MK","PL","CZ","SK","HU","RO","AL","XK"],
+        "primary_scripts": ["Latin","Cyrillic"],
+        "distinct_features": "Gaj alphabet; Hungarian name‑order flip"
+      },
+      {
+        "code": "B3",
+        "name": "Greek World",
+        "iso_territories": ["GR","CY"],
+        "primary_scripts": ["Greek"],
+        "distinct_features": "ELOT 743 & ISO 843 romanisation"
+      },
+      {
+        "code": "C1",
+        "name": "Greater‑Turkic",
+        "iso_territories": ["TR","AZ","UZ","TM","KG","KZ"],
+        "primary_scripts": ["Latin","Cyrillic","Arabic"],
+        "distinct_features": "Script reform schedules: UZ 2023‑, TM 2019‑, KZ 2023→2031"
+      },
+      {
+        "code": "C2",
+        "name": "Persian‑Tajik",
+        "iso_territories": ["IR","AF","TJ"],
+        "primary_scripts": ["Perso‑Arabic","Cyrillic"],
+        "distinct_features": "Ezāfe connectors; nisba elements; ISO 233‑3:2023 & DIN 31635"
+      },
+      {
+        "code": "C3",
+        "name": "Arabic Levant–Nile",
+        "iso_territories": ["IQ","JO","LB","SY","PS","EG","SD","SS"],
+        "primary_scripts": ["Arabic"],
+        "distinct_features": "al‑ assimilation; root clustering"
+      },
+      {
+        "code": "C4",
+        "name": "Arabic Gulf",
+        "iso_territories": ["SA","KW","AE","QA","OM","BH","YE"],
+        "primary_scripts": ["Arabic"],
+        "distinct_features": "bin/bint; tribal nisba patterns"
+      },
+      {
+        "code": "C5",
+        "name": "Arabic Maghreb",
+        "iso_territories": ["MA","DZ","TN","LY","EH","MR"],
+        "primary_scripts": ["Arabic"],
+        "distinct_features": "Ben… prefixes; French transliteration"
+      },
+      {
+        "code": "C6",
+        "name": "Hebrew & Diaspora",
+        "iso_territories": ["IL"],
+        "primary_scripts": ["Hebrew"],
+        "distinct_features": "ISO 259 romanisation; optional niqqud"
+      },
+      {
+        "code": "C7",
+        "name": "Armenian",
+        "iso_territories": ["AM"],
+        "primary_scripts": ["Armenian"],
+        "distinct_features": "Hübschmann–Meillet"
+      },
+      {
+        "code": "C8",
+        "name": "Georgian",
+        "iso_territories": ["GE"],
+        "primary_scripts": ["Georgian"],
+        "distinct_features": "ISO 9984 transliteration"
+      },
+      {
+        "code": "C9",
+        "name": "Caucasus‑Turkic",
+        "iso_territories": ["RU-NC","AZ-IR"],
+        "primary_scripts": ["Mixed"],
+        "distinct_features": "Latin/Cyrillic/Arabic hybrids"
+      },
+      {
+        "code": "D1",
+        "name": "South Asia – Hindi Belt",
+        "iso_territories": ["IN-HN","NP","BT"],
+        "primary_scripts": ["Devanagari"],
+        "distinct_features": "Initials; caste surnames"
+      },
+      {
+        "code": "D2",
+        "name": "South Asia – Dravidian",
+        "iso_territories": ["IN-South","LK-TA"],
+        "primary_scripts": ["Tamil","Latin"],
+        "distinct_features": "Patronymic initials; mononyms"
+      },
+      {
+        "code": "D3",
+        "name": "South Asia – Bengali",
+        "iso_territories": ["BD","IN-WB","TR","AS"],
+        "primary_scripts": ["Bengali"],
+        "distinct_features": "Frequent script switching"
+      },
+      {
+        "code": "D4",
+        "name": "Pakistan & Urdu",
+        "iso_territories": ["PK"],
+        "primary_scripts": ["Urdu","Latin"],
+        "distinct_features": "bin/binte; Arabic loans"
+      },
+      {
+        "code": "D5",
+        "name": "Sinhala",
+        "iso_territories": ["LK-SI"],
+        "primary_scripts": ["Sinhala"],
+        "distinct_features": "UN 2003 transliteration"
+      },
+      {
+        "code": "E1",
+        "name": "Sinophone Mainland",
+        "iso_territories": ["CN"],
+        "primary_scripts": ["Han-Simplified"],
+        "distinct_features": "Pinyin vs Wade‑Giles"
+      },
+      {
+        "code": "E2",
+        "name": "Sinophone Traditional",
+        "iso_territories": ["TW","HK","MO"],
+        "primary_scripts": ["Han-Traditional"],
+        "distinct_features": "Cantonese romanisation"
+      },
+      {
+        "code": "E3",
+        "name": "Japan",
+        "iso_territories": ["JP"],
+        "primary_scripts": ["Kanji","Kana"],
+        "distinct_features": "Official order flip 2020"
+      },
+      {
+        "code": "E4",
+        "name": "Korea",
+        "iso_territories": ["KR","KP"],
+        "primary_scripts": ["Hangul","Hanja"],
+        "distinct_features": "Hyphen/space variation"
+      },
+      {
+        "code": "E5",
+        "name": "Vietnam",
+        "iso_territories": ["VN"],
+        "primary_scripts": ["Latin with diacritics"],
+        "distinct_features": "Numeric tone variants"
+      },
+      {
+        "code": "E6",
+        "name": "Mainland SEA",
+        "iso_territories": ["TH","KH","LA"],
+        "primary_scripts": ["Thai","Khmer","Lao"],
+        "distinct_features": "Thai RTGS; Khmer UNGEGN; Lao MOICT 2019"
+      },
+      {
+        "code": "E7",
+        "name": "Maritime SEA",
+        "iso_territories": ["ID","MY","SG","BN","PH","TL"],
+        "primary_scripts": ["Latin"],
+        "distinct_features": "Malay bin/binti; Indonesian mononyms; Filipino maternal middle name"
+      },
+      {
+        "code": "F1",
+        "name": "SSA – Francophone",
+        "iso_territories": ["BJ","BF","CM","CF","CG","CI","DJ","GA","GN","ML","NE","SN","TG","TD","KM","SC","MG","BI"],
+        "primary_scripts": ["Latin"],
+        "distinct_features": "Accented French particles"
+      },
+      {
+        "code": "F2",
+        "name": "SSA – Anglophone",
+        "iso_territories": ["GH","NG","KE","UG","TZ","ZW","ZM","MW","GM","LR","SL","BW","LS","NA","RW","SZ","MU","SS"],
+        "primary_scripts": ["Latin"],
+        "distinct_features": "Hyphenated given names; middle initials"
+      },
+      {
+        "code": "F3",
+        "name": "Horn of Africa",
+        "iso_territories": ["ET","ER"],
+        "primary_scripts": ["Geʽez"],
+        "distinct_features": "Patronymic chain (given‑father‑grandfather)"
+      },
+      {
+        "code": "F4",
+        "name": "Lusophone Africa",
+        "iso_territories": ["AO","MZ","CV","GW","ST"],
+        "primary_scripts": ["Latin"],
+        "distinct_features": "Portuguese particles"
+      },
+      {
+        "code": "G1",
+        "name": "Latin America & Iberian Caribbean",
+        "iso_territories": ["AR","BO","BR","CL","CO","CR","CU","DO","EC","GT","GY","HN","HT","MX","NI","PA","PE","PY","SV","SR","UY","VE","PR"],
+        "primary_scripts": ["Latin"],
+        "distinct_features": "Dual surnames; Portuguese diacritics"
+      },
+      {
+        "code": "H1",
+        "name": "Historical (≤1850)",
+        "iso_territories": ["GLOBAL_PRE_1850"],
+        "primary_scripts": ["Mixed"],
+        "distinct_features": "Latinised names; epithets"
+      },
+      {
+        "code": "R0",
+        "name": "Residual Latin‑ASCII",
+        "iso_territories": ["ANY_UNMAPPED"],
+        "primary_scripts": ["Latin ASCII"],
+        "distinct_features": "Minimal matching rules"
+      },
+      {
+        "code": "Z0",
+        "name": "Quarantine",
+        "iso_territories": [],
+        "primary_scripts": [],
+        "distinct_features": "Detector confidence <50%"
+      }
+    ],
+
+    "diaspora_overlay_schema": "config/diaspora.yaml → array of {region, range} objects with non‑overlapping ranges (e.g. \"TH\": [{region:\"E6\",range:\"-2015\"},{region:\"A1\",range:\"2016-\"}])",
+
+    "yaml_record_schema_version": "1.5",
+
+    "yaml_record_template": {
+      "GlobalID": "<sha256-128bit>",
+      "UpdatedAt": "<ISO-8601 UTC>",
+      "CanonicalLatin": "<Family, Given>",
+      "CanonicalNative": "<native script>",
+      "LanguageOfPublication": ["xx"],
+      "AffiliationTimeline": [{"country": "<ISO2>", "from": 1900, "to": null}],
+      "Variants": {
+        "Observed": [{"str": "<string>", "source": "<source>", "accessed": "YYYY-MM-DD"}],
+        "Synthesised": [{"str": "<string>", "type": "<type>"}]
+      },
+      "FamilyNameType": "surname",
+      "Gender": "unspecified",
+      "GenderProvided": false,
+      "PreferredPronouns": [],
+      "BirthYear": null,
+      "DeathYear": null,
+      "CountryCodes": [],
+      "DiasporaCodes": [],
+      "PrimaryMSC": [{"code": "00A05", "source": "<authority>"}],
+      "NameEvents": [],
+      "Advisors": [],
+      "ShortFormClusters": {},
+      "AuthorityIDs": {},
+      "Confidence": 0,
+      "RegionalExtras": {},
+      "Historic": false,
+      "GDPR_DATA": false,
+      "SourceNote": "",
+      "Comments": ""
+    },
+
+    "region_module_interface": "class RegionRuleError(Exception): ... (see spec §3). Order_key must be pure.",
+
+    "processing_pipeline": [
+      {"stage": 0, "name": "Config", "operations": "Load RegionSpecs; verify unique file ownership; proprietary licence checks."},
+      {"stage": 1, "name": "Ingest", "operations": "Read YAML; Unicode NFC→NFKD→custom fold→NFC."},
+      {"stage": 2, "name": "DetectRegion", "operations": "Use script ranges, ICU, fastText, affiliation hints, DOI prefix, diaspora overlay. Tie‑break: script>affiliation>DOI>langID."},
+      {"stage": 3, "name": "RegionHooks", "operations": "clean→augment→validate→order_key; failures to Z0."},
+      {"stage": 4, "name": "AuthorityEnrich", "operations": "aiohttp fetch; licence quotas; scrub; bad_json cache."},
+      {"stage": 5, "name": "CollisionAnalytics", "operations": "DuckDB; fallback SQLite partial idx (surname_prefix,birth_decade)."},
+      {"stage": 6, "name": "TagShortForms", "operations": "Populate ShortFormClusters."},
+      {"stage": 7, "name": "GlobalValidate", "operations": "JSON‑Schema; unique IDs; transliteration round‑trip."},
+      {"stage": 8, "name": "Write&Diff", "operations": "Deterministic YAML; HTML diff; SQL change‑log."},
+      {"stage": 9, "name": "Report", "operations": "Markdown summary; metrics.json."},
+      {"stage": 10, "name": "IdempotencyCheck", "operations": "Full rerun; SHA‑256 over YAML, DB, docs, tests, source_manifest; assert equal."}
+    ],
+
+    "runtime_profiles": [
+      {"mode": "Quick", "apis": "tier-0", "cpu_workers": 4, "runtime_per_1M": "≤30min"},
+      {"mode": "Full", "apis": "tier-0+1", "cpu_workers": "unlimited", "runtime_per_1M": "≤60min"},
+      {"mode": "Extreme", "apis": "Full+tier-2", "cpu_workers": "unlimited", "runtime_per_1M": "no SLA"}
+    ],
+    "streaming_chunk_size": 8000,
+    "peak_memory_limit": "2GB RSS",
+    "cache": {"compression": "zstd", "max_gb": 20, "max_days": 30, "google_scholar_dir": "cache/gs"},
+
+    "authority_sources": [
+      {"tier": 0, "service": "OpenAlex", "key": "OpenAlex", "licence": "CC0", "daily_quota": 864000, "notes": "Works, concepts, ORCIDs"},
+      {"tier": 0, "service": "Crossref", "key": "Crossref", "licence": "CC0", "daily_quota": 4300000, "notes": "DOI metadata"},
+      {"tier": 0, "service": "MathSciNet HTML", "key": "MathSciNet", "licence": "Subscription", "daily_quota": 20000, "notes": "HTML parse"},
+      {"tier": 0, "service": "zbMATH Open", "key": "zbMATH", "licence": "CC-BY", "daily_quota": 200, "notes": "JSON"},
+      {"tier": 0, "service": "ORCID", "key": "ORCID", "licence": "CC0", "daily_quota": 500, "notes": "REST"},
+      {"tier": 1, "service": "Scopus", "key": "Scopus", "licence": "Elsevier", "daily_quota": 20000, "notes": "Starts Month 5"},
+      {"tier": 1, "service": "Dimensions", "key": "Dimensions", "licence": "DigitalScience", "daily_quota": 10000, "notes": "Starts Month 5"},
+      {"tier": 1, "service": "WoS ResearcherID", "key": "ResearcherID", "licence": "Clarivate", "daily_quota": 5000, "notes": ""},
+      {"tier": 1, "service": "DBLP", "key": "DBLP", "licence": "CC-BY", "daily_quota": "local", "notes": "XML dump"},
+      {"tier": 1, "service": "Math Genealogy Project", "key": "MGP", "licence": "Public", "daily_quota": "local", "notes": "SQL dump"},
+      {"tier": 1, "service": "ISNI", "key": "ISNI", "licence": "CC-BY", "daily_quota": 28800, "notes": "REST"},
+      {"tier": 1, "service": "GND", "key": "GND", "licence": "CC-BY", "daily_quota": "unlimited", "notes": "SRU"},
+      {"tier": 1, "service": "BNF IdRef", "key": "BNF", "licence": "ODbL", "daily_quota": "unlimited", "notes": "SPARQL"},
+      {"tier": 1, "service": "Lattes", "key": "Lattes", "licence": "CC-BY", "daily_quota": 86400, "notes": "Brazilian CVs"},
+      {"tier": 1, "service": "ADS", "key": "ADS", "licence": "CC-BY", "daily_quota": 86400, "notes": "Astro-math"},
+      {"tier": 1, "service": "HAL", "key": "HAL", "licence": "CC-BY", "daily_quota": 86400, "notes": "French pre-prints"},
+      {"tier": 1, "service": "SciELO", "key": "SciELO", "licence": "CC-BY", "daily_quota": 86400, "notes": "LatAm/SSA"},
+      {"tier": 1, "service": "RSL", "key": "RSL", "licence": "CC-BY", "daily_quota": 20000, "notes": "Russian e-Library"},
+      {"tier": 1, "service": "Magiran", "key": "Magiran", "licence": "Scrape", "daily_quota": 10000, "notes": "Optional"},
+      {"tier": 1, "service": "Vidwan", "key": "Vidwan", "licence": "REST", "daily_quota": 10000, "notes": "Optional"},
+      {"tier": 1, "service": "CNKI", "key": "CNKI", "licence": "Subscription", "daily_quota": 10000, "notes": "E-mail scrubbed"},
+      {"tier": 1, "service": "CiNii", "key": "CiNii", "licence": "Public", "daily_quota": 10000, "notes": "Japanese"},
+      {"tier": 1, "service": "J-STAGE", "key": "JStage", "licence": "Public", "daily_quota": 10000, "notes": "Japanese"},
+      {"tier": 2, "service": "Google Scholar", "key": "GS", "licence": "Scraping", "daily_quota": "undefined", "notes": "Disabled unless --force-extreme + YES_I_ACCEPT_GS_TOS=yes"}
+    ],
+
+    "linguistic_rules": [
+      {"id": 1, "description": "Iberian Dual Surname Split – stop-words yield primary and secondary surnames."},
+      {"id": 2, "description": "Arabic al- Article – root normalisation; sun-letter assimilation; article dropped in order_key."},
+      {"id": 3, "description": "Arabic bin/bint – patronymic; removed from order_key."},
+      {"id": 4, "description": "Vietnamese Tone Handling – full, ASCII and numeric-tone variants."},
+      {"id": 5, "description": "Kazakh Script Switch – ≥2027 Latin; earlier Cyrillic."},
+      {"id": 6, "description": "Turkish İ/i ambiguity – dotted and dotless variants for ASCII."},
+      {"id": 7, "description": "Persian Ezafe – -e/-ye ignored in order_key."},
+      {"id": 8, "description": "Icelandic Patronymic – FamilyNameType=patronymic; excluded from collisions."},
+      {"id": 9, "description": "East-Slavic Patronymic – strip middle token; gender inference."},
+      {"id": 10, "description": "Hungarian Name Order – generate both native and Western orders."},
+      {"id": 11, "description": "CJK Round-Trip – romanise+back-convert; ≥97% match."},
+      {"id": 12, "description": "Japanese Post‑2020 Order Rule – majority rule for English papers."},
+      {"id": 13, "description": "Korean Hyphen/Space – variant set; order_key collapsed."},
+      {"id": 14, "description": "Mononyms – FamilyNameType=mononym; initials clustering skipped."},
+      {"id": 15, "description": "Germanic Particles – von/van/de dropped (except d’)."},
+      {"id": 16, "description": "Unicode Fold Exceptions – ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia."},
+      {"id": 17, "description": "Iberian Honorific Strip – Dr., D., Dª removed."},
+      {"id": 18, "description": "Anglo Middle-Initial Collapse – John C. clusters with John."},
+      {"id": 19, "description": "Greek Χατζη- variants → Haji-, Hatzi-."},
+      {"id": 20, "description": "Turkic -oğlu/-ogly – moved to patronymic; omitted in key."},
+      {"id": 21, "description": "-zadeh Suffix – kept; hyphen preserved."},
+      {"id": 22, "description": "French d’ particle – retained in order_key."},
+      {"id": 23, "description": "SSA Hyphenated Given Names – initials logic."},
+      {"id": 24, "description": "Russian Transliteration – GOST 7.79-2000 (A) & BGN-PCGN 1947 variants."},
+      {"id": 25, "description": "Greek Ancient Names – Latinised canonical; excluded from modern collisions."},
+      {"id": 26, "description": "Gender Heuristic Guard – applied only at ≥95% validation accuracy."},
+      {"id": 27, "description": "Mainland SEA Romanisation – Thai RTGS, Khmer UNGEGN, Lao MOICT 2019; ASCII variants."},
+      {"id": 28, "description": "Malay bin/binti – patronymic stripped; stored in extras."},
+      {"id": 29, "description": "Indonesian Mononyms – one-token canonical."},
+      {"id": 30, "description": "Filipino Maternal Middle Name – stored as secondary_surname."},
+      {"id": 31, "description": "Pacific Macron Restore – macronised Māori/Samoan/Tongan forms."},
+      {"id": 32, "description": "Ibn/Abu/Um Prefixes – dropped when next token length ≥3."},
+      {"id": 33, "description": "Capital Sharp-S Handling – uppercase ẞ preserved; SS variants added."},
+      {"id": 34, "description": "Round-trip Determinism – reciprocal transform restores original CanonicalLatin exactly."}
+    ],
+
+    "quality_gates": {
+      "duplicate_global_id": {"quick": 0,"full": 0,"extreme": 0},
+      "duplicate_external_id": {"quick": 0,"full": 0,"extreme": 0},
+      "roundtrip_script_rate": {"threshold": 0.97},
+      "missing_tier0_authority_id_living": {"quick_max_pct": 0.40,"full_max_pct": 0.15,"extreme_max_pct": 0.10},
+      "nondeterministic_order_keys_pct": {"quick_max": 0.1,"full_max": 0.05,"extreme_max": 0.01},
+      "peak_rss_gb_on_2M": 2,
+      "warm_cache_runtime_per_1M": {"quick_max_min": 30,"full_max_min": 60},
+      "idempotent_diff_bytes": 0
+    },
+
+    "testing_suite": {
+      "unit": "region hooks, schema validation",
+      "property": "diacritic-fold idempotence inc. Arabic Hamza/Maddah, CJK full-width punctuation",
+      "fixtures": 1000,
+      "sea_roundtrip": "Thai, Khmer, Lao",
+      "concurrency": "8‑process stress, SIGINT abort",
+      "memory_peak": "RSS limit",
+      "msc_provenance": "PrimaryMSC source check",
+      "fake_api": "OFFLINE=1 stub",
+      "stress": "2M synthetic weekly",
+      "integration": "live API smoke, skipped if OFFLINE=1",
+      "secret_scan": "leaked secret blocker"
+    },
+
+    "security_legal": {
+      "personal_data_policy": "Identifiers only; proprietary metadata not published.",
+      "gdpr_flag": "GDPR_DATA per field; --drop-personal removes at runtime.",
+      "scrubbers": ["CNKI","Magiran","RSL"],
+      "birth_year_privacy": "Decade-granular if local cohort <5.",
+      "license_restrictions_file": "LICENSE_RESTRICTIONS.md autogenerated.",
+      "google_scholar_optin": "--force-extreme + YES_I_ACCEPT_GS_TOS=yes; cache only under cache/gs",
+      "attribution": "ATTRIBUTION.txt autogenerated incl. SPDX identifiers"
+    },
+
+    "developer_tooling": {
+      "dev_container": {
+        "base": "Ubuntu 22.04",
+        "python": "3.12",
+        "duckdb": "0.10",
+        "ruamel_yaml": "0.18",
+        "fasttext": "installed via scripts/get_fasttext.sh",
+        "zstandard": "CLI"
+      },
+      "pre_commit": ["black","ruff","isort","codespell","yamllint"],
+      "make_targets": ["quick","full","extreme","test","lint","update-sources"],
+      "dictionaries": "tools/dictionaries/<region>.txt",
+      "cli": {
+        "query": "gmnap query \"<surname, given>\"",
+        "diff": "gmnap diff --author <GlobalID>"
+      },
+      "vscode_extension": {
+        "delivery_month": 5,
+        "features": ["syntax highlighting","schema validation","formatter inserts U+202F before initials"]
+      }
+    },
+
+    "roadmap": [
+      {"month": 1, "deliverables": "Pipeline core, YAML v1.5, A1‑A5, Quick nightly OpenAlex bootstrap"},
+      {"month": 2, "deliverables": "A2‑A3, B2, Iberian rule, OpenAlex/Crossref/zbMATH/ORCID online"},
+      {"month": 3, "deliverables": "C‑ & D‑groups, SEA round‑trip ≥97%, UZ/TM/KZ script switch"},
+      {"month": 4, "deliverables": "All E‑groups, HAL/CiNii/J-STAGE, Pacific macron rule"},
+      {"month": 5, "deliverables": "F‑groups, paid‑API integration (Scopus/Dimensions/WoS), RSL, stress gates, VSCode extension"},
+      {"month": 6, "deliverables": "Integration buffer, tuning, legal audit, docs polish, tag v6.0"}
+    ],
+
+    "change_control": [
+      "Increment version (v6→v7).",
+      "Update docs/schema.json, data/region_index.csv, fixtures & tests.",
+      "CI must pass.",
+      "Project maintainer approval required."
+    ]
+  }
+}

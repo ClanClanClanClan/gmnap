@@ -1,0 +1,8 @@
+# Confidence score weights (must sum to 1.0)
+# Used for calculating overall entry confidence
+
+id_score: 0.35          # Authority ID matches
+script_certainty: 0.25  # Script detection confidence
+msc_match: 0.20         # MSC code alignment
+region_confidence: 0.15 # Regional processing confidence
+name_consistency: 0.05  # Name variant consistency

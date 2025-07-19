@@ -1,0 +1,10 @@
+# Diaspora overlay configuration
+# Maps country codes to region changes based on date ranges
+# Format: country -> [{region: code, range: "start-end"}]
+
+# Example: Thailand mathematicians
+"TH":
+  - {region: "E6", range: "-2015"}
+  - {region: "A1", range: "2016-"}
+
+# Add more diaspora mappings as needed

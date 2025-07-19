@@ -1,0 +1,327 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gmnap.org/schema/v1.5",
+  "title": "GMNAP YAML Record Schema v1.5",
+  "description": "Schema for Global Mathematician Name Authority Project entries",
+  "type": "object",
+  "patternProperties": {
+    "^.+$": {
+      "type": "object",
+      "required": [
+        "GlobalID",
+        "UpdatedAt",
+        "CanonicalLatin",
+        "CanonicalNative",
+        "LanguageOfPublication",
+        "FamilyNameType",
+        "Gender",
+        "CountryCodes",
+        "Confidence",
+        "Historic",
+        "GDPR_DATA"
+      ],
+      "properties": {
+        "GlobalID": {
+          "type": "string",
+          "pattern": "^[A-Z2-7]{22}(--[1-9]\\d*)?$",
+          "description": "128-bit SHA-256 Base32 ID with optional collision suffix"
+        },
+        "UpdatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 UTC timestamp"
+        },
+        "CanonicalLatin": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Preferred Latin-script form in 'Family, Given' order"
+        },
+        "CanonicalNative": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Authoritative form in author's own script"
+        },
+        "LanguageOfPublication": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z]{2,3}$"
+          },
+          "maxItems": 10,
+          "description": "ISO 639-3 language codes"
+        },
+        "AffiliationTimeline": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["country"],
+            "properties": {
+              "country": {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "from": {
+                "type": ["integer", "null"]
+              },
+              "to": {
+                "type": ["integer", "null"]
+              }
+            }
+          }
+        },
+        "Variants": {
+          "type": "object",
+          "properties": {
+            "Observed": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["str", "source", "accessed"],
+                "properties": {
+                  "str": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "accessed": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            },
+            "Synthesised": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["str", "type"],
+                "properties": {
+                  "str": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "ascii-lossy",
+                      "tone-number",
+                      "diac-drop",
+                      "order-swap",
+                      "romanisation-alt",
+                      "particle-drop",
+                      "initial-collapse"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "FamilyNameType": {
+          "type": "string",
+          "enum": ["surname", "patronymic", "mononym"],
+          "default": "surname"
+        },
+        "Gender": {
+          "type": "string",
+          "enum": ["male", "female", "nonbinary", "unspecified"]
+        },
+        "GenderProvided": {
+          "type": "boolean",
+          "description": "Whether gender value is self-declared"
+        },
+        "PreferredPronouns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Self-declared pronouns"
+        },
+        "BirthYear": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": -3000,
+              "maximum": 2100
+            },
+            {
+              "type": "string",
+              "pattern": "^(-?\\d+|\\d{4}s|c\\d{3,4}|\\d{3,4}/\\d{3,4})$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "DeathYear": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": -3000,
+              "maximum": 2100
+            },
+            {
+              "type": "string",
+              "pattern": "^(-?\\d+|\\d{4}s|c\\d{3,4}|\\d{3,4}/\\d{3,4})$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "CountryCodes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$"
+          }
+        },
+        "DiasporaCodes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}:\\d{4}-\\d{4}?$|^[A-Z]{2}:\\d{4}-$"
+          }
+        },
+        "PrimaryMSC": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["code", "source"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "pattern": "^\\d{2}[A-Z]\\d{2}$"
+              },
+              "source": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "NameEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "year"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "marriage",
+                  "religious",
+                  "passport",
+                  "transition",
+                  "legal_change",
+                  "alias"
+                ]
+              },
+              "year": {
+                "type": "integer"
+              },
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "Advisors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z2-7]{22}(--\\d+)?$"
+          }
+        },
+        "ShortFormClusters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "AuthorityIDs": {
+          "type": "object",
+          "properties": {
+            "MathSciNet": {
+              "type": "string"
+            },
+            "ORCID": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{4}-\\d{4}-\\d{4}$"
+            },
+            "Scopus": {
+              "type": "object",
+              "required": ["id", "license"],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "license": {
+                  "type": "string"
+                }
+              }
+            },
+            "RSL": {
+              "type": "string",
+              "pattern": "^\\d{10}$"
+            },
+            "OpenAlex": {
+              "type": "string",
+              "pattern": "^A\\d{10}$"
+            }
+          },
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "required": ["id", "license"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "license": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "Confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "RegionalExtras": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Region-specific data fields"
+        },
+        "Historic": {
+          "type": "boolean",
+          "default": false
+        },
+        "GDPR_DATA": {
+          "type": "boolean",
+          "default": false,
+          "description": "Indicates if entry contains GDPR-protected personal data"
+        },
+        "SourceNote": {
+          "type": "string"
+        },
+        "Comments": {
+          "type": "string",
+          "description": "Free-form curator notes"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

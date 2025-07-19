@@ -1,0 +1,104 @@
+{
+  "OpenAlex": {
+    "enabled": true,
+    "tier": 0,
+    "daily_quota": 864000,
+    "base_url": "https://api.openalex.org",
+    "requires_auth": false,
+    "email": "gmnap@example.com",
+    "description": "OpenAlex - scholarly research database",
+    "rate_limit_per_second": 10,
+    "timeout_seconds": 30,
+    "retry_attempts": 3
+  },
+  "Crossref": {
+    "enabled": true,
+    "tier": 0,
+    "daily_quota": 4300000,
+    "base_url": "https://api.crossref.org",
+    "requires_auth": false,
+    "description": "Crossref - DOI registration agency",
+    "rate_limit_per_second": 50,
+    "timeout_seconds": 30,
+    "retry_attempts": 3
+  },
+  "ORCID": {
+    "enabled": true,
+    "tier": 0,
+    "daily_quota": 500,
+    "base_url": "https://pub.orcid.org/v3.0",
+    "requires_auth": false,
+    "description": "ORCID - researcher identifier system",
+    "rate_limit_per_second": 1,
+    "timeout_seconds": 30,
+    "retry_attempts": 3
+  },
+  "zbMATH": {
+    "enabled": true,
+    "tier": 0,
+    "daily_quota": 200,
+    "base_url": "https://oai.zbmath.org/v1",
+    "requires_auth": false,
+    "description": "zbMATH Open - mathematics database",
+    "rate_limit_per_second": 1,
+    "timeout_seconds": 30,
+    "retry_attempts": 3
+  },
+  "DBLP": {
+    "enabled": true,
+    "tier": 1,
+    "daily_quota": 86400,
+    "base_url": "https://dblp.org",
+    "requires_auth": false,
+    "description": "DBLP - computer science bibliography",
+    "rate_limit_per_second": 10,
+    "timeout_seconds": 30,
+    "retry_attempts": 3
+  },
+  "MathSciNet": {
+    "enabled": false,
+    "tier": 0,
+    "daily_quota": 20000,
+    "base_url": "https://mathscinet.ams.org/api",
+    "requires_auth": true,
+    "description": "MathSciNet - AMS mathematics database",
+    "rate_limit_per_second": 5,
+    "timeout_seconds": 45,
+    "retry_attempts": 2,
+    "note": "Requires institutional subscription - disabled by default"
+  },
+  "Scopus": {
+    "enabled": false,
+    "tier": 1,
+    "daily_quota": 20000,
+    "base_url": "https://api.elsevier.com/content/search/scopus",
+    "requires_auth": true,
+    "description": "Scopus - Elsevier scholarly database",
+    "rate_limit_per_second": 2,
+    "timeout_seconds": 30,
+    "retry_attempts": 3,
+    "note": "Requires API key - disabled by default"
+  },
+  "Dimensions": {
+    "enabled": false,
+    "tier": 1,
+    "daily_quota": 10000,
+    "base_url": "https://app.dimensions.ai/api",
+    "requires_auth": true,
+    "description": "Dimensions - Digital Science research database",
+    "rate_limit_per_second": 1,
+    "timeout_seconds": 45,
+    "retry_attempts": 2,
+    "note": "Requires authentication - disabled by default"
+  },
+  "metadata": {
+    "version": "6.1",
+    "created": "2025-07-18T22:22:00Z",
+    "description": "GMNAP Authority Source Manifest",
+    "total_sources": 8,
+    "enabled_sources": 5,
+    "tier_0_enabled": 4,
+    "tier_1_enabled": 1,
+    "daily_quota_total": 5391100
+  }
+}

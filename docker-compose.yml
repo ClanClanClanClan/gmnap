@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  gmnap:
+    build: .
+    environment:
+      - PIPELINE_MODE=quick
+      - CACHE_MAX_SIZE_GB=20
+      - CACHE_MAX_DAYS=30
+      - PYTHONPATH=/app/src:/app
+    volumes:
+      - ./data:/app/data
+      - ./cache:/app/cache
+      - ./config:/app/config
+    deploy:
+      resources:
+        limits:
+          memory: 4GB
+          cpus: '4'
+    ports:
+      - "8080:8080"  # For monitoring/health checks
+    
+  # Development service with interactive shell
+  gmnap-dev:
+    build: .
+    environment:
+      - PIPELINE_MODE=quick
+      - CACHE_MAX_SIZE_GB=5
+      - CACHE_MAX_DAYS=7
+      - PYTHONPATH=/app/src:/app
+    volumes:
+      - ./:/app
+      - ./cache:/app/cache
+    command: /bin/bash
+    stdin_open: true
+    tty: true
