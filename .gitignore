@@ -94,3 +94,68 @@ cache/api_cache/
 # Performance profiling
 *.prof
 *.cprof
+
+# Additional Python artifacts
+.venv/
+*.pyc
+.pytest_cache/
+*.pyo
+
+# Installer files
+Miniconda*.sh
+Anaconda*.sh
+*.exe
+*.dmg
+
+# Model and data files
+*.fst
+*.fsa
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+
+# Korean specific generated files
+korean_mappings_*.json
+syllable_frequencies_*.json
+validation_results*.json
+validation_report*.txt
+
+# Corpus data
+data/corp/
+data/downloads/
+
+# Test outputs
+test_*.py
+test_phase*.py
+test_results_*.json
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Environment files
+.env
+.env.*
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Output directories
+output/
+results/
+reports/

@@ -1,0 +1,34 @@
+# Performance configuration for Korean V5 converter
+performance:
+  # Caching configuration
+  cache:
+    maxsize: 10000
+    ttl_seconds: 3600
+    
+  # Batch processing
+  batch:
+    default_size: 100
+    max_workers: 4
+    
+  # Performance targets (as per blueprint Phase 14)
+  targets:
+    p95_latency_ms: 120
+    throughput_per_sec: 1000
+    memory_limit_mb: 500
+    
+  # Monitoring
+  monitoring:
+    enable_prometheus: true
+    metrics_port: 8090
+    log_slow_conversions: true
+    slow_threshold_ms: 120
+    
+  # Memory management
+  memory:
+    gc_frequency: 1000  # Run GC after N conversions
+    memory_check_frequency: 100
+    
+  # Thread pool configuration
+  threads:
+    max_workers: 4
+    thread_name_prefix: "korean-converter"

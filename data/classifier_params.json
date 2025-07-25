@@ -1,0 +1,23 @@
+{
+  "intercept": [
+    25.633177121217773
+  ],
+  "coef": [
+    [
+      -1.2982311205270445,
+      -0.001919777992462839,
+      0.15875542929245715,
+      -0.24065332820433455,
+      0.0
+    ]
+  ],
+  "feature_names": [
+    "length",
+    "word_count",
+    "hyphen_count",
+    "capital_count",
+    "common_surname"
+  ],
+  "accuracy": 1.0,
+  "n_samples": 736
+}

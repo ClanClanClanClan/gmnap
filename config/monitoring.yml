@@ -1,0 +1,8 @@
+groups:
+  - name: korea
+    rules:
+      - alert: KoreanConversionErrors
+        expr: rate(korean_conv_err[5m]) > 0.005
+        for: 5m
+        annotations:
+          summary: "Korean conversion error rate > 0.5%"

@@ -251,7 +251,6 @@
 곺,gop
 곻,got
 과,gwa
-곽,gwak
 곾,gwak
 곿,gwaks
 관,gwan
@@ -3498,7 +3497,6 @@
 릩,ruit
 릪,ruip
 릫,ruit
-리,ri
 릭,rik
 릮,rik
 릯,riks
@@ -3774,7 +3772,6 @@
 몽,mong
 몾,mot
 몿,mot
-뫀,mok
 뫁,mot
 뫂,mop
 뫃,mot
@@ -4116,7 +4113,6 @@
 밓,mit
 바,ba
 박,bak
-밖,bak
 밗,baks
 반,ban
 밙,banj
@@ -4451,7 +4447,6 @@
 뵥,byok
 뵦,byok
 뵧,byoks
-뵨,byon
 뵩,byonj
 뵪,byonh
 뵫,byot
@@ -4590,7 +4585,6 @@
 뷱,byuk
 뷲,byuk
 뷳,byuks
-뷴,byun
 뷵,byunj
 뷶,byunh
 뷷,byut
@@ -5847,7 +5841,6 @@
 식,sik
 싞,sik
 싟,siks
-신,sin
 싡,sinj
 싢,sinh
 싣,sit
@@ -6839,7 +6832,6 @@
 욽,ult
 욾,ulp
 욿,ulh
-움,um
 웁,up
 웂,ups
 웃,ut
@@ -8603,7 +8595,6 @@
 춦,chups
 춧,chut
 춨,chut
-충,chung
 춪,chut
 춫,chut
 춬,chuk
@@ -8827,7 +8818,6 @@
 캆,kaps
 캇,kat
 캈,kat
-캉,kang
 캊,kat
 캋,kat
 캌,kak
@@ -9030,7 +9020,6 @@
 콑,kyet
 콒,kyep
 콓,kyet
-코,ko
 콕,kok
 콖,kok
 콗,koks
@@ -9051,7 +9040,6 @@
 콦,kops
 콧,kot
 콨,kot
-콩,kong
 콪,kot
 콫,kot
 콬,kok
@@ -9059,8 +9047,6 @@
 콮,kop
 콯,kot
 콰,kwa
-콱,kwak
-콲,kwak
 콳,kwaks
 콴,kwan
 콵,kwanj
@@ -9082,7 +9068,6 @@
 쾅,kwang
 쾆,kwat
 쾇,kwat
-쾈,kwak
 쾉,kwat
 쾊,kwap
 쾋,kwat
@@ -9170,7 +9155,6 @@
 쿝,kyot
 쿞,kyop
 쿟,kyot
-쿠,ku
 쿡,kuk
 쿢,kuk
 쿣,kuks
@@ -9202,7 +9186,6 @@
 쿽,kwok
 쿾,kwok
 쿿,kwoks
-퀀,kwon
 퀁,kwonj
 퀂,kwonh
 퀃,kwot
@@ -9980,8 +9963,6 @@
 팊,tip
 팋,tit
 파,pa
-팍,pak
-팎,pak
 팏,paks
 판,pan
 팑,panj
@@ -10000,7 +9981,6 @@
 팞,paps
 팟,pat
 팠,pat
-팡,pang
 팢,pat
 팣,pat
 팤,pak
@@ -10031,7 +10011,6 @@
 팽,paeng
 팾,paet
 팿,paet
-퍀,paek
 퍁,paet
 퍂,paep
 퍃,paet
@@ -11171,7 +11150,6 @@
 라이,lai
 카이,kai
 재,jae
-청,chung
 철,cheol
 선,seon
 성,seong
@@ -11243,3 +11221,41 @@
 연,youn
 유,yoo
 혁,hyuk
+강,kang
+권,kwon
+주,joo
+문,moon
+백,paik
+곽,kwak
+이,rhee
+변,byun
+백,baik
+노,noh
+엄,um
+엄,uhm
+고,ko
+정,chung
+유,you
+허,huh
+심,shim
+구,koo
+방,pang
+윤,youn
+백,paek
+박,pak
+노,roh
+공,kong
+목,mok
+구,ku
+봉,bong
+우,oo
+와,wa
+위,wi
+왕,wang
+이,ri
+박,bak
+권,kweon
+도,do
+준,june
+한,han
+변,byon
