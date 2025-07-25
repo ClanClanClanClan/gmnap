@@ -1,0 +1,53 @@
+{
+  "timestamp": "2025-07-24 10:52:15",
+  "total_entries": 736,
+  "valid_entries": 736,
+  "successful_conversions": 733,
+  "accuracy": 99.59239130434783,
+  "avg_time_ms": 0.7390085121859675,
+  "p95_time_ms": 1.8870830535888672,
+  "throughput": 871.4184618867588,
+  "categories": {
+    "single_word": {
+      "tested": 0,
+      "passed": 0
+    },
+    "multi_word": {
+      "tested": 476,
+      "passed": 473
+    },
+    "hyphenated": {
+      "tested": 0,
+      "passed": 0
+    },
+    "camel_case": {
+      "tested": 0,
+      "passed": 0
+    },
+    "mixed_format": {
+      "tested": 260,
+      "passed": 260
+    }
+  },
+  "failed_conversions": [
+    {
+      "name": "Kim RareInitialsBlock",
+      "category": "multi_word",
+      "convert_time_ms": 10.602951049804688
+    },
+    {
+      "name": "Lee RareSurnamesBlock",
+      "category": "multi_word",
+      "convert_time_ms": 7.35020637512207
+    },
+    {
+      "name": "Lee RareDiasporaBlock",
+      "category": "multi_word",
+      "convert_time_ms": 7.483243942260742
+    }
+  ],
+  "blueprint_compliance": {
+    "accuracy_pass": true,
+    "performance_pass": true
+  }
+}

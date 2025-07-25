@@ -1,0 +1,25 @@
+name: Korean V5 Tests
+
+on: [push, pull_request]
+
+jobs:
+  korea-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install "pynini==2.1.6.post1"
+      
+      - name: Run Korea tests
+        run: pytest tests/test_korea.py -v
+      
+      - name: Validate accuracy
+        run: python scripts/evaluate_roundtrip.py -i data/korean.yaml -t 0.97

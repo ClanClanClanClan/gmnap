@@ -1,0 +1,8 @@
+v5_korea:
+  beam_size: 24
+  backoff_weight: 3.0
+  classifier_model: models/name_likelihood_recal.pkl
+  wfst_dir: data/
+  logging:
+    level: INFO
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
