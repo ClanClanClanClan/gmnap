@@ -3,22 +3,8 @@
     "name": "Lee_ChongWei",
     "fail_type": "eng→kor",
     "expected": "이청위",
-    "actual": "이정웨이",
-    "reason": "syllable count mismatch (4 vs 3); character 2 differs: 청 → 정"
-  },
-  {
-    "name": "Jeon_JungKook",
-    "fail_type": "eng→kor",
-    "expected": "전정국",
-    "actual": "전정고옥",
-    "reason": "syllable count mismatch (4 vs 3); character 3 differs: 국 → 고"
-  },
-  {
-    "name": "Song_HyeKyo",
-    "fail_type": "eng→kor",
-    "expected": "송혜교",
-    "actual": "송혜쿄",
-    "reason": "character 3 differs: 교 → 쿄"
+    "actual": "이정위",
+    "reason": "character 2 differs: 청 → 정"
   },
   {
     "name": "Lee_MyungBak",
@@ -52,8 +38,8 @@
     "name": "Chung_EuiSun",
     "fail_type": "eng→kor",
     "expected": "정의선",
-    "actual": "정에의순",
-    "reason": "syllable count mismatch (4 vs 3); character 2 differs: 의 → 에"
+    "actual": "정의순",
+    "reason": "character 3 differs: 선 → 순"
   },
   {
     "name": "Lee_KunHee",
@@ -99,80 +85,66 @@
   },
   {
     "name": "Kim_David",
-    "fail_type": "eng→kor",
-    "expected": "김데이비드",
-    "actual": null,
-    "reason": "unknown reason"
+    "fail_type": "roundtrip",
+    "expected": "Kim, David",
+    "actual": "kim de i bi deu",
+    "reason": "different romanization"
   },
   {
     "name": "Lee_Sarah",
-    "fail_type": "eng→kor",
-    "expected": "이사라",
-    "actual": null,
-    "reason": "unknown reason"
+    "fail_type": "roundtrip",
+    "expected": "Lee, Sarah",
+    "actual": "lee sa ra",
+    "reason": "different romanization"
   },
   {
     "name": "Jung_Grace",
-    "fail_type": "eng→kor",
-    "expected": "정그레이스",
-    "actual": null,
-    "reason": "unknown reason"
+    "fail_type": "roundtrip",
+    "expected": "Jung, Grace",
+    "actual": "jung geu re i seu",
+    "reason": "different romanization"
   },
   {
     "name": "Choi_Eugene",
-    "fail_type": "eng→kor",
-    "expected": "최유진",
-    "actual": "최으게네",
-    "reason": "syllable count mismatch (4 vs 3); character 2 differs: 유 → 으"
+    "fail_type": "roundtrip",
+    "expected": "Choi, Eugene",
+    "actual": "choi yu jin",
+    "reason": "different romanization"
   },
   {
     "name": "Han_Joseph",
-    "fail_type": "eng→kor",
-    "expected": "한요셉",
-    "actual": null,
-    "reason": "unknown reason"
+    "fail_type": "roundtrip",
+    "expected": "Han, Joseph",
+    "actual": "han yo sep",
+    "reason": "different romanization"
   },
   {
     "name": "Kang_Michelle",
-    "fail_type": "eng→kor",
-    "expected": "강미셸",
-    "actual": null,
-    "reason": "unknown reason"
+    "fail_type": "roundtrip",
+    "expected": "Kang, Michelle",
+    "actual": "kang mi syel",
+    "reason": "different romanization"
   },
   {
     "name": "Yoon_James",
-    "fail_type": "eng→kor",
-    "expected": "윤제임스",
-    "actual": null,
-    "reason": "unknown reason"
+    "fail_type": "roundtrip",
+    "expected": "Yoon, James",
+    "actual": "yoon je im seu",
+    "reason": "different romanization"
   },
   {
     "name": "Lim_Jessica",
-    "fail_type": "eng→kor",
-    "expected": "임제시카",
-    "actual": null,
-    "reason": "unknown reason"
+    "fail_type": "roundtrip",
+    "expected": "Lim, Jessica",
+    "actual": "lim je si ka",
+    "reason": "different romanization"
   },
   {
     "name": "Shin_Peter",
-    "fail_type": "eng→kor",
-    "expected": "신피터",
-    "actual": null,
-    "reason": "unknown reason"
-  },
-  {
-    "name": "Lee_ChunHyang",
-    "fail_type": "eng→kor",
-    "expected": "이춘향",
-    "actual": "이전향",
-    "reason": "character 2 differs: 춘 → 전"
-  },
-  {
-    "name": "SaGong_HyunMoo",
-    "fail_type": "eng→kor",
-    "expected": "사공현무",
-    "actual": "사공현모오",
-    "reason": "syllable count mismatch (5 vs 4); character 4 differs: 무 → 모"
+    "fail_type": "roundtrip",
+    "expected": "Shin, Peter",
+    "actual": "shin pi teo",
+    "reason": "different romanization"
   },
   {
     "name": "SunWoo_YongNyeo",
