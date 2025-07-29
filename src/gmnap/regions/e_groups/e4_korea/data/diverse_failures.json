@@ -35,13 +35,6 @@
     "reason": "character 2 differs: 여 → 요"
   },
   {
-    "name": "Chung_EuiSun",
-    "fail_type": "eng→kor",
-    "expected": "정의선",
-    "actual": "정의순",
-    "reason": "character 3 differs: 선 → 순"
-  },
-  {
     "name": "Lee_KunHee",
     "fail_type": "eng→kor",
     "expected": "이건희",
@@ -56,18 +49,11 @@
     "reason": "hyphenation lost; different romanization"
   },
   {
-    "name": "Jang_YuRi",
-    "fail_type": "eng→kor",
-    "expected": "장유리",
-    "actual": "장유이",
-    "reason": "character 3 differs: 리 → 이"
-  },
-  {
     "name": "Yi_SunSin",
-    "fail_type": "roundtrip",
-    "expected": "Yi, Sun-Sin",
-    "actual": "i sun shin",
-    "reason": "hyphenation lost; different romanization"
+    "fail_type": "eng→kor",
+    "expected": "이순신",
+    "actual": "이선신",
+    "reason": "character 2 differs: 순 → 선"
   },
   {
     "name": "An_JungGeun",
@@ -75,13 +61,6 @@
     "expected": "안중근",
     "actual": "안정근",
     "reason": "character 2 differs: 중 → 정"
-  },
-  {
-    "name": "Shim_ChangMin",
-    "fail_type": "eng→kor",
-    "expected": "심창민",
-    "actual": "심장민",
-    "reason": "character 2 differs: 창 → 장"
   },
   {
     "name": "Kim_David",
@@ -147,13 +126,6 @@
     "reason": "different romanization"
   },
   {
-    "name": "SunWoo_YongNyeo",
-    "fail_type": "eng→kor",
-    "expected": "선우용녀",
-    "actual": "순우용녀",
-    "reason": "character 1 differs: 선 → 순"
-  },
-  {
     "name": "Dr_Lee",
     "fail_type": "eng→kor",
     "expected": "이박사",
@@ -168,13 +140,6 @@
     "reason": "unknown reason"
   },
   {
-    "name": "Random_001",
-    "fail_type": "eng→kor",
-    "expected": "김혜리",
-    "actual": "김혜이",
-    "reason": "character 3 differs: 리 → 이"
-  },
-  {
     "name": "Random_003",
     "fail_type": "eng→kor",
     "expected": "고기민",
@@ -182,11 +147,11 @@
     "reason": "character 2 differs: 기 → 키"
   },
   {
-    "name": "Random_005",
-    "fail_type": "eng→kor",
-    "expected": "고선",
-    "actual": "고순",
-    "reason": "character 2 differs: 선 → 순"
+    "name": "Random_007",
+    "fail_type": "roundtrip",
+    "expected": "Sung, Hyun-I",
+    "actual": "sung hyun ii",
+    "reason": "hyphenation lost; different romanization"
   },
   {
     "name": "Random_008",
@@ -194,13 +159,6 @@
     "expected": "강진중",
     "actual": "강진정",
     "reason": "character 3 differs: 중 → 정"
-  },
-  {
-    "name": "Random_010",
-    "fail_type": "eng→kor",
-    "expected": "박현창",
-    "actual": "박현장",
-    "reason": "character 3 differs: 창 → 장"
   },
   {
     "name": "Random_029",
@@ -217,20 +175,6 @@
     "reason": "character 2 differs: 중 → 정"
   },
   {
-    "name": "Random_045",
-    "fail_type": "eng→kor",
-    "expected": "구리",
-    "actual": "구이",
-    "reason": "character 2 differs: 리 → 이"
-  },
-  {
-    "name": "Random_047",
-    "fail_type": "eng→kor",
-    "expected": "오선이",
-    "actual": "오순이",
-    "reason": "character 2 differs: 선 → 순"
-  },
-  {
     "name": "Random_048",
     "fail_type": "eng→kor",
     "expected": "심헌철",
@@ -238,46 +182,11 @@
     "reason": "character 2 differs: 헌 → 훈"
   },
   {
-    "name": "Random_049",
-    "fail_type": "eng→kor",
-    "expected": "홍창",
-    "actual": "홍장",
-    "reason": "character 2 differs: 창 → 장"
-  },
-  {
-    "name": "Random_056",
-    "fail_type": "roundtrip",
-    "expected": "Moon, Jun-I",
-    "actual": "moon june ri",
-    "reason": "hyphenation lost; different romanization"
-  },
-  {
-    "name": "Random_061",
-    "fail_type": "eng→kor",
-    "expected": "황리유",
-    "actual": "황이유",
-    "reason": "character 2 differs: 리 → 이"
-  },
-  {
     "name": "Random_062",
     "fail_type": "eng→kor",
     "expected": "권미기",
     "actual": "권미키",
     "reason": "character 3 differs: 기 → 키"
-  },
-  {
-    "name": "Random_063",
-    "fail_type": "eng→kor",
-    "expected": "전운선",
-    "actual": "전운순",
-    "reason": "character 3 differs: 선 → 순"
-  },
-  {
-    "name": "Random_065",
-    "fail_type": "eng→kor",
-    "expected": "하선창",
-    "actual": "하순장",
-    "reason": "character 2 differs: 선 → 순"
   },
   {
     "name": "Random_071",
@@ -304,7 +213,7 @@
     "name": "Random_098",
     "fail_type": "eng→kor",
     "expected": "권중리",
-    "actual": "권정이",
+    "actual": "권정리",
     "reason": "character 2 differs: 중 → 정"
   },
   {
@@ -313,13 +222,6 @@
     "expected": "오헌",
     "actual": "오훈",
     "reason": "character 2 differs: 헌 → 훈"
-  },
-  {
-    "name": "Random_106",
-    "fail_type": "eng→kor",
-    "expected": "최창재",
-    "actual": "최장재",
-    "reason": "character 2 differs: 창 → 장"
   },
   {
     "name": "Random_108",
