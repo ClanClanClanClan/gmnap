@@ -1,0 +1,415 @@
+[
+  {
+    "name": "Lee_ChongWei",
+    "fail_type": "eng→kor",
+    "expected": "이청위",
+    "actual": "이정웨이",
+    "reason": "syllable count mismatch (4 vs 3); character 2 differs: 청 → 정"
+  },
+  {
+    "name": "Kim_SeokJin",
+    "fail_type": "eng→kor",
+    "expected": "김석진",
+    "actual": "김섞진",
+    "reason": "character 2 differs: 석 → 섞"
+  },
+  {
+    "name": "Jung_HoSeok",
+    "fail_type": "eng→kor",
+    "expected": "정호석",
+    "actual": "정호섞",
+    "reason": "character 3 differs: 석 → 섞"
+  },
+  {
+    "name": "Jeon_JungKook",
+    "fail_type": "eng→kor",
+    "expected": "전정국",
+    "actual": "전정고옥",
+    "reason": "syllable count mismatch (4 vs 3); character 3 differs: 국 → 고"
+  },
+  {
+    "name": "Song_HyeKyo",
+    "fail_type": "eng→kor",
+    "expected": "송혜교",
+    "actual": "송혜쿄",
+    "reason": "character 3 differs: 교 → 쿄"
+  },
+  {
+    "name": "Yoo_JaeSeok",
+    "fail_type": "eng→kor",
+    "expected": "유재석",
+    "actual": "유재섞",
+    "reason": "character 3 differs: 석 → 섞"
+  },
+  {
+    "name": "Yoon_SeokYeol",
+    "fail_type": "eng→kor",
+    "expected": "윤석열",
+    "actual": "윤섞열",
+    "reason": "character 2 differs: 석 → 섞"
+  },
+  {
+    "name": "Lee_MyungBak",
+    "fail_type": "eng→kor",
+    "expected": "이명박",
+    "actual": "이뮹밬",
+    "reason": "character 2 differs: 명 → 뮹"
+  },
+  {
+    "name": "Ban_KiMoon",
+    "fail_type": "eng→kor",
+    "expected": "반기문",
+    "actual": "반키문",
+    "reason": "character 2 differs: 기 → 키"
+  },
+  {
+    "name": "Han_DukSoo",
+    "fail_type": "eng→kor",
+    "expected": "한덕수",
+    "actual": "한둑수",
+    "reason": "character 2 differs: 덕 → 둑"
+  },
+  {
+    "name": "Kim_YoJong",
+    "fail_type": "eng→kor",
+    "expected": "김여정",
+    "actual": "김요종",
+    "reason": "character 2 differs: 여 → 요"
+  },
+  {
+    "name": "Chung_EuiSun",
+    "fail_type": "eng→kor",
+    "expected": "정의선",
+    "actual": "정에의순",
+    "reason": "syllable count mismatch (4 vs 3); character 2 differs: 의 → 에"
+  },
+  {
+    "name": "Lee_KunHee",
+    "fail_type": "eng→kor",
+    "expected": "이건희",
+    "actual": "이쿤희",
+    "reason": "character 2 differs: 건 → 쿤"
+  },
+  {
+    "name": "Chung_JuYung",
+    "fail_type": "roundtrip",
+    "expected": "Chung, Ju-Young",
+    "actual": "jung ju young",
+    "reason": "hyphenation lost; different romanization"
+  },
+  {
+    "name": "Jang_YuRi",
+    "fail_type": "eng→kor",
+    "expected": "장유리",
+    "actual": "장유이",
+    "reason": "character 3 differs: 리 → 이"
+  },
+  {
+    "name": "Yi_SunSin",
+    "fail_type": "roundtrip",
+    "expected": "Yi, Sun-Sin",
+    "actual": "i sun shin",
+    "reason": "hyphenation lost; different romanization"
+  },
+  {
+    "name": "An_JungGeun",
+    "fail_type": "eng→kor",
+    "expected": "안중근",
+    "actual": "안정근",
+    "reason": "character 2 differs: 중 → 정"
+  },
+  {
+    "name": "Shim_ChangMin",
+    "fail_type": "eng→kor",
+    "expected": "심창민",
+    "actual": "심장민",
+    "reason": "character 2 differs: 창 → 장"
+  },
+  {
+    "name": "Go_AhSung",
+    "fail_type": "eng→kor",
+    "expected": "고아성",
+    "actual": null,
+    "reason": "unknown reason"
+  },
+  {
+    "name": "Kim_David",
+    "fail_type": "eng→kor",
+    "expected": "김데이비드",
+    "actual": null,
+    "reason": "unknown reason"
+  },
+  {
+    "name": "Lee_Sarah",
+    "fail_type": "eng→kor",
+    "expected": "이사라",
+    "actual": null,
+    "reason": "unknown reason"
+  },
+  {
+    "name": "Jung_Grace",
+    "fail_type": "eng→kor",
+    "expected": "정그레이스",
+    "actual": null,
+    "reason": "unknown reason"
+  },
+  {
+    "name": "Choi_Eugene",
+    "fail_type": "eng→kor",
+    "expected": "최유진",
+    "actual": "최으게네",
+    "reason": "syllable count mismatch (4 vs 3); character 2 differs: 유 → 으"
+  },
+  {
+    "name": "Han_Joseph",
+    "fail_type": "eng→kor",
+    "expected": "한요셉",
+    "actual": null,
+    "reason": "unknown reason"
+  },
+  {
+    "name": "Kang_Michelle",
+    "fail_type": "eng→kor",
+    "expected": "강미셸",
+    "actual": null,
+    "reason": "unknown reason"
+  },
+  {
+    "name": "Yoon_James",
+    "fail_type": "eng→kor",
+    "expected": "윤제임스",
+    "actual": null,
+    "reason": "unknown reason"
+  },
+  {
+    "name": "Lim_Jessica",
+    "fail_type": "eng→kor",
+    "expected": "임제시카",
+    "actual": null,
+    "reason": "unknown reason"
+  },
+  {
+    "name": "Shin_Peter",
+    "fail_type": "eng→kor",
+    "expected": "신피터",
+    "actual": null,
+    "reason": "unknown reason"
+  },
+  {
+    "name": "Lee_ChunHyang",
+    "fail_type": "eng→kor",
+    "expected": "이춘향",
+    "actual": "이전향",
+    "reason": "character 2 differs: 춘 → 전"
+  },
+  {
+    "name": "SaGong_HyunMoo",
+    "fail_type": "eng→kor",
+    "expected": "사공현무",
+    "actual": "사공현모오",
+    "reason": "syllable count mismatch (5 vs 4); character 4 differs: 무 → 모"
+  },
+  {
+    "name": "SunWoo_YongNyeo",
+    "fail_type": "eng→kor",
+    "expected": "선우용녀",
+    "actual": "순우용녀",
+    "reason": "character 1 differs: 선 → 순"
+  },
+  {
+    "name": "Dr_Lee",
+    "fail_type": "eng→kor",
+    "expected": "이박사",
+    "actual": null,
+    "reason": "unknown reason"
+  },
+  {
+    "name": "Prof_Park",
+    "fail_type": "eng→kor",
+    "expected": "박교수",
+    "actual": null,
+    "reason": "unknown reason"
+  },
+  {
+    "name": "Random_001",
+    "fail_type": "eng→kor",
+    "expected": "김혜리",
+    "actual": "김혜이",
+    "reason": "character 3 differs: 리 → 이"
+  },
+  {
+    "name": "Random_003",
+    "fail_type": "eng→kor",
+    "expected": "고기민",
+    "actual": "고키민",
+    "reason": "character 2 differs: 기 → 키"
+  },
+  {
+    "name": "Random_005",
+    "fail_type": "eng→kor",
+    "expected": "고선",
+    "actual": "고순",
+    "reason": "character 2 differs: 선 → 순"
+  },
+  {
+    "name": "Random_008",
+    "fail_type": "eng→kor",
+    "expected": "강진중",
+    "actual": "강진정",
+    "reason": "character 3 differs: 중 → 정"
+  },
+  {
+    "name": "Random_010",
+    "fail_type": "eng→kor",
+    "expected": "박현창",
+    "actual": "박현장",
+    "reason": "character 3 differs: 창 → 장"
+  },
+  {
+    "name": "Random_021",
+    "fail_type": "eng→kor",
+    "expected": "강석호",
+    "actual": "강섞호",
+    "reason": "character 2 differs: 석 → 섞"
+  },
+  {
+    "name": "Random_029",
+    "fail_type": "eng→kor",
+    "expected": "오미중",
+    "actual": "오미정",
+    "reason": "character 3 differs: 중 → 정"
+  },
+  {
+    "name": "Random_035",
+    "fail_type": "eng→kor",
+    "expected": "전중규",
+    "actual": "전정규",
+    "reason": "character 2 differs: 중 → 정"
+  },
+  {
+    "name": "Random_037",
+    "fail_type": "eng→kor",
+    "expected": "양석윤",
+    "actual": "양섞윤",
+    "reason": "character 2 differs: 석 → 섞"
+  },
+  {
+    "name": "Random_045",
+    "fail_type": "eng→kor",
+    "expected": "구리",
+    "actual": "구이",
+    "reason": "character 2 differs: 리 → 이"
+  },
+  {
+    "name": "Random_047",
+    "fail_type": "eng→kor",
+    "expected": "오선이",
+    "actual": "오순이",
+    "reason": "character 2 differs: 선 → 순"
+  },
+  {
+    "name": "Random_048",
+    "fail_type": "eng→kor",
+    "expected": "심헌철",
+    "actual": "심훈철",
+    "reason": "character 2 differs: 헌 → 훈"
+  },
+  {
+    "name": "Random_049",
+    "fail_type": "eng→kor",
+    "expected": "홍창",
+    "actual": "홍장",
+    "reason": "character 2 differs: 창 → 장"
+  },
+  {
+    "name": "Random_056",
+    "fail_type": "roundtrip",
+    "expected": "Moon, Jun-I",
+    "actual": "moon june ri",
+    "reason": "hyphenation lost; different romanization"
+  },
+  {
+    "name": "Random_061",
+    "fail_type": "eng→kor",
+    "expected": "황리유",
+    "actual": "황이유",
+    "reason": "character 2 differs: 리 → 이"
+  },
+  {
+    "name": "Random_062",
+    "fail_type": "eng→kor",
+    "expected": "권미기",
+    "actual": "권미키",
+    "reason": "character 3 differs: 기 → 키"
+  },
+  {
+    "name": "Random_063",
+    "fail_type": "eng→kor",
+    "expected": "전운선",
+    "actual": "전운순",
+    "reason": "character 3 differs: 선 → 순"
+  },
+  {
+    "name": "Random_064",
+    "fail_type": "eng→kor",
+    "expected": "송인석",
+    "actual": "송인섞",
+    "reason": "character 3 differs: 석 → 섞"
+  },
+  {
+    "name": "Random_065",
+    "fail_type": "eng→kor",
+    "expected": "하선창",
+    "actual": "하순장",
+    "reason": "character 2 differs: 선 → 순"
+  },
+  {
+    "name": "Random_071",
+    "fail_type": "eng→kor",
+    "expected": "윤시헌",
+    "actual": "윤시훈",
+    "reason": "character 3 differs: 헌 → 훈"
+  },
+  {
+    "name": "Random_073",
+    "fail_type": "eng→kor",
+    "expected": "진미중",
+    "actual": "진미정",
+    "reason": "character 3 differs: 중 → 정"
+  },
+  {
+    "name": "Random_097",
+    "fail_type": "eng→kor",
+    "expected": "이연헌",
+    "actual": "이연훈",
+    "reason": "character 3 differs: 헌 → 훈"
+  },
+  {
+    "name": "Random_098",
+    "fail_type": "eng→kor",
+    "expected": "권중리",
+    "actual": "권정이",
+    "reason": "character 2 differs: 중 → 정"
+  },
+  {
+    "name": "Random_101",
+    "fail_type": "eng→kor",
+    "expected": "오헌",
+    "actual": "오훈",
+    "reason": "character 2 differs: 헌 → 훈"
+  },
+  {
+    "name": "Random_106",
+    "fail_type": "eng→kor",
+    "expected": "최창재",
+    "actual": "최장재",
+    "reason": "character 2 differs: 창 → 장"
+  },
+  {
+    "name": "Random_108",
+    "fail_type": "eng→kor",
+    "expected": "신기",
+    "actual": "신키",
+    "reason": "character 2 differs: 기 → 키"
+  }
+]
