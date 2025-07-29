@@ -1,0 +1,173 @@
+{
+  "scale_performance": {
+    "100": {
+      "success": true,
+      "error": null,
+      "duration_seconds": 9.950866937637329,
+      "entries_per_second": 10.049375660101367,
+      "memory_increase_mb": 92.59375,
+      "projected_1m_minutes": 1658.477822939555,
+      "dataset_stats": {
+        "total_entries": 100,
+        "by_region": {
+          "A1": 19,
+          "C3": 18,
+          "B1": 12,
+          "E1": 15,
+          "D1": 16,
+          "UNMAPPED": 20
+        },
+        "by_country": {
+          "US": 19,
+          "EG": 18,
+          "RU": 12,
+          "CN": 15,
+          "IN": 16,
+          "HU": 20
+        },
+        "name_patterns": {},
+        "file_count": 1
+      },
+      "meets_target": false
+    },
+    "500": {
+      "success": true,
+      "error": null,
+      "duration_seconds": 11.730752944946289,
+      "entries_per_second": 42.623009993182436,
+      "memory_increase_mb": 53.375,
+      "projected_1m_minutes": 391.0250981648763,
+      "dataset_stats": {
+        "total_entries": 500,
+        "by_region": {
+          "C3": 83,
+          "D1": 86,
+          "A1": 73,
+          "B1": 83,
+          "E1": 75,
+          "UNMAPPED": 100
+        },
+        "by_country": {
+          "EG": 83,
+          "IN": 86,
+          "US": 73,
+          "RU": 83,
+          "CN": 75,
+          "HU": 100
+        },
+        "name_patterns": {},
+        "file_count": 1
+      },
+      "meets_target": false
+    },
+    "1000": {
+      "success": true,
+      "error": null,
+      "duration_seconds": 3.9432291984558105,
+      "entries_per_second": 253.5992582910487,
+      "memory_increase_mb": 33.796875,
+      "projected_1m_minutes": 65.72048664093018,
+      "dataset_stats": {
+        "total_entries": 1000,
+        "by_region": {
+          "E1": 161,
+          "A1": 168,
+          "B1": 144,
+          "D1": 167,
+          "C3": 160,
+          "UNMAPPED": 200
+        },
+        "by_country": {
+          "CN": 161,
+          "US": 168,
+          "RU": 144,
+          "IN": 167,
+          "EG": 160,
+          "HU": 200
+        },
+        "name_patterns": {},
+        "file_count": 2
+      },
+      "meets_target": false
+    }
+  },
+  "regional_coverage": {
+    "implemented_success": 7,
+    "implemented_total": 7,
+    "unimplemented_handled": 8,
+    "unimplemented_total": 8,
+    "critical_gaps": [
+      {
+        "name": "Kowalski, Piotr",
+        "country": "PL",
+        "expected": "B2",
+        "incorrectly_assigned": "B2"
+      },
+      {
+        "name": "M\u00fcller, Hans",
+        "country": "DE",
+        "expected": "A2",
+        "incorrectly_assigned": "A2"
+      },
+      {
+        "name": "\uae40\ucca0\uc218",
+        "country": "KR",
+        "expected": "E4",
+        "incorrectly_assigned": "E4"
+      },
+      {
+        "name": "\u00d6zt\u00fcrk, Ahmet",
+        "country": "TR",
+        "expected": "C1",
+        "incorrectly_assigned": "A1"
+      },
+      {
+        "name": "Silva, Jo\u00e3o",
+        "country": "BR",
+        "expected": "G1",
+        "incorrectly_assigned": "G1"
+      },
+      {
+        "name": "\u09b0\u09b9\u09ae\u09be\u09a8 \u0986\u09b9\u09ae\u09a6",
+        "country": "BD",
+        "expected": "D2",
+        "incorrectly_assigned": "D3"
+      },
+      {
+        "name": "Okonkwo, Chinua",
+        "country": "NG",
+        "expected": "F2",
+        "incorrectly_assigned": "F2"
+      },
+      {
+        "name": "Andersson, Lars",
+        "country": "SE",
+        "expected": "A4",
+        "incorrectly_assigned": "A3"
+      }
+    ],
+    "detection_failures": [],
+    "implemented_accuracy": 100.0,
+    "coverage_percentage": 46.666666666666664
+  },
+  "authority_quotas": {
+    "services_tested": [],
+    "quota_exhausted": [],
+    "sustainable_rate": {},
+    "total_calls_made": 0,
+    "test_duration": 1.3733201026916504
+  },
+  "concurrent_operations": {
+    "workers": 3,
+    "operations_per_worker": 5,
+    "successful_operations": 15,
+    "failed_operations": 0,
+    "errors": [],
+    "deadlocks_detected": 0,
+    "resource_conflicts": 0,
+    "total_operations": 15,
+    "success_rate": 100.0,
+    "total_duration": 3.4276931285858154,
+    "all_errors": []
+  }
+}

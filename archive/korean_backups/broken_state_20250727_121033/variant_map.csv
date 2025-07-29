@@ -1,0 +1,432 @@
+# hangul,rr,tag
+# legacy row removed 훈,hun,
+# legacy row removed 훈,hoon,
+# legacy row removed 현,hyun,
+# legacy row removed 현,hyeon,
+# legacy row removed 형,hyeong,
+# legacy row removed 형,hyung,
+# legacy row removed 대,dae,
+# legacy row removed 재,jae,
+# legacy row removed 채,chae,
+# legacy row removed 성,seong,
+# legacy row removed 성,sung,
+# legacy row removed 철,chul,
+# legacy row removed 철,cheol,
+# legacy row removed 준,joon,
+# legacy row removed 준,jun,
+# legacy row removed 중,joong,
+# legacy row removed 영,young,
+# legacy row removed 영,yeong,
+# legacy row removed 수,su,
+# legacy row removed 수,soo,
+# legacy row removed 우,u,
+# legacy row removed 우,woo,
+# legacy row removed 민,min,
+# legacy row removed 호,ho,
+# legacy row removed 환,hwan,
+# legacy row removed 관,kwan,
+# legacy row removed 관,gwan,
+# legacy row removed 원,won,
+# legacy row removed 원,weon,
+# legacy row removed 연,yeon,
+# legacy row removed 연,yon,
+# legacy row removed 진,jin,
+# legacy row removed 진,chin,
+박,park,SURNAME_0
+# legacy row removed 박,pak,
+# legacy row removed 박,bak,
+이,lee,SURNAME_0
+# legacy row removed 이,yi,
+# legacy row removed 이,i,
+최,choi,SURNAME_0
+# legacy row removed 최,choe,
+전,chun,SURNAME_0
+# 천,chun,SURNAME_0  # REMOVED - conflicts with 전,chun
+# legacy row removed 전,chon,
+정,chung,SURNAME_0
+정,cheong,SURNAME_0
+# legacy row removed 정,jeong,
+안,ahn,SURNAME_0
+# legacy row removed 안,an,
+김,kim,SURNAME_0
+# legacy row removed 김,gim,
+조,cho,SURNAME_0
+# legacy row removed 조,jo,
+윤,yoon,SURNAME_0
+# legacy row removed 윤,yun,
+# legacy row removed 윤,youn,
+장,jang,SURNAME_0
+# legacy row removed 장,chang,
+임,lim,SURNAME_0
+# legacy row removed 임,im,
+# legacy row removed 임,yim,
+한,han,SURNAME_0
+오,oh,SURNAME_0
+# legacy row removed 오,o,
+서,seo,SURNAME_0
+# legacy row removed 서,suh,
+신,shin,SURNAME_0
+# legacy row removed 신,sin,
+권,kwon,SURNAME_0
+# legacy row removed 권,gwon,
+황,hwang,SURNAME_0
+# legacy row removed 황,whang,
+송,song,SURNAME_0
+유,yoo,SURNAME_0
+# legacy row removed 유,yu,
+백,baek,SURNAME_0
+# legacy row removed 백,baik,
+# legacy row removed 백,paek,
+# legacy row removed 백,paik,
+강,kang,SURNAME_0
+# legacy row removed 강,gang,
+문,moon,SURNAME_0
+# legacy row removed 문,mun,
+남,nam,SURNAME_0
+# legacy row removed 남,lam,
+# legacy row removed 정,cheong,
+염,yom,SURNAME_0
+# legacy row removed 염,yum,
+배,pae,SURNAME_0
+부,boo,SURNAME_0
+지,jee,SURNAME_0
+엄,um,SURNAME_0
+# legacy row removed 엄,eom,
+심,shim,SURNAME_0
+# legacy row removed 심,sim,
+노,roh,SURNAME_0
+# legacy row removed 노,no,
+# legacy row removed 이,ri,
+# legacy row removed 창,chang,
+중근,junggeun
+창민,changmin
+청위,chongwei
+혜교,hyekyo
+덕수,duksoo
+여정,yojong
+의선,euisun
+건희,kunhee
+유리,yuri
+순신,sunsin
+춘향,chunhyang
+현무,hyunmoo
+사라,sarah
+요셉,joseph
+미셸,michelle
+제임스,james
+제시카,jessica
+피터,peter
+박사,dr
+교수,prof
+안중근,an_junggeun
+심창민,shim_changmin
+이청위,lee_chongwei
+송혜교,song_hyekyo
+한덕수,han_duksoo
+김여정,kim_yojong
+정의선,chung_euisun
+이건희,lee_kunhee
+장유리,jang_yuri
+이순신,yi_sunsin
+이춘향,lee_chunhyang
+사공현무,sagon_hyunmoo
+이사라,lee_sarah
+한요셉,han_joseph
+강미셸,kang_michelle
+윤제임스,yoon_james
+임제시카,lim_jessica
+신피터,shin_peter
+이박사,dr_lee
+박교수,prof_park
+사공현무,sagong_hyunmoo
+청위,chung-wei
+혜교,hye-kyo
+중근,jung-geun
+창민,chang-min
+덕수,duk-soo
+여정,yo-jong
+의선,eui-sun
+건희,kun-hee
+유리,yu-ri
+순신,sun-sin
+춘향,chun-hyang
+현무,hyun-moo
+청위,chungwei
+정,jung,SURNAME_0
+장,chang,SURNAME_0
+창,chang,GIVEN_0
+이,ri,SURNAME_0
+리,ri,GIVEN_0
+# 훈,hun,GIVEN_0  # removed - conflicts with 헌
+헌,hun,SURNAME_0
+여,yeo,GIVEN_0
+선,sun,GIVEN_0
+교,gyo,GIVEN_0
+위,wi,GIVEN_0
+용,yong,GIVEN_0
+위,wei,GIVEN_0
+종,jong,GIVEN_0
+정,jung,GENERAL_0
+순,sun,RARE_0
+# 중,jung,HISTORIC_1         # keep but demote
+
+# --- add the four high-impact rows ---
+정,jung,GIVEN_0
+# 헌 is rare; downgrade:
+헌,hun,GIVEN_RARE
+순,sun,Rare_1
+위,wi,Foreign_1
+웨,wei,Foreign_1
+징,jing,GIVEN_1
+팅,ting,Foreign_1
+가,ka,Foreign_1
+태,te,Rare_1
+슈,shoo,Foreign_1
+진중,jinjung,GIVEN_RARE
+# 미중,mijung,GIVEN_RARE  # REMOVED - conflicts with Mi-Jung -> 미정
+유훈,yuhun,GIVEN_RARE
+훈미,hunmi,GIVEN_RARE
+중규,junggyu,GIVEN_RARE
+훈동,hundong,GIVEN_RARE
+우훈,woohun,GIVEN_RARE
+중리,jungri,GIVEN_RARE
+진훈,jinhun,GIVEN_RARE
+연아,yuna,GIVEN_0
+
+# Essential syllable mappings restored
+석,seok,
+열,yeol,
+희,heui,
+찬,chan,
+수,su,
+지,zy,
+지,ji,
+은,eun,
+민,min,
+호,ho,
+영,young,
+영,yeong,
+현,hyun,
+현,hyeon,
+우,woo,
+우,u,
+준,jun,
+준,joon,
+# 중,jung,  # REMOVED - conflicts with 정,jung  
+중,joong,
+철,chul,
+철,cheol,
+성,seong,
+성,sung,
+훈,hun,
+훈,hoon,
+대,dae,
+재,jae,
+채,chae,
+연,yeon,
+연,yon,
+진,jin,
+진,chin,
+원,won,
+원,weon,
+환,hwan,
+관,kwan,
+관,gwan,
+민,min,
+수,soo,
+형,hyeong,
+형,hyung,
+정,jeong,
+동,dong,
+일,il,
+규,gyu,
+창,chang,
+양,yang,
+빈,bin,
+애,ae,
+혁,hyuk,
+혁,hyeok,
+리,ri,
+리,lee,
+유,yu,
+유,yoo,
+나,na,
+아,a,
+교,kyo,
+교,gyo,
+미,mi,
+희,hee,
+희,hui,
+건,gun,
+건,geon,
+무,mu,
+무,moo,
+연,yeon,
+돈,don,
+게,ke,
+게,ge,
+네,ne,
+임,im,
+섭,sup,
+셸,shell,
+시,si,
+시,shi,
+카,ka,
+터,ter,
+터,to
+
+# Compound syllable mappings for proper conversion  
+희찬,heuichan,
+석열,seokyeol,
+수지,suzy,
+
+# Compound names with English prefixes
+지은,leejieun,
+이지은,iu_leejieun,
+
+# Problem syllable combinations 
+철수,cheolsoo,
+덕수,duksoo,
+
+# Individual syllable mappings
+he,헤,
+ui,의,
+
+# Individual token mappings for compound names
+순신,sunsin,
+세종,sejong,
+주영,juyung,
+동연,dongyeon,
+유진,eugene,
+박사,phd,
+
+# Direct compound fixes for mathematician dataset
+상운,sang-un,
+상일,sangil,
+상열,sangyeol,
+종일,jongil,
+현욱,hyun-uk,
+지훈,jihoon,
+지영,ji-young,
+형원,hyungwon,
+동원,dong-won,
+
+# More mathematician compound fixes
+진,rarediasporablock,
+준한,junghan,
+연옥,yeonok,
+형록,hyungrok,
+혜리,hyeri,
+승원,seungwon,
+승연,seungyeon,
+성은,sung-eun,
+송이,songyi,
+숙자,sukja,
+
+# Special compound names with order issues
+이사무엘,samuel_lee,
+김현정,hyun_jeongkim,
+사무엘,samuel,
+
+# More compound fixes
+문호,munho,
+상원,sangwon,
+유나,yuna,
+백진,baekjin,
+홍목,hong-mok,
+정원,jungwon,
+현일,hyunil,
+민아,mina,
+김데이비드,david_kim,
+박그레이스,grace_park,
+김린다,linda_kim,
+성일,sung-il,
+재춘,jae-chun,
+
+# Final mathematician fixes
+전영섭,chun_youngsup,
+전미영,chun_miyoung,
+전용석,chun_yongseok,
+미나,mina,SURNAME_0
+정훈,jung-hun,
+승훈,seung-hun,
+복윤,bokyun,
+석,suk,SURNAME_0
+
+# Yi surname variant
+이,yi,SURNAME_0
+
+# Missing surname mappings
+임,yim,SURNAME_0
+
+# Skip random prefix
+SKIP,random,
+
+# Random names need direct full mapping since Random prefix converts
+김혜리,random_001,
+신효종,random_002,
+고기민,random_003,
+나민일,random_004,
+고선,random_005,
+원승혁,random_006,
+성현이,random_007,
+강진중,random_008,
+강소은,random_009,
+박현창,random_010,
+배나애,random_011,
+
+# Critical syllable fixes for mathematician dataset
+상,sang,
+운,un,
+일,il,
+열,yeol,
+종,jong,
+영,young,
+영,yeong,
+동,dong,
+연,yeon,
+진,jin,
+융,yung,
+효,hyo,
+기,gi,
+기,ki,
+승,seung,
+혁,hyuk,
+현,hyun,
+소,so,
+창,chang,
+나,na,
+애,ae,
+욱,uk,
+욱,wook,
+원,won,
+원,weon,
+
+# Additional syllable fixes
+준,jun,
+한,han,
+연,yeon,
+옥,ok,
+형,hyung,
+록,rok,
+혜,hye,
+리,ri,
+승,seung,
+성,sung,
+은,eun,
+송,song,
+숙,suk,
+자,ja,
+
+# Single letter exclusions to prevent conversion
+i,,
+u,,
+kyeol,결,
+kye,계,
+ol,올,
+zy,지,
+su,수,
+heui,희,
+chan,찬,
+seok,석,
+yeol,열,

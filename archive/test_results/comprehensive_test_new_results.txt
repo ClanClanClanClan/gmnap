@@ -1,0 +1,416 @@
+🚀 COMPREHENSIVE EDGE CASE TEST SUITE
+============================================================
+Testing 231 real mathematician names + edge cases
+============================================================
+[  1/231] A1_Historical: Newton, Isaac ✅ A1
+[  2/231] A1_Historical: Turing, Alan ✅ A1
+[  3/231] A1_Multiple_Names: Hardy, Godfrey Harold ✅ A1
+[  4/231] A1_Historical: Babbage, Charles ✅ A1
+[  5/231] A1_Historical: Boole, George ✅ A1
+[  6/231] A1_Historical: Hamilton, William Rowan ✅ A1
+[  7/231] A1_Historical: Cayley, Arthur ✅ A1
+[  8/231] A1_Multiple_Names: Sylvester, James Joseph ✅ A1
+[  9/231] A1_Particle: De Morgan, Augustus ✅ A1
+[ 10/231] A1_Apostrophe: O'Brien, Matthew ✅ A1
+[ 11/231] A1_Scottish_Mac: MacLaurin, Colin ✅ A1
+[ 12/231] A1_Scottish_Mac: MacDonald, Ian Grant ✅ A1
+[ 13/231] A1_Irish_Mc: McShane, Edward James ✅ A1
+[ 14/231] A1_Irish_O: O'Connor, John Joseph ✅ A1
+[ 15/231] A1_Compound: FitzGerald, George Francis ✅ A1
+[ 16/231] A1_Hyphenated: Smith-Volterra, John ✅ A1
+[ 17/231] A1_Suffix: Brown, Jr., Robert ✅ A1
+[ 18/231] A1_Suffix: White, Sr., William ✅ A1
+[ 19/231] A1_Numeral: Johnson III, Charles ✅ A1
+[ 20/231] A1_Hyphenated_Female: Davis-Green, Mary ✅ A1
+[ 21/231] A1_All_Caps: SMITH, JOHN ✅ A1
+[ 22/231] A1_Lowercase: jones, william ✅ A1
+[ 23/231] A1_Hyphenated_Given: Thompson, Mary-Jane ✅ A1
+[ 24/231] A1_French_Given: Williams, Jean-Paul ✅ A1
+[ 25/231] A1_Apostrophe_Given: Anderson, D'Arcy ✅ A1
+[ 26/231] A1_Saint: Taylor, St. John ✅ A1
+[ 27/231] A1_Particle_Given: Wilson, de la Mare ✅ A1
+[ 28/231] A1_Dutch_Given: Miller, van der Berg ✅ A1
+[ 29/231] A1_Irish_Given: Roberts, O'Malley ✅ A1
+[ 30/231] A1_Scottish_Given: Lee, MacPherson ❌ E4 (expected A1)
+[ 31/231] A2_German_Historical: Gauss, Carl Friedrich ✅ A2
+[ 32/231] A2_Swiss_Historical: Euler, Leonhard ✅ A2
+[ 33/231] A2_German_Historical: Klein, Felix ✅ A2
+[ 34/231] A2_German_Historical: Riemann, Bernhard ✅ A2
+[ 35/231] A2_German_Historical: Weierstrass, Karl ✅ A2
+[ 36/231] A2_German_Historical: Kronecker, Leopold ✅ A2
+[ 37/231] A2_German_Historical: Dedekind, Richard ✅ A2
+[ 38/231] A2_German_Historical: Cantor, Georg ✅ A2
+[ 39/231] A2_German_Historical: Hilbert, David ✅ A2
+[ 40/231] A2_German_Female: Noether, Emmy ✅ A2
+[ 41/231] A2_German_Umlaut: Müller, Johannes ✅ A2
+[ 42/231] A2_German_Umlaut: Schröder, Ernst ✅ A2
+[ 43/231] A2_German_Umlaut: Möbius, August Ferdinand ✅ A2
+[ 44/231] A2_German_Eszett: Weißmann, Karl ✅ A2
+[ 45/231] A2_German_Von: von Neumann, John ✅ A2
+[ 46/231] A2_German_Von: von Mises, Richard ✅ A2
+[ 47/231] A2_Dutch_Van: van der Waerden, Bartel ✅ A2
+[ 48/231] A2_Dutch_De: de Bruijn, Nicolaas ❌ A1 (expected A2)
+[ 49/231] A2_Dutch_Ter: ter Haar, Dirk ✅ A2
+[ 50/231] A2_Norwegian: Øystein, Øre ✅ A2
+[ 51/231] A2_Swedish: Åhlfor, Lars ✅ A2
+[ 52/231] A2_Norwegian: Ljunggren, Wilhelm ✅ A2
+[ 53/231] A2_Hungarian: Erdős, Pál ✅ A2
+[ 54/231] A2_Hungarian: Rényi, Alfréd ✅ A2
+[ 55/231] A2_Hungarian: König, Dénes ✅ A2
+[ 56/231] G1_Spanish_Common: García, José ✅ G1
+[ 57/231] G1_Spanish_Common: González, María ✅ G1
+[ 58/231] G1_Spanish_Accent: Rodríguez, Carlos ✅ G1
+[ 59/231] G1_Spanish_Accent: Martínez, Ana ✅ G1
+[ 60/231] G1_Spanish_Common: López, Fernando ✅ G1
+[ 61/231] G1_Spanish_Common: Hernández, Luis ✅ G1
+[ 62/231] G1_Spanish_Accent: Jiménez, Rosa ✅ G1
+[ 63/231] G1_Spanish_Accent: Ruíz, Diego ✅ G1
+[ 64/231] G1_Spanish_Accent: Díaz, Carmen ✅ G1
+[ 65/231] G1_Spanish_Common: Moreno, Pablo ✅ G1
+[ 66/231] G1_Spanish_Enie: Muñoz, Isabel ✅ G1
+[ 67/231] G1_Spanish_Accent: Álvarez, Miguel ✅ G1
+[ 68/231] G1_Spanish_Accent: Vázquez, Elena ✅ G1
+[ 69/231] G1_Spanish_Accent: Sánchez, Antonio ✅ G1
+[ 70/231] G1_Spanish_Particle: de la Cruz, Javier ✅ G1
+[ 71/231] G1_Spanish_Particle: del Río, Patricia ✅ G1
+[ 72/231] G1_Spanish_Compound: García-López, Manuel ✅ G1
+[ 73/231] G1_Spanish_Compound: Martín-González, Clara ✅ G1
+[ 74/231] G1_Portuguese: Silva, João ✅ G1
+[ 75/231] G1_Portuguese: Santos, Maria ✅ G1
+[ 76/231] G1_Portuguese: Oliveira, Pedro ✅ G1
+[ 77/231] G1_Portuguese: Costa, Ana ✅ G1
+[ 78/231] G1_Portuguese: Pereira, Carlos ✅ G1
+[ 79/231] G1_Portuguese_Accent: Ferreira, Luís ✅ G1
+[ 80/231] G1_Portuguese: Almeida, José ✅ G1
+[ 81/231] B1_Russian_Historical: Chebyshev, Pafnuty ✅ B1
+[ 82/231] B1_Russian_Historical: Markov, Andrei ✅ B1
+[ 83/231] B1_Russian_Historical: Kolmogorov, Andrei ✅ B1
+[ 84/231] B1_Russian_Historical: Sobolev, Sergei ✅ B1
+[ 85/231] B1_Russian_Historical: Pontryagin, Lev ✅ B1
+[ 86/231] B1_Russian_Historical: Gelfand, Israel ✅ B1
+[ 87/231] B1_Russian_Historical: Vinogradov, Ivan ✅ B1
+[ 88/231] B1_Russian_Pattern: Volkov, Sergei ✅ B1
+[ 89/231] B1_Russian_Pattern: Petrov, Vladimir ✅ B1
+[ 90/231] B1_Russian_Pattern: Smirnov, Dmitri ✅ B1
+[ 91/231] B1_Russian_Pattern: Kuznetsov, Alexander ✅ B1
+[ 92/231] B1_Russian_Pattern: Popov, Nikolai ✅ B1
+[ 93/231] B1_Russian_Pattern: Sergeev, Mikhail ✅ B1
+[ 94/231] B1_Russian_Female: Ivanova, Elena ✅ B1
+[ 95/231] B1_Russian_Female: Petrova, Maria ✅ B1
+[ 96/231] B1_Russian_Female: Volková, Anna ✅ B1
+[ 97/231] B1_Ukrainian: Shevchenko, Taras ✅ B1
+[ 98/231] B1_Ukrainian: Kovalenko, Ivan ✅ B1
+[ 99/231] B1_Ukrainian: Tkachenko, Olga ✅ B1
+[100/231] B1_Ukrainian: Lysenko, Viktor ✅ B1
+[101/231] B2_Czech_Historical: Čížek, Pavel ✅ B2
+[102/231] B2_Czech_Historical: Dvořák, František ✅ B2
+[103/231] B2_Czech: Hájek, Petr ✅ B2
+[104/231] B2_Czech: Novák, Jan ❌ G1 (expected B2)
+[105/231] B2_Czech: Svoboda, Milan ✅ B2
+[106/231] B2_Czech: Černý, Jiří ✅ B2
+[107/231] B2_Czech: Kříž, Igor ✅ B2
+[108/231] B2_Polish: Kowalski, Janusz ✅ B2
+[109/231] B2_Polish: Nowak, Tomasz ✅ B2
+[110/231] B2_Polish: Wiśniewski, Piotr ✅ B2
+[111/231] B2_Polish: Wójcik, Anna ❌ G1 (expected B2)
+[112/231] B2_Polish: Kowalczyk, Marek ✅ B2
+[113/231] B2_Polish: Lewandowski, Krzysztof ✅ B2
+[114/231] B2_Polish: Zieliński, Michał ✅ B2
+[115/231] B2_Hungarian_Slavic: Horvát, János ❌ G1 (expected B2)
+[116/231] B2_Slovak: Novák, Ján ❌ G1 (expected B2)
+[117/231] B2_Slovak: Hodák, Martin ❌ A1 (expected B2)
+[118/231] B2_Slovak: Jurčo, Branislav ✅ B2
+[119/231] B2_Serbian: Marić, Petar ✅ B2
+[120/231] B2_Serbian: Nikolić, Milan ✅ B2
+[121/231] E1_Chinese_Common: Wang, Ming ✅ E1
+[122/231] E1_Chinese_Common: Li, Wei ✅ E1
+[123/231] E1_Chinese_Common: Zhang, Ping ✅ E1
+[124/231] E1_Chinese_Common: Liu, Jing ✅ E1
+[125/231] E1_Chinese_Common: Chen, Hong ✅ E1
+[126/231] E1_Chinese_Common: Yang, Lei ❌ E4 (expected E1)
+[127/231] E1_Chinese_Common: Huang, Fang ✅ E1
+[128/231] E1_Chinese_Common: Zhao, Gang ✅ E1
+[129/231] E1_Chinese_Common: Wu, Jun ✅ E1
+[130/231] E1_Chinese_Common: Zhou, Hui ✅ E1
+[131/231] E1_Chinese_Common: Xu, Qiang ✅ E1
+[132/231] E1_Chinese_Common: Sun, Mei ✅ E1
+[133/231] E1_Chinese_Common: Ma, Long ✅ E1
+[134/231] E1_Chinese_Common: Zhu, Yan ✅ E1
+[135/231] E1_Chinese_Common: Guo, Tao ✅ E1
+[136/231] E3_Japanese_Common: Tanaka, Hiroshi ✅ E3
+[137/231] E3_Japanese_Common: Suzuki, Yuki ✅ E3
+[138/231] E3_Japanese_Common: Takahashi, Kenji ✅ E3
+[139/231] E3_Japanese_Common: Yamamoto, Akira ✅ E3
+[140/231] E3_Japanese_Common: Watanabe, Satoshi ✅ E3
+[141/231] E3_Japanese_Common: Kobayashi, Yoko ✅ E3
+[142/231] E3_Japanese_Common: Nakamura, Takeshi ✅ E3
+[143/231] E3_Japanese_Common: Kato, Masako ✅ E3
+[144/231] E3_Japanese_Common: Sasaki, Naoki ✅ E3
+[145/231] E3_Japanese_Common: Shimizu, Ryoko ✅ E3
+[146/231] E3_Japanese_Common: Ito, Makoto ✅ E3
+[147/231] E3_Japanese_Common: Yoshida, Haruto ✅ E3
+[148/231] E3_Japanese_Common: Yamada, Sakura ✅ E3
+[149/231] E3_Japanese_Common: Matsumoto, Ren ✅ E3
+[150/231] E3_Japanese_Common: Inoue, Aoi ✅ E3
+[151/231] E4_Korean_Common: Kim, Jong-Un ✅ E4
+[152/231] E4_Korean_Common: Lee, Min-Ho ✅ E4
+[153/231] E4_Korean_Common: Park, Soo-Jin ✅ E4
+[154/231] E4_Korean_Common: Choi, Young-Soo ✅ E4
+[155/231] E4_Korean_Common: Jung, Hye-Rim ✅ E4
+[156/231] E4_Korean_Common: Kang, Dong-Hyun ✅ E4
+[157/231] E4_Korean_Common: Cho, Mi-Young ✅ E4
+[158/231] E4_Korean_Common: Han, Seung-Ho ✅ E4
+[159/231] E4_Korean_Common: Jeong, Eun-Ji ✅ E4
+[160/231] E4_Korean_Common: Lim, Kyung-Soo ✅ E4
+[161/231] E4_Korean_Common: Yoon, Ji-Hoon ✅ E4
+[162/231] E4_Korean_Common: Jang, So-Young ✅ E4
+[163/231] E4_Korean_Common: Shin, Woo-Jin ✅ E4
+[164/231] E4_Korean_Common: Oh, Hee-Jung ✅ E4
+[165/231] E4_Korean_Common: Baek, Tae-Hyun ✅ E4
+[166/231] C3_Arabic_Al: Al-Hassan, Mohammed ✅ C3
+[167/231] C3_Arabic_Al: Al-Ahmad, Ahmed ✅ C3
+[168/231] C3_Arabic_Al: Al-Mahmoud, Omar ✅ C3
+[169/231] C3_Arabic_Ibn: Ibn Sina, Abdullah ✅ C3
+[170/231] C3_Arabic_Ibn: Ibn Rushd, Averroes ✅ C3
+[171/231] C3_Arabic_Abu: Abu Bakr, Khalid ✅ C3
+[172/231] C3_Arabic_Abu: Abu Nasr, Farabi ✅ C3
+[173/231] C3_Arabic_Abd: Abd Rahman, Ali ✅ C3
+[174/231] C3_Arabic_Abd: Abd Allah, Hassan ✅ C3
+[175/231] C3_Arabic_Bin: Bin Laden, Osama ✅ C3
+[176/231] C3_Arabic_Bin: Bin Rashid, Mohammed ✅ C3
+[177/231] C3_Arabic_El: El-Sayed, Mahmoud ✅ C3
+[178/231] C3_Arabic_El: El-Masri, Youssef ✅ C3
+[179/231] C3_Arabic_Simple: Nasir, Ahmed ✅ C3
+[180/231] C3_Arabic_Simple: Khalil, Sara ✅ C3
+[181/231] D1_Hindi_Common: Sharma, Rajesh ❌ ERROR: 'D1'...
+[182/231] D1_Gujarati: Patel, Priya ❌ ERROR: 'D1'...
+[183/231] D1_Sikh: Singh, Amrit ❌ ERROR: 'D1'...
+[184/231] D1_Hindi_Common: Kumar, Anand ❌ ERROR: 'D1'...
+[185/231] D1_Hindi_Common: Gupta, Ravi ❌ ERROR: 'D1'...
+[186/231] D1_Hindi_Common: Agarwal, Sneha ❌ ERROR: 'D1'...
+[187/231] D1_Jain: Jain, Vikash ❌ ERROR: 'D1'...
+[188/231] D1_Telugu: Reddy, Srinivas ❌ ERROR: 'D1'...
+[189/231] D1_Telugu: Rao, Venkata ❌ ERROR: 'D1'...
+[190/231] D1_Tamil: Iyer, Ramesh ❌ ERROR: 'D1'...
+[191/231] D1_Malayalam: Nair, Lakshmi ❌ ERROR: 'D1'...
+[192/231] D1_Bengali: Das, Subhash ❌ ERROR: 'D1'...
+[193/231] D1_Bengali: Ghosh, Tapan ❌ ERROR: 'D1'...
+[194/231] D1_Bengali: Mukherjee, Indira ❌ ERROR: 'D1'...
+[195/231] D1_Bengali: Chatterjee, Anirban ❌ ERROR: 'D1'...
+[196/231] Edge_Short_Name: Li, A ❌ A1 (expected E1)
+[197/231] Edge_Single_Letter: O, B ✅ A1
+[198/231] Edge_Long_German: Wolfeschlegelsteinhausenbergerdorff, Johann ✅ A2
+[199/231] Edge_Very_Long_Spanish: García-López-Martínez-González, María-Carmen-Isabe... ✅ G1
+[200/231] Edge_Multiple_Particles: von und zu Liechtenstein, Hans ✅ A2
+[201/231] Edge_Multiple_Spanish_Particles: de la Rosa y González, Carmen ✅ G1
+[202/231] Edge_Multiple_Dutch_Particles: van der Berg ten Broek, Willem ✅ A2
+[203/231] Edge_Mixed_Case: mCdOnAlD, rOnAlD ✅ A1
+[204/231] Edge_All_Caps_Apostrophe: O'CONNOR, PATRICK ✅ A1
+[205/231] Edge_Lowercase_French: d'alembert, jean ❌ A1 (expected A2)
+[206/231] Edge_Multiple_Apostrophes: O'Connor-O'Brien, Seán ✅ A1
+[207/231] Edge_Multiple_Hyphens: Mary-Ann-Elizabeth, Smith-Jones-Brown ✅ A1
+[208/231] Edge_Roman_Numeral: Smith IV, John ✅ A1
+[209/231] Edge_Roman_Numeral: Brown VIII, William ✅ A1
+[210/231] Edge_Jr_Comma: Johnson, Jr., Robert ✅ A1
+[211/231] Edge_Title_Prefix: Dr. Smith, John ❌ SHOULD HAVE FAILED
+[212/231] Edge_Title_Given: Smith, Dr. John ✅ A1
+[213/231] Edge_Prof_Title: Prof. García, José ❌ SHOULD HAVE FAILED
+[214/231] Edge_Number_Surname: Smith2, John ❌ SHOULD HAVE FAILED
+[215/231] Edge_Number_Given: Smith, John3 ❌ SHOULD HAVE FAILED
+[216/231] Edge_Leet_Speak: Sm1th, J0hn ✅ CORRECTLY FAILED: Unable to detect appropriate r...
+[217/231] Edge_Email_Symbol: Smith@gmail, John ❌ SHOULD HAVE FAILED
+[218/231] Edge_Hash_Symbol: Smith#tag, John ❌ SHOULD HAVE FAILED
+[219/231] Edge_Dollar_Symbol: Smith$money, John ❌ SHOULD HAVE FAILED
+[220/231] Edge_Percent_Symbol: Smith%percent, John ❌ SHOULD HAVE FAILED
+[221/231] Edge_Multiple_Diacritics: Müller-Öström, Åse ✅ A2
+[222/231] Edge_Polish_Special: Żółć, Jaśń ✅ B2
+[223/231] Edge_Czech_Compound: Dvořák-Černý, Václav ✅ B2
+[224/231] Edge_Max_Length: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA... ❌ SHOULD HAVE FAILED
+[225/231] Edge_Empty_String:  ✅ CORRECTLY FAILED: Entry must contain CanonicalLa...
+[226/231] Edge_Just_Comma: ,  ✅ CORRECTLY FAILED: Unable to detect appropriate r...
+[227/231] Edge_Missing_Given: Smith, ❌ SHOULD HAVE FAILED
+[228/231] Edge_Missing_Surname: , John ❌ SHOULD HAVE FAILED
+[229/231] Edge_Complex_Arabic: Ibn al-Haytham al-Basri, Abu Ali Hassan ✅ C3
+[230/231] Edge_Complex_Indian: Ramanujan Iyengar, Srinivasa ❌ ERROR: 'D1'...
+[231/231] Edge_Complex_European: Gauss-Lobachevsky-Bolyai, Johann-Nikolai-Wolfgang ✅ A2
+
+============================================================
+📊 COMPREHENSIVE TEST RESULTS
+============================================================
+Total Tests: 231
+Passed: 194 (84.0%)
+Failed: 37
+Time: 0.07s (3457.5 tests/sec)
+
+📋 RESULTS BY CATEGORY:
+------------------------------------------------------------
+A1_All_Caps                          1/ 1 (100.0%)
+A1_Apostrophe                        1/ 1 (100.0%)
+A1_Apostrophe_Given                  1/ 1 (100.0%)
+A1_Compound                          1/ 1 (100.0%)
+A1_Dutch_Given                       1/ 1 (100.0%)
+A1_French_Given                      1/ 1 (100.0%)
+A1_Historical                        6/ 6 (100.0%)
+A1_Hyphenated                        1/ 1 (100.0%)
+A1_Hyphenated_Female                 1/ 1 (100.0%)
+A1_Hyphenated_Given                  1/ 1 (100.0%)
+A1_Irish_Given                       1/ 1 (100.0%)
+A1_Irish_Mc                          1/ 1 (100.0%)
+A1_Irish_O                           1/ 1 (100.0%)
+A1_Lowercase                         1/ 1 (100.0%)
+A1_Multiple_Names                    2/ 2 (100.0%)
+A1_Numeral                           1/ 1 (100.0%)
+A1_Particle                          1/ 1 (100.0%)
+A1_Particle_Given                    1/ 1 (100.0%)
+A1_Saint                             1/ 1 (100.0%)
+A1_Scottish_Given                    0/ 1 (  0.0%)
+A1_Scottish_Mac                      2/ 2 (100.0%)
+A1_Suffix                            2/ 2 (100.0%)
+A2_Dutch_De                          0/ 1 (  0.0%)
+A2_Dutch_Ter                         1/ 1 (100.0%)
+A2_Dutch_Van                         1/ 1 (100.0%)
+A2_German_Eszett                     1/ 1 (100.0%)
+A2_German_Female                     1/ 1 (100.0%)
+A2_German_Historical                 8/ 8 (100.0%)
+A2_German_Umlaut                     3/ 3 (100.0%)
+A2_German_Von                        2/ 2 (100.0%)
+A2_Hungarian                         3/ 3 (100.0%)
+A2_Norwegian                         2/ 2 (100.0%)
+A2_Swedish                           1/ 1 (100.0%)
+A2_Swiss_Historical                  1/ 1 (100.0%)
+B1_Russian_Female                    3/ 3 (100.0%)
+B1_Russian_Historical                7/ 7 (100.0%)
+B1_Russian_Pattern                   6/ 6 (100.0%)
+B1_Ukrainian                         4/ 4 (100.0%)
+B2_Czech                             4/ 5 ( 80.0%)
+B2_Czech_Historical                  2/ 2 (100.0%)
+B2_Hungarian_Slavic                  0/ 1 (  0.0%)
+B2_Polish                            6/ 7 ( 85.7%)
+B2_Serbian                           2/ 2 (100.0%)
+B2_Slovak                            1/ 3 ( 33.3%)
+C3_Arabic_Abd                        2/ 2 (100.0%)
+C3_Arabic_Abu                        2/ 2 (100.0%)
+C3_Arabic_Al                         3/ 3 (100.0%)
+C3_Arabic_Bin                        2/ 2 (100.0%)
+C3_Arabic_El                         2/ 2 (100.0%)
+C3_Arabic_Ibn                        2/ 2 (100.0%)
+C3_Arabic_Simple                     2/ 2 (100.0%)
+D1_Bengali                           0/ 4 (  0.0%)
+D1_Gujarati                          0/ 1 (  0.0%)
+D1_Hindi_Common                      0/ 4 (  0.0%)
+D1_Jain                              0/ 1 (  0.0%)
+D1_Malayalam                         0/ 1 (  0.0%)
+D1_Sikh                              0/ 1 (  0.0%)
+D1_Tamil                             0/ 1 (  0.0%)
+D1_Telugu                            0/ 2 (  0.0%)
+E1_Chinese_Common                   14/15 ( 93.3%)
+E3_Japanese_Common                  15/15 (100.0%)
+E4_Korean_Common                    15/15 (100.0%)
+Edge_All_Caps_Apostrophe             1/ 1 (100.0%)
+Edge_Complex_Arabic                  1/ 1 (100.0%)
+Edge_Complex_European                1/ 1 (100.0%)
+Edge_Complex_Indian                  0/ 1 (  0.0%)
+Edge_Czech_Compound                  1/ 1 (100.0%)
+Edge_Dollar_Symbol                   0/ 1 (  0.0%)
+Edge_Email_Symbol                    0/ 1 (  0.0%)
+Edge_Empty_String                    1/ 1 (100.0%)
+Edge_Hash_Symbol                     0/ 1 (  0.0%)
+Edge_Jr_Comma                        1/ 1 (100.0%)
+Edge_Just_Comma                      1/ 1 (100.0%)
+Edge_Leet_Speak                      1/ 1 (100.0%)
+Edge_Long_German                     1/ 1 (100.0%)
+Edge_Lowercase_French                0/ 1 (  0.0%)
+Edge_Max_Length                      0/ 1 (  0.0%)
+Edge_Missing_Given                   0/ 1 (  0.0%)
+Edge_Missing_Surname                 0/ 1 (  0.0%)
+Edge_Mixed_Case                      1/ 1 (100.0%)
+Edge_Multiple_Apostrophes            1/ 1 (100.0%)
+Edge_Multiple_Diacritics             1/ 1 (100.0%)
+Edge_Multiple_Dutch_Particles        1/ 1 (100.0%)
+Edge_Multiple_Hyphens                1/ 1 (100.0%)
+Edge_Multiple_Particles              1/ 1 (100.0%)
+Edge_Multiple_Spanish_Particles      1/ 1 (100.0%)
+Edge_Number_Given                    0/ 1 (  0.0%)
+Edge_Number_Surname                  0/ 1 (  0.0%)
+Edge_Percent_Symbol                  0/ 1 (  0.0%)
+Edge_Polish_Special                  1/ 1 (100.0%)
+Edge_Prof_Title                      0/ 1 (  0.0%)
+Edge_Roman_Numeral                   2/ 2 (100.0%)
+Edge_Short_Name                      0/ 1 (  0.0%)
+Edge_Single_Letter                   1/ 1 (100.0%)
+Edge_Title_Given                     1/ 1 (100.0%)
+Edge_Title_Prefix                    0/ 1 (  0.0%)
+Edge_Very_Long_Spanish               1/ 1 (100.0%)
+G1_Portuguese                        6/ 6 (100.0%)
+G1_Portuguese_Accent                 1/ 1 (100.0%)
+G1_Spanish_Accent                    8/ 8 (100.0%)
+G1_Spanish_Common                    5/ 5 (100.0%)
+G1_Spanish_Compound                  2/ 2 (100.0%)
+G1_Spanish_Enie                      1/ 1 (100.0%)
+G1_Spanish_Particle                  2/ 2 (100.0%)
+
+❌ FAILURES (37):
+------------------------------------------------------------
+ 1. Lee, MacPherson
+    A1_Scottish_Given: Expected A1, got E4
+    Issue: Wrong region detected
+ 2. de Bruijn, Nicolaas
+    A2_Dutch_De: Expected A2, got A1
+    Issue: Wrong region detected
+ 3. Novák, Jan
+    B2_Czech: Expected B2, got G1
+    Issue: Wrong region detected
+ 4. Wójcik, Anna
+    B2_Polish: Expected B2, got G1
+    Issue: Wrong region detected
+ 5. Horvát, János
+    B2_Hungarian_Slavic: Expected B2, got G1
+    Issue: Wrong region detected
+ 6. Novák, Ján
+    B2_Slovak: Expected B2, got G1
+    Issue: Wrong region detected
+ 7. Hodák, Martin
+    B2_Slovak: Expected B2, got A1
+    Issue: Wrong region detected
+ 8. Yang, Lei
+    E1_Chinese_Common: Expected E1, got E4
+    Issue: Wrong region detected
+ 9. Sharma, Rajesh
+    D1_Hindi_Common: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+10. Patel, Priya
+    D1_Gujarati: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+11. Singh, Amrit
+    D1_Sikh: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+12. Kumar, Anand
+    D1_Hindi_Common: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+13. Gupta, Ravi
+    D1_Hindi_Common: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+14. Agarwal, Sneha
+    D1_Hindi_Common: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+15. Jain, Vikash
+    D1_Jain: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+16. Reddy, Srinivas
+    D1_Telugu: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+17. Rao, Venkata
+    D1_Telugu: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+18. Iyer, Ramesh
+    D1_Tamil: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+19. Nair, Lakshmi
+    D1_Malayalam: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+20. Das, Subhash
+    D1_Bengali: Expected D1, got ERROR: 'D1'
+    Issue: Unexpected failure
+    ... and 17 more failures
+
+💾 Detailed results saved to comprehensive_test_results.json

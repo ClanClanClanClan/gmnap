@@ -1,0 +1,38 @@
+
+Results for data/korean_diverse_test.yaml:
+Total: 200
+Eng2Kor: 87/200 (43.50%)
+Roundtrip: 58/200 (29.00%)
+
+First 10 failures:
+  Kim_YuNa: roundtrip dice=0.769, expected 'Kim, Yeon-A', got 'kim yon a'
+  Lee_ChongWei: roundtrip dice=0.762, expected 'Lee, Chung-Wei', got 'lee cheong wei'
+  Hwang_HeuiChan: roundtrip dice=0.700, expected 'Hwang, Hee-Chan', got 'hwang hui chan'
+  Bae_YeonJoo: roundtrip dice=0.824, expected 'Bae, Yeon-Ju', got 'bae yeon joo'
+  Kim_NamJoon: roundtrip dice=0.706, expected 'Kim, Nam-Jun', got 'kim nam joon'
+  Kim_JiSoo: roundtrip dice=0.769, expected 'Kim, Ji-Su', got 'kim ji soo'
+  Song_HyeKyo: roundtrip dice=0.778, expected 'Song, Hye-Kyo', got 'song hye gyo'
+  IU_LeeJiEun: expected '이지은', got '이우지은'
+  Ahn_CheolSoo: roundtrip dice=0.556, expected 'Ahn, Chul-Su', got 'ahn cheol soo'
+  Han_DukSoo: roundtrip dice=0.500, expected 'Han, Duk-Su', got 'han deok soo'
+
+Results for data/korean.yaml:
+Total: 732
+Eng2Kor: 700/732 (95.63%)
+Roundtrip: 684/732 (93.44%)
+
+First 10 failures:
+  Ahn_DaeHoon: expected '안 대훈', got '안대훈'
+  Ahn_Hyun-Kyu: expected '안 현규', got '안현규'
+  Ahn_Jae-Hyun: expected '안 재현', got '안재현'
+  Yim_Jihoon: roundtrip dice=0.933, expected 'Yim, Ji-Hoon', got 'im ji hoon'
+  Yi_Soo-Young: roundtrip dice=0.941, expected 'Yi, Soo-Young', got 'i soo young'
+  Yim_Ji-Young: roundtrip dice=0.941, expected 'Yim, Ji-Young', got 'im ji young'
+  Huh_June: roundtrip dice=0.923, expected 'Huh, June', got 'huh jun ee'
+  Oh_Hyunjung: roundtrip dice=0.933, expected 'Oh, Hyun-Jung', got 'o hyun jung'
+  Oh_Haeyoung: roundtrip dice=0.941, expected 'Oh, Hae-Young', got 'o hae young'
+  Huh_Junghan: roundtrip dice=0.824, expected 'Huh, Junghan', got 'huh jun han'
+
+=== SUMMARY ===
+Diverse dataset: 87/200 eng2kor (43.50%), 58/200 roundtrip (29.00%)
+Mathematician dataset: 700/732 eng2kor (95.63%), 684/732 roundtrip (93.44%)

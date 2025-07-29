@@ -1,0 +1,78 @@
+{
+  "duplicates": {
+    "src/core vs src/gmnap/core": {
+      "old": [
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/core/config.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/core/monitoring.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/core/globalid.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/core/__init__.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/core/unicode_handler.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/core/pipeline.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/core/pipeline_v6.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/core/errors.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/core/streaming_pipeline.py"
+      ],
+      "new": [
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/core/config.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/core/monitoring.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/core/database.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/core/globalid.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/core/__init__.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/core/unicode_handler.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/core/pipeline.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/core/pipeline_v6.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/core/errors.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/core/streaming_pipeline.py"
+      ]
+    },
+    "src/authorities vs src/gmnap/authorities": {
+      "old": [
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/authorities/cache.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/authorities/__init__.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/authorities/base.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/authorities/tier0/__init__.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/authorities/tier0/orcid.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/authorities/tier0/openalex.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/authorities/tier0/crossref.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/authorities/tier0/zbmath.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/authorities/tier1/dblp.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/authorities/tier1/__init__.py"
+      ],
+      "new": [
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/authorities/cache.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/authorities/__init__.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/authorities/base.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/authorities/tier0/__init__.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/authorities/tier0/orcid.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/authorities/tier0/openalex.py",
+        "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/authorities/tier0/crossref.py"
+      ]
+    }
+  },
+  "missing_v7_dirs": [
+    "src/gmnap/linguistic",
+    "src/gmnap/validation",
+    "src/gmnap/utils",
+    "src/gmnap/authorities/tier1",
+    "src/gmnap/authorities/tier2",
+    "tools/dictionaries",
+    "tools/cli",
+    "tests/sea_roundtrip",
+    "tests/concurrency",
+    "tests/memory_peak",
+    "tests/msc_provenance",
+    "tests/fake_api",
+    "tests/secret_scan"
+  ],
+  "misplaced_components": {
+    "src/core": 9,
+    "src/authorities": 10,
+    "src/linguistic": 2,
+    "src/utils": 3,
+    "src/validation": 2
+  },
+  "scattered_tests": {
+    "cleanup_work/test_scripts": 15,
+    "korean tests": 4
+  }
+}
