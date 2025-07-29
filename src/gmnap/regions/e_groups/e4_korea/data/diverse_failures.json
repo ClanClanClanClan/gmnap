@@ -14,13 +14,6 @@
     "reason": "character 2 differs: 명 → 뮹"
   },
   {
-    "name": "Ban_KiMoon",
-    "fail_type": "eng→kor",
-    "expected": "반기문",
-    "actual": "반키문",
-    "reason": "character 2 differs: 기 → 키"
-  },
-  {
     "name": "Han_DukSoo",
     "fail_type": "eng→kor",
     "expected": "한덕수",
@@ -140,13 +133,6 @@
     "reason": "unknown reason"
   },
   {
-    "name": "Random_003",
-    "fail_type": "eng→kor",
-    "expected": "고기민",
-    "actual": "고키민",
-    "reason": "character 2 differs: 기 → 키"
-  },
-  {
     "name": "Random_007",
     "fail_type": "roundtrip",
     "expected": "Sung, Hyun-I",
@@ -182,13 +168,6 @@
     "reason": "character 2 differs: 헌 → 훈"
   },
   {
-    "name": "Random_062",
-    "fail_type": "eng→kor",
-    "expected": "권미기",
-    "actual": "권미키",
-    "reason": "character 3 differs: 기 → 키"
-  },
-  {
     "name": "Random_071",
     "fail_type": "eng→kor",
     "expected": "윤시헌",
@@ -222,12 +201,5 @@
     "expected": "오헌",
     "actual": "오훈",
     "reason": "character 2 differs: 헌 → 훈"
-  },
-  {
-    "name": "Random_108",
-    "fail_type": "eng→kor",
-    "expected": "신기",
-    "actual": "신키",
-    "reason": "character 2 differs: 기 → 키"
   }
 ]
