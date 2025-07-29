@@ -7,20 +7,6 @@
     "reason": "syllable count mismatch (4 vs 3); character 2 differs: 청 → 정"
   },
   {
-    "name": "Kim_SeokJin",
-    "fail_type": "eng→kor",
-    "expected": "김석진",
-    "actual": "김섞진",
-    "reason": "character 2 differs: 석 → 섞"
-  },
-  {
-    "name": "Jung_HoSeok",
-    "fail_type": "eng→kor",
-    "expected": "정호석",
-    "actual": "정호섞",
-    "reason": "character 3 differs: 석 → 섞"
-  },
-  {
     "name": "Jeon_JungKook",
     "fail_type": "eng→kor",
     "expected": "전정국",
@@ -33,20 +19,6 @@
     "expected": "송혜교",
     "actual": "송혜쿄",
     "reason": "character 3 differs: 교 → 쿄"
-  },
-  {
-    "name": "Yoo_JaeSeok",
-    "fail_type": "eng→kor",
-    "expected": "유재석",
-    "actual": "유재섞",
-    "reason": "character 3 differs: 석 → 섞"
-  },
-  {
-    "name": "Yoon_SeokYeol",
-    "fail_type": "eng→kor",
-    "expected": "윤석열",
-    "actual": "윤섞열",
-    "reason": "character 2 differs: 석 → 섞"
   },
   {
     "name": "Lee_MyungBak",
@@ -266,13 +238,6 @@
     "reason": "character 3 differs: 창 → 장"
   },
   {
-    "name": "Random_021",
-    "fail_type": "eng→kor",
-    "expected": "강석호",
-    "actual": "강섞호",
-    "reason": "character 2 differs: 석 → 섞"
-  },
-  {
     "name": "Random_029",
     "fail_type": "eng→kor",
     "expected": "오미중",
@@ -285,13 +250,6 @@
     "expected": "전중규",
     "actual": "전정규",
     "reason": "character 2 differs: 중 → 정"
-  },
-  {
-    "name": "Random_037",
-    "fail_type": "eng→kor",
-    "expected": "양석윤",
-    "actual": "양섞윤",
-    "reason": "character 2 differs: 석 → 섞"
   },
   {
     "name": "Random_045",
@@ -348,13 +306,6 @@
     "expected": "전운선",
     "actual": "전운순",
     "reason": "character 3 differs: 선 → 순"
-  },
-  {
-    "name": "Random_064",
-    "fail_type": "eng→kor",
-    "expected": "송인석",
-    "actual": "송인섞",
-    "reason": "character 3 differs: 석 → 섞"
   },
   {
     "name": "Random_065",
