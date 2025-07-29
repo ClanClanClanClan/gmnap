@@ -8,9 +8,9 @@ def tokenise(name: str) -> list[str]:
     # Remove commas and parentheses, replace with spaces
     name = re.sub(r"[,()]", " ", name)
     
-    # Split on hyphens and whitespace, filter empty strings
+    # Split on hyphens, underscores and whitespace, filter empty strings
     tokens = []
-    for part in re.split(r"[-\s]+", name):
+    for part in re.split(r"[-_\s]+", name):
         part = part.strip()
         if part:
             tokens.append(part)

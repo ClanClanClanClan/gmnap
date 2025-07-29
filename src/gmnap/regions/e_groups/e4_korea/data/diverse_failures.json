@@ -98,13 +98,6 @@
     "reason": "character 2 differs: 창 → 장"
   },
   {
-    "name": "Go_AhSung",
-    "fail_type": "eng→kor",
-    "expected": "고아성",
-    "actual": null,
-    "reason": "unknown reason"
-  },
-  {
     "name": "Kim_David",
     "fail_type": "eng→kor",
     "expected": "김데이비드",
