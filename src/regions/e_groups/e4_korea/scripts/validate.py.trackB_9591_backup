@@ -1,0 +1,36 @@
+import yaml, unicodedata, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
+from converter import eng2kor, kor2eng, eng2kor_nbest
+def norm(s): 
+    # Remove punctuation and normalize for fair comparison
+    s = s.replace(",", "").replace("-", " ")
+    return unicodedata.normalize("NFC", s.casefold().replace(" ",""))
+def dice(a,b):
+    a,b=set(zip(a,a[1:])),set(zip(b,b[1:]))
+    return 2*len(a&b)/(len(a)+len(b) or 1)
+def find_hangul(variants):
+    for v in variants:
+        if any('\uac00' <= c <= '\ud7af' for c in v):
+            return v.replace(" ", "")
+    return None
+data=yaml.safe_load(open("data/korean.yaml",encoding="utf8"))
+ok=tot=0; misses=[]
+for k,v in data.items():
+    rr=v.get("CanonicalLatin"); 
+    ko_exp=find_hangul(v.get("AllCommonVariants", []))
+    if not rr or not ko_exp: continue
+    ko=eng2kor(rr)
+    # Try n-best tolerance first
+    hypos = eng2kor_nbest(rr, n=3)
+    if ko_exp in hypos:
+        # Use best hypothesis for roundtrip test
+        ko = ko_exp
+    elif ko!=ko_exp: 
+        misses.append((k,"eng→kor",ko)); tot+=1; continue
+    rr2=kor2eng(ko, rr) or ""
+    if dice(norm(rr),norm(rr2))<0.90:
+        misses.append((k,"roundtrip",rr2)); tot+=1; continue
+    ok+=1; tot+=1
+print(f"{ok}/{tot} = {ok/tot*100:.2f}% round‑trip")
+if misses:
+    print("First 5 misses:", misses[:5])

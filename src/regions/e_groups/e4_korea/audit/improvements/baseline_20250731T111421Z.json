@@ -1,0 +1,44 @@
+{
+  "timestamp": "2025-07-31T11:14:20+00:00",
+  "git_commit": "c9656ef",
+  "mapping_sha256": "bcd2d6ca9367ed725306ed009f9c57ff105eb0968494ecfd2e244379ecc2d736",
+  "framework_version": "2.0",
+  "performance": {
+    "math_dataset": {
+      "success": 171,
+      "total": 733,
+      "accuracy": 23.33,
+      "parsed_line": "171/733 = 23.33% round‑trip"
+    },
+    "diverse_dataset": {
+      "success": 180,
+      "total": 200,
+      "accuracy": 90.0,
+      "parsed_line": "DIVERSE DATASET: 180/200 = 90.00%"
+    },
+    "independent_dataset": {
+      "success": 110,
+      "total": 165,
+      "accuracy": 66.67,
+      "parsed_line": "Overall Performance: 110/165 = 66.67%"
+    }
+  },
+  "statistical_analysis": {
+    "math_dataset": {
+      "wilson_lower_bound": 20.410991317961518,
+      "wilson_upper_bound": 26.524676413630182,
+      "standard_error": 1.5621333840019456
+    },
+    "diverse_dataset": {
+      "wilson_lower_bound": 85.05941875672825,
+      "wilson_upper_bound": 93.43295513309042,
+      "standard_error": 2.1213203435596424
+    },
+    "independent_dataset": {
+      "wilson_lower_bound": 59.166829772899106,
+      "wilson_upper_bound": 73.40810791370829,
+      "standard_error": 3.669787459785648
+    }
+  },
+  "mapping_file_backup": "baselines/rr_syllable_map_20250731T111420Z.csv"
+}

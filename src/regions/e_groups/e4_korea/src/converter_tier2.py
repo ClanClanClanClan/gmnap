@@ -4,7 +4,6 @@ from preprocess_fixed import tokenise
 from segment_fixed import segment
 from lookup import rom2han
 import unicodedata
-import sys
 
 def _dice(a,b):
     # Normalize like validation does - remove punctuation and normalize
@@ -76,61 +75,50 @@ def _enhanced_dice(a, b):
     bigr = lambda s: {s[i:i+2] for i in range(len(s)-1)}
     x, y = bigr(a), bigr(b)
     return (2*len(x&y))/(len(x)+len(y) or 1)
+
+# Tier 2: Stackable FSTs with context-priority union
 import os
 _base_dir = os.path.dirname(os.path.dirname(__file__))
-ROM2 = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_multi.fst"))
+
+# Load base FSTs
+ROM2_SN_BASE = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_surname.fst"))
+ROM2_GN_BASE = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_given.fst"))
+ROM2_GL = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_general.fst"))
 HAN2 = pn.Fst.read(os.path.join(_base_dir, "models/han2rom_multi.fst"))
-ROM2_SURNAME = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_surname.fst"))
-ROM2_GIVEN = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_given.fst"))
-ROM2_FB = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_fallback.fst"))
-HAN2_ROML = pn.Fst.read(os.path.join(_base_dir, "models/han2rom_loan.fst"))
+
+# Create stackable FSTs with context-priority union
+# Position-specific mappings automatically outrank general ones due to weight structure
+ROM2_SURNAME = ROM2_SN_BASE.optimize()
+ROM2_GIVEN = ROM2_GN_BASE.optimize()
+ROM2 = ROM2_GL  # Keep for backward compatibility
+
 TOK=None      # default token‑type
 
 def _rr2han_pos(rr: str, position: str) -> str|None:
-    """Position-aware romanization to hangul"""
+    """Tier 2: Position-aware romanization with context-priority union"""
+    # Use appropriate stackable FST - position-specific mappings have automatic precedence
     fst = ROM2_SURNAME if position == "surname" else ROM2_GIVEN
     result = first_output(pn.accep(rr) @ fst)
+    
     if result is None:
-        # Fallback to general FST
-        result = first_output(pn.accep(rr) @ ROM2)
-    if result is None:
-        # 🟢 fallback to loanword
-        result = first_output(pn.accep(rr) @ ROM2_FB)
-    if result is None:
-        # Final fallback to lookup table
+        # Final fallback to lookup table (no intermediate ROM2 fallback needed)
         result = rom2han().get(rr)
     return result
 
-def _rr2han(rr): return first_output(pn.accep(rr)@ROM2) or rom2han().get(rr)
+def _rr2han(rr): 
+    """General romanization lookup with fallback"""
+    return first_output(pn.accep(rr)@ROM2) or rom2han().get(rr)
 
-import re
-TOK_RE = re.compile(r"[A-Za-z]+")
-
-def loanword_whole(word: str) -> str | None:
-    try:
-        return pn.compose(word, ROM2_FB).string()
-    except pn.FstOpError:
-        return None
-
-def eng2kor(name: str) -> str | None:
+def eng2kor(name:str):
     out = []
-    tokens = list(tokenise(name))          # e.g. ['Grace', 'Park']
+    tokens = list(tokenise(name))
     for idx, tok in enumerate(tokens):
-        pos = "surname" if idx == 0 else "given"
-
-        # 🟢 2.1a – try direct loanword match on the whole token
-        if TOK_RE.fullmatch(tok):
-            k = loanword_whole(tok.lower())   # new helper, see 2.2
-            if k:
-                out.append(k)
-                continue   # go to next token
-
-        # fallback to syllable‑wise Korean romanisation
+        position = "surname" if idx == 0 else "given"
         for syl in segment(tok):
-            h = _rr2han_pos(syl, pos)
-            if h is None:
-                return None
-            out.append(h)
+            result = _rr2han_pos(syl, position)
+            if result is None:
+                return None  # fail fast if any syllable can't convert
+            out.append(result)
     return "".join(out)
 
 def eng2kor_nbest(name: str, n: int = 3) -> list[str]:
@@ -147,7 +135,7 @@ def eng2kor_nbest(name: str, n: int = 3) -> list[str]:
         for syl in segment(tok):
             # Create syllable FST with fallback
             syl_fst = pn.accep(syl, TOK) @ fst
-            if not syl_fst.num_states():  # Empty FST, use fallback
+            if not syl_fst.num_states():  # Empty FST, use general fallback
                 syl_fst = pn.accep(syl, TOK) @ ROM2
             lattice = pn.concat(lattice, syl_fst)
     
@@ -156,25 +144,21 @@ def eng2kor_nbest(name: str, n: int = 3) -> list[str]:
     paths = pn.shortestpath(lattice, nshortest=n, unique=True).paths()
     
     return list(paths.ostrings()) if paths else []
-def kor2eng(h: str, original_rr: str | None = None) -> str | None:
+
+def kor2eng(h:str, original_rr:str|None=None)->str|None:
+    # build lattice char by char
     lat = pn.accep("", TOK)
     for i, ch in enumerate(h):
         if i > 0:
-            lat = pn.concat(lat, pn.accep(" ", TOK))
-        # CRITICAL FIX: union standard + loanword paths
-        ch_std = pn.accep(ch, TOK) @ HAN2
-        ch_loan = pn.accep(ch, TOK) @ HAN2_ROML
-        lat = pn.concat(lat, (ch_std | ch_loan))
-    
+            lat = pn.concat(lat, pn.accep(" ", TOK))  # Add space between chars
+        lat = pn.concat(lat, (pn.accep(ch, TOK) @ HAN2))
     # project to output to make it an acceptor
     lat = pn.project(lat, "output")
     # get top‑5 paths
-    it = pn.shortestpath(lat, nshortest=10, unique=True).paths()
-    outs = list(it.ostrings())  # iterable in 2.1.5
-    if not outs: 
-        print("TRACE_NONE", h, file=sys.stderr)   # temp line
-        return None
+    it   = pn.shortestpath(lat, nshortest=10, unique=True).paths()
+    outs = list(it.ostrings())   # iterable in 2.1.5
+    if not outs: return None
     if original_rr:
-        scored = [(_enhanced_dice(original_rr, o), o) for o in outs]
+        scored=[(_enhanced_dice(original_rr,o), o) for o in outs]
         return max(scored)[1]
     return outs[0]

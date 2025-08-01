@@ -4,7 +4,6 @@ from preprocess_fixed import tokenise
 from segment_fixed import segment
 from lookup import rom2han
 import unicodedata
-import sys
 
 def _dice(a,b):
     # Normalize like validation does - remove punctuation and normalize
@@ -49,32 +48,20 @@ def _enhanced_dice(a, b):
         'yum': 'yom', 'yom': 'yum'
     }
     
-    # Apply Korean equivalences
-    a_words = a.lower().split()
-    b_words = b.lower().split()
+    # Apply equivalences for more tolerant matching
+    a_norm = a.casefold().replace(" ", "")
+    b_norm = b.casefold().replace(" ", "")
     
-    a_normalized = []
-    for word in a_words:
-        if word in korean_equivalents:
-            a_normalized.append(korean_equivalents[word])
-        else:
-            a_normalized.append(word)
+    for variant, canonical in korean_equivalents.items():
+        a_norm = a_norm.replace(variant, canonical)
+        b_norm = b_norm.replace(variant, canonical)
     
-    b_normalized = []
-    for word in b_words:
-        if word in korean_equivalents:
-            b_normalized.append(korean_equivalents[word])
-        else:
-            b_normalized.append(word)
+    # Use byte-level bigrams for consistency with original
+    a_bytes = unicodedata.normalize("NFC", a_norm).encode()
+    b_bytes = unicodedata.normalize("NFC", b_norm).encode()
     
-    a = " ".join(a_normalized)
-    b = " ".join(b_normalized)
-    
-    # Continue with standard dice calculation
-    a = unicodedata.normalize("NFC", a.casefold().replace(" ", "")).encode()
-    b = unicodedata.normalize("NFC", b.casefold().replace(" ", "")).encode()
     bigr = lambda s: {s[i:i+2] for i in range(len(s)-1)}
-    x, y = bigr(a), bigr(b)
+    x, y = bigr(a_bytes), bigr(b_bytes)
     return (2*len(x&y))/(len(x)+len(y) or 1)
 import os
 _base_dir = os.path.dirname(os.path.dirname(__file__))
@@ -82,8 +69,6 @@ ROM2 = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_multi.fst"))
 HAN2 = pn.Fst.read(os.path.join(_base_dir, "models/han2rom_multi.fst"))
 ROM2_SURNAME = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_surname.fst"))
 ROM2_GIVEN = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_given.fst"))
-ROM2_FB = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_fallback.fst"))
-HAN2_ROML = pn.Fst.read(os.path.join(_base_dir, "models/han2rom_loan.fst"))
 TOK=None      # default token‑type
 
 def _rr2han_pos(rr: str, position: str) -> str|None:
@@ -94,43 +79,24 @@ def _rr2han_pos(rr: str, position: str) -> str|None:
         # Fallback to general FST
         result = first_output(pn.accep(rr) @ ROM2)
     if result is None:
-        # 🟢 fallback to loanword
-        result = first_output(pn.accep(rr) @ ROM2_FB)
-    if result is None:
         # Final fallback to lookup table
         result = rom2han().get(rr)
     return result
 
 def _rr2han(rr): return first_output(pn.accep(rr)@ROM2) or rom2han().get(rr)
-
-import re
-TOK_RE = re.compile(r"[A-Za-z]+")
-
-def loanword_whole(word: str) -> str | None:
-    try:
-        return pn.compose(word, ROM2_FB).string()
-    except pn.FstOpError:
-        return None
-
-def eng2kor(name: str) -> str | None:
+def eng2kor(name:str):
     out = []
-    tokens = list(tokenise(name))          # e.g. ['Grace', 'Park']
+    tokens = list(tokenise(name))
+    
     for idx, tok in enumerate(tokens):
-        pos = "surname" if idx == 0 else "given"
-
-        # 🟢 2.1a – try direct loanword match on the whole token
-        if TOK_RE.fullmatch(tok):
-            k = loanword_whole(tok.lower())   # new helper, see 2.2
-            if k:
-                out.append(k)
-                continue   # go to next token
-
-        # fallback to syllable‑wise Korean romanisation
+        position = "surname" if idx == 0 else "given"
+        
         for syl in segment(tok):
-            h = _rr2han_pos(syl, pos)
-            if h is None:
+            h = _rr2han_pos(syl, position)
+            if h is None: 
                 return None
             out.append(h)
+    
     return "".join(out)
 
 def eng2kor_nbest(name: str, n: int = 3) -> list[str]:
@@ -156,25 +122,20 @@ def eng2kor_nbest(name: str, n: int = 3) -> list[str]:
     paths = pn.shortestpath(lattice, nshortest=n, unique=True).paths()
     
     return list(paths.ostrings()) if paths else []
-def kor2eng(h: str, original_rr: str | None = None) -> str | None:
+def kor2eng(h:str, original_rr:str|None=None)->str|None:
+    # build lattice char by char
     lat = pn.accep("", TOK)
     for i, ch in enumerate(h):
         if i > 0:
-            lat = pn.concat(lat, pn.accep(" ", TOK))
-        # CRITICAL FIX: union standard + loanword paths
-        ch_std = pn.accep(ch, TOK) @ HAN2
-        ch_loan = pn.accep(ch, TOK) @ HAN2_ROML
-        lat = pn.concat(lat, (ch_std | ch_loan))
-    
+            lat = pn.concat(lat, pn.accep(" ", TOK))  # Add space between chars
+        lat = pn.concat(lat, (pn.accep(ch, TOK) @ HAN2))
     # project to output to make it an acceptor
     lat = pn.project(lat, "output")
     # get top‑5 paths
-    it = pn.shortestpath(lat, nshortest=10, unique=True).paths()
-    outs = list(it.ostrings())  # iterable in 2.1.5
-    if not outs: 
-        print("TRACE_NONE", h, file=sys.stderr)   # temp line
-        return None
+    it   = pn.shortestpath(lat, nshortest=10, unique=True).paths()
+    outs = list(it.ostrings())   # iterable in 2.1.5
+    if not outs: return None
     if original_rr:
-        scored = [(_enhanced_dice(original_rr, o), o) for o in outs]
+        scored=[(_enhanced_dice(original_rr,o), o) for o in outs]
         return max(scored)[1]
     return outs[0]

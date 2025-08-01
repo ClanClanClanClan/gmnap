@@ -28,31 +28,6 @@
 같,gat,0.0
 갚,gap,0.0
 갛,gat,0.0
-배,pae,-3.0,SN,S
-부,boo,-3.0,SN,S
-지,jee,-3.0,SN,S
-미나,mina,-4.0,GN,G
-민아,mina,-3.5,GN,G
-성,seong,-2.5,GN,G
-준,joon,-2.5,GN,G
-호,ho,-2.0,GN,G
-진,jin,-2.0,GN,G
-훈,hoon,-2.0,GN,G
-민,min,-2.0,GN,G
-현,hyeon,-2.5,GN,G
-현,hyun,-2.8,GN,G    # 2025-07-31  Math final +1 pass
-현,hyun,-3.0,SN,S   # 2025-07-31 fix Math Ahn Dae-Hyun
-현,hyun,-2.6,GN,G    # 2025-08-01  Math last pass
-경,kyeong,-2.5,GN,G
-전,jeon,-2.5,SN,S
-춘,chun,-2.5,SN,S
-석,seok,-2.5,GN,G
-욱,uk,-2.5,GN,G
-철,cheol,-2.0,GN,G
-영,young,-2.0,GN,G
-수,soo,-2.0,GN,G
-태,tae,-2.0,GN,G
-용,yong,-2.0,GN,G
 개,gae,0.0
 객,gaek,0.0
 갞,gaek,0.0
@@ -1924,7 +1899,6 @@
 덩,deong,0.0
 덪,deot,0.0
 덫,deot,0.0
-덕,deok,0.0
 덭,deot,0.0
 덮,deop,0.0
 덯,deot,0.0
@@ -2036,7 +2010,6 @@
 동,dong,0.0
 돚,dot,0.0
 돛,dot,0.0
-독,dok,0.0
 돝,dot,0.0
 돞,dop,0.0
 돟,dot,0.0
@@ -4160,7 +4133,6 @@
 방,bang,0.0
 밪,bat,0.0
 밫,bat,0.0
-박,bak,0.0
 밭,bat,0.0
 밮,bap,0.0
 밯,bat,0.0
@@ -4359,7 +4331,6 @@
 볲,byep,0.0
 볳,byet,0.0
 보,bo,0.0
-복,bok,0.0
 복,bok,0.0
 볷,boks,0.0
 본,bon,0.0
@@ -6974,7 +6945,6 @@
 융,yung,0.0
 윶,yut,0.0
 윷,yut,0.0
-육,yuk,0.0
 윹,yut,0.0
 윺,yup,0.0
 윻,yut,0.0
@@ -7091,24 +7061,6 @@
 잪,jap,0.0
 잫,jat,0.0
 재,jae,0.0
-승만,syngman,-2.5,GN,G
-병,byung,-2.0,GN,G
-헌,hun,-2.0,GN,G
-두,doo,-2.0,GN,G
-의,eui,-2.0,GN,G
-신,sin,-2.0,GN,G
-식,shik,-2.3,GN,G
-섭,sub,-2.3,GN,G
-여,yuh,-2.1,GN,G
-순,sun,-2.3,GN,G
-청,chong,-2.5,GN,G    # 2025-08-01 diverse Lee_ChongWei
-명,myung,-2.5,GN,G    # 2025-08-01 diverse Lee_MyungBak
-덕,duk,-2.5,GN,G      # 2025-08-01 diverse Han_DukSoo
-여,yo,-2.5,GN,G       # 2025-08-01 diverse Kim_YoJong (yo→여)
-건,kun,-2.5,GN,G      # 2025-08-01 diverse Lee_KunHee
-중,jung,-2.5,GN,G     # 2025-08-01 diverse An_JungGeun
-안,ahn,-1.2,SN,S      # 2025-08-01 Math 720→721
-현,hyun,-2.4,GN,G     # 2025-08-01 Math 720→721
 잭,jaek,0.0
 잮,jaek,0.0
 잯,jaeks,0.0
@@ -9465,7 +9417,6 @@
 탱,taeng,0.0
 탲,taet,0.0
 탳,taet,0.0
-택,taek,0.0
 탵,taet,0.0
 탶,taep,0.0
 탷,taet,0.0
@@ -10606,7 +10557,6 @@
 항,hang,0.0
 핮,hat,0.0
 핯,hat,0.0
-학,hak,0.0
 핱,hat,0.0
 핲,hap,0.0
 핳,hat,0.0
@@ -11201,7 +11151,6 @@
 율,yool,0.0
 조,cho,0.0
 윤,yoon,0.0
-성,sung,0.0
 철,chul,-1.0
 규,kyu,0.0
 전,chun,0.0
@@ -11240,8 +11189,6 @@
 권,kweon,0.0
 준,june,-0.8
 변,byon,0.0
-상일,sangil,0.0
-석열,seokyeol,0.0
 아,ah,0.0
 데이비드,david,-0.8
 사라,sarah,0.0
