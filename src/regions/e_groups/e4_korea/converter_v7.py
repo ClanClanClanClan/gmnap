@@ -19,7 +19,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(__file__) + '/src')
 
-from converter import eng2kor, kor2eng, eng2kor_nbest
+from converter import eng2kor, kor2eng, eng2kor_nbest, _enhanced_dice
 
 class KoreanConverterV7:
     """
@@ -119,6 +119,9 @@ class KoreanConverterV7:
         }
 
 # Convenience functions for direct use
+# Export _enhanced_dice for external use
+__all__ = ['KoreanConverterV7', 'romanize', 'koreanize', '_enhanced_dice']
+
 def romanize(korean_name: str) -> str:
     """Convert Korean name to romanized form."""
     converter = KoreanConverterV7()
