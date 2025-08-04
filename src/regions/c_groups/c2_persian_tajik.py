@@ -170,6 +170,28 @@ class C2_PersianTajik(RegionSpec):
                     "type": "romanization"
                 })
         
+        # Rule 7: Persian Ezafe – identify and generate variants
+        ezafe_info = self._analyze_persian_ezafe(canonical)
+        if ezafe_info:
+            components.update(ezafe_info)
+            
+            # Generate variants with different ezafe representations
+            ezafe_variants = self._generate_ezafe_variants(canonical, ezafe_info)
+            for variant in ezafe_variants:
+                if variant["str"] != canonical:
+                    entry["Variants"]["Synthesised"].append(variant)
+        
+        # Rule 21: -zadeh Suffix – Persian patronymic/descendant suffix
+        zadeh_info = self._analyze_zadeh_suffix(canonical)
+        if zadeh_info:
+            components.update(zadeh_info)
+            
+            # Generate variants with different -zadeh representations
+            zadeh_variants = self._generate_zadeh_variants(canonical, zadeh_info)
+            for variant in zadeh_variants:
+                if variant["str"] != canonical:
+                    entry["Variants"]["Synthesised"].append(variant)
+        
         # Add variant without patronymic
         if components.get("patronymic"):
             without_patronymic = self._generate_no_patronymic_variant(canonical, components)
@@ -302,6 +324,354 @@ class C2_PersianTajik(RegionSpec):
                 result.append(char)
         
         return ''.join(result)
+    
+    def _analyze_persian_ezafe(self, name: str) -> Optional[Dict[str, Any]]:
+        """
+        Rule 7: Persian Ezafe – identify and analyze ezafe constructions.
+        
+        Persian ezafe (اضافه) is a grammatical linker used in compound names:
+        - Possessive relationships: "Ali-ye Shirazi" (Ali of Shiraz)
+        - Descriptive relationships: "Mohammad-e Kabir" (Mohammad the Great)
+        - Location-based: "Hassan-e Isfahani" (Hassan of Isfahan)
+        
+        Ezafe can be represented as:
+        - ِ (kasre/short i diacritic) - typically invisible in modern texts
+        - -e (romanized form)
+        - -ye (after vowels)
+        - No marking (implicit)
+        
+        This method identifies ezafe patterns and extracts components.
+        """
+        if not name:
+            return None
+        
+        ezafe_info = {}
+        
+        # Ezafe patterns to detect
+        ezafe_patterns = [
+            # Romanized forms
+            (r'\b(\w+)-ye\s+(\w+)', 'romanized_ye'),     # "Ali-ye Shirazi"
+            (r'\b(\w+)-e\s+(\w+)', 'romanized_e'),       # "Hassan-e Isfahani"  
+            (r'\b(\w+)ye\s+(\w+)', 'compact_ye'),        # "Aliye Shirazi"
+            (r'\b(\w+)e\s+(\w+)', 'compact_e'),          # "Hassane Isfahani"
+            
+            # Persian script forms (with kasre mark)
+            (r'(\w+)ِ\s+(\w+)', 'kasre_marked'),         # With visible kasre
+            (r'(\w+)\u0650\s+(\w+)', 'kasre_unicode'),   # Unicode kasre (U+0650)
+            
+            # Common Persian ezafe constructions (implicit)
+            (r'\b(\w+)\s+(شیرازی|اصفهانی|تهرانی|کاشانی|یزدی|کرمانی|فارسی)', 'geographic_implicit'),
+            (r'\b(\w+)\s+(کبیر|صغیر|اکبر|اصغر|بزرگ|کوچک)', 'descriptive_implicit'),
+        ]
+        
+        # Check for ezafe patterns
+        for pattern, ezafe_type in ezafe_patterns:
+            matches = re.finditer(pattern, name, re.IGNORECASE)
+            for match in matches:
+                ezafe_info.update({
+                    'has_ezafe': True,
+                    'ezafe_type': ezafe_type,
+                    'ezafe_base': match.group(1),
+                    'ezafe_complement': match.group(2),
+                    'ezafe_full_match': match.group(0),
+                    'ezafe_position': match.span()
+                })
+                
+                # Determine the relationship type
+                if ezafe_type in ['geographic_implicit']:
+                    ezafe_info['ezafe_relationship'] = 'geographic'
+                elif ezafe_type in ['descriptive_implicit']:
+                    ezafe_info['ezafe_relationship'] = 'descriptive'
+                else:
+                    ezafe_info['ezafe_relationship'] = 'possessive'
+                
+                # Return first match (most names have one ezafe construction)
+                return ezafe_info
+        
+        # Check for implicit ezafe (two-part names that might have ezafe)
+        words = name.split()
+        if len(words) == 2:
+            first, second = words
+            
+            # Common patterns that suggest implicit ezafe
+            geographic_endings = ['ی', 'ي', 'انی', 'i', 'ani']  # Persian/Arabic geographic suffixes
+            descriptive_words = ['کبیر', 'صغیر', 'اکبر', 'اصغر', 'بزرگ', 'kabir', 'saghir', 'akbar', 'asghar', 'bozorg']
+            
+            is_geographic = any(second.endswith(ending) for ending in geographic_endings)
+            is_descriptive = any(second.lower() in [word.lower() for word in descriptive_words])
+            
+            if is_geographic or is_descriptive:
+                ezafe_info.update({
+                    'has_ezafe': True,
+                    'ezafe_type': 'implicit',
+                    'ezafe_base': first,
+                    'ezafe_complement': second,
+                    'ezafe_full_match': name,
+                    'ezafe_relationship': 'geographic' if is_geographic else 'descriptive'
+                })
+                return ezafe_info
+        
+        return None
+    
+    def _generate_ezafe_variants(self, name: str, ezafe_info: Dict[str, Any]) -> List[Dict[str, str]]:
+        """
+        Rule 7: Generate variants with different ezafe representations.
+        
+        Creates multiple representations of the same ezafe construction:
+        - With explicit ezafe marking (-e, -ye)
+        - Without ezafe marking (bare juxtaposition)
+        - With kasre diacritic (Persian script)
+        - Normalized forms for international systems
+        """
+        variants = []
+        
+        base = ezafe_info.get('ezafe_base', '')
+        complement = ezafe_info.get('ezafe_complement', '')
+        ezafe_type = ezafe_info.get('ezafe_type', '')
+        
+        if not (base and complement):
+            return variants
+        
+        # Generate different ezafe representations
+        
+        # 1. Explicit -e form (most common romanization)
+        if ezafe_type != 'romanized_e':
+            e_form = f"{base}-e {complement}"
+            variants.append({
+                'str': e_form,
+                'type': 'ezafe-explicit-e'
+            })
+        
+        # 2. Explicit -ye form (after vowels)
+        if ezafe_type != 'romanized_ye' and base[-1].lower() in 'aeiou':
+            ye_form = f"{base}-ye {complement}"
+            variants.append({
+                'str': ye_form,
+                'type': 'ezafe-explicit-ye'
+            })
+        
+        # 3. No ezafe marking (bare juxtaposition)
+        if ezafe_type not in ['implicit']:
+            bare_form = f"{base} {complement}"
+            variants.append({
+                'str': bare_form,
+                'type': 'ezafe-bare'
+            })
+        
+        # 4. Compact forms (no hyphen)
+        if '-' in name:
+            if ezafe_type == 'romanized_e':
+                compact_form = f"{base}e {complement}"
+                variants.append({
+                    'str': compact_form,
+                    'type': 'ezafe-compact-e'
+                })
+            elif ezafe_type == 'romanized_ye':
+                compact_form = f"{base}ye {complement}"
+                variants.append({
+                    'str': compact_form,
+                    'type': 'ezafe-compact-ye'
+                })
+        
+        # 5. Persian script form with kasre (if original is romanized)
+        if not self._is_persian(name) and ezafe_type.startswith('romanized'):
+            # Add kasre mark to the base word
+            kasre_form = f"{base}\u0650 {complement}"  # U+0650 is Arabic kasre
+            variants.append({
+                'str': kasre_form,
+                'type': 'ezafe-kasre-marked'
+            })
+        
+        # 6. International normalized form (ASCII-compatible)
+        international_form = f"{base} {complement}"
+        if international_form != name:
+            variants.append({
+                'str': international_form,
+                'type': 'ezafe-international'
+            })
+        
+        return variants
+    
+    def _analyze_zadeh_suffix(self, name: str) -> Optional[Dict[str, Any]]:
+        """
+        Rule 21: -zadeh Suffix – identify Persian patronymic/descendant suffix.
+        
+        The Persian suffix -zadeh (زاده) means "born of" or "descendant of" and is
+        commonly used in Persian family names to indicate lineage:
+        
+        - "Mohammadzadeh" = descendant of Mohammad
+        - "Alizada" = descendant of Ali (Azerbaijani spelling)
+        - "Hassanzadeh" = descendant of Hassan
+        - "Rezazadeh" = descendant of Reza
+        
+        Variations include:
+        - -zadeh (Persian romanization)
+        - -zade (Turkish/Azerbaijani spelling)
+        - -zadah (alternative romanization)
+        - زاده (Persian script)
+        - زاد (shortened form)
+        """
+        if not name:
+            return None
+        
+        zadeh_info = {}
+        
+        # -zadeh suffix patterns to detect
+        zadeh_patterns = [
+            # Full suffix forms
+            (r'(\w+)zadeh\b', 'full_zadeh'),         # "Mohammadzadeh"
+            (r'(\w+)zade\b', 'short_zade'),          # "Alizada" (Azerbaijani)
+            (r'(\w+)zadah\b', 'alt_zadah'),          # "Mohammadzadah"
+            
+            # Persian script forms
+            (r'(\w+)زاده\b', 'persian_full'),        # Persian script full form
+            (r'(\w+)زاد\b', 'persian_short'),         # Persian script short form
+            
+            # Space-separated forms (sometimes written separately)
+            (r'(\w+)\s+زاده\b', 'persian_separate'),  # "محمد زاده"
+            (r'(\w+)\s+zadeh\b', 'roman_separate'),   # "Mohammad zadeh"
+        ]
+        
+        # Check for -zadeh patterns
+        for pattern, zadeh_type in zadeh_patterns:
+            matches = re.finditer(pattern, name, re.IGNORECASE)
+            for match in matches:
+                root_name = match.group(1).strip()
+                
+                # Skip very short roots (likely false positives)
+                if len(root_name) < 2:
+                    continue
+                
+                zadeh_info.update({
+                    'has_zadeh_suffix': True,
+                    'zadeh_type': zadeh_type,
+                    'zadeh_root': root_name,
+                    'zadeh_full_match': match.group(0),
+                    'zadeh_position': match.span(),
+                    'zadeh_meaning': f"descendant of {root_name}"
+                })
+                
+                # Determine the suffix variant used
+                if zadeh_type in ['full_zadeh', 'roman_separate']:
+                    zadeh_info['zadeh_suffix'] = 'zadeh'
+                elif zadeh_type == 'short_zade':
+                    zadeh_info['zadeh_suffix'] = 'zade'
+                elif zadeh_type == 'alt_zadah':
+                    zadeh_info['zadeh_suffix'] = 'zadah'
+                elif zadeh_type in ['persian_full', 'persian_separate']:
+                    zadeh_info['zadeh_suffix'] = 'زاده'
+                elif zadeh_type == 'persian_short':
+                    zadeh_info['zadeh_suffix'] = 'زاد'
+                
+                # Check if the root name is a known Persian name
+                persian_names = [
+                    'mohammad', 'mohammed', 'muhammad', 'ali', 'hassan', 'hussain', 'ahmad', 'ahmed',
+                    'reza', 'abbas', 'hossein', 'javad', 'mehdi', 'masoud', 'mahmoud', 'kazem',
+                    'morteza', 'mostafa', 'ebrahim', 'ibrahim', 'hamid', 'majid', 'said', 'saeed'
+                ]
+                
+                if root_name.lower() in persian_names:
+                    zadeh_info['zadeh_confidence'] = 'high'
+                else:
+                    zadeh_info['zadeh_confidence'] = 'medium'
+                
+                # Return first match (most names have one -zadeh suffix)
+                return zadeh_info
+        
+        return None
+    
+    def _generate_zadeh_variants(self, name: str, zadeh_info: Dict[str, Any]) -> List[Dict[str, str]]:
+        """
+        Rule 21: Generate variants with different -zadeh suffix representations.
+        
+        Creates multiple representations of the same -zadeh construction:
+        - Different suffix spellings (-zadeh, -zade, -zadah)
+        - With and without the suffix (root name only)
+        - Persian script and romanized variants
+        - Space-separated and compound forms
+        """
+        variants = []
+        
+        root = zadeh_info.get('zadeh_root', '')
+        zadeh_type = zadeh_info.get('zadeh_type', '')
+        current_suffix = zadeh_info.get('zadeh_suffix', '')
+        
+        if not root:
+            return variants
+        
+        # Generate different suffix spellings
+        suffix_variants = {
+            'zadeh': f"{root}zadeh",    # Standard Persian romanization
+            'zade': f"{root}zade",      # Turkish/Azerbaijani spelling
+            'zadah': f"{root}zadah",    # Alternative romanization
+        }
+        
+        # Add variants for different suffix spellings
+        for suffix_type, variant_name in suffix_variants.items():
+            if suffix_type != current_suffix.replace('زاده', 'zadeh').replace('زاد', 'zade'):
+                variants.append({
+                    'str': variant_name,
+                    'type': f'zadeh-suffix-{suffix_type}'
+                })
+        
+        # Generate root name variant (without suffix)
+        if len(root) >= 3:  # Only for substantial root names
+            variants.append({
+                'str': root,
+                'type': 'zadeh-root-only'
+            })
+        
+        # Generate space-separated variants
+        if ' ' not in name:  # If original is compound form
+            space_separated = f"{root} zadeh"
+            variants.append({
+                'str': space_separated,
+                'type': 'zadeh-space-separated'
+            })
+        
+        # Generate Persian script variants (if original is romanized)
+        if not self._is_persian(name):
+            persian_full = f"{root}زاده"
+            persian_short = f"{root}زاد"
+            
+            variants.extend([
+                {
+                    'str': persian_full,
+                    'type': 'zadeh-persian-full'
+                },
+                {
+                    'str': persian_short,
+                    'type': 'zadeh-persian-short'
+                }
+            ])
+        
+        # Generate romanized variants (if original is Persian script)
+        elif self._is_persian(name):
+            romanized_full = f"{root}zadeh"
+            romanized_short = f"{root}zade"
+            
+            variants.extend([
+                {
+                    'str': romanized_full,
+                    'type': 'zadeh-romanized-full'
+                },
+                {
+                    'str': romanized_short,
+                    'type': 'zadeh-romanized-short'
+                }
+            ])
+        
+        # Generate capitalized variants for proper names
+        for variant in variants[:]:  # Copy list to avoid modification during iteration
+            if variant['str'].islower():
+                capitalized = variant['str'].title()
+                if capitalized != variant['str']:
+                    variants.append({
+                        'str': capitalized,
+                        'type': variant['type'] + '-capitalized'
+                    })
+        
+        return variants
     
     def _generate_no_patronymic_variant(self, name: str, components: Dict[str, Any]) -> Optional[str]:
         """Generate variant without patronymic."""

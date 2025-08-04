@@ -313,14 +313,22 @@ class E1_SinophoneMainland(RegionSpec):
             # Check for valid pinyin pattern
             if not self._is_valid_pinyin(canonical_latin):
                 raise RegionRuleError(f"Invalid pinyin format: {canonical_latin}")
+        
+        # Rule 11: CJK Round-Trip ≥97% Dice coefficient validation (V7 requirement)
+        if canonical_native and canonical_latin:
+            dice_score = self._validate_cjk_roundtrip(canonical_native, canonical_latin)
+            if dice_score < 0.97:
+                raise RegionRuleError(f"Rule 11 violation: CJK round-trip Dice coefficient {dice_score:.3f} < 0.97")
     
     def _is_valid_pinyin(self, text: str) -> bool:
         """Check if text is valid pinyin."""
+        # Remove punctuation for validation
+        text_clean = text.replace(',', ' ').replace('.', ' ')
         # Basic pinyin validation
-        words = text.split()
+        words = text_clean.split()
         for word in words:
             # Should only contain Latin letters and basic marks
-            if not re.match(r'^[a-zA-ZüÜ]+$', word):
+            if word and not re.match(r'^[a-zA-ZüÜ]+$', word):
                 return False
         return True
     
@@ -356,3 +364,140 @@ class E1_SinophoneMainland(RegionSpec):
         key = " ".join(key.split())
         
         return key
+    
+    def _validate_cjk_roundtrip(self, canonical_native: str, canonical_latin: str) -> float:
+        """
+        Rule 11: CJK Round-Trip validation with Dice coefficient.
+        
+        Process:
+        1. romanise CJK → get expected romanization  
+        2. back-convert romanization → get reconstructed CJK
+        3. calculate Dice coefficient between original and reconstructed
+        4. must achieve ≥97% match for V7 compliance
+        
+        Args:
+            canonical_native: Original CJK text
+            canonical_latin: Provided romanization
+            
+        Returns:
+            Dice coefficient (0.0 to 1.0)
+        """
+        import unicodedata
+        
+        try:
+            # Step 1: Romanize original CJK to get expected romanization
+            expected_romanization = self._generate_pinyin(canonical_native)
+            
+            # Step 2: Back-convert provided romanization to CJK
+            reconstructed_cjk = self._pinyin_to_cjk(canonical_latin)
+            
+            # Step 3: Apply NFC casefold normalization as per V7 spec
+            original_normalized = unicodedata.normalize('NFC', canonical_native.casefold())
+            reconstructed_normalized = unicodedata.normalize('NFC', reconstructed_cjk.casefold())
+            
+            # Step 4: Calculate Dice coefficient
+            dice_score = self._calculate_dice_coefficient(original_normalized, reconstructed_normalized)
+            
+            # Store round-trip metadata for debugging
+            self.logger.debug(f"Rule 11 Round-trip: {canonical_native} → {expected_romanization} → {reconstructed_cjk} (Dice: {dice_score:.3f})")
+            
+            return dice_score
+            
+        except Exception as e:
+            self.logger.warning(f"CJK round-trip validation failed: {e}")
+            # Conservative approach: return 0.0 if validation fails
+            return 0.0
+    
+    def _pinyin_to_cjk(self, pinyin: str) -> str:
+        """
+        Convert pinyin romanization back to CJK characters.
+        
+        This is a simplified back-conversion. In a production system,
+        you'd use a proper pinyin-to-Chinese conversion library.
+        """
+        # Reverse pinyin mapping (simplified)
+        reverse_pinyin_map = {
+            "wang": "王", "li": "李", "zhang": "张", "liu": "刘", "chen": "陈",
+            "yang": "杨", "huang": "黄", "zhao": "赵", "zhou": "周", "wu": "吴",
+            "xu": "徐", "sun": "孙", "zhu": "朱", "ma": "马", "hu": "胡",
+            "guo": "郭", "lin": "林", "he": "何", "gao": "高", "liang": "梁",
+            
+            # Common given name syllables
+            "ming": "明", "hua": "华", "wei": "伟", "qiang": "强", "jun": "军",
+            "jing": "静", "min": "敏", "fang": "芳", "ying": "英", "na": "娜",
+            "xiu": "秀", "hong": "红", "xia": "霞", "yan": "燕", "dong": "东",
+            "nan": "南", "xi": "西", "bei": "北", "zhong": "中", "jian": "建",
+            "wen": "文", "zhi": "志", "de": "德", "yi": "义", "ren": "仁",
+            "xiao": "小", "da": "大", "tian": "天", "shan": "山", "jin": "金"
+        }
+        
+        # Clean and normalize pinyin input
+        pinyin_clean = pinyin.lower().replace(',', ' ').strip()
+        syllables = pinyin_clean.split()
+        
+        result = []
+        for syllable in syllables:
+            # Remove tone marks for matching
+            syllable_clean = self._remove_tone_marks(syllable)
+            
+            if syllable_clean in reverse_pinyin_map:
+                result.append(reverse_pinyin_map[syllable_clean])
+            else:
+                # Unknown syllable - attempt best guess or return placeholder
+                # In production, this would use a comprehensive pinyin dictionary
+                result.append("？")  # Question mark to indicate unknown
+        
+        return "".join(result)
+    
+    def _remove_tone_marks(self, syllable: str) -> str:
+        """Remove tone marks from pinyin syllable."""
+        # Basic tone mark removal
+        tone_map = {
+            'ā': 'a', 'á': 'a', 'ǎ': 'a', 'à': 'a',
+            'ē': 'e', 'é': 'e', 'ě': 'e', 'è': 'e', 
+            'ī': 'i', 'í': 'i', 'ǐ': 'i', 'ì': 'i',
+            'ō': 'o', 'ó': 'o', 'ǒ': 'o', 'ò': 'o',
+            'ū': 'u', 'ú': 'u', 'ǔ': 'u', 'ù': 'u',
+            'ǖ': 'ü', 'ǘ': 'ü', 'ǚ': 'ü', 'ǜ': 'ü'
+        }
+        
+        result = []
+        for char in syllable:
+            result.append(tone_map.get(char, char))
+        return "".join(result)
+    
+    def _calculate_dice_coefficient(self, text1: str, text2: str) -> float:
+        """
+        Calculate Dice coefficient between two strings.
+        
+        Dice coefficient = 2 * |intersection| / (|set1| + |set2|)
+        
+        Args:
+            text1: First string
+            text2: Second string
+            
+        Returns:
+            Dice coefficient (0.0 to 1.0)
+        """
+        if not text1 and not text2:
+            return 1.0
+        if not text1 or not text2:
+            return 0.0
+        
+        # Create character bigrams for better matching
+        bigrams1 = set(text1[i:i+2] for i in range(len(text1)-1))
+        bigrams2 = set(text2[i:i+2] for i in range(len(text2)-1))
+        
+        # Handle single character case
+        if len(text1) == 1:
+            bigrams1 = set([text1])
+        if len(text2) == 1:
+            bigrams2 = set([text2])
+        
+        # Calculate intersection
+        intersection = bigrams1.intersection(bigrams2)
+        
+        # Calculate Dice coefficient
+        dice = 2.0 * len(intersection) / (len(bigrams1) + len(bigrams2))
+        
+        return dice

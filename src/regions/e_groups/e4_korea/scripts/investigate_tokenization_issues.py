@@ -4,8 +4,8 @@ Investigate why some systematic mappings still fail - tokenization issues
 """
 import sys
 sys.path.append('src')
-from preprocess_fixed import tokenise
-from segment_fixed import segment
+from preprocess import tokenise
+from segment import segment
 
 print("=== INVESTIGATING TOKENIZATION ISSUES ===")
 print("Why do some systematic mappings still fail?")

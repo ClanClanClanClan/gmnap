@@ -1,36 +1,102 @@
 version: '3.8'
 
 services:
+  # Memgraph graph database for academic genealogy
+  memgraph:
+    image: memgraph/memgraph-platform:2.12
+    container_name: gmnap_memgraph
+    ports:
+      - "7687:7687"  # Bolt protocol
+      - "7444:7444"  # HTTPS for Memgraph Lab
+      - "3000:3000"  # HTTP for Memgraph Lab
+    environment:
+      - MEMGRAPH_USER=gmnap
+      - MEMGRAPH_PASSWORD=v7_lineage
+    volumes:
+      - memgraph_data:/var/lib/memgraph
+      - memgraph_log:/var/log/memgraph
+      - memgraph_etc:/etc/memgraph
+      - ./init_memgraph.cypher:/var/lib/memgraph/init.cypher:ro
+    command: ["--init-file=/var/lib/memgraph/init.cypher", "--storage-gc-cycle-sec=30"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'RETURN 1;' | /usr/lib/memgraph/mgconsole --host localhost --port 7687 --username gmnap --password v7_lineage || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: gmnap_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # GMNAP V7 Pipeline service
   gmnap:
     build: .
+    container_name: gmnap_api
     environment:
       - PIPELINE_MODE=quick
       - CACHE_MAX_SIZE_GB=20
       - CACHE_MAX_DAYS=30
       - PYTHONPATH=/app/src:/app
+      - MEMGRAPH_HOST=memgraph
+      - MEMGRAPH_PORT=7687
+      - MEMGRAPH_USER=gmnap
+      - MEMGRAPH_PASSWORD=v7_lineage
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     volumes:
       - ./data:/app/data
       - ./cache:/app/cache
       - ./config:/app/config
+      - ./output:/app/output
     deploy:
       resources:
         limits:
-          memory: 4GB
-          cpus: '4'
+          memory: 6GB  # V7 spec: ≤6GB RSS
+          cpus: '4'    # V7 spec: 4 workers for Quick mode
     ports:
       - "8080:8080"  # For monitoring/health checks
+    depends_on:
+      memgraph:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
     
   # Development service with interactive shell
   gmnap-dev:
     build: .
+    container_name: gmnap_dev
     environment:
       - PIPELINE_MODE=quick
       - CACHE_MAX_SIZE_GB=5
       - CACHE_MAX_DAYS=7
       - PYTHONPATH=/app/src:/app
+      - MEMGRAPH_HOST=memgraph
+      - REDIS_HOST=redis
     volumes:
       - ./:/app
       - ./cache:/app/cache
     command: /bin/bash
     stdin_open: true
     tty: true
+    depends_on:
+      - memgraph
+      - redis
+
+volumes:
+  memgraph_data:
+  memgraph_log:
+  memgraph_etc:
+  redis_data:

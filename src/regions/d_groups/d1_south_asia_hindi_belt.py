@@ -211,6 +211,9 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
         
         entry["RegionalExtras"].update(components)
         
+        # Add region code
+        entry["RegionCode"] = self.code
+        
         # Generate variants
         if "Variants" not in entry:
             entry["Variants"] = {"Observed": [], "Synthesised": []}
@@ -488,8 +491,8 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
     def _has_valid_characters(self, name: str) -> bool:
         """Check if name contains valid characters."""
         for char in name:
-            # Allow Latin, Devanagari, spaces, hyphens, apostrophes, dots
-            if char.isalpha() or char in " -'.":
+            # Allow Latin, Devanagari, spaces, hyphens, apostrophes, dots, commas
+            if char.isalpha() or char in " -'.,":
                 continue
             # Check if it's valid Devanagari
             if any(start <= ord(char) <= end for start, end in self.devanagari_ranges):

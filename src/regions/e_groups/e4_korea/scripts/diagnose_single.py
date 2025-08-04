@@ -4,8 +4,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-from preprocess_fixed import tokenise
-from segment_fixed import segment
+from preprocess import tokenise
+from segment import segment
 
 name = sys.argv[1] if len(sys.argv) > 1 else "Youn, Yuh-Jung"
 print(f"Diagnosing: {name}")

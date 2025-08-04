@@ -1,0 +1,148 @@
+# A5 Dutch/French Caribbean Region Configuration
+# Covers: CW, SX, BQ, MQ, GF, GP, RE, YT, PM
+
+region:
+  code: A5
+  name: Dutch/French Caribbean
+  description: |
+    Caribbean territories under Dutch and French administration with
+    rich linguistic diversity including Creole languages, colonial
+    European influences, and African cultural heritage.
+
+countries:
+  dutch_caribbean:
+    - code: CW
+      name: Curaçao
+      features: [papiamento, dutch_surnames, spanish_influence]
+    - code: SX
+      name: Sint Maarten
+      features: [english_creole, dutch_admin, tourism_influence]
+    - code: BQ
+      name: Caribbean Netherlands
+      territories: ["Bonaire", "Sint Eustatius", "Saba"]
+      features: [dutch_admin, english_common, papiamento_bonaire]
+  
+  french_caribbean:
+    - code: MQ
+      name: Martinique
+      features: [french_creole, beké_names, african_heritage]
+    - code: GP
+      name: Guadeloupe
+      features: [french_creole, indian_influence, saint_compounds]
+    - code: GF
+      name: French Guiana
+      features: [french_admin, amerindian_names, maroon_communities]
+    - code: RE
+      name: Réunion
+      features: [french_creole, indian_ocean, chinese_influence]
+    - code: YT
+      name: Mayotte
+      features: [french_admin, comorian_influence, arabic_names]
+    - code: PM
+      name: Saint Pierre and Miquelon
+      features: [french_admin, basque_influence, maritime_heritage]
+
+naming_conventions:
+  canonical_order: "Family, Given"
+  
+  special_rules:
+    creole_particles:
+      description: "Particles often integral to names"
+      examples:
+        - "d'" # d'Andre
+        - "l'" # l'Homme
+        - "ti" # Ti-Jean (petit/little)
+        - "man" # Man-Marie
+        - "di" # di Silva
+      handling: "Keep particles; normalize apostrophes"
+    
+    hyphenated_given_names:
+      description: "Common hyphenated first names (Rule #23)"
+      examples:
+        - "Jean-Pierre → J.-P." # Initials variant
+        - "Marie-Claire"
+        - "Anne-Marie"
+        - "Jean-Baptiste"
+    
+    saint_compounds:
+      description: "Religious compound surnames"
+      common:
+        - "Saint-Jean"
+        - "Saint-Louis"
+        - "Saint-Pierre"
+        - "Sainte-Rose"
+        - "Sainte-Marie"
+    
+    apostrophe_handling:
+      description: "Critical for Creole names"
+      normalize_to: "'"
+      contractions:
+        - "d'Andre" # Not "d' Andre"
+        - "l'Église"
+        - "n'Diaye"
+
+scripts:
+  primary: Latin
+  diacritics:
+    french:
+      acute: ["é", "É"]
+      grave: ["à", "è", "ù", "À", "È", "Ù"]
+      circumflex: ["â", "ê", "î", "ô", "û", "Â", "Ê", "Î", "Ô", "Û"]
+      diaeresis: ["ë", "ï", "ü", "Ë", "Ï", "Ü"]
+      cedilla: ["ç", "Ç"]
+    
+    spanish_influence:
+      tilde: ["ñ", "Ñ"]
+    
+    dutch_influence:
+      description: "Limited diacritics in Dutch Caribbean"
+      rare: ["ë", "ï"]
+
+cultural_patterns:
+  african_heritage:
+    description: "Names from African diaspora"
+    examples:
+      - "Toussaint" # All Saints
+      - "Dessalines"
+      - "Christophe"
+      - "Césaire"
+    
+  plantation_era:
+    description: "Names from colonial plantation period"
+    patterns:
+      - "Beau-" # Beauregard
+      - "Belle-" # Bellegarde
+      - "Grand-" # Grandmaison
+      - "-fond" # Ravine-à-Fond
+  
+  religious_influence:
+    description: "Strong Catholic/Christian influence"
+    patterns:
+      - "Saint/Sainte compounds"
+      - "Biblical first names"
+      - "Emmanuel", "Baptiste", "Marie"
+  
+  maroon_communities:
+    description: "Escaped slave communities (esp. French Guiana)"
+    naming: "African names preserved, Dutch/French particles added"
+
+validation_rules:
+  - rule: "Must use Latin script"
+  - rule: "French/Dutch diacritics allowed"
+  - rule: "Apostrophes critical for Creole names"
+  - rule: "Hyphenated given names common"
+  - rule: "Particles integral to identity"
+
+linguistic_notes:
+  papiamento:
+    description: "Creole of Curaçao/Bonaire"
+    influences: ["Spanish", "Portuguese", "Dutch", "English"]
+  
+  french_creole:
+    description: "Antillean Creole"
+    apostrophe_usage: "Critical for contractions"
+    
+  naming_evolution:
+    colonial: "European surnames imposed"
+    post_abolition: "Choice of new surnames, often place/attribute based"
+    modern: "Mix of traditional and international names"

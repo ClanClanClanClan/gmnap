@@ -26,88 +26,51 @@ def read_rows_with_pos():
             w = 0.0 if tag=="SURNAME_0" else 1.0
             yield h, r, w, "", ""
 
-def compile_for_pos(rows, want_pos, direction):
-    """Compile FST for specific position with general fallback."""
-    fst = pn.Fst()
-    s = fst.add_state()
-    fst.set_start(s)
-    fst.set_final(s)
-    
-    for hangul, roman, weight, context, pos in rows:
-        # Include if: 1) matches wanted position, 2) is general (empty pos)
-        if pos == want_pos or pos == "":
-            # Boost general mappings by +1.0 to make them tie-breakers
-            final_weight = weight + (1.0 if pos == "" else 0.0)
-            
-            if direction == "rom2han":
-                arc = pn.accep(roman.lower(), weight=final_weight) @ pn.cross(roman.lower(), hangul)
-            else:
-                arc = pn.accep(hangul, weight=final_weight) @ pn.cross(hangul, roman.lower())
-            
-            fst |= arc
-    
-    return fst.optimize()
-
-def build_tier2_fsts(direction="rom2han"):
-    """Build Tier 2 stackable FSTs with context-priority union."""
-    # Read all rows once
-    all_rows = list(read_rows_with_pos())
-    
-    # Create position-specific FSTs
-    fst_surname = compile_for_pos(all_rows, "S", direction)
-    fst_given = compile_for_pos(all_rows, "G", direction)
-    
-    # Create general-only FST (for reference, though union handles this)
+def build_positional(direction:str):
+    """Build surname and given-name specific FSTs"""
+    fst_surname = pn.Fst()
+    fst_given = pn.Fst()
     fst_general = pn.Fst()
-    s = fst_general.add_state()
-    fst_general.set_start(s)
-    fst_general.set_final(s)
     
-    for hangul, roman, weight, context, pos in all_rows:
-        if pos == "":  # Only general mappings
-            if direction == "rom2han":
-                arc = pn.accep(roman.lower(), weight=weight) @ pn.cross(roman.lower(), hangul)
-            else:
-                arc = pn.accep(hangul, weight=weight) @ pn.cross(hangul, roman.lower())
+    # Initialize states
+    for fst in [fst_surname, fst_given, fst_general]:
+        s = fst.add_state()
+        fst.set_start(s)
+        fst.set_final(s)
+    
+    for hangul, roman, weight, context, pos in read_rows_with_pos():
+        if direction == "rom2han":
+            arc = pn.accep(roman.lower(), weight=weight) @ pn.cross(roman.lower(), hangul)
+        else:
+            arc = pn.accep(hangul, weight=weight) @ pn.cross(hangul, roman.lower())
+        
+        if pos == "S":  # Surname only
+            fst_surname |= arc
+        elif pos == "G":  # Given name only
+            fst_given |= arc
+        else:  # General (empty pos) - add to all
+            fst_surname |= arc
+            fst_given |= arc
             fst_general |= arc
     
-    return fst_surname, fst_given, fst_general.optimize()
+    return fst_surname.optimize(), fst_given.optimize(), fst_general.optimize()
 
 # Support atomic operations via FST_OUTPUT_DIR environment variable
 import os
 output_dir = os.environ.get("FST_OUTPUT_DIR", "models")
 pathlib.Path(output_dir).mkdir(exist_ok=True, parents=True)
 
-print("Building Tier 2 stackable FSTs with context-priority union...")
-
-# Build Tier 2 FSTs
-surname_rom2han, given_rom2han, general_rom2han = build_tier2_fsts("rom2han")
-surname_han2rom, given_han2rom, general_han2rom = build_tier2_fsts("han2rom")
+# Build position-specific FSTs
+surname_rom2han, given_rom2han, general_rom2han = build_positional("rom2han")
+surname_han2rom, given_han2rom, general_han2rom = build_positional("han2rom")
 
 # Write FSTs to specified output directory
 surname_rom2han.write(f"{output_dir}/rom2han_surname.fst")
 given_rom2han.write(f"{output_dir}/rom2han_given.fst")
-general_rom2han.write(f"{output_dir}/rom2han_general.fst")
+general_rom2han.write(f"{output_dir}/rom2han_multi.fst")
 
 surname_han2rom.write(f"{output_dir}/han2rom_surname.fst")
 given_han2rom.write(f"{output_dir}/han2rom_given.fst")
-general_han2rom.write(f"{output_dir}/han2rom_general.fst")
+general_han2rom.write(f"{output_dir}/han2rom_multi.fst")
 
-print(f"✓ Tier 2 stackable FSTs written: 6 FST files created in {output_dir}")
-print("  - Position-specific mappings now have precedence over general ones")
-print("  - General mappings serve as fallbacks with +1.0 weight boost")
-
-# Add loanword fallback FST
-LOANWORD_TSV = "resources/loanword_en2kor.tsv"
-loan_raw = pn.string_file(LOANWORD_TSV).optimize()
-loan = pn.arcmap(loan_raw, map_type="to_log")  # ensure log semiring
-# Create weighted loanword FST with +1.2 penalty
-weighted_loan = pn.Fst()
-for row in open(LOANWORD_TSV, encoding="utf8"):
-    if '\t' in row:
-        eng, kor = row.strip().split('\t')
-        arc = pn.accep(eng.lower(), weight=1.2) @ pn.cross(eng.lower(), kor)
-        weighted_loan |= arc
-
-weighted_loan.optimize().write(f"{output_dir}/loanword_raw.fst")
-(general_rom2han | weighted_loan).optimize().write(f"{output_dir}/rom2han_fallback.fst")
+print(f"✓ Position-specific FSTs written: 6 FST files created in {output_dir}")

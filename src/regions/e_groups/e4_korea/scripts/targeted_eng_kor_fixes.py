@@ -57,8 +57,8 @@ for i, f in enumerate(safe_fixes[:10]):
     print(f"    Expected: {f['expected']}")
     
     # Identify what specific segment is failing
-    from preprocess_fixed import tokenise
-    from segment_fixed import segment
+    from preprocess import tokenise
+    from segment import segment
     
     tokens = list(tokenise(f['input']))
     print(f"    Tokens: {tokens}")

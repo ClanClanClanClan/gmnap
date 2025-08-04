@@ -12,7 +12,8 @@ This module provides both v5 (legacy) and v6 (current) implementations
 with automatic fallback for reliability.
 """
 
-from .processor import E4KoreaProcessor
+from .processor import E4KoreanProcessor
 from .converter_v6 import KoreanConverterV6
+from .converter_v7 import KoreanConverterV7
 
-__all__ = ["E4KoreaProcessor", "KoreanConverterV6"]
+__all__ = ["E4KoreanProcessor", "KoreanConverterV6", "KoreanConverterV7"]

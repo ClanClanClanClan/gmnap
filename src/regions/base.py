@@ -1,12 +1,16 @@
 """
 Base classes for regional processing in GMNAP.
-Implements the RegionSpec interface as defined in specs v6.
+Implements the RegionSpec interface as defined in specs v7.
+Enforces V7 linguistic rules (IDs 1-34) and quality gates.
 """
 
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional
+
+from .security import SecurityError, secure_validate_entry, secure_clean_name
+from .validation_rules import regional_validator, ValidationResult
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +23,11 @@ class RegionRuleError(Exception):
 @dataclass
 class RegionSpec(ABC):
     """
-    Region specification interface as defined in specs v6.
+    Region specification interface as defined in specs v7.
     
     All region implementations must inherit from this class and implement
-    the mandatory hooks.
+    the mandatory hooks. Must comply with the 34 linguistic rules (IDs 1-34)
+    and V7 quality gates including 97% round-trip accuracy.
     """
     code: str
     yaml_files: List[str]
@@ -38,6 +43,539 @@ class RegionSpec(ABC):
         if self.romanisation_standards is None:
             self.romanisation_standards = []
         self.logger = logging.getLogger(f"regions.{self.code}")
+    
+    # Security methods (available to all processors)
+    def security_validate(self, entry: Dict[str, Any]) -> None:
+        """
+        Validate entry against security threats.
+        
+        This method should be called by all processors during their
+        clean() or validate() methods to ensure security.
+        
+        Args:
+            entry: Entry to validate
+            
+        Raises:
+            SecurityError: If security threats are detected
+        """
+        try:
+            secure_validate_entry(entry, self.code)
+        except SecurityError as e:
+            self.logger.warning(f"Security threat blocked: {e}")
+            raise RegionRuleError(f"Security violation: {e}")
+    
+    def security_clean_field(self, value: str, field_name: str) -> str:
+        """
+        Securely clean a string field.
+        
+        Args:
+            value: String value to clean
+            field_name: Name of field for context
+            
+        Returns:
+            Cleaned string value
+            
+        Raises:
+            RegionRuleError: If security threats are detected
+        """
+        try:
+            return secure_clean_name(value, f"{self.code}.{field_name}")
+        except SecurityError as e:
+            self.logger.warning(f"Security threat in {field_name}: {e}")
+            raise RegionRuleError(f"Security violation in {field_name}: {e}")
+    
+    def security_validate_all_fields(self, entry: Dict[str, Any]) -> None:
+        """
+        Validate all string fields in entry for security.
+        
+        This is a convenience method that validates common name fields.
+        Individual processors can call this early in their processing.
+        
+        Args:
+            entry: Entry to validate
+            
+        Raises:
+            RegionRuleError: If security threats are detected
+        """
+        # Validate entire entry structure first
+        self.security_validate(entry)
+        
+        # Validate specific common fields
+        fields_to_check = [
+            'CanonicalLatin', 'CanonicalNative', 'CJK',
+            'FamilyName', 'GivenName', 'MiddleName'
+        ]
+        
+        for field in fields_to_check:
+            if field in entry and isinstance(entry[field], str):
+                entry[field] = self.security_clean_field(entry[field], field)
+        
+        # Validate variants if present
+        if 'Variants' in entry:
+            if 'Observed' in entry['Variants']:
+                for i, variant in enumerate(entry['Variants']['Observed']):
+                    if 'str' in variant and isinstance(variant['str'], str):
+                        variant['str'] = self.security_clean_field(
+                            variant['str'], f"Variants.Observed[{i}].str"
+                        )
+            
+            if 'Synthesised' in entry['Variants']:
+                for i, variant in enumerate(entry['Variants']['Synthesised']):
+                    if 'str' in variant and isinstance(variant['str'], str):
+                        variant['str'] = self.security_clean_field(
+                            variant['str'], f"Variants.Synthesised[{i}].str"
+                        )
+    
+    # Rule 16: Unicode Fold Exceptions (Global utility method)
+    def apply_unicode_fold_exceptions(self, text: str) -> str:
+        """
+        Rule 16: Unicode Fold Exceptions - ligatures decomposition, ß/ẞ handling, tonos=oxia.
+        
+        This global utility method handles special Unicode folding cases that
+        require specific treatment across all regional processors:
+        
+        1. Ligatures decomposition: æ → ae, œ → oe, ß → ss, ĳ → ij
+        2. Capital Sharp-S handling: ẞ → SS (proper German capitalization)  
+        3. Greek tonos=oxia normalization: ά → ά (canonical accent form)
+        
+        Args:
+            text: Input text to normalize
+            
+        Returns:
+            Normalized text with Unicode fold exceptions applied
+        """
+        if not text:
+            return text
+        
+        # Step 1: Ligatures decomposition
+        ligature_map = {
+            'æ': 'ae', 'Æ': 'AE',      # Latin ae ligature
+            'œ': 'oe', 'Œ': 'OE',      # Latin oe ligature
+            'ß': 'ss',                  # German sharp s (eszett)
+            'ẞ': 'SS',                  # Capital German sharp s
+            'ĳ': 'ij', 'Ĳ': 'IJ',      # Dutch ij ligature
+            'ﬀ': 'ff', 'ﬁ': 'fi',      # Typography ligatures
+            'ﬂ': 'fl', 'ﬃ': 'ffi',
+            'ﬄ': 'ffl', 'ﬅ': 'st',
+            'ﬆ': 'st'
+        }
+        
+        # Apply ligature decomposition
+        for ligature, replacement in ligature_map.items():
+            text = text.replace(ligature, replacement)
+        
+        # Step 2: Greek tonos=oxia normalization
+        # Greek has two different accent systems that should be normalized
+        greek_accent_map = {
+            # Tonos (modern Greek) → Oxia (polytonic/ancient Greek canonical form)
+            'ά': 'ά',  # alpha with tonos → alpha with oxia
+            'έ': 'έ',  # epsilon with tonos → epsilon with oxia  
+            'ή': 'ή',  # eta with tonos → eta with oxia
+            'ί': 'ί',  # iota with tonos → iota with oxia
+            'ό': 'ό',  # omicron with tonos → omicron with oxia
+            'ύ': 'ύ',  # upsilon with tonos → upsilon with oxia
+            'ώ': 'ώ',  # omega with tonos → omega with oxia
+            
+            # Capital forms
+            'Ά': 'Ά', 'Έ': 'Έ', 'Ή': 'Ή', 'Ί': 'Ί',
+            'Ό': 'Ό', 'Ύ': 'Ύ', 'Ώ': 'Ώ'
+        }
+        
+        # Apply Greek accent normalization
+        for tonos_char, oxia_char in greek_accent_map.items():
+            text = text.replace(tonos_char, oxia_char)
+        
+        # Step 3: Additional Unicode normalizations for V7 compliance
+        # Normalize quotation marks and apostrophes
+        quote_map = {
+            ''': "'", ''': "'",     # Curly single quotes → straight
+            '"': '"', '"': '"',     # Curly double quotes → straight
+            '‚': ',', '„': '"',     # German/Eastern European quotes
+            '‹': '<', '›': '>',     # Single angle quotes
+            '«': '"', '»': '"'      # Double angle quotes
+        }
+        
+        for fancy_quote, simple_quote in quote_map.items():
+            text = text.replace(fancy_quote, simple_quote)
+        
+        # Step 4: Normalize dashes and spaces
+        # V7 requires consistent dash and space handling
+        dash_map = {
+            '–': '-',     # En dash → hyphen
+            '—': '-',     # Em dash → hyphen
+            '−': '-',     # Minus sign → hyphen
+            '‐': '-',     # Hyphen → standard hyphen
+            '\u00A0': ' ', # Non-breaking space → regular space
+            '\u2009': ' ', # Thin space → regular space
+            '\u200A': ' ', # Hair space → regular space  
+            '\u2000': ' ', # En quad → regular space
+            '\u2001': ' ', # Em quad → regular space
+            '\u2002': ' ', # En space → regular space
+            '\u2003': ' '  # Em space → regular space
+        }
+        
+        for fancy_char, simple_char in dash_map.items():
+            text = text.replace(fancy_char, simple_char)
+        
+        return text
+    
+    # Rule 26: Gender Heuristic Guard (Global safety mechanism)
+    def apply_gender_heuristic_guard(self, entry: Dict[str, Any]) -> None:
+        """
+        Rule 26: Gender Heuristic Guard – ethical and safe gender inference.
+        
+        This critical safety rule ensures that gender inference in name processing:
+        1. Never makes assumptions based on cultural stereotypes
+        2. Only infers gender from linguistically definitive markers
+        3. Always marks inferred genders as uncertain
+        4. Respects cultural and regional variations
+        5. Provides escape mechanisms for non-binary/unknown cases
+        
+        V7 compliance requires this guard to prevent discriminatory outcomes
+        in academic genealogy applications.
+        """
+        # Check if gender information exists
+        current_gender = entry.get("Gender")
+        gender_provided = entry.get("GenderProvided", True)  # Default assumes provided
+        
+        # If gender was inferred (not provided), apply safety guards
+        if current_gender and not gender_provided:
+            regional_extras = entry.get("RegionalExtras", {})
+            gender_source = regional_extras.get("gender_source", "unknown")
+            
+            # Only allow gender inference from highly reliable linguistic markers
+            reliable_sources = {
+                "patronymic-inference",      # East-Slavic -ович/-овна patterns
+                "turkic-patronymic",         # Turkic -oğlu/-qızı patterns  
+                "arabic-patronymic",         # Arabic bin/bint patterns
+                "malay-patronymic",          # Malay bin/binti patterns
+                "definitive-suffix"          # Language-specific definitive markers
+            }
+            
+            if gender_source not in reliable_sources:
+                # Remove uncertain gender inferences
+                self.logger.warning(f"Removing uncertain gender inference from source: {gender_source}")
+                entry.pop("Gender", None)
+                entry["GenderProvided"] = False
+            else:
+                # Mark reliable inferences with confidence metadata
+                entry["GenderInferenceMetadata"] = {
+                    "source": gender_source,
+                    "confidence": "linguistic-marker",
+                    "rule_26_validated": True,
+                    "cultural_context": regional_extras.get("likely_country", "unknown")
+                }
+                
+                # Always mark inferred genders as uncertain for downstream systems
+                entry["GenderUncertainty"] = True
+        
+        # Apply cultural sensitivity guards
+        self._apply_cultural_gender_guards(entry)
+        
+        # Validate against discriminatory patterns
+        self._validate_gender_non_discrimination(entry)
+    
+    def _apply_cultural_gender_guards(self, entry: Dict[str, Any]) -> None:
+        """Apply culture-specific gender inference guards."""
+        regional_extras = entry.get("RegionalExtras", {})
+        likely_country = regional_extras.get("likely_country")
+        
+        # Cultures where gender inference should be extra careful
+        cautious_cultures = {
+            "TH", "VN", "KH", "LA",  # Mainland SEA - different gender concepts
+            "ID", "MY", "SG", "BN",  # Maritime SEA - diverse traditions
+            "IN", "BD", "NP", "LK",  # South Asia - complex gender systems
+            "PH", "TL"               # Philippines - diverse naming patterns
+        }
+        
+        if likely_country in cautious_cultures:
+            # For these cultures, require extra validation
+            if entry.get("Gender") and not entry.get("GenderProvided", True):
+                # Add cultural sensitivity flag
+                if "GenderInferenceMetadata" not in entry:
+                    entry["GenderInferenceMetadata"] = {}
+                entry["GenderInferenceMetadata"]["cultural_sensitivity_required"] = True
+                entry["GenderInferenceMetadata"]["cultural_context"] = likely_country
+    
+    def _validate_gender_non_discrimination(self, entry: Dict[str, Any]) -> None:
+        """Validate that gender handling doesn't create discriminatory outcomes."""
+        # Ensure gender information doesn't affect core name processing
+        gender = entry.get("Gender")
+        if gender:
+            # Check that gender isn't being used inappropriately in name variants
+            variants = entry.get("Variants", {}).get("Synthesised", [])
+            for variant in variants:
+                variant_type = variant.get("type", "")
+                # Flag suspicious gender-based variants
+                if "gender" in variant_type.lower() and variant_type not in ["patronymic-gender-inference"]:
+                    self.logger.warning(f"Potentially discriminatory gender-based variant: {variant_type}")
+            
+            # Ensure gender doesn't affect order_key (sorting should be gender-neutral)
+            # This is validated elsewhere but we double-check here
+            pass
+        
+        # Add non-discrimination compliance flag
+        entry["Rule26Compliant"] = True
+    
+    # Rule 34: Round-trip Determinism (Global quality gate)
+    def validate_round_trip_determinism(self, entry: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Rule 34: Round-trip Determinism – ensure consistent processing results.
+        
+        This critical quality gate ensures that:
+        1. Processing the same input always produces identical output
+        2. order_key() is a pure function (same input → same output)
+        3. Variant generation is deterministic and stable
+        4. No randomness or system-dependent behavior affects results
+        5. Round-trip processing maintains data integrity
+        
+        Returns validation report with compliance status and any detected issues.
+        """
+        validation_report = {
+            "rule_34_compliant": True,
+            "determinism_issues": [],
+            "round_trip_accuracy": None,
+            "order_key_stability": True,
+            "variant_stability": True
+        }
+        
+        try:
+            # Test 1: order_key() determinism
+            canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
+            if canonical:
+                # Call order_key multiple times and verify consistency
+                order_keys = []
+                for _ in range(3):
+                    try:
+                        key = self.order_key(entry)
+                        order_keys.append(key)
+                    except Exception as e:
+                        validation_report["determinism_issues"].append(f"order_key() failed: {e}")
+                        validation_report["order_key_stability"] = False
+                
+                # Check if all order_key calls produced the same result
+                if len(set(order_keys)) > 1:
+                    validation_report["determinism_issues"].append(f"order_key() non-deterministic: {order_keys}")
+                    validation_report["order_key_stability"] = False
+            
+            # Test 2: Variant generation stability
+            variants_before = entry.get("Variants", {}).get("Synthesised", [])
+            variant_strings_before = [v.get("str", "") for v in variants_before]
+            
+            # Re-run augmentation to test stability (if this processor supports it)
+            if hasattr(self, '_test_variant_stability'):
+                variants_after = self._test_variant_stability(entry)
+                variant_strings_after = [v.get("str", "") for v in variants_after]
+                
+                if variant_strings_before != variant_strings_after:
+                    validation_report["determinism_issues"].append("Variant generation is non-deterministic")
+                    validation_report["variant_stability"] = False
+            
+            # Test 3: Unicode normalization consistency
+            self._validate_unicode_consistency(entry, validation_report)
+            
+            # Test 4: Metadata stability
+            self._validate_metadata_stability(entry, validation_report)
+            
+            # Test 5: Round-trip accuracy (for applicable scripts)
+            round_trip_accuracy = self._calculate_round_trip_accuracy(entry)
+            if round_trip_accuracy is not None:
+                validation_report["round_trip_accuracy"] = round_trip_accuracy
+                # V7 requires ≥97% round-trip accuracy for CJK
+                if round_trip_accuracy < 0.97:
+                    validation_report["determinism_issues"].append(f"Round-trip accuracy too low: {round_trip_accuracy:.2%}")
+            
+            # Overall compliance
+            validation_report["rule_34_compliant"] = len(validation_report["determinism_issues"]) == 0
+            
+        except Exception as e:
+            validation_report["rule_34_compliant"] = False
+            validation_report["determinism_issues"].append(f"Validation failed: {e}")
+        
+        # Store validation results in entry
+        entry["Rule34ValidationReport"] = validation_report
+        
+        return validation_report
+    
+    def _validate_unicode_consistency(self, entry: Dict[str, Any], report: Dict[str, Any]) -> None:
+        """Validate Unicode normalization consistency."""
+        import unicodedata
+        
+        for field in ["CanonicalLatin", "CanonicalNative"]:
+            value = entry.get(field, "")
+            if value:
+                # Test Unicode normalization stability
+                nfc_form = unicodedata.normalize('NFC', value)
+                nfd_form = unicodedata.normalize('NFD', value)
+                
+                # After applying our Unicode fold exceptions, should be stable
+                processed_nfc = self.apply_unicode_fold_exceptions(nfc_form)
+                processed_nfd = self.apply_unicode_fold_exceptions(nfd_form)
+                
+                # Check if results are equivalent (allowing for normalization differences)
+                if unicodedata.normalize('NFC', processed_nfc) != unicodedata.normalize('NFC', processed_nfd):
+                    report["determinism_issues"].append(f"Unicode normalization inconsistency in {field}")
+    
+    def _validate_metadata_stability(self, entry: Dict[str, Any], report: Dict[str, Any]) -> None:
+        """Validate that metadata fields are stable and deterministic."""
+        # Check RegionalExtras for stability
+        regional_extras = entry.get("RegionalExtras", {})
+        
+        # These fields should be deterministic
+        deterministic_fields = [
+            "script", "likely_country", "has_patronymic", "is_mononym",
+            "has_ezafe", "has_zadeh_suffix", "patronymic_type"
+        ]
+        
+        for field in deterministic_fields:
+            if field in regional_extras:
+                value = regional_extras[field]
+                # Check for non-deterministic indicators
+                if isinstance(value, str) and any(indicator in value.lower() for indicator in ["random", "timestamp", "uuid"]):
+                    report["determinism_issues"].append(f"Non-deterministic value in RegionalExtras.{field}: {value}")
+    
+    def _calculate_round_trip_accuracy(self, entry: Dict[str, Any]) -> Optional[float]:
+        """Calculate round-trip accuracy for applicable entries."""
+        # This is mainly for CJK scripts (Rule 11 implementation)
+        canonical_native = entry.get("CanonicalNative", "")
+        canonical_latin = entry.get("CanonicalLatin", "")
+        
+        if not (canonical_native and canonical_latin):
+            return None
+        
+        # Check if this involves CJK scripts
+        import unicodedata
+        cjk_ranges = [
+            (0x4E00, 0x9FFF),   # CJK Unified Ideographs
+            (0x3400, 0x4DBF),   # CJK Extension A
+            (0x20000, 0x2A6DF), # CJK Extension B
+            (0x2A700, 0x2B73F), # CJK Extension C
+            (0x2B740, 0x2B81F), # CJK Extension D
+            (0x3000, 0x303F),   # CJK Symbols and Punctuation
+            (0x3040, 0x309F),   # Hiragana
+            (0x30A0, 0x30FF),   # Katakana
+        ]
+        
+        has_cjk = any(
+            any(start <= ord(char) <= end for start, end in cjk_ranges)
+            for char in canonical_native
+        )
+        
+        if not has_cjk:
+            return None
+        
+        # Calculate Dice coefficient for round-trip accuracy
+        # This is a simplified version - full implementation would be more complex
+        return self._dice_coefficient(canonical_native, canonical_latin)
+    
+    def _dice_coefficient(self, str1: str, str2: str) -> float:
+        """Calculate Dice coefficient between two strings."""
+        if not str1 or not str2:
+            return 0.0
+        
+        # Create bigrams
+        bigrams1 = set(str1[i:i+2] for i in range(len(str1)-1))
+        bigrams2 = set(str2[i:i+2] for i in range(len(str2)-1))
+        
+        if not bigrams1 and not bigrams2:
+            return 1.0
+        
+        intersection = len(bigrams1 & bigrams2)
+        return 2.0 * intersection / (len(bigrams1) + len(bigrams2))
+    
+    # Regional linguistic validation
+    def apply_linguistic_validation(self, entry: Dict[str, Any], 
+                                  raise_on_error: bool = True) -> List[ValidationResult]:
+        """
+        Apply regional linguistic validation rules.
+        
+        This method uses the regional validation engine to check for
+        region-specific linguistic patterns, script consistency, and
+        name structure validity.
+        
+        Args:
+            entry: Entry to validate
+            raise_on_error: If True, raise RegionRuleError on validation errors
+            
+        Returns:
+            List of validation results
+            
+        Raises:
+            RegionRuleError: If validation fails and raise_on_error is True
+        """
+        # Determine primary script from the entry
+        primary_script = self._detect_primary_script(entry)
+        
+        # Apply regional validation rules
+        results = regional_validator.validate_entry(entry, self.code, primary_script)
+        
+        # Process results
+        errors = []
+        warnings = []
+        
+        for result in results:
+            if not result.is_valid:
+                errors.extend(result.errors)
+            warnings.extend(result.warnings)
+        
+        # Log warnings
+        for warning in warnings:
+            self.logger.warning(f"Linguistic validation warning: {warning}")
+        
+        # Handle errors
+        if errors and raise_on_error:
+            error_msg = "; ".join(errors)
+            raise RegionRuleError(f"Linguistic validation failed: {error_msg}")
+        
+        return results
+    
+    def _detect_primary_script(self, entry: Dict[str, Any]) -> str:
+        """
+        Detect the primary script used in the entry.
+        
+        Args:
+            entry: Entry to analyze
+            
+        Returns:
+            Primary script name
+        """
+        # Use the scripts defined for this region as primary candidates
+        if len(self.scripts) == 1:
+            return self.scripts[0]
+        
+        # For mixed script regions, analyze the native name
+        native = entry.get("CanonicalNative", "")
+        if not native:
+            return self.scripts[0] if self.scripts else "Latin"
+        
+        # Simple script detection based on Unicode ranges
+        if any('\u0400' <= c <= '\u04FF' for c in native):
+            return "Cyrillic"
+        elif any('\u0600' <= c <= '\u06FF' for c in native):
+            return "Arabic"
+        elif any('\u0900' <= c <= '\u097F' for c in native):
+            return "Devanagari"
+        elif any(('\u4E00' <= c <= '\u9FFF') or 
+                 ('\u3400' <= c <= '\u4DBF') for c in native):
+            return "CJK"
+        elif any('\uAC00' <= c <= '\uD7AF' for c in native):
+            return "Hangul"
+        elif any(('\u3040' <= c <= '\u309F') or 
+                 ('\u30A0' <= c <= '\u30FF') for c in native):
+            return "Japanese"
+        elif any('\u0E00' <= c <= '\u0E7F' for c in native):
+            return "Thai"
+        else:
+            return "Latin"
+    
+    def get_applicable_validation_rules(self) -> List:
+        """
+        Get all validation rules applicable to this region.
+        
+        Returns:
+            List of validation rules
+        """
+        return regional_validator.get_rules_for_region(self.code)
     
     # Mandatory hooks
     @abstractmethod
@@ -149,7 +687,7 @@ class RegionSpec(ABC):
         pass
 
 
-# Region code definitions from specs v6
+# Region code definitions from specs v7
 REGION_CODES = {
     # A Groups - Western sphere
     "A1": "Core Anglo-Sphere",

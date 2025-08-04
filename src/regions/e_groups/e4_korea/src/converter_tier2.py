@@ -1,7 +1,7 @@
 import pynini as pn, pathlib
 from fst_utils import first_output
-from preprocess_fixed import tokenise
-from segment_fixed import segment
+from preprocess import tokenise
+from segment import segment
 from lookup import rom2han
 import unicodedata
 

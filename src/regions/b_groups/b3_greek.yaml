@@ -1,0 +1,143 @@
+# B3 Greek World Region Configuration
+# Covers: GR (Greece), CY (Cyprus)
+
+region:
+  code: B3
+  name: Greek World
+  description: |
+    Greece and Cyprus, handling both modern and ancient Greek names.
+    Features Greek script, multiple romanisation standards, and
+    specific prefix patterns like Χατζη- (Hajji/pilgrimage).
+
+countries:
+  - code: GR
+    name: Greece
+    features: [greek_script, elot_743, ancient_names, prefix_patterns]
+  - code: CY
+    name: Cyprus
+    features: [greek_script, english_influence, genitive_surnames]
+
+naming_conventions:
+  canonical_order: "Family, Given"
+  scripts:
+    primary: Greek
+    secondary: Latin
+    mixed_allowed: true
+  
+  special_rules:
+    ancient_greek:
+      description: "Ancient Greek names excluded from modern collisions (Rule #25)"
+      examples:
+        - "Αριστοτέλης (Aristotle)"
+        - "Πλάτων (Plato)"
+        - "Ευκλείδης (Euclid)"
+      markers:
+        - "NameType: ancient"
+        - "Excluded from surname statistics"
+    
+    chatzi_variants:
+      description: "Χατζη- prefix variations (Rule #19)"
+      variants:
+        - "Χατζη- → Chatzi-"
+        - "Χατζη- → Hatzi-"
+        - "Χατζη- → Hadji-"
+        - "Χατζη- → Haji-"
+      meaning: "One who completed Hajj pilgrimage"
+    
+    common_prefixes:
+      description: "Greek occupational/descriptive prefixes"
+      prefixes:
+        - prefix: "Παπα-"
+          romanised: ["Papa-", "Papas"]
+          meaning: "Priest"
+        - prefix: "Χατζη-"
+          romanised: ["Chatzi-", "Hatzi-"]
+          meaning: "Pilgrim"
+        - prefix: "Καρα-"
+          romanised: ["Kara-"]
+          meaning: "Black/Dark"
+        - prefix: "Μαστρο-"
+          romanised: ["Mastro-"]
+          meaning: "Master craftsman"
+    
+    genitive_endings:
+      description: "Surnames often in genitive case"
+      common:
+        male:
+          - "-όπουλος" # son of
+          - "-ίδης" # descendant of
+          - "-άκης" # from (place)
+        female:
+          - "-οπούλου"
+          - "-ίδου"
+          - "-άκη"
+        cypriot:
+          - "-ου" # genitive ending
+
+romanisation:
+  standards:
+    elot_743:
+      description: "Greek national standard ELOT 743"
+      features:
+        - "β → v"
+        - "η → i"
+        - "θ → th"
+        - "φ → f"
+        - "χ → ch"
+        - "ψ → ps"
+        - "μπ → b"
+        - "ντ → d"
+        - "γκ → g"
+    
+    iso_843:
+      description: "ISO 843 international standard"
+      features:
+        - "Preserves more diacritics"
+        - "η → ī (with macron)"
+        - "ω → ō (with macron)"
+        - "Accented vowels preserved"
+    
+    common_variations:
+      description: "Historical and regional variations"
+      examples:
+        - "Γιάννης → Yiannis, Yannis, Giannis, John"
+        - "Γεώργιος → Georgios, George"
+        - "Νικόλαος → Nikolaos, Nicholas"
+
+scripts:
+  greek:
+    alphabet: "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψως"
+    diacritics:
+      tonos: ["ά", "έ", "ή", "ί", "ό", "ύ", "ώ"]
+      dialytika: ["ϊ", "ϋ"]
+      combined: ["ΐ", "ΰ"]
+    
+    special_characters:
+      final_sigma: "ς"
+      description: "σ → ς at end of words"
+
+validation_rules:
+  - rule: "Greek script in CanonicalNative"
+  - rule: "Latin script in CanonicalLatin"
+  - rule: "No Greek characters in Latin form"
+  - rule: "Final sigma properly used"
+  - rule: "Ancient names marked appropriately"
+
+cultural_notes:
+  cyprus:
+    description: "Cypriot Greek names"
+    features:
+      - "Often end in -ου (genitive)"
+      - "English influence from British period"
+      - "Turkish Cypriot names separate (C1 region)"
+  
+  diaspora:
+    description: "Greek diaspora variations"
+    patterns:
+      - "Simplified spellings (Pappas → Papas)"
+      - "Anglicized versions (Ioannis → John)"
+      - "Consonant cluster simplification"
+  
+  name_days:
+    description: "Celebration of name days"
+    note: "Often more important than birthdays"
