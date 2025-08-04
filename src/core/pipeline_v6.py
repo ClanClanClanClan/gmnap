@@ -1439,92 +1439,14 @@ class GMNAPPipeline:
     # Helper methods
     
     def _load_regions(self) -> None:
-        """Load region specifications."""
-        # Register available regions
-        from src.regions.a_groups.a1_anglo_sphere import A1_AngloSphere
-        from src.regions.a_groups.a2_western_europe import A2_WesternEurope
-        from src.regions.b_groups.b1_east_slavic import B1_EastSlavic
-        from src.regions.b_groups.b2_south_slavic_central import B2_SouthSlavicCentral
-        from src.regions.c_groups.c2_persian_tajik import C2_PersianTajik
-        from src.regions.c_groups.c3_arabic_levant_nile import C3_ArabicLevantNile
-        from src.regions.c_groups.c4_arabic_gulf import C4_ArabicGulf
-        from src.regions.d_groups.d1_south_asia_hindi_belt import D1_SouthAsiaHindiBelt as D1_HindiBelt
-        from src.regions.e_groups.e1_sinophone_mainland import E1_SinophoneMainland
-        from src.regions.e_groups.e3_japan import E3_Japan
-        from src.regions.g_groups.g1_latin_america import G1_LatinAmerica
+        """Load region specifications using optimized RegionManager."""
+        # Use the optimized RegionManager's built-in loading
+        # This only loads actually implemented regions and uses singleton FastText model
+        self.region_manager._ensure_regions_loaded()
         
-        # Import new processors
-        from src.regions.a_groups.a3_nordic_baltic.processor import A3NordicBalticProcessor
-        from src.regions.a_groups.a4_oceania.processor import A4OceaniaProcessor
-        from src.regions.a_groups.a5_caribbean.processor import A5CaribbeanProcessor
-        from src.regions.b_groups.b3_greek.processor import B3GreekProcessor
-        from src.regions.c_groups.c1_turkic.processor import C1TurkicProcessor
-        from src.regions.e_groups.e2_traditional_chinese import E2TraditionalChineseProcessor
-        from src.regions.e_groups.e4_korea import E4KoreanProcessor
-        
-        # Import remaining regions for 100% v7 coverage
-        from src.regions.c_groups.c5_arabic_maghreb import C5ArabicMaghreb
-        from src.regions.c_groups.c6_hebrew_diaspora import C6HebrewDiaspora
-        from src.regions.c_groups.c7_armenian import C7Armenian
-        from src.regions.c_groups.c8_georgian import C8Georgian
-        from src.regions.c_groups.c9_caucasus_turkic import C9CaucasusTurkic
-        from src.regions.d_groups.d2_south_asia_dravidian import D2SouthAsiaDravidian
-        from src.regions.d_groups.d3_south_asia_bengali import D3SouthAsiaBengali
-        from src.regions.d_groups.d4_pakistan_urdu import D4PakistanUrdu
-        from src.regions.d_groups.d5_sinhala import D5Sinhala
-        from src.regions.e_groups.e5_vietnam import E5Vietnam
-        from src.regions.e_groups.e6_mainland_sea import E6MainlandSEA
-        from src.regions.e_groups.e7_maritime_sea import E7MaritimeSEA
-        from src.regions.f_groups.f1_ssa_francophone import F1SSAFrancophone
-        from src.regions.f_groups.f2_ssa_anglophone import F2SSAAnglophone
-        from src.regions.f_groups.f3_horn_of_africa import F3HornOfAfrica
-        from src.regions.f_groups.f4_lusophone_africa import F4LusophoneAfrica
-        from src.regions.special.h1_historical import H1Historical
-        from src.regions.special.r0_residual_latin_ascii import R0ResidualLatinASCII
-        from src.regions.special.z0_quarantine import Z0Quarantine
-
-        # Register all implemented regions
-        self.region_manager.register_region(A1_AngloSphere())
-        self.region_manager.register_region(A2_WesternEurope())
-        self.region_manager.register_region(B1_EastSlavic())
-        self.region_manager.register_region(B2_SouthSlavicCentral())
-        self.region_manager.register_region(C2_PersianTajik())
-        self.region_manager.register_region(C3_ArabicLevantNile())
-        self.region_manager.register_region(C4_ArabicGulf())
-        self.region_manager.register_region(D1_HindiBelt())
-        self.region_manager.register_region(E1_SinophoneMainland())
-        self.region_manager.register_region(E3_Japan())
-        self.region_manager.register_region(G1_LatinAmerica())
-        
-        # Register new processors
-        self.region_manager.register_region(A3NordicBalticProcessor())
-        self.region_manager.register_region(A4OceaniaProcessor())
-        self.region_manager.register_region(A5CaribbeanProcessor())
-        self.region_manager.register_region(B3GreekProcessor())
-        self.region_manager.register_region(C1TurkicProcessor())
-        self.region_manager.register_region(E2TraditionalChineseProcessor())
-        self.region_manager.register_region(E4KoreanProcessor())
-        
-        # Register remaining regions for 100% v7 coverage
-        self.region_manager.register_region(C5ArabicMaghreb())
-        self.region_manager.register_region(C6HebrewDiaspora())
-        self.region_manager.register_region(C7Armenian())
-        self.region_manager.register_region(C8Georgian())
-        self.region_manager.register_region(C9CaucasusTurkic())
-        self.region_manager.register_region(D2SouthAsiaDravidian())
-        self.region_manager.register_region(D3SouthAsiaBengali())
-        self.region_manager.register_region(D4PakistanUrdu())
-        self.region_manager.register_region(D5Sinhala())
-        self.region_manager.register_region(E5Vietnam())
-        self.region_manager.register_region(E6MainlandSEA())
-        self.region_manager.register_region(E7MaritimeSEA())
-        self.region_manager.register_region(F1SSAFrancophone())
-        self.region_manager.register_region(F2SSAAnglophone())
-        self.region_manager.register_region(F3HornOfAfrica())
-        self.region_manager.register_region(F4LusophoneAfrica())
-        self.region_manager.register_region(H1Historical())
-        self.region_manager.register_region(R0ResidualLatinASCII())
-        self.region_manager.register_region(Z0Quarantine())
+        # Log successful loading
+        loaded_regions = list(self.region_manager._regions.keys())
+        logger.info(f"Pipeline loaded {len(loaded_regions)} regions: {', '.join(sorted(loaded_regions))}")
     
     def _verify_file_ownership(self) -> None:
         """Verify each YAML file is owned by exactly one region."""
