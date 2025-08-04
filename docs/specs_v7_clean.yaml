@@ -1,0 +1,531 @@
+spec_version: "7"
+published: "2025-07-18"
+yaml_record_schema_version: "2.0"        # new objects → bump
+schema_version: "7.0"                    # mandatory in every fragment
+
+# ---------------------------------------------------------------------
+# 0 · GLOBAL CONSTANTS & RUNTIME PARAMETERS
+# ---------------------------------------------------------------------
+streaming_chunk_size: 8000
+peak_memory_limit: "6GB RSS"
+snapshot_retention_days: 3650            # 10 years
+cost_cap_chf_per_month: 120
+
+graph_db:
+  engine: "memgraph-ce"
+  docker_image: "memgraph/memgraph-platform:2.12"
+  bolt_port: 7687
+  data_dir: "/var/lib/memgraph"
+
+doi_minting:
+  provider: "ETH‑Bibliothek (DataCite)"
+  shoulder: "10.3929/ethz-lineage"
+  registration_mode: "draft"
+
+archive:
+  provider: "ETH Data Archive"
+  path: "/lineage_snapshots"
+  protocol: "SFTP"
+
+cache:
+  compression: "zstd"
+  max_gb: 50
+  max_days: 60
+  google_scholar_dir: "cache/gs"
+
+llm_extract:
+  engine: "gpt-4o-mini"
+  cost_cap_chf_per_month: 40
+  max_pdf_pages: 400
+  json_schema_inline:
+    $schema: "https://json-schema.org/draft/2020-12/schema"
+    title: "ETD‑LLM‑Output"
+    type: "object"
+    required: ["title", "authors", "advisors", "degree_date", "institution"]
+    additionalProperties: false
+    properties:
+      title:        {type: "string", minLength: 2}
+      authors:      {type: "array",  items: {type: "string"}, minItems: 1}
+      advisors:     {type: "array",  items: {type: "string"}, minItems: 1}
+      degree_date:  {type: "string", pattern: "^[0-9]{4}(-[0-9]{2}){0,2}$"}
+      degree:       {type: "string"}
+      institution:  {type: "string"}
+      language:     {type: "string", maxLength: 16}
+
+# ---------------------------------------------------------------------
+# 1 · GLOSSARY
+# ---------------------------------------------------------------------
+glossary:
+  - term: Entry
+    definition: One mathematician’s authority record (all names, identifiers, metadata).
+  - term: CanonicalLatin
+    definition: Preferred Latin‑script form in “Family, Given” order.
+  - term: CanonicalNative
+    definition: Authoritative form in the author’s own script; equals CanonicalLatin if author publishes only in Latin script.
+  - term: Variant-Observed
+    definition: Object {str, source, accessed} exactly as seen in an external source.
+  - term: Variant-Synthesised
+    definition: Object {str, type} with type ∈ {ascii-lossy, tone-number, diac-drop, order-swap, romanisation-alt, particle-drop, initial-collapse}.
+  - term: FamilyNameType
+    definition: Enumerated: surname (default), patronymic, mononym.
+  - term: GlobalID
+    definition: |
+      128‑bit truncated SHA‑256 (22 Base32) of {CanonicalNative, BirthYear?, DeathYear?}.
+      Collisions are suffixed “--1, --2 …”, and such suffixed IDs **pass** the duplicate_global_id gate.
+  - term: MSC
+    definition: Object {code: 5‑digit string, source: authority}.
+  - term: NameEvent
+    definition: {type, year, from, to} with type ∈ {marriage, religious, passport, transition, legal_change, alias}.
+  - term: LanguageOfPublication
+    definition: ISO 639‑3 list (≤ 10 codes).
+  - term: AffiliationTimeline
+    definition: Optional list of {country, from, to} used for diaspora disambiguation.
+  - term: Confidence
+    definition: 0–100 score; weights stored in config/weights.yaml and must sum to 1.
+  - term: Gender
+    definition: Enumerated: male, female, nonbinary, unspecified. Boolean GenderProvided records self‑declaration.
+  - term: PipelineModes
+    definition: Quick – tier‑0; Full – tier‑0+1; Extreme – Full+tier‑2‑3 (requires --force‑extreme).
+  - term: CatchAllGroup_R0
+    definition: Residual bucket for unmapped ISO codes or detector confidence < 50 %.
+  - term: ShortFormClusters
+    definition: Map {short_form → count} where count = number of distinct external occurrences.
+  - term: GDPR_DATA
+    definition: Field‑level boolean for personal data under GDPR.
+  - term: GenealogyRelation
+    definition: |
+      {source_id, target_id, relation_type, qualifier?, confidence};
+      relation_type ∈ {doctoralAdvisor, adviserCommitteeMember, postdocMentor, habilitationAdvisor}.
+  - term: DegreeDate
+    definition: {date: YYYY‑MM‑DD, precision: {year, month, day}}.
+  - term: ShadowNode
+    definition: Tomb‑stone placeholder for GDPR‑erased persons.
+  - term: BetweennessScore
+    definition: Edge‑betweenness centrality normalised 0–1.
+
+# ---------------------------------------------------------------------
+# 2 · REGION GROUPS  (unchanged full list from v6.1)
+# ---------------------------------------------------------------------
+region_groups:
+  #  A‑groups
+  - code: A1
+    name: Core Anglo‑Sphere
+    iso_territories: [US, GB, CA, AU, NZ, IE, AG, AI, BB, BM, BS, DM, GD, GY, JM,
+                      KN, LC, MS, TC, TT, VC, VG, VI, GU, AS, MP, UM, FK]
+    primary_scripts: ["Latin ASCII"]
+    distinct_features: Middle initials; generational suffixes
+  - code: A2
+    name: Western Europe
+    iso_territories: [FR, DE, IT, ES, PT, NL, BE, CH, AT, LU, LI, SM, MC, GI, AD, MT, VA]
+    primary_scripts: ["Latin with diacritics"]
+    distinct_features: Iberian dual surnames; de/von/van particles
+  - code: A3
+    name: Nordic–Baltic
+    iso_territories: [DK, NO, SE, FI, IS, FO, AX, EE, LV, LT]
+    primary_scripts: ["Latin with diacritics"]
+    distinct_features: Icelandic patronymic system
+  - code: A4
+    name: Oceania Island States
+    iso_territories: [FJ, PG, SB, VU, WS, TO, KI, TV, NR, CK, NU, PF, NC]
+    primary_scripts: ["Latin with macrons"]
+    distinct_features: Polynesian macron restoration
+  - code: A5
+    name: Dutch/French Caribbean
+    iso_territories: [CW, SX, BQ, MQ, GF, GP, RE, YT, PM]
+    primary_scripts: ["Latin"]
+    distinct_features: Apostrophes; Creole particles
+
+  # B‑groups
+  - code: B1
+    name: East‑Slavic
+    iso_territories: [RU, UA, BY]
+    primary_scripts: ["Cyrillic"]
+    distinct_features: Patronymic endings; gender suffixes
+  - code: B2
+    name: South‑Slavic & Central Europe
+    iso_territories: [BG, RS, ME, HR, SI, BA, MK, PL, CZ, SK, HU, RO, AL, XK]
+    primary_scripts: ["Latin", "Cyrillic"]
+    distinct_features: Gaj alphabet; Hungarian name‑order flip
+  - code: B3
+    name: Greek World
+    iso_territories: [GR, CY]
+    primary_scripts: ["Greek"]
+    distinct_features: ELOT 743 & ISO 843 romanisation
+
+  # C‑groups
+  - code: C1
+    name: Greater‑Turkic
+    iso_territories: [TR, AZ, UZ, TM, KG, KZ]
+    primary_scripts: ["Latin", "Cyrillic", "Arabic"]
+    distinct_features: Script reform schedules: UZ 2023‑, TM 2019‑, KZ 2023→2031
+  - code: C2
+    name: Persian‑Tajik
+    iso_territories: [IR, AF, TJ]
+    primary_scripts: ["Perso‑Arabic", "Cyrillic"]
+    distinct_features: Ezāfe connectors; nisba elements; ISO 233‑3:2023 & DIN 31635
+  - code: C3
+    name: Arabic Levant–Nile
+    iso_territories: [IQ, JO, LB, SY, PS, EG, SD, SS]
+    primary_scripts: ["Arabic"]
+    distinct_features: al‑ assimilation; root clustering
+  - code: C4
+    name: Arabic Gulf
+    iso_territories: [SA, KW, AE, QA, OM, BH, YE]
+    primary_scripts: ["Arabic"]
+    distinct_features: bin/bint; tribal nisba patterns
+  - code: C5
+    name: Arabic Maghreb
+    iso_territories: [MA, DZ, TN, LY, EH, MR]
+    primary_scripts: ["Arabic"]
+    distinct_features: Ben… prefixes; French transliteration
+  - code: C6
+    name: Hebrew & Diaspora
+    iso_territories: [IL]
+    primary_scripts: ["Hebrew"]
+    distinct_features: ISO 259 romanisation; optional niqqud
+  - code: C7
+    name: Armenian
+    iso_territories: [AM]
+    primary_scripts: ["Armenian"]
+    distinct_features: Hübschmann–Meillet
+  - code: C8
+    name: Georgian
+    iso_territories: [GE]
+    primary_scripts: ["Georgian"]
+    distinct_features: ISO 9984 transliteration
+  - code: C9
+    name: Caucasus‑Turkic
+    iso_territories: [RU, AZ]
+    primary_scripts: ["Mixed"]
+    distinct_features: Latin/Cyrillic/Arabic hybrids
+
+  # D‑groups
+  - code: D1
+    name: South Asia – Hindi Belt
+    iso_territories: [IN, NP, BT]
+    primary_scripts: ["Devanagari"]
+    distinct_features: Initials; caste surnames
+  - code: D2
+    name: South Asia – Dravidian
+    iso_territories: [IN, LK]
+    primary_scripts: ["Tamil", "Latin"]
+    distinct_features: Patronymic initials; mononyms
+  - code: D3
+    name: South Asia – Bengali
+    iso_territories: [BD, IN]
+    primary_scripts: ["Bengali"]
+    distinct_features: Frequent script switching
+  - code: D4
+    name: Pakistan & Urdu
+    iso_territories: [PK]
+    primary_scripts: ["Urdu", "Latin"]
+    distinct_features: bin/binte; Arabic loans
+  - code: D5
+    name: Sinhala
+    iso_territories: [LK]
+    primary_scripts: ["Sinhala"]
+    distinct_features: UN 2003 transliteration
+
+  # E‑groups
+  - code: E1
+    name: Sinophone Mainland
+    iso_territories: [CN]
+    primary_scripts: ["Han‑Simplified"]
+    distinct_features: Pinyin vs Wade‑Giles
+  - code: E2
+    name: Sinophone Traditional
+    iso_territories: [TW, HK, MO]
+    primary_scripts: ["Han‑Traditional"]
+    distinct_features: Cantonese romanisation
+  - code: E3
+    name: Japan
+    iso_territories: [JP]
+    primary_scripts: ["Kanji", "Kana"]
+    distinct_features: Official order flip 2020
+  - code: E4
+    name: Korea
+    iso_territories: [KR, KP]
+    primary_scripts: ["Hangul", "Hanja"]
+    distinct_features: Hyphen/space variation
+  - code: E5
+    name: Vietnam
+    iso_territories: [VN]
+    primary_scripts: ["Latin with diacritics"]
+    distinct_features: Numeric tone variants
+  - code: E6
+    name: Mainland SEA
+    iso_territories: [TH, KH, LA]
+    primary_scripts: ["Thai", "Khmer", "Lao"]
+    distinct_features: Thai RTGS; Khmer UNGEGN; Lao MOICT 2019
+  - code: E7
+    name: Maritime SEA
+    iso_territories: [ID, MY, SG, BN, PH, TL]
+    primary_scripts: ["Latin"]
+    distinct_features: Malay bin/binti; Indonesian mononyms; Filipino maternal middle name
+
+  # F‑groups
+  - code: F1
+    name: SSA – Francophone
+    iso_territories: [BJ, BF, CM, CF, CG, CI, DJ, GA, GN, ML, NE, SN, TG, TD, KM, SC, MG, BI]
+    primary_scripts: ["Latin"]
+    distinct_features: Accented French particles
+  - code: F2
+    name: SSA – Anglophone
+    iso_territories: [GH, NG, KE, UG, TZ, ZW, ZM, MW, GM, LR, SL, BW, LS, NA, RW, SZ, MU, SS]
+    primary_scripts: ["Latin"]
+    distinct_features: Hyphenated given names; middle initials
+  - code: F3
+    name: Horn of Africa
+    iso_territories: [ET, ER]
+    primary_scripts: ["Geʽez"]
+    distinct_features: Patronymic chain (given‑father‑grandfather)
+  - code: F4
+    name: Lusophone Africa
+    iso_territories: [AO, MZ, CV, GW, ST]
+    primary_scripts: ["Latin"]
+    distinct_features: Portuguese particles
+
+  # G‑group
+  - code: G1
+    name: Latin America & Iberian Caribbean
+    iso_territories: [AR, BO, BR, CL, CO, CR, CU, DO, EC, GT, GY, HN, HT, MX, NI,
+                      PA, PE, PY, SV, SR, UY, VE, PR]
+    primary_scripts: ["Latin"]
+    distinct_features: Dual surnames; Portuguese diacritics
+
+  # Special groups
+  - code: H1
+    name: Historical (≤ 1850)
+    iso_territories: [GLOBAL_PRE_1850]
+    primary_scripts: ["Mixed"]
+    distinct_features: Latinised names; epithets
+  - code: R0
+    name: Residual Latin‑ASCII
+    iso_territories: [ANY_UNMAPPED]
+    primary_scripts: ["Latin ASCII"]
+    distinct_features: Minimal matching rules
+  - code: Z0
+    name: Quarantine
+    iso_territories: []
+    primary_scripts: []
+    distinct_features: Detector confidence < 50 %
+
+# ---------------------------------------------------------------------
+# 2a · REGION OVERLAY MAP
+# ---------------------------------------------------------------------
+region_overlay_map:
+  CH-FR: A2
+  RU-NC: C9
+  AZ-IR: C9
+  IN-HN: D1
+  IN-SOUTH: D2
+  IN-WB: D3
+  LK-TA: D2
+  LK-SI: D5
+  TR-TRP: D3
+  AS-ASM: D3
+
+# ---------------------------------------------------------------------
+# 3 · DIASPORA OVERLAY SCHEMA
+# ---------------------------------------------------------------------
+diaspora_overlay_schema: |
+  # File: config/diaspora.yaml
+  # Each entry:
+  #   - region: <region_code>
+  #     range:  <ISO‑8601 interval>   # "..2015", "2016..", or "1980..2000"
+  # Ranges for a given ISO country must not overlap.
+
+# ---------------------------------------------------------------------
+# 4 · LINGUISTIC RULES (IDs 1‑34, unchanged)
+# ---------------------------------------------------------------------
+linguistic_rules:
+  - {id: 1,  description: "Iberian Dual Surname Split – stop‑words yield primary and secondary surnames."}
+  - {id: 2,  description: "Arabic al‑ Article – root normalisation; sun‑letter assimilation; article dropped in order_key."}
+  - {id: 3,  description: "Arabic bin/bint – patronymic; removed from order_key."}
+  - {id: 4,  description: "Vietnamese Tone Handling – full, ASCII and numeric‑tone variants."}
+  - {id: 5,  description: "Kazakh Script Switch – ≥ 2027 Latin; earlier Cyrillic (config/script_switch.yaml)."}
+  - {id: 6,  description: "Turkish İ/i ambiguity – dotted and dotless variants for ASCII."}
+  - {id: 7,  description: "Persian Ezafe – -e/-ye ignored in order_key."}
+  - {id: 8,  description: "Icelandic Patronymic – FamilyNameType=patronymic; excluded from collisions."}
+  - {id: 9,  description: "East‑Slavic Patronymic – strip middle token; gender inference."}
+  - {id: 10, description: "Hungarian Name Order – generate both native and Western orders."}
+  - {id: 11, description: "CJK Round‑Trip – romanise+back‑convert; ≥ 97 % match (Dice coefficient after NFC casefold)."}
+  - {id: 12, description: "Japanese Post‑2020 Order Rule – majority rule for English papers."}
+  - {id: 13, description: "Korean Hyphen/Space – variant set; order_key collapsed."}
+  - {id: 14, description: "Mononyms – FamilyNameType=mononym; initials clustering skipped."}
+  - {id: 15, description: "Germanic Particles – von/van/de dropped (except d’)."}
+  - {id: 16, description: "Unicode Fold Exceptions – ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia."}
+  - {id: 17, description: "Iberian Honorific Strip – Dr., D., Dª removed."}
+  - {id: 18, description: "Anglo Middle‑Initial Collapse – John C. clusters with John (hyphenated initials handled)."}
+  - {id: 19, description: "Greek Χατζη‑ variants → Haji‑, Hatzi‑."}
+  - {id: 20, description: "Turkic -oğlu/-ogly – moved to patronymic; omitted in key."}
+  - {id: 21, description: "-zadeh Suffix – kept; hyphen preserved."}
+  - {id: 22, description: "French d’ particle – retained in order_key."}
+  - {id: 23, description: "SSA Hyphenated Given Names – initials logic."}
+  - {id: 24, description: "Russian Transliteration – GOST 7.79‑2000 (A) & BGN‑PCGN 1947 variants."}
+  - {id: 25, description: "Greek Ancient Names – Latinised canonical; excluded from modern collisions."}
+  - {id: 26, description: "Gender Heuristic Guard – applied only at ≥ 95 % validation accuracy."}
+  - {id: 27, description: "Mainland SEA Romanisation – Thai RTGS, Khmer UNGEGN, Lao MOICT 2019; ASCII variants."}
+  - {id: 28, description: "Malay bin/binti – patronymic stripped; stored in extras."}
+  - {id: 29, description: "Indonesian Mononyms – one‑token canonical."}
+  - {id: 30, description: "Filipino Maternal Middle Name – stored as secondary_surname."}
+  - {id: 31, description: "Pacific Macron Restore – macronised Māori/Samoan/Tongan forms."}
+  - {id: 32, description: "Ibn/Abu/Um Prefixes – dropped when next token length ≥ 3."}
+  - {id: 33, description: "Capital Sharp‑S Handling – uppercase ẞ preserved; SS variants added."}
+  - {id: 34, description: "Round‑trip Determinism – reciprocal transform restores original CanonicalLatin exactly."}
+
+# ---------------------------------------------------------------------
+# 5 · PROCESSING PIPELINE
+# ---------------------------------------------------------------------
+processing_pipeline:
+  - {stage: 0,  name: "Config",             operations: "Load specs; verify licences; DOI credentials"}
+  - {stage: 1,  name: "Ingest",             operations: "Read YAML; Unicode NFC→NFKD→fold→NFC"}
+  - {stage: 1b, name: "LLMExtract_ETD",     operations: "Parse thesis PDFs with GPT‑4o‑mini; validate JSON; cache"}
+  - {stage: 2,  name: "DetectRegion",       operations: "Script, ICU, fastText, affiliation, DOI prefix, diaspora overlay"}
+  - {stage: 3,  name: "RegionHooks",        operations: "clean→augment→validate→order_key (immutable except RegionalExtras)"}
+  - {stage: 4,  name: "AuthorityEnrich",    operations: "Fetch ORCID_ETD, Crossref_Thesis, Wikidata_P184, OAI_University"}
+  - {stage: 5,  name: "CollisionAnalytics", operations: "DuckDB; suffix duplicates; write GenealogyRelation edges"}
+  - {stage: 6,  name: "GraphConsistency",   operations: "Betweenness; Bayesian confidence; reject cycles <3"}
+  - {stage: 7,  name: "TagShortForms",      operations: "Populate ShortFormClusters"}
+  - {stage: 8,  name: "GlobalValidate",     operations: "JSON‑Schema; transliteration round‑trip; graph coherence gate"}
+  - {stage: 9,  name: "Write&Diff",         operations: "Deterministic YAML; HTML diff; SQL changelog"}
+  - {stage: 10, name: "Report",             operations: "Markdown metrics; draft DOI; push snapshot to archive"}
+  - {stage: 11, name: "IdempotencyCheck",   operations: "Rerun pipeline; diff; assert identical"}
+
+# ---------------------------------------------------------------------
+# 6 · RUNTIME PROFILES
+# ---------------------------------------------------------------------
+runtime_profiles:
+  - {mode: Quick,    apis: tier‑0,        cpu_workers: 4,  runtime_per_1M: "≤ 35 min"}
+  - {mode: Full,     apis: tier‑0+1,      cpu_workers: 8,  runtime_per_1M: "≤ 70 min"}
+  - {mode: Extreme,  apis: Full+tier‑2‑3, cpu_workers: 12, runtime_per_1M: "no SLA"}
+
+# ---------------------------------------------------------------------
+# 7 · QUALITY GATES
+# ---------------------------------------------------------------------
+quality_gates:
+  duplicate_global_id:            {quick: 0,               full: 0,     extreme: 0}
+  duplicate_external_id_pct:      {quick_max: 0.10,        full_max: 0.05, extreme_max: 0}
+  roundtrip_script_rate_min:      0.97
+  genealogy_edge_conflict_pct:    {quick_max: 2.0,         full_max: 1.0, extreme_max: 0.0}
+  graph_coherence_score_min:      {quick: 0.85,            full: 0.92,   extreme: 0.97}
+  peak_rss_gb_on_2M:              6
+  warm_cache_runtime_per_1M_min:  {quick: 35,              full: 70}
+  idempotent_diff_bytes_max:      0
+
+# ---------------------------------------------------------------------
+# 8 · TESTING SUITE
+# ---------------------------------------------------------------------
+testing_suite:
+  unit: "region hooks, schema, bayesian scorer"
+  property: "diacritic‑fold idempotence, LLM JSON schema"
+  fixtures: 1500
+  sea_roundtrip: "Thai, Khmer, Lao"
+  concurrency: "10‑proc stress"
+  memory_peak: "RSS limit"
+  lineage_graph_coherence: "betweenness‑scaled confidence ≥ gate"
+  snapshot_rollback: "git revert HEAD~1 restores coherence"
+  stress: "2M synthetic weekly"
+  integration: "live API smoke; OFFLINE=1 skips"
+  secret_scan: "trufflehog"
+  cost_guard: "fail CI if OpenAI spend > CHF 120"
+
+# ---------------------------------------------------------------------
+# 9 · AUTHORITY SOURCES
+# ---------------------------------------------------------------------
+authority_sources:
+  # Tier 0
+  - {tier: 0, service: OpenAlex,              key: OpenAlex,      licence: CC0,            daily_quota: 864000}
+  - {tier: 0, service: Crossref,              key: Crossref,      licence: CC0,            daily_quota: 4300000}
+  - {tier: 0, service: ORCID_ETD,             key: ORCID_ETD,     licence: CC0,            daily_quota: 100000}
+  - {tier: 0, service: Crossref_Thesis,       key: CrossrefThesis,licence: CC0,            daily_quota: 100000}
+  # Tier 1
+  - {tier: 1, service: Wikidata_P184,         key: WD_Genealogy,  licence: CC0,            daily_quota: dump}
+  - {tier: 1, service: OAI_University,        key: OAI_ETD,       licence: Mixed,          daily_quota: dump}
+  - {tier: 1, service: HAL,                   key: HAL,           licence: CC‑BY,          daily_quota: 86400}
+  - {tier: 1, service: GND,                   key: GND,           licence: CC‑BY,          daily_quota: unlimited}
+  - {tier: 1, service: zbMATH Open,           key: zbMATH,        licence: CC‑BY,          daily_quota: 200}
+  # Tier 2
+  - {tier: 2, service: MathSciNet_HTML,       key: MathSciNet,    licence: Subscription,   daily_quota: 20000}
+  - {tier: 2, service: Scopus,                key: Scopus,        licence: Elsevier,       daily_quota: 20000}
+  - {tier: 2, service: Dimensions,            key: Dimensions,    licence: DigitalScience, daily_quota: 10000}
+  # Tier 3
+  - {tier: 3, service: ProQuest_ETD,          key: ProQuest,      licence: Commercial,     daily_quota: 50000, opt_in: true}
+  - {tier: 3, service: Google Scholar,        key: GS,            licence: Scraping,       daily_quota: undefined, opt_in: true}
+
+# ---------------------------------------------------------------------
+# 10 · SECURITY & LEGAL
+# ---------------------------------------------------------------------
+security_legal:
+  personal_data_policy: "Identifiers only; GDPR request → ShadowNode"
+  gdpr_flag: "GDPR_DATA fields; --drop-personal inserts ShadowNode"
+  licence_tiers: ["public_cc0", "redistributable_cc-by", "non-redistributable"]
+  scrubbers: [ProQuest, Google Scholar, CNKI]
+  birth_year_privacy: "Decade‑granular if local cohort < 5"
+  doi_provider: "ETH‑Bibliothek"
+  archive_provider: "ETH Data Archive"
+  google_scholar_optin: "--force-extreme + YES_I_ACCEPT_GS_TOS=yes; encrypted cache"
+  attribution_file: "ATTRIBUTION.txt auto‑generated (SPDX mapping)"
+
+# ---------------------------------------------------------------------
+# 11 · DEVELOPER TOOLING
+# ---------------------------------------------------------------------
+developer_tooling:
+  dev_container:
+    base: "ubuntu:22.04"
+    python: "3.12"
+    duckdb: "0.10"
+    memgraph: "2.12"
+    ruamel_yaml: "0.18"
+    fasttext: "scripted install"
+    zstandard: "CLI"
+  pre_commit:
+    - {repo: "https://github.com/psf/black",        rev: 24.3.0, hooks: [black]}
+    - {repo: "https://github.com/astral-sh/ruff-pre-commit", rev: v0.4.0, hooks: [ruff]}
+    - {repo: "https://github.com/PyCQA/isort",      rev: 5.13.2, hooks: [isort]}
+    - {repo: "https://github.com/codespell-project/codespell", rev: v2.2.5, hooks: [codespell]}
+    - {repo: "https://github.com/adrienverge/yamllint.git",    rev: v1.35.1, hooks: [yamllint]}
+  make_targets: [quick, full, extreme, test, lint, cost‑check, update‑sources]
+  cli_examples:
+    query:   'gmnap query "Euler, Leonhard"'
+    lineage: 'gmnap lineage --id <GlobalID> --depth 3 --format svg'
+  vscode_extension:
+    version: "0.3.0"
+    features: [syntax_highlight, schema_validation, formatter_toggle_narrow_nbsp]
+
+# ---------------------------------------------------------------------
+# 12 · OPS & MONITORING
+# ---------------------------------------------------------------------
+ops:
+  container_runtime: "Docker Compose"
+  services: ["api", "memgraph", "duckdb-batch", "redis", "nginx"]
+  backups:
+    frequency: "daily"
+    retention_days: 30
+    offsite: "ETH Data Archive"
+  monitoring:
+    stack: "Prometheus + Grafana"
+    alert_rule: "p95 latency > 2× baseline for 15 min"
+  rate_limit:
+    free_tier: {requests_per_min: 60, hashcash_bits: 18}
+    paid_tier: {requests_per_min: 10000, auth_scheme: "Bearer"}
+
+# ---------------------------------------------------------------------
+# 13 · ROADMAP
+# ---------------------------------------------------------------------
+roadmap:
+  - {month: 1, deliverables: "Data‑plane MVP (Crossref, ORCID_ETD, Memgraph, REST /descendants)"}
+  - {month: 2, deliverables: "Next.js UI α, fuzzy search, lineage tree"}
+  - {month: 3, deliverables: "Bayesian scorer, relation types expansion, daily snapshots"}
+  - {month: 4, deliverables: "ORCID OAuth claim, SVG exports, closed beta"}
+  - {month: 5, deliverables: "Moderation queue, GraphQL API, analytics"}
+  - {month: 6, deliverables: "Public launch, CC0 data tier, DOI registration"}
+
+# ---------------------------------------------------------------------
+# 14 · CHANGE CONTROL
+# ---------------------------------------------------------------------
+change_control:
+  - "Increment spec_version (7 → 7.1) upon any backward‑incompatible change."
+  - "Update inline JSON Schemas and all fixtures on every schema modification."
+  - "Run full idempotency + graph‑coherence suites before merge to *main*."
+  - "Require sign‑off from both project maintainer and ETH‑Bibliothek liaison."

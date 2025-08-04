@@ -45,6 +45,17 @@ class G1_LatinAmerica(RegionSpec):
             'y', 'e', 'van', 'von'  # Some European heritage
         }
         
+        # Stop-words for Rule 1: Iberian Dual Surname Split
+        # These are used to determine boundaries between primary and secondary surnames
+        self.surname_stop_words = {
+            # Spanish stop-words
+            'de', 'del', 'de la', 'de las', 'de los',
+            # Portuguese stop-words
+            'da', 'das', 'do', 'dos', 'de',
+            # Conjunctions that can separate surnames
+            'y', 'e'
+        }
+        
         # Spanish diacritics
         self.spanish_chars = set('áéíóúüñ¿¡ÁÉÍÓÚÜÑ')
         
@@ -156,6 +167,32 @@ class G1_LatinAmerica(RegionSpec):
                 'str': ascii_variant,
                 'type': 'ascii-lossy'
             })
+        
+        # Rule 1: Iberian Dual Surname Split – stop-words yield primary and secondary surnames
+        surname_components = self._split_iberian_surnames(canonical)
+        if surname_components:
+            # Store in RegionalExtras for V7 compliance
+            if 'RegionalExtras' not in entry:
+                entry['RegionalExtras'] = {}
+            
+            entry['RegionalExtras']['primary_surname'] = surname_components['primary']
+            entry['RegionalExtras']['secondary_surname'] = surname_components.get('secondary', '')
+            entry['RegionalExtras']['given_names'] = surname_components.get('given', '')
+            
+            # Generate variants using primary surname only
+            if surname_components.get('secondary'):
+                primary_only = f"{surname_components['primary']}, {surname_components['given']}"
+                variants.append({
+                    'str': primary_only,
+                    'type': 'dual-surname-primary'
+                })
+                
+                # Generate variant using secondary surname only
+                secondary_only = f"{surname_components['secondary']}, {surname_components['given']}"
+                variants.append({
+                    'str': secondary_only,
+                    'type': 'dual-surname-secondary'
+                })
         
         # Handle dual surnames
         if self._is_dual_surname(canonical):
@@ -412,3 +449,177 @@ class G1_LatinAmerica(RegionSpec):
         
         # Default to Spanish for Latin America
         return 'Spanish'
+    
+    def _split_iberian_surnames(self, name: str) -> Optional[Dict[str, str]]:
+        """
+        Rule 1: Iberian Dual Surname Split – stop-words yield primary and secondary surnames.
+        
+        This function implements the V7 linguistic rule for splitting Iberian names into
+        their components using stop-words to identify boundaries.
+        
+        Examples:
+        - "García de la Vega, María" → primary: "García", secondary: "de la Vega", given: "María"
+        - "Santos dos Reis, João" → primary: "Santos", secondary: "dos Reis", given: "João"
+        - "González Pérez, Carmen" → primary: "González", secondary: "Pérez", given: "Carmen"
+        - "María del Carmen González Pérez" → given: "María del Carmen", primary: "González", secondary: "Pérez"
+        
+        Args:
+            name: Full name in either "Family, Given" or "Given Family" format
+            
+        Returns:
+            Dictionary with 'primary', 'secondary', and 'given' keys, or None if not Iberian pattern
+        """
+        if not name:
+            return None
+        
+        # Handle "Family, Given" format
+        if ', ' in name:
+            family_part, given_part = name.split(', ', 1)
+            
+            # Split family part into primary and secondary surnames
+            surname_split = self._split_family_surnames(family_part)
+            if surname_split:
+                return {
+                    'primary': surname_split['primary'],
+                    'secondary': surname_split.get('secondary', ''),
+                    'given': given_part
+                }
+        else:
+            # Handle "Given Family" format
+            # This is more complex as we need to identify where given names end
+            words = name.split()
+            if len(words) < 2:
+                return None
+            
+            # Try to find where surnames start by looking for capital letters after lowercase
+            # and checking for known patterns
+            given_end_idx = self._find_given_name_boundary(words)
+            
+            if given_end_idx > 0 and given_end_idx < len(words):
+                given_part = ' '.join(words[:given_end_idx])
+                family_part = ' '.join(words[given_end_idx:])
+                
+                surname_split = self._split_family_surnames(family_part)
+                if surname_split:
+                    return {
+                        'primary': surname_split['primary'],
+                        'secondary': surname_split.get('secondary', ''),
+                        'given': given_part
+                    }
+        
+        return None
+    
+    def _split_family_surnames(self, family_part: str) -> Optional[Dict[str, str]]:
+        """
+        Split family names into primary and secondary using stop-words.
+        
+        Args:
+            family_part: The family name portion (may contain dual surnames)
+            
+        Returns:
+            Dictionary with 'primary' and optionally 'secondary' surnames
+        """
+        words = family_part.split()
+        if not words:
+            return None
+        
+        # Single word - just primary surname
+        if len(words) == 1:
+            return {'primary': words[0]}
+        
+        # Look for stop-words to split surnames
+        for i, word in enumerate(words):
+            word_lower = word.lower()
+            
+            # Check for multi-word stop-words first (e.g., "de la", "de los")
+            if i < len(words) - 1:
+                two_word = f"{word_lower} {words[i+1].lower()}"
+                if i < len(words) - 2:
+                    three_word = f"{two_word} {words[i+2].lower()}"
+                    if three_word in self.surname_stop_words:
+                        # Found three-word stop-word
+                        if i > 0:
+                            return {
+                                'primary': ' '.join(words[:i]),
+                                'secondary': ' '.join(words[i:])
+                            }
+                
+                if two_word in self.surname_stop_words:
+                    # Found two-word stop-word
+                    if i > 0:
+                        return {
+                            'primary': ' '.join(words[:i]),
+                            'secondary': ' '.join(words[i:])
+                        }
+            
+            # Check for single-word stop-words
+            if word_lower in self.surname_stop_words:
+                if i > 0:
+                    return {
+                        'primary': ' '.join(words[:i]),
+                        'secondary': ' '.join(words[i:])
+                    }
+        
+        # No stop-words found - for dual surnames, assume last word is secondary
+        if len(words) == 2:
+            return {
+                'primary': words[0],
+                'secondary': words[1]
+            }
+        elif len(words) > 2:
+            # Complex case - might be compound surname or multiple surnames
+            # Conservative approach: treat last word as secondary, rest as primary
+            return {
+                'primary': ' '.join(words[:-1]),
+                'secondary': words[-1]
+            }
+        
+        return {'primary': family_part}
+    
+    def _find_given_name_boundary(self, words: List[str]) -> int:
+        """
+        Find the boundary between given names and surnames in a word list.
+        
+        This is complex for Spanish/Portuguese names as given names can be compound
+        (e.g., "María del Carmen", "José Antonio").
+        
+        Args:
+            words: List of words in the name
+            
+        Returns:
+            Index where surnames begin
+        """
+        # Common compound given name patterns
+        compound_given_patterns = [
+            "maría del", "maria del", "josé", "jose", "juan", "ana", "luis"
+        ]
+        
+        # If we have a compound given name pattern, find where it ends
+        name_lower = ' '.join(words).lower()
+        for pattern in compound_given_patterns:
+            if name_lower.startswith(pattern):
+                # Count words in the compound pattern
+                pattern_words = pattern.split()
+                
+                # Check if followed by more given name parts
+                if len(words) > len(pattern_words):
+                    next_word = words[len(pattern_words)].lower()
+                    if next_word in ['carmen', 'antonio', 'manuel', 'isabel', 'teresa']:
+                        return len(pattern_words) + 1
+                    elif next_word in self.surname_stop_words:
+                        # Stop-word might be part of given name
+                        if len(words) > len(pattern_words) + 1:
+                            return len(pattern_words) + 2
+                
+                return len(pattern_words)
+        
+        # Default heuristic: given names are typically 1-2 words
+        # unless there are particles
+        if len(words) >= 3:
+            # Check if second word is a particle (might be part of given name)
+            if words[1].lower() in self.surname_stop_words:
+                return 3  # Given name includes particle
+            else:
+                return 2  # Standard two-part given name
+        
+        return 1  # Single given name

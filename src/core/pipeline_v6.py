@@ -36,12 +36,14 @@ from src.authorities.cache import AuthorityCache
 from src.core.config import GMNAPConfig, get_config
 from src.core.errors import GMNAPError, ValidationError
 from src.core.globalid import GlobalIDGenerator
+from src.core.security_validator import security_validator, SecurityError
 from src.core.unicode_handler import UnicodeNormalizer
 from src.linguistic import LinguisticRulesEngine
 from src.regions.base import RegionRuleError
 from src.regions.manager import RegionManager
 from src.utils.database import DatabaseManager
 from src.validation.schema import SchemaValidator
+from src.validation.data_quality import data_quality_validator
 
 logger = logging.getLogger(__name__)
 
@@ -253,17 +255,36 @@ class GMNAPPipeline:
                         metrics.warnings.append(f"Skipping non-dict file: {yaml_file}")
                         continue
                     
+                    # Security validation: validate YAML keys and entries
+                    try:
+                        data = security_validator.validate_yaml_keys(data)
+                        logger.debug(f"Security validation passed for {yaml_file}")
+                    except SecurityError as e:
+                        metrics.errors.append(f"Security validation failed for {yaml_file}: {e}")
+                        logger.error(f"Security validation failed for {yaml_file}: {e}")
+                        continue
+                    
                     # Process each entry
                     for canonical_latin, entry in data.items():
-                        # Apply Unicode normalization flow
-                        entry = self._normalize_entry(entry)
-                        
-                        # Store with metadata
-                        entry["_source_file"] = str(yaml_file)
-                        entry["_raw_yaml"] = raw_text
-                        
-                        self._entries[canonical_latin] = entry
-                        metrics.entries_processed += 1
+                        try:
+                            # Security validation: validate entry content
+                            entry = security_validator.validate_entry(entry)
+                            
+                            # Apply Unicode normalization flow
+                            entry = self._normalize_entry(entry)
+                            
+                            # Store with metadata
+                            entry["_source_file"] = str(yaml_file)
+                            entry["_raw_yaml"] = raw_text
+                            
+                            self._entries[canonical_latin] = entry
+                            metrics.entries_processed += 1
+                            
+                        except SecurityError as e:
+                            metrics.errors.append(f"Security validation failed for entry {canonical_latin}: {e}")
+                            logger.warning(f"Skipping dangerous entry {canonical_latin}: {e}")
+                            metrics.entries_failed += 1
+                            continue
                         
                 except Exception as e:
                     metrics.errors.append(f"Failed to load {yaml_file}: {e}")
@@ -898,6 +919,34 @@ class GMNAPPipeline:
                     metrics.errors.append(f"Validation error for {canonical_latin}: {e}")
                     metrics.entries_failed += 1
             
+            # Data quality validation
+            data_quality_issues = 0
+            for canonical_latin, entry in self._entries.items():
+                try:
+                    quality_result = data_quality_validator.validate_entry(entry)
+                    
+                    # Log errors
+                    for error in quality_result["errors"]:
+                        metrics.errors.append(f"Data quality error in {canonical_latin}: {error}")
+                        data_quality_issues += 1
+                    
+                    # Log warnings
+                    for warning in quality_result["warnings"]:
+                        metrics.warnings.append(f"Data quality warning in {canonical_latin}: {warning}")
+                    
+                    # Track low completeness
+                    if quality_result["completeness_score"] < 70:
+                        metrics.warnings.append(
+                            f"Low completeness score for {canonical_latin}: {quality_result['completeness_score']}%"
+                        )
+                    
+                except Exception as e:
+                    logger.error(f"Data quality validation error for {canonical_latin}: {e}")
+                    metrics.errors.append(f"Data quality check failed for {canonical_latin}: {e}")
+            
+            if data_quality_issues > 0:
+                logger.warning(f"Found {data_quality_issues} data quality issues")
+            
             # Round-trip validation for deterministic scripts
             self._validate_roundtrip()
             
@@ -927,6 +976,10 @@ class GMNAPPipeline:
                     k: v for k, v in entry.items()
                     if not k.startswith("_")
                 }
+                
+                # Copy region detection result to public field
+                if "_region" in entry:
+                    clean_entry["RegionCode"] = entry["_region"]
                 
                 file_groups[source_file][canonical_latin] = clean_entry
             
@@ -1389,25 +1442,89 @@ class GMNAPPipeline:
         """Load region specifications."""
         # Register available regions
         from src.regions.a_groups.a1_anglo_sphere import A1_AngloSphere
+        from src.regions.a_groups.a2_western_europe import A2_WesternEurope
         from src.regions.b_groups.b1_east_slavic import B1_EastSlavic
+        from src.regions.b_groups.b2_south_slavic_central import B2_SouthSlavicCentral
         from src.regions.c_groups.c2_persian_tajik import C2_PersianTajik
-        from src.regions.c_groups.c3_arabic_levant_nile import \
-            C3_ArabicLevantNile
-        from src.regions.d_groups.d1_hindi_belt import D1_HindiBelt
-        from src.regions.e_groups.e1_sinophone_mainland import \
-            E1_SinophoneMainland
+        from src.regions.c_groups.c3_arabic_levant_nile import C3_ArabicLevantNile
+        from src.regions.c_groups.c4_arabic_gulf import C4_ArabicGulf
+        from src.regions.d_groups.d1_south_asia_hindi_belt import D1_SouthAsiaHindiBelt as D1_HindiBelt
+        from src.regions.e_groups.e1_sinophone_mainland import E1_SinophoneMainland
         from src.regions.e_groups.e3_japan import E3_Japan
         from src.regions.g_groups.g1_latin_america import G1_LatinAmerica
+        
+        # Import new processors
+        from src.regions.a_groups.a3_nordic_baltic.processor import A3NordicBalticProcessor
+        from src.regions.a_groups.a4_oceania.processor import A4OceaniaProcessor
+        from src.regions.a_groups.a5_caribbean.processor import A5CaribbeanProcessor
+        from src.regions.b_groups.b3_greek.processor import B3GreekProcessor
+        from src.regions.c_groups.c1_turkic.processor import C1TurkicProcessor
+        from src.regions.e_groups.e2_traditional_chinese import E2TraditionalChineseProcessor
+        from src.regions.e_groups.e4_korea import E4KoreanProcessor
+        
+        # Import remaining regions for 100% v7 coverage
+        from src.regions.c_groups.c5_arabic_maghreb import C5ArabicMaghreb
+        from src.regions.c_groups.c6_hebrew_diaspora import C6HebrewDiaspora
+        from src.regions.c_groups.c7_armenian import C7Armenian
+        from src.regions.c_groups.c8_georgian import C8Georgian
+        from src.regions.c_groups.c9_caucasus_turkic import C9CaucasusTurkic
+        from src.regions.d_groups.d2_south_asia_dravidian import D2SouthAsiaDravidian
+        from src.regions.d_groups.d3_south_asia_bengali import D3SouthAsiaBengali
+        from src.regions.d_groups.d4_pakistan_urdu import D4PakistanUrdu
+        from src.regions.d_groups.d5_sinhala import D5Sinhala
+        from src.regions.e_groups.e5_vietnam import E5Vietnam
+        from src.regions.e_groups.e6_mainland_sea import E6MainlandSEA
+        from src.regions.e_groups.e7_maritime_sea import E7MaritimeSEA
+        from src.regions.f_groups.f1_ssa_francophone import F1SSAFrancophone
+        from src.regions.f_groups.f2_ssa_anglophone import F2SSAAnglophone
+        from src.regions.f_groups.f3_horn_of_africa import F3HornOfAfrica
+        from src.regions.f_groups.f4_lusophone_africa import F4LusophoneAfrica
+        from src.regions.special.h1_historical import H1Historical
+        from src.regions.special.r0_residual_latin_ascii import R0ResidualLatinASCII
+        from src.regions.special.z0_quarantine import Z0Quarantine
 
         # Register all implemented regions
         self.region_manager.register_region(A1_AngloSphere())
+        self.region_manager.register_region(A2_WesternEurope())
         self.region_manager.register_region(B1_EastSlavic())
+        self.region_manager.register_region(B2_SouthSlavicCentral())
         self.region_manager.register_region(C2_PersianTajik())
         self.region_manager.register_region(C3_ArabicLevantNile())
+        self.region_manager.register_region(C4_ArabicGulf())
         self.region_manager.register_region(D1_HindiBelt())
         self.region_manager.register_region(E1_SinophoneMainland())
         self.region_manager.register_region(E3_Japan())
         self.region_manager.register_region(G1_LatinAmerica())
+        
+        # Register new processors
+        self.region_manager.register_region(A3NordicBalticProcessor())
+        self.region_manager.register_region(A4OceaniaProcessor())
+        self.region_manager.register_region(A5CaribbeanProcessor())
+        self.region_manager.register_region(B3GreekProcessor())
+        self.region_manager.register_region(C1TurkicProcessor())
+        self.region_manager.register_region(E2TraditionalChineseProcessor())
+        self.region_manager.register_region(E4KoreanProcessor())
+        
+        # Register remaining regions for 100% v7 coverage
+        self.region_manager.register_region(C5ArabicMaghreb())
+        self.region_manager.register_region(C6HebrewDiaspora())
+        self.region_manager.register_region(C7Armenian())
+        self.region_manager.register_region(C8Georgian())
+        self.region_manager.register_region(C9CaucasusTurkic())
+        self.region_manager.register_region(D2SouthAsiaDravidian())
+        self.region_manager.register_region(D3SouthAsiaBengali())
+        self.region_manager.register_region(D4PakistanUrdu())
+        self.region_manager.register_region(D5Sinhala())
+        self.region_manager.register_region(E5Vietnam())
+        self.region_manager.register_region(E6MainlandSEA())
+        self.region_manager.register_region(E7MaritimeSEA())
+        self.region_manager.register_region(F1SSAFrancophone())
+        self.region_manager.register_region(F2SSAAnglophone())
+        self.region_manager.register_region(F3HornOfAfrica())
+        self.region_manager.register_region(F4LusophoneAfrica())
+        self.region_manager.register_region(H1Historical())
+        self.region_manager.register_region(R0ResidualLatinASCII())
+        self.region_manager.register_region(Z0Quarantine())
     
     def _verify_file_ownership(self) -> None:
         """Verify each YAML file is owned by exactly one region."""

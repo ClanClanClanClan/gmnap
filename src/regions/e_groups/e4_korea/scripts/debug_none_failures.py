@@ -5,8 +5,8 @@ Debug cases that return None to understand segmentation failures
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 from converter import eng2kor
-from segment_fixed import segment
-from preprocess_fixed import tokenise
+from segment import segment
+from preprocess import tokenise
 
 # Cases that return None
 none_cases = [

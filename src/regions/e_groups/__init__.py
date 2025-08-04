@@ -13,6 +13,7 @@ All E-groups implement CJK Round-Trip rule (Rule 11):
 romanise+back-convert with ≥97% match using Dice coefficient after NFC casefold.
 """
 
-from .e4_korea import E4KoreaProcessor
+# Temporarily disable E4 import until fixed
+# from .e4_korea import E4KoreaProcessor
 
-__all__ = ["E4KoreaProcessor"]
+__all__ = []  # ["E4KoreaProcessor"]

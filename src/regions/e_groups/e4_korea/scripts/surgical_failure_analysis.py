@@ -5,8 +5,8 @@ Surgical analysis of remaining eng→kor failures for targeted fixes
 import yaml, sys, pathlib, csv
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 from converter import eng2kor
-from preprocess_fixed import tokenise
-from segment_fixed import segment
+from preprocess import tokenise
+from segment import segment
 
 def find_hangul(variants):
     for v in variants:

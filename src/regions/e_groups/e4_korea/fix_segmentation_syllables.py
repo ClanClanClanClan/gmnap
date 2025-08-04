@@ -81,7 +81,7 @@ def test_segmentation_fixes():
     import pathlib
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     from converter import eng2kor
-    from segment_fixed import segment
+    from segment import segment
     
     test_cases = [
         ("ChongWei", "청위", ['chong', 'wei']),
