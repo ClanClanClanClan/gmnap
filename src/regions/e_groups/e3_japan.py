@@ -206,6 +206,12 @@ class E3_Japan(RegionSpec):
                     "str": katakana,
                     "type": "katakana"
                 })
+        
+        # Rule 12: Japanese Post-2020 Order Rule - majority rule for English papers
+        if components.get("family_name") and components.get("given_name"):
+            order_variants = self._generate_post_2020_order_variants(canonical, components, entry)
+            for variant in order_variants:
+                entry["Variants"]["Synthesised"].append(variant)
     
     def _extract_components(self, name: str) -> Dict[str, Any]:
         """Extract name components."""
@@ -362,6 +368,68 @@ class E3_Japan(RegionSpec):
                 result.append(char)
         return "".join(result)
     
+    def _generate_post_2020_order_variants(self, canonical: str, components: Dict[str, Any], entry: Dict[str, Any]) -> List[Dict[str, str]]:
+        """
+        Rule 12: Japanese Post-2020 Order Rule - majority rule for English papers.
+        
+        Since 2020, Japan officially recommends Family Given order for romanized names
+        in English language publications. This method generates appropriate variants
+        based on the publication context and timeframe.
+        
+        Examples:
+        - Pre-2020: "Hiroshi Tanaka" (Given Family) was common in English
+        - Post-2020: "Tanaka Hiroshi" (Family Given) is now recommended
+        """
+        variants = []
+        family = components.get("family_name", "")
+        given = components.get("given_name", "")
+        
+        if not family or not given:
+            return variants
+        
+        # Detect if this is likely an English publication context
+        # (i.e., romanized form)
+        is_romanized = not self._is_japanese(canonical)
+        
+        if is_romanized:
+            # Store order information in RegionalExtras
+            if "RegionalExtras" not in entry:
+                entry["RegionalExtras"] = {}
+            entry["RegionalExtras"]["post_2020_order_applicable"] = True
+            
+            # Determine current order format
+            if " " in canonical:
+                words = canonical.split()
+                first_word = words[0]
+                
+                # Check if current format is Given Family or Family Given
+                if first_word.lower() == given.lower():
+                    # Current is Given Family format (pre-2020 style)
+                    # Generate Family Given variant (post-2020 style)
+                    post_2020_variant = f"{family} {given}"
+                    variants.append({
+                        "str": post_2020_variant,
+                        "type": "japanese-post-2020-order"
+                    })
+                elif first_word.lower() == family.lower():
+                    # Current is Family Given format (post-2020 style)  
+                    # Generate Given Family variant (pre-2020 style)
+                    pre_2020_variant = f"{given} {family}"
+                    variants.append({
+                        "str": pre_2020_variant,
+                        "type": "japanese-pre-2020-order"
+                    })
+            
+            # Also generate comma-separated canonical format
+            if ", " not in canonical:
+                canonical_format = f"{family}, {given}"
+                variants.append({
+                    "str": canonical_format,
+                    "type": "japanese-canonical"
+                })
+        
+        return variants
+    
     def validate(self, entry: Dict[str, Any]) -> None:
         """Validate entry according to E3 rules."""
         # Check for at least one canonical form
@@ -391,11 +459,13 @@ class E3_Japan(RegionSpec):
     
     def _is_valid_romanization(self, text: str) -> bool:
         """Check if text is valid Japanese romanization."""
+        # Remove punctuation for validation
+        text_clean = text.replace(',', ' ').replace('.', ' ')
         # Basic validation for Japanese romanization
-        words = text.split()
+        words = text_clean.split()
         for word in words:
             # Should only contain Latin letters and basic marks
-            if not re.match(r'^[a-zA-Z-]+$', word):
+            if word and not re.match(r'^[a-zA-Z-]+$', word):
                 return False
         return True
     

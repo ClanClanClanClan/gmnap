@@ -2,8 +2,8 @@
 """Trace the conversion process for specific names."""
 import sys
 sys.path.insert(0, 'src')
-from preprocess_fixed import tokenise
-from segment_fixed import segment
+from preprocess import tokenise
+from segment import segment
 import converter
 
 def trace_name(name, expected):

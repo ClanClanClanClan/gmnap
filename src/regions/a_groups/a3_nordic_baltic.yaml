@@ -1,0 +1,88 @@
+# A3 Nordic-Baltic Region Configuration
+# Covers: DK, NO, SE, FI, IS, FO, AX (Nordic) + EE, LV, LT (Baltic)
+
+region:
+  code: A3
+  name: Nordic-Baltic
+  description: |
+    Nordic and Baltic region handling Scandinavian and Baltic naming conventions.
+    Features include Icelandic patronymic system, Scandinavian noble particles,
+    Baltic gendered surname endings, and extensive use of diacritics.
+
+countries:
+  nordic:
+    - code: DK
+      name: Denmark
+      features: [particles, diacritics_ae_oe]
+    - code: NO
+      name: Norway
+      features: [particles, diacritics_ae_oe]
+    - code: SE
+      name: Sweden
+      features: [particles, diacritics_aao]
+    - code: FI
+      name: Finland
+      features: [diacritics_aao]
+    - code: IS
+      name: Iceland
+      features: [patronymic_system, diacritics_special]
+    - code: FO
+      name: Faroe Islands
+      features: [patronymic_system, diacritics_ae_oe]
+    - code: AX
+      name: Åland Islands
+      features: [diacritics_aao]
+  
+  baltic:
+    - code: EE
+      name: Estonia
+      features: [diacritics_baltic]
+    - code: LV
+      name: Latvia
+      features: [gendered_endings, diacritics_baltic]
+    - code: LT
+      name: Lithuania
+      features: [gendered_endings, diacritics_baltic]
+
+naming_conventions:
+  canonical_order: "Family, Given"
+  alternative_orders:
+    - "Given Family"  # Common in informal contexts
+    - "Given Patronymic"  # Iceland
+  
+  special_rules:
+    icelandic_patronymic:
+      description: "Names use father's/mother's name + -son/-dóttir"
+      example: "Magnús Eiríksson (son of Eiríkur)"
+      sorting: "By given name, not patronymic"
+    
+    scandinavian_particles:
+      description: "Noble particles like af, av, von"
+      example: "Carl von Linné"
+      sorting: "Ignore particle, sort by main surname"
+    
+    baltic_gendered_endings:
+      description: "Surnames change based on gender/marital status"
+      male_endings: ["-as", "-is", "-us", "-ys", "-ius"]
+      female_endings:
+        married: ["-ienė"]
+        unmarried: ["-ytė", "-utė", "-aitė", "-iūtė"]
+        general: ["-ė"]
+
+scripts:
+  primary: Latin
+  diacritics:
+    nordic:
+      swedish_finnish: ["å", "ä", "ö"]
+      danish_norwegian: ["æ", "ø", "å"]
+      icelandic: ["á", "é", "í", "ó", "ú", "ý", "þ", "ð", "æ", "ö"]
+    baltic:
+      common: ["ą", "č", "ę", "ė", "į", "š", "ų", "ū", "ž"]
+      estonian: ["õ", "ä", "ö", "ü"]
+      latvian: ["ā", "ē", "ī", "ū", "ļ", "ķ", "ņ", "ģ"]
+
+validation_rules:
+  - rule: "Must use Latin script"
+  - rule: "Nordic/Baltic diacritics allowed"
+  - rule: "Patronymics excluded from surname statistics"
+  - rule: "Gendered endings must match stated gender"

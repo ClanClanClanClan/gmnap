@@ -10,8 +10,8 @@ E4_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(E4_ROOT / "src"))
 
 from preprocess import tokenise
-from segment_fixed import segment
-from converter_fixed import eng2kor
+from segment import segment
+from converter import eng2kor
 
 def debug_processing():
     """Debug the processing pipeline."""

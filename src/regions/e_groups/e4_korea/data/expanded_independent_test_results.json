@@ -27,8 +27,8 @@
       "Statistical significance for robust validation"
     ]
   },
-  "overall_accuracy": 88.48484848484848,
-  "successes": 146,
+  "overall_accuracy": 93.33333333333333,
+  "successes": 154,
   "total_cases": 165,
   "results_by_category": {
     "literary": {
@@ -36,37 +36,28 @@
       "total": 15,
       "failures": [
         {
-          "name": "Lee, Mun-Yol",
+          "name": "Lee, Cheong-Jun",
           "category": "literary",
-          "expected": "이문열",
-          "actual": "이문욜",
-          "roundtrip": "rhee mun yol",
-          "dice": 0.8235294117647058,
+          "expected": "이청준",
+          "actual": "이정준",
+          "roundtrip": "lee chung jun",
+          "dice": 0.8,
           "issue": "low_dice_score"
         }
       ]
     },
     "culture": {
-      "success": 29,
+      "success": 32,
       "total": 36,
       "failures": [
-        {
-          "name": "Lee, Byung-Hun",
-          "category": "culture",
-          "expected": "이병헌",
-          "actual": null,
-          "roundtrip": null,
-          "dice": 0.0,
-          "issue": "no_conversion"
-        },
         {
           "name": "Youn, Yuh-Jung",
           "category": "culture",
           "expected": "윤여정",
-          "actual": null,
-          "roundtrip": null,
-          "dice": 0.0,
-          "issue": "no_conversion"
+          "actual": "연여정",
+          "roundtrip": "youn yeo jung",
+          "dice": 0.6666666666666666,
+          "issue": "low_dice_score"
         },
         {
           "name": "IU",
@@ -81,33 +72,15 @@
           "name": "Kim, Jee-Woon",
           "category": "culture",
           "expected": "김지운",
-          "actual": "김제이이워온",
-          "roundtrip": "kim j yi lee wo on",
-          "dice": 0.7619047619047619,
+          "actual": "김지워온",
+          "roundtrip": "kim ji wo on",
+          "dice": 0.7058823529411765,
           "issue": "low_dice_score"
         },
         {
-          "name": "Choi, Min-Shik",
+          "name": "Psy",
           "category": "culture",
-          "expected": "최민식",
-          "actual": null,
-          "roundtrip": null,
-          "dice": 0.0,
-          "issue": "no_conversion"
-        },
-        {
-          "name": "Lee, Chang-Dong",
-          "category": "culture",
-          "expected": "이창동",
-          "actual": "이장동",
-          "roundtrip": "rhee chang dong",
-          "dice": 0.8571428571428571,
-          "issue": "low_dice_score"
-        },
-        {
-          "name": "So, Ji-Sub",
-          "category": "culture",
-          "expected": "소지섭",
+          "expected": "싸이",
           "actual": null,
           "roundtrip": null,
           "dice": 0.0,
@@ -116,26 +89,17 @@
       ]
     },
     "historical": {
-      "success": 13,
+      "success": 14,
       "total": 15,
       "failures": [
-        {
-          "name": "Yu, Gwan-Sun",
-          "category": "historical",
-          "expected": "유관순",
-          "actual": null,
-          "roundtrip": null,
-          "dice": 0.0,
-          "issue": "no_conversion"
-        },
         {
           "name": "Yi, Sun-Sin",
           "category": "historical",
           "expected": "이순신",
-          "actual": null,
-          "roundtrip": null,
-          "dice": 0.0,
-          "issue": "no_conversion"
+          "actual": "이선신",
+          "roundtrip": "yi sun shin",
+          "dice": 0.8,
+          "issue": "low_dice_score"
         }
       ]
     },
@@ -144,31 +108,31 @@
       "total": 40,
       "failures": [
         {
-          "name": "Lee, Nak-Yon",
+          "name": "Kim, Boo-Kyum",
           "category": "political",
-          "expected": "이낙연",
-          "actual": "이낙욘",
-          "roundtrip": "rhee nak yon",
-          "dice": 0.8235294117647058,
+          "expected": "김부겸",
+          "actual": "김부큠",
+          "roundtrip": "kim bu kyum",
+          "dice": 0.7058823529411765,
           "issue": "low_dice_score"
         },
         {
-          "name": "Boo, Seung-Chan",
+          "name": "Chun, Doo-Hwan",
           "category": "political",
-          "expected": "부승찬",
-          "actual": "보오승찬",
-          "roundtrip": "bo o sueng chan",
-          "dice": 0.7272727272727273,
+          "expected": "전두환",
+          "actual": "춘두환",
+          "roundtrip": "chun du hwan",
+          "dice": 0.7368421052631579,
           "issue": "low_dice_score"
         },
         {
           "name": "Min, Byung-Doo",
           "category": "political",
           "expected": "민병두",
-          "actual": null,
-          "roundtrip": null,
-          "dice": 0.0,
-          "issue": "no_conversion"
+          "actual": "민븅두",
+          "roundtrip": "min byung du",
+          "dice": 0.8421052631578947,
+          "issue": "low_dice_score"
         }
       ]
     },
@@ -181,71 +145,33 @@
           "category": "media",
           "expected": "박경림",
           "actual": "박경임",
-          "roundtrip": "park kyung rim",
-          "dice": 0.8181818181818182,
+          "roundtrip": "pak kyung lim",
+          "dice": 0.8571428571428571,
           "issue": "low_dice_score"
         }
       ]
     },
     "business": {
-      "success": 14,
+      "success": 15,
       "total": 15,
-      "failures": [
-        {
-          "name": "Chung, Eui-Sun",
-          "category": "business",
-          "expected": "정의선",
-          "actual": null,
-          "roundtrip": null,
-          "dice": 0.0,
-          "issue": "no_conversion"
-        }
-      ]
+      "failures": []
     },
     "academic": {
-      "success": 14,
+      "success": 15,
       "total": 15,
-      "failures": [
-        {
-          "name": "Lee, Sang-Yup",
-          "category": "academic",
-          "expected": "이상엽",
-          "actual": "이상윱",
-          "roundtrip": "rhee sang yup",
-          "dice": 0.8421052631578947,
-          "issue": "low_dice_score"
-        }
-      ]
+      "failures": []
     },
     "sports": {
-      "success": 15,
+      "success": 17,
       "total": 18,
       "failures": [
-        {
-          "name": "Pak, Se-Ri",
-          "category": "sports",
-          "expected": "박세리",
-          "actual": "박세이",
-          "roundtrip": "park se ri",
-          "dice": 0.7692307692307693,
-          "issue": "low_dice_score"
-        },
-        {
-          "name": "Kim, Yeon-Koung",
-          "category": "sports",
-          "expected": "김연경",
-          "actual": "김연고웅",
-          "roundtrip": "kim yon ko ung",
-          "dice": 0.8571428571428571,
-          "issue": "low_dice_score"
-        },
         {
           "name": "Lee, Seung-Yuop",
           "category": "sports",
           "expected": "이승엽",
-          "actual": "이승유옵",
-          "roundtrip": "rhee sueng you op",
-          "dice": 0.5,
+          "actual": "이승류옵",
+          "roundtrip": "lee seung ryu op",
+          "dice": 0.8695652173913043,
           "issue": "low_dice_score"
         }
       ]
@@ -259,27 +185,27 @@
   "category_statistics": [
     [
       "academic",
-      14,
       15,
-      93.33333333333333
+      15,
+      100.0
     ],
     [
       "business",
-      14,
       15,
-      93.33333333333333
+      15,
+      100.0
     ],
     [
       "culture",
-      29,
+      32,
       36,
-      80.55555555555556
+      88.88888888888889
     ],
     [
       "historical",
-      13,
+      14,
       15,
-      86.66666666666667
+      93.33333333333333
     ],
     [
       "literary",
@@ -307,18 +233,19 @@
     ],
     [
       "sports",
-      15,
+      17,
       18,
-      83.33333333333334
+      94.44444444444444
     ]
   ],
   "all_results": [
     {
       "name": "Lee, Cheong-Jun",
-      "status": "perfect",
+      "status": "roundtrip_fail",
       "category": "literary",
       "expected": "이청준",
-      "actual": "이청준"
+      "actual": "이정준",
+      "dice": 0.8
     },
     {
       "name": "Ha, Jung-Woo",
@@ -354,24 +281,29 @@
     },
     {
       "name": "Yu, Gwan-Sun",
-      "status": "no_conversion",
+      "status": "roundtrip_pass",
       "category": "historical",
       "expected": "유관순",
-      "actual": null
+      "actual": "유관선",
+      "roundtrip": "yu gwan sun",
+      "dice": 1.0
     },
     {
       "name": "Lee, Byung-Hun",
-      "status": "no_conversion",
+      "status": "roundtrip_pass",
       "category": "culture",
       "expected": "이병헌",
-      "actual": null
+      "actual": "이븅훈",
+      "roundtrip": "lee byung hun",
+      "dice": 1.0
     },
     {
       "name": "Youn, Yuh-Jung",
-      "status": "no_conversion",
+      "status": "roundtrip_fail",
       "category": "culture",
       "expected": "윤여정",
-      "actual": null
+      "actual": "연여정",
+      "dice": 0.6666666666666666
     },
     {
       "name": "Park, Kyung-Lim",
@@ -379,7 +311,7 @@
       "category": "media",
       "expected": "박경림",
       "actual": "박경임",
-      "dice": 0.8181818181818182
+      "dice": 0.8571428571428571
     },
     {
       "name": "Kim, Su-Young",
@@ -513,11 +445,12 @@
     },
     {
       "name": "Pak, Se-Ri",
-      "status": "roundtrip_fail",
+      "status": "roundtrip_pass",
       "category": "sports",
       "expected": "박세리",
       "actual": "박세이",
-      "dice": 0.7692307692307693
+      "roundtrip": "pak se ri",
+      "dice": 1.0
     },
     {
       "name": "Hwang, Kyo-Ahn",
@@ -614,37 +547,37 @@
     },
     {
       "name": "Kim, Dae-Joong",
-      "status": "roundtrip_pass",
+      "status": "perfect",
       "category": "academic",
       "expected": "김대중",
-      "actual": "김대조옹",
-      "roundtrip": "kim dae jo ong",
-      "dice": 1.0
+      "actual": "김대중"
     },
     {
       "name": "Shin, Kak",
       "status": "roundtrip_pass",
       "category": "academic",
       "expected": "신각",
-      "actual": "신캌",
+      "actual": "신칵",
       "roundtrip": "shin kak",
       "dice": 1.0
     },
     {
       "name": "Lee, Nak-Yon",
-      "status": "roundtrip_fail",
+      "status": "roundtrip_pass",
       "category": "political",
       "expected": "이낙연",
       "actual": "이낙욘",
-      "dice": 0.8235294117647058
+      "roundtrip": "lee nak yon",
+      "dice": 1.0
     },
     {
       "name": "Kim, Yeon-Koung",
-      "status": "roundtrip_fail",
+      "status": "roundtrip_pass",
       "category": "sports",
       "expected": "김연경",
       "actual": "김연고웅",
-      "dice": 0.8571428571428571
+      "roundtrip": "kim yeon ko ung",
+      "dice": 1.0
     },
     {
       "name": "IU",
@@ -724,8 +657,8 @@
       "status": "roundtrip_fail",
       "category": "sports",
       "expected": "이승엽",
-      "actual": "이승유옵",
-      "dice": 0.5
+      "actual": "이승류옵",
+      "dice": 0.8695652173913043
     },
     {
       "name": "Park, Chung-Hee",
@@ -778,12 +711,10 @@
     },
     {
       "name": "Kim, Ha-Joong",
-      "status": "roundtrip_pass",
+      "status": "perfect",
       "category": "academic",
       "expected": "김하중",
-      "actual": "김하조옹",
-      "roundtrip": "kim ha jo ong",
-      "dice": 1.0
+      "actual": "김하중"
     },
     {
       "name": "Roh, Moo-Hyun",
@@ -797,7 +728,7 @@
       "status": "roundtrip_pass",
       "category": "historical",
       "expected": "김삿갓",
-      "actual": "김샀갇",
+      "actual": "김삳갇",
       "roundtrip": "kim sat gat",
       "dice": 1.0
     },
@@ -852,8 +783,8 @@
       "status": "roundtrip_fail",
       "category": "culture",
       "expected": "김지운",
-      "actual": "김제이이워온",
-      "dice": 0.7619047619047619
+      "actual": "김지워온",
+      "dice": 0.7058823529411765
     },
     {
       "name": "Kim, So-Wol",
@@ -982,20 +913,18 @@
     },
     {
       "name": "Kim, Boo-Kyum",
-      "status": "roundtrip_pass",
+      "status": "roundtrip_fail",
       "category": "political",
       "expected": "김부겸",
-      "actual": "김보오큠",
-      "roundtrip": "kim bo o kyum",
-      "dice": 1.0
+      "actual": "김부큠",
+      "dice": 0.7058823529411765
     },
     {
       "name": "Boo, Seung-Chan",
-      "status": "roundtrip_fail",
+      "status": "perfect",
       "category": "political",
       "expected": "부승찬",
-      "actual": "보오승찬",
-      "dice": 0.7272727272727273
+      "actual": "부승찬"
     },
     {
       "name": "Pyen, Jae-Il",
@@ -1015,10 +944,10 @@
     },
     {
       "name": "Choi, Min-Shik",
-      "status": "no_conversion",
+      "status": "perfect",
       "category": "culture",
       "expected": "최민식",
-      "actual": null
+      "actual": "최민식"
     },
     {
       "name": "Kim, Young-Sam",
@@ -1140,11 +1069,12 @@
     },
     {
       "name": "Lee, Chang-Dong",
-      "status": "roundtrip_fail",
+      "status": "roundtrip_pass",
       "category": "culture",
       "expected": "이창동",
       "actual": "이장동",
-      "dice": 0.8571428571428571
+      "roundtrip": "lee chang dong",
+      "dice": 1.0
     },
     {
       "name": "Jeon, Do-Yeon",
@@ -1204,12 +1134,11 @@
     },
     {
       "name": "Chun, Doo-Hwan",
-      "status": "roundtrip_pass",
+      "status": "roundtrip_fail",
       "category": "political",
       "expected": "전두환",
-      "actual": "춘도오환",
-      "roundtrip": "chun do o hwan",
-      "dice": 1.0
+      "actual": "춘두환",
+      "dice": 0.7368421052631579
     },
     {
       "name": "Han, Yong-Un",
@@ -1266,10 +1195,10 @@
     },
     {
       "name": "So, Ji-Sub",
-      "status": "no_conversion",
+      "status": "perfect",
       "category": "culture",
       "expected": "소지섭",
-      "actual": null
+      "actual": "소지섭"
     },
     {
       "name": "Lee, Hwi-So",
@@ -1340,10 +1269,10 @@
     },
     {
       "name": "Chung, Eui-Sun",
-      "status": "no_conversion",
+      "status": "perfect",
       "category": "business",
       "expected": "정의선",
-      "actual": null
+      "actual": "정의선"
     },
     {
       "name": "Lee, Wan-Koo",
@@ -1389,10 +1318,11 @@
     },
     {
       "name": "Yi, Sun-Sin",
-      "status": "no_conversion",
+      "status": "roundtrip_fail",
       "category": "historical",
       "expected": "이순신",
-      "actual": null
+      "actual": "이선신",
+      "dice": 0.8
     },
     {
       "name": "King, Sejong",
@@ -1442,11 +1372,12 @@
     },
     {
       "name": "Lee, Sang-Yup",
-      "status": "roundtrip_fail",
+      "status": "roundtrip_pass",
       "category": "academic",
       "expected": "이상엽",
       "actual": "이상윱",
-      "dice": 0.8421052631578947
+      "roundtrip": "lee sang yup",
+      "dice": 1.0
     },
     {
       "name": "Lee, Kang-In",
@@ -1473,17 +1404,18 @@
     },
     {
       "name": "Psy",
-      "status": "perfect",
+      "status": "no_conversion",
       "category": "culture",
       "expected": "싸이",
-      "actual": "싸이"
+      "actual": null
     },
     {
       "name": "Min, Byung-Doo",
-      "status": "no_conversion",
+      "status": "roundtrip_fail",
       "category": "political",
       "expected": "민병두",
-      "actual": null
+      "actual": "민븅두",
+      "dice": 0.8421052631578947
     },
     {
       "name": "Bong, Joon-Ho",
@@ -1535,74 +1467,39 @@
     },
     {
       "name": "Lee, Mun-Yol",
-      "status": "roundtrip_fail",
+      "status": "roundtrip_pass",
       "category": "literary",
       "expected": "이문열",
       "actual": "이문욜",
-      "dice": 0.8235294117647058
+      "roundtrip": "lee mun yol",
+      "dice": 1.0
     }
   ],
   "failures": [
     {
-      "name": "Yu, Gwan-Sun",
-      "category": "historical",
-      "expected": "유관순",
-      "actual": null,
-      "roundtrip": null,
-      "dice": 0.0,
-      "issue": "no_conversion"
-    },
-    {
-      "name": "Lee, Byung-Hun",
-      "category": "culture",
-      "expected": "이병헌",
-      "actual": null,
-      "roundtrip": null,
-      "dice": 0.0,
-      "issue": "no_conversion"
+      "name": "Lee, Cheong-Jun",
+      "category": "literary",
+      "expected": "이청준",
+      "actual": "이정준",
+      "roundtrip": "lee chung jun",
+      "dice": 0.8,
+      "issue": "low_dice_score"
     },
     {
       "name": "Youn, Yuh-Jung",
       "category": "culture",
       "expected": "윤여정",
-      "actual": null,
-      "roundtrip": null,
-      "dice": 0.0,
-      "issue": "no_conversion"
+      "actual": "연여정",
+      "roundtrip": "youn yeo jung",
+      "dice": 0.6666666666666666,
+      "issue": "low_dice_score"
     },
     {
       "name": "Park, Kyung-Lim",
       "category": "media",
       "expected": "박경림",
       "actual": "박경임",
-      "roundtrip": "park kyung rim",
-      "dice": 0.8181818181818182,
-      "issue": "low_dice_score"
-    },
-    {
-      "name": "Pak, Se-Ri",
-      "category": "sports",
-      "expected": "박세리",
-      "actual": "박세이",
-      "roundtrip": "park se ri",
-      "dice": 0.7692307692307693,
-      "issue": "low_dice_score"
-    },
-    {
-      "name": "Lee, Nak-Yon",
-      "category": "political",
-      "expected": "이낙연",
-      "actual": "이낙욘",
-      "roundtrip": "rhee nak yon",
-      "dice": 0.8235294117647058,
-      "issue": "low_dice_score"
-    },
-    {
-      "name": "Kim, Yeon-Koung",
-      "category": "sports",
-      "expected": "김연경",
-      "actual": "김연고웅",
-      "roundtrip": "kim yon ko ung",
+      "roundtrip": "pak kyung lim",
       "dice": 0.8571428571428571,
       "issue": "low_dice_score"
     },
@@ -1619,105 +1516,69 @@
       "name": "Lee, Seung-Yuop",
       "category": "sports",
       "expected": "이승엽",
-      "actual": "이승유옵",
-      "roundtrip": "rhee sueng you op",
-      "dice": 0.5,
+      "actual": "이승류옵",
+      "roundtrip": "lee seung ryu op",
+      "dice": 0.8695652173913043,
       "issue": "low_dice_score"
     },
     {
       "name": "Kim, Jee-Woon",
       "category": "culture",
       "expected": "김지운",
-      "actual": "김제이이워온",
-      "roundtrip": "kim j yi lee wo on",
-      "dice": 0.7619047619047619,
+      "actual": "김지워온",
+      "roundtrip": "kim ji wo on",
+      "dice": 0.7058823529411765,
       "issue": "low_dice_score"
     },
     {
-      "name": "Boo, Seung-Chan",
+      "name": "Kim, Boo-Kyum",
       "category": "political",
-      "expected": "부승찬",
-      "actual": "보오승찬",
-      "roundtrip": "bo o sueng chan",
-      "dice": 0.7272727272727273,
+      "expected": "김부겸",
+      "actual": "김부큠",
+      "roundtrip": "kim bu kyum",
+      "dice": 0.7058823529411765,
       "issue": "low_dice_score"
     },
     {
-      "name": "Choi, Min-Shik",
-      "category": "culture",
-      "expected": "최민식",
-      "actual": null,
-      "roundtrip": null,
-      "dice": 0.0,
-      "issue": "no_conversion"
-    },
-    {
-      "name": "Lee, Chang-Dong",
-      "category": "culture",
-      "expected": "이창동",
-      "actual": "이장동",
-      "roundtrip": "rhee chang dong",
-      "dice": 0.8571428571428571,
+      "name": "Chun, Doo-Hwan",
+      "category": "political",
+      "expected": "전두환",
+      "actual": "춘두환",
+      "roundtrip": "chun du hwan",
+      "dice": 0.7368421052631579,
       "issue": "low_dice_score"
-    },
-    {
-      "name": "So, Ji-Sub",
-      "category": "culture",
-      "expected": "소지섭",
-      "actual": null,
-      "roundtrip": null,
-      "dice": 0.0,
-      "issue": "no_conversion"
-    },
-    {
-      "name": "Chung, Eui-Sun",
-      "category": "business",
-      "expected": "정의선",
-      "actual": null,
-      "roundtrip": null,
-      "dice": 0.0,
-      "issue": "no_conversion"
     },
     {
       "name": "Yi, Sun-Sin",
       "category": "historical",
       "expected": "이순신",
+      "actual": "이선신",
+      "roundtrip": "yi sun shin",
+      "dice": 0.8,
+      "issue": "low_dice_score"
+    },
+    {
+      "name": "Psy",
+      "category": "culture",
+      "expected": "싸이",
       "actual": null,
       "roundtrip": null,
       "dice": 0.0,
       "issue": "no_conversion"
-    },
-    {
-      "name": "Lee, Sang-Yup",
-      "category": "academic",
-      "expected": "이상엽",
-      "actual": "이상윱",
-      "roundtrip": "rhee sang yup",
-      "dice": 0.8421052631578947,
-      "issue": "low_dice_score"
     },
     {
       "name": "Min, Byung-Doo",
       "category": "political",
       "expected": "민병두",
-      "actual": null,
-      "roundtrip": null,
-      "dice": 0.0,
-      "issue": "no_conversion"
-    },
-    {
-      "name": "Lee, Mun-Yol",
-      "category": "literary",
-      "expected": "이문열",
-      "actual": "이문욜",
-      "roundtrip": "rhee mun yol",
-      "dice": 0.8235294117647058,
+      "actual": "민븅두",
+      "roundtrip": "min byung du",
+      "dice": 0.8421052631578947,
       "issue": "low_dice_score"
     }
   ],
   "failure_analysis": {
-    "conversion_failures": 8,
-    "roundtrip_failures": 11,
+    "conversion_failures": 1,
+    "roundtrip_failures": 10,
     "no_roundtrip_failures": 0
   },
   "test_timestamp": "2025-07-31T09:55:06.334554"

@@ -93,6 +93,24 @@ class C3_ArabicLevantNile(RegionSpec):
             "نبيل": "Nabil",
             "وليد": "Walid"
         }
+        
+        # Rule 2: Arabic al- Article – sun letters for assimilation
+        # Sun letters: These letters cause assimilation of the 'l' in 'al-'
+        self.sun_letters = {
+            'ت', 'ث', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ل', 'ن'
+        }
+        
+        # Moon letters: These letters do not cause assimilation
+        self.moon_letters = {
+            'ا', 'ب', 'ج', 'ح', 'خ', 'ع', 'غ', 'ف', 'ق', 'ك', 'م', 'ه', 'و', 'ي'
+        }
+        
+        # Definite article patterns
+        self.definite_articles = {
+            'ال': 'al',  # Standard Arabic
+            'الـ': 'al',  # With tatweel
+            'اَلْ': 'al',  # With diacritics
+        }
     
     def clean(self, entry: Dict[str, Any]) -> None:
         """Clean entry according to C3 rules."""
@@ -200,14 +218,33 @@ class C3_ArabicLevantNile(RegionSpec):
                     "type": "no-patronymic"
                 })
         
-        # Add variant with definite article removed
-        if components.get("has_definite_article"):
-            without_article = self._remove_definite_article(canonical)
+        # Rule 2: Arabic al- Article normalization
+        article_info = self._analyze_definite_article(canonical)
+        if article_info:
+            components["has_definite_article"] = True
+            components["article_type"] = article_info["type"]
+            components["root_form"] = article_info["root"]
+            
+            # Add variant with article removed
+            without_article = article_info["root"]
             if without_article != canonical:
                 entry["Variants"]["Synthesised"].append({
                     "str": without_article,
                     "type": "no-article"
                 })
+            
+            # Add variant with proper sun letter assimilation if needed
+            if article_info.get("assimilated_form") and article_info["assimilated_form"] != canonical:
+                entry["Variants"]["Synthesised"].append({
+                    "str": article_info["assimilated_form"],
+                    "type": "sun-letter-assimilation"
+                })
+        
+        # Rule 32: Ibn/Abu/Um Prefixes – dropped when next token length ≥ 3
+        prefix_variants = self._generate_prefix_drop_variants(canonical)
+        for variant in prefix_variants:
+            if variant["str"] != canonical:
+                entry["Variants"]["Synthesised"].append(variant)
     
     def _extract_components(self, name: str) -> Dict[str, Any]:
         """Extract name components."""
@@ -220,6 +257,9 @@ class C3_ArabicLevantNile(RegionSpec):
         patronymic_info = self._find_patronymic(words)
         if patronymic_info:
             components.update(patronymic_info)
+            # Store the is_bin_bint flag for Rule 3
+            if patronymic_info.get("is_bin_bint"):
+                components["is_bin_bint"] = True
         
         # Look for definite article (al-, el-, etc.)
         if self._has_definite_article(name):
@@ -244,14 +284,24 @@ class C3_ArabicLevantNile(RegionSpec):
         return components
     
     def _find_patronymic(self, words: List[str]) -> Optional[Dict[str, Any]]:
-        """Find patronymic indicators in word list."""
+        """
+        Rule 3: Find Arabic bin/bint patronymic indicators.
+        
+        These patronymics indicate lineage and should be:
+        - Identified and stored in RegionalExtras
+        - Removed from order_key for sorting
+        """
         for i, word in enumerate(words):
             word_lower = word.lower()
             if word_lower in self.patronymic_patterns or word in self.patronymic_patterns:
+                # Check if this is specifically bin/bint (Rule 3)
+                is_bin_bint = word_lower in ['bin', 'ibn', 'bint', 'بن', 'ابن', 'بنت']
+                
                 return {
                     "patronymic": word,
                     "patronymic_index": i,
-                    "patronymic_type": self.patronymic_patterns.get(word_lower, self.patronymic_patterns.get(word, "unknown"))
+                    "patronymic_type": self.patronymic_patterns.get(word_lower, self.patronymic_patterns.get(word, "unknown")),
+                    "is_bin_bint": is_bin_bint  # Flag for Rule 3
                 }
         return None
     
@@ -264,18 +314,136 @@ class C3_ArabicLevantNile(RegionSpec):
                 return True
         return False
     
+    def _analyze_definite_article(self, name: str) -> Optional[Dict[str, str]]:
+        """
+        Rule 2: Analyze Arabic al- article with sun letter assimilation.
+        
+        Returns dict with:
+        - type: 'sun' or 'moon' based on following letter
+        - root: name with article removed
+        - assimilated_form: proper form with sun letter assimilation
+        """
+        # Check for Arabic script first
+        if self._is_arabic(name):
+            # Look for Arabic definite article
+            for article in self.definite_articles:
+                if article in name:
+                    article_idx = name.find(article)
+                    if article_idx >= 0 and article_idx + len(article) < len(name):
+                        following_letter = name[article_idx + len(article)]
+                        
+                        # Determine if sun or moon letter
+                        letter_type = 'sun' if following_letter in self.sun_letters else 'moon'
+                        
+                        # Extract root (without article)
+                        root = name[:article_idx] + name[article_idx + len(article):]
+                        root = ' '.join(root.split())
+                        
+                        # Generate assimilated form for sun letters
+                        assimilated = name
+                        if letter_type == 'sun':
+                            # In sun letter assimilation, the 'l' sound becomes the sun letter
+                            # e.g., al-shams → ash-shams
+                            pass  # Already handled in the original
+                        
+                        return {
+                            'type': letter_type,
+                            'root': root,
+                            'assimilated_form': assimilated
+                        }
+        
+        # Check for romanized forms
+        romanized_patterns = [
+            (r'\b[Aa]l-([A-Za-z])', r'\1'),  # al-Name → Name
+            (r'\b[Ee]l-([A-Za-z])', r'\1'),  # el-Name → Name
+            (r'\b[Aa]sh-([sStT])', r'\1'),   # ash-Shams → Shams (sun letter)
+            (r'\b[Aa][tdrzsnl]-([tdrzsnlTDRZSNL])', r'\1'),  # sun letter assimilation
+        ]
+        
+        for pattern, replacement in romanized_patterns:
+            match = re.search(pattern, name)
+            if match:
+                # Extract root
+                root = re.sub(pattern, replacement, name)
+                root = ' '.join(root.split())
+                
+                # Determine type based on pattern
+                letter_type = 'sun' if 'sh-' in pattern or '[tdrzsnl]-' in pattern else 'moon'
+                
+                return {
+                    'type': letter_type,
+                    'root': root,
+                    'assimilated_form': name
+                }
+        
+        return None
+    
+    def _generate_prefix_drop_variants(self, name: str) -> List[Dict[str, str]]:
+        """
+        Rule 32: Ibn/Abu/Um Prefixes – dropped when next token length ≥ 3.
+        
+        Arabic names often contain patronymic prefixes like Ibn, Abu, Um.
+        These should be dropped from variants when the following name token 
+        is substantial (≥ 3 characters), as they're primarily genealogical markers.
+        
+        Examples:
+        - "Ibn Rushd" → keep (next token < 3 chars)
+        - "Ibn Muhammad" → drop "Ibn" (Muhammad ≥ 3 chars)
+        - "Abu Bakr" → drop "Abu" (Bakr ≥ 3 chars) 
+        - "Um Kulthum" → drop "Um" (Kulthum ≥ 3 chars)
+        """
+        variants = []
+        
+        # Arabic and romanized prefixes to check
+        prefixes_to_drop = {
+            # Arabic script
+            'ابن': 'ibn',   # Ibn (son of)
+            'أبو': 'abu',   # Abu (father of)
+            'أم': 'um',     # Um (mother of)
+            'بن': 'bin',    # Bin (son of, short form)
+            'بنت': 'bint',  # Bint (daughter of)
+            
+            # Romanized forms
+            'ibn': 'ibn',
+            'abu': 'abu', 
+            'um': 'um',
+            'bin': 'bin',
+            'bint': 'bint',
+            
+            # Case variations
+            'Ibn': 'ibn',
+            'Abu': 'abu',
+            'Um': 'um',
+            'Bin': 'bin',
+            'Bint': 'bint'
+        }
+        
+        words = name.split()
+        
+        for i, word in enumerate(words):
+            word_clean = word.rstrip('.,')
+            
+            if word_clean in prefixes_to_drop:
+                # Check if there's a following token with length ≥ 3
+                if i + 1 < len(words):
+                    next_token = words[i + 1].rstrip('.,')
+                    if len(next_token) >= 3:
+                        # Generate variant without this prefix
+                        variant_words = words[:i] + words[i+1:]
+                        if variant_words:  # Ensure we don't create empty names
+                            variant_name = ' '.join(variant_words)
+                            variants.append({
+                                'str': variant_name,
+                                'type': 'prefix-drop'
+                            })
+        
+        return variants
+    
     def _remove_definite_article(self, name: str) -> str:
-        """Remove definite article from name."""
-        # Remove Arabic definite article
-        name = re.sub(r'\bال', '', name)
-        name = re.sub(r'\bal-', '', name)
-        name = re.sub(r'\bel-', '', name)
-        name = re.sub(r'\bAl-', '', name)
-        name = re.sub(r'\bEl-', '', name)
-        
-        # Normalize spaces
-        name = " ".join(name.split())
-        
+        """Remove definite article from name (legacy method)."""
+        article_info = self._analyze_definite_article(name)
+        if article_info:
+            return article_info['root']
         return name
     
     def _is_arabic(self, text: str) -> bool:
@@ -363,8 +531,8 @@ class C3_ArabicLevantNile(RegionSpec):
     def _has_valid_characters(self, name: str) -> bool:
         """Check if name contains valid characters."""
         for char in name:
-            # Allow Latin, Arabic, spaces, hyphens, apostrophes
-            if char.isalpha() or char in " -'":
+            # Allow Latin, Arabic, spaces, hyphens, apostrophes, commas
+            if char.isalpha() or char in " -',":
                 continue
             # Check if it's valid Arabic
             if any(start <= ord(char) <= end for start, end in self.arabic_ranges):
@@ -377,16 +545,60 @@ class C3_ArabicLevantNile(RegionSpec):
         """Generate deterministic sort key."""
         components = entry.get("RegionalExtras", {})
         
-        # Primary sort by family name
+        # Rule 2: Use root form (without article) for sorting
+        if components.get("root_form"):
+            # Use the root form without the definite article
+            canonical = components["root_form"]
+        else:
+            # Fallback to canonical form
+            canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
+        
+        # Extract family and given names
         family = components.get("family_name", "")
         given = components.get("given_name", "")
         
-        # Use romanized form for sorting if available
-        canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
+        # Rule 3: Remove bin/bint patronymic from order_key
+        if components.get("patronymic") and components.get("is_bin_bint"):
+            # Reconstruct name without the patronymic
+            patronymic = components["patronymic"]
+            
+            # Remove patronymic from given or family name
+            if given and patronymic in given:
+                given = given.replace(patronymic, "").strip()
+                # Also remove the following word (father's name)
+                words = given.split()
+                if len(words) > 0:
+                    given = " ".join(words[1:]) if len(words) > 1 else ""
+            
+            # Clean up the canonical form too
+            if canonical and patronymic in canonical:
+                # Remove patronymic and following word
+                words = canonical.split()
+                new_words = []
+                skip_next = False
+                for word in words:
+                    if skip_next:
+                        skip_next = False
+                        continue
+                    if word == patronymic:
+                        skip_next = True
+                        continue
+                    new_words.append(word)
+                canonical = " ".join(new_words)
         
         # If we have Arabic, romanize for sorting
         if self._is_arabic(canonical):
             canonical = self._romanize_name(canonical)
+            if family and self._is_arabic(family):
+                family = self._romanize_name(family)
+            if given and self._is_arabic(given):
+                given = self._romanize_name(given)
+        
+        # Rule 2: Remove definite articles from family name for sorting
+        if family:
+            article_info = self._analyze_definite_article(family)
+            if article_info:
+                family = article_info['root']
         
         # Normalize for sorting
         sort_family = family.upper() if family else ""

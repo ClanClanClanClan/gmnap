@@ -176,22 +176,26 @@ class B2_SouthSlavicCentral(RegionSpec):
             for variant in gender_variants:
                 variants.append(variant)
         
-        # Generate order swap variants
-        if ', ' in canonical:
+        # Rule 10: Hungarian Name Order - generate both native and Western orders
+        if self._is_hungarian_name(canonical):
+            hungarian_variants = self._generate_hungarian_order_variants(canonical)
+            for variant in hungarian_variants:
+                variants.append(variant)
+            
+            # Store Hungarian name order information in RegionalExtras
+            if 'RegionalExtras' not in entry:
+                entry['RegionalExtras'] = {}
+            entry['RegionalExtras']['is_hungarian_name'] = True
+            entry['RegionalExtras']['native_order_generated'] = True
+        
+        # Generate order swap variants for non-Hungarian names
+        elif ', ' in canonical:
             family, given = canonical.split(', ', 1)
             swapped = f"{given} {family}"
             variants.append({
                 'str': swapped,
                 'type': 'order-swap'
             })
-        elif self._is_hungarian_name(canonical):
-            # Hungarian names might be in Family Given order without comma
-            parts = canonical.split(' ', 1)
-            if len(parts) == 2:
-                variants.append({
-                    'str': f"{parts[1]} {parts[0]}",  # Given Family
-                    'type': 'order-swap'
-                })
         
         # Add regional metadata
         entry['RegionCode'] = 'B2'
@@ -419,6 +423,59 @@ class B2_SouthSlavicCentral(RegionSpec):
                 variants.append({
                     'str': f"{male_family}, {given}",
                     'type': 'gender-variant'
+                })
+        
+        return variants
+    
+    def _generate_hungarian_order_variants(self, name: str) -> List[Dict[str, str]]:
+        """
+        Rule 10: Hungarian Name Order - generate both native and Western orders.
+        
+        Hungarian names traditionally follow Family Given order (native), but 
+        Western publications often use Given Family order. This method generates
+        both variants for comprehensive matching.
+        
+        Examples:
+        - "Nagy József" (native) → "József Nagy" (Western)
+        - "Kovács, Anna" (canonical) → "Anna Kovács" (Western)
+        """
+        variants = []
+        
+        if ', ' in name:
+            # Already in "Family, Given" canonical format
+            family, given = name.split(', ', 1)
+            
+            # Generate native order (Family Given without comma)
+            native_order = f"{family} {given}"
+            variants.append({
+                'str': native_order,
+                'type': 'hungarian-native-order'
+            })
+            
+            # Generate Western order (Given Family)
+            western_order = f"{given} {family}"
+            variants.append({
+                'str': western_order,
+                'type': 'hungarian-western-order'
+            })
+        else:
+            # Name might be in Family Given format (native) without comma
+            parts = name.split(' ', 1)
+            if len(parts) == 2:
+                family, given = parts[0], parts[1]
+                
+                # Generate canonical format (Family, Given)
+                canonical_format = f"{family}, {given}"
+                variants.append({
+                    'str': canonical_format,
+                    'type': 'hungarian-canonical'
+                })
+                
+                # Generate Western order (Given Family)
+                western_order = f"{given} {family}"
+                variants.append({
+                    'str': western_order,
+                    'type': 'hungarian-western-order'
                 })
         
         return variants

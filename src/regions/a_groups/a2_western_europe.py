@@ -63,8 +63,8 @@ class A2_WesternEurope(RegionSpec):
             'italian_particle': re.compile(r'^([A-ZÁÉÍÓÚ][a-záéíóú]+)\s+(di|da|del|della|delle|dello|dal|dalla)\s+([A-ZÁÉÍÓÚ][a-záéíóú]+)$')
         }
         
-        # Diacritic patterns for validation
-        self.diacritic_chars = set('áàâäéèêëíìîïóòôöúùûüñçåæøÁÀÂÄÉÈÊËÍÌÎÏÓÒÔÖÚÙÛÜÑÇÅÆØ')
+        # Diacritic patterns for validation (including Hungarian ő, ű)
+        self.diacritic_chars = set('áàâäéèêëíìîïóòôöúùûüñçåæøőűÁÀÂÄÉÈÊËÍÌÎÏÓÒÔÖÚÙÛÜÑÇÅÆØŐŰ')
         
         # Country-specific validation patterns
         self.country_patterns = {
@@ -89,8 +89,9 @@ class A2_WesternEurope(RegionSpec):
         if not canonical:
             raise RegionRuleError("Missing CanonicalLatin field")
         
-        # Remove common titles and honorifics
-        titles_pattern = re.compile(r'\b(Dr\.?|Prof\.?|Sir|Dame|Lord|Lady|Baron|Count|Comte|Duc|Herzog|Fürst|Don|Doña|Dom|Dona)\s+', re.IGNORECASE)
+        # Rule 17: Iberian Honorific Strip – Dr., D., Dª removed
+        # Remove common titles and honorifics including Iberian patterns
+        titles_pattern = re.compile(r'\b(Dr\.?|Prof\.?|Sir|Dame|Lord|Lady|Baron|Count|Comte|Duc|Herzog|Fürst|Don|Doña|Dom|Dona|D\.?|Dª\.?|Dña\.?)\s+', re.IGNORECASE)
         cleaned = titles_pattern.sub('', canonical)
         
         # Remove degrees and suffixes
@@ -136,6 +137,14 @@ class A2_WesternEurope(RegionSpec):
             variants.append({
                 'str': ascii_variant,
                 'type': 'ascii-lossy'
+            })
+        
+        # Rule 33: Capital Sharp-S Handling – German ß/ẞ normalization
+        sharp_s_variant = self._apply_sharp_s_normalization(canonical)
+        if sharp_s_variant != canonical:
+            variants.append({
+                'str': sharp_s_variant,
+                'type': 'sharp-s-normalized'
             })
         
         # Extract and handle particles
@@ -249,12 +258,16 @@ class A2_WesternEurope(RegionSpec):
                 family = canonical
                 given = ''
         
-        # Remove particles from family name for sorting
-        family_for_sort = self._remove_particles(family)
+        # Rule 15 & 22: Remove Germanic particles except d' (which is retained per Rule 22)
+        family_for_sort = self._remove_particles_for_sorting(family)
+        
+        # Rule 33: Apply sharp-s normalization for proper German sorting
+        family_for_sort = self._apply_sharp_s_normalization(family_for_sort)
+        given_normalized = self._apply_sharp_s_normalization(given)
         
         # Remove diacritics for consistent sorting
         family_sort = self._remove_diacritics(family_for_sort).upper()
-        given_sort = self._remove_diacritics(given).upper()
+        given_sort = self._remove_diacritics(given_normalized).upper()
         
         return f"{family_sort}, {given_sort}"
     
@@ -277,12 +290,48 @@ class A2_WesternEurope(RegionSpec):
         return particles_found
     
     def _remove_particles(self, name: str) -> str:
-        """Remove particles from name."""
+        """
+        Rule 15: Remove Germanic particles (von/van/de) but keep d'.
+        
+        This implements the V7 linguistic rule for Germanic particles:
+        - Drop: von, van, de, der, den, het, ten, ter, te, etc.
+        - Keep: d' (French particle with apostrophe)
+        """
         words = name.split()
         filtered_words = []
         
         for word in words:
-            if word.lower().rstrip(',') not in self.particles:
+            word_clean = word.lower().rstrip(',')
+            
+            # Rule 15: Keep d' (French particle)
+            if word_clean == "d'" or word.startswith("d'"):
+                filtered_words.append(word)
+            # Remove other particles
+            elif word_clean not in self.particles:
+                filtered_words.append(word)
+        
+        return ' '.join(filtered_words)
+    
+    def _remove_particles_for_sorting(self, name: str) -> str:
+        """
+        Rules 15 & 22: Remove particles for sorting, but keep d'.
+        
+        Rule 15: Germanic particles (von/van/de) are dropped
+        Rule 22: French d' particle is retained in order_key
+        
+        This method is specifically for order_key generation.
+        """
+        words = name.split()
+        filtered_words = []
+        
+        for word in words:
+            word_clean = word.lower().rstrip(',')
+            
+            # Rule 22: Always keep d' in order_key
+            if word_clean == "d'" or word.lower().startswith("d'"):
+                filtered_words.append(word)
+            # Rule 15: Remove Germanic particles
+            elif word_clean not in self.germanic_particles:
                 filtered_words.append(word)
         
         return ' '.join(filtered_words)
@@ -354,3 +403,61 @@ class A2_WesternEurope(RegionSpec):
         # This is a simple check - could be enhanced with more sophisticated rules
         ascii_version = self._remove_diacritics(name)
         return len(name) != len(ascii_version) and not self._has_diacritics(name)
+    
+    def _apply_sharp_s_normalization(self, name: str) -> str:
+        """
+        Rule 33: Capital Sharp-S Handling – German ß/ẞ normalization.
+        
+        German sharp-s (Eszett) has specific capitalization rules:
+        - ß (lowercase sharp-s) → ss (double s)
+        - ẞ (capital sharp-s, since 2017) → SS (double S)
+        
+        This is critical for German surnames like:
+        - Weiß → WEISS (not WEIB)
+        - Großmann → GROSSMANN
+        - Straße → STRASSE
+        
+        The rule ensures proper German name handling in all-caps contexts
+        and ASCII-compatible variants for international systems.
+        """
+        if not name:
+            return name
+        
+        result = name
+        
+        # Apply sharp-s normalization using the global Unicode fold method
+        result = self.apply_unicode_fold_exceptions(result)
+        
+        # Additional German-specific handling for mixed case preservation
+        # When we have mixed case names, preserve the case pattern
+        if any(c.isupper() for c in name) and any(c.islower() for c in name):
+            # Mixed case - handle carefully
+            # Replace ß with ss, ẞ with SS, but preserve surrounding case
+            words = result.split()
+            normalized_words = []
+            
+            for word in words:
+                # Check if this word had sharp-s characters
+                original_word_idx = name.find(word.replace('ss', 'ß').replace('SS', 'ẞ'))
+                if original_word_idx >= 0:
+                    original_word = name[original_word_idx:original_word_idx + len(word)]
+                    if 'ß' in original_word or 'ẞ' in original_word:
+                        # This word was affected by sharp-s normalization
+                        # Ensure proper case handling
+                        if word.isupper():
+                            # All caps word - already handled correctly
+                            normalized_words.append(word)
+                        elif word.islower():
+                            # All lowercase word - already handled correctly  
+                            normalized_words.append(word)
+                        else:
+                            # Mixed case - preserve pattern
+                            normalized_words.append(word)
+                    else:
+                        normalized_words.append(word)
+                else:
+                    normalized_words.append(word)
+            
+            result = ' '.join(normalized_words)
+        
+        return result

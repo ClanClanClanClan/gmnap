@@ -1,0 +1,136 @@
+# A4 Oceania Island States Region Configuration
+# Covers: FJ, PG, SB, VU, WS, TO, KI, TV, NR, CK, NU, PF, NC
+
+region:
+  code: A4
+  name: Oceania Island States
+  description: |
+    Pacific island nations with diverse naming traditions combining
+    indigenous Polynesian, Melanesian, and Micronesian patterns with
+    colonial European influences (English and French).
+
+countries:
+  polynesia:
+    - code: WS
+      name: Samoa
+      features: [polynesian_names, macrons, particles_o_le]
+    - code: TO
+      name: Tonga
+      features: [polynesian_names, nobility_titles, macrons]
+    - code: CK
+      name: Cook Islands
+      features: [polynesian_names, maori_influence, macrons]
+    - code: NU
+      name: Niue
+      features: [polynesian_names, limited_surnames]
+    - code: TV
+      name: Tuvalu
+      features: [polynesian_names, christian_names]
+    - code: PF
+      name: French Polynesia
+      features: [polynesian_names, french_influence, tahitian]
+  
+  melanesia:
+    - code: FJ
+      name: Fiji
+      features: [fijian_names, indian_names, titles_ratu_adi]
+    - code: PG
+      name: Papua New Guinea
+      features: [tok_pisin, diverse_languages, clan_names]
+    - code: SB
+      name: Solomon Islands
+      features: [melanesian_names, english_influence]
+    - code: VU
+      name: Vanuatu
+      features: [ni_vanuatu_names, french_english_mix]
+    - code: NC
+      name: New Caledonia
+      features: [kanak_names, french_administration]
+  
+  micronesia:
+    - code: KI
+      name: Kiribati
+      features: [gilbertese_names, limited_surnames]
+    - code: NR
+      name: Nauru
+      features: [nauruan_names, german_influence]
+
+naming_conventions:
+  canonical_order: "Family, Given"  # Colonial format
+  alternative_orders:
+    - "Given Family"  # Common informal usage
+    - "Mononym"  # Traditional single names
+    - "Polynesian multi-part"  # No clear family/given split
+  
+  special_rules:
+    polynesian_particles:
+      description: "Name particles that are integral parts of names"
+      examples:
+        - "O" # Samoan possessive
+        - "Le" # Samoan article
+        - "Te" # Māori/Cook Islands article
+        - "Ngā" # Māori plural article
+        - "Tu'i" # Tongan nobility marker
+        - "Faka" # Tongan prefix
+    
+    macron_restoration:
+      description: "Restore macrons to Polynesian words (Rule #31)"
+      examples:
+        - "Maori → Māori"
+        - "Samoa → Sāmoa"
+        - "whanau → whānau"
+    
+    traditional_titles:
+      description: "Titles that may be integral to names"
+      integrated: ["Tui", "Tu'i", "Ratu", "Adi", "Ro"]
+      removable: ["Dr", "Prof", "Mr", "Mrs", "Rev"]
+    
+    name_types:
+      mononym:
+        description: "Single names without family/given distinction"
+        common_in: ["TO", "WS", "CK"]
+      
+      polynesian_multipart:
+        description: "Multi-word names without clear surname"
+        example: "Te Rangi Hiroa"
+      
+      colonial_hybrid:
+        description: "European given name + Polynesian family name"
+        example: "John Tuimalealiʻifano"
+
+scripts:
+  primary: Latin
+  special_characters:
+    macrons:
+      description: "Length markers for vowels"
+      characters: ["ā", "ē", "ī", "ō", "ū"]
+    
+    okina:
+      description: "Glottal stop marker"
+      unicode: "ʻ"
+      variants: ["'", "'", "'", "`", "´", "ʼ"]
+    
+    french_influence:
+      description: "From French administration"
+      characters: ["ç", "è", "é"]
+
+validation_rules:
+  - rule: "Must use Latin script"
+  - rule: "Macrons and ʻokina allowed"
+  - rule: "Mononyms valid without comma"
+  - rule: "Traditional titles may be part of name"
+  - rule: "Particles integral to sorting"
+
+linguistic_notes:
+  fiji:
+    - "B pronounced 'mb' (Bula = 'Mbula')"
+    - "D pronounced 'nd'"
+    - "G pronounced 'ng'"
+  
+  samoa:
+    - "G pronounced 'ng' (Aiga = 'Ainga')"
+    - "Apostrophe represents glottal stop"
+  
+  tonga:
+    - "Fakaua'a (stress marker) sometimes marked"
+    - "Noble titles often integral to identity"

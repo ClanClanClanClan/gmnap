@@ -130,7 +130,7 @@ class LinguisticRulesEngine:
             LinguisticRule(
                 id="remove_control_chars",
                 name="Remove Control Characters",
-                type=RuleType.VALIDATION,
+                type=RuleType.NORMALIZATION,
                 description="Remove Unicode control characters",
                 pattern=r"[\x00-\x1f\x7f-\x9f]",
                 replacement="",
