@@ -945,7 +945,7 @@ class RegionManager:
             "D1": ("src.regions.d_groups.d1_south_asia_hindi_belt", "D1_SouthAsiaHindiBelt"),
             "E1": ("src.regions.e_groups.e1_sinophone_mainland", "E1_SinophoneMainland"),
             "E3": ("src.regions.e_groups.e3_japan", "E3_Japan"),
-            "E4": ("src.regions.e_groups.e4_korea.processor_lightweight", "E4KoreanProcessor"),
+            "E4": ("src.regions.e_groups.e4_korea_processor", "E4_Korea"),
             "G1": ("src.regions.g_groups.g1_latin_america", "G1_LatinAmerica"),
         }
         

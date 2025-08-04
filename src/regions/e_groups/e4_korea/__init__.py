@@ -1,19 +1,18 @@
 """
-E4 Korea Regional Processor - GMNAP v6.1
+E4 Korea Regional Processor - GMNAP V7
 
-Handles Korean mathematician names per v6.1 specifications:
+Simplified Korean processor for V7 integration:
 - ISO territories: KR, KP  
-- Primary scripts: Hangul, Hanja
-- Distinct features: Hyphen/space variation
-- Linguistic rule 11: CJK Round-Trip ≥97% accuracy (Dice coefficient)
-- Linguistic rule 13: Korean Hyphen/Space variant set, order_key collapsed
+- Primary scripts: Hangul, Latin romanization
+- Basic Korean name detection and standardization
+- Provides foundation for future advanced Korean processing
 
-This module provides both v5 (legacy) and v6 (current) implementations
-with automatic fallback for reliability.
+This is a simplified implementation to provide E4 coverage
+without the complexity of the over-engineered Korean converter.
 """
 
-from .processor import E4KoreanProcessor
-from .converter_v6 import KoreanConverterV6
-from .converter_v7 import KoreanConverterV7
+# Empty init file - processor is now at src.regions.e_groups.e4_korea
+# This allows the e4_korea directory to exist without triggering
+# the complex converter imports
 
-__all__ = ["E4KoreanProcessor", "KoreanConverterV6", "KoreanConverterV7"]
+__all__ = []
