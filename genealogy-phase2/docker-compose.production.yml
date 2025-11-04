@@ -1,0 +1,116 @@
+version: "3.9"
+
+services:
+  # Memgraph for genealogy graph (isolated from V7)
+  memgraph-genealogy:
+    image: memgraph/memgraph:latest
+    container_name: gmnap-genealogy-memgraph
+    ports:
+      - "7688:7687"  # Shifted from 7687 to avoid V7 Memgraph conflict
+      - "7445:7444"  # Shifted from 7444 for Memgraph Lab
+    volumes:
+      - genealogy-data:/var/lib/memgraph
+      - ./graph:/graph:ro
+      - ./backups:/backups
+    environment:
+      - MEMGRAPH_LOG_LEVEL=WARNING
+      - MEMGRAPH_STORAGE_MODE=IN_MEMORY_TRANSACTIONAL
+    command:
+      - "--bolt-port=7687"
+      - "--memory-limit=4096"
+      - "--log-level=WARNING"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'MATCH (n) RETURN count(n) LIMIT 1;' | timeout 5 /usr/lib/memgraph/mg_client --host 127.0.0.1 --port 7687 --use-ssl=false || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - genealogy-network
+
+  # FastAPI genealogy service
+  genealogy-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: gmnap-genealogy-api
+    ports:
+      - "8080:8080"
+    environment:
+      - BOLT_URI=bolt://memgraph-genealogy:7687
+      - BOLT_USER=
+      - BOLT_PASS=
+      - LOG_LEVEL=INFO
+      - WORKERS=4
+    depends_on:
+      memgraph-genealogy:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - genealogy-network
+
+  # Prometheus for genealogy metrics
+  prometheus-genealogy:
+    image: prom/prometheus:v2.45.0
+    container_name: gmnap-genealogy-prometheus
+    ports:
+      - "9091:9090"  # Shifted from 9090 to avoid V7 Prometheus conflict
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - genealogy-network
+
+  # Grafana for genealogy dashboards
+  grafana-genealogy:
+    image: grafana/grafana:10.0.3
+    container_name: gmnap-genealogy-grafana
+    ports:
+      - "3002:3000"  # Shifted to 3002 (3000=V7, 3001=arxivbot)
+    volumes:
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=genealogy2025
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3002
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    depends_on:
+      - prometheus-genealogy
+    restart: unless-stopped
+    networks:
+      - genealogy-network
+
+volumes:
+  genealogy-data:
+    driver: local
+    name: gmnap-genealogy-data
+  prometheus-data:
+    driver: local
+    name: gmnap-genealogy-prometheus
+  grafana-data:
+    driver: local
+    name: gmnap-genealogy-grafana
+
+networks:
+  genealogy-network:
+    name: gmnap-genealogy-network
+    driver: bridge
