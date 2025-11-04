@@ -1,0 +1,6085 @@
+{
+  "timestamp": "2025-11-04T12:42:06.151133",
+  "sources": {
+    "openalex": 1000,
+    "arxiv": 19
+  },
+  "all_profiles": [
+    {
+      "name": "Jürgen Schölmerich",
+      "country_code": null,
+      "works_count": 2126,
+      "source": "openalex"
+    },
+    {
+      "name": "Wolfgang Köenig",
+      "country_code": "DE",
+      "works_count": 1586,
+      "source": "openalex"
+    },
+    {
+      "name": "Ryozo Nagai",
+      "country_code": "JP",
+      "works_count": 1524,
+      "source": "openalex"
+    },
+    {
+      "name": "Li Xia",
+      "country_code": null,
+      "works_count": 1460,
+      "source": "openalex"
+    },
+    {
+      "name": "Paul M. Ridker",
+      "country_code": "US",
+      "works_count": 1407,
+      "source": "openalex"
+    },
+    {
+      "name": "Yoshihiro Ogawa",
+      "country_code": "FR",
+      "works_count": 1405,
+      "source": "openalex"
+    },
+    {
+      "name": "Takashi Kadowaki",
+      "country_code": "US",
+      "works_count": 1379,
+      "source": "openalex"
+    },
+    {
+      "name": "Martin Wabitsch",
+      "country_code": "DE",
+      "works_count": 1368,
+      "source": "openalex"
+    },
+    {
+      "name": "Mary Cushman",
+      "country_code": "US",
+      "works_count": 1367,
+      "source": "openalex"
+    },
+    {
+      "name": "Roger L. Milne",
+      "country_code": "AU",
+      "works_count": 1339,
+      "source": "openalex"
+    },
+    {
+      "name": "Julie E. Buring",
+      "country_code": "US",
+      "works_count": 1305,
+      "source": "openalex"
+    },
+    {
+      "name": "Richard M. Martin",
+      "country_code": "GB",
+      "works_count": 1275,
+      "source": "openalex"
+    },
+    {
+      "name": "Peter Libby",
+      "country_code": "US",
+      "works_count": 1251,
+      "source": "openalex"
+    },
+    {
+      "name": "Matthias Blüher",
+      "country_code": "DE",
+      "works_count": 1218,
+      "source": "openalex"
+    },
+    {
+      "name": "Dallas R. English",
+      "country_code": "AU",
+      "works_count": 1175,
+      "source": "openalex"
+    },
+    {
+      "name": "Russell P. Tracy",
+      "country_code": "US",
+      "works_count": 1160,
+      "source": "openalex"
+    },
+    {
+      "name": "Ralf Paschke",
+      "country_code": "CA",
+      "works_count": 1157,
+      "source": "openalex"
+    },
+    {
+      "name": "Gordon A. Ferns",
+      "country_code": "GB",
+      "works_count": 1149,
+      "source": "openalex"
+    },
+    {
+      "name": "Michael Stümvoll",
+      "country_code": "DE",
+      "works_count": 1086,
+      "source": "openalex"
+    },
+    {
+      "name": "Yūji Matsuzawa",
+      "country_code": "JP",
+      "works_count": 1082,
+      "source": "openalex"
+    },
+    {
+      "name": "Bente Klarlund Pedersen",
+      "country_code": "DK",
+      "works_count": 1080,
+      "source": "openalex"
+    },
+    {
+      "name": "Won‐Young Lee",
+      "country_code": "KR",
+      "works_count": 1072,
+      "source": "openalex"
+    },
+    {
+      "name": "Mehdi Hedayati",
+      "country_code": "IR",
+      "works_count": 1022,
+      "source": "openalex"
+    },
+    {
+      "name": "Péter Kovács",
+      "country_code": "DE",
+      "works_count": 1022,
+      "source": "openalex"
+    },
+    {
+      "name": "Francisco J. Tinahones",
+      "country_code": "ES",
+      "works_count": 1015,
+      "source": "openalex"
+    },
+    {
+      "name": "Daniel Antonio de Luis",
+      "country_code": "ES",
+      "works_count": 1015,
+      "source": "openalex"
+    },
+    {
+      "name": "Yu Wang",
+      "country_code": "CN",
+      "works_count": 970,
+      "source": "openalex"
+    },
+    {
+      "name": "Christos S. Mantzoros",
+      "country_code": "US",
+      "works_count": 958,
+      "source": "openalex"
+    },
+    {
+      "name": "Andrew Murphy",
+      "country_code": "AU",
+      "works_count": 958,
+      "source": "openalex"
+    },
+    {
+      "name": "James S. Pankow",
+      "country_code": "US",
+      "works_count": 948,
+      "source": "openalex"
+    },
+    {
+      "name": "Christa Meisinger",
+      "country_code": "DE",
+      "works_count": 943,
+      "source": "openalex"
+    },
+    {
+      "name": "Albert Hofman",
+      "country_code": "NL",
+      "works_count": 935,
+      "source": "openalex"
+    },
+    {
+      "name": "Hans Hauner",
+      "country_code": "DE",
+      "works_count": 871,
+      "source": "openalex"
+    },
+    {
+      "name": "Iichiro Shimomura",
+      "country_code": "US",
+      "works_count": 868,
+      "source": "openalex"
+    },
+    {
+      "name": "David Bernlohr",
+      "country_code": "US",
+      "works_count": 860,
+      "source": "openalex"
+    },
+    {
+      "name": "Brigid M. Lynch",
+      "country_code": "AU",
+      "works_count": 846,
+      "source": "openalex"
+    },
+    {
+      "name": "James B. Meigs",
+      "country_code": "US",
+      "works_count": 844,
+      "source": "openalex"
+    },
+    {
+      "name": "Sun Ha Jee",
+      "country_code": "KR",
+      "works_count": 832,
+      "source": "openalex"
+    },
+    {
+      "name": "Carlos Diéguez",
+      "country_code": "ES",
+      "works_count": 823,
+      "source": "openalex"
+    },
+    {
+      "name": "Yu‐Hsien Lai",
+      "country_code": "TW",
+      "works_count": 820,
+      "source": "openalex"
+    },
+    {
+      "name": "Peter Arner",
+      "country_code": "SE",
+      "works_count": 816,
+      "source": "openalex"
+    },
+    {
+      "name": "Huang Yu",
+      "country_code": null,
+      "works_count": 811,
+      "source": "openalex"
+    },
+    {
+      "name": "Alexander N. Orekhov",
+      "country_code": "RU",
+      "works_count": 807,
+      "source": "openalex"
+    },
+    {
+      "name": "Tom R. Gaunt",
+      "country_code": "GB",
+      "works_count": 792,
+      "source": "openalex"
+    },
+    {
+      "name": "Paresh Dandona",
+      "country_code": "US",
+      "works_count": 782,
+      "source": "openalex"
+    },
+    {
+      "name": "Carla Kallen",
+      "country_code": "NL",
+      "works_count": 779,
+      "source": "openalex"
+    },
+    {
+      "name": "Howard D. Sesso",
+      "country_code": "US",
+      "works_count": 777,
+      "source": "openalex"
+    },
+    {
+      "name": "G. Neil Thomas",
+      "country_code": "FR",
+      "works_count": 763,
+      "source": "openalex"
+    },
+    {
+      "name": "Casper G. Schalkwijk",
+      "country_code": "NL",
+      "works_count": 761,
+      "source": "openalex"
+    },
+    {
+      "name": "Tadashi Nakamura",
+      "country_code": "JP",
+      "works_count": 757,
+      "source": "openalex"
+    },
+    {
+      "name": "Jing Li",
+      "country_code": "CN",
+      "works_count": 756,
+      "source": "openalex"
+    },
+    {
+      "name": "Ling Li",
+      "country_code": "CN",
+      "works_count": 754,
+      "source": "openalex"
+    },
+    {
+      "name": "Thor Ueland",
+      "country_code": "NO",
+      "works_count": 749,
+      "source": "openalex"
+    },
+    {
+      "name": "José Manuel Fernández‐Real",
+      "country_code": "ES",
+      "works_count": 745,
+      "source": "openalex"
+    },
+    {
+      "name": "Anders Hamsten",
+      "country_code": "GB",
+      "works_count": 743,
+      "source": "openalex"
+    },
+    {
+      "name": "Aimin Xu",
+      "country_code": "CN",
+      "works_count": 734,
+      "source": "openalex"
+    },
+    {
+      "name": "Jesús Argente",
+      "country_code": "ES",
+      "works_count": 728,
+      "source": "openalex"
+    },
+    {
+      "name": "Gordon Lowe",
+      "country_code": null,
+      "works_count": 721,
+      "source": "openalex"
+    },
+    {
+      "name": "Sarah J. Lewis",
+      "country_code": "GB",
+      "works_count": 714,
+      "source": "openalex"
+    },
+    {
+      "name": "Michael Czech",
+      "country_code": "US",
+      "works_count": 711,
+      "source": "openalex"
+    },
+    {
+      "name": "Edward A. Fisher",
+      "country_code": "US",
+      "works_count": 706,
+      "source": "openalex"
+    },
+    {
+      "name": "Krzysztof Safranow",
+      "country_code": "PL",
+      "works_count": 703,
+      "source": "openalex"
+    },
+    {
+      "name": "Şevket Balta",
+      "country_code": "TR",
+      "works_count": 703,
+      "source": "openalex"
+    },
+    {
+      "name": "Philipp E. Scherer",
+      "country_code": null,
+      "works_count": 701,
+      "source": "openalex"
+    },
+    {
+      "name": "Jerrold M. Olefsky",
+      "country_code": "US",
+      "works_count": 690,
+      "source": "openalex"
+    },
+    {
+      "name": "Ling Liu",
+      "country_code": "CN",
+      "works_count": 681,
+      "source": "openalex"
+    },
+    {
+      "name": "Charalambos Antoniades",
+      "country_code": "GB",
+      "works_count": 679,
+      "source": "openalex"
+    },
+    {
+      "name": "Jerzy Chudek",
+      "country_code": "PL",
+      "works_count": 677,
+      "source": "openalex"
+    },
+    {
+      "name": "Erik Ingelsson",
+      "country_code": null,
+      "works_count": 674,
+      "source": "openalex"
+    },
+    {
+      "name": "Kenneth Walsh",
+      "country_code": "US",
+      "works_count": 671,
+      "source": "openalex"
+    },
+    {
+      "name": "Christian Herder",
+      "country_code": "DE",
+      "works_count": 670,
+      "source": "openalex"
+    },
+    {
+      "name": "Andrew J. Dannenberg",
+      "country_code": "US",
+      "works_count": 669,
+      "source": "openalex"
+    },
+    {
+      "name": "Karine Clément",
+      "country_code": "FR",
+      "works_count": 667,
+      "source": "openalex"
+    },
+    {
+      "name": "Joachim Thiery",
+      "country_code": null,
+      "works_count": 656,
+      "source": "openalex"
+    },
+    {
+      "name": "Muredach P. Reilly",
+      "country_code": "US",
+      "works_count": 647,
+      "source": "openalex"
+    },
+    {
+      "name": "Ulf dé Fairé",
+      "country_code": "SE",
+      "works_count": 646,
+      "source": "openalex"
+    },
+    {
+      "name": "Hiroyuki Shimizu",
+      "country_code": "JP",
+      "works_count": 646,
+      "source": "openalex"
+    },
+    {
+      "name": "Allan Flyvbjerg",
+      "country_code": "DK",
+      "works_count": 644,
+      "source": "openalex"
+    },
+    {
+      "name": "Lı́cio A. Velloso",
+      "country_code": "BR",
+      "works_count": 640,
+      "source": "openalex"
+    },
+    {
+      "name": "Göran K. Hansson",
+      "country_code": "SE",
+      "works_count": 639,
+      "source": "openalex"
+    },
+    {
+      "name": "Yong‐Jae Lee",
+      "country_code": "KR",
+      "works_count": 635,
+      "source": "openalex"
+    },
+    {
+      "name": "Martine Laville",
+      "country_code": "FR",
+      "works_count": 634,
+      "source": "openalex"
+    },
+    {
+      "name": "Chen Jin",
+      "country_code": null,
+      "works_count": 632,
+      "source": "openalex"
+    },
+    {
+      "name": "C. Ronald Kahn",
+      "country_code": "US",
+      "works_count": 628,
+      "source": "openalex"
+    },
+    {
+      "name": "Nader Rifai",
+      "country_code": null,
+      "works_count": 627,
+      "source": "openalex"
+    },
+    {
+      "name": "Aroon D. Hingorani",
+      "country_code": "GB",
+      "works_count": 624,
+      "source": "openalex"
+    },
+    {
+      "name": "Barbara Thorand",
+      "country_code": "NL",
+      "works_count": 623,
+      "source": "openalex"
+    },
+    {
+      "name": "Fabrizio Montecucco",
+      "country_code": "IT",
+      "works_count": 623,
+      "source": "openalex"
+    },
+    {
+      "name": "Steven M. Haffner",
+      "country_code": null,
+      "works_count": 620,
+      "source": "openalex"
+    },
+    {
+      "name": "Ming‐Feng Hou",
+      "country_code": "CN",
+      "works_count": 619,
+      "source": "openalex"
+    },
+    {
+      "name": "Steven R. Smith",
+      "country_code": "AU",
+      "works_count": 617,
+      "source": "openalex"
+    },
+    {
+      "name": "Patrick C.N. Rensen",
+      "country_code": "NL",
+      "works_count": 616,
+      "source": "openalex"
+    },
+    {
+      "name": "So‐Young Park",
+      "country_code": "KR",
+      "works_count": 613,
+      "source": "openalex"
+    },
+    {
+      "name": "Kazuhiko Kotani",
+      "country_code": "JP",
+      "works_count": 607,
+      "source": "openalex"
+    },
+    {
+      "name": "Fredrik Karpe",
+      "country_code": "GB",
+      "works_count": 607,
+      "source": "openalex"
+    },
+    {
+      "name": "Tamara B. Harris",
+      "country_code": "AU",
+      "works_count": 596,
+      "source": "openalex"
+    },
+    {
+      "name": "Majid Ghayour‐Mobarhan",
+      "country_code": "IR",
+      "works_count": 585,
+      "source": "openalex"
+    },
+    {
+      "name": "Carl Grünfeld",
+      "country_code": "US",
+      "works_count": 582,
+      "source": "openalex"
+    },
+    {
+      "name": "Fahd Al‐Mulla",
+      "country_code": "KW",
+      "works_count": 579,
+      "source": "openalex"
+    },
+    {
+      "name": "Lynne E. Wagenknecht",
+      "country_code": "US",
+      "works_count": 577,
+      "source": "openalex"
+    },
+    {
+      "name": "Lena Carlsson",
+      "country_code": "SE",
+      "works_count": 571,
+      "source": "openalex"
+    },
+    {
+      "name": "Gema Frühbeck",
+      "country_code": "ES",
+      "works_count": 567,
+      "source": "openalex"
+    },
+    {
+      "name": "Nitin Shivappa",
+      "country_code": "US",
+      "works_count": 565,
+      "source": "openalex"
+    },
+    {
+      "name": "Yasuharu Tabara",
+      "country_code": "JP",
+      "works_count": 562,
+      "source": "openalex"
+    },
+    {
+      "name": "Roberto Vettor",
+      "country_code": "IT",
+      "works_count": 561,
+      "source": "openalex"
+    },
+    {
+      "name": "Abbas Dehghan",
+      "country_code": "IR",
+      "works_count": 561,
+      "source": "openalex"
+    },
+    {
+      "name": "Je Kyung Seong",
+      "country_code": "KR",
+      "works_count": 553,
+      "source": "openalex"
+    },
+    {
+      "name": "Sebastiano Andò",
+      "country_code": "IT",
+      "works_count": 552,
+      "source": "openalex"
+    },
+    {
+      "name": "Hubert Vidal",
+      "country_code": "FR",
+      "works_count": 551,
+      "source": "openalex"
+    },
+    {
+      "name": "Stefan Söderberg",
+      "country_code": "SE",
+      "works_count": 550,
+      "source": "openalex"
+    },
+    {
+      "name": "Nasser M. Al‐Daghri",
+      "country_code": "SA",
+      "works_count": 550,
+      "source": "openalex"
+    },
+    {
+      "name": "Samuel Klein",
+      "country_code": "US",
+      "works_count": 546,
+      "source": "openalex"
+    },
+    {
+      "name": "Paul Welsh",
+      "country_code": "CL",
+      "works_count": 543,
+      "source": "openalex"
+    },
+    {
+      "name": "Per Björntorp",
+      "country_code": null,
+      "works_count": 543,
+      "source": "openalex"
+    },
+    {
+      "name": "Ko Willems van Dijk",
+      "country_code": "NL",
+      "works_count": 534,
+      "source": "openalex"
+    },
+    {
+      "name": "Altan Onat",
+      "country_code": null,
+      "works_count": 534,
+      "source": "openalex"
+    },
+    {
+      "name": "Martin Haluzı́k",
+      "country_code": "CZ",
+      "works_count": 532,
+      "source": "openalex"
+    },
+    {
+      "name": "Wayne Huey‐Herng Sheu",
+      "country_code": "TW",
+      "works_count": 532,
+      "source": "openalex"
+    },
+    {
+      "name": "Aladdin H. Shadyab",
+      "country_code": "US",
+      "works_count": 531,
+      "source": "openalex"
+    },
+    {
+      "name": "Jan Nilsson",
+      "country_code": "SE",
+      "works_count": 531,
+      "source": "openalex"
+    },
+    {
+      "name": "Shanshan Mei",
+      "country_code": "CN",
+      "works_count": 528,
+      "source": "openalex"
+    },
+    {
+      "name": "Valmore Bermúdez",
+      "country_code": "CO",
+      "works_count": 526,
+      "source": "openalex"
+    },
+    {
+      "name": "R. Aller",
+      "country_code": "ES",
+      "works_count": 521,
+      "source": "openalex"
+    },
+    {
+      "name": "Karen S.L. Lam",
+      "country_code": "HK",
+      "works_count": 520,
+      "source": "openalex"
+    },
+    {
+      "name": "Andreu Palou",
+      "country_code": "ES",
+      "works_count": 518,
+      "source": "openalex"
+    },
+    {
+      "name": "Nehal N. Mehta",
+      "country_code": "US",
+      "works_count": 515,
+      "source": "openalex"
+    },
+    {
+      "name": "Jae Woo Kim",
+      "country_code": "US",
+      "works_count": 515,
+      "source": "openalex"
+    },
+    {
+      "name": "Shui‐Ping Zhao",
+      "country_code": "CN",
+      "works_count": 514,
+      "source": "openalex"
+    },
+    {
+      "name": "Jan Frystyk",
+      "country_code": "DK",
+      "works_count": 514,
+      "source": "openalex"
+    },
+    {
+      "name": "Lawrence Chan",
+      "country_code": "CN",
+      "works_count": 514,
+      "source": "openalex"
+    },
+    {
+      "name": "Dipender Gill",
+      "country_code": "DK",
+      "works_count": 506,
+      "source": "openalex"
+    },
+    {
+      "name": "Sushil K. Jain",
+      "country_code": "US",
+      "works_count": 504,
+      "source": "openalex"
+    },
+    {
+      "name": "Iraj Nabipour",
+      "country_code": "IR",
+      "works_count": 504,
+      "source": "openalex"
+    },
+    {
+      "name": "Ulf Smith",
+      "country_code": "SE",
+      "works_count": 501,
+      "source": "openalex"
+    },
+    {
+      "name": "Ron C. Hoogeveen",
+      "country_code": "US",
+      "works_count": 501,
+      "source": "openalex"
+    },
+    {
+      "name": "Antonio Vidal‐Puig",
+      "country_code": "ES",
+      "works_count": 499,
+      "source": "openalex"
+    },
+    {
+      "name": "Gilberto Vargas‐Alarcón",
+      "country_code": "MX",
+      "works_count": 498,
+      "source": "openalex"
+    },
+    {
+      "name": "Tobias Pischon",
+      "country_code": "DE",
+      "works_count": 498,
+      "source": "openalex"
+    },
+    {
+      "name": "Ziad Mallat",
+      "country_code": "FR",
+      "works_count": 495,
+      "source": "openalex"
+    },
+    {
+      "name": "Ellen E. Blaak",
+      "country_code": "NL",
+      "works_count": 493,
+      "source": "openalex"
+    },
+    {
+      "name": "Alex P. Reiner",
+      "country_code": "ZA",
+      "works_count": 492,
+      "source": "openalex"
+    },
+    {
+      "name": "James L. Kirkland",
+      "country_code": "US",
+      "works_count": 488,
+      "source": "openalex"
+    },
+    {
+      "name": "Toshimasa Yamauchi",
+      "country_code": "JP",
+      "works_count": 487,
+      "source": "openalex"
+    },
+    {
+      "name": "Joëlle Dupont",
+      "country_code": "FR",
+      "works_count": 487,
+      "source": "openalex"
+    },
+    {
+      "name": "Amira Klip",
+      "country_code": "CA",
+      "works_count": 486,
+      "source": "openalex"
+    },
+    {
+      "name": "Chao Sun",
+      "country_code": "NL",
+      "works_count": 486,
+      "source": "openalex"
+    },
+    {
+      "name": "André Tchernof",
+      "country_code": "CA",
+      "works_count": 485,
+      "source": "openalex"
+    },
+    {
+      "name": "Silvia Corvera",
+      "country_code": "US",
+      "works_count": 480,
+      "source": "openalex"
+    },
+    {
+      "name": "Alka M. Kanaya",
+      "country_code": "US",
+      "works_count": 476,
+      "source": "openalex"
+    },
+    {
+      "name": "Mikko Hurme",
+      "country_code": "FI",
+      "works_count": 476,
+      "source": "openalex"
+    },
+    {
+      "name": "Harpal Randeva",
+      "country_code": "GB",
+      "works_count": 476,
+      "source": "openalex"
+    },
+    {
+      "name": "André Marette",
+      "country_code": "US",
+      "works_count": 473,
+      "source": "openalex"
+    },
+    {
+      "name": "Sung Hee Choi",
+      "country_code": "KR",
+      "works_count": 472,
+      "source": "openalex"
+    },
+    {
+      "name": "Sridevi Devaraj",
+      "country_code": "US",
+      "works_count": 472,
+      "source": "openalex"
+    },
+    {
+      "name": "Bruce M. Spiegelman",
+      "country_code": "US",
+      "works_count": 470,
+      "source": "openalex"
+    },
+    {
+      "name": "Jorge R. Kizer",
+      "country_code": "US",
+      "works_count": 470,
+      "source": "openalex"
+    },
+    {
+      "name": "Alexander P. Reiner",
+      "country_code": "US",
+      "works_count": 467,
+      "source": "openalex"
+    },
+    {
+      "name": "Moncef Feki",
+      "country_code": "TN",
+      "works_count": 465,
+      "source": "openalex"
+    },
+    {
+      "name": "Alain Tedgui",
+      "country_code": "FR",
+      "works_count": 465,
+      "source": "openalex"
+    },
+    {
+      "name": "Katsumi Ikeda",
+      "country_code": "JP",
+      "works_count": 465,
+      "source": "openalex"
+    },
+    {
+      "name": "Giuseppe Danilo Norata",
+      "country_code": "IT",
+      "works_count": 463,
+      "source": "openalex"
+    },
+    {
+      "name": "Karl‐Heinz Herzig",
+      "country_code": "PL",
+      "works_count": 461,
+      "source": "openalex"
+    },
+    {
+      "name": "Christian A. Drevon",
+      "country_code": "NO",
+      "works_count": 461,
+      "source": "openalex"
+    },
+    {
+      "name": "Igor A. Sobenin",
+      "country_code": "RU",
+      "works_count": 461,
+      "source": "openalex"
+    },
+    {
+      "name": "Tsuyoshi Goto",
+      "country_code": "JP",
+      "works_count": 461,
+      "source": "openalex"
+    },
+    {
+      "name": "孝 門脇",
+      "country_code": null,
+      "works_count": 459,
+      "source": "openalex"
+    },
+    {
+      "name": "Martin G. Myers",
+      "country_code": "US",
+      "works_count": 457,
+      "source": "openalex"
+    },
+    {
+      "name": "Kristy A. Brown",
+      "country_code": "US",
+      "works_count": 457,
+      "source": "openalex"
+    },
+    {
+      "name": "Shlomo Berliner",
+      "country_code": "IL",
+      "works_count": 454,
+      "source": "openalex"
+    },
+    {
+      "name": "Nosratollah Zarghami",
+      "country_code": "IR",
+      "works_count": 453,
+      "source": "openalex"
+    },
+    {
+      "name": "Bente Halvorsen",
+      "country_code": "NO",
+      "works_count": 452,
+      "source": "openalex"
+    },
+    {
+      "name": "Keith N. Frayn",
+      "country_code": "GB",
+      "works_count": 452,
+      "source": "openalex"
+    },
+    {
+      "name": "Jong Suk Park",
+      "country_code": "KR",
+      "works_count": 452,
+      "source": "openalex"
+    },
+    {
+      "name": "Federico Carbone",
+      "country_code": "IT",
+      "works_count": 450,
+      "source": "openalex"
+    },
+    {
+      "name": "Alexios S. Antonopoulos",
+      "country_code": "GR",
+      "works_count": 449,
+      "source": "openalex"
+    },
+    {
+      "name": "Karin Bornfeldt",
+      "country_code": "US",
+      "works_count": 448,
+      "source": "openalex"
+    },
+    {
+      "name": "Chul Woo Ahn",
+      "country_code": "US",
+      "works_count": 448,
+      "source": "openalex"
+    },
+    {
+      "name": "Hafize Uzun",
+      "country_code": null,
+      "works_count": 448,
+      "source": "openalex"
+    },
+    {
+      "name": "Mark A. Febbraio",
+      "country_code": "AU",
+      "works_count": 446,
+      "source": "openalex"
+    },
+    {
+      "name": "Nobuyuki Takahashi",
+      "country_code": "JP",
+      "works_count": 446,
+      "source": "openalex"
+    },
+    {
+      "name": "Saverio Cinti",
+      "country_code": "IT",
+      "works_count": 444,
+      "source": "openalex"
+    },
+    {
+      "name": "Christoph Bode",
+      "country_code": "DE",
+      "works_count": 443,
+      "source": "openalex"
+    },
+    {
+      "name": "Paweł Bogdański",
+      "country_code": "PL",
+      "works_count": 443,
+      "source": "openalex"
+    },
+    {
+      "name": "Kyung Mook Choi",
+      "country_code": "KR",
+      "works_count": 441,
+      "source": "openalex"
+    },
+    {
+      "name": "Kazuyuki Tobe",
+      "country_code": "JP",
+      "works_count": 440,
+      "source": "openalex"
+    },
+    {
+      "name": "Antje Körner",
+      "country_code": "DE",
+      "works_count": 440,
+      "source": "openalex"
+    },
+    {
+      "name": "Anna Vašků",
+      "country_code": "CZ",
+      "works_count": 440,
+      "source": "openalex"
+    },
+    {
+      "name": "Anthony J. Hanley",
+      "country_code": "CA",
+      "works_count": 439,
+      "source": "openalex"
+    },
+    {
+      "name": "Pingping Li",
+      "country_code": "CN",
+      "works_count": 438,
+      "source": "openalex"
+    },
+    {
+      "name": "Ishwarlal Jialal",
+      "country_code": "US",
+      "works_count": 435,
+      "source": "openalex"
+    },
+    {
+      "name": "Tohru Funahashi",
+      "country_code": "JP",
+      "works_count": 435,
+      "source": "openalex"
+    },
+    {
+      "name": "Luc Pénicaud",
+      "country_code": "FR",
+      "works_count": 434,
+      "source": "openalex"
+    },
+    {
+      "name": "Jong Ho Lee",
+      "country_code": null,
+      "works_count": 434,
+      "source": "openalex"
+    },
+    {
+      "name": "Tina L. Skinner",
+      "country_code": "AU",
+      "works_count": 433,
+      "source": "openalex"
+    },
+    {
+      "name": "Jerrold Olefsky",
+      "country_code": "US",
+      "works_count": 433,
+      "source": "openalex"
+    },
+    {
+      "name": "Olatz Izaola",
+      "country_code": "ES",
+      "works_count": 432,
+      "source": "openalex"
+    },
+    {
+      "name": "Sudhesh Kumar",
+      "country_code": "IN",
+      "works_count": 428,
+      "source": "openalex"
+    },
+    {
+      "name": "Dominique Langin",
+      "country_code": "FR",
+      "works_count": 427,
+      "source": "openalex"
+    },
+    {
+      "name": "Hiroshi Yatsuya",
+      "country_code": "JP",
+      "works_count": 426,
+      "source": "openalex"
+    },
+    {
+      "name": "Giovanna Liuzzo",
+      "country_code": "IT",
+      "works_count": 425,
+      "source": "openalex"
+    },
+    {
+      "name": "Michael M. Hoffmann",
+      "country_code": "DE",
+      "works_count": 424,
+      "source": "openalex"
+    },
+    {
+      "name": "Philippe Valet",
+      "country_code": "FR",
+      "works_count": 421,
+      "source": "openalex"
+    },
+    {
+      "name": "Kirsi H. Pietiläinen",
+      "country_code": "FI",
+      "works_count": 420,
+      "source": "openalex"
+    },
+    {
+      "name": "Mitchell A. Lazar",
+      "country_code": "IL",
+      "works_count": 420,
+      "source": "openalex"
+    },
+    {
+      "name": "Eeva Moilanen",
+      "country_code": "FI",
+      "works_count": 419,
+      "source": "openalex"
+    },
+    {
+      "name": "Erik A.L. Biessen",
+      "country_code": "NL",
+      "works_count": 419,
+      "source": "openalex"
+    },
+    {
+      "name": "Massimiliano Marco Corsi Romanelli",
+      "country_code": "IT",
+      "works_count": 419,
+      "source": "openalex"
+    },
+    {
+      "name": "Alireza Esteghamati",
+      "country_code": "IR",
+      "works_count": 419,
+      "source": "openalex"
+    },
+    {
+      "name": "Andreas Zirlik",
+      "country_code": "AT",
+      "works_count": 418,
+      "source": "openalex"
+    },
+    {
+      "name": "Berend Isermann",
+      "country_code": "DE",
+      "works_count": 417,
+      "source": "openalex"
+    },
+    {
+      "name": "Ann E. Drummond",
+      "country_code": "AU",
+      "works_count": 416,
+      "source": "openalex"
+    },
+    {
+      "name": "Melissa M. Moore",
+      "country_code": "US",
+      "works_count": 416,
+      "source": "openalex"
+    },
+    {
+      "name": "Cees J. Tack",
+      "country_code": "NL",
+      "works_count": 415,
+      "source": "openalex"
+    },
+    {
+      "name": "Marleen M. J. van Greevenbroek",
+      "country_code": "NL",
+      "works_count": 414,
+      "source": "openalex"
+    },
+    {
+      "name": "Ingebjørg Seljeflot",
+      "country_code": "NO",
+      "works_count": 414,
+      "source": "openalex"
+    },
+    {
+      "name": "Jianping Ye",
+      "country_code": "CN",
+      "works_count": 413,
+      "source": "openalex"
+    },
+    {
+      "name": "Anke Tönjes",
+      "country_code": "DE",
+      "works_count": 412,
+      "source": "openalex"
+    },
+    {
+      "name": "Michael D. Jensen",
+      "country_code": "US",
+      "works_count": 411,
+      "source": "openalex"
+    },
+    {
+      "name": "Tetsuro Miki",
+      "country_code": "JP",
+      "works_count": 409,
+      "source": "openalex"
+    },
+    {
+      "name": "Eun‐Jung Rhee",
+      "country_code": "KR",
+      "works_count": 408,
+      "source": "openalex"
+    },
+    {
+      "name": "Hubert Kolb",
+      "country_code": "DE",
+      "works_count": 407,
+      "source": "openalex"
+    },
+    {
+      "name": "Michio Shimabukuro",
+      "country_code": "JP",
+      "works_count": 407,
+      "source": "openalex"
+    },
+    {
+      "name": "Hiroaki Masuzaki",
+      "country_code": "JP",
+      "works_count": 406,
+      "source": "openalex"
+    },
+    {
+      "name": "Tommy Olsson",
+      "country_code": "SE",
+      "works_count": 406,
+      "source": "openalex"
+    },
+    {
+      "name": "Jaap Keijer",
+      "country_code": "NL",
+      "works_count": 405,
+      "source": "openalex"
+    },
+    {
+      "name": "Naoki Sakane",
+      "country_code": "JP",
+      "works_count": 405,
+      "source": "openalex"
+    },
+    {
+      "name": "Hideki Ohno",
+      "country_code": "JP",
+      "works_count": 405,
+      "source": "openalex"
+    },
+    {
+      "name": "Rexford S. Ahima",
+      "country_code": "US",
+      "works_count": 404,
+      "source": "openalex"
+    },
+    {
+      "name": "Helen M. Roche",
+      "country_code": "IE",
+      "works_count": 403,
+      "source": "openalex"
+    },
+    {
+      "name": "Günay Can",
+      "country_code": "TR",
+      "works_count": 403,
+      "source": "openalex"
+    },
+    {
+      "name": "Kaijun Niu",
+      "country_code": "CN",
+      "works_count": 402,
+      "source": "openalex"
+    },
+    {
+      "name": "Rubén Nogueiras",
+      "country_code": "ES",
+      "works_count": 402,
+      "source": "openalex"
+    },
+    {
+      "name": "Neal L. Weintraub",
+      "country_code": "US",
+      "works_count": 402,
+      "source": "openalex"
+    },
+    {
+      "name": "Pål Aukrust",
+      "country_code": "NO",
+      "works_count": 401,
+      "source": "openalex"
+    },
+    {
+      "name": "Wenhua Ling",
+      "country_code": "CN",
+      "works_count": 399,
+      "source": "openalex"
+    },
+    {
+      "name": "Wifredo Ricart",
+      "country_code": "ES",
+      "works_count": 397,
+      "source": "openalex"
+    },
+    {
+      "name": "Joachim Spranger",
+      "country_code": "DE",
+      "works_count": 397,
+      "source": "openalex"
+    },
+    {
+      "name": "Moniek P.M. de Maat",
+      "country_code": "DK",
+      "works_count": 396,
+      "source": "openalex"
+    },
+    {
+      "name": "Jacqueline Capeau",
+      "country_code": "FR",
+      "works_count": 392,
+      "source": "openalex"
+    },
+    {
+      "name": "Fábio Santos Lira",
+      "country_code": "BR",
+      "works_count": 390,
+      "source": "openalex"
+    },
+    {
+      "name": "Omar F. Khabour",
+      "country_code": "JO",
+      "works_count": 389,
+      "source": "openalex"
+    },
+    {
+      "name": "Jan Nedergaard",
+      "country_code": "SE",
+      "works_count": 388,
+      "source": "openalex"
+    },
+    {
+      "name": "Joan Vendrell",
+      "country_code": "ES",
+      "works_count": 388,
+      "source": "openalex"
+    },
+    {
+      "name": "David C. Wright",
+      "country_code": "CA",
+      "works_count": 388,
+      "source": "openalex"
+    },
+    {
+      "name": "Gregorio Caimi",
+      "country_code": "IT",
+      "works_count": 388,
+      "source": "openalex"
+    },
+    {
+      "name": "Miguel Cruz",
+      "country_code": "MX",
+      "works_count": 388,
+      "source": "openalex"
+    },
+    {
+      "name": "Bo Hedblad",
+      "country_code": null,
+      "works_count": 387,
+      "source": "openalex"
+    },
+    {
+      "name": "Paul Trayhurn",
+      "country_code": "GB",
+      "works_count": 386,
+      "source": "openalex"
+    },
+    {
+      "name": "Imo E. Hoefer",
+      "country_code": "DE",
+      "works_count": 385,
+      "source": "openalex"
+    },
+    {
+      "name": "Leo‐Pekka Lyytikäinen",
+      "country_code": "FI",
+      "works_count": 385,
+      "source": "openalex"
+    },
+    {
+      "name": "Francesc Villarroya",
+      "country_code": "ES",
+      "works_count": 384,
+      "source": "openalex"
+    },
+    {
+      "name": "Denis Richard",
+      "country_code": "US",
+      "works_count": 384,
+      "source": "openalex"
+    },
+    {
+      "name": "Hae Jin Kim",
+      "country_code": "KR",
+      "works_count": 384,
+      "source": "openalex"
+    },
+    {
+      "name": "John Beilby",
+      "country_code": "AU",
+      "works_count": 383,
+      "source": "openalex"
+    },
+    {
+      "name": "Mauro Zamboni",
+      "country_code": "IT",
+      "works_count": 382,
+      "source": "openalex"
+    },
+    {
+      "name": "Zuyi Yuan",
+      "country_code": "CN",
+      "works_count": 382,
+      "source": "openalex"
+    },
+    {
+      "name": "Francisco Antônio Helfenstein Fonseca",
+      "country_code": "BR",
+      "works_count": 380,
+      "source": "openalex"
+    },
+    {
+      "name": "Hui Pan",
+      "country_code": "US",
+      "works_count": 379,
+      "source": "openalex"
+    },
+    {
+      "name": "Bernard M.Y. Cheung",
+      "country_code": "HK",
+      "works_count": 379,
+      "source": "openalex"
+    },
+    {
+      "name": "Eline H. van Roekel",
+      "country_code": "NL",
+      "works_count": 378,
+      "source": "openalex"
+    },
+    {
+      "name": "Kwang Kon Koh",
+      "country_code": "KR",
+      "works_count": 377,
+      "source": "openalex"
+    },
+    {
+      "name": "Thomas S. Weiß",
+      "country_code": "DE",
+      "works_count": 376,
+      "source": "openalex"
+    },
+    {
+      "name": "Itzhak Shapira",
+      "country_code": "IL",
+      "works_count": 375,
+      "source": "openalex"
+    },
+    {
+      "name": "Philip W. Connelly",
+      "country_code": "CA",
+      "works_count": 374,
+      "source": "openalex"
+    },
+    {
+      "name": "John F. Keaney",
+      "country_code": "US",
+      "works_count": 374,
+      "source": "openalex"
+    },
+    {
+      "name": "Ichiro Manabe",
+      "country_code": "JP",
+      "works_count": 373,
+      "source": "openalex"
+    },
+    {
+      "name": "Laurent Gautron",
+      "country_code": "US",
+      "works_count": 373,
+      "source": "openalex"
+    },
+    {
+      "name": "Christoph J. Binder",
+      "country_code": "AT",
+      "works_count": 372,
+      "source": "openalex"
+    },
+    {
+      "name": "Jeffrey S. Flier",
+      "country_code": null,
+      "works_count": 371,
+      "source": "openalex"
+    },
+    {
+      "name": "Kyung Rae Kim",
+      "country_code": "US",
+      "works_count": 371,
+      "source": "openalex"
+    },
+    {
+      "name": "Louis Casteilla",
+      "country_code": "FR",
+      "works_count": 371,
+      "source": "openalex"
+    },
+    {
+      "name": "Andréas Schäffler",
+      "country_code": "DE",
+      "works_count": 370,
+      "source": "openalex"
+    },
+    {
+      "name": "Barbara J. Nicklas",
+      "country_code": "US",
+      "works_count": 369,
+      "source": "openalex"
+    },
+    {
+      "name": "Cornelis Kluft",
+      "country_code": "NL",
+      "works_count": 369,
+      "source": "openalex"
+    },
+    {
+      "name": "Joel K. Elmquist",
+      "country_code": null,
+      "works_count": 368,
+      "source": "openalex"
+    },
+    {
+      "name": "Steen B. Pedersen",
+      "country_code": "DK",
+      "works_count": 368,
+      "source": "openalex"
+    },
+    {
+      "name": "Masanori Emoto",
+      "country_code": null,
+      "works_count": 368,
+      "source": "openalex"
+    },
+    {
+      "name": "Anthony G. Comuzzie",
+      "country_code": "US",
+      "works_count": 367,
+      "source": "openalex"
+    },
+    {
+      "name": "Miguel López",
+      "country_code": "ES",
+      "works_count": 367,
+      "source": "openalex"
+    },
+    {
+      "name": "Gérard Ailhaud",
+      "country_code": "FR",
+      "works_count": 365,
+      "source": "openalex"
+    },
+    {
+      "name": "Jeffrey M. Friedman",
+      "country_code": "US",
+      "works_count": 365,
+      "source": "openalex"
+    },
+    {
+      "name": "Oswald Wagner",
+      "country_code": "AT",
+      "works_count": 365,
+      "source": "openalex"
+    },
+    {
+      "name": "Rudolph L. Leibel",
+      "country_code": "US",
+      "works_count": 364,
+      "source": "openalex"
+    },
+    {
+      "name": "Massimiliano Ruscica",
+      "country_code": "IT",
+      "works_count": 364,
+      "source": "openalex"
+    },
+    {
+      "name": "Willa A. Hsueh",
+      "country_code": "US",
+      "works_count": 364,
+      "source": "openalex"
+    },
+    {
+      "name": "Luigi M. Biasucci",
+      "country_code": "IT",
+      "works_count": 363,
+      "source": "openalex"
+    },
+    {
+      "name": "Yūji Shimizu",
+      "country_code": "AL",
+      "works_count": 363,
+      "source": "openalex"
+    },
+    {
+      "name": "Barbara Cannon",
+      "country_code": "SE",
+      "works_count": 363,
+      "source": "openalex"
+    },
+    {
+      "name": "Esther Lutgens",
+      "country_code": "US",
+      "works_count": 362,
+      "source": "openalex"
+    },
+    {
+      "name": "Mohammad Ali Azarbayjani",
+      "country_code": null,
+      "works_count": 361,
+      "source": "openalex"
+    },
+    {
+      "name": "Nazmus Saquib",
+      "country_code": "SA",
+      "works_count": 361,
+      "source": "openalex"
+    },
+    {
+      "name": "Sang Baek Koh",
+      "country_code": "KR",
+      "works_count": 361,
+      "source": "openalex"
+    },
+    {
+      "name": "R. Poledne",
+      "country_code": "CZ",
+      "works_count": 360,
+      "source": "openalex"
+    },
+    {
+      "name": "Ikuo Saito",
+      "country_code": "JP",
+      "works_count": 360,
+      "source": "openalex"
+    },
+    {
+      "name": "Sophie Visvikis‐Siest",
+      "country_code": null,
+      "works_count": 360,
+      "source": "openalex"
+    },
+    {
+      "name": "Thomas W. McDade",
+      "country_code": "CA",
+      "works_count": 360,
+      "source": "openalex"
+    },
+    {
+      "name": "Weizhen Zhang",
+      "country_code": "CN",
+      "works_count": 358,
+      "source": "openalex"
+    },
+    {
+      "name": "Peter Tontonoz",
+      "country_code": "US",
+      "works_count": 358,
+      "source": "openalex"
+    },
+    {
+      "name": "Xi Kathy Zhou",
+      "country_code": "US",
+      "works_count": 358,
+      "source": "openalex"
+    },
+    {
+      "name": "Christopher T.V. Swain",
+      "country_code": "AU",
+      "works_count": 358,
+      "source": "openalex"
+    },
+    {
+      "name": "佳宏 小川",
+      "country_code": null,
+      "works_count": 357,
+      "source": "openalex"
+    },
+    {
+      "name": "Tetsuo Shoji",
+      "country_code": "JP",
+      "works_count": 357,
+      "source": "openalex"
+    },
+    {
+      "name": "Juhua Luo",
+      "country_code": "US",
+      "works_count": 357,
+      "source": "openalex"
+    },
+    {
+      "name": "M. Daniel Lane",
+      "country_code": "US",
+      "works_count": 357,
+      "source": "openalex"
+    },
+    {
+      "name": "Simin Nikbin Meydani",
+      "country_code": "US",
+      "works_count": 357,
+      "source": "openalex"
+    },
+    {
+      "name": "Alan Chait",
+      "country_code": "US",
+      "works_count": 356,
+      "source": "openalex"
+    },
+    {
+      "name": "Jens Baumert",
+      "country_code": "DE",
+      "works_count": 356,
+      "source": "openalex"
+    },
+    {
+      "name": "Jae Bum Kim",
+      "country_code": "KR",
+      "works_count": 356,
+      "source": "openalex"
+    },
+    {
+      "name": "Liang Dan",
+      "country_code": null,
+      "works_count": 355,
+      "source": "openalex"
+    },
+    {
+      "name": "Olivieri Fabiola",
+      "country_code": "IT",
+      "works_count": 355,
+      "source": "openalex"
+    },
+    {
+      "name": "Johan Kuiper",
+      "country_code": "NL",
+      "works_count": 353,
+      "source": "openalex"
+    },
+    {
+      "name": "Francesco Bèguinot",
+      "country_code": "IT",
+      "works_count": 352,
+      "source": "openalex"
+    },
+    {
+      "name": "Makoto Nishida",
+      "country_code": "JP",
+      "works_count": 352,
+      "source": "openalex"
+    },
+    {
+      "name": "Teruo Kawada",
+      "country_code": "JP",
+      "works_count": 350,
+      "source": "openalex"
+    },
+    {
+      "name": "Vincent Mooser",
+      "country_code": "CA",
+      "works_count": 348,
+      "source": "openalex"
+    },
+    {
+      "name": "Gregory R. Steinberg",
+      "country_code": "US",
+      "works_count": 348,
+      "source": "openalex"
+    },
+    {
+      "name": "Maya Simionescu",
+      "country_code": "RO",
+      "works_count": 348,
+      "source": "openalex"
+    },
+    {
+      "name": "José Francisco Muñoz‐Valle",
+      "country_code": "MX",
+      "works_count": 348,
+      "source": "openalex"
+    },
+    {
+      "name": "Sei Hyun Baik",
+      "country_code": "KR",
+      "works_count": 346,
+      "source": "openalex"
+    },
+    {
+      "name": "Liu Keke",
+      "country_code": null,
+      "works_count": 345,
+      "source": "openalex"
+    },
+    {
+      "name": "Jerry L. Nadler",
+      "country_code": "US",
+      "works_count": 345,
+      "source": "openalex"
+    },
+    {
+      "name": "Godfrey S. Getz",
+      "country_code": "US",
+      "works_count": 344,
+      "source": "openalex"
+    },
+    {
+      "name": "Л. С. Литвинова",
+      "country_code": "RU",
+      "works_count": 344,
+      "source": "openalex"
+    },
+    {
+      "name": "Shinji Kihara",
+      "country_code": "JP",
+      "works_count": 344,
+      "source": "openalex"
+    },
+    {
+      "name": "Kohjiro Ueki",
+      "country_code": "JP",
+      "works_count": 344,
+      "source": "openalex"
+    },
+    {
+      "name": "Thomas M. McIntyre",
+      "country_code": "US",
+      "works_count": 343,
+      "source": "openalex"
+    },
+    {
+      "name": "Martin Klingenspor",
+      "country_code": "DE",
+      "works_count": 343,
+      "source": "openalex"
+    },
+    {
+      "name": "Alexander N. Orekhov",
+      "country_code": "RU",
+      "works_count": 342,
+      "source": "openalex"
+    },
+    {
+      "name": "Xiaoli Chen",
+      "country_code": "CN",
+      "works_count": 341,
+      "source": "openalex"
+    },
+    {
+      "name": "Giovanni Davı̀",
+      "country_code": "IT",
+      "works_count": 340,
+      "source": "openalex"
+    },
+    {
+      "name": "Jae‐Yong Shim",
+      "country_code": "KR",
+      "works_count": 339,
+      "source": "openalex"
+    },
+    {
+      "name": "Joseph Hung",
+      "country_code": "HK",
+      "works_count": 339,
+      "source": "openalex"
+    },
+    {
+      "name": "Uma Shankar Singh",
+      "country_code": "PH",
+      "works_count": 338,
+      "source": "openalex"
+    },
+    {
+      "name": "Selim Kılıç",
+      "country_code": null,
+      "works_count": 338,
+      "source": "openalex"
+    },
+    {
+      "name": "Jong Won Yun",
+      "country_code": "KR",
+      "works_count": 338,
+      "source": "openalex"
+    },
+    {
+      "name": "Gabriel Virella",
+      "country_code": "US",
+      "works_count": 337,
+      "source": "openalex"
+    },
+    {
+      "name": "Torbjörn Nilsson",
+      "country_code": "SE",
+      "works_count": 336,
+      "source": "openalex"
+    },
+    {
+      "name": "Katsuji Oguchi",
+      "country_code": "JP",
+      "works_count": 336,
+      "source": "openalex"
+    },
+    {
+      "name": "Mark B. Pepys",
+      "country_code": "GB",
+      "works_count": 335,
+      "source": "openalex"
+    },
+    {
+      "name": "Giovanni De Pergola",
+      "country_code": "IT",
+      "works_count": 334,
+      "source": "openalex"
+    },
+    {
+      "name": "Mark Slevin",
+      "country_code": "GB",
+      "works_count": 334,
+      "source": "openalex"
+    },
+    {
+      "name": "Jianglin Fan",
+      "country_code": "CN",
+      "works_count": 334,
+      "source": "openalex"
+    },
+    {
+      "name": "Joselyn Rojas",
+      "country_code": "US",
+      "works_count": 333,
+      "source": "openalex"
+    },
+    {
+      "name": "Tamar Tchkonia",
+      "country_code": "US",
+      "works_count": 333,
+      "source": "openalex"
+    },
+    {
+      "name": "Menno P.J. de Winther",
+      "country_code": "NL",
+      "works_count": 332,
+      "source": "openalex"
+    },
+    {
+      "name": "Beatriz L. Rodríguez",
+      "country_code": null,
+      "works_count": 332,
+      "source": "openalex"
+    },
+    {
+      "name": "David J. Dyck",
+      "country_code": null,
+      "works_count": 332,
+      "source": "openalex"
+    },
+    {
+      "name": "Gangyi Yang",
+      "country_code": "CN",
+      "works_count": 332,
+      "source": "openalex"
+    },
+    {
+      "name": "Vincenzo Trischitta",
+      "country_code": "IT",
+      "works_count": 331,
+      "source": "openalex"
+    },
+    {
+      "name": "Naïma Moustaïd‐Moussa",
+      "country_code": "US",
+      "works_count": 330,
+      "source": "openalex"
+    },
+    {
+      "name": "Sandra Roberta G. Ferreira",
+      "country_code": null,
+      "works_count": 329,
+      "source": "openalex"
+    },
+    {
+      "name": "Bruno Fève",
+      "country_code": "FR",
+      "works_count": 329,
+      "source": "openalex"
+    },
+    {
+      "name": "Johannes B. Prins",
+      "country_code": "NL",
+      "works_count": 328,
+      "source": "openalex"
+    },
+    {
+      "name": "Enqi Liu",
+      "country_code": "CN",
+      "works_count": 328,
+      "source": "openalex"
+    },
+    {
+      "name": "Despina Perrea",
+      "country_code": "GR",
+      "works_count": 327,
+      "source": "openalex"
+    },
+    {
+      "name": "Clifton A. Baile",
+      "country_code": "US",
+      "works_count": 327,
+      "source": "openalex"
+    },
+    {
+      "name": "Johannes Klein",
+      "country_code": "GB",
+      "works_count": 326,
+      "source": "openalex"
+    },
+    {
+      "name": "Gongshe Yang",
+      "country_code": "CN",
+      "works_count": 326,
+      "source": "openalex"
+    },
+    {
+      "name": "László Fésüs",
+      "country_code": "HU",
+      "works_count": 325,
+      "source": "openalex"
+    },
+    {
+      "name": "F. Thomas Wunderlich",
+      "country_code": "DE",
+      "works_count": 325,
+      "source": "openalex"
+    },
+    {
+      "name": "Hyun Chul Lee",
+      "country_code": null,
+      "works_count": 325,
+      "source": "openalex"
+    },
+    {
+      "name": "Christian Wolfrum",
+      "country_code": "SG",
+      "works_count": 324,
+      "source": "openalex"
+    },
+    {
+      "name": "Elena Neumann",
+      "country_code": "DE",
+      "works_count": 324,
+      "source": "openalex"
+    },
+    {
+      "name": "André C. Carpentier",
+      "country_code": "CA",
+      "works_count": 324,
+      "source": "openalex"
+    },
+    {
+      "name": "Ali H. Eid",
+      "country_code": "QA",
+      "works_count": 324,
+      "source": "openalex"
+    },
+    {
+      "name": "Russell Ross",
+      "country_code": null,
+      "works_count": 324,
+      "source": "openalex"
+    },
+    {
+      "name": "Baolin Liu",
+      "country_code": "CN",
+      "works_count": 323,
+      "source": "openalex"
+    },
+    {
+      "name": "Azizi Fereidoun",
+      "country_code": null,
+      "works_count": 322,
+      "source": "openalex"
+    },
+    {
+      "name": "Xirong Guo",
+      "country_code": "CN",
+      "works_count": 322,
+      "source": "openalex"
+    },
+    {
+      "name": "Ken Walder",
+      "country_code": "US",
+      "works_count": 322,
+      "source": "openalex"
+    },
+    {
+      "name": "Rong Li",
+      "country_code": "CN",
+      "works_count": 321,
+      "source": "openalex"
+    },
+    {
+      "name": "Bin Wang",
+      "country_code": "CN",
+      "works_count": 321,
+      "source": "openalex"
+    },
+    {
+      "name": "Barbara B. Kahn",
+      "country_code": "US",
+      "works_count": 320,
+      "source": "openalex"
+    },
+    {
+      "name": "Rasheed Ahmad",
+      "country_code": "KW",
+      "works_count": 320,
+      "source": "openalex"
+    },
+    {
+      "name": "I. Juhan‐Vague",
+      "country_code": null,
+      "works_count": 320,
+      "source": "openalex"
+    },
+    {
+      "name": "Marcelo Macedo Rogero",
+      "country_code": "BR",
+      "works_count": 319,
+      "source": "openalex"
+    },
+    {
+      "name": "Hyun‐Sik Kang",
+      "country_code": "KR",
+      "works_count": 319,
+      "source": "openalex"
+    },
+    {
+      "name": "Denis Prud’homme",
+      "country_code": "CA",
+      "works_count": 318,
+      "source": "openalex"
+    },
+    {
+      "name": "Edwin C.M. Mariman",
+      "country_code": "NL",
+      "works_count": 318,
+      "source": "openalex"
+    },
+    {
+      "name": "Guy Chisolm",
+      "country_code": "US",
+      "works_count": 318,
+      "source": "openalex"
+    },
+    {
+      "name": "Bernhard Paulweber",
+      "country_code": "AT",
+      "works_count": 317,
+      "source": "openalex"
+    },
+    {
+      "name": "Jens C. Brüning",
+      "country_code": "DE",
+      "works_count": 317,
+      "source": "openalex"
+    },
+    {
+      "name": "Wu Shouling",
+      "country_code": null,
+      "works_count": 316,
+      "source": "openalex"
+    },
+    {
+      "name": "Arieh Gertler",
+      "country_code": "IL",
+      "works_count": 316,
+      "source": "openalex"
+    },
+    {
+      "name": "Kuo‐Chin Huang",
+      "country_code": "TW",
+      "works_count": 315,
+      "source": "openalex"
+    },
+    {
+      "name": "Stephan Herzig",
+      "country_code": "DE",
+      "works_count": 315,
+      "source": "openalex"
+    },
+    {
+      "name": "Daniel Ricquier",
+      "country_code": "FR",
+      "works_count": 314,
+      "source": "openalex"
+    },
+    {
+      "name": "Nora Klöting",
+      "country_code": "DE",
+      "works_count": 314,
+      "source": "openalex"
+    },
+    {
+      "name": "Niels P. Riksen",
+      "country_code": "NL",
+      "works_count": 313,
+      "source": "openalex"
+    },
+    {
+      "name": "Hironobu Yoshimatsu",
+      "country_code": "JP",
+      "works_count": 313,
+      "source": "openalex"
+    },
+    {
+      "name": "Giuseppe Matarese",
+      "country_code": "IT",
+      "works_count": 312,
+      "source": "openalex"
+    },
+    {
+      "name": "Humphries SE",
+      "country_code": null,
+      "works_count": 311,
+      "source": "openalex"
+    },
+    {
+      "name": "Chun‐Hao Tsai",
+      "country_code": "TW",
+      "works_count": 310,
+      "source": "openalex"
+    },
+    {
+      "name": "Claudia Monaco",
+      "country_code": "BR",
+      "works_count": 310,
+      "source": "openalex"
+    },
+    {
+      "name": "Juan P. Casas",
+      "country_code": null,
+      "works_count": 309,
+      "source": "openalex"
+    },
+    {
+      "name": "Makayla W.C. Lou",
+      "country_code": "AU",
+      "works_count": 309,
+      "source": "openalex"
+    },
+    {
+      "name": "Qingyan Jiang",
+      "country_code": "CN",
+      "works_count": 309,
+      "source": "openalex"
+    },
+    {
+      "name": "Cristóbal Richart",
+      "country_code": "FR",
+      "works_count": 309,
+      "source": "openalex"
+    },
+    {
+      "name": "Bang‐Gee Hsu",
+      "country_code": "TW",
+      "works_count": 309,
+      "source": "openalex"
+    },
+    {
+      "name": "Arne Dietrich",
+      "country_code": "DE",
+      "works_count": 309,
+      "source": "openalex"
+    },
+    {
+      "name": "Mi‐Jeong Lee",
+      "country_code": "US",
+      "works_count": 308,
+      "source": "openalex"
+    },
+    {
+      "name": "Jie Mi",
+      "country_code": "CN",
+      "works_count": 307,
+      "source": "openalex"
+    },
+    {
+      "name": "Jürgen Eckel",
+      "country_code": null,
+      "works_count": 307,
+      "source": "openalex"
+    },
+    {
+      "name": "Kevin D. O’Brien",
+      "country_code": "US",
+      "works_count": 307,
+      "source": "openalex"
+    },
+    {
+      "name": "Μaria Dalamaga",
+      "country_code": "GR",
+      "works_count": 306,
+      "source": "openalex"
+    },
+    {
+      "name": "Jöerg Heeren",
+      "country_code": "DE",
+      "works_count": 305,
+      "source": "openalex"
+    },
+    {
+      "name": "Sanjay K. Singh",
+      "country_code": "US",
+      "works_count": 305,
+      "source": "openalex"
+    },
+    {
+      "name": "祐造 佐藤",
+      "country_code": null,
+      "works_count": 304,
+      "source": "openalex"
+    },
+    {
+      "name": "Christa Buechler",
+      "country_code": "DE",
+      "works_count": 304,
+      "source": "openalex"
+    },
+    {
+      "name": "Keiko Wada",
+      "country_code": "JP",
+      "works_count": 303,
+      "source": "openalex"
+    },
+    {
+      "name": "О. В. Груздева",
+      "country_code": "RU",
+      "works_count": 303,
+      "source": "openalex"
+    },
+    {
+      "name": "Lindsay E. Robinson",
+      "country_code": "US",
+      "works_count": 303,
+      "source": "openalex"
+    },
+    {
+      "name": "Katsuhiko Kohara",
+      "country_code": null,
+      "works_count": 303,
+      "source": "openalex"
+    },
+    {
+      "name": "Pietro Formisano",
+      "country_code": "IT",
+      "works_count": 302,
+      "source": "openalex"
+    },
+    {
+      "name": "I‐Te Lee",
+      "country_code": "TW",
+      "works_count": 302,
+      "source": "openalex"
+    },
+    {
+      "name": "Esma R. Isenović",
+      "country_code": "RS",
+      "works_count": 301,
+      "source": "openalex"
+    },
+    {
+      "name": "Hongwei Li",
+      "country_code": "CN",
+      "works_count": 301,
+      "source": "openalex"
+    },
+    {
+      "name": "Ming Li",
+      "country_code": "CN",
+      "works_count": 301,
+      "source": "openalex"
+    },
+    {
+      "name": "Ji‐Young Lee",
+      "country_code": "KR",
+      "works_count": 301,
+      "source": "openalex"
+    },
+    {
+      "name": "Beverley Adams‐Huet",
+      "country_code": null,
+      "works_count": 300,
+      "source": "openalex"
+    },
+    {
+      "name": "Maria Cristina de Oliveira Izar",
+      "country_code": "BR",
+      "works_count": 299,
+      "source": "openalex"
+    },
+    {
+      "name": "Christine Poitou",
+      "country_code": "FR",
+      "works_count": 299,
+      "source": "openalex"
+    },
+    {
+      "name": "Raquel Soares",
+      "country_code": "PT",
+      "works_count": 298,
+      "source": "openalex"
+    },
+    {
+      "name": "Rei Shibata",
+      "country_code": "JP",
+      "works_count": 298,
+      "source": "openalex"
+    },
+    {
+      "name": "Dilip D. Giri",
+      "country_code": "US",
+      "works_count": 298,
+      "source": "openalex"
+    },
+    {
+      "name": "Max Lafontan",
+      "country_code": "FR",
+      "works_count": 297,
+      "source": "openalex"
+    },
+    {
+      "name": "Krzysztof Lewandowski",
+      "country_code": "PL",
+      "works_count": 297,
+      "source": "openalex"
+    },
+    {
+      "name": "Sandra Maria Barbalho",
+      "country_code": "BR",
+      "works_count": 297,
+      "source": "openalex"
+    },
+    {
+      "name": "Daniel-Corneliu Leucuța",
+      "country_code": "RO",
+      "works_count": 296,
+      "source": "openalex"
+    },
+    {
+      "name": "Suowen Xu",
+      "country_code": "CN",
+      "works_count": 296,
+      "source": "openalex"
+    },
+    {
+      "name": "Hideaki Bujo",
+      "country_code": "JP",
+      "works_count": 296,
+      "source": "openalex"
+    },
+    {
+      "name": "Mikael Rydén",
+      "country_code": "SE",
+      "works_count": 296,
+      "source": "openalex"
+    },
+    {
+      "name": "一男 渡辺",
+      "country_code": null,
+      "works_count": 296,
+      "source": "openalex"
+    },
+    {
+      "name": "Kiminori Hosoda",
+      "country_code": "JP",
+      "works_count": 296,
+      "source": "openalex"
+    },
+    {
+      "name": "R. Scott Rector",
+      "country_code": "US",
+      "works_count": 295,
+      "source": "openalex"
+    },
+    {
+      "name": "Oreste Gualillo",
+      "country_code": "ES",
+      "works_count": 295,
+      "source": "openalex"
+    },
+    {
+      "name": "Toshinao Goda",
+      "country_code": "JP",
+      "works_count": 295,
+      "source": "openalex"
+    },
+    {
+      "name": "Peter D. Reaven",
+      "country_code": "US",
+      "works_count": 294,
+      "source": "openalex"
+    },
+    {
+      "name": "Mohammed Saad",
+      "country_code": "DE",
+      "works_count": 294,
+      "source": "openalex"
+    },
+    {
+      "name": "Dayong Wu",
+      "country_code": "US",
+      "works_count": 293,
+      "source": "openalex"
+    },
+    {
+      "name": "John N. Fain",
+      "country_code": "KR",
+      "works_count": 293,
+      "source": "openalex"
+    },
+    {
+      "name": "Bruna Gigante",
+      "country_code": "SE",
+      "works_count": 292,
+      "source": "openalex"
+    },
+    {
+      "name": "Cuihua Zhang",
+      "country_code": "CN",
+      "works_count": 292,
+      "source": "openalex"
+    },
+    {
+      "name": "Jaak Jürimäe",
+      "country_code": "EE",
+      "works_count": 292,
+      "source": "openalex"
+    },
+    {
+      "name": "George Koliakos",
+      "country_code": "GR",
+      "works_count": 292,
+      "source": "openalex"
+    },
+    {
+      "name": "Rona J. Strawbridge",
+      "country_code": "SE",
+      "works_count": 292,
+      "source": "openalex"
+    },
+    {
+      "name": "Tsugiyasu Kanda",
+      "country_code": "JP",
+      "works_count": 291,
+      "source": "openalex"
+    },
+    {
+      "name": "Chul‐Ho Lee",
+      "country_code": "KR",
+      "works_count": 291,
+      "source": "openalex"
+    },
+    {
+      "name": "Wei‐Shiung Yang",
+      "country_code": "TW",
+      "works_count": 290,
+      "source": "openalex"
+    },
+    {
+      "name": "H Bouissou",
+      "country_code": null,
+      "works_count": 290,
+      "source": "openalex"
+    },
+    {
+      "name": "Deborah J. Clegg",
+      "country_code": "US",
+      "works_count": 290,
+      "source": "openalex"
+    },
+    {
+      "name": "Masayuki Saito",
+      "country_code": "JP",
+      "works_count": 289,
+      "source": "openalex"
+    },
+    {
+      "name": "Ann Rumley",
+      "country_code": "GB",
+      "works_count": 289,
+      "source": "openalex"
+    },
+    {
+      "name": "Alice S. Ryan",
+      "country_code": "US",
+      "works_count": 289,
+      "source": "openalex"
+    },
+    {
+      "name": "Michelangela Barbieri",
+      "country_code": "IT",
+      "works_count": 288,
+      "source": "openalex"
+    },
+    {
+      "name": "David R. Greaves",
+      "country_code": "GB",
+      "works_count": 288,
+      "source": "openalex"
+    },
+    {
+      "name": "André Luiz Sena Guimarães",
+      "country_code": "BR",
+      "works_count": 288,
+      "source": "openalex"
+    },
+    {
+      "name": "Robert V. Considine",
+      "country_code": "US",
+      "works_count": 287,
+      "source": "openalex"
+    },
+    {
+      "name": "Julie Bienertová Vašků",
+      "country_code": "CZ",
+      "works_count": 287,
+      "source": "openalex"
+    },
+    {
+      "name": "Hapizah Nawawi",
+      "country_code": "MY",
+      "works_count": 286,
+      "source": "openalex"
+    },
+    {
+      "name": "Maria F. Lopes‐Virella",
+      "country_code": "US",
+      "works_count": 286,
+      "source": "openalex"
+    },
+    {
+      "name": "Jae‐Young Um",
+      "country_code": "KR",
+      "works_count": 286,
+      "source": "openalex"
+    },
+    {
+      "name": "Lina Wang",
+      "country_code": "CN",
+      "works_count": 286,
+      "source": "openalex"
+    },
+    {
+      "name": "Paul Holvoet",
+      "country_code": "BE",
+      "works_count": 285,
+      "source": "openalex"
+    },
+    {
+      "name": "Yadi Wang",
+      "country_code": "CN",
+      "works_count": 285,
+      "source": "openalex"
+    },
+    {
+      "name": "Hwee Teoh",
+      "country_code": "CA",
+      "works_count": 285,
+      "source": "openalex"
+    },
+    {
+      "name": "Javier Gómez‐Ambrosi",
+      "country_code": "ES",
+      "works_count": 285,
+      "source": "openalex"
+    },
+    {
+      "name": "Alper Sönmez",
+      "country_code": "TR",
+      "works_count": 285,
+      "source": "openalex"
+    },
+    {
+      "name": "Karsten Krüger",
+      "country_code": "DE",
+      "works_count": 285,
+      "source": "openalex"
+    },
+    {
+      "name": "Manuel Vázquez‐Carrera",
+      "country_code": "ES",
+      "works_count": 284,
+      "source": "openalex"
+    },
+    {
+      "name": "Daniel Teupser",
+      "country_code": "DE",
+      "works_count": 284,
+      "source": "openalex"
+    },
+    {
+      "name": "Maria Rosaria Rizzo",
+      "country_code": "IT",
+      "works_count": 283,
+      "source": "openalex"
+    },
+    {
+      "name": "Manuel Benito",
+      "country_code": "ES",
+      "works_count": 283,
+      "source": "openalex"
+    },
+    {
+      "name": "Vı́ctor Sánchez-Margalet",
+      "country_code": "ES",
+      "works_count": 283,
+      "source": "openalex"
+    },
+    {
+      "name": "Jan Kristian Damås",
+      "country_code": "NO",
+      "works_count": 283,
+      "source": "openalex"
+    },
+    {
+      "name": "J. Polák",
+      "country_code": "CZ",
+      "works_count": 283,
+      "source": "openalex"
+    },
+    {
+      "name": "Fred K. Tabung",
+      "country_code": "US",
+      "works_count": 283,
+      "source": "openalex"
+    },
+    {
+      "name": "Otávio de Tolêdo Nóbrega",
+      "country_code": "BR",
+      "works_count": 283,
+      "source": "openalex"
+    },
+    {
+      "name": "Alexander Pfeifer",
+      "country_code": "DE",
+      "works_count": 283,
+      "source": "openalex"
+    },
+    {
+      "name": "Manouchehr Nakhjavani",
+      "country_code": "IR",
+      "works_count": 282,
+      "source": "openalex"
+    },
+    {
+      "name": "Haifeng Zhang",
+      "country_code": "CN",
+      "works_count": 282,
+      "source": "openalex"
+    },
+    {
+      "name": "Kazuhiro Kimura",
+      "country_code": "JP",
+      "works_count": 282,
+      "source": "openalex"
+    },
+    {
+      "name": "Fusanori Nishimura",
+      "country_code": "JP",
+      "works_count": 282,
+      "source": "openalex"
+    },
+    {
+      "name": "Myung‐Sook Choi",
+      "country_code": null,
+      "works_count": 281,
+      "source": "openalex"
+    },
+    {
+      "name": "Maximilian de Courten",
+      "country_code": "AU",
+      "works_count": 281,
+      "source": "openalex"
+    },
+    {
+      "name": "Xinliang Ma",
+      "country_code": "US",
+      "works_count": 281,
+      "source": "openalex"
+    },
+    {
+      "name": "Dror Harats",
+      "country_code": null,
+      "works_count": 281,
+      "source": "openalex"
+    },
+    {
+      "name": "Masanobu Kawakami",
+      "country_code": "JP",
+      "works_count": 280,
+      "source": "openalex"
+    },
+    {
+      "name": "Yoshihisa Okamoto",
+      "country_code": "US",
+      "works_count": 280,
+      "source": "openalex"
+    },
+    {
+      "name": "Harald Mangge",
+      "country_code": "AT",
+      "works_count": 280,
+      "source": "openalex"
+    },
+    {
+      "name": "Harald Staiger",
+      "country_code": "DE",
+      "works_count": 280,
+      "source": "openalex"
+    },
+    {
+      "name": "Hadaegh Farzad",
+      "country_code": null,
+      "works_count": 279,
+      "source": "openalex"
+    },
+    {
+      "name": "José Rodrigo Pauli",
+      "country_code": "GB",
+      "works_count": 279,
+      "source": "openalex"
+    },
+    {
+      "name": "Masato Furuhashi",
+      "country_code": "JP",
+      "works_count": 279,
+      "source": "openalex"
+    },
+    {
+      "name": "Pei‐Wen Wang",
+      "country_code": "CN",
+      "works_count": 279,
+      "source": "openalex"
+    },
+    {
+      "name": "Xian Wu Cheng",
+      "country_code": "CN",
+      "works_count": 279,
+      "source": "openalex"
+    },
+    {
+      "name": "Koji Tamakoshi",
+      "country_code": "JP",
+      "works_count": 279,
+      "source": "openalex"
+    },
+    {
+      "name": "Brian Harris",
+      "country_code": null,
+      "works_count": 277,
+      "source": "openalex"
+    },
+    {
+      "name": "Marı́a M. Malagón",
+      "country_code": "ES",
+      "works_count": 277,
+      "source": "openalex"
+    },
+    {
+      "name": "Lila Missae Oyama",
+      "country_code": "BR",
+      "works_count": 277,
+      "source": "openalex"
+    },
+    {
+      "name": "Marion J. Gijbels",
+      "country_code": "NL",
+      "works_count": 277,
+      "source": "openalex"
+    },
+    {
+      "name": "Michela Zanetti",
+      "country_code": "IT",
+      "works_count": 277,
+      "source": "openalex"
+    },
+    {
+      "name": "Sujoy Ghosh",
+      "country_code": "US",
+      "works_count": 277,
+      "source": "openalex"
+    },
+    {
+      "name": "Peter Fraunberger",
+      "country_code": "LI",
+      "works_count": 277,
+      "source": "openalex"
+    },
+    {
+      "name": "Gianluca Iacobellis",
+      "country_code": "US",
+      "works_count": 276,
+      "source": "openalex"
+    },
+    {
+      "name": "Edward T.H. Yeh",
+      "country_code": "US",
+      "works_count": 276,
+      "source": "openalex"
+    },
+    {
+      "name": "Rafael Noal Moresco",
+      "country_code": "BR",
+      "works_count": 276,
+      "source": "openalex"
+    },
+    {
+      "name": "Yuri V. Bobryshev",
+      "country_code": null,
+      "works_count": 276,
+      "source": "openalex"
+    },
+    {
+      "name": "Rui Liu",
+      "country_code": "CN",
+      "works_count": 276,
+      "source": "openalex"
+    },
+    {
+      "name": "Ji Hoon Jeong",
+      "country_code": "KR",
+      "works_count": 276,
+      "source": "openalex"
+    },
+    {
+      "name": "明彦 若槻",
+      "country_code": null,
+      "works_count": 275,
+      "source": "openalex"
+    },
+    {
+      "name": "Magdalena Olszanecka‐Glinianowicz",
+      "country_code": "PL",
+      "works_count": 275,
+      "source": "openalex"
+    },
+    {
+      "name": "Krasimira Aleksandrova",
+      "country_code": "DE",
+      "works_count": 274,
+      "source": "openalex"
+    },
+    {
+      "name": "Nobuyuki Miyatake",
+      "country_code": "JP",
+      "works_count": 274,
+      "source": "openalex"
+    },
+    {
+      "name": "Philip G. McTernan",
+      "country_code": "GB",
+      "works_count": 274,
+      "source": "openalex"
+    },
+    {
+      "name": "Carmela Rita Balistreri",
+      "country_code": "IT",
+      "works_count": 274,
+      "source": "openalex"
+    },
+    {
+      "name": "Naval K. Vikram",
+      "country_code": "IN",
+      "works_count": 274,
+      "source": "openalex"
+    },
+    {
+      "name": "Rosalia Lo Presti",
+      "country_code": null,
+      "works_count": 273,
+      "source": "openalex"
+    },
+    {
+      "name": "Paolo Magni",
+      "country_code": "IT",
+      "works_count": 273,
+      "source": "openalex"
+    },
+    {
+      "name": "Roger D. Cone",
+      "country_code": null,
+      "works_count": 273,
+      "source": "openalex"
+    },
+    {
+      "name": "Youn‐Soo Cha",
+      "country_code": "KR",
+      "works_count": 273,
+      "source": "openalex"
+    },
+    {
+      "name": "Pamela Maffioli",
+      "country_code": null,
+      "works_count": 271,
+      "source": "openalex"
+    },
+    {
+      "name": "Noriyuki Ouchi",
+      "country_code": "JP",
+      "works_count": 271,
+      "source": "openalex"
+    },
+    {
+      "name": "Tae Youl Ha",
+      "country_code": "KR",
+      "works_count": 271,
+      "source": "openalex"
+    },
+    {
+      "name": "Alessandro Mauriello",
+      "country_code": "IT",
+      "works_count": 271,
+      "source": "openalex"
+    },
+    {
+      "name": "Dawn Waterworth",
+      "country_code": "US",
+      "works_count": 270,
+      "source": "openalex"
+    },
+    {
+      "name": "Keisuke Fukuo",
+      "country_code": "JP",
+      "works_count": 270,
+      "source": "openalex"
+    },
+    {
+      "name": "Bernard S. López",
+      "country_code": "FR",
+      "works_count": 269,
+      "source": "openalex"
+    },
+    {
+      "name": "Filip K. Świrski",
+      "country_code": "US",
+      "works_count": 269,
+      "source": "openalex"
+    },
+    {
+      "name": "M. González Sagrado",
+      "country_code": "ES",
+      "works_count": 269,
+      "source": "openalex"
+    },
+    {
+      "name": "Schmid Andreas",
+      "country_code": null,
+      "works_count": 268,
+      "source": "openalex"
+    },
+    {
+      "name": "David Y. Hui",
+      "country_code": "US",
+      "works_count": 268,
+      "source": "openalex"
+    },
+    {
+      "name": "Stefan Gustafsson",
+      "country_code": "SE",
+      "works_count": 268,
+      "source": "openalex"
+    },
+    {
+      "name": "Johan Frostegård",
+      "country_code": "SE",
+      "works_count": 267,
+      "source": "openalex"
+    },
+    {
+      "name": "Marc Y. Donath",
+      "country_code": "CH",
+      "works_count": 267,
+      "source": "openalex"
+    },
+    {
+      "name": "Michael J. Quon",
+      "country_code": null,
+      "works_count": 267,
+      "source": "openalex"
+    },
+    {
+      "name": "H Gewurz",
+      "country_code": "US",
+      "works_count": 267,
+      "source": "openalex"
+    },
+    {
+      "name": "José Barreto Campello Carvalheira",
+      "country_code": "BR",
+      "works_count": 266,
+      "source": "openalex"
+    },
+    {
+      "name": "Mário J.A. Saad",
+      "country_code": "BR",
+      "works_count": 266,
+      "source": "openalex"
+    },
+    {
+      "name": "İlker Taşçı",
+      "country_code": null,
+      "works_count": 265,
+      "source": "openalex"
+    },
+    {
+      "name": "Lesley V. Campbell",
+      "country_code": null,
+      "works_count": 265,
+      "source": "openalex"
+    },
+    {
+      "name": "Shaun Sabico",
+      "country_code": "SA",
+      "works_count": 265,
+      "source": "openalex"
+    },
+    {
+      "name": "Giamila Fantuzzi",
+      "country_code": "US",
+      "works_count": 265,
+      "source": "openalex"
+    },
+    {
+      "name": "Satoshi Nishimura",
+      "country_code": "JP",
+      "works_count": 265,
+      "source": "openalex"
+    },
+    {
+      "name": "Hiroshi Kuriyama",
+      "country_code": null,
+      "works_count": 265,
+      "source": "openalex"
+    },
+    {
+      "name": "Daniel L. Marks",
+      "country_code": "US",
+      "works_count": 264,
+      "source": "openalex"
+    },
+    {
+      "name": "Knut Mai",
+      "country_code": "DE",
+      "works_count": 264,
+      "source": "openalex"
+    },
+    {
+      "name": "Antonino Nicoletti",
+      "country_code": "FR",
+      "works_count": 264,
+      "source": "openalex"
+    },
+    {
+      "name": "Philip A. Kern",
+      "country_code": "US",
+      "works_count": 264,
+      "source": "openalex"
+    },
+    {
+      "name": "Michelle A. Miller",
+      "country_code": "GB",
+      "works_count": 264,
+      "source": "openalex"
+    },
+    {
+      "name": "Per Tornvall",
+      "country_code": "SE",
+      "works_count": 264,
+      "source": "openalex"
+    },
+    {
+      "name": "José Donato",
+      "country_code": "BR",
+      "works_count": 264,
+      "source": "openalex"
+    },
+    {
+      "name": "Thomas D. Dyer",
+      "country_code": "US",
+      "works_count": 264,
+      "source": "openalex"
+    },
+    {
+      "name": "Mahmoud Djalali",
+      "country_code": null,
+      "works_count": 263,
+      "source": "openalex"
+    },
+    {
+      "name": "Amaia Rodrı́guez",
+      "country_code": "ES",
+      "works_count": 263,
+      "source": "openalex"
+    },
+    {
+      "name": "Daniela Frasca",
+      "country_code": "US",
+      "works_count": 263,
+      "source": "openalex"
+    },
+    {
+      "name": "Vasily N. Sukhorukov",
+      "country_code": "RU",
+      "works_count": 263,
+      "source": "openalex"
+    },
+    {
+      "name": "Nele Friedrich",
+      "country_code": "DE",
+      "works_count": 263,
+      "source": "openalex"
+    },
+    {
+      "name": "Sheila Francis",
+      "country_code": "GB",
+      "works_count": 263,
+      "source": "openalex"
+    },
+    {
+      "name": "Xian Zhang",
+      "country_code": "CN",
+      "works_count": 263,
+      "source": "openalex"
+    },
+    {
+      "name": "Jeffrey A. Woods",
+      "country_code": null,
+      "works_count": 262,
+      "source": "openalex"
+    },
+    {
+      "name": "Adelino Sánchez Ramos da Silva",
+      "country_code": "BR",
+      "works_count": 261,
+      "source": "openalex"
+    },
+    {
+      "name": "Satoshi Fujii",
+      "country_code": "JP",
+      "works_count": 261,
+      "source": "openalex"
+    },
+    {
+      "name": "Mathias Faßhauer",
+      "country_code": "DE",
+      "works_count": 261,
+      "source": "openalex"
+    },
+    {
+      "name": "Hirofumi Ohnishi",
+      "country_code": "JP",
+      "works_count": 261,
+      "source": "openalex"
+    },
+    {
+      "name": "Maria Górska",
+      "country_code": null,
+      "works_count": 261,
+      "source": "openalex"
+    },
+    {
+      "name": "José Tuñón",
+      "country_code": "ES",
+      "works_count": 260,
+      "source": "openalex"
+    },
+    {
+      "name": "Satinath Mukhopadhyay",
+      "country_code": "IN",
+      "works_count": 260,
+      "source": "openalex"
+    },
+    {
+      "name": "Karin Leander",
+      "country_code": "SE",
+      "works_count": 259,
+      "source": "openalex"
+    },
+    {
+      "name": "Jadranka Sertić",
+      "country_code": null,
+      "works_count": 259,
+      "source": "openalex"
+    },
+    {
+      "name": "Olavi Ukkola",
+      "country_code": "FI",
+      "works_count": 259,
+      "source": "openalex"
+    },
+    {
+      "name": "Luis Miguel Blanco‐Colio",
+      "country_code": "ES",
+      "works_count": 259,
+      "source": "openalex"
+    },
+    {
+      "name": "Alfredo Maurício Batista de Paula",
+      "country_code": "BR",
+      "works_count": 259,
+      "source": "openalex"
+    },
+    {
+      "name": "Katsuhito Mori",
+      "country_code": null,
+      "works_count": 259,
+      "source": "openalex"
+    },
+    {
+      "name": "Taesun Park",
+      "country_code": "KR",
+      "works_count": 259,
+      "source": "openalex"
+    },
+    {
+      "name": "Mikhail G. Kolonin",
+      "country_code": "US",
+      "works_count": 258,
+      "source": "openalex"
+    },
+    {
+      "name": "Hideyuki Yamawaki",
+      "country_code": "JP",
+      "works_count": 258,
+      "source": "openalex"
+    },
+    {
+      "name": "Koji Ohashi",
+      "country_code": "JP",
+      "works_count": 258,
+      "source": "openalex"
+    },
+    {
+      "name": "Josef R. Patsch",
+      "country_code": "AT",
+      "works_count": 258,
+      "source": "openalex"
+    },
+    {
+      "name": "Е. И. Баранова",
+      "country_code": "RU",
+      "works_count": 257,
+      "source": "openalex"
+    },
+    {
+      "name": "Jason K. Kim",
+      "country_code": "US",
+      "works_count": 256,
+      "source": "openalex"
+    },
+    {
+      "name": "Hooman Allayee",
+      "country_code": "US",
+      "works_count": 256,
+      "source": "openalex"
+    },
+    {
+      "name": "I. Serés",
+      "country_code": null,
+      "works_count": 255,
+      "source": "openalex"
+    },
+    {
+      "name": "José Luis Martı́n-Ventura",
+      "country_code": "ES",
+      "works_count": 255,
+      "source": "openalex"
+    },
+    {
+      "name": "Dennys E. Cintra",
+      "country_code": "BR",
+      "works_count": 255,
+      "source": "openalex"
+    },
+    {
+      "name": "Ying Li",
+      "country_code": "CN",
+      "works_count": 255,
+      "source": "openalex"
+    },
+    {
+      "name": "Jian Liu",
+      "country_code": "CN",
+      "works_count": 255,
+      "source": "openalex"
+    },
+    {
+      "name": "María Moreno",
+      "country_code": "IT",
+      "works_count": 254,
+      "source": "openalex"
+    },
+    {
+      "name": "Michael C. Mahaney",
+      "country_code": "US",
+      "works_count": 254,
+      "source": "openalex"
+    },
+    {
+      "name": "Hyun Jin Kim",
+      "country_code": "KR",
+      "works_count": 254,
+      "source": "openalex"
+    },
+    {
+      "name": "Yanyan Li",
+      "country_code": "CN",
+      "works_count": 254,
+      "source": "openalex"
+    },
+    {
+      "name": "Sylvie Rabot",
+      "country_code": "FR",
+      "works_count": 253,
+      "source": "openalex"
+    },
+    {
+      "name": "Junji Kobayashi",
+      "country_code": null,
+      "works_count": 253,
+      "source": "openalex"
+    },
+    {
+      "name": "David J. Loskutoff",
+      "country_code": null,
+      "works_count": 253,
+      "source": "openalex"
+    },
+    {
+      "name": "Andrew S. Greenberg",
+      "country_code": "US",
+      "works_count": 253,
+      "source": "openalex"
+    },
+    {
+      "name": "Marília Seelaender",
+      "country_code": "BR",
+      "works_count": 252,
+      "source": "openalex"
+    },
+    {
+      "name": "Mahsa M. Amoli",
+      "country_code": "IR",
+      "works_count": 252,
+      "source": "openalex"
+    },
+    {
+      "name": "Marie‐Paule Vasson",
+      "country_code": "FR",
+      "works_count": 252,
+      "source": "openalex"
+    },
+    {
+      "name": "Shihuan Kuang",
+      "country_code": "US",
+      "works_count": 252,
+      "source": "openalex"
+    },
+    {
+      "name": "Nigel J. Crowther",
+      "country_code": "ZA",
+      "works_count": 252,
+      "source": "openalex"
+    },
+    {
+      "name": "Marcin Adamczak",
+      "country_code": "PL",
+      "works_count": 252,
+      "source": "openalex"
+    },
+    {
+      "name": "Shu Wang",
+      "country_code": "CN",
+      "works_count": 252,
+      "source": "openalex"
+    },
+    {
+      "name": "Teruo Watanabe",
+      "country_code": null,
+      "works_count": 252,
+      "source": "openalex"
+    },
+    {
+      "name": "Michael B. Zemel",
+      "country_code": "CA",
+      "works_count": 251,
+      "source": "openalex"
+    },
+    {
+      "name": "Ashok Handa",
+      "country_code": "GB",
+      "works_count": 251,
+      "source": "openalex"
+    },
+    {
+      "name": "Maria Febbraio",
+      "country_code": "CA",
+      "works_count": 251,
+      "source": "openalex"
+    },
+    {
+      "name": "Peter Zahradka",
+      "country_code": "CA",
+      "works_count": 250,
+      "source": "openalex"
+    },
+    {
+      "name": "Zekeriya Arslan",
+      "country_code": null,
+      "works_count": 249,
+      "source": "openalex"
+    },
+    {
+      "name": "Bernt Lindahl",
+      "country_code": "SE",
+      "works_count": 247,
+      "source": "openalex"
+    },
+    {
+      "name": "Raquel Seiça",
+      "country_code": "PT",
+      "works_count": 247,
+      "source": "openalex"
+    },
+    {
+      "name": "John R. Koethe",
+      "country_code": "US",
+      "works_count": 247,
+      "source": "openalex"
+    },
+    {
+      "name": "Tang Fang",
+      "country_code": null,
+      "works_count": 246,
+      "source": "openalex"
+    },
+    {
+      "name": "Nancy S. Jenny",
+      "country_code": "US",
+      "works_count": 246,
+      "source": "openalex"
+    },
+    {
+      "name": "Thomas M. Stulnig",
+      "country_code": "AT",
+      "works_count": 246,
+      "source": "openalex"
+    },
+    {
+      "name": "Fausto Machicao",
+      "country_code": null,
+      "works_count": 246,
+      "source": "openalex"
+    },
+    {
+      "name": "Majed S. Alokail",
+      "country_code": "SA",
+      "works_count": 246,
+      "source": "openalex"
+    },
+    {
+      "name": "Chen Shuohua",
+      "country_code": null,
+      "works_count": 245,
+      "source": "openalex"
+    },
+    {
+      "name": "Justin I. Odegaard",
+      "country_code": "US",
+      "works_count": 245,
+      "source": "openalex"
+    },
+    {
+      "name": "Brian K. McFarlin",
+      "country_code": "US",
+      "works_count": 245,
+      "source": "openalex"
+    },
+    {
+      "name": "V. Daniel Castracane",
+      "country_code": null,
+      "works_count": 245,
+      "source": "openalex"
+    },
+    {
+      "name": "Luigi Giusto Spagnoli",
+      "country_code": null,
+      "works_count": 245,
+      "source": "openalex"
+    },
+    {
+      "name": "Shyng‐Shiou F. Yuan",
+      "country_code": "CN",
+      "works_count": 245,
+      "source": "openalex"
+    },
+    {
+      "name": "E. Angela Murphy",
+      "country_code": "US",
+      "works_count": 245,
+      "source": "openalex"
+    },
+    {
+      "name": "Wei Yi",
+      "country_code": "CN",
+      "works_count": 245,
+      "source": "openalex"
+    },
+    {
+      "name": "Jean‐Pierre Després",
+      "country_code": "CA",
+      "works_count": 245,
+      "source": "openalex"
+    },
+    {
+      "name": "Stefania Catalano",
+      "country_code": "IT",
+      "works_count": 244,
+      "source": "openalex"
+    },
+    {
+      "name": "Gabriela Berg",
+      "country_code": "AR",
+      "works_count": 244,
+      "source": "openalex"
+    },
+    {
+      "name": "Coleen A. McNamara",
+      "country_code": "US",
+      "works_count": 244,
+      "source": "openalex"
+    },
+    {
+      "name": "Mercedes Gil‐Campos",
+      "country_code": "ES",
+      "works_count": 244,
+      "source": "openalex"
+    },
+    {
+      "name": "Wang Xiao-nan",
+      "country_code": null,
+      "works_count": 243,
+      "source": "openalex"
+    },
+    {
+      "name": "Gökhan S. Hotamışlıgil",
+      "country_code": "US",
+      "works_count": 243,
+      "source": "openalex"
+    },
+    {
+      "name": "Fredrik H. Nyström",
+      "country_code": "SE",
+      "works_count": 243,
+      "source": "openalex"
+    },
+    {
+      "name": "Ori Rogowski",
+      "country_code": "IL",
+      "works_count": 243,
+      "source": "openalex"
+    },
+    {
+      "name": "John F. Carlquist",
+      "country_code": "US",
+      "works_count": 243,
+      "source": "openalex"
+    },
+    {
+      "name": "Ormond A. MacDougald",
+      "country_code": "US",
+      "works_count": 243,
+      "source": "openalex"
+    },
+    {
+      "name": "Gülali Aktaş",
+      "country_code": "TR",
+      "works_count": 243,
+      "source": "openalex"
+    },
+    {
+      "name": "Manuel Castro Cabezas",
+      "country_code": "NL",
+      "works_count": 242,
+      "source": "openalex"
+    },
+    {
+      "name": "George N. Chaldakov",
+      "country_code": "BG",
+      "works_count": 242,
+      "source": "openalex"
+    },
+    {
+      "name": "Frank B Hu",
+      "country_code": null,
+      "works_count": 241,
+      "source": "openalex"
+    },
+    {
+      "name": "Takako Kizaki",
+      "country_code": "JP",
+      "works_count": 241,
+      "source": "openalex"
+    },
+    {
+      "name": "Luca Liberale",
+      "country_code": "IT",
+      "works_count": 241,
+      "source": "openalex"
+    },
+    {
+      "name": "Mi‐Kyung Sung",
+      "country_code": "KR",
+      "works_count": 241,
+      "source": "openalex"
+    },
+    {
+      "name": "Renée de Mutsert",
+      "country_code": "NL",
+      "works_count": 241,
+      "source": "openalex"
+    },
+    {
+      "name": "Yu‐Hua Tseng",
+      "country_code": "US",
+      "works_count": 240,
+      "source": "openalex"
+    },
+    {
+      "name": "Jukka Marniemi",
+      "country_code": null,
+      "works_count": 240,
+      "source": "openalex"
+    },
+    {
+      "name": "Young Yang",
+      "country_code": "KR",
+      "works_count": 240,
+      "source": "openalex"
+    },
+    {
+      "name": "José María Moreno‐Navarrete",
+      "country_code": "ES",
+      "works_count": 240,
+      "source": "openalex"
+    },
+    {
+      "name": "Oksana Gavrilova",
+      "country_code": "US",
+      "works_count": 240,
+      "source": "openalex"
+    },
+    {
+      "name": "Koenig Wolfgang",
+      "country_code": null,
+      "works_count": 239,
+      "source": "openalex"
+    },
+    {
+      "name": "Nicolas Musi",
+      "country_code": "US",
+      "works_count": 239,
+      "source": "openalex"
+    },
+    {
+      "name": "Richard L. Klein",
+      "country_code": "US",
+      "works_count": 239,
+      "source": "openalex"
+    },
+    {
+      "name": "Roger Lijnen",
+      "country_code": "NL",
+      "works_count": 239,
+      "source": "openalex"
+    },
+    {
+      "name": "H.R. Lijnen",
+      "country_code": "BE",
+      "works_count": 239,
+      "source": "openalex"
+    },
+    {
+      "name": "Min‐Jeong Shin",
+      "country_code": "CA",
+      "works_count": 238,
+      "source": "openalex"
+    },
+    {
+      "name": "Mohammad Taghi Goodarzi",
+      "country_code": "GB",
+      "works_count": 238,
+      "source": "openalex"
+    },
+    {
+      "name": "Mahmut İlker Yılmaz",
+      "country_code": null,
+      "works_count": 238,
+      "source": "openalex"
+    },
+    {
+      "name": "Susanne Mandrup",
+      "country_code": "DK",
+      "works_count": 238,
+      "source": "openalex"
+    },
+    {
+      "name": "Camila Renata Corrêa",
+      "country_code": "BR",
+      "works_count": 238,
+      "source": "openalex"
+    },
+    {
+      "name": "Eduardo García‐Fuentes",
+      "country_code": "ES",
+      "works_count": 238,
+      "source": "openalex"
+    },
+    {
+      "name": "Robert W. Wissler",
+      "country_code": null,
+      "works_count": 237,
+      "source": "openalex"
+    },
+    {
+      "name": "Dennis Wolf",
+      "country_code": "DE",
+      "works_count": 237,
+      "source": "openalex"
+    },
+    {
+      "name": "Javier Salvador",
+      "country_code": "PH",
+      "works_count": 237,
+      "source": "openalex"
+    },
+    {
+      "name": "Jong‐Seok Lim",
+      "country_code": "GB",
+      "works_count": 237,
+      "source": "openalex"
+    },
+    {
+      "name": "Göran Walldius",
+      "country_code": "SE",
+      "works_count": 237,
+      "source": "openalex"
+    },
+    {
+      "name": "Alain Géloën",
+      "country_code": "FR",
+      "works_count": 236,
+      "source": "openalex"
+    },
+    {
+      "name": "Yoshio Nakata",
+      "country_code": "JP",
+      "works_count": 236,
+      "source": "openalex"
+    },
+    {
+      "name": "Ilze Bot",
+      "country_code": "NL",
+      "works_count": 236,
+      "source": "openalex"
+    },
+    {
+      "name": "Li Deng",
+      "country_code": "CN",
+      "works_count": 236,
+      "source": "openalex"
+    },
+    {
+      "name": "Naoto Kubota",
+      "country_code": null,
+      "works_count": 236,
+      "source": "openalex"
+    },
+    {
+      "name": "Kap Bum Huh",
+      "country_code": null,
+      "works_count": 236,
+      "source": "openalex"
+    },
+    {
+      "name": "Yangha Kim",
+      "country_code": "KR",
+      "works_count": 235,
+      "source": "openalex"
+    },
+    {
+      "name": "Tohru Matsui",
+      "country_code": "JP",
+      "works_count": 234,
+      "source": "openalex"
+    },
+    {
+      "name": "Ana Raimunda Dâmaso",
+      "country_code": "BR",
+      "works_count": 234,
+      "source": "openalex"
+    },
+    {
+      "name": "Li Wang",
+      "country_code": "CN",
+      "works_count": 234,
+      "source": "openalex"
+    },
+    {
+      "name": "Fereidoun Azizi",
+      "country_code": null,
+      "works_count": 233,
+      "source": "openalex"
+    },
+    {
+      "name": "Elisa Danese",
+      "country_code": "IT",
+      "works_count": 233,
+      "source": "openalex"
+    },
+    {
+      "name": "Fredric B. Kraemer",
+      "country_code": "US",
+      "works_count": 233,
+      "source": "openalex"
+    },
+    {
+      "name": "Sung Kil Lim",
+      "country_code": null,
+      "works_count": 232,
+      "source": "openalex"
+    },
+    {
+      "name": "Gang Shu",
+      "country_code": "CN",
+      "works_count": 231,
+      "source": "openalex"
+    },
+    {
+      "name": "Anne E. Sumner",
+      "country_code": "GB",
+      "works_count": 231,
+      "source": "openalex"
+    },
+    {
+      "name": "Leila Janani",
+      "country_code": "GB",
+      "works_count": 231,
+      "source": "openalex"
+    },
+    {
+      "name": "I Kinalska",
+      "country_code": "PL",
+      "works_count": 231,
+      "source": "openalex"
+    },
+    {
+      "name": "Irina Kowalska",
+      "country_code": "PL",
+      "works_count": 231,
+      "source": "openalex"
+    },
+    {
+      "name": "Eduardo R. Ropelle",
+      "country_code": "GB",
+      "works_count": 231,
+      "source": "openalex"
+    },
+    {
+      "name": "Haiyan Zhou",
+      "country_code": "CN",
+      "works_count": 230,
+      "source": "openalex"
+    },
+    {
+      "name": "Yuqing Huo",
+      "country_code": "US",
+      "works_count": 230,
+      "source": "openalex"
+    },
+    {
+      "name": "Liza Makowski",
+      "country_code": "US",
+      "works_count": 230,
+      "source": "openalex"
+    },
+    {
+      "name": "Robert Kleemann",
+      "country_code": "NL",
+      "works_count": 230,
+      "source": "openalex"
+    },
+    {
+      "name": "Xin Ma",
+      "country_code": "CN",
+      "works_count": 230,
+      "source": "openalex"
+    },
+    {
+      "name": "Gary Hausman",
+      "country_code": "US",
+      "works_count": 230,
+      "source": "openalex"
+    },
+    {
+      "name": "Christian Dani",
+      "country_code": "FR",
+      "works_count": 230,
+      "source": "openalex"
+    },
+    {
+      "name": "Theodoros Kelesidis",
+      "country_code": "US",
+      "works_count": 230,
+      "source": "openalex"
+    },
+    {
+      "name": "Amalia De Curtis",
+      "country_code": "IT",
+      "works_count": 230,
+      "source": "openalex"
+    },
+    {
+      "name": "Danuta Pupek‐Musialik",
+      "country_code": "PL",
+      "works_count": 230,
+      "source": "openalex"
+    },
+    {
+      "name": "Hiroaki Satoh",
+      "country_code": "JP",
+      "works_count": 229,
+      "source": "openalex"
+    },
+    {
+      "name": "Ying Yang",
+      "country_code": "CN",
+      "works_count": 229,
+      "source": "openalex"
+    },
+    {
+      "name": "Yan Qu",
+      "country_code": "CN",
+      "works_count": 229,
+      "source": "openalex"
+    },
+    {
+      "name": "Mariann Harangi",
+      "country_code": "HU",
+      "works_count": 228,
+      "source": "openalex"
+    },
+    {
+      "name": "Enzo Nisoli",
+      "country_code": "IT",
+      "works_count": 228,
+      "source": "openalex"
+    },
+    {
+      "name": "Iván Palomo",
+      "country_code": "CL",
+      "works_count": 228,
+      "source": "openalex"
+    },
+    {
+      "name": "Dipali Sharma",
+      "country_code": "US",
+      "works_count": 228,
+      "source": "openalex"
+    },
+    {
+      "name": "Djanggan Sargowo",
+      "country_code": "ID",
+      "works_count": 228,
+      "source": "openalex"
+    },
+    {
+      "name": "Leonessa Boing",
+      "country_code": "BR",
+      "works_count": 228,
+      "source": "openalex"
+    },
+    {
+      "name": "Cinzia Giordano",
+      "country_code": "IT",
+      "works_count": 228,
+      "source": "openalex"
+    },
+    {
+      "name": "Matthias Laudes",
+      "country_code": "DE",
+      "works_count": 228,
+      "source": "openalex"
+    },
+    {
+      "name": "Ze Yang",
+      "country_code": "CN",
+      "works_count": 228,
+      "source": "openalex"
+    },
+    {
+      "name": "Jean‐François Landrier",
+      "country_code": "FR",
+      "works_count": 227,
+      "source": "openalex"
+    },
+    {
+      "name": "Ian F. Godsland",
+      "country_code": "GB",
+      "works_count": 227,
+      "source": "openalex"
+    },
+    {
+      "name": "Haruhiko Osawa",
+      "country_code": "JP",
+      "works_count": 227,
+      "source": "openalex"
+    },
+    {
+      "name": "San‐e Ishikawa",
+      "country_code": "JP",
+      "works_count": 227,
+      "source": "openalex"
+    },
+    {
+      "name": "Younghwa Kim",
+      "country_code": "KR",
+      "works_count": 227,
+      "source": "openalex"
+    },
+    {
+      "name": "Mohamed Abu‐Farha",
+      "country_code": "KW",
+      "works_count": 227,
+      "source": "openalex"
+    },
+    {
+      "name": "Minjoo Kim",
+      "country_code": "KR",
+      "works_count": 227,
+      "source": "openalex"
+    },
+    {
+      "name": "José Antonio Rodríguez",
+      "country_code": "US",
+      "works_count": 227,
+      "source": "openalex"
+    },
+    {
+      "name": "Jun Ohashi",
+      "country_code": "JP",
+      "works_count": 227,
+      "source": "openalex"
+    },
+    {
+      "name": "Corinna Koebnick",
+      "country_code": "US",
+      "works_count": 226,
+      "source": "openalex"
+    },
+    {
+      "name": "Víctor Valenti",
+      "country_code": "ES",
+      "works_count": 226,
+      "source": "openalex"
+    },
+    {
+      "name": "Józef Drzewoski",
+      "country_code": "PL",
+      "works_count": 226,
+      "source": "openalex"
+    },
+    {
+      "name": "Mehran Mesgari Abbasi",
+      "country_code": "IR",
+      "works_count": 226,
+      "source": "openalex"
+    },
+    {
+      "name": "Pamela Fischer‐Posovszky",
+      "country_code": "DE",
+      "works_count": 226,
+      "source": "openalex"
+    },
+    {
+      "name": "Giuseppina Caligiuri",
+      "country_code": "FR",
+      "works_count": 226,
+      "source": "openalex"
+    },
+    {
+      "name": "Martin Bilban",
+      "country_code": "AT",
+      "works_count": 226,
+      "source": "openalex"
+    },
+    {
+      "name": "Yuan Lei",
+      "country_code": null,
+      "works_count": 225,
+      "source": "openalex"
+    },
+    {
+      "name": "Vollenweider Peter",
+      "country_code": null,
+      "works_count": 225,
+      "source": "openalex"
+    },
+    {
+      "name": "Hitoshi Nishizawa",
+      "country_code": "US",
+      "works_count": 225,
+      "source": "openalex"
+    },
+    {
+      "name": "Timothy J. Bartness",
+      "country_code": "US",
+      "works_count": 225,
+      "source": "openalex"
+    },
+    {
+      "name": "Weiping Han",
+      "country_code": "SG",
+      "works_count": 225,
+      "source": "openalex"
+    },
+    {
+      "name": "Francisca Lago",
+      "country_code": "ES",
+      "works_count": 225,
+      "source": "openalex"
+    },
+    {
+      "name": "Bjørn Richelsen",
+      "country_code": "DK",
+      "works_count": 225,
+      "source": "openalex"
+    },
+    {
+      "name": "Ji‐Young Choi",
+      "country_code": "US",
+      "works_count": 225,
+      "source": "openalex"
+    },
+    {
+      "name": "Concepción M. Aguilera",
+      "country_code": "ES",
+      "works_count": 225,
+      "source": "openalex"
+    },
+    {
+      "name": "Gloria Bueno",
+      "country_code": "BR",
+      "works_count": 225,
+      "source": "openalex"
+    },
+    {
+      "name": "Dongwei Zhang",
+      "country_code": "CN",
+      "works_count": 225,
+      "source": "openalex"
+    },
+    {
+      "name": "Gary Sweeney",
+      "country_code": "CA",
+      "works_count": 224,
+      "source": "openalex"
+    },
+    {
+      "name": "Mohammad Reza Tabandeh",
+      "country_code": "IR",
+      "works_count": 224,
+      "source": "openalex"
+    },
+    {
+      "name": "Seyed Ali Keshavarz",
+      "country_code": "IR",
+      "works_count": 224,
+      "source": "openalex"
+    },
+    {
+      "name": "Zhao Le",
+      "country_code": null,
+      "works_count": 223,
+      "source": "openalex"
+    },
+    {
+      "name": "Aleksander Owczarek",
+      "country_code": "PL",
+      "works_count": 223,
+      "source": "openalex"
+    },
+    {
+      "name": "Marianne Benn",
+      "country_code": "DK",
+      "works_count": 223,
+      "source": "openalex"
+    },
+    {
+      "name": "Sandro Massao Hirabara",
+      "country_code": "BR",
+      "works_count": 223,
+      "source": "openalex"
+    },
+    {
+      "name": "Colleen M. Sitlani",
+      "country_code": "US",
+      "works_count": 223,
+      "source": "openalex"
+    },
+    {
+      "name": "Jing Dong",
+      "country_code": "CN",
+      "works_count": 223,
+      "source": "openalex"
+    },
+    {
+      "name": "Yoshikazu Higami",
+      "country_code": "JP",
+      "works_count": 223,
+      "source": "openalex"
+    },
+    {
+      "name": "Mina Kim",
+      "country_code": "KR",
+      "works_count": 223,
+      "source": "openalex"
+    },
+    {
+      "name": "Sérgio Henrique Sousa Santos",
+      "country_code": "BR",
+      "works_count": 222,
+      "source": "openalex"
+    },
+    {
+      "name": "Yutaka Yano",
+      "country_code": "JP",
+      "works_count": 222,
+      "source": "openalex"
+    },
+    {
+      "name": "Zhenqi Liu",
+      "country_code": "CN",
+      "works_count": 222,
+      "source": "openalex"
+    },
+    {
+      "name": "Kai Sun",
+      "country_code": "CN",
+      "works_count": 222,
+      "source": "openalex"
+    },
+    {
+      "name": "Jacqueline C.M. Witteman",
+      "country_code": null,
+      "works_count": 222,
+      "source": "openalex"
+    },
+    {
+      "name": "Samuel W. Cushman",
+      "country_code": "US",
+      "works_count": 222,
+      "source": "openalex"
+    },
+    {
+      "name": "Tian Xue",
+      "country_code": null,
+      "works_count": 221,
+      "source": "openalex"
+    },
+    {
+      "name": "María J. Moreno‐Aliaga",
+      "country_code": "ES",
+      "works_count": 221,
+      "source": "openalex"
+    },
+    {
+      "name": "Daniela Foti",
+      "country_code": "IT",
+      "works_count": 221,
+      "source": "openalex"
+    },
+    {
+      "name": "Karin Dahlman‐Wright",
+      "country_code": "SE",
+      "works_count": 221,
+      "source": "openalex"
+    },
+    {
+      "name": "Peter Henneman",
+      "country_code": "US",
+      "works_count": 221,
+      "source": "openalex"
+    },
+    {
+      "name": "Charalampos Aslanidis",
+      "country_code": null,
+      "works_count": 221,
+      "source": "openalex"
+    },
+    {
+      "name": "Yajing Wang",
+      "country_code": "CN",
+      "works_count": 221,
+      "source": "openalex"
+    },
+    {
+      "name": "Herder Christian",
+      "country_code": null,
+      "works_count": 220,
+      "source": "openalex"
+    },
+    {
+      "name": "Pugliese Giuseppe",
+      "country_code": null,
+      "works_count": 220,
+      "source": "openalex"
+    },
+    {
+      "name": "Y. Antero Kesäniemi",
+      "country_code": null,
+      "works_count": 220,
+      "source": "openalex"
+    },
+    {
+      "name": "David E. Moller",
+      "country_code": "FR",
+      "works_count": 220,
+      "source": "openalex"
+    },
+    {
+      "name": "Nanping Wang",
+      "country_code": "CN",
+      "works_count": 220,
+      "source": "openalex"
+    },
+    {
+      "name": "Majid Ghayour‐Mobarhan",
+      "country_code": "IR",
+      "works_count": 220,
+      "source": "openalex"
+    },
+    {
+      "name": "Seung‐Heon Hong",
+      "country_code": "KR",
+      "works_count": 219,
+      "source": "openalex"
+    },
+    {
+      "name": "Mohammed Taouis",
+      "country_code": "FR",
+      "works_count": 219,
+      "source": "openalex"
+    },
+    {
+      "name": "Troy J. Kemp",
+      "country_code": "US",
+      "works_count": 219,
+      "source": "openalex"
+    },
+    {
+      "name": "Clement Karine",
+      "country_code": null,
+      "works_count": 218,
+      "source": "openalex"
+    },
+    {
+      "name": "Neil M. Iyengar",
+      "country_code": "US",
+      "works_count": 218,
+      "source": "openalex"
+    },
+    {
+      "name": "G. William Wong",
+      "country_code": "US",
+      "works_count": 218,
+      "source": "openalex"
+    },
+    {
+      "name": "Eman R. Youness",
+      "country_code": "EG",
+      "works_count": 218,
+      "source": "openalex"
+    },
+    {
+      "name": "Xin Guo",
+      "country_code": "CN",
+      "works_count": 218,
+      "source": "openalex"
+    },
+    {
+      "name": "Gong Lei",
+      "country_code": null,
+      "works_count": 217,
+      "source": "openalex"
+    },
+    {
+      "name": "Laurence Tiret",
+      "country_code": "FR",
+      "works_count": 217,
+      "source": "openalex"
+    },
+    {
+      "name": "Marc L. Reitman",
+      "country_code": "US",
+      "works_count": 217,
+      "source": "openalex"
+    },
+    {
+      "name": "Udai P. Singh",
+      "country_code": "US",
+      "works_count": 217,
+      "source": "openalex"
+    },
+    {
+      "name": "Marta Giralt",
+      "country_code": "ES",
+      "works_count": 217,
+      "source": "openalex"
+    },
+    {
+      "name": "Armando J. Mendez",
+      "country_code": "US",
+      "works_count": 217,
+      "source": "openalex"
+    },
+    {
+      "name": "Rathmann, Wolfgang",
+      "country_code": null,
+      "works_count": 216,
+      "source": "openalex"
+    },
+    {
+      "name": "Vicente Barrios",
+      "country_code": "ES",
+      "works_count": 216,
+      "source": "openalex"
+    },
+    {
+      "name": "David Zeltser",
+      "country_code": "IL",
+      "works_count": 216,
+      "source": "openalex"
+    },
+    {
+      "name": "B Baranowska",
+      "country_code": "PL",
+      "works_count": 216,
+      "source": "openalex"
+    },
+    {
+      "name": "Aysun Bıdecı",
+      "country_code": "TR",
+      "works_count": 216,
+      "source": "openalex"
+    },
+    {
+      "name": "Rinkoo Dalan",
+      "country_code": "SG",
+      "works_count": 215,
+      "source": "openalex"
+    },
+    {
+      "name": "Hiroshi Sakaue",
+      "country_code": "JP",
+      "works_count": 215,
+      "source": "openalex"
+    },
+    {
+      "name": "Gao S",
+      "country_code": "CN",
+      "works_count": 215,
+      "source": "openalex"
+    },
+    {
+      "name": "Wayne Bond Lau",
+      "country_code": "US",
+      "works_count": 215,
+      "source": "openalex"
+    },
+    {
+      "name": "Rosaura Leis",
+      "country_code": "ES",
+      "works_count": 215,
+      "source": "openalex"
+    },
+    {
+      "name": "Yoshimasa Aso",
+      "country_code": "JP",
+      "works_count": 214,
+      "source": "openalex"
+    },
+    {
+      "name": "Per‐Arne Svensson",
+      "country_code": "SE",
+      "works_count": 214,
+      "source": "openalex"
+    },
+    {
+      "name": "Jiyun Ahn",
+      "country_code": "KR",
+      "works_count": 214,
+      "source": "openalex"
+    },
+    {
+      "name": "Leonie K. Heilbronn",
+      "country_code": "AU",
+      "works_count": 214,
+      "source": "openalex"
+    },
+    {
+      "name": "R. Conde",
+      "country_code": "ES",
+      "works_count": 214,
+      "source": "openalex"
+    },
+    {
+      "name": "György Paragh",
+      "country_code": "US",
+      "works_count": 214,
+      "source": "openalex"
+    },
+    {
+      "name": "Frédéric Fumeron",
+      "country_code": "FR",
+      "works_count": 214,
+      "source": "openalex"
+    },
+    {
+      "name": "Jerzy Bełtowski",
+      "country_code": null,
+      "works_count": 214,
+      "source": "openalex"
+    },
+    {
+      "name": "María Teresa García‐Unzueta",
+      "country_code": "ES",
+      "works_count": 214,
+      "source": "openalex"
+    },
+    {
+      "name": "Neeraj K. Saxena",
+      "country_code": "US",
+      "works_count": 214,
+      "source": "openalex"
+    },
+    {
+      "name": "Jonathan D. Schertzer",
+      "country_code": "AU",
+      "works_count": 213,
+      "source": "openalex"
+    },
+    {
+      "name": "Suryani As’ád",
+      "country_code": "PK",
+      "works_count": 213,
+      "source": "openalex"
+    },
+    {
+      "name": "Björn Carlsson",
+      "country_code": "SE",
+      "works_count": 213,
+      "source": "openalex"
+    },
+    {
+      "name": "David Stejskal",
+      "country_code": "CZ",
+      "works_count": 213,
+      "source": "openalex"
+    },
+    {
+      "name": "Masaki Aburada",
+      "country_code": "JP",
+      "works_count": 213,
+      "source": "openalex"
+    },
+    {
+      "name": "Fahim Abbasi",
+      "country_code": "US",
+      "works_count": 212,
+      "source": "openalex"
+    },
+    {
+      "name": "Victoria Catalán",
+      "country_code": "ES",
+      "works_count": 212,
+      "source": "openalex"
+    },
+    {
+      "name": "Saurabh Ghosh",
+      "country_code": "IN",
+      "works_count": 212,
+      "source": "openalex"
+    },
+    {
+      "name": "Alexander R. Moschen",
+      "country_code": "AT",
+      "works_count": 212,
+      "source": "openalex"
+    },
+    {
+      "name": "Kathrin Geiger",
+      "country_code": "LI",
+      "works_count": 212,
+      "source": "openalex"
+    },
+    {
+      "name": "Thomas Skurk",
+      "country_code": "DE",
+      "works_count": 211,
+      "source": "openalex"
+    },
+    {
+      "name": "Tomoaki Morioka",
+      "country_code": null,
+      "works_count": 211,
+      "source": "openalex"
+    },
+    {
+      "name": "Andrzej Milewicz",
+      "country_code": "PL",
+      "works_count": 211,
+      "source": "openalex"
+    },
+    {
+      "name": "Christoph Ebenbichler",
+      "country_code": null,
+      "works_count": 211,
+      "source": "openalex"
+    },
+    {
+      "name": "Boo-Yong Lee",
+      "country_code": null,
+      "works_count": 211,
+      "source": "openalex"
+    },
+    {
+      "name": "Galina K. Sukhova",
+      "country_code": "US",
+      "works_count": 211,
+      "source": "openalex"
+    },
+    {
+      "name": "Jae Min Park",
+      "country_code": "KR",
+      "works_count": 211,
+      "source": "openalex"
+    },
+    {
+      "name": "Hideaki Toyoshima",
+      "country_code": "JP",
+      "works_count": 211,
+      "source": "openalex"
+    },
+    {
+      "name": "Yuxiang Sun",
+      "country_code": "US",
+      "works_count": 210,
+      "source": "openalex"
+    },
+    {
+      "name": "Steven E. Shoelson",
+      "country_code": "US",
+      "works_count": 210,
+      "source": "openalex"
+    },
+    {
+      "name": "Margot P. Cleary",
+      "country_code": "US",
+      "works_count": 210,
+      "source": "openalex"
+    },
+    {
+      "name": "Yves Deshaies",
+      "country_code": "CA",
+      "works_count": 210,
+      "source": "openalex"
+    },
+    {
+      "name": "Janne E. Reseland",
+      "country_code": "NO",
+      "works_count": 210,
+      "source": "openalex"
+    },
+    {
+      "name": "Ingo Hilgendorf",
+      "country_code": "DE",
+      "works_count": 210,
+      "source": "openalex"
+    },
+    {
+      "name": "Péter Bai",
+      "country_code": "HU",
+      "works_count": 210,
+      "source": "openalex"
+    },
+    {
+      "name": "Xin Wang",
+      "country_code": "US",
+      "works_count": 210,
+      "source": "openalex"
+    },
+    {
+      "name": "Mustafa Çakar",
+      "country_code": null,
+      "works_count": 209,
+      "source": "openalex"
+    },
+    {
+      "name": "Fábio Bessa Lima",
+      "country_code": null,
+      "works_count": 209,
+      "source": "openalex"
+    },
+    {
+      "name": "Andréa Name Colado Simão",
+      "country_code": "BR",
+      "works_count": 209,
+      "source": "openalex"
+    },
+    {
+      "name": "Ching‐Feng Cheng",
+      "country_code": "TW",
+      "works_count": 209,
+      "source": "openalex"
+    },
+    {
+      "name": "Giovanni Federspil",
+      "country_code": "IT",
+      "works_count": 209,
+      "source": "openalex"
+    },
+    {
+      "name": "Masayuki Yokode",
+      "country_code": "JP",
+      "works_count": 209,
+      "source": "openalex"
+    },
+    {
+      "name": "Catalina Picó",
+      "country_code": "ES",
+      "works_count": 208,
+      "source": "openalex"
+    },
+    {
+      "name": "Monisha Banerjee",
+      "country_code": "IN",
+      "works_count": 208,
+      "source": "openalex"
+    },
+    {
+      "name": "Ines Barone",
+      "country_code": "IT",
+      "works_count": 208,
+      "source": "openalex"
+    },
+    {
+      "name": "Geert W. Schmid‐Schönbein",
+      "country_code": "US",
+      "works_count": 208,
+      "source": "openalex"
+    },
+    {
+      "name": "Tsutomu Kazumi",
+      "country_code": "JP",
+      "works_count": 208,
+      "source": "openalex"
+    },
+    {
+      "name": "Zsolt Bagi",
+      "country_code": "US",
+      "works_count": 207,
+      "source": "openalex"
+    },
+    {
+      "name": "Chwan‐Li Shen",
+      "country_code": "US",
+      "works_count": 207,
+      "source": "openalex"
+    },
+    {
+      "name": "Kwang‐Hee Bae",
+      "country_code": "KR",
+      "works_count": 207,
+      "source": "openalex"
+    },
+    {
+      "name": "Matthias Möhlig",
+      "country_code": null,
+      "works_count": 207,
+      "source": "openalex"
+    },
+    {
+      "name": "Emiel P. C. van der Vorst",
+      "country_code": "DE",
+      "works_count": 206,
+      "source": "openalex"
+    },
+    {
+      "name": "Qiao-Li Wang",
+      "country_code": "US",
+      "works_count": 206,
+      "source": "openalex"
+    },
+    {
+      "name": "Sjoerd A.A. van den Berg",
+      "country_code": "NL",
+      "works_count": 206,
+      "source": "openalex"
+    },
+    {
+      "name": "Julia H. Goedecke",
+      "country_code": "ZA",
+      "works_count": 206,
+      "source": "openalex"
+    },
+    {
+      "name": "Yoshihiko Nishio",
+      "country_code": "JP",
+      "works_count": 205,
+      "source": "openalex"
+    },
+    {
+      "name": "안철우",
+      "country_code": null,
+      "works_count": 205,
+      "source": "openalex"
+    },
+    {
+      "name": "Manfredi Tesauro",
+      "country_code": "IT",
+      "works_count": 205,
+      "source": "openalex"
+    },
+    {
+      "name": "Kye Won Park",
+      "country_code": "KR",
+      "works_count": 205,
+      "source": "openalex"
+    },
+    {
+      "name": "Yukihiko Momiyama",
+      "country_code": "JP",
+      "works_count": 205,
+      "source": "openalex"
+    },
+    {
+      "name": "Hyo‐Jin An",
+      "country_code": "KR",
+      "works_count": 204,
+      "source": "openalex"
+    },
+    {
+      "name": "Denise C. Cornelius",
+      "country_code": "US",
+      "works_count": 204,
+      "source": "openalex"
+    },
+    {
+      "name": "Toivo Jürimäe",
+      "country_code": "EE",
+      "works_count": 204,
+      "source": "openalex"
+    },
+    {
+      "name": "Christopher Smith",
+      "country_code": "US",
+      "works_count": 204,
+      "source": "openalex"
+    },
+    {
+      "name": "Chaodong Wu",
+      "country_code": "US",
+      "works_count": 204,
+      "source": "openalex"
+    },
+    {
+      "name": "Thomas Illig",
+      "country_code": "DE",
+      "works_count": 204,
+      "source": "openalex"
+    },
+    {
+      "name": "Yan Huang",
+      "country_code": "CN",
+      "works_count": 203,
+      "source": "openalex"
+    },
+    {
+      "name": "Jean‐François Tanti",
+      "country_code": "FR",
+      "works_count": 203,
+      "source": "openalex"
+    },
+    {
+      "name": "Giuseppe Coppola",
+      "country_code": "IT",
+      "works_count": 203,
+      "source": "openalex"
+    },
+    {
+      "name": "Christelle Ramé",
+      "country_code": "FR",
+      "works_count": 203,
+      "source": "openalex"
+    },
+    {
+      "name": "H. Schulte",
+      "country_code": "GB",
+      "works_count": 203,
+      "source": "openalex"
+    },
+    {
+      "name": "Gabriel Q. Shaibi",
+      "country_code": "US",
+      "works_count": 202,
+      "source": "openalex"
+    },
+    {
+      "name": "Jiaur R. Gayen",
+      "country_code": "IN",
+      "works_count": 202,
+      "source": "openalex"
+    },
+    {
+      "name": "Muneyoshi Okada",
+      "country_code": "JP",
+      "works_count": 202,
+      "source": "openalex"
+    },
+    {
+      "name": "S. Martínez",
+      "country_code": "GT",
+      "works_count": 202,
+      "source": "openalex"
+    },
+    {
+      "name": "Lena Jonasson",
+      "country_code": "SE",
+      "works_count": 202,
+      "source": "openalex"
+    },
+    {
+      "name": "Fengying Gong",
+      "country_code": "CN",
+      "works_count": 202,
+      "source": "openalex"
+    },
+    {
+      "name": "Seon Mee Kim",
+      "country_code": "KR",
+      "works_count": 202,
+      "source": "openalex"
+    },
+    {
+      "name": "Husam Ghanim",
+      "country_code": null,
+      "works_count": 202,
+      "source": "openalex"
+    },
+    {
+      "name": "Bernhard R. Winkelmann",
+      "country_code": null,
+      "works_count": 202,
+      "source": "openalex"
+    },
+    {
+      "name": "Mi Kyung Lee",
+      "country_code": "KR",
+      "works_count": 202,
+      "source": "openalex"
+    },
+    {
+      "name": "Bernhard Iglseder",
+      "country_code": "AT",
+      "works_count": 201,
+      "source": "openalex"
+    },
+    {
+      "name": "Elena Dozio",
+      "country_code": "IT",
+      "works_count": 201,
+      "source": "openalex"
+    },
+    {
+      "name": "Sander Kooijman",
+      "country_code": "NL",
+      "works_count": 201,
+      "source": "openalex"
+    },
+    {
+      "name": "David Primo",
+      "country_code": "ES",
+      "works_count": 201,
+      "source": "openalex"
+    },
+    {
+      "name": "Francesca Santilli",
+      "country_code": "IT",
+      "works_count": 201,
+      "source": "openalex"
+    },
+    {
+      "name": "Babak Razani",
+      "country_code": "US",
+      "works_count": 201,
+      "source": "openalex"
+    },
+    {
+      "name": "William L. Roberts",
+      "country_code": "US",
+      "works_count": 201,
+      "source": "openalex"
+    },
+    {
+      "name": "Juan Salazar",
+      "country_code": "VE",
+      "works_count": 200,
+      "source": "openalex"
+    },
+    {
+      "name": "Thomas Karrasch",
+      "country_code": "DE",
+      "works_count": 200,
+      "source": "openalex"
+    },
+    {
+      "name": "Marcus Seldin",
+      "country_code": "US",
+      "works_count": 200,
+      "source": "openalex"
+    },
+    {
+      "name": "Stephen J. Peterson",
+      "country_code": "US",
+      "works_count": 200,
+      "source": "openalex"
+    },
+    {
+      "name": "Peng Qu",
+      "country_code": "CN",
+      "works_count": 200,
+      "source": "openalex"
+    },
+    {
+      "name": "Kazuki Mochizuki",
+      "country_code": "JP",
+      "works_count": 200,
+      "source": "openalex"
+    },
+    {
+      "name": "Jack P. Strong",
+      "country_code": null,
+      "works_count": 200,
+      "source": "openalex"
+    },
+    {
+      "name": "Laakso, Markku",
+      "country_code": null,
+      "works_count": 199,
+      "source": "openalex"
+    },
+    {
+      "name": "Barbara Zahorska‐Markiewicz",
+      "country_code": null,
+      "works_count": 199,
+      "source": "openalex"
+    },
+    {
+      "name": "José Luis Sánchez‐Quesada",
+      "country_code": "ES",
+      "works_count": 199,
+      "source": "openalex"
+    },
+    {
+      "name": "Gaetano Vaudo",
+      "country_code": null,
+      "works_count": 199,
+      "source": "openalex"
+    },
+    {
+      "name": "SoJung Lee",
+      "country_code": "KR",
+      "works_count": 199,
+      "source": "openalex"
+    },
+    {
+      "name": "Ajay Chaudhuri",
+      "country_code": "US",
+      "works_count": 199,
+      "source": "openalex"
+    },
+    {
+      "name": "Sabine Westphal",
+      "country_code": null,
+      "works_count": 198,
+      "source": "openalex"
+    },
+    {
+      "name": "Ana Babić",
+      "country_code": "US",
+      "works_count": 198,
+      "source": "openalex"
+    },
+    {
+      "name": "Cornelia Weikert",
+      "country_code": "DE",
+      "works_count": 198,
+      "source": "openalex"
+    },
+    {
+      "name": "Ruixin Liu",
+      "country_code": "CN",
+      "works_count": 198,
+      "source": "openalex"
+    },
+    {
+      "name": "Irving Kushner",
+      "country_code": null,
+      "works_count": 198,
+      "source": "openalex"
+    },
+    {
+      "name": "Hongqin Wang",
+      "country_code": "CN",
+      "works_count": 198,
+      "source": "openalex"
+    },
+    {
+      "name": "Hideichi Makino",
+      "country_code": "JP",
+      "works_count": 198,
+      "source": "openalex"
+    },
+    {
+      "name": "Omid Asbaghi",
+      "country_code": "US",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Evert M. van Schothorst",
+      "country_code": "NL",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Thomas W. Gettys",
+      "country_code": "US",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Angela Silveira",
+      "country_code": "SE",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Hiroyuki Kaiya",
+      "country_code": "JP",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Alexandra I. F. Blakemore",
+      "country_code": "GB",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Chao Qiang Jiang",
+      "country_code": "CN",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Regent Lee",
+      "country_code": "US",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Josune Orbe",
+      "country_code": "ES",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Min‐Seon Kim",
+      "country_code": "KR",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Feng Liu",
+      "country_code": "CN",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Yutaka Hasegawa",
+      "country_code": "JP",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Mahdieh Abbasalizad Farhangi",
+      "country_code": "IR",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Guenther Boden",
+      "country_code": "US",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Heikki A. Koistinen",
+      "country_code": "FI",
+      "works_count": 197,
+      "source": "openalex"
+    },
+    {
+      "name": "Corella, Dolores",
+      "country_code": null,
+      "works_count": 196,
+      "source": "openalex"
+    },
+    {
+      "name": "Katrin Schäfer",
+      "country_code": "DE",
+      "works_count": 196,
+      "source": "openalex"
+    },
+    {
+      "name": "Cengizhan Açıkel",
+      "country_code": null,
+      "works_count": 196,
+      "source": "openalex"
+    },
+    {
+      "name": "Dildar Konukoğlu",
+      "country_code": "TR",
+      "works_count": 196,
+      "source": "openalex"
+    },
+    {
+      "name": "Antigoni Miliou",
+      "country_code": "GR",
+      "works_count": 196,
+      "source": "openalex"
+    },
+    {
+      "name": "Masakiyo Sasahara",
+      "country_code": "JP",
+      "works_count": 196,
+      "source": "openalex"
+    },
+    {
+      "name": "Т. Е. Суслова",
+      "country_code": "RU",
+      "works_count": 196,
+      "source": "openalex"
+    },
+    {
+      "name": "Susana B. Bravo",
+      "country_code": "ES",
+      "works_count": 196,
+      "source": "openalex"
+    },
+    {
+      "name": "Eugene Chang",
+      "country_code": "KR",
+      "works_count": 196,
+      "source": "openalex"
+    },
+    {
+      "name": "Antonio Cabrera de León",
+      "country_code": "ES",
+      "works_count": 196,
+      "source": "openalex"
+    },
+    {
+      "name": "Brandon Rich",
+      "country_code": null,
+      "works_count": 195,
+      "source": "openalex"
+    },
+    {
+      "name": "Assaf Rudich",
+      "country_code": "IL",
+      "works_count": 195,
+      "source": "openalex"
+    },
+    {
+      "name": "Tânia Cristina Pithon‐Curi",
+      "country_code": null,
+      "works_count": 195,
+      "source": "openalex"
+    },
+    {
+      "name": "Gijs H. Goossens",
+      "country_code": "NL",
+      "works_count": 195,
+      "source": "openalex"
+    },
+    {
+      "name": "Ana B. Crujeiras",
+      "country_code": "ES",
+      "works_count": 195,
+      "source": "openalex"
+    },
+    {
+      "name": "Khalid M. Alkharfy",
+      "country_code": "SA",
+      "works_count": 195,
+      "source": "openalex"
+    },
+    {
+      "name": "Valdis Pīrāgs",
+      "country_code": null,
+      "works_count": 195,
+      "source": "openalex"
+    },
+    {
+      "name": "Mark V. Boekschoten",
+      "country_code": "NL",
+      "works_count": 195,
+      "source": "openalex"
+    },
+    {
+      "name": "Qiong Wang",
+      "country_code": "CN",
+      "works_count": 195,
+      "source": "openalex"
+    },
+    {
+      "name": "Luis E. Simental‐Mendía",
+      "country_code": "MX",
+      "works_count": 194,
+      "source": "openalex"
+    },
+    {
+      "name": "Paul S. MacLean",
+      "country_code": "US",
+      "works_count": 194,
+      "source": "openalex"
+    },
+    {
+      "name": "Aloysius J. Klingelhutz",
+      "country_code": "US",
+      "works_count": 194,
+      "source": "openalex"
+    },
+    {
+      "name": "Teresa Auguet",
+      "country_code": "ES",
+      "works_count": 194,
+      "source": "openalex"
+    },
+    {
+      "name": "José Sánchez‐Corona",
+      "country_code": "MX",
+      "works_count": 194,
+      "source": "openalex"
+    },
+    {
+      "name": "James G. Granneman",
+      "country_code": "US",
+      "works_count": 194,
+      "source": "openalex"
+    },
+    {
+      "name": "Wenhui Liu",
+      "country_code": "CN",
+      "works_count": 194,
+      "source": "openalex"
+    },
+    {
+      "name": "Xiaohui Wang",
+      "country_code": "HK",
+      "works_count": 194,
+      "source": "openalex"
+    },
+    {
+      "name": "Hongwei Wang",
+      "country_code": "CN",
+      "works_count": 193,
+      "source": "openalex"
+    },
+    {
+      "name": "Melinda A. Beck",
+      "country_code": "US",
+      "works_count": 193,
+      "source": "openalex"
+    },
+    {
+      "name": "Kate Kauter",
+      "country_code": "AU",
+      "works_count": 193,
+      "source": "openalex"
+    },
+    {
+      "name": "Sander S. Rensen",
+      "country_code": "NL",
+      "works_count": 193,
+      "source": "openalex"
+    },
+    {
+      "name": "Jane F. Ferguson",
+      "country_code": "US",
+      "works_count": 193,
+      "source": "openalex"
+    },
+    {
+      "name": "Ruth B. S. Harris",
+      "country_code": "US",
+      "works_count": 193,
+      "source": "openalex"
+    },
+    {
+      "name": "Jørgen Jeppesen",
+      "country_code": "DK",
+      "works_count": 193,
+      "source": "openalex"
+    },
+    {
+      "name": "Bart De Geest",
+      "country_code": null,
+      "works_count": 193,
+      "source": "openalex"
+    },
+    {
+      "name": "Yanfang Wang",
+      "country_code": "CN",
+      "works_count": 193,
+      "source": "openalex"
+    },
+    {
+      "name": "Jingzhong Ding",
+      "country_code": "US",
+      "works_count": 193,
+      "source": "openalex"
+    },
+    {
+      "name": "Kazuhisa Maeda",
+      "country_code": "JP",
+      "works_count": 192,
+      "source": "openalex"
+    },
+    {
+      "name": "Dimitrios Tziakas",
+      "country_code": "GR",
+      "works_count": 192,
+      "source": "openalex"
+    },
+    {
+      "name": "Shih‐Torng Ding",
+      "country_code": "CN",
+      "works_count": 192,
+      "source": "openalex"
+    },
+    {
+      "name": "Ioannis Kyrou",
+      "country_code": "GR",
+      "works_count": 192,
+      "source": "openalex"
+    },
+    {
+      "name": "Lily Dong",
+      "country_code": "US",
+      "works_count": 192,
+      "source": "openalex"
+    },
+    {
+      "name": "Ligen Lin",
+      "country_code": "MO",
+      "works_count": 192,
+      "source": "openalex"
+    },
+    {
+      "name": "David W. Stepp",
+      "country_code": "US",
+      "works_count": 192,
+      "source": "openalex"
+    },
+    {
+      "name": "Marta Maria Medeiros Frescura Duarte",
+      "country_code": "BR",
+      "works_count": 192,
+      "source": "openalex"
+    },
+    {
+      "name": "Thomas Reynolds",
+      "country_code": "US",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Wei Gao",
+      "country_code": "CN",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Christian Stumpf",
+      "country_code": "DE",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Е. В. Каштанова",
+      "country_code": "RU",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Víctor M. Víctor",
+      "country_code": "ES",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Christos Tsatsanis",
+      "country_code": "GR",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Ippei Shimizu",
+      "country_code": "JP",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Yolanda Jiménez",
+      "country_code": "ES",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Smaragdi Antonopoulou",
+      "country_code": "GR",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Aurora Daniele",
+      "country_code": "IT",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Francisco Ortega",
+      "country_code": "ES",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Marlena Broncel",
+      "country_code": "PL",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Aldo Bonaventura",
+      "country_code": "IT",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Paul T. Pfluger",
+      "country_code": "DE",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Andreas Schmid",
+      "country_code": "DE",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Yun‐Hee Lee",
+      "country_code": "KR",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Andrea Bianco",
+      "country_code": "IT",
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Robin Hopkins",
+      "country_code": null,
+      "works_count": 191,
+      "source": "openalex"
+    },
+    {
+      "name": "Marcelo A. Mori",
+      "country_code": "BR",
+      "works_count": 190,
+      "source": "openalex"
+    },
+    {
+      "name": "Takayuki Masaki",
+      "country_code": "JP",
+      "works_count": 190,
+      "source": "openalex"
+    },
+    {
+      "name": "Tetsuya Izawa",
+      "country_code": "JP",
+      "works_count": 190,
+      "source": "openalex"
+    },
+    {
+      "name": "Yingmei Feng",
+      "country_code": "CN",
+      "works_count": 190,
+      "source": "openalex"
+    },
+    {
+      "name": "Nikolaos P. E. Kadoglou",
+      "country_code": "CY",
+      "works_count": 190,
+      "source": "openalex"
+    },
+    {
+      "name": "Jackie A. Cooper",
+      "country_code": "GB",
+      "works_count": 190,
+      "source": "openalex"
+    },
+    {
+      "name": "François Pralong",
+      "country_code": "CH",
+      "works_count": 190,
+      "source": "openalex"
+    },
+    {
+      "name": "Wang Le-le",
+      "country_code": null,
+      "works_count": 189,
+      "source": "openalex"
+    },
+    {
+      "name": "Kaname Nakatani",
+      "country_code": "JP",
+      "works_count": 189,
+      "source": "openalex"
+    },
+    {
+      "name": "Ertuğrul Çolak",
+      "country_code": "TR",
+      "works_count": 189,
+      "source": "openalex"
+    },
+    {
+      "name": "Ez‐Zoubir Amri",
+      "country_code": "FR",
+      "works_count": 189,
+      "source": "openalex"
+    },
+    {
+      "name": "Ching‐Yi Chen",
+      "country_code": "TW",
+      "works_count": 189,
+      "source": "openalex"
+    },
+    {
+      "name": "Seiji Yamamoto",
+      "country_code": "US",
+      "works_count": 189,
+      "source": "openalex"
+    },
+    {
+      "name": "Sergio Martínez‐Hervás",
+      "country_code": "ES",
+      "works_count": 188,
+      "source": "openalex"
+    },
+    {
+      "name": "Jens Meldgaard Bruun",
+      "country_code": "DK",
+      "works_count": 188,
+      "source": "openalex"
+    },
+    {
+      "name": "Theodore P. Ciaraldi",
+      "country_code": "US",
+      "works_count": 188,
+      "source": "openalex"
+    },
+    {
+      "name": "Rosalinda Posadas‐Sánchez",
+      "country_code": "MX",
+      "works_count": 188,
+      "source": "openalex"
+    },
+    {
+      "name": "Pasquale Maffia",
+      "country_code": "IT",
+      "works_count": 188,
+      "source": "openalex"
+    },
+    {
+      "name": "Andi Wijaya",
+      "country_code": "CH",
+      "works_count": 188,
+      "source": "openalex"
+    },
+    {
+      "name": "Ying Wu",
+      "country_code": "CN",
+      "works_count": 188,
+      "source": "openalex"
+    },
+    {
+      "name": "Cecilia Dall’Aglio",
+      "country_code": "IT",
+      "works_count": 187,
+      "source": "openalex"
+    },
+    {
+      "name": "Daniel Konrad",
+      "country_code": "CH",
+      "works_count": 187,
+      "source": "openalex"
+    },
+    {
+      "name": "Krzysztof W. Nowak",
+      "country_code": "PL",
+      "works_count": 187,
+      "source": "openalex"
+    },
+    {
+      "name": "Fatih Akın",
+      "country_code": "TR",
+      "works_count": 187,
+      "source": "openalex"
+    },
+    {
+      "name": "Yan Chen",
+      "country_code": "CN",
+      "works_count": 187,
+      "source": "openalex"
+    },
+    {
+      "name": "Zdravko Kamenov",
+      "country_code": "BG",
+      "works_count": 187,
+      "source": "openalex"
+    },
+    {
+      "name": "Dongfang Liu",
+      "country_code": "CN",
+      "works_count": 187,
+      "source": "openalex"
+    },
+    {
+      "name": "Mohammad Amin Nabian",
+      "source": "arxiv"
+    },
+    {
+      "name": "Sudeep Chavare",
+      "source": "arxiv"
+    },
+    {
+      "name": "Deepak Akhare",
+      "source": "arxiv"
+    },
+    {
+      "name": "Rishikesh Ranade",
+      "source": "arxiv"
+    },
+    {
+      "name": "Ram Cherukuri",
+      "source": "arxiv"
+    },
+    {
+      "name": "Srinivas Tadepalli",
+      "source": "arxiv"
+    },
+    {
+      "name": "Hasan M. El-Hasan",
+      "source": "arxiv"
+    },
+    {
+      "name": "Russell Phelan",
+      "source": "arxiv"
+    },
+    {
+      "name": "Frederick Wilhelm",
+      "source": "arxiv"
+    },
+    {
+      "name": "Pantelis Tassopoulos",
+      "source": "arxiv"
+    },
+    {
+      "name": "Sourav Sarkar",
+      "source": "arxiv"
+    },
+    {
+      "name": "Daniel Tan",
+      "source": "arxiv"
+    },
+    {
+      "name": "Mohammed Rafiq Namiq",
+      "source": "arxiv"
+    },
+    {
+      "name": "Hanwen Liu",
+      "source": "arxiv"
+    },
+    {
+      "name": "Lucas Kania",
+      "source": "arxiv"
+    },
+    {
+      "name": "Larry Wasserman",
+      "source": "arxiv"
+    },
+    {
+      "name": "Sivaraman Balakrishnan",
+      "source": "arxiv"
+    },
+    {
+      "name": "Davide A. Bignamini",
+      "source": "arxiv"
+    },
+    {
+      "name": "Paolo De Fazio",
+      "source": "arxiv"
+    }
+  ]
+}
