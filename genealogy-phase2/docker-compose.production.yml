@@ -21,7 +21,7 @@ services:
       - "--log-level=WARNING"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "echo 'MATCH (n) RETURN count(n) LIMIT 1;' | timeout 5 /usr/lib/memgraph/mg_client --host 127.0.0.1 --port 7687 --use-ssl=false || exit 1"]
+      test: ["CMD-SHELL", "echo 'MATCH (n) RETURN count(n) LIMIT 1;' | timeout 5 mgconsole --host 127.0.0.1 --port 7687 --use-ssl=False || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
