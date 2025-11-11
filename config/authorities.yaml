@@ -1,0 +1,73 @@
+
+# Upstream authority services used in Stage 4 (AuthorityEnrich).
+# Values here are conservative; tune rps/burst according to real quotas and your SLA.
+authorities:
+  - name: OpenAlex
+    base_url: "https://api.openalex.org"
+    rps: 8
+    burst: 8
+
+  - name: CrossrefThesis
+    base_url: "https://api.crossref.org"
+    rps: 40
+    burst: 40
+
+  - name: ORCID_ETD
+    base_url: "https://pub.orcid.org/v3.0"
+    rps: 20
+    burst: 20
+
+  - name: Wikidata_P184
+    base_url: ""   # uses fixed endpoints
+    rps: 5
+    burst: 5
+
+  - name: OAI_University
+    base_url: "https://example.edu/oai/request"   # replace with your OAI-PMH endpoint
+    metadataPrefix: "oai_dc"
+    rps: 1
+    burst: 1
+
+  # NEW AUTHORITY SOURCES (Added 2025-11-09)
+
+  - name: HAL
+    base_url: "https://api.archives-ouvertes.fr/search/"
+    rps: 5
+    burst: 5
+    tier: 1
+    requires_auth: false
+
+  - name: IEEE
+    base_url: "https://ieeexploreapi.ieee.org/api/v1"
+    rps: 0.2  # 200/day = ~0.14/min, conservative 0.2
+    burst: 1
+    tier: 1
+    requires_auth: true
+
+  - name: Springer
+    base_url: "https://api.springernature.com"
+    rps: 1.6  # 100/min = 1.67/s, conservative 1.6
+    burst: 5
+    tier: 1
+    requires_auth: true
+
+  - name: Scopus
+    base_url: "https://api.elsevier.com"
+    rps: 1
+    burst: 3
+    tier: 1
+    requires_auth: true
+
+  - name: Wiley
+    base_url: "https://api.crossref.org"  # Uses Crossref with Wiley filter
+    rps: 3
+    burst: 3
+    tier: 1
+    requires_auth: true
+
+  - name: ACM
+    base_url: "https://api.crossref.org"  # Uses Crossref with ACM filter
+    rps: 1
+    burst: 5
+    tier: 1
+    requires_auth: false

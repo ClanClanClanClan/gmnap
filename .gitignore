@@ -16,35 +16,15 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-
-# Virtual environments
+# Virtual Environment
 venv/
-env/
 ENV/
+env/
+.venv/
 
 # IDE
 .vscode/
@@ -52,110 +32,112 @@ ENV/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
 
-# GMNAP specific
-# Cache files
-cache/output/
-cache/bad_json/
-cache/gs/
+# Testing
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+htmlcov/
+.hypothesis/
 
-# Log files  
-logs/
+# Project specific
+cache/
+!cache/.gitkeep
+data/results/
 *.log
-
-# Test results
-test_results/realistic_test_results_*.json
-
-# Database files
-data/*.db
-data/*.sqlite
+*.bak
+*_backup*
+*_old*
+backup_before_cleanup*.tar.gz
+cleanup_report*.json
+cleanup_execution.log
 
 # Temporary files
 *.tmp
-*.temp
-/tmp/
+temp/
+tmp/
 
-# FastText model (large binary)
-cache/config/lid.176.bin
+# Archive files (except in archive directory)
+/*.tar.gz
+/*.zip
 
-# Authority API responses (cached)
-cache/authorities/
-cache/api_cache/
-
-# Performance profiling
-*.prof
-*.cprof
-
-# Additional Python artifacts
-.venv/
-*.pyc
-.pytest_cache/
-*.pyo
-
-# Installer files
-Miniconda*.sh
-Anaconda*.sh
-*.exe
-*.dmg
-
-# Model and data files
-*.fst
-*.fsa
-*.pkl
-*.pickle
-*.h5
-*.hdf5
-
-# Korean specific generated files
-korean_mappings_*.json
-syllable_frequencies_*.json
-validation_results*.json
-validation_report*.txt
-
-# Corpus data
-data/corp/
-data/downloads/
-
-# Test outputs
-test_*.py
-test_phase*.py
-test_results_*.json
-
-# Archives
-*.zip
-*.tar
-*.tar.gz
-*.tgz
-*.rar
-*.7z
-
-# Jupyter
-.ipynb_checkpoints/
-*.ipynb
-
-# Environment files
+# Local configuration
 .env
-.env.*
+.env.local
+config/local/
 
-# macOS
-.AppleDouble
-.LSOverride
+# Documentation builds
+docs/_build/
+docs/historical/*.tar.gz
 
-# Backup files
-*.bak
-*.backup
-*~
+# Model files
+*.pkl
+*.h5
+*.model
+*.ftz
 
-# Output directories
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Monitoring
+prometheus_data/
+grafana_data/
+
+# Output and logs directories
 output/
-results/
-reports/
+logs/
+*.out
+
+# Audit result files (keep in docs/audits instead)
+/ULTRATHINK_*.md
+/ULTRATHINK_*.json
+/ultrathink_*.json
+/v7_reality_audit_*.json
+
+# Test outputs (organized under data/)
+/test_results/
+/test_outputs/
+/*_test_results*.json
+/*_batch_results*.json
+/*_audit_results*.json
+/batch_*.json
+/audit_*.json
+
+# Performance test files (organized under data/test_results/)
+/1m_*.json
+/comprehensive_*.json
+/simple_*.json
+/quick_*.json
+
+# Analysis and debug scripts (organized under scripts/)
+/analyze_*.py
+/debug_*.py
+/fix_*.py
+/test_*.py
+/benchmark_*.py
+/comprehensive_*.py
+/batch_*.py
+/performance_*.py
+/diagnose_*.py
+
+# Report files (organized under docs/reports/)
+/*_REPORT*.md
+/*_ANALYSIS*.md
+/*_SUMMARY*.md
+/PERFORMANCE_*.md
+/BATCH_*.md
+
+# Cleanup folders
+.cleanup_*/
+
+# Organized directory patterns - keep clean root
+/tools/logs/
+/tools/output/
+/tools/charts/
+/tools/monitoring/
+config/authority_api_keys.yaml
