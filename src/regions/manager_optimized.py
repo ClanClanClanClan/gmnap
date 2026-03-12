@@ -23,6 +23,21 @@ from .base import (REGION_CODES, TERRITORY_TO_REGION,
 
 logger = logging.getLogger(__name__)
 
+# Region overlay map from spec §2a — sub-national/contextual overrides
+# These override the standard TERRITORY_TO_REGION mapping for specific contexts
+_REGION_OVERLAY_MAP = {
+    "CH-FR": "A2",     # French-speaking Switzerland → Western Europe
+    "RU-NC": "C9",     # North Caucasus Russia → Caucasus-Turkic
+    "AZ-IR": "C9",     # Iranian Azerbaijan → Caucasus-Turkic
+    "IN-HN": "D1",     # Hindi Belt India → South Asia Hindi
+    "IN-SOUTH": "D2",  # Southern India → South Asia Dravidian
+    "IN-WB": "D3",     # West Bengal India → South Asia Bengali
+    "LK-TA": "D2",     # Tamil Sri Lanka → South Asia Dravidian
+    "LK-SI": "D5",     # Sinhala Sri Lanka → Sinhala
+    "TR-TRP": "D3",    # Tripura (Turkey context) → Bengali
+    "AS-ASM": "D3",    # Assam → Bengali
+}
+
 
 # Singleton for FastText model to prevent multiple loads
 _fasttext_model = None
@@ -86,7 +101,22 @@ class RegionManager:
     
     # List of actually implemented regions (not just architecturally defined)
     IMPLEMENTED_REGIONS = {
-        "A1", "A2", "A3", "B1", "B2", "B3", "C2", "C3", "C4", "D1", "E1", "E3", "E4", "G1"
+        # A Groups - Western sphere
+        "A1", "A2", "A3", "A4", "A5",
+        # B Groups - Slavic/Central Europe
+        "B1", "B2", "B3",
+        # C Groups - Middle East/Caucasus
+        "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9",
+        # D Groups - South Asia
+        "D1", "D2", "D3", "D4", "D5",
+        # E Groups - East Asia
+        "E1", "E2", "E3", "E4", "E5", "E6", "E7",
+        # F Groups - Sub-Saharan Africa
+        "F1", "F2", "F3", "F4",
+        # G Groups - Latin America
+        "G1",
+        # Special
+        "H1", "R0", "Z0",
     }
     
     def __init__(self, config_dir: Path = Path("./config")):
@@ -157,23 +187,23 @@ class RegionManager:
         """Initialize Unicode script to region mappings (only implemented regions)."""
         # Only map to regions that are actually implemented
         self._script_to_regions = {
-            "Latin": [r for r in ["A1", "A2", "B2", "G1"] if r in self.IMPLEMENTED_REGIONS],
-            "Cyrillic": [r for r in ["B1", "B2"] if r in self.IMPLEMENTED_REGIONS],
+            "Latin": [r for r in ["A1", "A2", "A3", "A4", "A5", "B2", "G1", "F1", "F2", "F4", "R0"] if r in self.IMPLEMENTED_REGIONS],
+            "Cyrillic": [r for r in ["B1", "B2", "C9"] if r in self.IMPLEMENTED_REGIONS],
             "Greek": [r for r in ["B3"] if r in self.IMPLEMENTED_REGIONS],
-            "Arabic": [r for r in ["C2", "C3", "C4"] if r in self.IMPLEMENTED_REGIONS],
-            "Hebrew": [],  # C6 not implemented
+            "Arabic": [r for r in ["C2", "C3", "C4", "C5", "D4"] if r in self.IMPLEMENTED_REGIONS],
+            "Hebrew": [r for r in ["C6"] if r in self.IMPLEMENTED_REGIONS],
             "Devanagari": [r for r in ["D1"] if r in self.IMPLEMENTED_REGIONS],
-            "Bengali": [],  # D3 not implemented
-            "Tamil": [],  # D2 not implemented
-            "Telugu": [],  # D2 not implemented
-            "Sinhala": [],  # D5 not implemented
-            "Thai": [],  # E6 not implemented
-            "Myanmar": [],  # E6 not implemented
-            "Georgian": [],  # C8 not implemented
-            "Armenian": [],  # C7 not implemented
-            "CJK": [r for r in ["E1", "E3"] if r in self.IMPLEMENTED_REGIONS],
+            "Bengali": [r for r in ["D3"] if r in self.IMPLEMENTED_REGIONS],
+            "Tamil": [r for r in ["D2"] if r in self.IMPLEMENTED_REGIONS],
+            "Telugu": [r for r in ["D2"] if r in self.IMPLEMENTED_REGIONS],
+            "Sinhala": [r for r in ["D5"] if r in self.IMPLEMENTED_REGIONS],
+            "Thai": [r for r in ["E6"] if r in self.IMPLEMENTED_REGIONS],
+            "Myanmar": [r for r in ["E6"] if r in self.IMPLEMENTED_REGIONS],
+            "Georgian": [r for r in ["C8"] if r in self.IMPLEMENTED_REGIONS],
+            "Armenian": [r for r in ["C7"] if r in self.IMPLEMENTED_REGIONS],
+            "CJK": [r for r in ["E1", "E2", "E3"] if r in self.IMPLEMENTED_REGIONS],
             "Hangul": [r for r in ["E4"] if r in self.IMPLEMENTED_REGIONS],
-            "Ethiopic": [],  # F3 not implemented
+            "Ethiopic": [r for r in ["F3"] if r in self.IMPLEMENTED_REGIONS],
         }
     
     def _ensure_regions_loaded(self):
@@ -265,9 +295,14 @@ class RegionManager:
         if result:
             return result
         
-        # Fallback based on country code
+        # Fallback based on country code (with overlay map check)
         country_codes = entry.get("CountryCodes", [])
         if country_codes:
+            # Check region overlay map first (spec §2a sub-national overrides)
+            overlay_result = self._detect_by_overlay(entry, country_codes)
+            if overlay_result:
+                return overlay_result
+
             region = get_region_for_territory(country_codes[0])
             # Only return if it's an implemented region
             if region in self.IMPLEMENTED_REGIONS:
@@ -532,19 +567,156 @@ class RegionManager:
         
         return None
     
-    def _detect_by_diaspora(self, entry: Dict[str, Any]) -> Optional[RegionDetectionResult]:
-        """Detect region based on diaspora patterns."""
-        # Simplified diaspora detection
-        name = entry.get("CanonicalLatin", "")
-        countries = entry.get("CountryCodes", [])
-        
-        if not name or not countries:
-            return None
-        
-        # Example: Chinese name in USA -> Still E1
-        # This would use the diaspora config in real implementation
-        
+    def _detect_by_overlay(self, entry: Dict[str, Any],
+                           country_codes: List[str]) -> Optional[RegionDetectionResult]:
+        """
+        Detect region using the spec §2a region overlay map.
+
+        Checks sub-national context clues (institution, affiliation) to build
+        composite keys like 'IN-HN', 'LK-TA' etc. for overlay lookup.
+        """
+        institution = entry.get("Institution", "") or entry.get("Affiliation", "")
+        institution_country = entry.get("InstitutionCountry", "")
+
+        for country in country_codes:
+            # Build candidate overlay keys from available context
+            candidates = []
+
+            # Check institution-based sub-national hints
+            if country == "IN":
+                inst_lower = institution.lower()
+                if any(w in inst_lower for w in ["chennai", "madras", "bengaluru",
+                                                  "bangalore", "hyderabad", "kerala",
+                                                  "tamil", "karnataka", "andhra"]):
+                    candidates.append("IN-SOUTH")
+                elif any(w in inst_lower for w in ["kolkata", "calcutta", "bengal",
+                                                    "jadavpur", "presidency"]):
+                    candidates.append("IN-WB")
+                else:
+                    candidates.append("IN-HN")  # Hindi belt default for India
+            elif country == "LK":
+                inst_lower = institution.lower()
+                if any(w in inst_lower for w in ["jaffna", "tamil", "batticaloa"]):
+                    candidates.append("LK-TA")
+                else:
+                    candidates.append("LK-SI")
+            elif country == "CH":
+                inst_lower = institution.lower()
+                if any(w in inst_lower for w in ["genève", "geneva", "lausanne",
+                                                  "fribourg", "neuchâtel"]):
+                    candidates.append("CH-FR")
+            elif country == "RU":
+                inst_lower = institution.lower()
+                if any(w in inst_lower for w in ["dagestan", "chechnya", "ingushetia",
+                                                  "kabardino", "ossetia", "caucasus"]):
+                    candidates.append("RU-NC")
+            elif country == "AZ":
+                inst_lower = institution.lower()
+                if any(w in inst_lower for w in ["tabriz", "iran", "urmia"]):
+                    candidates.append("AZ-IR")
+
+            # Look up each candidate in the overlay map
+            for key in candidates:
+                if key in _REGION_OVERLAY_MAP:
+                    region = _REGION_OVERLAY_MAP[key]
+                    if region in self.IMPLEMENTED_REGIONS:
+                        return RegionDetectionResult(
+                            region_code=region,
+                            confidence=0.5,
+                            detection_method="region-overlay",
+                            metadata={"overlay_key": key, "country": country}
+                        )
+
         return None
+
+    def _detect_by_diaspora(self, entry: Dict[str, Any]) -> Optional[RegionDetectionResult]:
+        """
+        Detect region based on diaspora patterns.
+
+        Uses config/diaspora.yaml to determine the correct region when a
+        mathematician publishes from a country outside their home region.
+        Checks CountryCodes against diaspora config date ranges.
+        """
+        countries = entry.get("CountryCodes", [])
+        if not countries or not self._diaspora_config:
+            return None
+
+        # Get publication date context for range matching
+        birth_year = entry.get("BirthYear")
+        pub_year = None
+        if isinstance(birth_year, int) and birth_year > 1900:
+            # Estimate active publication period: birth + 25 to birth + 65
+            pub_year = birth_year + 40  # approximate mid-career
+
+        for country in countries:
+            if country not in self._diaspora_config:
+                continue
+
+            ranges = self._diaspora_config[country]
+            if not isinstance(ranges, list):
+                continue
+
+            for entry_range in ranges:
+                if not isinstance(entry_range, dict):
+                    continue
+
+                region = entry_range.get("region")
+                range_str = entry_range.get("range", "")
+
+                if not region or region not in self.IMPLEMENTED_REGIONS:
+                    continue
+
+                # Check if publication year falls within range
+                if self._year_in_range(pub_year, range_str):
+                    return RegionDetectionResult(
+                        region_code=region,
+                        confidence=0.65,
+                        detection_method="diaspora",
+                        metadata={"country": country, "range": range_str}
+                    )
+
+        return None
+
+    @staticmethod
+    def _year_in_range(year: Optional[int], range_str: str) -> bool:
+        """Check if a year falls within a diaspora range string.
+
+        Range formats:
+        - "" (empty) → always matches (default/unbounded)
+        - "-2015" → matches year ≤ 2015
+        - "2016-" → matches year ≥ 2016
+        - "1980-2000" → matches 1980 ≤ year ≤ 2000
+        """
+        if not range_str:
+            return True  # Empty range = always matches
+
+        if year is None:
+            return True  # No year info = assume match
+
+        range_str = range_str.strip()
+        if range_str.startswith("-"):
+            # "-2015" → up to 2015
+            try:
+                end = int(range_str[1:])
+                return year <= end
+            except ValueError:
+                return True
+        elif range_str.endswith("-"):
+            # "2016-" → from 2016 onward
+            try:
+                start = int(range_str[:-1])
+                return year >= start
+            except ValueError:
+                return True
+        elif "-" in range_str:
+            # "1980-2000"
+            parts = range_str.split("-")
+            try:
+                return int(parts[0]) <= year <= int(parts[1])
+            except (ValueError, IndexError):
+                return True
+
+        return True
     
     def _analyze_scripts(self, text: str) -> Dict[str, int]:
         """Analyze Unicode scripts in text."""
@@ -856,7 +1028,51 @@ class RegionManager:
                 # Romanization variants
                 "gim", "ri", "bak", "choe", "jeong", "gang", "jo", "yun", "jang", "im"
             }
-    
+
+        if "C1" in self.IMPLEMENTED_REGIONS:
+            self.surname_patterns["C1"] = {
+                "yılmaz", "kaya", "demir", "çelik", "şahin", "yıldız", "yıldırım",
+                "öztürk", "aydın", "özdemir", "arslan", "doğan", "kılıç", "aslan",
+                "erdoğan", "güneş", "kurt", "ateş", "polat", "koç"
+            }
+
+        if "C5" in self.IMPLEMENTED_REGIONS:
+            self.surname_patterns["C5"] = {
+                "benali", "bensaid", "boumediene", "belkacem", "bouzid", "hammadi",
+                "kaddour", "lahlou", "mansouri", "zeroual", "amrani", "berrada",
+                "chaoui", "fekhar", "ghali", "hadj", "messaoud", "taleb"
+            }
+
+        if "E2" in self.IMPLEMENTED_REGIONS:
+            self.surname_patterns["E2"] = {
+                "chen", "lin", "huang", "chang", "li", "wang", "wu", "liu", "tsai", "yang",
+                "hsu", "cheng", "ho", "tseng", "liao", "lai", "lu", "hung", "chung", "shih"
+            }
+
+        if "E5" in self.IMPLEMENTED_REGIONS:
+            self.surname_patterns["E5"] = {
+                "nguyen", "tran", "le", "pham", "hoang", "huynh", "phan", "vu", "vo",
+                "dang", "bui", "do", "ho", "ngo", "duong", "ly", "dao", "dinh", "lam"
+            }
+
+        if "D2" in self.IMPLEMENTED_REGIONS:
+            self.surname_patterns["D2"] = {
+                "pillai", "nair", "menon", "reddy", "naidu", "rao", "iyer", "iyengar",
+                "srinivasan", "krishnamurthy", "ramanathan", "subramaniam", "venkatesh"
+            }
+
+        if "D3" in self.IMPLEMENTED_REGIONS:
+            self.surname_patterns["D3"] = {
+                "das", "dutta", "gupta", "roy", "sen", "bose", "ghosh", "banerjee",
+                "chatterjee", "mukherjee", "chakraborty", "sarkar", "islam", "ahmed"
+            }
+
+        if "F2" in self.IMPLEMENTED_REGIONS:
+            self.surname_patterns["F2"] = {
+                "okonkwo", "adeyemi", "osei", "mensah", "kamau", "mwangi", "adebayo",
+                "owusu", "achebe", "emecheta", "soyinka", "ngugi", "odinga", "kenyatta"
+            }
+
     def _detect_by_surname_patterns(self, name: str, possible_regions: List[str]) -> Optional[str]:
         """Detect region using surname pattern matching."""
         if not hasattr(self, 'surname_patterns'):
@@ -933,20 +1149,51 @@ class RegionManager:
         
         # Only load regions that are actually implemented
         region_imports = {
+            # A Groups
             "A1": ("src.regions.a_groups.a1_anglo_sphere", "A1_AngloSphere"),
             "A2": ("src.regions.a_groups.a2_western_europe", "A2_WesternEurope"),
             "A3": ("src.regions.a_groups.a3_nordic_baltic.processor", "A3NordicBalticProcessor"),
+            "A4": ("src.regions.a_groups.a4_oceania.processor", "A4OceaniaProcessor"),
+            "A5": ("src.regions.a_groups.a5_caribbean.processor", "A5CaribbeanProcessor"),
+            # B Groups
             "B1": ("src.regions.b_groups.b1_east_slavic", "B1_EastSlavic"),
             "B2": ("src.regions.b_groups.b2_south_slavic_central", "B2_SouthSlavicCentral"),
             "B3": ("src.regions.b_groups.b3_greek.processor", "B3GreekProcessor"),
+            # C Groups
+            "C1": ("src.regions.c_groups.c1_turkic.processor", "C1TurkicProcessor"),
             "C2": ("src.regions.c_groups.c2_persian_tajik", "C2_PersianTajik"),
             "C3": ("src.regions.c_groups.c3_arabic_levant_nile", "C3_ArabicLevantNile"),
             "C4": ("src.regions.c_groups.c4_arabic_gulf", "C4_ArabicGulf"),
+            "C5": ("src.regions.c_groups.c5_arabic_maghreb", "C5ArabicMaghreb"),
+            "C6": ("src.regions.c_groups.c6_hebrew_diaspora", "C6HebrewDiaspora"),
+            "C7": ("src.regions.c_groups.c7_armenian", "C7Armenian"),
+            "C8": ("src.regions.c_groups.c8_georgian", "C8Georgian"),
+            "C9": ("src.regions.c_groups.c9_caucasus_turkic", "C9CaucasusTurkic"),
+            # D Groups
             "D1": ("src.regions.d_groups.d1_south_asia_hindi_belt", "D1_SouthAsiaHindiBelt"),
+            "D2": ("src.regions.d_groups.d2_south_asia_dravidian", "D2SouthAsiaDravidian"),
+            "D3": ("src.regions.d_groups.d3_south_asia_bengali", "D3SouthAsiaBengali"),
+            "D4": ("src.regions.d_groups.d4_pakistan_urdu", "D4PakistanUrdu"),
+            "D5": ("src.regions.d_groups.d5_sinhala", "D5Sinhala"),
+            # E Groups
             "E1": ("src.regions.e_groups.e1_sinophone_mainland", "E1_SinophoneMainland"),
+            "E2": ("src.regions.e_groups.e2_traditional_chinese", "E2TraditionalChineseProcessor"),
             "E3": ("src.regions.e_groups.e3_japan", "E3_Japan"),
             "E4": ("src.regions.e_groups.e4_korea.processor_lightweight", "E4KoreanProcessor"),
+            "E5": ("src.regions.e_groups.e5_vietnam", "E5Vietnam"),
+            "E6": ("src.regions.e_groups.e6_mainland_sea", "E6MainlandSEA"),
+            "E7": ("src.regions.e_groups.e7_maritime_sea", "E7MaritimeSEA"),
+            # F Groups
+            "F1": ("src.regions.f_groups.f1_ssa_francophone", "F1SSAFrancophone"),
+            "F2": ("src.regions.f_groups.f2_ssa_anglophone", "F2SSAAnglophone"),
+            "F3": ("src.regions.f_groups.f3_horn_of_africa", "F3HornOfAfrica"),
+            "F4": ("src.regions.f_groups.f4_lusophone_africa", "F4LusophoneAfrica"),
+            # G Groups
             "G1": ("src.regions.g_groups.g1_latin_america", "G1_LatinAmerica"),
+            # Special
+            "H1": ("src.regions.special.h1_historical", "H1Historical"),
+            "R0": ("src.regions.special.r0_residual_latin_ascii", "R0ResidualLatinASCII"),
+            "Z0": ("src.regions.special.z0_quarantine", "Z0Quarantine"),
         }
         
         regions_loaded = 0

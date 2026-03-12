@@ -1,0 +1,35 @@
+# V7 spec Rule 5: Script switching configuration
+# Tracks countries undergoing official script changes
+
+kazakh:
+  # Kazakhstan: Cyrillic -> Latin migration (official timeline)
+  country_code: KZ
+  region_code: B1
+  current_script: Cyrillic
+  target_script: Latin
+  migration_start: 2023
+  migration_complete: 2031
+  # Before migration_complete, accept both scripts
+  # After migration_complete, Latin is canonical
+  canonical_rule: |
+    if year < 2031: accept both Cyrillic and Latin
+    if year >= 2031: Latin is canonical, Cyrillic is variant
+
+mongolian:
+  # Mongolia: Traditional -> Cyrillic (completed)
+  country_code: MN
+  region_code: B1
+  current_script: Cyrillic
+  historical_script: Traditional Mongolian
+  migration_complete: 1946
+  canonical_rule: "Cyrillic is canonical for modern entries"
+
+uzbek:
+  # Uzbekistan: Cyrillic -> Latin (in progress)
+  country_code: UZ
+  region_code: B1
+  current_script: Latin
+  legacy_script: Cyrillic
+  migration_start: 1993
+  migration_complete: 2023
+  canonical_rule: "Latin is canonical, Cyrillic is variant"

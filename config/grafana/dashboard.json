@@ -1,0 +1,168 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "GMNAP V7 Pipeline",
+    "description": "Monitoring dashboard for the Global Mathematician Name Authority Project",
+    "tags": ["gmnap", "v7"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Server Uptime",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "gmnap_uptime_seconds",
+            "legendFormat": "Uptime"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Pipeline Runs (Total)",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+        "targets": [
+          {
+            "expr": "gmnap_pipeline_runs_total",
+            "legendFormat": "Total Runs"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Entries Processed",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "targets": [
+          {
+            "expr": "rate(gmnap_entries_processed_total[5m])",
+            "legendFormat": "Entries/sec"
+          }
+        ],
+        "yaxes": [
+          {"label": "entries/sec", "format": "short"}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Pipeline Duration",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, gmnap_pipeline_duration_seconds_bucket)",
+            "legendFormat": "p95 duration"
+          },
+          {
+            "expr": "histogram_quantile(0.50, gmnap_pipeline_duration_seconds_bucket)",
+            "legendFormat": "p50 duration"
+          }
+        ],
+        "yaxes": [
+          {"label": "seconds", "format": "s"}
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Schema Errors",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "targets": [
+          {
+            "expr": "rate(gmnap_schema_errors_total[5m])",
+            "legendFormat": "Schema errors/sec"
+          },
+          {
+            "expr": "rate(gmnap_schema_quarantined_total[5m])",
+            "legendFormat": "Quarantined/sec"
+          },
+          {
+            "expr": "rate(gmnap_schema_rejected_total[5m])",
+            "legendFormat": "Rejected/sec"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Authority Source Hit Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "targets": [
+          {
+            "expr": "gmnap_authority_hit_rate{tier=\"0\"}",
+            "legendFormat": "Tier 0"
+          },
+          {
+            "expr": "gmnap_authority_hit_rate{tier=\"1\"}",
+            "legendFormat": "Tier 1"
+          },
+          {
+            "expr": "gmnap_authority_hit_rate{tier=\"2\"}",
+            "legendFormat": "Tier 2"
+          }
+        ],
+        "yaxes": [
+          {"label": "hit rate", "format": "percentunit", "max": 1}
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Memory Usage (RSS)",
+        "type": "gauge",
+        "gridPos": {"h": 6, "w": 8, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes / 1073741824",
+            "legendFormat": "RSS (GB)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "decgbytes",
+            "max": 6,
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 4},
+                {"color": "red", "value": 5.5}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "API Request Rate",
+        "type": "graph",
+        "gridPos": {"h": 6, "w": 16, "x": 8, "y": 20},
+        "targets": [
+          {
+            "expr": "rate(gmnap_api_requests_total[1m]) * 60",
+            "legendFormat": "{{endpoint}} req/min"
+          }
+        ],
+        "alert": {
+          "name": "High Latency Alert",
+          "message": "p95 latency > 2x baseline for 15 min",
+          "conditions": [
+            {
+              "evaluator": {"type": "gt", "params": [10]},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "15m", "now"]},
+              "reducer": {"type": "avg"}
+            }
+          ]
+        }
+      }
+    ],
+    "time": {"from": "now-6h", "to": "now"}
+  }
+}

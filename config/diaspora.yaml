@@ -1,10 +1,172 @@
 # Diaspora overlay configuration
-# Maps country codes to region changes based on date ranges
+# Maps country codes to region overrides based on date ranges.
+# When a mathematician publishes from a country outside their home region,
+# this config determines which region processor to apply.
+#
 # Format: country -> [{region: code, range: "start-end"}]
+# Range: "start-end" where either bound can be empty (unbounded).
 
-# Example: Thailand mathematicians
+# ----- East & Southeast Asia publishing in Anglosphere -----
 "TH":
   - {region: "E6", range: "-2015"}
   - {region: "A1", range: "2016-"}
 
-# Add more diaspora mappings as needed
+"CN":
+  - {region: "E1", range: ""}  # Default: Sinophone mainland
+  # Chinese mathematicians with US/UK affiliations use A1 conventions
+"TW":
+  - {region: "E2", range: ""}  # Traditional Chinese
+
+"KR":
+  - {region: "E4", range: ""}  # Korean default
+
+"JP":
+  - {region: "E3", range: "-2019"}
+  - {region: "E3", range: "2020-"}  # Post-2020 order change (Rule 12)
+
+"VN":
+  - {region: "E5", range: ""}
+
+# ----- South Asia publishing internationally -----
+"IN":
+  - {region: "D1", range: ""}  # Hindi belt default
+  # Dravidian states handled by D2 detection based on script/surname
+
+"PK":
+  - {region: "D4", range: ""}
+
+"BD":
+  - {region: "D3", range: ""}  # Bengali
+
+"LK":
+  - {region: "D5", range: ""}  # Sinhala
+
+# ----- Middle East & Central Asia -----
+"IR":
+  - {region: "C2", range: ""}  # Persian
+
+"TR":
+  - {region: "C1", range: ""}  # Turkic
+
+"IL":
+  - {region: "C6", range: ""}  # Hebrew
+
+"SA":
+  - {region: "C4", range: ""}  # Arabic Gulf
+
+"EG":
+  - {region: "C3", range: ""}  # Arabic Levant-Nile
+
+"DZ":
+  - {region: "C5", range: ""}  # Maghreb
+
+"MA":
+  - {region: "C5", range: ""}  # Maghreb
+
+"AM":
+  - {region: "C7", range: ""}  # Armenian
+
+"GE":
+  - {region: "C8", range: ""}  # Georgian
+
+"AZ":
+  - {region: "C9", range: ""}  # Caucasus Turkic
+
+# ----- Slavic & Greek -----
+"RU":
+  - {region: "B1", range: ""}  # East Slavic
+
+"UA":
+  - {region: "B1", range: ""}  # East Slavic
+
+"PL":
+  - {region: "B2", range: ""}  # South Slavic & Central Europe
+
+"CZ":
+  - {region: "B2", range: ""}
+
+"GR":
+  - {region: "B3", range: ""}  # Greek
+
+# ----- Western Europe & Nordics -----
+"DE":
+  - {region: "A2", range: ""}
+
+"FR":
+  - {region: "A2", range: ""}
+
+"IT":
+  - {region: "A2", range: ""}
+
+"ES":
+  - {region: "A2", range: ""}
+
+"SE":
+  - {region: "A3", range: ""}  # Nordic-Baltic
+
+"NO":
+  - {region: "A3", range: ""}
+
+"FI":
+  - {region: "A3", range: ""}
+
+"DK":
+  - {region: "A3", range: ""}
+
+# ----- Latin America -----
+"BR":
+  - {region: "G1", range: ""}
+
+"MX":
+  - {region: "G1", range: ""}
+
+"AR":
+  - {region: "G1", range: ""}
+
+"CL":
+  - {region: "G1", range: ""}
+
+"CO":
+  - {region: "G1", range: ""}
+
+# ----- Sub-Saharan Africa -----
+"SN":
+  - {region: "F1", range: ""}  # Francophone
+
+"CI":
+  - {region: "F1", range: ""}
+
+"CM":
+  - {region: "F1", range: ""}
+
+"NG":
+  - {region: "F2", range: ""}  # Anglophone
+
+"GH":
+  - {region: "F2", range: ""}
+
+"KE":
+  - {region: "F2", range: ""}
+
+"ET":
+  - {region: "F3", range: ""}  # Horn of Africa
+
+"AO":
+  - {region: "F4", range: ""}  # Lusophone
+
+"MZ":
+  - {region: "F4", range: ""}
+
+# ----- Oceania -----
+"NZ":
+  - {region: "A4", range: ""}
+
+"FJ":
+  - {region: "A4", range: ""}
+
+# ----- Caribbean -----
+"JM":
+  - {region: "A5", range: ""}
+
+"TT":
+  - {region: "A5", range: ""}

@@ -25,9 +25,9 @@ class SchemaValidator:
             schema_path: Path to JSON schema file. If None, uses default.
         """
         if schema_path is None:
-            # Default to v1.5 schema in docs/
+            # Default to v2.0 schema in docs/ (spec yaml_record_schema_version: "2.0")
             current_dir = Path(__file__).parent
-            schema_path = current_dir.parent.parent / "docs" / "schema_v1.5.json"
+            schema_path = current_dir.parent.parent / "docs" / "schema_v2.0.json"
         
         self.schema_path = Path(schema_path)
         self.schema = self._load_schema()

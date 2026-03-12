@@ -42,7 +42,7 @@ class C1TurkicProcessor(RegionSpec):
             romanisation_standards=["BGN/PCGN", "ISO 9", "ALA-LC"]
         )
         
-        # Script reform schedules (key feature of C1)
+        # Script reform schedules (key feature of C1) — hardcoded defaults
         self.script_reforms = {
             "UZ": {"start": 2023, "status": "active", "from": "Cyrillic", "to": "Latin"},
             "TM": {"start": 2019, "status": "active", "from": "Cyrillic", "to": "Latin"},
@@ -50,6 +50,9 @@ class C1TurkicProcessor(RegionSpec):
             "AZ": {"start": 1991, "status": "completed", "from": "Cyrillic", "to": "Latin"},
             "TR": {"start": 1928, "status": "completed", "from": "Arabic", "to": "Latin"},
         }
+
+        # Override from config/script_switch.yaml if available (v7 spec Rule 5)
+        self._load_script_switch_config()
         
         # Latin characters used in Turkic languages
         self.turkic_latin_chars = {
@@ -148,6 +151,42 @@ class C1TurkicProcessor(RegionSpec):
             "Господин", "Госпожа",  # Russian influence
         }
     
+    def _load_script_switch_config(self):
+        """Load script switch schedule from config/script_switch.yaml (v7 spec Rule 5)."""
+        import pathlib
+        config_path = pathlib.Path(__file__).resolve().parents[3] / "config" / "script_switch.yaml"
+        if not config_path.exists():
+            return
+        try:
+            import yaml
+            data = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+            # Map YAML entries to script_reforms format
+            for _key, entry in data.items():
+                if not isinstance(entry, dict):
+                    continue
+                cc = entry.get("country_code")
+                if not cc:
+                    continue
+                reform = {}
+                if "migration_start" in entry:
+                    reform["start"] = entry["migration_start"]
+                if "migration_complete" in entry:
+                    reform["end"] = entry["migration_complete"]
+                if "current_script" in entry:
+                    reform["to"] = entry.get("target_script", entry["current_script"])
+                    reform["from"] = entry.get("historical_script", entry.get("legacy_script", ""))
+                # Determine status
+                if reform.get("end") and reform["end"] <= 2025:
+                    reform["status"] = "completed"
+                elif reform.get("start") and reform.get("end"):
+                    reform["status"] = "transitional"
+                elif reform.get("start"):
+                    reform["status"] = "active"
+                if reform:
+                    self.script_reforms[cc] = reform
+        except Exception:
+            pass  # Fall back to hardcoded defaults
+
     def clean(self, entry: Dict[str, Any]) -> None:
         """Clean entry according to C1 rules."""
         # Clean canonical forms
