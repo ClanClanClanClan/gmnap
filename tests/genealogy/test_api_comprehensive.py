@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
 Comprehensive Genealogy API Testing Suite
-Tests all endpoints, edge cases, performance, and data integrity
+Tests all endpoints, edge cases, performance, and data integrity.
+
+Requires running HTTP server (localhost:8080) and Neo4j (localhost:7688).
+Run with: pytest tests/genealogy/ -m live_api
 """
 
 import pytest
@@ -13,6 +16,9 @@ from neo4j import GraphDatabase
 BASE_URL = "http://localhost:8080"
 DB_URI = "bolt://localhost:7688"
 
+pytestmark = pytest.mark.live_api
+
+
 class TestGenealogyAPI:
     """Comprehensive test suite for genealogy API"""
 
@@ -20,7 +26,11 @@ class TestGenealogyAPI:
     def setup_class(cls):
         """Setup test fixtures"""
         cls.base_url = BASE_URL
-        cls.driver = GraphDatabase.driver(DB_URI)
+        try:
+            cls.driver = GraphDatabase.driver(DB_URI)
+            cls.driver.verify_connectivity()
+        except Exception:
+            pytest.skip("Neo4j not available at localhost:7688")
 
         # Get sample IDs from database
         with cls.driver.session() as s:
