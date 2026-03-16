@@ -6,8 +6,8 @@ from .common import AuthorityContext, canonical_query_key
 
 class ZbMathOpenAdapter:
     name = "zbMATH"
-    def __init__(self, cfg: Dict[str, Any]):
-        base_url = cfg.get("base_url", "https://api.zbmath.org")
+    def __init__(self, cfg: Dict[str, Any] = None):
+        base_url = (cfg or {}).get("base_url", "https://api.zbmath.org")
         self.ctx = AuthorityContext(self.name, base_url.rstrip("/"), rps=2, burst=2, cache_ttl=86400)
     async def enrich(self, entry: Dict[str, Any]) -> Dict[str, Any]:
         q = {"q": entry.get("CanonicalLatin",""), "limit":"1"}

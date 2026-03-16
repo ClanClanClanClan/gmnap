@@ -1,5 +1,5 @@
 # GMNAP v7 Current Development Status
-*Last Updated: 2026-03-11*
+*Last Updated: 2026-03-16*
 
 ## 🎯 System State (Honest Assessment)
 
@@ -9,8 +9,8 @@
 **Security**: Injection attack blocking validated
 **Performance**: 20-25 min/1M entries (exceeds targets, OFFLINE mode)
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
-**Authority Enrichment**: 3-4 of 14 sources functional; rest are stubs. Pipeline now extracts NameEvents, AffiliationTimeline, DegreeDate from authority data.
-**Region Config**: 37/37 YAML config files created; A1 wired as pilot
+**Authority Enrichment**: 9 of 14 sources with real HTTP calls; 2 gated behind API keys; 3 deferred. Pipeline extracts NameEvents, AffiliationTimeline, DegreeDate.
+**Region Config**: 37/37 YAML config files auto-loaded via lazy `ensure_yaml_loaded()` in base class
 **API Server**: FastAPI server with `/healthz`, `/readyz`, `/api/v1/query`, `/api/v1/lineage`, `/api/v1/process`, `/metrics`
 **CLI**: `query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve`
 **Diaspora Detection**: Implemented — uses `config/diaspora.yaml` date ranges
@@ -29,7 +29,7 @@ All stages execute in sequence with real code:
 - Stage 1b: LLM thesis extraction (graceful fallback if unavailable)
 - Stage 2: Region detection (FastText + script + diaspora overlay + region overlay map)
 - Stage 3: Region hooks (clean→augment→validate→order_key per region)
-- Stage 4: Authority enrichment (extracts NameEvents, AffiliationTimeline, DegreeDate)
+- Stage 4: Authority enrichment (9 adapters with real HTTP; extracts NameEvents, AffiliationTimeline, DegreeDate)
 - Stage 5: Collision analytics (DuckDB + in-memory fallback)
 - Stage 6: Graph consistency (Bayesian coherence, optional Memgraph)
 - Stage 7: Short-form tagging (initials clustering)
@@ -76,24 +76,24 @@ All 8 V7 quality gates implemented with mode-specific thresholds.
 | OpenAlex | 0 | ✅ WORKING (httpx, /authors endpoint) |
 | Crossref | 0 | ✅ WORKING (httpx, /works?query.author=) |
 | ORCID_ETD | 0 | ✅ WORKING (httpx, /expanded-search) |
-| Crossref_Thesis | 0 | ✅ WORKING (aiohttp+httpx, OFFLINE guard) |
+| Crossref_Thesis | 0 | ✅ WORKING (httpx, type=dissertation filter) |
 | HAL | 1 | ✅ WORKING (httpx, archives-ouvertes.fr) |
-| GND | 1 | ✅ WORKING (aiohttp+httpx, lobid.org, OFFLINE guard) |
-| Wikidata_P184 | 1 | ✅ WORKING (aiohttp+httpx, SPARQL P184/P185, OFFLINE guard) |
-| OAI_University | 1 | ✅ WORKING (aiohttp+httpx, BASE API, OFFLINE guard) |
+| GND | 1 | ✅ WORKING (httpx, lobid.org, OFFLINE guard) |
+| Wikidata_P184 | 1 | ✅ WORKING (httpx, SPARQL P184/P185, OFFLINE guard) |
+| OAI_University | 1 | ✅ WORKING (httpx, BASE API, OFFLINE guard) |
 | zbMATH_Open | 1 | ✅ WORKING (httpx, api.zbmath.org) |
-| MathSciNet | 2 | ⚠️ WORKING (aiohttp, free MR Lookup; full API needs MATHSCINET_API_KEY) |
+| MathSciNet | 2 | ⚠️ STUB (needs AMS subscription — see docs/AUTHORITY_ACCESS.md) |
 | Scopus | 2 | ⚠️ GATED (needs SCOPUS_API_KEY — free at dev.elsevier.com) |
 | Dimensions | 2 | ⚠️ GATED (needs DIMENSIONS_API_KEY — free at app.dimensions.ai) |
 | ProQuest | 3 | 🔴 DEFERRED (requires institutional proxy access) |
 | GoogleScholar | 3 | 🔴 DEFERRED (ToS — opt-in via --force-extreme + YES_I_ACCEPT_GS_TOS) |
 
 **CRITICAL**: `OFFLINE=1` is the default for tier 1+ sources. Set `OFFLINE=0` for full enrichment.
-Tier 0 sources (OpenAlex, Crossref, ORCID) call APIs directly when httpx is available.
+Tier 0 sources (OpenAlex, Crossref, ORCID, Crossref_Thesis) call APIs directly.
 
-### YAML Config: All 37 Regions Wired
-37/37 YAML config files exist and are auto-loaded via `ensure_yaml_loaded()`.
-Base class `_apply_yaml_overrides()` merges YAML keys onto processor attributes lazily.
+### YAML Config: All 37 Regions Auto-Loaded
+37/37 YAML config files exist and are auto-loaded via lazy `ensure_yaml_loaded()` in base class.
+`_apply_yaml_overrides()` merges YAML keys onto processor attributes before first hook call.
 
 ### Performance Numbers Exclude Real Enrichment
 Benchmarks are OFFLINE mode. Live enrichment will be slower due to API rate limits.
@@ -144,4 +144,5 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 
 - ❌ "14 authority sources fully working" — 9 have real HTTP code; 2 need API keys; 3 deferred
 - ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly
-- ❌ "VSCode extension" — does not exist
+- ❌ "VSCode extension" — does not exist (spec §11 item, separate frontend project)
+- ❌ "Prometheus alerting" — metrics endpoint exists but no p95 latency alert rules configured

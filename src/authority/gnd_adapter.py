@@ -6,8 +6,8 @@ from .common import AuthorityContext, canonical_query_key
 
 class GNDAdapter:
     name = "GND"
-    def __init__(self, cfg: Dict[str, Any]):
-        base_url = cfg.get("base_url", "https://lobid.org/gnd")
+    def __init__(self, cfg: Dict[str, Any] = None):
+        base_url = (cfg or {}).get("base_url", "https://lobid.org/gnd")
         self.ctx = AuthorityContext(self.name, base_url.rstrip("/"), rps=4, burst=4, cache_ttl=86400)
     async def enrich(self, entry: Dict[str, Any]) -> Dict[str, Any]:
         q = {"q": entry.get("CanonicalLatin",""), "format":"json", "size":"1"}

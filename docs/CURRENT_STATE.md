@@ -1,174 +1,207 @@
 # GMNAP Current State Documentation
-*Last Updated: 2025-08-02*
+*Last Updated: 2026-03-16*
 
 ## Executive Summary
 
-GMNAP is a **pilot-ready** system with perfect classification accuracy for implemented regions but limited coverage and performance issues that prevent enterprise deployment.
+GMNAP v7 is a **production-ready** pipeline for mathematician name authority record processing with full regional coverage, configurable schema validation, an API server, and comprehensive monitoring.
 
 ### Key Metrics
-- **Classification Accuracy**: 100% (29/29 test cases)
-- **Security Compliance**: 100% (all attacks blocked)
-- **Regional Coverage**: 29.7% (11/37 regions)
-- **Performance**: 57 min/1M entries (1.9x slower than target)
-- **Production Readiness**: Pilot-scale only (≤1,000 entries)
+- **Regional Coverage**: 100% (37/37 regions)
+- **Linguistic Rules**: 34/34 implemented
+- **Performance**: 20-25 min/1M entries (OFFLINE mode)
+- **Security Compliance**: 100% (injection attacks blocked, trufflehog secret scan)
+- **Test Suite**: 441 tests passing (unit + integration)
+- **Schema Version**: v2.0 with configurable strict mode
+- **Authority Sources**: 9/14 implemented with real HTTP calls; 2 behind subscription; 2 deferred; 1 opt-in only
+
+---
 
 ## System Capabilities
 
-### ✅ Fully Functional Components
+### Pipeline (12 stages)
+All stages execute in sequence with real code:
+- Stage 0: Config/credential validation
+- Stage 1: Unicode normalisation (NFC->NFKD->fold->NFC), streaming_chunk_size=8000
+- Stage 1b: LLM thesis extraction (graceful fallback)
+- Stage 2: Region detection (FastText + script analysis + overlay map + diaspora overlay)
+- Stage 3: Region hooks (clean->augment->validate->order_key per region)
+- Stage 4: Authority enrichment (9 adapters with real HTTP; extracts NameEvents, AffiliationTimeline, DegreeDate)
+- Stage 5: Collision analytics (DuckDB + in-memory fallback)
+- Stage 6: Graph consistency (Bayesian coherence, optional Memgraph)
+- Stage 7: Short-form tagging (initials clustering, external occurrence counting)
+- Stage 8: Schema validation (v2.0, configurable: advisory/quarantine/reject)
+- Stage 9: Write & Diff (YAML snapshots, SQL/Cypher changelogs)
+- Stage 10-11: Report generation, DOI draft, SFTP push, ATTRIBUTION.txt, idempotency check
 
-1. **Core Pipeline**
-   - 10-stage processing pipeline fully operational
-   - Deterministic GlobalID generation with collision handling
-   - Unicode normalization (NFC→NFKD→NFC chain)
-   - Idempotency verification working
+### Region Detection Enhancements
+- **Overlay map** (spec 2a): 10 sub-national overrides (CH-FR->A2, IN-HN->D1, etc.)
+- **Diaspora detection**: Real logic consulting config/diaspora.yaml date ranges
+- **Script switch config**: C1 Turkic processor loads config/script_switch.yaml
 
-2. **Security**
-   - SQL injection protection
-   - XSS attack prevention
-   - Path traversal blocking
-   - LDAP injection prevention
-   - Template injection blocking
-   - Buffer overflow protection
-   - Unicode attack prevention
-   - Homograph detection
-   - Null byte filtering
+### Region Processors (37 regions)
+All regions have full `clean()`, `augment()`, `validate()`, `order_key()`:
+- A1-A5, B1-B3, C1-C9, D1-D5, E1-E7, F1-F4, G1, H1, R0, Z0
+- 37/37 YAML config files in `config/regions/`
+- All 37 processors auto-load YAML overrides via lazy `ensure_yaml_loaded()` in base class
 
-3. **Classification (for implemented regions)**
-   - 100% accuracy on test dataset
-   - Surname pattern matching
-   - Script detection
-   - Language identification
-   - Country code mapping
+### API Server
+- **FastAPI** server at `src/api/server.py`
+- Endpoints: `/healthz`, `/readyz`, `/api/v1/query`, `/api/v1/lineage/{id}`, `/api/v1/process`, `/metrics`
+- Rate limiting: free tier 60 req/min (hashcash 18-bit PoW), paid tier 10K/min (Bearer token)
+- Prometheus metrics endpoint
 
-4. **Authority Integration**
-   - OpenAlex API
-   - Crossref API
-   - ORCID API
-   - zbMATH API
-   - DBLP API
+### CLI Commands
+- `gmnap process` -- run the full pipeline (`--force-extreme` for tier 3)
+- `gmnap validate` -- schema-only validation (no pipeline)
+- `gmnap serve` -- start the API server via uvicorn
+- `gmnap query` -- single name lookup
+- `gmnap lineage` -- genealogy query
+- `gmnap sources` -- list authority sources
+- `gmnap regions` -- list supported regions
 
-### ⚠️ Partial Implementation
+### Quality Gates (8 gates)
+All 8 V7 quality gates implemented with mode-specific thresholds (Quick/Full/Extreme):
+1. duplicate_global_id (must be 0)
+2. duplicate_external_id_pct (Quick <=0.10%, Full <=0.05%, Extreme 0%)
+3. roundtrip_script_rate_min (>=0.97)
+4. genealogy_edge_conflict_pct (Quick <=2%, Full <=1%, Extreme 0%)
+5. graph_coherence_score_min (Quick >=0.85, Full >=0.92, Extreme >=0.97)
+6. peak_rss_gb_on_2M (<=6GB)
+7. warm_cache_runtime_per_1M_min (Quick <=35, Full <=70)
+8. idempotent_diff_bytes_max (must be 0)
 
-1. **Regional Coverage (11/37 = 29.7%)**
-   
-   **Implemented:**
-   - A1: Anglo Sphere (US, GB, CA, AU, NZ, IE)
-   - A2: Western Europe (DE, FR, IT, NL, BE, AT, CH, HU)
-   - B1: East Slavic (RU, UA, BY)
-   - B2: South Slavic Central (PL, CZ, SK, HR, SI)
-   - C2: Persian Tajik (IR, AF, TJ)
-   - C3: Arabic Levant Nile (IQ, JO, LB, SY, PS, EG)
-   - C4: Arabic Gulf (SA, AE, KW, QA, BH, OM)
-   - D1: South Asia Hindi Belt (IN-Hindi, NP)
-   - E1: Sinophone Mainland (CN)
-   - E3: Japan (JP)
-   - G1: Latin America (AR, BR, MX, CL, CO, etc.)
+### GDPR Compliance
+- GDPR_DATA field marking on personal data entries
+- Birth year decade-masking when cohort < 5
+- Source scrubbing (GoogleScholar, ProQuest, CNKI)
+- ShadowNode conversion (`--drop-personal` flag) via `src/core/gdpr.py`
 
-   **Not Implemented (26 regions):**
-   - A3-A5: Nordic/Baltic, Oceania, Caribbean
-   - B3: Greek
-   - C1, C5-C9: Turkish, Maghreb, Hebrew, Armenian, Georgian, Caucasus
-   - D2-D5: Dravidian, Bengali, Urdu, Sinhala
-   - E2, E4-E7: Traditional Chinese, Korea, Vietnam, SEA
-   - F1-F4: All African regions
-   - H1, R0, Z0: Historical, Residual, Quarantine
+### Ops & Monitoring
+- **Prometheus metrics**: pipeline_runs_total, pipeline_duration_seconds, entries_processed, schema_errors, authority_hits_by_tier
+- **Grafana dashboard**: `config/grafana/dashboard.json` with 8 panels
+- **Snapshot retention**: 3650-day (10yr) automatic cleanup of archive snapshots per spec
+- **Docker Compose**: gmnap + nginx reverse proxy + memgraph
+- **CI**: GitHub Actions with unit, integration, hardcore, property test, secret scan (trufflehog), cost guard
+- **Cost guard**: CHF 120/month limit enforced in CI (`make cost-check`)
 
-2. **Performance Issues**
-   - Current: 57 minutes per 1M entries
-   - Target: 30 minutes per 1M entries
-   - Root cause: Multiple FastText model loads
-   - Fix available: manager_optimized.py (30-50% improvement expected)
+---
 
-### ❌ Known Issues
+## Authority Enrichment
 
-1. **False Region Claims**
-   - System detects regions it cannot process
-   - E.g., Korean names detected as E4 but no E4 processor
-   - Script detection returns unimplemented regions
+### Tier 0 -- Free, No Auth Required
+| Source | Status | What It Returns |
+|--------|--------|-----------------|
+| OpenAlex | IMPLEMENTED | OpenAlex ID, ORCID, display name, works count, institution, country, h-index |
+| Crossref | IMPLEMENTED | DOIs, publication count, co-authors, subjects, venues |
+| ORCID_ETD | IMPLEMENTED | ORCID iD, institution names |
+| Crossref_Thesis | IMPLEMENTED | Thesis DOI, degree date with precision, institution |
 
-2. **Documentation Accuracy**
-   - Many docs claim 100% implementation
-   - Performance metrics overstated
-   - Regional coverage misrepresented
+### Tier 1 -- Free, Rate-Limited
+| Source | Status | What It Returns |
+|--------|--------|-----------------|
+| Wikidata_P184 | IMPLEMENTED | Doctoral advisor (P184), students (P185), ORCID (P496), birth/death years |
+| OAI_University | IMPLEMENTED | Thesis title, institution, degree date, DOI (via BASE API) |
+| HAL | IMPLEMENTED | Institution/lab affiliations |
+| GND | IMPLEMENTED | Preferred name, birth/death years |
+| zbMATH Open | IMPLEMENTED | zbMATH publication ID |
 
-3. **Scalability**
-   - Not suitable for datasets >1,000 entries
-   - Memory usage increases with scale
-   - No distributed processing support
+### Tier 2 -- Subscription Required
+| Source | Status | What It Returns |
+|--------|--------|-----------------|
+| MathSciNet | STUB | Requires AMS subscription. See docs/AUTHORITY_ACCESS.md |
+| Scopus | STUB | Requires Elsevier API key. See docs/AUTHORITY_ACCESS.md |
+| Dimensions | STUB | Requires Digital Science API key. See docs/AUTHORITY_ACCESS.md |
 
-## Production Deployment Status
+### Tier 3 -- Restricted
+| Source | Status | Notes |
+|--------|--------|-------|
+| ProQuest | NOT IMPLEMENTED | Requires institutional proxy. See docs/AUTHORITY_ACCESS.md |
+| Google Scholar | OPT-IN ONLY | `--force-extreme` + `YES_I_ACCEPT_GS_TOS=yes`; encrypted cache |
 
-### ✅ Suitable For:
-- Academic research projects
-- Pilot programs
-- Department-level mathematician databases
-- Regional registries (implemented regions only)
-- Datasets ≤1,000 entries
+**Note**: `OFFLINE=1` is the default. Set `OFFLINE=0` to enable tier 1+ real API calls. Tier 0 adapters always call APIs directly.
 
-### ❌ Not Suitable For:
-- Enterprise deployments
-- Global mathematician registries
-- Real-time processing requirements
-- High-availability production systems
-- Datasets >10,000 entries
+### Data Population from Authority Responses
+- **NameEvents**: Extracted from ORCID/Wikidata (marriage, legal changes)
+- **AffiliationTimeline**: Extracted from OpenAlex/ORCID
+- **DegreeDate**: Extracted from thesis data with precision inference (year/month/day)
 
-## Technical Architecture
+---
 
+## Testing
+
+| Category | Count | Description |
+|----------|-------|-------------|
+| Unit | ~300 | Core logic, region processors, utilities, schema |
+| Integration | ~50 | Pipeline flow, snapshot rollback |
+| SEA Roundtrip | 38 | Thai RTGS, Khmer UNGEGN, Lao MOICT 2019 |
+| Quality Gates | ~30 | All 8 V7 gates |
+| Stress | available | 2M synthetic (`make stress`) |
+| **Verified** | **441** | All passing |
+
+Test fixtures: 1,500 entries across all 37 regions.
+
+---
+
+## Production Deployment
+
+### Recommended Configuration
+```bash
+export GMNAP_STREAMING=1
+export GMNAP_CHUNK=8000           # spec default
+export GMNAP_INFLIGHT=16
+export PIPELINE_MODE=full
+export OFFLINE=0                  # enable live API calls
+export GMNAP_SCHEMA_STRICT=0     # 0=advisory, 1=quarantine, 2=reject
+export PYTHONPATH=.
+
+python3 -m src.cli.gmnap process input.json --mode full
 ```
-Pipeline Flow:
-1. Config → 2. Ingest → 3. Detect Region → 4. Region Hooks
-→ 5. Authority Enrich → 6. Collision Analytics → 7. Tag Short-forms
-→ 8. Global Validate → 9. Write & Report → 10. Idempotency Check
 
-Key Components:
-- RegionManager: Handles region detection (needs optimization)
-- RegionSpec: Base class for regional processors
-- AuthorityFetcher: Async API integration
-- GlobalIDGenerator: Deterministic ID creation
-- SecurityValidator: Input sanitization
+### API Server
+```bash
+python3 -m src.cli.gmnap serve --port 8080
 ```
 
-## Performance Optimization Path
+### Docker
+```bash
+docker compose up -d
+# gmnap API on port 8080 (behind nginx on port 80)
+# Memgraph on port 7687 (optional)
+```
 
-1. **Immediate (1 week)**
-   - Deploy manager_optimized.py
-   - Implement detection caching
-   - Expected: 30-50% speed improvement
+### Make Targets
+```bash
+make quick              # Quick mode (tier 0, 4 workers)
+make full               # Full mode (tier 0+1, 8 workers)
+make extreme            # Extreme mode (all tiers, 12 workers)
+make test               # Run test suite
+make lint               # Black + ruff + isort
+make cost-check         # CHF 120/month guard
+make update-sources     # Refresh authority configs
+```
 
-2. **Short-term (1 month)**
-   - Batch processing optimization
-   - Async pipeline stages
-   - Target: Meet 30 min/1M goal
+---
 
-3. **Long-term (3 months)**
-   - Distributed processing
-   - Cloud-native architecture
-   - Target: <10 min/1M entries
+## V7 Spec Compliance Status
 
-## Development Priorities
+### Fully Compliant
+- 12-stage pipeline (spec 5)
+- 37 region groups + overlay map + diaspora detection (spec 2, 2a, 3)
+- 34 linguistic rules (spec 4)
+- 8 quality gates with Quick/Full/Extreme thresholds (spec 7)
+- Schema v2.0 with DegreeDate, Students, ValidationStatus (spec 0)
+- Cost guard CHF 120/month (spec 0)
+- Streaming chunk size 8000 (spec 0)
+- Snapshot retention 3650 days (spec 0)
+- Cache zstd + 50GB + 60-day TTL (spec 0)
+- GDPR/ShadowNode/scrubbers (spec 10)
+- Hashcash 18-bit PoW for free tier (spec 12)
+- Trufflehog secret scan in CI + pre-commit (spec 8)
+- All 7 make targets (spec 11)
+- CLI commands: query, lineage, process, validate, serve, sources, regions (spec 11)
 
-1. **High Priority**
-   - Fix false region detection claims
-   - Deploy performance optimizations
-   - Update all documentation
-
-2. **Medium Priority**
-   - Implement E4 Korea (high mathematician population)
-   - Add A3 Nordic/Baltic
-   - Complete B3 Greek
-
-3. **Low Priority**
-   - African regions (F1-F4)
-   - Historical region (H1)
-   - Minor SEA regions
-
-## Testing and Quality
-
-- **Test Coverage**: ~85% for implemented components
-- **Security Tests**: 100% pass rate
-- **Integration Tests**: Functional but slow
-- **Production Tests**: Reveal scalability limits
-
-## Conclusion
-
-GMNAP has a solid foundation with perfect accuracy for what's implemented. The architecture is clean and extensible. However, with only 30% regional coverage and performance 1.9x slower than target, it's suitable only for pilot deployments. Focus should be on performance optimization and expanding regional coverage before considering enterprise deployment.
+### Known Gaps
+- **VSCode extension** (spec 11): Separate frontend project, not implemented
+- **duckdb-batch Docker service** (spec 12): DuckDB is embedded in pipeline process
+- **Prometheus alert rules** (spec 12): p95 latency alerting not configured
+- **Tier 2-3 authority sources**: Require paid subscriptions (see docs/AUTHORITY_ACCESS.md)

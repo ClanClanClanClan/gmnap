@@ -6,8 +6,8 @@ from .common import AuthorityContext, canonical_query_key
 
 class HALAdapter:
     name = "HAL"
-    def __init__(self, cfg: Dict[str, Any]):
-        base_url = cfg.get("base_url", "https://api.archives-ouvertes.fr")
+    def __init__(self, cfg: Dict[str, Any] = None):
+        base_url = (cfg or {}).get("base_url", "https://api.archives-ouvertes.fr")
         self.ctx = AuthorityContext(self.name, base_url.rstrip("/") + "/search", rps=4, burst=4, cache_ttl=86400)
     async def enrich(self, entry: Dict[str, Any]) -> Dict[str, Any]:
         q = {"wt":"json","q": f'authFullName_t:"{entry.get("CanonicalLatin","")}"', "rows": 1}
