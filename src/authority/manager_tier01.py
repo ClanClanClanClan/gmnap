@@ -5,25 +5,25 @@ Tier 1: Wikidata_P184, OAI_University, HAL, GND, zbMATH_Open (free, rate limited
 Tier 2: MathSciNet, Scopus, Dimensions (subscription required)
 Tier 3: ProQuest, Google Scholar (scraper / subscription)
 
-IMPLEMENTATION STATUS:
-  Tier 0:
-    - OpenAlex:        IMPLEMENTED (real API calls when OFFLINE!=1)
-    - Crossref:        IMPLEMENTED (real API calls, no OFFLINE guard)
-    - ORCID_ETD:       IMPLEMENTED (real API calls when OFFLINE!=1)
-    - Crossref_Thesis: IMPLEMENTED (Crossref dissertation search, OFFLINE guard)
-  Tier 1:
-    - Wikidata_P184:   IMPLEMENTED (SPARQL P184 queries, OFFLINE guard)
-    - OAI_University:  IMPLEMENTED (BASE API thesis search, OFFLINE guard)
-    - HAL:             IMPLEMENTED (real API calls, no OFFLINE guard)
-    - GND:             IMPLEMENTED (lobid.org API, OFFLINE guard)
-    - zbMATH_Open:     IMPLEMENTED (standalone fetcher adapter)
-  Tier 2:
-    - MathSciNet:      IMPLEMENTED (free MR Lookup + full API w/ MATHSCINET_API_KEY)
-    - Scopus:          IMPLEMENTED (standalone fetcher, needs SCOPUS_API_KEY)
-    - Dimensions:      IMPLEMENTED (DSL API, needs DIMENSIONS_API_KEY)
-  Tier 3:
+IMPLEMENTATION STATUS (as of 2026-03-16):
+  Tier 0 (free, no auth):
+    - OpenAlex:        WORKING (httpx adapter, /authors endpoint, no OFFLINE guard)
+    - Crossref:        WORKING (httpx adapter, /works?query.author=)
+    - ORCID_ETD:       WORKING (httpx adapter, /expanded-search)
+    - Crossref_Thesis: WORKING (aiohttp in dispatch + httpx adapter, OFFLINE guard)
+  Tier 1 (free, rate-limited):
+    - Wikidata_P184:   WORKING (aiohttp SPARQL + httpx adapter, OFFLINE guard)
+    - OAI_University:  WORKING (aiohttp BASE API + httpx adapter, OFFLINE guard)
+    - HAL:             WORKING (httpx adapter, archives-ouvertes.fr)
+    - GND:             WORKING (aiohttp lobid.org + httpx adapter, OFFLINE guard)
+    - zbMATH_Open:     WORKING (httpx adapter, api.zbmath.org)
+  Tier 2 (subscription):
+    - MathSciNet:      WORKING (aiohttp, free MR Lookup + full API w/ MATHSCINET_API_KEY)
+    - Scopus:          GATED (needs SCOPUS_API_KEY, free for research at dev.elsevier.com)
+    - Dimensions:      GATED (needs DIMENSIONS_API_KEY, free at app.dimensions.ai)
+  Tier 3 (restricted):
     - ProQuest:        DEFERRED (requires institutional proxy access)
-    - GoogleScholar:   DEFERRED (scraping violates ToS, DO NOT implement)
+    - GoogleScholar:   DEFERRED (ToS, opt-in via --force-extreme + YES_I_ACCEPT_GS_TOS)
 
 NOTE: OFFLINE defaults to "1" (True).  In OFFLINE mode, most fetchers
 return cached results or empty dicts.  Set OFFLINE=0 to enable real
@@ -63,19 +63,20 @@ def _cache_set(path: pathlib.Path, obj: Dict) -> None:
 # ── Tier 0 fetchers (free, no auth) ───────────────────────────────────────
 
 async def _fetch_openalex(entry: Dict) -> Dict:
-    """OpenAlex works search by name."""
+    """OpenAlex authors search by name. Free, no auth, 864K/day."""
     ck = _cache_key("openalex", {"name": entry.get("CanonicalLatin", "")})
     cached = _cache_get(ck)
     if cached:
         return cached
     try:
-        from src.authorities.tier0.openalex import OpenAlexFetcher
-        fetcher = OpenAlexFetcher({"email": os.getenv("GMNAP_EMAIL", "gmnap@example.com")})
-        result = await fetcher.fetch(entry.get("CanonicalLatin", ""))
-        if result.data:
-            data = {"OpenAlex": {"hit": True, "source_id": result.data.source_id,
-                                 "affiliations": result.data.affiliations,
-                                 "identifiers": result.data.identifiers}}
+        from src.authority.openalex_adapter import OpenAlexAdapter
+        adapter = OpenAlexAdapter()
+        result = await adapter.enrich(entry)
+        if result.get("_source", {}).get("hit"):
+            data = {"OpenAlex": {"hit": True,
+                                 "source_id": result.get("OpenAlexID"),
+                                 "identifiers": {k: v for k, v in result.items()
+                                                 if k not in ("_source",)}}}
             _cache_set(ck, data)
             return data
     except Exception as e:
@@ -84,18 +85,19 @@ async def _fetch_openalex(entry: Dict) -> Dict:
 
 
 async def _fetch_crossref(entry: Dict) -> Dict:
-    """Crossref DOI metadata lookup."""
+    """Crossref generic works search. Free, no auth, 4.3M/day polite pool."""
     ck = _cache_key("crossref", {"name": entry.get("CanonicalLatin", "")})
     cached = _cache_get(ck)
     if cached:
         return cached
     try:
-        from src.authorities.tier0.crossref import CrossrefFetcher
-        fetcher = CrossrefFetcher({"email": os.getenv("GMNAP_EMAIL", "gmnap@example.com")})
-        result = await fetcher.fetch(entry.get("CanonicalLatin", ""))
-        if result.data:
-            data = {"Crossref": {"hit": True, "source_id": result.data.source_id,
-                                 "identifiers": result.data.identifiers}}
+        from src.authority.crossref_adapter import CrossrefAdapter
+        adapter = CrossrefAdapter()
+        result = await adapter.enrich(entry)
+        if result.get("_source", {}).get("hit"):
+            data = {"Crossref": {"hit": True,
+                                 "identifiers": {k: v for k, v in result.items()
+                                                 if k not in ("_source",)}}}
             _cache_set(ck, data)
             return data
     except Exception as e:
@@ -104,18 +106,20 @@ async def _fetch_crossref(entry: Dict) -> Dict:
 
 
 async def _fetch_orcid_etd(entry: Dict) -> Dict:
-    """ORCID persistent researcher ID lookup."""
+    """ORCID public API — expanded search. Free, no auth, 100K/day."""
     ck = _cache_key("orcid", {"name": entry.get("CanonicalLatin", "")})
     cached = _cache_get(ck)
     if cached:
         return cached
     try:
-        from src.authorities.tier0.orcid import ORCIDFetcher
-        fetcher = ORCIDFetcher({})
-        result = await fetcher.fetch(entry.get("CanonicalLatin", ""))
-        if result.data:
-            data = {"ORCID_ETD": {"hit": True, "source_id": result.data.source_id,
-                                   "identifiers": result.data.identifiers}}
+        from src.authority.orcid_etd_adapter import ORCIDETDAdapter
+        adapter = ORCIDETDAdapter()
+        result = await adapter.enrich(entry)
+        if result.get("_source", {}).get("hit"):
+            data = {"ORCID_ETD": {"hit": True,
+                                   "source_id": result.get("ORCID"),
+                                   "identifiers": {k: v for k, v in result.items()
+                                                   if k not in ("_source",)}}}
             _cache_set(ck, data)
             return data
     except Exception as e:
@@ -372,13 +376,15 @@ async def _fetch_oai_university(entry: Dict) -> Dict:
 
 
 async def _fetch_hal(entry: Dict) -> Dict:
-    """HAL French national archive lookup."""
+    """HAL French national archive lookup. Free, no auth, 86K/day."""
     try:
-        from src.authorities.tier1.hal import HALFetcher
-        fetcher = HALFetcher({})
-        result = await fetcher.fetch(entry.get("CanonicalLatin", ""))
-        if result.data:
-            return {"HAL": {"hit": True, "source_id": result.data.source_id}}
+        from src.authority.hal_adapter import HALAdapter
+        adapter = HALAdapter({})
+        result = await adapter.enrich(entry)
+        if result.get("_source", {}).get("hit") or result.get("Institution"):
+            return {"HAL": {"hit": True,
+                            "identifiers": {k: v for k, v in result.items()
+                                            if k not in ("_source",)}}}
     except Exception as e:
         logger.debug(f"HAL fetch failed: {e}")
     return {"HAL": {"hit": False}}
@@ -415,13 +421,15 @@ async def _fetch_gnd(entry: Dict) -> Dict:
 
 
 async def _fetch_zbmath(entry: Dict) -> Dict:
-    """zbMATH Open mathematics lookup."""
+    """zbMATH Open mathematics lookup. Free, no auth, 200/day."""
     try:
-        from src.authorities.tier0.zbmath import zbMATHFetcher
-        fetcher = zbMATHFetcher({})
-        result = await fetcher.fetch(entry.get("CanonicalLatin", ""))
-        if result.data:
-            return {"zbMATH_Open": {"hit": True, "source_id": result.data.source_id}}
+        from src.authority.zbmath_open_adapter import ZbMathOpenAdapter
+        adapter = ZbMathOpenAdapter({})
+        result = await adapter.enrich(entry)
+        if result.get("_source", {}).get("hit") or result.get("Publications"):
+            return {"zbMATH_Open": {"hit": True,
+                                    "identifiers": {k: v for k, v in result.items()
+                                                    if k not in ("_source",)}}}
     except Exception as e:
         logger.debug(f"zbMATH fetch failed: {e}")
     return {"zbMATH_Open": {"hit": False}}

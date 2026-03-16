@@ -69,30 +69,31 @@ All 8 V7 quality gates implemented with mode-specific thresholds.
 
 ## 🔴 Known Limitations (Be Honest About These)
 
-### Authority Enrichment: Only 3-4 of 14 Sources Work
+### Authority Enrichment: 9 of 14 Sources Have Real HTTP Code
 
 | Source | Tier | Status |
 |--------|------|--------|
-| OpenAlex | 0 | ✅ IMPLEMENTED |
-| Crossref | 0 | ✅ IMPLEMENTED |
-| ORCID_ETD | 0 | ✅ IMPLEMENTED |
-| Crossref_Thesis | 0 | ⚠️ PARTIAL (OFFLINE guard) |
-| HAL | 1 | ✅ IMPLEMENTED |
-| GND | 1 | ✅ IMPLEMENTED (OFFLINE guard) |
-| Wikidata_P184 | 1 | 🔴 STUB (echoes input data) |
-| OAI_University | 1 | ⚠️ PARTIAL (OFFLINE guard) |
-| zbMATH_Open | 1 | ⚠️ PARTIAL (adapter ref only) |
-| MathSciNet | 2 | 🔴 STUB (returns hit=False) |
-| Scopus | 2 | ⚠️ PARTIAL (needs API key) |
-| Dimensions | 2 | 🔴 STUB (returns hit=False) |
-| ProQuest | 3 | 🔴 NOT IMPLEMENTED (requires institutional access) |
-| GoogleScholar | 3 | 🔴 NOT IMPLEMENTED (ToS violation risk) |
+| OpenAlex | 0 | ✅ WORKING (httpx, /authors endpoint) |
+| Crossref | 0 | ✅ WORKING (httpx, /works?query.author=) |
+| ORCID_ETD | 0 | ✅ WORKING (httpx, /expanded-search) |
+| Crossref_Thesis | 0 | ✅ WORKING (aiohttp+httpx, OFFLINE guard) |
+| HAL | 1 | ✅ WORKING (httpx, archives-ouvertes.fr) |
+| GND | 1 | ✅ WORKING (aiohttp+httpx, lobid.org, OFFLINE guard) |
+| Wikidata_P184 | 1 | ✅ WORKING (aiohttp+httpx, SPARQL P184/P185, OFFLINE guard) |
+| OAI_University | 1 | ✅ WORKING (aiohttp+httpx, BASE API, OFFLINE guard) |
+| zbMATH_Open | 1 | ✅ WORKING (httpx, api.zbmath.org) |
+| MathSciNet | 2 | ⚠️ WORKING (aiohttp, free MR Lookup; full API needs MATHSCINET_API_KEY) |
+| Scopus | 2 | ⚠️ GATED (needs SCOPUS_API_KEY — free at dev.elsevier.com) |
+| Dimensions | 2 | ⚠️ GATED (needs DIMENSIONS_API_KEY — free at app.dimensions.ai) |
+| ProQuest | 3 | 🔴 DEFERRED (requires institutional proxy access) |
+| GoogleScholar | 3 | 🔴 DEFERRED (ToS — opt-in via --force-extreme + YES_I_ACCEPT_GS_TOS) |
 
-**CRITICAL**: `OFFLINE=1` is the default. Set `OFFLINE=0` to enable real API calls.
+**CRITICAL**: `OFFLINE=1` is the default for tier 1+ sources. Set `OFFLINE=0` for full enrichment.
+Tier 0 sources (OpenAlex, Crossref, ORCID) call APIs directly when httpx is available.
 
-### YAML Config: A1 Pilot Only
-37/37 YAML config files exist. A1 (Anglo-Sphere) is wired as pilot.
-Remaining 36 processors use hardcoded Python defaults.
+### YAML Config: All 37 Regions Wired
+37/37 YAML config files exist and are auto-loaded via `ensure_yaml_loaded()`.
+Base class `_apply_yaml_overrides()` merges YAML keys onto processor attributes lazily.
 
 ### Performance Numbers Exclude Real Enrichment
 Benchmarks are OFFLINE mode. Live enrichment will be slower due to API rate limits.
@@ -141,7 +142,6 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 
 ## ❌ DO NOT Claim
 
-- ❌ "14-16 authority sources" — only 3-4 work; 5 more behind OFFLINE guard
-- ❌ "Real-time authority enrichment" — OFFLINE=1 by default
-- ❌ "All regions load from YAML" — only A1 is wired; 36 use hardcoded Python
+- ❌ "14 authority sources fully working" — 9 have real HTTP code; 2 need API keys; 3 deferred
+- ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly
 - ❌ "VSCode extension" — does not exist
