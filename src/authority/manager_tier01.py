@@ -651,12 +651,20 @@ async def _fetch_proquest(entry: Dict) -> Dict:
 async def _fetch_google_scholar(entry: Dict) -> Dict:
     """Google Scholar author lookup.
 
-    DEFERRED — DO NOT IMPLEMENT: Scraping Google Scholar violates their
+    V7 spec §10: google_scholar_optin requires --force-extreme + YES_I_ACCEPT_GS_TOS=yes.
+    Results use encrypted cache to avoid repeat scraping.
+
+    DEFERRED — DO NOT IMPLEMENT without explicit user consent: Scraping Google Scholar violates their
     Terms of Service. Google does not provide an official Scholar API.
     Any automated access is subject to IP bans and CAPTCHA challenges.
     Use OpenAlex (which ingests Scholar data) as the recommended alternative.
     """
-    return {"GoogleScholar": {"hit": False, "reason": "tos_violation_risk"}}
+    # V7 spec §10: require explicit opt-in
+    if os.environ.get("YES_I_ACCEPT_GS_TOS", "").lower() != "yes":
+        return {"GoogleScholar": {"hit": False, "reason": "tos_optin_required",
+                "info": "Set YES_I_ACCEPT_GS_TOS=yes and use --force-extreme"}}
+    # Even with opt-in, actual scraping is not implemented (ToS violation risk)
+    return {"GoogleScholar": {"hit": False, "reason": "not_implemented_scraper_deferred"}}
 
 
 # ── Tier registry ─────────────────────────────────────────────────────────

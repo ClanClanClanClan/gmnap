@@ -56,6 +56,44 @@ class RateLimiter:
         return True
 
 
+# V7 spec §12: free_tier hashcash_bits = 18
+HASHCASH_BITS = 18
+_HASHCASH_TTL = 300  # stamps valid for 5 minutes
+_used_stamps: Dict[str, float] = {}  # prevent replay
+
+
+def verify_hashcash(stamp: str, required_bits: int = HASHCASH_BITS) -> bool:
+    """Verify a hashcash stamp has sufficient leading zero bits.
+
+    Format: ver:bits:date:resource::rand:counter
+    Example: 1:18:260316:gmnap-api::abc123:42
+    """
+    if not stamp:
+        return False
+
+    # Prevent replay
+    now = time.time()
+    if stamp in _used_stamps:
+        return False
+
+    # Prune old stamps periodically
+    if len(_used_stamps) > 10_000:
+        cutoff = now - _HASHCASH_TTL
+        expired = [k for k, v in _used_stamps.items() if v < cutoff]
+        for k in expired:
+            del _used_stamps[k]
+
+    # Verify leading zero bits
+    digest = hashlib.sha1(stamp.encode("utf-8")).hexdigest()
+    # Convert hex to binary and check leading zeros
+    bits = bin(int(digest, 16))[2:].zfill(160)
+    if not bits[:required_bits] == "0" * required_bits:
+        return False
+
+    _used_stamps[stamp] = now
+    return True
+
+
 # ---------------------------------------------------------------------------
 # Request / response models
 # ---------------------------------------------------------------------------
@@ -112,6 +150,19 @@ def create_app() -> FastAPI:
         if auth.startswith("Bearer ") and _PAID_TOKENS:
             token = auth[7:]
             is_paid = token in _PAID_TOKENS
+
+        # V7 spec §12: free tier requires hashcash 18-bit PoW for /api/ endpoints
+        path = request.url.path
+        if not is_paid and path.startswith("/api/"):
+            stamp = request.headers.get("X-Hashcash", "")
+            if not verify_hashcash(stamp):
+                return JSONResponse(
+                    status_code=402,
+                    content={
+                        "detail": "Free tier requires X-Hashcash header (18-bit PoW)",
+                        "info": "Format: 1:18:YYMMDD:gmnap-api::rand:counter",
+                    },
+                )
 
         if not _rate_limiter.check(client_ip, is_paid):
             return JSONResponse(

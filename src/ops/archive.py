@@ -60,16 +60,22 @@ def archive_snapshot(snapshot_dir: str, target_dir: Optional[str] = None, method
         except Exception:
             return artifact
 
-    # Run retention cleanup after successful archive (V7 spec §12: retention_days: 30)
+    # Run retention cleanup after successful archive
+    # V7 spec §0: snapshot_retention_days = 3650 (10 years) for data snapshots
+    # V7 spec §12: backups.retention_days = 30 for ops/infra backups
     cleanup_old_snapshots(str(archive_root))
 
     return artifact
 
 
-def cleanup_old_snapshots(archive_dir: str, retention_days: int = 30) -> int:
+# V7 spec §0 global constant: snapshot_retention_days = 3650
+SNAPSHOT_RETENTION_DAYS = 3650
+
+
+def cleanup_old_snapshots(archive_dir: str, retention_days: int = SNAPSHOT_RETENTION_DAYS) -> int:
     """Remove snapshot archives older than retention_days.
 
-    V7 spec §12: backups.retention_days = 30.
+    V7 spec §0: snapshot_retention_days = 3650 (10 years) for data snapshots.
 
     Args:
         archive_dir: Directory containing snapshot zip files.

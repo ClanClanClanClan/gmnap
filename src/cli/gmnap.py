@@ -117,7 +117,9 @@ def lineage(gid: str, depth: int, fmt: str):
 @click.option("--mode", default="quick", type=click.Choice(["quick", "full", "extreme"]))
 @click.option("--output", "-o", default="out/", help="Output directory")
 @click.option("--drop-personal", is_flag=True, help="GDPR: replace personal data with ShadowNodes")
-def process(input_file: str, mode: str, output: str, drop_personal: bool):
+@click.option("--force-extreme", is_flag=True,
+              help="Enable tier-3 sources (GoogleScholar). Requires YES_I_ACCEPT_GS_TOS=yes")
+def process(input_file: str, mode: str, output: str, drop_personal: bool, force_extreme: bool):
     """Run V7 pipeline on an input file (JSON or YAML)."""
     import os
 
@@ -127,6 +129,17 @@ def process(input_file: str, mode: str, output: str, drop_personal: bool):
 
     if drop_personal:
         os.environ["GMNAP_DROP_PERSONAL"] = "1"
+
+    if force_extreme:
+        if os.environ.get("YES_I_ACCEPT_GS_TOS", "").lower() != "yes":
+            click.echo(
+                "ERROR: --force-extreme requires YES_I_ACCEPT_GS_TOS=yes\n"
+                "Google Scholar scraping may violate their Terms of Service.\n"
+                "Set the env var to acknowledge this risk.",
+                err=True,
+            )
+            sys.exit(1)
+        os.environ["GMNAP_FORCE_EXTREME"] = "1"
 
     data = _load_input(input_file)
     if not data:

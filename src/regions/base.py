@@ -5,14 +5,21 @@ Enforces V7 linguistic rules (IDs 1-34) and quality gates.
 """
 
 import logging
+import pathlib
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, List, Literal, Optional
 
 from .security import SecurityError, secure_validate_entry, secure_clean_name
 from .validation_rules import regional_validator, ValidationResult
 
 logger = logging.getLogger(__name__)
+
+# Path to region YAML config directory
+_REGION_CONFIG_DIR = pathlib.Path(__file__).resolve().parents[2] / "config" / "regions"
+
+# Cache loaded YAML configs (code → dict)
+_YAML_CACHE: Dict[str, Dict[str, Any]] = {}
 
 
 class RegionRuleError(Exception):
@@ -30,7 +37,7 @@ class RegionSpec(ABC):
     and V7 quality gates including 97% round-trip accuracy.
     """
     code: str
-    yaml_files: List[str]
+    yaml_files: List[str]  # File ownership declarations (for input dedup, NOT config loading)
     scripts: List[str]
     mixed_scripts: bool = False
     canonical_order: Literal[
@@ -43,7 +50,95 @@ class RegionSpec(ABC):
         if self.romanisation_standards is None:
             self.romanisation_standards = []
         self.logger = logging.getLogger(f"regions.{self.code}")
-    
+        self._yaml_overrides_applied = False
+
+    def ensure_yaml_loaded(self) -> None:
+        """Ensure YAML config overrides have been applied.
+
+        Called lazily before the first pipeline hook (clean/augment/validate).
+        Subclass __init__ sets hardcoded defaults; this merges YAML on top.
+        Safe to call multiple times — only runs once.
+        """
+        if self._yaml_overrides_applied:
+            return
+        self._yaml_overrides_applied = True
+        self._apply_yaml_overrides()
+
+    def _apply_yaml_overrides(self) -> None:
+        """Merge YAML config values into processor instance attributes.
+
+        Called by ensure_yaml_loaded().  For each key in the YAML
+        config file (e.g. config/regions/a2.yaml), if the processor already
+        has an attribute with that name the value is overridden:
+
+        - list YAML → set attribute  → set(yaml_list)
+        - list YAML → list attribute → yaml_list
+        - dict YAML → dict attribute → existing.update(yaml_dict)
+        - other                      → direct assignment
+
+        Keys 'code' and 'name' are skipped (identity, not config).
+        """
+        cfg = self.load_yaml_config()
+        if not cfg:
+            return
+
+        _SKIP = {"code", "name"}
+        for key, val in cfg.items():
+            if key in _SKIP:
+                continue
+            current = getattr(self, key, None)
+            if current is None:
+                # New attribute from YAML — store as-is
+                setattr(self, key, val)
+            elif isinstance(current, set) and isinstance(val, list):
+                setattr(self, key, set(val))
+            elif isinstance(current, list) and isinstance(val, list):
+                setattr(self, key, val)
+            elif isinstance(current, dict) and isinstance(val, dict):
+                current.update(val)
+            else:
+                setattr(self, key, val)
+        self.logger.debug(f"Applied {len(cfg) - len(_SKIP & set(cfg))} YAML overrides")
+
+    def load_yaml_config(self) -> Dict[str, Any]:
+        """
+        Load region-specific YAML configuration from config/regions/{code}.yaml.
+
+        Returns the parsed YAML dict, or {} if the file doesn't exist.
+        Results are cached per region code so the file is read at most once.
+
+        Usage in processor __init__:
+            cfg = self.load_yaml_config()
+            self.titles = set(cfg.get("titles", self.titles))
+        """
+        if self.code in _YAML_CACHE:
+            return _YAML_CACHE[self.code]
+
+        yaml_path = _REGION_CONFIG_DIR / f"{self.code.lower()}.yaml"
+        if not yaml_path.exists():
+            _YAML_CACHE[self.code] = {}
+            return {}
+
+        try:
+            import yaml
+            data = yaml.safe_load(yaml_path.read_text(encoding="utf-8")) or {}
+            _YAML_CACHE[self.code] = data
+            self.logger.debug(f"Loaded YAML config from {yaml_path}")
+            return data
+        except ImportError:
+            self.logger.warning("PyYAML not installed; YAML config loading skipped")
+            _YAML_CACHE[self.code] = {}
+            return {}
+        except Exception as e:
+            self.logger.warning(f"Failed to load {yaml_path}: {e}")
+            _YAML_CACHE[self.code] = {}
+            return {}
+
+    @staticmethod
+    def clear_yaml_cache() -> None:
+        """Clear the YAML config cache (useful for testing)."""
+        _YAML_CACHE.clear()
+
     # Security methods (available to all processors)
     def security_validate(self, entry: Dict[str, Any]) -> None:
         """
