@@ -35,6 +35,10 @@ pre-commit==3.7.1
 codespell==2.3.0
 yamllint==1.35.1
 
+# API server
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
 # CLI tools
 click==8.1.7
 rich==13.7.1

@@ -154,9 +154,19 @@ def _duckdb_dedup(batch: List[Dict], workdir: str) -> Tuple[List[Dict], int]:
 
 
 def _batch_main():
-    """CLI entry point for duckdb-batch Docker service."""
+    """CLI entry point for duckdb-batch Docker service.
+
+    Usage: python -m src.pipeline.stage5_collision_analytics [--batch]
+    The --batch flag is accepted for docker-compose compatibility.
+    """
     import glob
     import sys
+
+    # Accept --batch flag (used by docker-compose command) — no-op, always runs batch
+    if "--help" in sys.argv:
+        print("Usage: python -m src.pipeline.stage5_collision_analytics [--batch]")
+        print("Runs DuckDB collision analytics on all JSON files in data/")
+        sys.exit(0)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     workdir = os.environ.get("GMNAP_WORKDIR", "work")

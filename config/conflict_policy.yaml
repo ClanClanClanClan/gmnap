@@ -1,0 +1,13 @@
+# GMNAP Authority Conflict Resolution Policy
+# Used by merge_authority_data.py when multiple sources provide different values.
+
+fields:
+  BirthYear:
+    strategy: source_priority
+    source_priority: [Wikidata_P184, GND, OpenAlex]
+  DeathYear:
+    strategy: source_priority
+    source_priority: [Wikidata_P184, GND, OpenAlex]
+  DegreeDate:
+    strategy: source_priority
+    source_priority: [CrossrefThesis, OAI_University, ORCID_ETD]

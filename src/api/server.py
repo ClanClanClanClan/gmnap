@@ -14,6 +14,7 @@ import hashlib
 import json
 import logging
 import os
+import threading
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -105,7 +106,7 @@ class RateLimiter:
 HASHCASH_BITS = 18
 _HASHCASH_TTL = 300  # stamps valid for 5 minutes
 _used_stamps: Dict[str, float] = {}  # prevent replay
-_stamps_lock = __import__("threading").Lock()
+_stamps_lock = threading.Lock()
 
 
 def verify_hashcash(stamp: str, required_bits: int = HASHCASH_BITS) -> bool:

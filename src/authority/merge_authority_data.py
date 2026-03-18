@@ -19,12 +19,12 @@ def merge_authority_fragments(fragments: List[Dict[str, Any]], policy: ConflictP
             field_sources.setdefault(k, {})[src] = v
     for field, by_src in field_sources.items():
         if field in ARRAY_FIELDS:
-            # union with stable ordering
-            seen = set(); out = []
+            # union with stable ordering (handles both hashable and unhashable items)
+            out = []
             for src, arr in sorted(by_src.items(), key=lambda kv: kv[0]):
                 for x in (arr or []):
-                    if x not in seen:
-                        out.append(x); seen.add(x)
+                    if x not in out:
+                        out.append(x)
             merged[field] = out
         elif field in SCALAR_PRIORITY:
             choice = policy.pick_source(field, by_src)

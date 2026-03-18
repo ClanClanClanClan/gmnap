@@ -20,7 +20,7 @@ services:
     command: ["--init-file=/var/lib/memgraph/init.cypher", "--storage-gc-cycle-sec=30"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "echo 'RETURN 1;' | /usr/lib/memgraph/mgconsole --host localhost --port 7687 --username gmnap --password v7_lineage || exit 1"]
+      test: ["CMD-SHELL", "echo 'RETURN 1;' | /usr/lib/memgraph/mgconsole --host localhost --port 7687 --username gmnap --password $${MEMGRAPH_PASSWORD:-v7_lineage} || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
