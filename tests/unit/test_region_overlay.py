@@ -20,7 +20,7 @@ class TestRegionOverlayMap:
         entry = {
             "CanonicalLatin": "Dupont, Jean",
             "CountryCodes": ["CH"],
-            "Institution": ["Université de Genève"],
+            "Institution": "Université de Genève",
         }
         result = region_manager.detect_region(entry)
         assert result.region_code == "A2"
@@ -30,7 +30,7 @@ class TestRegionOverlayMap:
         entry = {
             "CanonicalLatin": "Raman, Srinivasa",
             "CountryCodes": ["IN"],
-            "Institution": ["Chennai Mathematical Institute"],
+            "Institution": "Chennai Mathematical Institute",
         }
         result = region_manager.detect_region(entry)
         assert result.region_code == "D2"
@@ -40,7 +40,7 @@ class TestRegionOverlayMap:
         entry = {
             "CanonicalLatin": "Bose, Satyendra Nath",
             "CountryCodes": ["IN"],
-            "Institution": ["Jadavpur University"],
+            "Institution": "Jadavpur University",
         }
         result = region_manager.detect_region(entry)
         assert result.region_code == "D3"
@@ -50,7 +50,7 @@ class TestRegionOverlayMap:
         entry = {
             "CanonicalLatin": "Selvanathan, Kannan",
             "CountryCodes": ["LK"],
-            "Institution": ["University of Jaffna"],
+            "Institution": "University of Jaffna",
         }
         result = region_manager.detect_region(entry)
         assert result.region_code == "D2"
@@ -60,7 +60,7 @@ class TestRegionOverlayMap:
         entry = {
             "CanonicalLatin": "Magomedov, Akhmed",
             "CountryCodes": ["RU"],
-            "Institution": ["Dagestan State University"],
+            "Institution": "Dagestan State University",
         }
         result = region_manager.detect_region(entry)
         assert result.region_code == "C9"
@@ -70,7 +70,7 @@ class TestRegionOverlayMap:
         entry = {
             "CanonicalLatin": "Smith, John",
             "CountryCodes": ["US"],
-            "Institution": ["MIT"],
+            "Institution": "MIT",
         }
         result = region_manager.detect_region(entry)
         assert result.region_code == "A1"
@@ -80,7 +80,7 @@ class TestRegionOverlayMap:
         entry = {
             "CanonicalLatin": "Sharma, Priya",
             "CountryCodes": ["IN"],
-            "Institution": ["Indian Institute of Technology Delhi"],
+            "Institution": "Indian Institute of Technology Delhi",
         }
         result = region_manager.detect_region(entry)
         assert result.region_code == "D1"

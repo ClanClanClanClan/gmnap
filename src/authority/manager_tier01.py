@@ -68,6 +68,8 @@ async def _fetch_openalex(entry: Dict) -> Dict:
     cached = _cache_get(ck)
     if cached:
         return cached
+    if OFFLINE:
+        return {"OpenAlex": {"hit": False}}
     try:
         from src.authority.openalex_adapter import OpenAlexAdapter
         adapter = OpenAlexAdapter()
@@ -90,6 +92,8 @@ async def _fetch_crossref(entry: Dict) -> Dict:
     cached = _cache_get(ck)
     if cached:
         return cached
+    if OFFLINE:
+        return {"Crossref": {"hit": False}}
     try:
         from src.authority.crossref_adapter import CrossrefAdapter
         adapter = CrossrefAdapter()
@@ -111,6 +115,8 @@ async def _fetch_orcid_etd(entry: Dict) -> Dict:
     cached = _cache_get(ck)
     if cached:
         return cached
+    if OFFLINE:
+        return {"ORCID_ETD": {"hit": False}}
     try:
         from src.authority.orcid_etd_adapter import ORCIDETDAdapter
         adapter = ORCIDETDAdapter()
@@ -377,14 +383,22 @@ async def _fetch_oai_university(entry: Dict) -> Dict:
 
 async def _fetch_hal(entry: Dict) -> Dict:
     """HAL French national archive lookup. Free, no auth, 86K/day."""
+    ck = _cache_key("hal", {"name": entry.get("CanonicalLatin", "")})
+    cached = _cache_get(ck)
+    if cached:
+        return cached
+    if OFFLINE:
+        return {"HAL": {"hit": False}}
     try:
         from src.authority.hal_adapter import HALAdapter
         adapter = HALAdapter({})
         result = await adapter.enrich(entry)
         if result.get("_source", {}).get("hit") or result.get("Institution"):
-            return {"HAL": {"hit": True,
+            data = {"HAL": {"hit": True,
                             "identifiers": {k: v for k, v in result.items()
                                             if k not in ("_source",)}}}
+            _cache_set(ck, data)
+            return data
     except Exception as e:
         logger.debug(f"HAL fetch failed: {e}")
     return {"HAL": {"hit": False}}
@@ -422,14 +436,22 @@ async def _fetch_gnd(entry: Dict) -> Dict:
 
 async def _fetch_zbmath(entry: Dict) -> Dict:
     """zbMATH Open mathematics lookup. Free, no auth, 200/day."""
+    ck = _cache_key("zbmath", {"name": entry.get("CanonicalLatin", "")})
+    cached = _cache_get(ck)
+    if cached:
+        return cached
+    if OFFLINE:
+        return {"zbMATH_Open": {"hit": False}}
     try:
         from src.authority.zbmath_open_adapter import ZbMathOpenAdapter
         adapter = ZbMathOpenAdapter({})
         result = await adapter.enrich(entry)
         if result.get("_source", {}).get("hit") or result.get("Publications"):
-            return {"zbMATH_Open": {"hit": True,
+            data = {"zbMATH_Open": {"hit": True,
                                     "identifiers": {k: v for k, v in result.items()
                                                     if k not in ("_source",)}}}
+            _cache_set(ck, data)
+            return data
     except Exception as e:
         logger.debug(f"zbMATH fetch failed: {e}")
     return {"zbMATH_Open": {"hit": False}}
@@ -756,7 +778,9 @@ async def enrich_by_tiers(entries: List[Dict], tiers: Optional[List[int]] = None
                             identifiers[source_name] = sid
                     ids = source_data.get("identifiers")
                     if isinstance(ids, dict):
-                        identifiers.update(ids)
+                        for k, v in ids.items():
+                            if isinstance(v, str):
+                                identifiers[k] = v
 
             # Merge advisor edges from Wikidata P184
             if name == "Wikidata_P184":

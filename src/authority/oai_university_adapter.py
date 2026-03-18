@@ -57,7 +57,8 @@ class OAIUniversityAdapter:
                         pub = doc.get("dcpublisher")
                         if pub:
                             inst = pub if isinstance(pub, str) else pub[0]
-                            out["Institution"] = [inst]
+                            out["Institution"] = inst
+                            out["_InstitutionAll"] = [inst]
                         # Extract year
                         year = doc.get("dcyear")
                         if year:

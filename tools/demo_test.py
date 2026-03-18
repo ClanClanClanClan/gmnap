@@ -79,7 +79,7 @@ DEMO_ENTRIES = [
     {"CanonicalLatin": "Raman, Chandrasekhara Venkata", "BirthYear": 1888, "CountryCodes": ["IN"]},
     {"CanonicalLatin": "Rao, Calyampudi Radhakrishna", "BirthYear": 1920, "CountryCodes": ["IN"]},
     # D2 — South Asia Dravidian
-    {"CanonicalLatin": "Seshadri, Conjeevaram Srirangachari", "BirthYear": 1932, "CountryCodes": ["IN"], "Institution": ["Chennai Mathematical Institute"]},
+    {"CanonicalLatin": "Seshadri, Conjeevaram Srirangachari", "BirthYear": 1932, "CountryCodes": ["IN"], "Institution": "Chennai Mathematical Institute"},
     # E1 — Sinophone Mainland
     {"CanonicalLatin": "Chen, Jingrun", "BirthYear": 1933, "CountryCodes": ["CN"]},
     {"CanonicalLatin": "Hua, Luogeng", "BirthYear": 1910, "CountryCodes": ["CN"]},

@@ -54,7 +54,8 @@ class ORCIDETDAdapter:
                         # Extract institution from affiliations
                         institutions = rec.get("institution-name") or []
                         if institutions:
-                            out["Institution"] = institutions[:5]
+                            out["Institution"] = institutions[0]
+                            out["_InstitutionAll"] = institutions[:5]
                         out["_source"]["hit"] = True
         except Exception:
             pass

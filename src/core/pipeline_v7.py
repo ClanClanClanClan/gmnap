@@ -268,6 +268,7 @@ class V7Pipeline:
         gates_ok = self._check_quality_gates()
 
         report = self._generate_report()
+        report["entries"] = all_results
         report["quality_gates"]["passed"] = gates_ok
         return report
 

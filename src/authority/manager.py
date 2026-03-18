@@ -104,27 +104,21 @@ async def enrich_all(
     ]
 
     # Synthesize AffiliationTimeline from Institution + country data
+    # Schema requires 'country' (2-letter ISO) on each item — skip if unavailable
     if "Institution" in merged and "AffiliationTimeline" not in merged:
-        timeline = []
         cc = merged.get("InstitutionCountry", "")
-        for inst in merged.get("Institution", []):
-            if inst:
-                item = {"institution": inst}
-                if cc:
-                    item["country"] = cc
-                timeline.append(item)
-        if timeline:
-            merged["AffiliationTimeline"] = timeline
+        if cc:
+            insts = merged.get("_InstitutionAll") or ([merged["Institution"]] if isinstance(merged.get("Institution"), str) else [])
+            timeline = [{"institution": inst, "country": cc} for inst in insts if inst]
+            if timeline:
+                merged["AffiliationTimeline"] = timeline
 
-    # Synthesize NameEvents from alternative name forms
-    if "AlternativeLatin" in merged and "NameEvents" not in merged:
-        alts = merged.get("AlternativeLatin", [])
+    # Move alternative name forms to Variants.Synthesised (not NameEvents — schema requires 'year')
+    if "AlternativeLatin" in merged:
+        alts = merged.pop("AlternativeLatin", [])
         canonical = entry.get("CanonicalLatin", "")
-        events = []
-        for alt in alts:
-            if alt and alt != canonical:
-                events.append({"type": "alias", "name": alt})
-        if events:
-            merged["NameEvents"] = events
+        synth = [{"str": alt, "type": "authority-alias"} for alt in alts if alt and alt != canonical]
+        if synth:
+            merged.setdefault("Variants", {}).setdefault("Synthesised", []).extend(synth)
 
     return merged

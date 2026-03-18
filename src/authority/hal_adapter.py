@@ -27,7 +27,9 @@ class HALAdapter:
             if docs:
                 labs = docs[0].get("authLabStructName_fs") or []
                 if labs:
-                    out["Institution"] = list(sorted({*(labs if isinstance(labs, list) else [labs])}))
+                    sorted_labs = sorted({*(labs if isinstance(labs, list) else [labs])})
+                    out["Institution"] = sorted_labs[0]
+                    out["_InstitutionAll"] = sorted_labs
         except Exception:
             out = {"_source":{"service":self.name,"url":url}}
         await self.ctx.cache.set_json(key, out)

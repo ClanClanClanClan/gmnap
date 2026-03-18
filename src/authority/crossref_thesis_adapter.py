@@ -63,7 +63,8 @@ class CrossrefThesisAdapter:
                         if inst:
                             names = [i.get("name") for i in inst if i.get("name")]
                             if names:
-                                out["Institution"] = names[:3]
+                                out["Institution"] = names[0]
+                                out["_InstitutionAll"] = names[:3]
                         out["_source"]["hit"] = True
         except Exception:
             pass

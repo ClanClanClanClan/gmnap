@@ -29,9 +29,9 @@ class GNDAdapter:
                 if m.get("preferredName"):
                     out["AlternativeLatin"] = [m["preferredName"]]
                 if m.get("birthDate"):
-                    out["BirthYear"] = {"GND": int(str(m["birthDate"])[:4])}
+                    out["BirthYear"] = int(str(m["birthDate"])[:4])
                 if m.get("deathDate"):
-                    out["DeathYear"] = {"GND": int(str(m["deathDate"])[:4])}
+                    out["DeathYear"] = int(str(m["deathDate"])[:4])
         except Exception:
             out = {"_source":{"service":self.name,"url":url}}
         await self.ctx.cache.set_json(key, out)

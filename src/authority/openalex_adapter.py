@@ -66,7 +66,8 @@ class OpenAlexAdapter:
                             inst = last_inst[0]
                             inst_name = inst.get("display_name")
                             if inst_name:
-                                out["Institution"] = [inst_name]
+                                out["Institution"] = inst_name
+                                out["_InstitutionAll"] = [inst_name]
                             cc = inst.get("country_code")
                             if cc:
                                 out["InstitutionCountry"] = cc
