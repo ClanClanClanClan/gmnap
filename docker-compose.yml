@@ -11,7 +11,7 @@ services:
       - "3000:3000"  # HTTP for Memgraph Lab
     environment:
       - MEMGRAPH_USER=gmnap
-      - MEMGRAPH_PASSWORD=v7_lineage
+      - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:-v7_lineage}
     volumes:
       - memgraph_data:/var/lib/memgraph
       - memgraph_log:/var/log/memgraph
@@ -70,7 +70,7 @@ services:
       - MEMGRAPH_HOST=memgraph
       - MEMGRAPH_PORT=7687
       - MEMGRAPH_USER=gmnap
-      - MEMGRAPH_PASSWORD=v7_lineage
+      - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:-v7_lineage}
       - MEMGRAPH_BOLT=bolt://memgraph:7687
       - REDIS_URL=redis://redis:6379/0
     volumes:
@@ -138,7 +138,7 @@ services:
     ports:
       - "3001:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=gmnap_v7
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-gmnap_v7}
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/gmnap.json
     volumes:
       - ./config/grafana/dashboard.json:/var/lib/grafana/dashboards/gmnap.json:ro

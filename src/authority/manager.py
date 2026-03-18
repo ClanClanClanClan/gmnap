@@ -102,4 +102,29 @@ async def enrich_all(
         for f in fragments
         if f.get("_source", {}).get("hit")
     ]
+
+    # Synthesize AffiliationTimeline from Institution + country data
+    if "Institution" in merged and "AffiliationTimeline" not in merged:
+        timeline = []
+        cc = merged.get("InstitutionCountry", "")
+        for inst in merged.get("Institution", []):
+            if inst:
+                item = {"institution": inst}
+                if cc:
+                    item["country"] = cc
+                timeline.append(item)
+        if timeline:
+            merged["AffiliationTimeline"] = timeline
+
+    # Synthesize NameEvents from alternative name forms
+    if "AlternativeLatin" in merged and "NameEvents" not in merged:
+        alts = merged.get("AlternativeLatin", [])
+        canonical = entry.get("CanonicalLatin", "")
+        events = []
+        for alt in alts:
+            if alt and alt != canonical:
+                events.append({"type": "alias", "name": alt})
+        if events:
+            merged["NameEvents"] = events
+
     return merged

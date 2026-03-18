@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Dict, Any, List
 from .policy import ConflictPolicy
 
-ARRAY_FIELDS = {"Institution", "Advisors", "Students", "Publications", "AlternativeLatin", "AlternativeNative"}
+ARRAY_FIELDS = {"Institution", "Advisors", "Students", "Publications", "AlternativeLatin", "AlternativeNative", "NameEvents", "AffiliationTimeline"}
 SCALAR_PRIORITY = {"BirthYear", "DeathYear", "DegreeDate"}
 
 def merge_authority_fragments(fragments: List[Dict[str, Any]], policy: ConflictPolicy | None = None) -> Dict[str, Any]:

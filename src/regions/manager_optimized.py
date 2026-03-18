@@ -264,11 +264,19 @@ class RegionManager:
         5. DOI Prefix  
         6. Diaspora Overlay
         """
+        # V7 Stage 0: Region overlay map (spec §2a sub-national overrides)
+        # Runs first when CountryCodes + institution keywords provide strong signal
+        country_codes = entry.get("CountryCodes", [])
+        if country_codes:
+            overlay_result = self._detect_by_overlay(entry, country_codes)
+            if overlay_result:
+                return overlay_result
+
         # V7 Stage 1: Script Analysis (highest priority)
         result = self._detect_by_script(entry)
         if result and result.confidence >= 0.9:
             return result
-        
+
         # V7 Stage 2: ICU processing
         result = self._detect_by_icu(entry)
         if result and result.confidence >= 0.85:
@@ -295,14 +303,8 @@ class RegionManager:
         if result:
             return result
         
-        # Fallback based on country code (with overlay map check)
-        country_codes = entry.get("CountryCodes", [])
+        # Fallback based on country code
         if country_codes:
-            # Check region overlay map first (spec §2a sub-national overrides)
-            overlay_result = self._detect_by_overlay(entry, country_codes)
-            if overlay_result:
-                return overlay_result
-
             region = get_region_for_territory(country_codes[0])
             # Only return if it's an implemented region
             if region in self.IMPLEMENTED_REGIONS:
@@ -575,7 +577,8 @@ class RegionManager:
         Checks sub-national context clues (institution, affiliation) to build
         composite keys like 'IN-HN', 'LK-TA' etc. for overlay lookup.
         """
-        institution = entry.get("Institution", "") or entry.get("Affiliation", "")
+        inst_raw = entry.get("Institution", "") or entry.get("Affiliation", "")
+        institution = " ".join(inst_raw) if isinstance(inst_raw, list) else (inst_raw or "")
         institution_country = entry.get("InstitutionCountry", "")
 
         for country in country_codes:

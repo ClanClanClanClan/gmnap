@@ -105,6 +105,7 @@ class RateLimiter:
 HASHCASH_BITS = 18
 _HASHCASH_TTL = 300  # stamps valid for 5 minutes
 _used_stamps: Dict[str, float] = {}  # prevent replay
+_stamps_lock = __import__("threading").Lock()
 
 
 def verify_hashcash(stamp: str, required_bits: int = HASHCASH_BITS) -> bool:
@@ -116,27 +117,28 @@ def verify_hashcash(stamp: str, required_bits: int = HASHCASH_BITS) -> bool:
     if not stamp:
         return False
 
-    # Prevent replay
     now = time.time()
-    if stamp in _used_stamps:
-        return False
 
-    # Prune old stamps periodically
-    if len(_used_stamps) > 10_000:
-        cutoff = now - _HASHCASH_TTL
-        expired = [k for k, v in _used_stamps.items() if v < cutoff]
-        for k in expired:
-            del _used_stamps[k]
+    with _stamps_lock:
+        # Prevent replay
+        if stamp in _used_stamps:
+            return False
 
-    # Verify leading zero bits
-    digest = hashlib.sha1(stamp.encode("utf-8")).hexdigest()
-    # Convert hex to binary and check leading zeros
-    bits = bin(int(digest, 16))[2:].zfill(160)
-    if not bits[:required_bits] == "0" * required_bits:
-        return False
+        # Prune old stamps periodically
+        if len(_used_stamps) > 10_000:
+            cutoff = now - _HASHCASH_TTL
+            expired = [k for k, v in _used_stamps.items() if v < cutoff]
+            for k in expired:
+                del _used_stamps[k]
 
-    _used_stamps[stamp] = now
-    return True
+        # Verify leading zero bits
+        digest = hashlib.sha1(stamp.encode("utf-8")).hexdigest()
+        bits = bin(int(digest, 16))[2:].zfill(160)
+        if not bits[:required_bits] == "0" * required_bits:
+            return False
+
+        _used_stamps[stamp] = now
+        return True
 
 
 # ---------------------------------------------------------------------------

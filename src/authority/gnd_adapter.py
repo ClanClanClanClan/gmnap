@@ -16,10 +16,13 @@ class GNDAdapter:
         if cached is not None: return cached
         await self.ctx.limiter.acquire()
         url = f'{self.ctx.base_url}/search?{urlencode(q)}'
+        out = {"_source":{"service":self.name,"url":url}}
+        if not self.ctx.http:
+            await self.ctx.cache.set_json(key, out)
+            return out
         try:
             r = await self.ctx.http.get(url, timeout=15.0)
             data = r.json()
-            out = {"_source":{"service":self.name,"url":url}}
             mem = (data.get("member") or [])
             if mem:
                 m = mem[0]

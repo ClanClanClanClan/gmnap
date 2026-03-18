@@ -9,13 +9,13 @@
 **Security**: Injection attack blocking validated
 **Performance**: 20-25 min/1M entries (exceeds targets, OFFLINE mode)
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
-**Authority Enrichment**: 9 of 14 sources with real HTTP calls; 2 gated behind API keys; 3 deferred. Pipeline extracts NameEvents, AffiliationTimeline, DegreeDate.
+**Authority Enrichment**: 9 of 14 sources with real HTTP calls; 2 gated behind API keys; 3 deferred. DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms.
 **Region Config**: 37/37 YAML config files auto-loaded via lazy `ensure_yaml_loaded()` in base class
 **API Server**: FastAPI server with `/healthz`, `/readyz`, `/api/v1/query`, `/api/v1/lineage`, `/api/v1/process`, `/metrics`
 **CLI**: `query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve`
 **Diaspora Detection**: Implemented — uses `config/diaspora.yaml` date ranges
 **Region Overlay Map**: Spec §2a wired — sub-national overrides (CH-FR, IN-HN, etc.)
-**Testing**: 441+ tests (unit + integration + SEA roundtrip + snapshot rollback)
+**Testing**: 456+ tests (unit + integration + API server + region overlay + SEA roundtrip)
 **Test Fixtures**: 1,500 entries across all 37 regions
 
 ---
@@ -29,7 +29,7 @@ All stages execute in sequence with real code:
 - Stage 1b: LLM thesis extraction (graceful fallback if unavailable)
 - Stage 2: Region detection (FastText + script + diaspora overlay + region overlay map)
 - Stage 3: Region hooks (clean→augment→validate→order_key per region)
-- Stage 4: Authority enrichment (9 adapters with real HTTP; extracts NameEvents, AffiliationTimeline, DegreeDate)
+- Stage 4: Authority enrichment (9 adapters with real HTTP; DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms)
 - Stage 5: Collision analytics (DuckDB + in-memory fallback)
 - Stage 6: Graph consistency (Bayesian coherence, optional Memgraph)
 - Stage 7: Short-form tagging (initials clustering)

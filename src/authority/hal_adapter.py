@@ -16,10 +16,13 @@ class HALAdapter:
         if cached is not None: return cached
         await self.ctx.limiter.acquire()
         url = f'{self.ctx.base_url}/?{urlencode(q)}'
+        out = {"_source":{"service":self.name,"url":url}}
+        if not self.ctx.http:
+            await self.ctx.cache.set_json(key, out)
+            return out
         try:
             r = await self.ctx.http.get(url, timeout=15.0)
             data = r.json()
-            out = {"_source":{"service":self.name,"url":url}}
             docs = (data.get("response") or {}).get("docs") or []
             if docs:
                 labs = docs[0].get("authLabStructName_fs") or []
