@@ -144,5 +144,3 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 
 - ❌ "14 authority sources fully working" — 9 have real HTTP code; 2 need API keys; 3 deferred
 - ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly
-- ❌ "VSCode extension" — does not exist (spec §11 item, separate frontend project)
-- ❌ "Prometheus alerting" — metrics endpoint exists but no p95 latency alert rules configured

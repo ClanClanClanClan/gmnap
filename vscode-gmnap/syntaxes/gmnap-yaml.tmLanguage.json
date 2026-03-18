@@ -1,0 +1,60 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "GMNAP YAML",
+  "scopeName": "source.gmnap-yaml",
+  "patterns": [
+    { "include": "#gmnap-keys" },
+    { "include": "#gmnap-values" },
+    { "include": "source.yaml" }
+  ],
+  "repository": {
+    "gmnap-keys": {
+      "patterns": [
+        {
+          "name": "keyword.other.gmnap.identity",
+          "match": "^\\s*(GlobalID|CanonicalLatin|CanonicalNative|FamilyNameType)\\s*:"
+        },
+        {
+          "name": "keyword.other.gmnap.variant",
+          "match": "^\\s*(VariantsObserved|VariantsSynthesised|AlternativeLatin|ShortFormClusters)\\s*:"
+        },
+        {
+          "name": "keyword.other.gmnap.metadata",
+          "match": "^\\s*(RegionCode|Confidence|BirthYear|DeathYear|DegreeDate|Gender|GenderProvided)\\s*:"
+        },
+        {
+          "name": "keyword.other.gmnap.authority",
+          "match": "^\\s*(AuthoritySources|ORCID|OpenAlexID|MathSciNetID|ScopusID|WikidataID)\\s*:"
+        },
+        {
+          "name": "keyword.other.gmnap.genealogy",
+          "match": "^\\s*(Advisors|Students|GenealogyRelation|BetweennessScore|AffiliationTimeline|NameEvents)\\s*:"
+        },
+        {
+          "name": "keyword.other.gmnap.academic",
+          "match": "^\\s*(MSC|Institution|InstitutionCountry|LanguageOfPublication|Publications|HIndex|PublicationCount)\\s*:"
+        },
+        {
+          "name": "keyword.other.gmnap.gdpr",
+          "match": "^\\s*(GDPR_DATA|ValidationStatus|RegionalExtras)\\s*:"
+        }
+      ]
+    },
+    "gmnap-values": {
+      "patterns": [
+        {
+          "name": "string.other.gmnap.globalid",
+          "match": "[A-Z2-7]{22}(--\\d+)?"
+        },
+        {
+          "name": "constant.other.gmnap.region-code",
+          "match": "\\b[A-HRZ]\\d\\b"
+        },
+        {
+          "name": "constant.other.gmnap.orcid",
+          "match": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\dX]\\b"
+        }
+      ]
+    }
+  }
+}

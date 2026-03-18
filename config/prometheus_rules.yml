@@ -1,0 +1,51 @@
+# GMNAP V7 Prometheus Alert Rules
+# Spec §12: "p95 latency > 2x baseline for 15 min"
+
+groups:
+  - name: gmnap_latency
+    rules:
+      # V7 spec §12: p95 latency exceeds 2x the 1-hour baseline for 15 minutes
+      - alert: HighP95Latency
+        expr: |
+          histogram_quantile(0.95, rate(gmnap_api_request_duration_seconds_bucket[5m]))
+          > 2 * histogram_quantile(0.95, rate(gmnap_api_request_duration_seconds_bucket[1h]))
+        for: 15m
+        labels:
+          severity: warning
+          service: gmnap
+        annotations:
+          summary: "GMNAP p95 API latency exceeds 2x baseline"
+          description: "Current p95 latency {{ $value | humanizeDuration }} exceeds 2x the 1h baseline for 15 minutes."
+
+      # Pipeline-specific latency alert
+      - alert: HighPipelineLatency
+        expr: |
+          histogram_quantile(0.95, rate(gmnap_pipeline_duration_seconds_bucket[5m]))
+          > 2 * histogram_quantile(0.95, rate(gmnap_pipeline_duration_seconds_bucket[1h]))
+        for: 15m
+        labels:
+          severity: warning
+          service: gmnap
+        annotations:
+          summary: "GMNAP p95 pipeline latency exceeds 2x baseline"
+
+  - name: gmnap_errors
+    rules:
+      - alert: HighSchemaErrorRate
+        expr: rate(gmnap_schema_errors_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: critical
+          service: gmnap
+        annotations:
+          summary: "GMNAP schema error rate exceeds 10/sec"
+          description: "Schema validation errors are occurring at {{ $value | humanize }}/sec."
+
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes{job="gmnap-api"} > 6e9
+        for: 5m
+        labels:
+          severity: critical
+          service: gmnap
+        annotations:
+          summary: "GMNAP memory usage exceeds 6GB RSS limit"

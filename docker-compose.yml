@@ -25,6 +25,22 @@ services:
       timeout: 10s
       retries: 3
 
+  # Redis for rate limiting state and session caching (V7 spec §12)
+  redis:
+    image: redis:7-alpine
+    container_name: gmnap_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
   # Nginx reverse proxy (V7 spec §12)
   nginx:
     image: nginx:1.25-alpine
@@ -43,7 +59,6 @@ services:
       retries: 3
 
   # GMNAP V7 API + Pipeline service
-  # DuckDB is embedded (no separate service needed)
   gmnap:
     build: .
     container_name: gmnap_api
@@ -57,6 +72,7 @@ services:
       - MEMGRAPH_USER=gmnap
       - MEMGRAPH_PASSWORD=v7_lineage
       - MEMGRAPH_BOLT=bolt://memgraph:7687
+      - REDIS_URL=redis://redis:6379/0
     volumes:
       - ./data:/app/data
       - ./cache:/app/cache
@@ -65,15 +81,72 @@ services:
     deploy:
       resources:
         limits:
-          memory: 6GB  # V7 spec: ≤6GB RSS
+          memory: 6GB  # V7 spec: <=6GB RSS
           cpus: '4'    # V7 spec: 4 workers for Quick mode
     ports:
       - "8080:8080"  # Direct access (nginx proxies port 80)
     depends_on:
       memgraph:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     command: ["python", "-m", "src.cli.gmnap", "serve", "--port", "8080"]
+
+  # DuckDB batch collision analytics (V7 spec §12)
+  duckdb-batch:
+    build: .
+    container_name: gmnap_duckdb_batch
+    environment:
+      - PYTHONPATH=/app/src:/app
+      - PIPELINE_MODE=full
+      - OFFLINE=1
+    volumes:
+      - ./data:/app/data
+      - ./cache:/app/cache
+      - ./work:/app/work
+      - ./config:/app/config
+    deploy:
+      resources:
+        limits:
+          memory: 4GB
+          cpus: '2'
+    restart: "no"
+    command: ["python3", "-m", "src.pipeline.stage5_collision_analytics", "--batch"]
+
+  # Prometheus monitoring (V7 spec §12)
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: gmnap_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/prometheus_rules.yml:/etc/prometheus/prometheus_rules.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+    depends_on:
+      - gmnap
+    restart: unless-stopped
+
+  # Grafana dashboards (V7 spec §12)
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: gmnap_grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=gmnap_v7
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/gmnap.json
+    volumes:
+      - ./config/grafana/dashboard.json:/var/lib/grafana/dashboards/gmnap.json:ro
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
 
   # Development service with interactive shell
   gmnap-dev:
@@ -98,3 +171,6 @@ volumes:
   memgraph_data:
   memgraph_log:
   memgraph_etc:
+  redis_data:
+  prometheus_data:
+  grafana_data:

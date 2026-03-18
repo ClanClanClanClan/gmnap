@@ -1,0 +1,78 @@
+{
+  "name": "gmnap-yaml",
+  "displayName": "GMNAP YAML Support",
+  "description": "Syntax highlighting, schema validation, and narrow NBSP toggle for GMNAP v7 YAML records",
+  "version": "0.3.0",
+  "publisher": "gmnap",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages", "Linters", "Formatters"],
+  "activationEvents": [
+    "onLanguage:yaml",
+    "onLanguage:gmnap-yaml"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "gmnap-yaml",
+        "aliases": ["GMNAP YAML", "gmnap"],
+        "extensions": [],
+        "filenames": [],
+        "filenamePatterns": [
+          "**/out/yaml/*.yaml",
+          "**/config/regions/*.yaml"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "gmnap-yaml",
+        "scopeName": "source.gmnap-yaml",
+        "path": "./syntaxes/gmnap-yaml.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "gmnap.toggleNarrowNbsp",
+        "title": "GMNAP: Toggle Narrow Non-Breaking Space"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "gmnap.toggleNarrowNbsp",
+        "key": "ctrl+shift+n",
+        "mac": "cmd+shift+n",
+        "when": "editorTextFocus && (editorLangId == 'yaml' || editorLangId == 'gmnap-yaml')"
+      }
+    ],
+    "configuration": {
+      "title": "GMNAP",
+      "properties": {
+        "gmnap.schemaPath": {
+          "type": "string",
+          "default": "docs/schema_v2.0.json",
+          "description": "Path to the GMNAP JSON Schema for YAML validation"
+        }
+      }
+    },
+    "yamlValidation": [
+      {
+        "fileMatch": ["out/yaml/*.yaml"],
+        "url": "./schemas/schema_v2.0.json"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  }
+}

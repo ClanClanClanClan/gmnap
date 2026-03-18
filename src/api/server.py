@@ -32,6 +32,51 @@ except ImportError:
         "Install with: pip install fastapi uvicorn"
     )
 
+# ---------------------------------------------------------------------------
+# Prometheus metrics (module-level, persistent across requests)
+# ---------------------------------------------------------------------------
+try:
+    from prometheus_client import (
+        Counter,
+        Gauge,
+        Histogram,
+        generate_latest,
+        CONTENT_TYPE_LATEST,
+    )
+
+    PROM_AVAILABLE = True
+
+    UPTIME_GAUGE = Gauge("gmnap_uptime_seconds", "Server uptime in seconds")
+    PIPELINE_RUNS = Counter(
+        "gmnap_pipeline_runs_total", "Total pipeline runs", ["mode"]
+    )
+    ENTRIES_PROCESSED = Counter(
+        "gmnap_entries_processed_total", "Total entries processed"
+    )
+    PIPELINE_DURATION = Histogram(
+        "gmnap_pipeline_duration_seconds",
+        "Pipeline execution duration",
+        buckets=[0.1, 0.5, 1, 2, 5, 10, 30, 60, 120, 300],
+    )
+    API_REQUESTS = Counter(
+        "gmnap_api_requests_total",
+        "API requests",
+        ["endpoint", "method", "status"],
+    )
+    API_REQUEST_DURATION = Histogram(
+        "gmnap_api_request_duration_seconds",
+        "API request duration",
+        ["endpoint"],
+        buckets=[0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+    )
+    AUTHORITY_HITS = Counter(
+        "gmnap_authority_hits_total", "Authority source hits", ["source", "tier"]
+    )
+    SCHEMA_ERRORS = Counter("gmnap_schema_errors_total", "Schema validation errors")
+
+except ImportError:
+    PROM_AVAILABLE = False
+
 
 # ---------------------------------------------------------------------------
 # Rate limiter
@@ -169,7 +214,21 @@ def create_app() -> FastAPI:
                 status_code=429,
                 content={"detail": "Rate limit exceeded. Free: 60/min, Paid: 10000/min"},
             )
+
+        # Instrument request duration and count
+        start = time.time()
         response = await call_next(request)
+        duration = time.time() - start
+
+        if PROM_AVAILABLE:
+            endpoint = path.split("?")[0]
+            API_REQUESTS.labels(
+                endpoint=endpoint,
+                method=request.method,
+                status=str(response.status_code),
+            ).inc()
+            API_REQUEST_DURATION.labels(endpoint=endpoint).observe(duration)
+
         return response
 
     # ------------------------------------------------------------------
@@ -279,7 +338,15 @@ def create_app() -> FastAPI:
             from src.core.pipeline_v7 import PipelineV7
 
             pipeline = PipelineV7(mode=req.mode)
+
+            start_t = time.time()
             results = await pipeline.run(req.entries)
+            elapsed = time.time() - start_t
+
+            if PROM_AVAILABLE:
+                PIPELINE_RUNS.labels(mode=req.mode).inc()
+                ENTRIES_PROCESSED.inc(len(results))
+                PIPELINE_DURATION.observe(elapsed)
 
             return {
                 "processed": len(results),
@@ -298,32 +365,17 @@ def create_app() -> FastAPI:
     @app.get("/metrics")
     async def metrics():
         """Prometheus-compatible metrics endpoint."""
-        try:
-            from prometheus_client import (
-                CollectorRegistry,
-                Counter,
-                Gauge,
-                generate_latest,
-            )
-
-            registry = CollectorRegistry()
-            uptime = Gauge(
-                "gmnap_uptime_seconds",
-                "Server uptime in seconds",
-                registry=registry,
-            )
-            uptime.set(time.time() - _start_time)
-
+        if PROM_AVAILABLE:
+            UPTIME_GAUGE.set(time.time() - _start_time)
             return Response(
-                content=generate_latest(registry),
-                media_type="text/plain; charset=utf-8",
+                content=generate_latest(),
+                media_type=CONTENT_TYPE_LATEST,
             )
-        except ImportError:
-            # Fallback: return basic metrics as JSON
-            return {
-                "uptime_seconds": round(time.time() - _start_time, 1),
-                "version": "7.0",
-            }
+        # Fallback: return basic metrics as JSON
+        return {
+            "uptime_seconds": round(time.time() - _start_time, 1),
+            "version": "7.0",
+        }
 
     return app
 
