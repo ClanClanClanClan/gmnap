@@ -278,9 +278,9 @@ def create_app() -> FastAPI:
     ):
         """Query a single mathematician name for region detection & processing."""
         try:
-            from src.regions.manager_optimized import OptimizedRegionManager
+            from src.regions.manager_optimized import RegionManager
 
-            manager = OptimizedRegionManager()
+            manager = RegionManager()
             entry = {"CanonicalLatin": name}
             result = manager.detect_region(entry)
 
@@ -338,25 +338,29 @@ def create_app() -> FastAPI:
 
         try:
             os.environ["GMNAP_SCHEMA_STRICT"] = str(req.schema_strict)
-            from src.core.pipeline_v7 import PipelineV7
+            from src.core.pipeline_v7 import V7Pipeline, PipelineMode
 
-            pipeline = PipelineV7(mode=req.mode)
+            mode_map = {"quick": PipelineMode.QUICK, "full": PipelineMode.FULL, "extreme": PipelineMode.EXTREME}
+            pipeline = V7Pipeline(mode=mode_map.get(req.mode, PipelineMode.QUICK))
 
             start_t = time.time()
-            results = await pipeline.run(req.entries)
+            report = await pipeline.process_batch(req.entries)
             elapsed = time.time() - start_t
 
+            entries = report.get("entries", [])
             if PROM_AVAILABLE:
                 PIPELINE_RUNS.labels(mode=req.mode).inc()
-                ENTRIES_PROCESSED.inc(len(results))
+                ENTRIES_PROCESSED.inc(len(entries))
                 PIPELINE_DURATION.observe(elapsed)
 
             return {
-                "processed": len(results),
+                "processed": len(entries),
                 "mode": req.mode,
                 "schema_strict": req.schema_strict,
-                "entries": results[:100],  # Limit response size
-                "truncated": len(results) > 100,
+                "quality_gates": report.get("quality_gates", {}),
+                "metrics": report.get("metrics", {}),
+                "entries": entries[:100],
+                "truncated": len(entries) > 100,
             }
         except Exception as e:
             logger.error(f"Process error: {e}")

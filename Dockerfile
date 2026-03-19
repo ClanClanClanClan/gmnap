@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM python:3.12-slim
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -7,14 +7,10 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    python3.12 \
-    python3.12-dev \
-    python3.12-venv \
-    python3-pip \
     build-essential \
     libicu-dev \
+    pkg-config \
     zstd \
-    duckdb \
     sqlite3 \
     git \
     curl \
@@ -31,7 +27,7 @@ RUN mkdir -p /app/config && \
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
-RUN python3.12 -m pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY . .
@@ -40,7 +36,10 @@ COPY . .
 RUN mkdir -p /app/cache/gs /app/cache/bad_json /app/data
 
 # Set Python path
-ENV PYTHONPATH=/app/src:/app
+ENV PYTHONPATH=/app
 
-# Default command
-CMD ["python3.12", "-m", "uvicorn", "src.api.server:app", "--host", "0.0.0.0", "--port", "8080"]
+# Expose API port
+EXPOSE 8080
+
+# Default command — start API server
+CMD ["python", "-m", "uvicorn", "src.api.server:app", "--host", "0.0.0.0", "--port", "8080"]

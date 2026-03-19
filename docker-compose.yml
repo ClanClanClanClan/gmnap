@@ -1,14 +1,13 @@
-version: '3.8'
-
 services:
   # Memgraph graph database for academic genealogy
+  # Note: memgraph-platform only supports amd64; use memgraph/memgraph on arm64
   memgraph:
-    image: memgraph/memgraph-platform:2.12
+    image: memgraph/memgraph:2.18.1
     container_name: gmnap_memgraph
     ports:
-      - "7687:7687"  # Bolt protocol
-      - "7444:7444"  # HTTPS for Memgraph Lab
-      - "3000:3000"  # HTTP for Memgraph Lab
+      - "17687:7687"  # Bolt protocol
+      - "17444:7444"  # HTTPS for Memgraph Lab
+      - "13000:3000"  # HTTP for Memgraph Lab
     environment:
       - MEMGRAPH_USER=gmnap
       - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:-v7_lineage}
@@ -30,7 +29,7 @@ services:
     image: redis:7-alpine
     container_name: gmnap_redis
     ports:
-      - "6379:6379"
+      - "16379:6379"
     volumes:
       - redis_data:/data
     command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
@@ -73,6 +72,9 @@ services:
       - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:-v7_lineage}
       - MEMGRAPH_BOLT=bolt://memgraph:7687
       - REDIS_URL=redis://redis:6379/0
+      - GMNAP_API_TOKENS=${GMNAP_API_TOKENS:-}
+      - GMNAP_NO_NETWORK=${GMNAP_NO_NETWORK:-0}
+      - OFFLINE=${OFFLINE:-1}
     volumes:
       - ./data:/app/data
       - ./cache:/app/cache
@@ -82,7 +84,7 @@ services:
       resources:
         limits:
           memory: 6GB  # V7 spec: <=6GB RSS
-          cpus: '4'    # V7 spec: 4 workers for Quick mode
+          cpus: '2'    # V7 spec: adjust per available CPUs
     ports:
       - "8080:8080"  # Direct access (nginx proxies port 80)
     depends_on:
@@ -97,7 +99,7 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
-    command: ["python", "-m", "src.cli.gmnap", "serve", "--port", "8080"]
+    command: ["python", "-m", "uvicorn", "src.api.server:app", "--host", "0.0.0.0", "--port", "8080"]
 
   # DuckDB batch collision analytics (V7 spec §12)
   duckdb-batch:
@@ -118,7 +120,7 @@ services:
           memory: 4GB
           cpus: '2'
     restart: "no"
-    command: ["python3", "-m", "src.pipeline.stage5_collision_analytics", "--batch"]
+    command: ["python", "-m", "src.pipeline.stage5_collision_analytics", "--batch"]
 
   # Prometheus monitoring (V7 spec §12)
   prometheus:
