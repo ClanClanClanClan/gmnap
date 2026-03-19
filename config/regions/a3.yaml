@@ -1,0 +1,62 @@
+# A3 - Nordic-Baltic
+code: A3
+name: Nordic-Baltic
+
+titles:
+  - Dr
+  - Dr.
+  - Prof
+  - Prof.
+  - Professor
+  - Hr
+  - Hr.
+  - Fru
+  - Frk
+  - Frk.
+  - Härra
+  - Proua
+  - Preili
+  - Ponas
+  - Ponia
+  - Panelė
+  - Kungs
+  - Kundze
+  - Jaunkundze
+
+particles:
+  - af
+  - av
+  - von
+  - von der
+  - zu
+  - de
+  - de la
+  - den
+  - der
+
+patronymic_suffixes:
+  son: son
+  sson: son
+  sen: son
+  søn: son
+  poika: son
+  dóttir: daughter
+  dotter: daughter
+  datter: daughter
+  dottir: daughter
+  tytär: daughter
+
+baltic_male_endings:
+  - as
+  - is
+  - us
+  - ys
+  - ius
+
+baltic_female_endings:
+  - ė
+  - ienė
+  - ytė
+  - utė
+  - aitė
+  - iūtė

@@ -1,0 +1,35 @@
+# D1 - South Asia Hindi Belt
+code: D1
+name: South Asia - Hindi Belt
+
+honorifics:
+  # Hindi
+  - श्री
+  - श्रीमती
+  - सुश्री
+  - डॉ
+  - प्रो
+  # English
+  - Shri
+  - Smt
+  - Dr
+  - Prof
+  - Mr
+  - Mrs
+  - Ms
+
+name_particles:
+  - "कुमार"
+  - Kumar
+  - "चंद"
+  - Chand
+  - "प्रसाद"
+  - Prasad
+  - "लाल"
+  - Lal
+  - "नाथ"
+  - Nath
+  - "दास"
+  - Das
+  - "राम"
+  - Ram

@@ -1,0 +1,61 @@
+# A2 - Western Europe
+# FR, DE, IT, ES, PT, NL, BE, CH, AT, LU, LI, SM, MC, GI, AD, MT, VA
+code: A2
+name: Western Europe
+
+germanic_particles:
+  - von
+  - van
+  - der
+  - den
+  - de
+  - het
+  - ten
+  - ter
+  - te
+  - zum
+  - zur
+  - am
+  - im
+  - zu
+  - auf
+  - unter
+
+romance_particles:
+  - de
+  - del
+  - della
+  - delle
+  - dello
+  - di
+  - da
+  - dal
+  - dalla
+  - du
+  - des
+  - le
+  - la
+  - les
+  - dos
+  - das
+  - do
+
+country_patterns:
+  ES:
+    required_chars: "naeiouu"
+    dual_surname: true
+  PT:
+    required_chars: "aaaaecioouuc"
+    dual_surname: true
+  FR:
+    required_chars: "aaaeeeeiioouuuyc"
+    particles: [de, du, des, le, la, les]
+  DE:
+    required_chars: "aous"
+    particles: [von, van, der, den, de, zum, zur, am, im, zu]
+  IT:
+    required_chars: "aaeeiioou"
+    particles: [di, da, del, della, delle, dello]
+  NL:
+    required_chars: "aeioaaeiou"
+    particles: [van, der, den, de, het, ten, ter, te]

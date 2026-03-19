@@ -1,0 +1,27 @@
+# R0 - Residual Latin-ASCII
+code: R0
+name: Residual Latin-ASCII
+
+titles:
+  - Dr
+  - Dr.
+  - Prof
+  - Prof.
+  - Professor
+  - Mr
+  - Mr.
+  - Mrs
+  - Mrs.
+  - Ms
+  - Ms.
+  - Miss
+
+particles:
+  - de
+  - van
+  - von
+  - di
+  - da
+  - del
+  - la
+  - le

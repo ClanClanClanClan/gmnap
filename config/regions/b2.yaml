@@ -1,0 +1,23 @@
+# B2 - South-Slavic & Central Europe
+code: B2
+name: South-Slavic & Central Europe
+
+hungarian_family_suffixes:
+  - fi
+  - fy
+  - i
+  - "y"
+  - né
+
+gender_suffixes:
+  czech_slovak:
+    - ová
+  polish:
+    - ska
+    - cka
+  bulgarian:
+    - ова
+    - ева
+  serbian:
+    - ић
+    - овић

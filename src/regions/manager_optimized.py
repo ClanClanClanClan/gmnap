@@ -14,7 +14,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from functools import lru_cache
 
-import fasttext
+try:
+    import fasttext
+except ImportError:
+    fasttext = None  # type: ignore[assignment]
 
 from src.core.unicode_handler import UnicodeNormalizer
 from .base import (REGION_CODES, TERRITORY_TO_REGION,
@@ -67,7 +70,7 @@ def get_fasttext_model(config_dir: Path = Path("./config")):
             if global_model_path.exists():
                 model_path = global_model_path
         
-        if model_path.exists():
+        if model_path.exists() and fasttext is not None:
             _fasttext_model = fasttext.load_model(str(model_path))
             logger.info(f"Loaded FastText language detector from {model_path}")
             return _fasttext_model

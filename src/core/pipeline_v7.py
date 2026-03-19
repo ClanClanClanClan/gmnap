@@ -370,8 +370,17 @@ class V7Pipeline:
 
         results, coll_metrics = stage5_collision_analytics(entries)
         self.metrics.collisions = int(coll_metrics.get("collisions", 0))
-        self.metrics.duplicate_global_ids = self.metrics.collisions
         self.metrics.edges = int(coll_metrics.get("edges", 0))
+        # Count actual GlobalID duplicates (not name collisions from stage 5)
+        seen_gids: set = set()
+        dup_gids = 0
+        for e in results:
+            gid = e.get("GlobalID", "")
+            if gid in seen_gids:
+                dup_gids += 1
+            else:
+                seen_gids.add(gid)
+        self.metrics.duplicate_global_ids = dup_gids
         return results
 
     async def _stage_6_graph_consistency(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

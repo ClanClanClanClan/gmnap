@@ -68,8 +68,6 @@ async def _fetch_openalex(entry: Dict) -> Dict:
     cached = _cache_get(ck)
     if cached:
         return cached
-    if OFFLINE:
-        return {"OpenAlex": {"hit": False}}
     try:
         from src.authority.openalex_adapter import OpenAlexAdapter
         adapter = OpenAlexAdapter()
@@ -92,8 +90,6 @@ async def _fetch_crossref(entry: Dict) -> Dict:
     cached = _cache_get(ck)
     if cached:
         return cached
-    if OFFLINE:
-        return {"Crossref": {"hit": False}}
     try:
         from src.authority.crossref_adapter import CrossrefAdapter
         adapter = CrossrefAdapter()
@@ -115,8 +111,6 @@ async def _fetch_orcid_etd(entry: Dict) -> Dict:
     cached = _cache_get(ck)
     if cached:
         return cached
-    if OFFLINE:
-        return {"ORCID_ETD": {"hit": False}}
     try:
         from src.authority.orcid_etd_adapter import ORCIDETDAdapter
         adapter = ORCIDETDAdapter()

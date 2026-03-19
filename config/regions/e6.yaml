@@ -1,0 +1,54 @@
+# E6 - Mainland SEA
+code: E6
+name: Mainland SEA
+
+titles:
+  # Thai
+  - นาย
+  - นาง
+  - นางสาว
+  - ดร.
+  - ดร
+  - ศ.
+  - ศ.ดร.
+  - รศ.
+  - รศ.ดร.
+  - ผศ.
+  - ผศ.ดร.
+  - คุณ
+  # Khmer
+  - លោក
+  - អ្នកស្រី
+  - ឯកឧត្តម
+  # Lao
+  - ທ່ານ
+  - ນາງ
+  # English
+  - Dr
+  - Dr.
+  - Prof
+  - Prof.
+  - Mr
+  - Mr.
+  - Mrs
+  - Mrs.
+  - Ms
+  - Ms.
+  - Khun
+  - Nai
+  - Nang
+
+thai_particles:
+  - ณ
+  - บ
+  - ป
+
+thai_surname_prefixes:
+  - วง
+  - ศรี
+  - สุ
+  - ชัย
+  - พร
+  - ทอง
+  - สิริ
+  - วัฒน

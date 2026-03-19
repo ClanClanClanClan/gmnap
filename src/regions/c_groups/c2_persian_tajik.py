@@ -398,7 +398,7 @@ class C2_PersianTajik(RegionSpec):
             descriptive_words = ['کبیر', 'صغیر', 'اکبر', 'اصغر', 'بزرگ', 'kabir', 'saghir', 'akbar', 'asghar', 'bozorg']
             
             is_geographic = any(second.endswith(ending) for ending in geographic_endings)
-            is_descriptive = any(second.lower() in [word.lower() for word in descriptive_words])
+            is_descriptive = second.lower() in [word.lower() for word in descriptive_words]
             
             if is_geographic or is_descriptive:
                 ezafe_info.update({

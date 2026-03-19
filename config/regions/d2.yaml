@@ -1,0 +1,33 @@
+# D2 - South Asia Dravidian
+code: D2
+name: South Asia - Dravidian
+
+caste_suffixes:
+  # Tamil
+  - Iyer
+  - Iyengar
+  - Mudaliar
+  - Pillai
+  - Nadar
+  - Thevar
+  - Gounder
+  - Chettiar
+  - Naicker
+  # Telugu
+  - Reddy
+  - Naidu
+  - Rao
+  - Raju
+  - Setty
+  - Goud
+  # Kannada
+  - Gowda
+  - Shetty
+  - Hegde
+  - Bhat
+  # Malayalam
+  - Nair
+  - Menon
+  - Pillai
+  - Kurup
+  - Warrier

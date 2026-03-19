@@ -26,7 +26,18 @@ class AuthorityContext:
         self.base_url = base_url
         self.cache = _NullCache()
         self.limiter = _Limiter(rps=rps)
-        self.http = httpx.AsyncClient() if httpx else None
+        if httpx:
+            self.http = httpx.AsyncClient(
+                timeout=httpx.Timeout(30.0, connect=10.0),
+                limits=httpx.Limits(max_keepalive_connections=5, max_connections=20),
+                headers={"User-Agent": "GMNAP/7.0 (mailto:gmnap@example.com)"},
+            )
+        else:
+            self.http = None
+
+    async def close(self):
+        if self.http:
+            await self.http.aclose()
 
 def canonical_query_key(obj: Dict[str, Any]) -> str:
     return json.dumps(obj, sort_keys=True, separators=(",",":"))

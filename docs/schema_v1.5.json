@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://gmnap.org/schema/v1.5",
-  "title": "GMNAP YAML Record Schema v1.5",
+  "$id": "https://gmnap.org/schema/v2.0",
+  "title": "GMNAP YAML Record Schema v2.0",
   "description": "Schema for Global Mathematician Name Authority Project entries",
   "type": "object",
   "patternProperties": {
@@ -250,7 +250,7 @@
             },
             "ORCID": {
               "type": "string",
-              "pattern": "^\\d{4}-\\d{4}-\\d{4}-\\d{4}$"
+              "pattern": "^\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\dX]$"
             },
             "Scopus": {
               "type": "object",
@@ -318,6 +318,58 @@
         "Comments": {
           "type": "string",
           "description": "Free-form curator notes"
+        },
+        "DetectedRegion": {
+          "type": "string",
+          "pattern": "^[A-Z]\\d|[HRGZ]\\d$",
+          "description": "Pipeline-assigned region code"
+        },
+        "DetectionConfidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Region detection confidence score"
+        },
+        "DetectionMethod": {
+          "type": "string",
+          "description": "Method used for region detection"
+        },
+        "OrderKey": {
+          "type": "string",
+          "description": "Deterministic sort key for region-specific ordering"
+        },
+        "RoundtripScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Transliteration round-trip Dice coefficient"
+        },
+        "BetweennessScore": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Graph betweenness centrality score"
+        },
+        "Source": {
+          "type": "string",
+          "description": "Primary data source identifier"
+        },
+        "ShortFormTags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Short form name variants for clustering"
+        },
+        "InstitutionCountry": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "Country of primary institution"
+        },
+        "FamilyName": {
+          "type": "string",
+          "description": "Parsed family/surname component"
+        },
+        "GivenName": {
+          "type": "string",
+          "description": "Parsed given name component"
         }
       },
       "additionalProperties": false

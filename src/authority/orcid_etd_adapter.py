@@ -1,5 +1,6 @@
 
 from __future__ import annotations
+import os
 from typing import Dict, Any
 from urllib.parse import urlencode
 from .common import AuthorityContext, canonical_query_key
@@ -21,6 +22,8 @@ class ORCIDETDAdapter:
     async def enrich(self, entry: Dict[str, Any]) -> Dict[str, Any]:
         name = entry.get("CanonicalLatin", "")
         if not name:
+            return {"_source": {"service": self.name, "hit": False}}
+        if os.getenv("GMNAP_NO_NETWORK", "") == "1":
             return {"_source": {"service": self.name, "hit": False}}
         # Build ORCID expanded-search query
         if "," in name:

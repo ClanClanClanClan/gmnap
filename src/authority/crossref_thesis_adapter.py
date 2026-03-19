@@ -24,6 +24,8 @@ class CrossrefThesisAdapter:
         name = entry.get("CanonicalLatin", "")
         if not name:
             return {"_source": {"service": self.name, "hit": False}}
+        if os.getenv("GMNAP_NO_NETWORK", "") == "1":
+            return {"_source": {"service": self.name, "hit": False}}
         q = {
             "query.author": name,
             "rows": "3",

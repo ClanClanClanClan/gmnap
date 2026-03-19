@@ -1,0 +1,67 @@
+# A5 - Dutch/French Caribbean
+code: A5
+name: Dutch/French Caribbean
+
+titles:
+  - M
+  - M.
+  - Mme
+  - Mlle
+  - Dr
+  - Dr.
+  - Me
+  - Dhr
+  - Dhr.
+  - Mw
+  - Mw.
+  - Mej
+  - Mej.
+  - Mr
+  - Mr.
+  - Mrs
+  - Mrs.
+  - Ms
+  - Ms.
+  - Miss
+  - Père
+  - Soeur
+  - Fr
+  - Fr.
+  - Sr
+  - Sr.
+
+creole_particles:
+  - "d'"
+  - "D'"
+  - "l'"
+  - "L'"
+  - di
+  - Di
+  - la
+  - La
+  - ti
+  - Ti
+  - man
+  - Man
+
+french_particles:
+  - de
+  - du
+  - des
+  - de la
+  - "d'"
+  - le
+  - la
+  - les
+
+dutch_particles:
+  - van
+  - van der
+  - van den
+  - van de
+  - de
+  - der
+  - den
+  - ter
+  - te
+  - ten

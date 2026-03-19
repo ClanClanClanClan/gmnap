@@ -1,0 +1,34 @@
+# C5 - Arabic Maghreb
+code: C5
+name: Arabic Maghreb
+
+patronymic_particles:
+  ben: son of
+  bel: son of (dialectal)
+  bou: father of / possessor of
+  ould: son of (Mauritanian)
+  mint: daughter of (Mauritanian)
+  ibn: son of
+  bin: son of
+  bint: daughter of
+
+name_particles:
+  - el
+  - al
+  - le
+  - la
+  - de
+  - d
+  - du
+
+french_transliteration_map:
+  Muhammad: Mohammed
+  Ibrahim: Brahim
+  Abdel: Abdel
+  Hassan: Hassane
+  Hussein: Hocine
+  Yusuf: Youssef
+  Omar: Omar
+  Ali: Ali
+  Khalid: Khaled
+  Said: Said

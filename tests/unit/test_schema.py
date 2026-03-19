@@ -130,7 +130,7 @@ class TestSchemaValidator:
                 "GenderProvided": True,
                 "CountryCodes": ["US"],
                 "AuthorityIDs": {
-                    "ORCID": "0000-0000-0000-000X"  # Invalid ORCID format
+                    "ORCID": "0000-0000-0000-00XY"  # Invalid ORCID format
                 },
                 "Confidence": 95,
                 "Historic": False,

@@ -1,0 +1,102 @@
+# A1 - Core Anglo-Sphere
+# US, GB, CA, AU, NZ, IE + English Caribbean + Pacific US territories
+code: A1
+name: Core Anglo-Sphere
+
+titles:
+  - Dr
+  - Dr.
+  - Doctor
+  - Prof
+  - Prof.
+  - Professor
+  - Mr
+  - Mr.
+  - Mrs
+  - Mrs.
+  - Ms
+  - Ms.
+  - Miss
+  - Sir
+  - Dame
+  - Lord
+  - Lady
+  - Rev
+  - Rev.
+  - Reverend
+  - Fr
+  - Fr.
+  - Father
+  - Col
+  - Col.
+  - Colonel
+  - Capt
+  - Capt.
+  - Captain
+  - Lt
+  - Lt.
+  - Lieutenant
+  - Maj
+  - Maj.
+  - Major
+  - Gen
+  - Gen.
+  - General
+  - Adm
+  - Adm.
+  - Admiral
+
+generational_suffixes:
+  - Jr
+  - Jr.
+  - Junior
+  - Sr
+  - Sr.
+  - Senior
+  - I
+  - II
+  - III
+  - IV
+  - V
+  - VI
+  - VII
+  - VIII
+  - IX
+  - X
+  - 1st
+  - 2nd
+  - 3rd
+  - 4th
+  - 5th
+  - Esq
+  - Esq.
+  - Esquire
+  - PhD
+  - Ph.D.
+  - MD
+  - M.D.
+  - JD
+  - J.D.
+
+particles:
+  - de
+  - di
+  - da
+  - del
+  - della
+  - van
+  - von
+  - der
+  - den
+  - ten
+  - la
+  - le
+  - du
+  - des
+  - of
+  - mac
+  - mc
+  - "o'"
+  - st
+  - san
+  - santa

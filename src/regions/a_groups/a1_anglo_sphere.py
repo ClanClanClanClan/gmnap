@@ -31,11 +31,11 @@ class A1_AngloSphere(RegionSpec):
             canonical_order="Family, Given",
             romanisation_standards=[]
         )
-        
-        # Common titles to remove
+
+        # Hardcoded defaults
         self.titles = {
             "Dr", "Dr.", "Doctor",
-            "Prof", "Prof.", "Professor", 
+            "Prof", "Prof.", "Professor",
             "Mr", "Mr.", "Mrs", "Mrs.", "Ms", "Ms.", "Miss",
             "Sir", "Dame", "Lord", "Lady",
             "Rev", "Rev.", "Reverend",
@@ -47,19 +47,27 @@ class A1_AngloSphere(RegionSpec):
             "Gen", "Gen.", "General",
             "Adm", "Adm.", "Admiral"
         }
-        
-        # Generational suffixes
+
         self.generational_suffixes = {
             "Jr", "Jr.", "Junior",
-            "Sr", "Sr.", "Senior", 
+            "Sr", "Sr.", "Senior",
             "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
             "1st", "2nd", "3rd", "4th", "5th",
             "Esq", "Esq.", "Esquire",
             "PhD", "Ph.D.", "MD", "M.D.", "JD", "J.D."
         }
-        
-        # Name particles (usually kept)
+
         self.particles = {"de", "di", "da", "del", "della", "van", "von", "der", "den", "ten", "la", "le", "du", "des", "of", "mac", "mc", "o'", "st", "san", "santa"}
+
+        # Override from YAML config if available
+        cfg = self.load_yaml_config()
+        if cfg:
+            if "titles" in cfg:
+                self.titles = set(cfg["titles"])
+            if "generational_suffixes" in cfg:
+                self.generational_suffixes = set(cfg["generational_suffixes"])
+            if "particles" in cfg:
+                self.particles = set(cfg["particles"])
     
     def clean(self, entry: Dict[str, Any]) -> None:
         """Clean entry according to A1 rules."""
@@ -350,8 +358,8 @@ class A1_AngloSphere(RegionSpec):
             # Only validate if it looks like an Anglo name (all ASCII letters)
             # Non-ASCII names will be handled by other regions
             if given_without_suffix and given_without_suffix.replace('.', '').replace('-', '').replace(' ', '').isascii():
-                # For ASCII names, check format (but allow numbers for test data)
-                if not re.match(r'^[A-Za-z0-9][A-Za-z0-9.\s-]*$', given_without_suffix):
+                # For ASCII names, digits are not valid in given names
+                if not re.match(r'^[A-Za-z][A-Za-z.\s-]*$', given_without_suffix):
                     raise RegionRuleError(f"Invalid given name format: {given}")
     
     def _is_valid_ascii_name(self, name: str) -> bool:

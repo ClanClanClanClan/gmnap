@@ -68,7 +68,6 @@ jobs:
 
       - name: Integration tests
         run: pytest tests/integration/ -v --tb=short --timeout=120
-        continue-on-error: true
 
       - name: Hardcore tests
         run: pytest tests/hardcore/ -v --tb=short --timeout=300

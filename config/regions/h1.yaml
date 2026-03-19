@@ -1,0 +1,61 @@
+# H1 - Historical (pre-1850)
+code: H1
+name: Historical
+
+titles:
+  - Sir
+  - Lord
+  - Count
+  - Baron
+  - Duke
+  - Bishop
+  - Abbot
+  - Friar
+  - Brother
+  - Father
+  - Rev
+  - Rev.
+  - Prof
+  - Prof.
+  - Professor
+  - Dr
+  - Dr.
+
+latin_suffixes:
+  - us
+  - ius
+  - eus
+  - aeus
+  - anus
+  - inus
+  - is
+  - es
+
+epithet_markers:
+  - of
+  - de
+  - von
+  - van
+  - di
+  - da
+  - al-
+  - el-
+  - ibn
+  - bin
+  - ben
+  - the
+
+known_mononyms:
+  - Euclid
+  - Archimedes
+  - Hypatia
+  - Pythagoras
+  - Ptolemy
+  - Thales
+  - Diophantus
+  - Eratosthenes
+  - Apollonius
+  - Aristarchus
+  - Brahmagupta
+  - Aryabhata
+  - Bhaskara

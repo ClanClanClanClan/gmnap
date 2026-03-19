@@ -1,0 +1,29 @@
+ATTRIBUTION - Third-party sources and licences
+
+This file is auto-generated based on specs_v7.yaml authority_sources.
+SPDX identifiers are provided for licence compliance.
+
+Tier 0 (Free, no authentication):
+- OpenAlex: licence=CC0 (SPDX: CC0-1.0)
+- Crossref: licence=CC0 (SPDX: CC0-1.0)
+- ORCID: licence=CC0 (SPDX: CC0-1.0)
+- Crossref_Thesis: licence=CC0 (SPDX: CC0-1.0)
+
+Tier 1 (Free, rate limited):
+- Wikidata_P184: licence=CC0 (SPDX: CC0-1.0)
+- OAI_University: licence=CC-BY (SPDX: CC-BY-4.0)
+- HAL: licence=CC-BY (SPDX: CC-BY-4.0)
+- GND: licence=CC0 (SPDX: CC0-1.0)
+- zbMATH_Open: licence=CC-BY (SPDX: CC-BY-4.0)
+
+Tier 2 (Subscription required):
+- MathSciNet: licence=Subscription (SPDX: Proprietary)
+- Scopus: licence=Elsevier (SPDX: Proprietary)
+- Dimensions: licence=DigitalScience (SPDX: Proprietary)
+
+Tier 3 (Scraper / subscription):
+- ProQuest: licence=Commercial (SPDX: Proprietary)
+- GoogleScholar: licence=Scraping (SPDX: Terms-of-Service)
+
+Output licence: CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/)
+- End -

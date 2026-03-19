@@ -1,0 +1,52 @@
+# A4 - Oceania Island States
+code: A4
+name: Oceania Island States
+
+polynesian_particles:
+  - Te
+  - Ngā
+  - Ngāi
+  - Ngāti
+  - Ka
+  - Tū
+  - O
+  - Le
+  - Sa
+  - Fa'a
+  - Faa
+  - Tu'i
+  - Tui
+  - "'Aho"
+  - Aho
+  - Faka
+  - Ro
+  - Adi
+  - Ratu
+  - Ke
+  - Na
+  - Kaha
+  - Ki
+  - Vai
+  - Mata
+  - Motu
+
+common_elements:
+  - moana
+  - vai
+  - mata
+  - rangi
+  - lani
+  - marama
+  - tane
+  - wahine
+  - keiki
+  - tamariki
+  - hema
+  - tonga
+  - tokelau
+  - hiva
+  - ariki
+  - ali'i
+  - alii
+  - matai
+  - tulafale

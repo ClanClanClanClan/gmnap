@@ -26,7 +26,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Install FastText language identification model
-RUN wget -q https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin -O /app/lid.176.bin
+RUN mkdir -p /app/config && \
+    wget -q https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin -O /app/config/lid.176.bin
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
@@ -42,4 +43,4 @@ RUN mkdir -p /app/cache/gs /app/cache/bad_json /app/data
 ENV PYTHONPATH=/app/src:/app
 
 # Default command
-CMD ["python3.12", "-m", "src.core.pipeline"]
+CMD ["python3.12", "-m", "uvicorn", "src.api.server:app", "--host", "0.0.0.0", "--port", "8080"]

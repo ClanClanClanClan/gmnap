@@ -1,0 +1,21 @@
+# C9 - Caucasus-Turkic
+code: C9
+name: Caucasus-Turkic
+
+patronymic_particles:
+  oglu: son of
+  oghlu: son of
+  "oğlu": son of
+  qizi: daughter of
+  "gızı": daughter of
+  gizi: daughter of
+
+surname_suffixes:
+  ov: patronymic (Russian-style, male)
+  ova: patronymic (Russian-style, female)
+  yev: patronymic (Russian-style, male)
+  yeva: patronymic (Russian-style, female)
+  zade: descendant of (Persian-style)
+  zadeh: descendant of (Persian-style)
+  li: from (place)
+  lu: possessing

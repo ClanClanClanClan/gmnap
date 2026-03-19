@@ -1,0 +1,55 @@
+# F4 - Lusophone Africa
+code: F4
+name: Lusophone Africa
+
+titles:
+  - Dr
+  - Dr.
+  - Doutor
+  - Doutora
+  - Prof
+  - Prof.
+  - Professor
+  - Professora
+  - Sr
+  - Sr.
+  - Senhor
+  - Sra
+  - Sra.
+  - Senhora
+  - Dom
+  - Dona
+  - Eng
+  - Eng.
+  - Engenheiro
+
+particles:
+  - de
+  - da
+  - do
+  - dos
+  - das
+  - "d'"
+  - e
+
+common_surnames:
+  - silva
+  - santos
+  - ferreira
+  - pereira
+  - oliveira
+  - costa
+  - rodrigues
+  - martins
+  - jesus
+  - sousa
+  - mendes
+  - gomes
+  - alves
+  - ribeiro
+  - fernandes
+  - neto
+  - lopes
+  - nascimento
+  - carvalho
+  - teixeira

@@ -29,7 +29,11 @@ class GlobalIDGenerator:
     def __init__(self):
         # For collision detection across different entries, not same entry
         self._true_collisions: Dict[str, Dict[str, int]] = {}  # base_id -> {hash_input: collision_num}
-    
+
+    def clear(self):
+        """Reset the collision tracking state."""
+        self._true_collisions.clear()
+
     def generate(self, entry: Dict[str, Any]) -> str:
         """
         Generate GlobalID for an entry.

@@ -30,35 +30,32 @@ def uncached_entry():
 
 @pytest.mark.asyncio
 async def test_offline_blocks_tier0_openalex(uncached_entry):
-    """OpenAlex handler returns hit=False when OFFLINE=1 (no cache hit)."""
-    with patch.dict(os.environ, {"OFFLINE": "1"}):
-        import importlib
-        import src.authority.manager_tier01 as m
-        importlib.reload(m)
-        result = await m._fetch_openalex(uncached_entry)
-        assert result == {"OpenAlex": {"hit": False}}
+    """OpenAlex adapter returns hit=False when GMNAP_NO_NETWORK=1."""
+    with patch.dict(os.environ, {"GMNAP_NO_NETWORK": "1"}):
+        from src.authority.openalex_adapter import OpenAlexAdapter
+        adapter = OpenAlexAdapter()
+        result = await adapter.enrich(uncached_entry)
+        assert result["_source"]["hit"] is False
 
 
 @pytest.mark.asyncio
 async def test_offline_blocks_tier0_crossref(uncached_entry):
-    """Crossref handler returns hit=False when OFFLINE=1 (no cache hit)."""
-    with patch.dict(os.environ, {"OFFLINE": "1"}):
-        import importlib
-        import src.authority.manager_tier01 as m
-        importlib.reload(m)
-        result = await m._fetch_crossref(uncached_entry)
-        assert result == {"Crossref": {"hit": False}}
+    """Crossref adapter returns hit=False when GMNAP_NO_NETWORK=1."""
+    with patch.dict(os.environ, {"GMNAP_NO_NETWORK": "1"}):
+        from src.authority.crossref_adapter import CrossrefAdapter
+        adapter = CrossrefAdapter()
+        result = await adapter.enrich(uncached_entry)
+        assert result["_source"]["hit"] is False
 
 
 @pytest.mark.asyncio
 async def test_offline_blocks_tier0_orcid(uncached_entry):
-    """ORCID_ETD handler returns hit=False when OFFLINE=1 (no cache hit)."""
-    with patch.dict(os.environ, {"OFFLINE": "1"}):
-        import importlib
-        import src.authority.manager_tier01 as m
-        importlib.reload(m)
-        result = await m._fetch_orcid_etd(uncached_entry)
-        assert result == {"ORCID_ETD": {"hit": False}}
+    """ORCID_ETD adapter returns hit=False when GMNAP_NO_NETWORK=1."""
+    with patch.dict(os.environ, {"GMNAP_NO_NETWORK": "1"}):
+        from src.authority.orcid_etd_adapter import ORCIDETDAdapter
+        adapter = ORCIDETDAdapter()
+        result = await adapter.enrich(uncached_entry)
+        assert result["_source"]["hit"] is False
 
 
 @pytest.mark.asyncio

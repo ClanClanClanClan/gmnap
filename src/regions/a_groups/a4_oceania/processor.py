@@ -326,25 +326,48 @@ class A4OceaniaProcessor(RegionSpec):
         # Common words that should have macrons
         # This is a simplified set - full implementation would need comprehensive dictionary
         macron_map = {
-            # Māori
+            # Māori common words
             "maori": "māori", "Maori": "Māori",
             "pakeha": "pākehā", "Pakeha": "Pākehā",
             "whanau": "whānau", "Whanau": "Whānau",
-            "iwi": "iwi",  # actually no macron
             "hapu": "hapū", "Hapu": "Hapū",
-            # Samoan
-            "samoa": "sāmoa", "Samoa": "Sāmoa",
-            "alofa": "alofa",  # no macron
-            "talofa": "tālōfā", "Talofa": "Tālōfā",
-            # Tongan
-            "tonga": "tonga",  # no macron in this case
-            "malo": "mālō", "Malo": "Mālō",
-            # Hawaiian/General
-            "aloha": "aloha",  # no macron
+            # Māori name elements
+            "Tamati": "Tāmati", "tamati": "tāmati",
+            "Rangi": "Rāngi", "rangi": "rāngi",
+            "Hone": "Hōne", "hone": "hōne",
+            "Mere": "Mēre", "mere": "mēre",
+            "Tane": "Tāne", "tane": "tāne",
+            "Ngata": "Ngāta", "ngata": "ngāta",
+            "Ratana": "Rātana", "ratana": "rātana",
+            "Mahuta": "Māhuta", "mahuta": "māhuta",
+            "Pomare": "Pōmare", "pomare": "pōmare",
+            "Turei": "Tūrei", "turei": "tūrei",
+            "Parata": "Pārata", "parata": "pārata",
+            "Tamihere": "Tāmihere", "tamihere": "tāmihere",
+            "Mahara": "Māhara", "mahara": "māhara",
+            "Kahui": "Kāhui", "kahui": "kāhui",
+            "Rapata": "Rāpata", "rapata": "rāpata",
+            # Samoan name elements
+            "Tui": "Tu'i", "Malietoa": "Mālietoa",
+            "Tupua": "Tupuā", "Tamasese": "Tāmasese",
+            "Matautia": "Mataʻutia",
+            "Tuilaepa": "Tuila'epa",
+            "Tuimalealiifano": "Tuimalealiʻifano",
+            "Fiame": "Fiamē",
+            "Naomi": "Naomi",  # no macron
+            # Tongan name elements
+            "Tupou": "Tūpou", "tupou": "tūpou",
+            "Taufa": "Taufaʻāhau",
+            "Lavaka": "Lāvaka", "lavaka": "lāvaka",
+            "Fonua": "Fonuā",
+            "Vaha'i": "Vahaʻi",
+            # Hawaiian
             "ohana": "ʻohana", "Ohana": "ʻOhana",
-            "keiki": "keiki",  # no macron
-            "wahine": "wahine",  # no macron
-            "kane": "kāne", "Kane": "Kāne"
+            "kane": "kāne", "Kane": "Kāne",
+            "Kamehameha": "Kamehameha",  # no macron
+            "Liliuokalani": "Liliʻuokalani",
+            # General Polynesian
+            "malo": "mālō", "Malo": "Mālō",
         }
         
         result = name

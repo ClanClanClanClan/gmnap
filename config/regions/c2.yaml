@@ -1,0 +1,11 @@
+# C2 - Persian-Tajik
+code: C2
+name: Persian-Tajik
+
+patronymic_patterns:
+  "پسر": son of
+  "دختر": daughter of
+  "بن": son of
+  "بنت": daughter of
+  "писар": son of
+  "духтар": daughter of

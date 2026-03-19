@@ -1,0 +1,5 @@
+# Z0 - Quarantine
+code: Z0
+name: Quarantine
+
+confidence_threshold: 0.50

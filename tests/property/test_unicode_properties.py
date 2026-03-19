@@ -96,8 +96,8 @@ def problematic_unicode_strategy(draw):
         text(alphabet=characters(min_codepoint=0xE000, max_codepoint=0xF8FF)),
         # Specials
         text(alphabet=characters(min_codepoint=0xFFF0, max_codepoint=0xFFFF)),
-        # Bidirectional text
-        text(alphabet=characters(categories=['L', 'R', 'AL'])),
+        # Bidirectional text (mix of Latin, Arabic, Hebrew scripts)
+        text(alphabet=characters(categories=['L'])),
         # Zero-width characters
         st.just('\u200B\u200C\u200D\u2060\uFEFF'),
         # Normalization test cases
@@ -129,18 +129,33 @@ class TestUnicodeNormalizationProperties:
     @given(text_input=text(min_size=1, max_size=100))
     @settings(max_examples=200, deadline=None)
     def test_normalization_preserves_alphanumeric(self, text_input):
-        """Test that normalization preserves alphanumeric characters."""
+        """Test that normalization preserves ASCII alphanumeric characters.
+
+        Note: Some Unicode letters (e.g. ß→ss, ligatures ﬁ→fi) legitimately
+        expand during NFKD compatibility decomposition, so we only check that
+        plain ASCII a-z/A-Z/0-9 characters are preserved.
+        """
         assume(text_input.strip())
-        
+
         normalizer = UnicodeNormalizer()
         normalized = normalizer.normalize(text_input)
-        
-        # Extract alphanumeric characters
-        original_alnum = re.findall(r'[a-zA-Z0-9]', text_input)
-        normalized_alnum = re.findall(r'[a-zA-Z0-9]', normalized)
-        
-        # Should preserve order and content of alphanumeric chars
-        assert original_alnum == normalized_alnum, f"Alphanumeric preservation failed: {repr(text_input)}"
+
+        # Only check plain ASCII alphanumerics (not Unicode letters that
+        # may expand during compatibility decomposition).
+        original_ascii = re.findall(r'[a-zA-Z0-9]', text_input)
+        normalized_ascii = re.findall(r'[a-zA-Z0-9]', normalized)
+
+        # Normalized text may gain ASCII chars from decomposition (ß→ss),
+        # so the original ASCII chars should be a subsequence of the
+        # normalised ASCII chars (not necessarily equal).
+        j = 0
+        for ch in original_ascii:
+            while j < len(normalized_ascii) and normalized_ascii[j] != ch:
+                j += 1
+            assert j < len(normalized_ascii), (
+                f"ASCII char {ch!r} from original lost during normalisation: {text_input!r}"
+            )
+            j += 1
     
     @given(text_input=unicode_text_strategy())
     @settings(max_examples=100, deadline=None)
@@ -375,7 +390,7 @@ class TestUnicodeNormalizationRegression:
             ("ﬁnite", "finite"),
             ("ﬂower", "flower"),
             ("ﬀect", "ffect"),
-            ("ﬃfth", "fifth"),
+            ("ﬃfth", "ffifth"),  # ﬃ (ffi ligature) + fth = ffifth
             ("ﬄe", "ffle"),
             ("ﬆyle", "style"),
         ]

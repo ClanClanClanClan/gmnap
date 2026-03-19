@@ -1,0 +1,33 @@
+# F3 - Horn of Africa
+code: F3
+name: Horn of Africa
+
+titles:
+  - Dr
+  - Dr.
+  - Doctor
+  - Prof
+  - Prof.
+  - Professor
+  - Ato
+  - Woizero
+  - Woizerit
+  - Dejazmach
+  - Ras
+  - Negus
+  - Fitawrari
+  - Grazmach
+  - Blatta
+  - Rev
+  - Rev.
+
+romanisation_alternates:
+  ou: u
+  oo: u
+  ee: i
+  ei: e
+  sh: ch
+  tch: ch
+  dj: j
+  gn: ny
+  w: ou

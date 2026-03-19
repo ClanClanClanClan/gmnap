@@ -1,5 +1,6 @@
 
 from __future__ import annotations
+import os
 from typing import Dict, Any
 from urllib.parse import urlencode
 from .common import AuthorityContext, canonical_query_key
@@ -10,6 +11,8 @@ class HALAdapter:
         base_url = (cfg or {}).get("base_url", "https://api.archives-ouvertes.fr")
         self.ctx = AuthorityContext(self.name, base_url.rstrip("/") + "/search", rps=4, burst=4, cache_ttl=86400)
     async def enrich(self, entry: Dict[str, Any]) -> Dict[str, Any]:
+        if os.getenv("OFFLINE", "1") == "1":
+            return {"_source": {"service": self.name, "hit": False}}
         q = {"wt":"json","q": f'authFullName_t:"{entry.get("CanonicalLatin","")}"', "rows": 1}
         key = canonical_query_key({"svc": self.name, "q": q})
         cached = await self.ctx.cache.get_json(key)

@@ -1,0 +1,50 @@
+# C3 - Arabic Levant-Nile
+code: C3
+name: Arabic Levant-Nile
+
+patronymic_patterns:
+  ibn: son of
+  "ابن": son of
+  bin: son of
+  "بن": son of
+  bint: daughter of
+  "بنت": daughter of
+  abu: father of
+  "أبو": father of
+  um: mother of
+  "أم": mother of
+  umm: mother of
+  ould: son of
+  mint: daughter of
+
+common_elements:
+  "عبد": Abd
+  "محمد": Muhammad
+  "أحمد": Ahmad
+  "علي": Ali
+  "حسن": Hasan
+  "حسين": Husayn
+  "إبراهيم": Ibrahim
+  "يوسف": Yusuf
+  "عمر": Umar
+  "خالد": Khalid
+  "صالح": Salih
+  "عبدالله": Abdullah
+  "سعيد": Said
+  "طارق": Tariq
+
+sun_letters:
+  - ت
+  - ث
+  - د
+  - ذ
+  - ر
+  - ز
+  - س
+  - ش
+  - ص
+  - ض
+  - ط
+  - ظ
+  - ل
+  - ن

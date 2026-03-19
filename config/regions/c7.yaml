@@ -1,0 +1,57 @@
+# C7 - Armenian
+code: C7
+name: Armenian
+
+surname_suffixes:
+  yan: patronymic
+  ian: patronymic (Western)
+  ean: patronymic (variant)
+  uni: patronymic (Karabakh)
+  ants: plural form
+  yants: patronymic plural
+  iants: patronymic plural
+  djian: patronymic (French style)
+  jian: patronymic
+  chian: patronymic
+  tzian: patronymic
+  gian: patronymic
+
+romanisation_map:
+  "Ա": A
+  "Բ": B
+  "Գ": G
+  "Դ": D
+  "Ե": E
+  "Զ": Z
+  "Է": E
+  "Ը": Y
+  "Թ": T
+  "Ժ": Zh
+  "Ի": I
+  "Լ": L
+  "Խ": Kh
+  "Ծ": Ts
+  "Կ": K
+  "Հ": H
+  "Ձ": Dz
+  "Ղ": Gh
+  "Ճ": Ch
+  "Մ": M
+  "Յ": Y
+  "Ն": "N"
+  "Շ": Sh
+  "Ո": Vo
+  "Չ": Ch
+  "Պ": P
+  "Ջ": J
+  "Ռ": R
+  "Ս": S
+  "Վ": V
+  "Տ": T
+  "Ր": R
+  "Ց": Ts
+  "Ւ": V
+  "Փ": P
+  "Ք": K
+  "Օ": O
+  "Ֆ": F

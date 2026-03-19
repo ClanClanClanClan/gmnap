@@ -42,8 +42,8 @@ class CacheManager:
     def __init__(
         self,
         cache_dir: Path,
-        max_size_gb: float = 20.0,
-        max_days: int = 30,
+        max_size_gb: float = 50.0,
+        max_days: int = 60,
         compression_level: int = 6
     ):
         self.cache_dir = Path(cache_dir)
@@ -638,8 +638,8 @@ _cache_manager: Optional[CacheManager] = None
 
 def get_cache_manager(
     cache_dir: Optional[Path] = None,
-    max_size_gb: float = 20.0,
-    max_days: int = 30
+    max_size_gb: float = 50.0,
+    max_days: int = 60
 ) -> CacheManager:
     """
     Get or create global cache manager.

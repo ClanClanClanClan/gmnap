@@ -1,0 +1,62 @@
+# F1 - SSA Francophone
+code: F1
+name: SSA - Francophone
+
+titles:
+  - Dr
+  - Dr.
+  - Docteur
+  - Prof
+  - Prof.
+  - Professeur
+  - M
+  - M.
+  - Monsieur
+  - Mme
+  - Mme.
+  - Madame
+  - Mlle
+  - Mlle.
+  - Mademoiselle
+  - Pr
+  - Pr.
+  - Mgr
+  - Mgr.
+
+particles:
+  - de
+  - du
+  - des
+  - "d'"
+  - le
+  - la
+  - les
+  - "l'"
+
+african_prefixes:
+  - Ndi
+  - Ngo
+  - Nga
+  - Ngu
+  - Ba
+  - Ma
+  - Mba
+  - Mbi
+  - Bi
+  - Di
+  - Fo
+  - Fa
+  - Nde
+  - Nke
+  - Nji
+  - Nta
+
+compound_starters:
+  - Jean
+  - Marie
+  - Pierre
+  - Anne
+  - Louis
+  - Charles
+  - Paul
+  - Claude

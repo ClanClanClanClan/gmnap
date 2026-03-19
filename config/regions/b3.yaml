@@ -1,0 +1,34 @@
+# B3 - Greek World
+code: B3
+name: Greek World
+
+greek_prefixes:
+  Παπα: Papa
+  Χατζη: Chatzi
+  Χατζι: Chatzi
+  Καρα: Kara
+  Μαστρο: Mastro
+  Κυρ: Kyr
+  Γερο: Gero
+  Μακρο: Makro
+  Μικρο: Mikro
+
+romanised_prefixes:
+  - Chatzi
+  - Hatzi
+  - Chatzi-
+  - Hatzi-
+  - Hadji
+  - Haji
+  - Papa
+  - Papas
+  - Papa-
+  - Kara
+  - Kara-
+  - Mastro
+  - Mastro-
+  - Kyria
+  - Kyr
+  - Gero
+  - Makro
+  - Mikro

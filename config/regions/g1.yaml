@@ -1,0 +1,86 @@
+# G1 - Latin America & Iberian Caribbean
+# AR, BO, BR, CL, CO, CR, CU, DO, EC, GT, GY, HN, HT, MX, NI, PA, PE, PY, SV, SR, UY, VE, PR
+code: G1
+name: Latin America & Iberian Caribbean
+
+particles:
+  - de
+  - del
+  - de la
+  - de las
+  - de los
+  - da
+  - das
+  - do
+  - dos
+  - "y"
+  - e
+  - van
+  - von
+
+surname_stop_words:
+  - de
+  - del
+  - de la
+  - de las
+  - de los
+  - da
+  - das
+  - do
+  - dos
+  - "y"
+  - e
+
+country_indicators:
+  BR:
+    patterns:
+      - silva
+      - santos
+      - oliveira
+      - souza
+      - rodrigues
+      - ferreira
+      - alves
+      - pereira
+      - lima
+      - gomes
+    particles: [da, das, do, dos, de]
+  MX:
+    patterns:
+      - "gonz\xE1lez"
+      - "rodr\xEDguez"
+      - "garc\xEDa"
+      - "hern\xE1ndez"
+      - "l\xF3pez"
+      - "mart\xEDnez"
+      - "s\xE1nchez"
+      - "p\xE9rez"
+      - "g\xF3mez"
+      - "mart\xEDn"
+    compounds: true
+  AR:
+    patterns:
+      - "fern\xE1ndez"
+      - "gonz\xE1lez"
+      - "rodr\xEDguez"
+      - "l\xF3pez"
+      - "garc\xEDa"
+      - "p\xE9rez"
+      - "mart\xEDnez"
+      - "s\xE1nchez"
+      - romero
+      - "g\xF3mez"
+    italian_influence: true
+  ES_CARIBBEAN:
+    patterns:
+      - "garc\xEDa"
+      - "rodr\xEDguez"
+      - "p\xE9rez"
+      - "gonz\xE1lez"
+      - "fern\xE1ndez"
+      - "l\xF3pez"
+      - "mart\xEDnez"
+      - "s\xE1nchez"
+      - "hern\xE1ndez"
+      - "d\xEDaz"
+    compounds: true

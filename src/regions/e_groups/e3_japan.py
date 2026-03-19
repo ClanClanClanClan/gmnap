@@ -395,6 +395,23 @@ class E3_Japan(RegionSpec):
             # Store order information in RegionalExtras
             if "RegionalExtras" not in entry:
                 entry["RegionalExtras"] = {}
+
+            # Rule 12 majority rule: for authors with publications both
+            # before and after 2020, adopt the order used in the majority
+            # of their English-language papers.  In offline mode we use a
+            # heuristic: if the author's earliest publication year is >=2020
+            # we assume Family-Given order; otherwise Given-Family.
+            birth = entry.get("BirthYear")
+            pub_year = entry.get("_earliest_pub_year")
+            if pub_year is None and birth and isinstance(birth, (int, float)):
+                # Estimate first pub ~25 years after birth
+                pub_year = int(birth) + 25
+
+            if pub_year and pub_year >= 2020:
+                entry["RegionalExtras"]["canonical_order"] = "Family Given"
+            else:
+                entry["RegionalExtras"]["canonical_order"] = "Given Family"
+
             entry["RegionalExtras"]["post_2020_order_applicable"] = True
             
             # Determine current order format

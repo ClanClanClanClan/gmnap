@@ -1,0 +1,80 @@
+# F2 - SSA Anglophone
+code: F2
+name: SSA - Anglophone
+
+titles:
+  - Dr
+  - Dr.
+  - Doctor
+  - Prof
+  - Prof.
+  - Professor
+  - Mr
+  - Mr.
+  - Mrs
+  - Mrs.
+  - Ms
+  - Ms.
+  - Miss
+  - Sir
+  - Chief
+  - Alhaji
+  - Alhaja
+  - Rev
+  - Rev.
+  - Reverend
+  - Hon
+  - Hon.
+  - Honourable
+  - Engr
+  - Engr.
+  - Barrister
+  - Barr.
+
+yoruba_prefixes:
+  - Ade
+  - Ola
+  - Olu
+  - Ayo
+  - Oba
+  - Omo
+  - Ojo
+  - Ige
+  - Aina
+  - Oke
+  - Oso
+  - Akin
+  - Bam
+  - Odu
+  - Ogo
+
+igbo_prefixes:
+  - Nna
+  - Chi
+  - Eze
+  - Obi
+  - Nwa
+  - Ike
+  - Udo
+  - Onu
+  - Agu
+  - Okw
+  - Nne
+  - Ama
+  - Ugo
+
+akan_day_names:
+  - Kwame
+  - Kwasi
+  - Kwadwo
+  - Kwaku
+  - Yaw
+  - Kofi
+  - Kwabena
+  - Ama
+  - Akosua
+  - Adwoa
+  - Akua
+  - Yaa
+  - Afia
+  - Abena

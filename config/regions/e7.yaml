@@ -1,0 +1,59 @@
+# E7 - Maritime SEA
+code: E7
+name: Maritime SEA
+
+titles:
+  - Dato
+  - Datuk
+  - Tan Sri
+  - Tun
+  - Haji
+  - Hajjah
+  - Encik
+  - Puan
+  - Cik
+  - Tuan
+  - Dr
+  - Prof
+  - Don
+  - Doña
+  - Ginoo
+  - Ginang
+  - Bb.
+  - G.
+  - Mr
+  - Mr.
+  - Mrs
+  - Mrs.
+  - Ms
+  - Ms.
+  - Dr.
+  - Prof.
+
+malay_patronymics:
+  bin: son of
+  binti: daughter of
+  bt: daughter of
+  b.: son of
+
+filipino_surnames:
+  - Santos
+  - Cruz
+  - Reyes
+  - Ramos
+  - Mendoza
+  - Garcia
+  - Rodriguez
+  - Fernandez
+  - Lopez
+  - Gonzales
+  - Hernandez
+  - Perez
+  - Sanchez
+  - Ramirez
+  - Torres
+  - Flores
+  - Rivera
+  - Gomez
+  - Diaz
+  - Morales

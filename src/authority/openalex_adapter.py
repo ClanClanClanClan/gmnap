@@ -24,6 +24,8 @@ class OpenAlexAdapter:
         name = entry.get("CanonicalLatin", "")
         if not name:
             return {"_source": {"service": self.name, "hit": False}}
+        if os.getenv("GMNAP_NO_NETWORK", "") == "1":
+            return {"_source": {"service": self.name, "hit": False}}
         # Use /authors endpoint for author-level data
         q = {"search": name, "per_page": "1", "mailto": self.email}
         key = canonical_query_key({"svc": self.name, "q": q})

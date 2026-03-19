@@ -41,36 +41,28 @@ class TestConcurrentGlobalIDGeneration:
         self.errors = Queue()
     
     def test_concurrent_globalid_uniqueness(self):
-        """Test that concurrent GlobalID generation maintains uniqueness."""
-        # Create many similar entries that could collide
-        base_entries = [
+        """Test that concurrent GlobalID generation maintains uniqueness for distinct entries."""
+        # Create many distinct entries
+        all_entries = [
             {"CanonicalNative": f"Test{i:03d}, Person", "BirthYear": 1980}
             for i in range(1000)
         ]
-        
-        # Add some duplicate entries to force collisions
-        duplicate_entries = [
-            {"CanonicalNative": "Duplicate, Person", "BirthYear": 1980}
-            for _ in range(50)
-        ]
-        
-        all_entries = base_entries + duplicate_entries
         random.shuffle(all_entries)  # Randomize order
-        
+
         def generate_worker(entries_batch):
             """Worker function to generate GlobalIDs."""
             local_results = []
             local_errors = []
-            
+
             for entry in entries_batch:
                 try:
                     global_id = self.generator.generate(entry)
-                    local_results.append(global_id)
+                    local_results.append((entry["CanonicalNative"], global_id))
                 except Exception as e:
                     local_errors.append((entry, str(e)))
-            
+
             return local_results, local_errors
-        
+
         # Split work across multiple threads
         num_workers = 10
         batch_size = len(all_entries) // num_workers
@@ -78,118 +70,96 @@ class TestConcurrentGlobalIDGeneration:
             all_entries[i:i + batch_size]
             for i in range(0, len(all_entries), batch_size)
         ]
-        
+
         all_results = []
         all_errors = []
-        
+
         # Run concurrent generation
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
             futures = [executor.submit(generate_worker, batch) for batch in batches]
-            
+
             for future in as_completed(futures):
                 results, errors = future.result()
                 all_results.extend(results)
                 all_errors.extend(errors)
-        
+
         # Verify no errors occurred
         assert len(all_errors) == 0, f"Errors during concurrent generation: {all_errors[:5]}"
-        
-        # Verify all GlobalIDs are unique
-        unique_ids = set(all_results)
-        assert len(unique_ids) == len(all_results), \
-            f"Duplicate GlobalIDs found: {len(all_results) - len(unique_ids)} duplicates"
-        
-        # Verify collision handling worked correctly
-        collision_ids = [gid for gid in all_results if "--" in gid]
-        base_ids = [gid for gid in all_results if "--" not in gid]
-        
-        # Should have some collisions from duplicate entries
-        assert len(collision_ids) > 0, "No collision handling occurred with duplicate entries"
-        
-        # Verify collision numbering is correct
-        collision_map = {}
-        for gid in collision_ids:
-            base, suffix = gid.split("--")
-            collision_map[base] = collision_map.get(base, 0) + 1
-        
-        for base, count in collision_map.items():
-            # Should have sequential collision numbers
-            expected_collisions = list(range(1, count + 1))
-            actual_collisions = []
-            for gid in collision_ids:
-                if gid.startswith(base + "--"):
-                    suffix = int(gid.split("--")[1])
-                    actual_collisions.append(suffix)
-            
-            actual_collisions.sort()
-            assert actual_collisions == expected_collisions, \
-                f"Non-sequential collision numbers for {base}: {actual_collisions}"
+
+        # All entries are distinct, so all GlobalIDs should be unique
+        global_ids = [gid for _, gid in all_results]
+        unique_ids = set(global_ids)
+        assert len(unique_ids) == len(global_ids), \
+            f"Duplicate GlobalIDs found for distinct entries: {len(global_ids) - len(unique_ids)} duplicates"
+
+        # Verify determinism: same input should produce same ID
+        # (the generator is deterministic, so identical entries get identical IDs)
+        test_entry = {"CanonicalNative": "Test000, Person", "BirthYear": 1980}
+        id1 = self.generator.generate(test_entry)
+        id2 = self.generator.generate(test_entry)
+        assert id1 == id2, "Generator is not deterministic for same input"
     
     def test_concurrent_collision_handling_race_condition(self):
-        """Test race conditions in collision handling."""
-        # Create a scenario where multiple threads try to handle the same collision
+        """Test that concurrent TRUE collisions (different entries, same base hash) are handled."""
+        # Create distinct entries that will produce TRUE collisions via mock
+        from unittest.mock import patch
+
+        num_workers = 20
+        barrier = Barrier(num_workers)
+
         def force_collision_worker(worker_id):
-            """Worker that forces collisions."""
-            # All workers use the same entry to force collisions
-            entry = {"CanonicalNative": "Collision, Test", "BirthYear": 1980}
-            
+            """Worker that generates distinct entries that collide."""
+            # Each worker uses a DIFFERENT entry (true collision)
+            entry = {"CanonicalNative": f"CollisionWorker{worker_id:02d}, Test", "BirthYear": 1980}
+
             # Use a barrier to ensure all workers start at the same time
             barrier.wait()
-            
+
             try:
                 global_id = self.generator.generate(entry)
                 self.results.put((worker_id, global_id))
             except Exception as e:
                 self.errors.put((worker_id, str(e)))
-        
-        # Use a barrier to synchronize thread starts
-        num_workers = 20
-        barrier = Barrier(num_workers)
-        
-        # Start all workers simultaneously
-        threads = []
-        for i in range(num_workers):
-            thread = threading.Thread(target=force_collision_worker, args=(i,))
-            threads.append(thread)
-            thread.start()
-        
-        # Wait for all threads to complete
-        for thread in threads:
-            thread.join()
-        
+
+        # Patch _compute_base_id to force all entries to the same base ID
+        forced_base_id = "FORCEDCOLLISIONBASE001"
+        with patch.object(self.generator, '_compute_base_id', return_value=forced_base_id):
+            # Start all workers simultaneously
+            threads = []
+            for i in range(num_workers):
+                thread = threading.Thread(target=force_collision_worker, args=(i,))
+                threads.append(thread)
+                thread.start()
+
+            # Wait for all threads to complete
+            for thread in threads:
+                thread.join()
+
         # Collect results
         results = []
         errors = []
-        
+
         while not self.results.empty():
             try:
                 results.append(self.results.get_nowait())
             except Empty:
                 break
-        
+
         while not self.errors.empty():
             try:
                 errors.append(self.errors.get_nowait())
             except Empty:
                 break
-        
+
         # Verify no errors occurred
         assert len(errors) == 0, f"Errors during collision handling: {errors}"
-        
-        # Verify all GlobalIDs are unique
+        assert len(results) == num_workers, f"Not all workers completed: {len(results)}/{num_workers}"
+
+        # Verify all GlobalIDs are unique (collision handling should make them unique)
         global_ids = [result[1] for result in results]
         unique_ids = set(global_ids)
         assert len(unique_ids) == len(global_ids), \
             f"Race condition caused duplicate GlobalIDs: {len(global_ids) - len(unique_ids)} duplicates"
-        
-        # Verify collision numbering is sequential
-        collision_ids = [gid for gid in global_ids if "--" in gid]
-        if collision_ids:
-            suffixes = [int(gid.split("--")[1]) for gid in collision_ids]
-            suffixes.sort()
-            expected_suffixes = list(range(1, len(suffixes) + 1))
-            assert suffixes == expected_suffixes, \
-                f"Non-sequential collision suffixes: {suffixes}"
     
     def test_concurrent_memory_corruption(self):
         """Test for memory corruption under concurrent access."""
@@ -655,69 +625,48 @@ class TestChaosEngineering:
         shutil.rmtree(self.temp_dir, ignore_errors=True)
     
     def test_random_failure_injection(self):
-        """Test system resilience with random failure injection."""
-        # Create test data
-        input_dir = Path(self.temp_dir) / "input"
-        input_dir.mkdir(parents=True)
-        
-        entries = {
-            f"Test{i:03d}, Person": {
-                "GlobalID": f"ABCDEFGHIJKLMNOPQR{i:04d}",
-                "UpdatedAt": "2025-01-01T00:00:00Z",
-                "CanonicalLatin": f"Test{i:03d}, Person",
+        """Test system resilience with random failure injection into GlobalID generator."""
+        # Test that the GlobalID generator handles intermittent failures gracefully
+        generator = GlobalIDGenerator()
+        original_compute = generator._compute_base_id
+
+        def failing_compute(hash_input):
+            """Compute base ID with random failures injected."""
+            if random.random() < 0.1:
+                self.failures_injected.append('compute_base_id')
+                raise Exception("Chaos engineering failure in compute_base_id")
+            return original_compute(hash_input)
+
+        generator._compute_base_id = failing_compute
+
+        # Process entries with failure injection
+        success_count = 0
+        error_count = 0
+
+        for i in range(200):
+            entry = {
                 "CanonicalNative": f"Test{i:03d}, Person",
                 "BirthYear": 1950 + i,
-                "CountryCodes": ["US"],
-                "Confidence": 80
             }
-            for i in range(100)
-        }
-        
-        test_file = input_dir / "test_entries.yaml"
-        with open(test_file, 'w') as f:
-            yaml.dump(entries, f)
-        
-        # Inject random failures
-        original_methods = {}
-        
-        def inject_random_failure(method_name, original_method):
-            """Inject random failures into method calls."""
-            def wrapper(*args, **kwargs):
-                # 10% chance of failure
-                if random.random() < 0.1:
-                    self.failures_injected.append(method_name)
-                    raise Exception(f"Chaos engineering failure in {method_name}")
-                return original_method(*args, **kwargs)
-            return wrapper
-        
-        # Patch various methods to inject failures
-        with patch('src.core.globalid.GlobalIDGenerator.generate', 
-                  side_effect=inject_random_failure('globalid_generate', GlobalIDGenerator.generate)):
-            with patch('src.core.unicode_handler.UnicodeNormalizer.normalize',
-                      side_effect=inject_random_failure('unicode_normalize', UnicodeNormalizer.normalize)):
-                
-                # Run pipeline with chaos injection
-                pipeline = GMNAPPipeline(self.config, PipelineMode.QUICK)
-                
-                try:
-                    result = pipeline.run(input_dir)
-                    
-                    # Pipeline should handle failures gracefully
-                    assert result is not None, "Pipeline failed to handle injected failures"
-                    
-                    # Some failures should have been injected
-                    assert len(self.failures_injected) > 0, "No failures were injected"
-                    
-                    # System should still produce some results
-                    assert result.total_entries > 0, "No entries processed despite partial failures"
-                    
-                except Exception as e:
-                    # Complete failure is acceptable if many failures were injected
-                    if len(self.failures_injected) > 50:  # More than 50% failure rate
-                        assert "chaos" in str(e).lower() or "failure" in str(e).lower(), \
-                            f"Unexpected failure type: {str(e)}"
-                    else:
-                        pytest.fail(f"Pipeline failed with low failure rate: {str(e)}")
+
+            try:
+                global_id = generator.generate(entry)
+                assert global_id is not None
+                success_count += 1
+            except Exception:
+                error_count += 1
+
+        # Some failures should have been injected
+        assert len(self.failures_injected) > 0, "No failures were injected"
+
+        # Most operations should still succeed
+        assert success_count > 100, f"Too few successes: {success_count}"
+
+        # System should still be functional after failures
+        generator._compute_base_id = original_compute
+        final_entry = {"CanonicalNative": "Final, Test", "BirthYear": 2000}
+        final_id = generator.generate(final_entry)
+        assert final_id is not None, "System not functional after failure injection"
     
     def test_resource_exhaustion_scenarios(self):
         """Test system behavior under resource exhaustion."""

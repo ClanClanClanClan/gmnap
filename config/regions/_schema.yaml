@@ -1,0 +1,43 @@
+# GMNAP V7 Region Configuration YAML Schema
+# All fields are optional — processors fall back to hardcoded Python data
+# when a field is missing from the YAML.
+#
+# Usage:
+#   In a region processor __init__:
+#     cfg = self.load_yaml_config()
+#     self.titles = cfg.get("titles", self.titles)
+
+# ── Region identity ──────────────────────────────────────────────────────
+code: str            # Region code (e.g., "A1"). Must match processor code.
+name: str            # Human-readable name.
+
+# ── Name cleaning patterns ───────────────────────────────────────────────
+titles: list         # Titles to strip: ["Dr", "Dr.", "Prof", "Prof."]
+generational_suffixes: list  # Suffixes to strip: ["Jr", "Jr.", "II", "III"]
+particles: list      # Name particles to preserve: ["de", "van", "von"]
+prefixes: list       # Prefixes with special handling: ["Al-", "El-"]
+honorifics: list     # Cultural honorifics: ["Haji", "Hajjah"]
+
+# ── Variant generation ───────────────────────────────────────────────────
+romanisation_map: dict   # Native char → Latin mapping: {"ш": "sh", "щ": "shch"}
+transliteration_systems: list  # Named systems: ["BGN/PCGN", "ISO 9"]
+diacritic_map: dict      # Diacritic → ASCII: {"ü": "ue", "ö": "oe"}
+ascii_lossy_map: dict    # Full lossy mapping: {"č": "c", "ž": "z"}
+
+# ── Name structure patterns ──────────────────────────────────────────────
+surname_patterns: list   # Regex patterns for surname detection
+given_name_patterns: list   # Regex patterns for given name detection
+patronymic_patterns: list   # Patronymic patterns: ["-ovich$", "-ovna$"]
+matronymic_patterns: list   # Matronymic patterns
+
+# ── Common name lists ────────────────────────────────────────────────────
+common_surnames: list    # Top surnames for validation/disambiguation
+common_given_names: list # Top given names for gender inference
+compound_surnames: list  # Multi-word surnames: ["van der Berg", "de la Cruz"]
+
+# ── Regional extras ──────────────────────────────────────────────────────
+ezafe_particles: list    # Persian ezafe: ["e", "-e", "-ye"]
+nobiliary_particles: list  # Nobility particles: ["von", "zu"]
+clan_prefixes: list      # Clan/tribe prefixes: ["Al-", "Bani"]
+caste_markers: list      # Caste indicators (South Asia)
+tribal_names: list       # Tribal names (Africa, Middle East)
