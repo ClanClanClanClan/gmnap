@@ -13,6 +13,9 @@ pandas==2.2.2
 numpy==1.26.4
 unicodedata2==15.1.0
 
+# Graph database (Memgraph / Neo4j)
+neo4j>=5.20.0
+
 # Async utilities
 asyncio-throttle==1.0.2
 aiofiles==23.2.1

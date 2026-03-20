@@ -308,16 +308,22 @@ def create_app() -> FastAPI:
         bolt_uri = os.getenv("MEMGRAPH_BOLT", "bolt://localhost:7687")
 
         try:
-            from src.genealogy.query import query_lineage
+            from src.genealogy.query import query_lineage, lineage_to_dot
 
             result = query_lineage(global_id, depth=depth, bolt_uri=bolt_uri)
             if not result:
                 raise HTTPException(status_code=404, detail="GlobalID not found")
+
+            if format == "dot":
+                from starlette.responses import PlainTextResponse
+                return PlainTextResponse(lineage_to_dot(result), media_type="text/vnd.graphviz")
+
             return result
-        except ImportError:
+        except ImportError as exc:
+            logger.warning("Genealogy import failed: %s", exc)
             raise HTTPException(
                 status_code=501,
-                detail="Genealogy module not available",
+                detail="Genealogy module not available — install neo4j driver",
             )
         except HTTPException:
             raise

@@ -83,18 +83,27 @@ CREATE (riemann_phd:Degree {
 });
 
 // Create advisor relationships (V7 genealogy relations)
-CREATE (gauss)-[:DOCTORAL_ADVISOR {
+// Gauss advised Riemann (PhD 1851 at Göttingen)
+MATCH (gauss:Mathematician {global_id: "GAUSS_CARL_FRIEDRICH_1777_1855"})
+MATCH (riemann:Mathematician {global_id: "RIEMANN_BERNHARD_1826_1866"})
+CREATE (riemann)-[:DOCTORAL_ADVISOR {
     relation_type: "doctoralAdvisor",
     confidence: 0.95,
     source: "MGP",
     year: 1851
-}]->(riemann);
+}]->(gauss);
 
+// Riemann earned his PhD
+MATCH (riemann:Mathematician {global_id: "RIEMANN_BERNHARD_1826_1866"})
+MATCH (riemann_phd:Degree {id: "RIEMANN_PHD_1851"})
 CREATE (riemann)-[:EARNED_DEGREE {
     year: 1851,
     institution: "University of Göttingen"
 }]->(riemann_phd);
 
+// Degree awarded by Göttingen
+MATCH (riemann_phd:Degree {id: "RIEMANN_PHD_1851"})
+MATCH (gottingen:Institution {name: "University of Göttingen"})
 CREATE (riemann_phd)-[:AWARDED_BY]->(gottingen);
 
 // Create some sample betweenness centrality scores
