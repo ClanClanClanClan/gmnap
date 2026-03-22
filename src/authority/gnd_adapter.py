@@ -1,9 +1,11 @@
 
 from __future__ import annotations
-import os
+import logging, os
 from typing import Dict, Any
 from urllib.parse import urlencode
 from .common import AuthorityContext, canonical_query_key
+
+logger = logging.getLogger(__name__)
 
 class GNDAdapter:
     name = "GND"
@@ -19,12 +21,16 @@ class GNDAdapter:
         if cached is not None: return cached
         await self.ctx.limiter.acquire()
         url = f'{self.ctx.base_url}/search?{urlencode(q)}'
-        out = {"_source":{"service":self.name,"url":url}}
+        out: Dict[str, Any] = {"_source": {"service": self.name, "url": url, "hit": False}}
         if not self.ctx.http:
             await self.ctx.cache.set_json(key, out)
             return out
         try:
             r = await self.ctx.http.get(url, timeout=15.0)
+            if r.status_code != 200:
+                logger.warning("GND returned %d for %s", r.status_code, entry.get("CanonicalLatin"))
+                await self.ctx.cache.set_json(key, out)
+                return out
             data = r.json()
             mem = (data.get("member") or [])
             if mem:
@@ -32,10 +38,17 @@ class GNDAdapter:
                 if m.get("preferredName"):
                     out["AlternativeLatin"] = [m["preferredName"]]
                 if m.get("birthDate"):
-                    out["BirthYear"] = int(str(m["birthDate"])[:4])
+                    try:
+                        out["BirthYear"] = int(str(m["birthDate"])[:4])
+                    except (ValueError, TypeError):
+                        pass
                 if m.get("deathDate"):
-                    out["DeathYear"] = int(str(m["deathDate"])[:4])
-        except Exception:
-            out = {"_source":{"service":self.name,"url":url}}
+                    try:
+                        out["DeathYear"] = int(str(m["deathDate"])[:4])
+                    except (ValueError, TypeError):
+                        pass
+                out["_source"]["hit"] = True
+        except Exception as exc:
+            logger.debug("GND enrichment failed for %s: %s", entry.get("CanonicalLatin"), exc)
         await self.ctx.cache.set_json(key, out)
         return out

@@ -26,6 +26,8 @@ dependencies = [
     "rich>=13.7",
     "prometheus-client>=0.20",
     "psutil>=5.9",
+    "neo4j>=5.20",
+    "pydantic>=2.0",
 ]
 
 [project.optional-dependencies]

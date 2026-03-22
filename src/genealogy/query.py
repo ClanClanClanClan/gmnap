@@ -130,7 +130,9 @@ def query_lineage(
         pwd = os.getenv("MEMGRAPH_PASSWORD", "")
         auth = (user, pwd) if user else None
 
-    depth = max(1, min(depth, 10))
+    # Cypher variable-length patterns (*1..N) don't support parameters,
+    # so we must interpolate depth. Strictly validate it's a small int.
+    depth = int(max(1, min(depth, 10)))
 
     driver = None
     try:
@@ -149,7 +151,6 @@ def query_lineage(
             anc_result = session.run(
                 _ANCESTORS_QUERY.replace("$depth", str(depth)),
                 gid=global_id,
-                depth=depth,
             )
             ancestors = [_record_to_dict(r) for r in anc_result]
 
@@ -157,7 +158,6 @@ def query_lineage(
             desc_result = session.run(
                 _DESCENDANTS_QUERY.replace("$depth", str(depth)),
                 gid=global_id,
-                depth=depth,
             )
             descendants = [_record_to_dict(r) for r in desc_result]
 

@@ -15,17 +15,24 @@ class _NullCache:
         self._m[key] = value
 
 class _Limiter:
-    def __init__(self, rps: int = 1): self._sem = asyncio.Semaphore(rps)
+    """Token-bucket rate limiter: allows `burst` concurrent requests, spaced at 1/rps."""
+    def __init__(self, rps: int = 1, burst: int = 1):
+        self._sem = asyncio.Semaphore(max(burst, 1))
+        self._interval = 1.0 / max(rps, 1)
+
     async def acquire(self):
-        # simple cooperative throttle
-        await asyncio.sleep(0)
+        await self._sem.acquire()
+        try:
+            await asyncio.sleep(self._interval)
+        finally:
+            self._sem.release()
 
 class AuthorityContext:
     def __init__(self, name: str, base_url: str, rps: int = 1, burst: int = 1, cache_ttl: int = 3600):
         self.name = name
         self.base_url = base_url
         self.cache = _NullCache()
-        self.limiter = _Limiter(rps=rps)
+        self.limiter = _Limiter(rps=rps, burst=burst)
         if httpx:
             self.http = httpx.AsyncClient(
                 timeout=httpx.Timeout(30.0, connect=10.0),

@@ -150,6 +150,11 @@ class ProcessRequest(BaseModel):
     mode: str = "quick"
     schema_strict: int = 0
 
+    @property
+    def pipeline_mode(self) -> str:
+        """Validated mode string."""
+        return self.mode if self.mode in ("quick", "full", "extreme") else "quick"
+
 
 class HealthResponse(BaseModel):
     status: str
@@ -343,11 +348,15 @@ def create_app() -> FastAPI:
             )
 
         try:
+            # Note: GMNAP_SCHEMA_STRICT is read at pipeline init time.
+            # Uvicorn runs async single-threaded, so this is safe for async,
+            # but would need per-request threading if workers > 1.
+            prev_strict = os.environ.get("GMNAP_SCHEMA_STRICT")
             os.environ["GMNAP_SCHEMA_STRICT"] = str(req.schema_strict)
             from src.core.pipeline_v7 import V7Pipeline, PipelineMode
 
             mode_map = {"quick": PipelineMode.QUICK, "full": PipelineMode.FULL, "extreme": PipelineMode.EXTREME}
-            pipeline = V7Pipeline(mode=mode_map.get(req.mode, PipelineMode.QUICK))
+            pipeline = V7Pipeline(mode=mode_map.get(req.pipeline_mode, PipelineMode.QUICK))
 
             start_t = time.time()
             report = await pipeline.process_batch(req.entries)
@@ -371,6 +380,12 @@ def create_app() -> FastAPI:
         except Exception as e:
             logger.error(f"Process error: {e}")
             raise HTTPException(status_code=500, detail=str(e))
+        finally:
+            # Restore previous GMNAP_SCHEMA_STRICT value
+            if prev_strict is not None:
+                os.environ["GMNAP_SCHEMA_STRICT"] = prev_strict
+            else:
+                os.environ.pop("GMNAP_SCHEMA_STRICT", None)
 
     # ------------------------------------------------------------------
     # Metrics endpoint (Prometheus format)

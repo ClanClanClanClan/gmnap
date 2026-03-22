@@ -286,7 +286,9 @@ async def _run_pipeline(entries: list, mode: str, output_dir: str):
     mode_map = {"quick": PipelineMode.QUICK, "full": PipelineMode.FULL, "extreme": PipelineMode.EXTREME}
     pipeline = V7Pipeline(mode=mode_map[mode])
     result = await pipeline.process_batch(entries)
-    click.echo(f"Processed {len(result)} entries. Output in {output_dir}/")
+    entry_count = len(result.get("entries", [])) if isinstance(result, dict) else len(result)
+    passed = result.get("quality_gates", {}).get("passed", "N/A") if isinstance(result, dict) else "N/A"
+    click.echo(f"Processed {entry_count} entries. Quality gates: {passed}. Output in {output_dir}/")
 
 
 def _query_lineage_graph(gid: str, depth: int) -> list:
