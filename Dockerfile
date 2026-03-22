@@ -38,6 +38,10 @@ RUN mkdir -p /app/cache/gs /app/cache/bad_json /app/data
 # Set Python path
 ENV PYTHONPATH=/app
 
+# Create non-root user for security
+RUN useradd -m -u 1000 gmnap && chown -R gmnap:gmnap /app
+USER gmnap
+
 # Expose API port
 EXPOSE 8080
 

@@ -65,7 +65,7 @@ services:
       - PIPELINE_MODE=quick
       - CACHE_MAX_SIZE_GB=20
       - CACHE_MAX_DAYS=30
-      - PYTHONPATH=/app/src:/app
+      - PYTHONPATH=/app
       - MEMGRAPH_HOST=memgraph
       - MEMGRAPH_PORT=7687
       - MEMGRAPH_USER=gmnap
@@ -106,7 +106,7 @@ services:
     build: .
     container_name: gmnap_duckdb_batch
     environment:
-      - PYTHONPATH=/app/src:/app
+      - PYTHONPATH=/app
       - PIPELINE_MODE=full
       - OFFLINE=1
     volumes:
@@ -138,6 +138,11 @@ services:
     depends_on:
       - gmnap
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   # Grafana dashboards (V7 spec §12)
   grafana:
@@ -164,7 +169,7 @@ services:
       - PIPELINE_MODE=quick
       - CACHE_MAX_SIZE_GB=5
       - CACHE_MAX_DAYS=7
-      - PYTHONPATH=/app/src:/app
+      - PYTHONPATH=/app
       - MEMGRAPH_HOST=memgraph
     volumes:
       - ./:/app

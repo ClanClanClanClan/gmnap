@@ -66,9 +66,11 @@ class OAIUniversityAdapter:
                         year = doc.get("dcyear")
                         if year:
                             try:
-                                y = int(str(year)[:4])
+                                # BASE API may return dcyear as list or string
+                                year_val = year[0] if isinstance(year, list) else year
+                                y = int(str(year_val)[:4])
                                 out["DegreeDate"] = {"date": str(y), "precision": "year"}
-                            except (ValueError, TypeError):
+                            except (ValueError, TypeError, IndexError):
                                 pass
                         # DOI if available
                         doi = doc.get("dcidentifier")

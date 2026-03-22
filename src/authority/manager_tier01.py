@@ -71,14 +71,17 @@ async def _fetch_openalex(entry: Dict) -> Dict:
     try:
         from src.authority.openalex_adapter import OpenAlexAdapter
         adapter = OpenAlexAdapter()
-        result = await adapter.enrich(entry)
-        if result.get("_source", {}).get("hit"):
-            data = {"OpenAlex": {"hit": True,
-                                 "source_id": result.get("OpenAlexID"),
-                                 "identifiers": {k: v for k, v in result.items()
-                                                 if k not in ("_source",)}}}
-            _cache_set(ck, data)
-            return data
+        try:
+            result = await adapter.enrich(entry)
+            if result.get("_source", {}).get("hit"):
+                data = {"OpenAlex": {"hit": True,
+                                     "source_id": result.get("OpenAlexID"),
+                                     "identifiers": {k: v for k, v in result.items()
+                                                     if k not in ("_source",)}}}
+                _cache_set(ck, data)
+                return data
+        finally:
+            await adapter.ctx.close()
     except Exception as e:
         logger.debug(f"OpenAlex fetch failed: {e}")
     return {"OpenAlex": {"hit": False}}
@@ -93,13 +96,16 @@ async def _fetch_crossref(entry: Dict) -> Dict:
     try:
         from src.authority.crossref_adapter import CrossrefAdapter
         adapter = CrossrefAdapter()
-        result = await adapter.enrich(entry)
-        if result.get("_source", {}).get("hit"):
-            data = {"Crossref": {"hit": True,
-                                 "identifiers": {k: v for k, v in result.items()
-                                                 if k not in ("_source",)}}}
-            _cache_set(ck, data)
-            return data
+        try:
+            result = await adapter.enrich(entry)
+            if result.get("_source", {}).get("hit"):
+                data = {"Crossref": {"hit": True,
+                                     "identifiers": {k: v for k, v in result.items()
+                                                     if k not in ("_source",)}}}
+                _cache_set(ck, data)
+                return data
+        finally:
+            await adapter.ctx.close()
     except Exception as e:
         logger.debug(f"Crossref fetch failed: {e}")
     return {"Crossref": {"hit": False}}
@@ -114,14 +120,17 @@ async def _fetch_orcid_etd(entry: Dict) -> Dict:
     try:
         from src.authority.orcid_etd_adapter import ORCIDETDAdapter
         adapter = ORCIDETDAdapter()
-        result = await adapter.enrich(entry)
-        if result.get("_source", {}).get("hit"):
-            data = {"ORCID_ETD": {"hit": True,
-                                   "source_id": result.get("ORCID"),
-                                   "identifiers": {k: v for k, v in result.items()
-                                                   if k not in ("_source",)}}}
-            _cache_set(ck, data)
-            return data
+        try:
+            result = await adapter.enrich(entry)
+            if result.get("_source", {}).get("hit"):
+                data = {"ORCID_ETD": {"hit": True,
+                                       "source_id": result.get("ORCID"),
+                                       "identifiers": {k: v for k, v in result.items()
+                                                       if k not in ("_source",)}}}
+                _cache_set(ck, data)
+                return data
+        finally:
+            await adapter.ctx.close()
     except Exception as e:
         logger.debug(f"ORCID fetch failed: {e}")
     return {"ORCID_ETD": {"hit": False}}

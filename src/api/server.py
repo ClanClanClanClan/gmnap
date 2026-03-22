@@ -185,11 +185,12 @@ def create_app() -> FastAPI:
         version="7.0",
     )
 
+    cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "*").split(",")
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=[o.strip() for o in cors_origins],
         allow_methods=["GET", "POST"],
-        allow_headers=["*"],
+        allow_headers=["Content-Type", "Authorization", "X-Hashcash"],
     )
 
     # ------------------------------------------------------------------
@@ -297,8 +298,8 @@ def create_app() -> FastAPI:
                 "metadata": result.metadata,
             }
         except Exception as e:
-            logger.error(f"Query error: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            logger.error(f"Query error: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error")
 
     # ------------------------------------------------------------------
     # Lineage endpoint
@@ -333,8 +334,8 @@ def create_app() -> FastAPI:
         except HTTPException:
             raise
         except Exception as e:
-            logger.error(f"Lineage error: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            logger.error(f"Lineage error: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error")
 
     # ------------------------------------------------------------------
     # Batch processing endpoint
@@ -378,8 +379,8 @@ def create_app() -> FastAPI:
                 "truncated": len(entries) > 100,
             }
         except Exception as e:
-            logger.error(f"Process error: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            logger.error(f"Process error: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Internal server error")
         finally:
             # Restore previous GMNAP_SCHEMA_STRICT value
             if prev_strict is not None:

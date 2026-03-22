@@ -286,7 +286,7 @@ class V7Pipeline:
             return result
         except Exception as e:
             self.metrics.stage_timings[name] = time.time() - start
-            logger.error(f"Stage {name} FAILED: {e}")
+            logger.error(f"Stage {name} FAILED: {e}", exc_info=True)
             raise
 
     # =========================================================================
