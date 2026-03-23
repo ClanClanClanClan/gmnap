@@ -1,11 +1,14 @@
 
 from __future__ import annotations
-import json, asyncio
-from typing import Any, Dict
+import json, asyncio, logging
+from typing import Any, Callable, Dict, TypeVar
 try:
     import httpx
 except Exception:  # pragma: no cover
     httpx = None
+
+logger = logging.getLogger(__name__)
+T = TypeVar("T")
 
 class _NullCache:
     def __init__(self): self._m: Dict[str, Any] = {}
@@ -48,3 +51,26 @@ class AuthorityContext:
 
 def canonical_query_key(obj: Dict[str, Any]) -> str:
     return json.dumps(obj, sort_keys=True, separators=(",",":"))
+
+
+async def retry_with_backoff(
+    coro_fn: Callable[[], Any],
+    max_retries: int = 2,
+    base_delay: float = 1.0,
+) -> Any:
+    """Retry an async callable with exponential backoff on transient errors."""
+    _transient = ()
+    if httpx:
+        _transient = (httpx.TimeoutException, httpx.ConnectError)
+
+    for attempt in range(max_retries + 1):
+        try:
+            return await coro_fn()
+        except _transient as exc:
+            if attempt == max_retries:
+                raise
+            delay = base_delay * (2 ** attempt)
+            logger.debug("Retry %d/%d after %.1fs: %s", attempt + 1, max_retries, delay, exc)
+            await asyncio.sleep(delay)
+        except Exception:
+            raise  # Non-transient errors: don't retry

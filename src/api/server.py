@@ -19,6 +19,7 @@ import time
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
@@ -149,6 +150,8 @@ class ProcessRequest(BaseModel):
     entries: List[Dict[str, Any]]
     mode: str = "quick"
     schema_strict: int = 0
+    limit: int = 100     # max entries to return per page (1-10000)
+    offset: int = 0      # skip first N results
 
     @property
     def pipeline_mode(self) -> str:
@@ -192,6 +195,16 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST"],
         allow_headers=["Content-Type", "Authorization", "X-Hashcash"],
     )
+
+    # ------------------------------------------------------------------
+    # Request correlation ID middleware
+    # ------------------------------------------------------------------
+    @app.middleware("http")
+    async def add_request_id(request: Request, call_next):
+        request_id = request.headers.get("X-Request-ID", uuid4().hex[:12])
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
+        return response
 
     # ------------------------------------------------------------------
     # Rate limiting middleware
@@ -348,6 +361,14 @@ def create_app() -> FastAPI:
                 status_code=400, detail="Batch size limited to 10,000 entries"
             )
 
+        # Validate entries have required fields
+        invalid = [i for i, e in enumerate(req.entries) if not e.get("CanonicalLatin")]
+        if invalid:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Entries at indices {invalid[:10]} missing required field 'CanonicalLatin'",
+            )
+
         try:
             # Note: GMNAP_SCHEMA_STRICT is read at pipeline init time.
             # Uvicorn runs async single-threaded, so this is safe for async,
@@ -369,14 +390,21 @@ def create_app() -> FastAPI:
                 ENTRIES_PROCESSED.inc(len(entries))
                 PIPELINE_DURATION.observe(elapsed)
 
+            # Paginate results
+            limit = max(1, min(req.limit, 10000))
+            offset = max(0, req.offset)
+            page = entries[offset : offset + limit]
+
             return {
                 "processed": len(entries),
                 "mode": req.mode,
                 "schema_strict": req.schema_strict,
                 "quality_gates": report.get("quality_gates", {}),
                 "metrics": report.get("metrics", {}),
-                "entries": entries[:100],
-                "truncated": len(entries) > 100,
+                "entries": page,
+                "offset": offset,
+                "limit": limit,
+                "has_more": offset + limit < len(entries),
             }
         except Exception as e:
             logger.error(f"Process error: {e}", exc_info=True)

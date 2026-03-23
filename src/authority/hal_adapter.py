@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging, os
 from typing import Dict, Any
 from urllib.parse import urlencode
-from .common import AuthorityContext, canonical_query_key
+from .common import AuthorityContext, canonical_query_key, retry_with_backoff
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class HALAdapter:
             await self.ctx.cache.set_json(key, out)
             return out
         try:
-            r = await self.ctx.http.get(url, timeout=15.0)
+            r = await retry_with_backoff(lambda: self.ctx.http.get(url, timeout=15.0))
             if r.status_code != 200:
                 logger.warning("HAL returned %d for %s", r.status_code, entry.get("CanonicalLatin"))
                 await self.ctx.cache.set_json(key, out)

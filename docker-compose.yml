@@ -10,7 +10,7 @@ services:
       - "13000:3000"  # HTTP for Memgraph Lab
     environment:
       - MEMGRAPH_USER=gmnap
-      - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:-v7_lineage}
+      - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:?Set MEMGRAPH_PASSWORD in .env}
     volumes:
       - memgraph_data:/var/lib/memgraph
       - memgraph_log:/var/log/memgraph
@@ -19,7 +19,7 @@ services:
     command: ["--init-file=/var/lib/memgraph/init.cypher", "--storage-gc-cycle-sec=30"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "echo 'RETURN 1;' | mgconsole --host localhost --port 7687 --username gmnap --password $${MEMGRAPH_PASSWORD:-v7_lineage} || exit 1"]
+      test: ["CMD-SHELL", "echo 'RETURN 1;' | mgconsole --host localhost --port 7687 --username gmnap --password $${MEMGRAPH_PASSWORD:?Set MEMGRAPH_PASSWORD in .env} || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -69,7 +69,7 @@ services:
       - MEMGRAPH_HOST=memgraph
       - MEMGRAPH_PORT=7687
       - MEMGRAPH_USER=gmnap
-      - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:-v7_lineage}
+      - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:?Set MEMGRAPH_PASSWORD in .env}
       - MEMGRAPH_BOLT=bolt://memgraph:7687
       - REDIS_URL=redis://redis:6379/0
       - GMNAP_API_TOKENS=${GMNAP_API_TOKENS:-}

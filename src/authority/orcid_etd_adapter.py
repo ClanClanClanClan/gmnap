@@ -60,6 +60,30 @@ class ORCIDETDAdapter:
                             out["Institution"] = institutions[0]
                             out["_InstitutionAll"] = institutions[:5]
                         out["_source"]["hit"] = True
+                        # Optional: fetch education details for DegreeDate
+                        if orcid_id and os.getenv("ORCID_FETCH_EDUCATIONS", "") == "1":
+                            try:
+                                edu_url = f"https://pub.orcid.org/v3.0/{orcid_id}/educations"
+                                edu_r = await self.ctx.http.get(
+                                    edu_url, timeout=10.0,
+                                    headers={"Accept": "application/json"},
+                                )
+                                if edu_r.status_code == 200:
+                                    groups = edu_r.json().get("affiliation-group", [])
+                                    for g in groups:
+                                        for s in g.get("summaries", []):
+                                            ed = s.get("education-summary", {})
+                                            end_date = ed.get("end-date")
+                                            if end_date and end_date.get("year"):
+                                                out["DegreeDate"] = {
+                                                    "date": end_date["year"]["value"],
+                                                    "precision": "year",
+                                                }
+                                                break
+                                        if "DegreeDate" in out:
+                                            break
+                            except Exception:
+                                pass  # Education fetch is optional
         except Exception:
             pass
         await self.ctx.cache.set_json(key, out)
