@@ -65,7 +65,7 @@ class MemgraphClient:
                  host: str = "localhost", 
                  port: int = 7687,
                  username: str = "gmnap",
-                 password: str = "v7_lineage"):
+                 password: str = ""):
         self.host = host
         self.port = port
         self.username = username

@@ -136,7 +136,7 @@ def _duckdb_dedup(batch: List[Dict], workdir: str) -> Tuple[List[Dict], int]:
     with open(tmp, "w", encoding="utf-8") as f:
         import json as _json
         _json.dump(rows, f)
-    con.execute(f"CREATE TABLE entries AS SELECT * FROM read_json_auto('{tmp}')")
+    con.execute("CREATE TABLE entries AS SELECT * FROM read_json_auto(?)", [tmp])
 
     # Find duplicates
     dup_keys = set()

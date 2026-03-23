@@ -268,8 +268,8 @@ def setup_memgraph_docker():
             "gmnap-memgraph-data": {"bind": "/var/lib/memgraph", "mode": "rw"}
         },
         environment={
-            "MEMGRAPH_USER": "gmnap",
-            "MEMGRAPH_PASSWORD": "gmnap123"
+            "MEMGRAPH_USER": os.getenv("MEMGRAPH_USER", "gmnap"),
+            "MEMGRAPH_PASSWORD": os.getenv("MEMGRAPH_PASSWORD", ""),
         },
         detach=True,
         remove=False

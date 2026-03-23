@@ -394,19 +394,21 @@ class V7Pipeline:
                 if mg_user:
                     auth = (mg_user, mg_pass)
                 ops = MemgraphOps(uri=bolt_uri, auth=auth)
-                if hasattr(ops, 'import_entries'):
-                    ops.import_entries(entries)
-                if hasattr(ops, 'calculate_betweenness_centrality'):
-                    scores = ops.calculate_betweenness_centrality()
-                    for e in entries:
-                        gid = e.get("GlobalID", "")
-                        if gid in scores:
-                            e["BetweennessScore"] = scores[gid]
-                if hasattr(ops, 'detect_cycles'):
-                    cycles = ops.detect_cycles(max_depth=3)
-                    self.metrics.graph_conflicts = len(cycles) if cycles else 0
-                if hasattr(ops, 'close'):
-                    ops.close()
+                try:
+                    if hasattr(ops, 'import_entries'):
+                        ops.import_entries(entries)
+                    if hasattr(ops, 'calculate_betweenness_centrality'):
+                        scores = ops.calculate_betweenness_centrality()
+                        for e in entries:
+                            gid = e.get("GlobalID", "")
+                            if gid in scores:
+                                e["BetweennessScore"] = scores[gid]
+                    if hasattr(ops, 'detect_cycles'):
+                        cycles = ops.detect_cycles(max_depth=3)
+                        self.metrics.graph_conflicts = len(cycles) if cycles else 0
+                finally:
+                    if hasattr(ops, 'close'):
+                        ops.close()
             except Exception as e:
                 logger.warning(f"Graph consistency (Memgraph) failed: {e}")
 
