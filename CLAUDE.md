@@ -1,13 +1,13 @@
 # GMNAP v7 Current Development Status
-*Last Updated: 2026-03-16*
+*Last Updated: 2026-03-24*
 
 ## 🎯 System State (Honest Assessment)
 
-**Pipeline**: 12-stage async pipeline — all stages wired and executing
+**Pipeline**: 12-stage pipeline (stages 0–8 async, 9–11 sync) — all stages wired and executing
 **Regional Coverage**: 37/37 regions fully implemented (100%)
-**Linguistic Rules**: 34/34 implemented across region processors
+**Linguistic Rules**: 34 implemented (10 core normalisation + 17 regional validation + 7 region-specific)
 **Security**: Injection attack blocking validated
-**Performance**: 20-25 min/1M entries (exceeds targets, OFFLINE mode)
+**Performance**: 20-25 min/1M entries (projected, OFFLINE mode — verify with `tools/benchmark_live_enrichment.py`)
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
 **Authority Enrichment**: 9 of 14 sources with real HTTP calls; 2 gated behind API keys; 3 deferred. DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms.
 **Region Config**: 37/37 YAML config files auto-loaded via lazy `ensure_yaml_loaded()` in base class
@@ -15,7 +15,7 @@
 **CLI**: `query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve`
 **Diaspora Detection**: Implemented — uses `config/diaspora.yaml` date ranges
 **Region Overlay Map**: Spec §2a wired — sub-national overrides (CH-FR, IN-HN, etc.)
-**Testing**: 456+ tests (unit + integration + API server + region overlay + SEA roundtrip)
+**Testing**: 706+ tests (unit + integration + API + GDPR + region + batch + retry + stage isolation)
 **Test Fixtures**: 1,500 entries across all 37 regions
 
 ---
@@ -102,7 +102,7 @@ Benchmarks are OFFLINE mode. Live enrichment will be slower due to API rate limi
 
 ## 📊 Testing
 
-- **441+ tests passing** (unit + integration + SEA roundtrip + snapshot rollback)
+- **706+ tests passing** (unit + integration + API + GDPR + retry + batch + stage isolation)
 - **1,500 test fixtures** across all 37 regions
 - SEA roundtrip: Thai RTGS, Khmer UNGEGN, Lao MOICT 2019
 - Snapshot rollback: git revert coherence validated

@@ -1,6 +1,6 @@
 # GMNAP Makefile - V7 Pipeline
 
-.PHONY: help quick full extreme test lint lint-fix update-sources clean audit cost-check setup-dev download-model
+.PHONY: help quick full extreme test lint lint-fix update-sources clean audit cost-check setup-dev download-model setup-env
 
 help:
 	@echo "GMNAP V7 - Global Mathematician-Name Authority Project"
@@ -114,3 +114,11 @@ stats:
 
 report:
 	PYTHONPATH=. python3 scripts/generate_test_report.py
+
+setup-env:
+	@if [ ! -f .env ]; then \
+		cp .env.example .env; \
+		echo "Created .env from .env.example — edit passwords before deployment"; \
+	else \
+		echo ".env already exists"; \
+	fi

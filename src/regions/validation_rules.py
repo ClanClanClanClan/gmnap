@@ -234,6 +234,65 @@ class RegionalValidationEngine:
                 scripts=["Devanagari"],
                 validator=self._validate_hindi_structure
             ),
+
+            # --- 7 additional region-specific rules ---
+
+            RegionalValidationRule(
+                id="b1_slavic_patronymic_check",
+                name="Slavic Patronymic Suffix",
+                description="Validate -ovich/-ovna/-evich/-evna patronymic suffixes",
+                regions=["B1"],
+                scripts=["Cyrillic", "Latin"],
+                validator=self._validate_slavic_patronymic
+            ),
+            RegionalValidationRule(
+                id="c1_central_asian_script_reform",
+                name="Central Asian Script Reform",
+                description="Check Kazakh/Uzbek script period consistency",
+                regions=["C1"],
+                scripts=["Latin", "Cyrillic"],
+                validator=self._validate_central_asian_script
+            ),
+            RegionalValidationRule(
+                id="c5_arabic_definite_article",
+                name="Arabic Definite Article",
+                description="Validate al-/el- prefix handling in names",
+                regions=["C5", "C3", "C4"],
+                scripts=["Arabic", "Latin"],
+                validator=self._validate_arabic_article
+            ),
+            RegionalValidationRule(
+                id="d2_dravidian_initial_prefix",
+                name="Dravidian Initial Prefix",
+                description="Validate initial-before-surname pattern (e.g. K. Ramanujan)",
+                regions=["D2"],
+                scripts=["Latin"],
+                validator=self._validate_dravidian_initial
+            ),
+            RegionalValidationRule(
+                id="e6_sea_monosyllabic_check",
+                name="SEA Monosyllabic Components",
+                description="Validate Thai/Lao monosyllabic name components",
+                regions=["E6"],
+                scripts=["Thai", "Lao", "Latin"],
+                validator=self._validate_sea_monosyllabic
+            ),
+            RegionalValidationRule(
+                id="f1_francophone_particle",
+                name="Francophone Particle",
+                description="Validate de/du/des/le/la particle handling",
+                regions=["F1", "A2"],
+                scripts=["Latin"],
+                validator=self._validate_francophone_particle
+            ),
+            RegionalValidationRule(
+                id="g1_indigenous_naming",
+                name="Indigenous Naming Convention",
+                description="Validate non-surname naming conventions",
+                regions=["G1"],
+                scripts=["Latin"],
+                validator=self._validate_indigenous_naming
+            ),
         ]
         
         for rule in region_rules:
@@ -738,6 +797,127 @@ class RegionalValidationEngine:
         
         return None
     
+    # --- 7 additional validator methods ---
+
+    def _validate_slavic_patronymic(self, entry: Dict[str, Any],
+                                    rule: RegionalValidationRule) -> Optional[ValidationResult]:
+        """Validate Slavic patronymic suffix patterns (-ovich, -ovna, -evich, -evna)."""
+        canonical = entry.get("CanonicalLatin", "")
+        parts = [p.strip() for p in canonical.split(",")]
+        if len(parts) < 2:
+            return None
+        given = parts[-1]  # given name(s) after comma
+        patronymic_suffixes = ("ovich", "ovna", "evich", "evna", "ich", "ivna")
+        words = given.split()
+        for w in words:
+            low = w.lower()
+            if any(low.endswith(s) for s in patronymic_suffixes):
+                if len(w) < 4:
+                    return ValidationResult(
+                        is_valid=True, errors=[],
+                        warnings=[f"Short patronymic '{w}' — verify spelling"],
+                        field="CanonicalLatin", rule_id=rule.id)
+        return None
+
+    def _validate_central_asian_script(self, entry: Dict[str, Any],
+                                       rule: RegionalValidationRule) -> Optional[ValidationResult]:
+        """Check Kazakh/Uzbek script period — Latin names should be post-reform."""
+        native = entry.get("CanonicalNative", "")
+        canonical = entry.get("CanonicalLatin", "")
+        if not native:
+            return None
+        has_cyrillic = bool(re.search(r'[\u0400-\u04FF]', native))
+        has_latin = bool(re.search(r'[A-Za-z]', canonical))
+        birth = entry.get("BirthYear")
+        if has_cyrillic and has_latin and birth and isinstance(birth, int) and birth >= 2000:
+            return ValidationResult(
+                is_valid=True, errors=[],
+                warnings=["Post-2000 birth with Cyrillic native — may need Latin reform update"],
+                field="CanonicalNative", rule_id=rule.id)
+        return None
+
+    def _validate_arabic_article(self, entry: Dict[str, Any],
+                                 rule: RegionalValidationRule) -> Optional[ValidationResult]:
+        """Validate al-/el- definite article handling."""
+        canonical = entry.get("CanonicalLatin", "")
+        if not canonical:
+            return None
+        # Check for inconsistent article casing (al- vs Al- vs AL-)
+        articles = re.findall(r'\b(al|el|Al|El|AL|EL)-', canonical)
+        if len(set(a.lower() for a in articles)) > 1:
+            return ValidationResult(
+                is_valid=True, errors=[],
+                warnings=[f"Inconsistent article forms: {articles}"],
+                field="CanonicalLatin", rule_id=rule.id)
+        return None
+
+    def _validate_dravidian_initial(self, entry: Dict[str, Any],
+                                    rule: RegionalValidationRule) -> Optional[ValidationResult]:
+        """Validate initial-before-surname pattern (e.g. 'K. Ramanujan')."""
+        canonical = entry.get("CanonicalLatin", "")
+        if not canonical:
+            return None
+        parts = canonical.split(",")
+        if len(parts) >= 2:
+            given = parts[-1].strip()
+            # Single letter initial should have period
+            if re.match(r'^[A-Z]$', given):
+                return ValidationResult(
+                    is_valid=True, errors=[],
+                    warnings=["Single initial without period — consider 'X.' format"],
+                    field="CanonicalLatin", rule_id=rule.id)
+        return None
+
+    def _validate_sea_monosyllabic(self, entry: Dict[str, Any],
+                                   rule: RegionalValidationRule) -> Optional[ValidationResult]:
+        """Validate Thai/Lao monosyllabic name components."""
+        native = entry.get("CanonicalNative", "")
+        if not native:
+            return None
+        # Thai script range
+        if re.search(r'[\u0E00-\u0E7F]', native):
+            # Thai names are typically multi-syllabic; single-char suspicious
+            clean = re.sub(r'[\s,.]', '', native)
+            if len(clean) < 2:
+                return ValidationResult(
+                    is_valid=True, errors=[],
+                    warnings=["Very short Thai name — verify completeness"],
+                    field="CanonicalNative", rule_id=rule.id)
+        return None
+
+    def _validate_francophone_particle(self, entry: Dict[str, Any],
+                                       rule: RegionalValidationRule) -> Optional[ValidationResult]:
+        """Validate de/du/des/le/la particle handling."""
+        canonical = entry.get("CanonicalLatin", "")
+        if not canonical:
+            return None
+        particles = ("de ", "du ", "des ", "le ", "la ", "d'", "l'")
+        found = [p.strip() for p in particles if p in canonical.lower()]
+        if found:
+            # Particle should be lowercase in canonical unless at start
+            for p in found:
+                pattern = re.compile(r'(?<!^)\b' + re.escape(p.capitalize()), re.MULTILINE)
+                if pattern.search(canonical):
+                    return ValidationResult(
+                        is_valid=True, errors=[],
+                        warnings=[f"Particle '{p}' should be lowercase mid-name"],
+                        field="CanonicalLatin", rule_id=rule.id)
+        return None
+
+    def _validate_indigenous_naming(self, entry: Dict[str, Any],
+                                    rule: RegionalValidationRule) -> Optional[ValidationResult]:
+        """Validate non-surname naming conventions (single name, no comma expected)."""
+        canonical = entry.get("CanonicalLatin", "")
+        if not canonical:
+            return None
+        family_type = entry.get("FamilyNameType", "")
+        if family_type == "mononym" and "," in canonical:
+            return ValidationResult(
+                is_valid=True, errors=[],
+                warnings=["Mononym should not contain comma separators"],
+                field="CanonicalLatin", rule_id=rule.id)
+        return None
+
     def get_rules_for_region(self, region_code: str) -> List[RegionalValidationRule]:
         """Get all rules applicable to a specific region."""
         applicable = []

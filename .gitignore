@@ -60,7 +60,9 @@ cleanup_execution.log
 temp/
 tmp/
 
-# Archive files (except in archive directory)
+# Archive and work directories
+archive/
+work/
 /*.tar.gz
 /*.zip
 
