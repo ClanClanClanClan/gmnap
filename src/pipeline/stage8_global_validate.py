@@ -1,13 +1,22 @@
 """Stage 8: GlobalValidate - JSON-Schema, transliteration round-trip, graph coherence gate."""
 from __future__ import annotations
-import json, logging, pathlib, unicodedata
+import json, logging, pathlib, re, unicodedata
 from typing import Dict, List, Tuple, Any
 from src.ops.metrics import SCHEMA_VALIDATION_ERRORS, ROUNDTRIP_FAILURES
+
+try:
+    import jsonschema
+except ImportError:
+    jsonschema = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 
 # Roundtrip threshold from V7 spec section 7
 ROUNDTRIP_MIN = 0.97
+
+# Pre-computed enum sets for fast validation
+_VALID_FAMILY_NAME_TYPES = frozenset({"surname", "patronymic", "mononym"})
+_VALID_GENDERS = frozenset({"male", "female", "nonbinary", "unspecified"})
 
 # V2.0 schema required fields
 V2_REQUIRED_FIELDS = [
@@ -18,7 +27,12 @@ V2_REQUIRED_FIELDS = [
 
 # Load the JSON Schema entry definition once
 _SCHEMA_ENTRY = None
+_SCHEMA_VALIDATOR = None  # Pre-compiled jsonschema validator
 _SCHEMA_PATH = pathlib.Path(__file__).resolve().parents[2] / "docs" / "schema_v2.0.json"
+
+# Pre-compiled regexes
+_RE_GLOBALID = re.compile(r'^[A-Z2-7]{22}(--\d+)?$')
+_RE_COUNTRY_CODE = re.compile(r'^[A-Z]{2}$')
 
 
 def _load_entry_schema() -> Dict[str, Any] | None:
@@ -33,6 +47,25 @@ def _load_entry_schema() -> Dict[str, Any] | None:
         return _SCHEMA_ENTRY
     except Exception as e:
         logger.warning(f"Could not load schema_v2.0.json: {e}")
+        return None
+
+
+def _get_validator():
+    """Return a pre-compiled jsonschema validator (cached)."""
+    global _SCHEMA_VALIDATOR
+    if _SCHEMA_VALIDATOR is not None:
+        return _SCHEMA_VALIDATOR
+    if jsonschema is None:
+        return None
+    schema = _load_entry_schema()
+    if not schema:
+        return None
+    try:
+        cls = jsonschema.validators.validator_for(schema)
+        _SCHEMA_VALIDATOR = cls(schema)
+        return _SCHEMA_VALIDATOR
+    except Exception as e:
+        logger.warning(f"Could not compile schema validator: {e}")
         return None
 
 
@@ -52,19 +85,26 @@ def _dice_coefficient(a: str, b: str) -> float:
     return (2.0 * overlap) / (len(a_bigrams) + len(b_bigrams))
 
 
+_ALLOWED_FIELDS: frozenset | None = None
+
+
+def _get_allowed_fields() -> frozenset:
+    """Get the set of schema-allowed field names (cached)."""
+    global _ALLOWED_FIELDS
+    if _ALLOWED_FIELDS is not None:
+        return _ALLOWED_FIELDS
+    schema = _load_entry_schema()
+    _ALLOWED_FIELDS = frozenset(schema.get("properties", {}).keys()) if schema else frozenset()
+    return _ALLOWED_FIELDS
+
+
 def _strip_internal_fields(entry: Dict[str, Any]) -> Dict[str, Any]:
     """Strip pipeline-internal fields (prefixed with _) and non-schema fields
     so that JSON Schema validation only sees spec-defined fields."""
-    schema = _load_entry_schema()
-    allowed = set(schema.get("properties", {}).keys()) if schema else set()
-    out = {}
-    for k, v in entry.items():
-        if k.startswith("_"):
-            continue
-        # Only keep fields defined in the schema (or all if schema unavailable)
-        if not allowed or k in allowed:
-            out[k] = v
-    return out
+    allowed = _get_allowed_fields()
+    if not allowed:
+        return {k: v for k, v in entry.items() if not k.startswith("_")}
+    return {k: v for k, v in entry.items() if not k.startswith("_") and k in allowed}
 
 
 def validate_entry_schema(entry: Dict[str, Any]) -> List[str]:
@@ -79,25 +119,24 @@ def validate_entry_schema(entry: Dict[str, Any]) -> List[str]:
 
     # GlobalID format check
     gid = entry.get("GlobalID", "")
-    if gid and not _valid_globalid_format(gid):
+    if gid and not _RE_GLOBALID.match(gid):
         errors.append(f"invalid GlobalID format: {gid}")
 
     # FamilyNameType enum check
     fnt = entry.get("FamilyNameType")
-    if fnt and fnt not in ("surname", "patronymic", "mononym"):
+    if fnt and fnt not in _VALID_FAMILY_NAME_TYPES:
         errors.append(f"invalid FamilyNameType: {fnt}")
 
     # Gender enum check
     gender = entry.get("Gender")
-    if gender and gender not in ("male", "female", "nonbinary", "unspecified"):
+    if gender and gender not in _VALID_GENDERS:
         errors.append(f"invalid Gender: {gender}")
 
     # CountryCodes format check
     cc = entry.get("CountryCodes")
     if cc and isinstance(cc, list):
-        import re
         for c in cc:
-            if not isinstance(c, str) or not re.match(r'^[A-Z]{2}$', c):
+            if not isinstance(c, str) or not _RE_COUNTRY_CODE.match(c):
                 errors.append(f"invalid CountryCode: {c}")
 
     # Confidence range check
@@ -115,25 +154,16 @@ def validate_entry_schema(entry: Dict[str, Any]) -> List[str]:
         if death - birth > 150:
             errors.append(f"Implausible lifespan: {death - birth} years")
 
-    # Full JSON Schema validation (if jsonschema available)
-    try:
-        import jsonschema
-        schema = _load_entry_schema()
-        if schema:
+    # Full JSON Schema validation (pre-compiled validator, skip if field checks found errors)
+    if not errors:
+        validator = _get_validator()
+        if validator is not None:
             clean = _strip_internal_fields(entry)
-            jsonschema.validate(clean, schema)
-    except ImportError:
-        pass  # jsonschema not installed; field-level checks above suffice
-    except jsonschema.ValidationError as ve:
-        errors.append(f"schema: {ve.message}")
+            for err in validator.iter_errors(clean):
+                errors.append(f"schema: {err.message}")
+                break  # One schema error is enough to flag
 
     return errors
-
-
-def _valid_globalid_format(gid: str) -> bool:
-    """Check that GlobalID matches 22-char Base32 + optional --N suffix."""
-    import re
-    return bool(re.match(r'^[A-Z2-7]{22}(--\d+)?$', gid))
 
 
 def validate_roundtrip(entry: Dict[str, Any]) -> float:
