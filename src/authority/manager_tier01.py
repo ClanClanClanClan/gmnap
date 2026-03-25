@@ -68,6 +68,53 @@ def _cache_set(path: pathlib.Path, obj: Dict) -> None:
     path.write_bytes(payload)
 
 
+# ── Adapter singletons (avoid per-call instantiation) ─────────────────────
+
+_adapter_cache: Dict[str, Any] = {}
+
+
+def _get_adapter(name: str):
+    """Get or create a singleton adapter instance."""
+    if name not in _adapter_cache:
+        if name == "OpenAlex":
+            from src.authority.openalex_adapter import OpenAlexAdapter
+
+            _adapter_cache[name] = OpenAlexAdapter()
+        elif name == "Crossref":
+            from src.authority.crossref_adapter import CrossrefAdapter
+
+            _adapter_cache[name] = CrossrefAdapter()
+        elif name == "ORCID_ETD":
+            from src.authority.orcid_etd_adapter import OrcidEtdAdapter
+
+            _adapter_cache[name] = OrcidEtdAdapter()
+        elif name == "Crossref_Thesis":
+            from src.authority.crossref_thesis_adapter import CrossrefThesisAdapter
+
+            _adapter_cache[name] = CrossrefThesisAdapter()
+        elif name == "HAL":
+            from src.authority.hal_adapter import HALAdapter
+
+            _adapter_cache[name] = HALAdapter()
+        elif name == "GND":
+            from src.authority.gnd_adapter import GNDAdapter
+
+            _adapter_cache[name] = GNDAdapter()
+        elif name == "zbMATH_Open":
+            from src.authority.zbmath_open_adapter import ZbMathOpenAdapter
+
+            _adapter_cache[name] = ZbMathOpenAdapter()
+        elif name == "Wikidata_P184":
+            from src.authority.wikidata_p184_adapter import WikidataP184Adapter
+
+            _adapter_cache[name] = WikidataP184Adapter()
+        elif name == "OAI_University":
+            from src.authority.oai_university_adapter import OAIUniversityAdapter
+
+            _adapter_cache[name] = OAIUniversityAdapter()
+    return _adapter_cache.get(name)
+
+
 # ── Tier 0 fetchers (free, no auth) ───────────────────────────────────────
 
 
@@ -78,9 +125,7 @@ async def _fetch_openalex(entry: Dict) -> Dict:
     if cached:
         return cached
     try:
-        from src.authority.openalex_adapter import OpenAlexAdapter
-
-        adapter = OpenAlexAdapter()
+        adapter = _get_adapter("OpenAlex")
         try:
             result = await adapter.enrich(entry)
             if result.get("_source", {}).get("hit"):
@@ -94,7 +139,7 @@ async def _fetch_openalex(entry: Dict) -> Dict:
                 _cache_set(ck, data)
                 return data
         finally:
-            await adapter.ctx.close()
+            pass  # Singleton adapter — don't close
     except Exception as e:
         logger.debug(f"OpenAlex fetch failed: {e}")
     return {"OpenAlex": {"hit": False}}
@@ -107,9 +152,7 @@ async def _fetch_crossref(entry: Dict) -> Dict:
     if cached:
         return cached
     try:
-        from src.authority.crossref_adapter import CrossrefAdapter
-
-        adapter = CrossrefAdapter()
+        adapter = _get_adapter("Crossref")
         try:
             result = await adapter.enrich(entry)
             if result.get("_source", {}).get("hit"):
@@ -122,7 +165,7 @@ async def _fetch_crossref(entry: Dict) -> Dict:
                 _cache_set(ck, data)
                 return data
         finally:
-            await adapter.ctx.close()
+            pass  # Singleton adapter — don't close
     except Exception as e:
         logger.debug(f"Crossref fetch failed: {e}")
     return {"Crossref": {"hit": False}}
@@ -135,9 +178,7 @@ async def _fetch_orcid_etd(entry: Dict) -> Dict:
     if cached:
         return cached
     try:
-        from src.authority.orcid_etd_adapter import ORCIDETDAdapter
-
-        adapter = ORCIDETDAdapter()
+        adapter = _get_adapter("ORCID_ETD")
         try:
             result = await adapter.enrich(entry)
             if result.get("_source", {}).get("hit"):
@@ -151,7 +192,7 @@ async def _fetch_orcid_etd(entry: Dict) -> Dict:
                 _cache_set(ck, data)
                 return data
         finally:
-            await adapter.ctx.close()
+            pass  # Singleton adapter — don't close
     except Exception as e:
         logger.debug(f"ORCID fetch failed: {e}")
     return {"ORCID_ETD": {"hit": False}}
@@ -438,9 +479,7 @@ async def _fetch_hal(entry: Dict) -> Dict:
     if OFFLINE:
         return {"HAL": {"hit": False}}
     try:
-        from src.authority.hal_adapter import HALAdapter
-
-        adapter = HALAdapter({})
+        adapter = _get_adapter("HAL")
         result = await adapter.enrich(entry)
         if result.get("_source", {}).get("hit") or result.get("Institution"):
             data = {
@@ -498,9 +537,7 @@ async def _fetch_zbmath(entry: Dict) -> Dict:
     if OFFLINE:
         return {"zbMATH_Open": {"hit": False}}
     try:
-        from src.authority.zbmath_open_adapter import ZbMathOpenAdapter
-
-        adapter = ZbMathOpenAdapter({})
+        adapter = _get_adapter("zbMATH_Open")
         result = await adapter.enrich(entry)
         if result.get("_source", {}).get("hit") or result.get("Publications"):
             data = {

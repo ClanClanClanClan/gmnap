@@ -7,7 +7,7 @@
 **Regional Coverage**: 37/37 regions fully implemented (100%)
 **Linguistic Rules**: 34 implemented (10 core normalisation + 17 regional validation + 7 region-specific)
 **Security**: Injection attack blocking validated
-**Performance**: ~24 entries/sec OFFLINE mode (measured, post-optimization); ~700 min/1M projected. See benchmark table below.
+**Performance**: ~610 entries/sec OFFLINE mode (measured); ~27 min/1M projected. Bottleneck was adapter instantiation (fixed). See `tools/benchmark_live_enrichment.py`.
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
 **Authority Enrichment**: 9 of 14 sources with real HTTP calls; 2 gated behind API keys; 3 deferred. DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms.
 **Region Config**: 37/37 YAML config files auto-loaded via lazy `ensure_yaml_loaded()` in base class
@@ -99,11 +99,11 @@ Tier 0 sources (OpenAlex, Crossref, ORCID, Crossref_Thesis) call APIs directly.
 Benchmarks run OFFLINE mode (GMNAP_NO_NETWORK=1), Python 3.12, Apple M1:
 | Batch Size | Elapsed | Entries/sec | Projected 1M | Peak RSS |
 |------------|---------|-------------|--------------|----------|
-| 100 | 4.6s | 21.5/s | 774 min | 0.31 GB |
-| 1,000 | 42.2s | 23.7/s | 703 min | 0.32 GB |
-| 10,000 | 420.4s | 23.8/s | 701 min | 0.20 GB |
+| 100 | 0.6s | 180/s | 93 min | 0.32 GB |
+| 1,000 | 1.5s | 660/s | 25 min | 0.32 GB |
+| 10,000 | 16.4s | 611/s | 27 min | 0.36 GB |
 
-**Bottleneck**: Stage 8 (JSON schema validation) was 90% of time; now <0.1% after pre-compiling the jsonschema validator. Current bottleneck is authority enrichment cache lookups (~34%).
+**Bottleneck**: Stage 8 (JSON schema validation) was 90% of time; fixed via pre-compiled validator. Authority adapter instantiation was creating new httpx clients per call; fixed via singleton pattern. Current throughput ~600 entries/sec at scale.
 Live enrichment (OFFLINE=0) will be slower due to API rate limits.
 
 ---
