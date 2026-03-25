@@ -8,19 +8,15 @@ Performance improvements:
 """
 
 import logging
-import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-from functools import lru_cache
+from typing import Any, Dict, List, Optional
 
 import fasttext
 
 from src.core.unicode_handler import UnicodeNormalizer
 from .base import (
     REGION_CODES,
-    TERRITORY_TO_REGION,
-    RegionRuleError,
     RegionSpec,
     get_region_for_territory,
 )

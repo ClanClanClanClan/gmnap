@@ -4,7 +4,6 @@ Git integration for production Korean name system.
 Implements tagging, pre-commit hooks, and CI/CD readiness.
 """
 
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -42,7 +41,7 @@ def create_green_tag():
         tag_name = f"krp-green-{timestamp}"
         tag_message = f"Green baseline: {math_line} (commit {commit})"
 
-        result = run_command(f'git tag -a {tag_name} -m "{tag_message}"')
+        run_command(f'git tag -a {tag_name} -m "{tag_message}"')
 
         print(f"🏷️  Created tag: {tag_name}")
         print(f"📊 Performance: {math_line}")

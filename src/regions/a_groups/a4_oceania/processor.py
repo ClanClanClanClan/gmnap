@@ -10,7 +10,7 @@ Features: Polynesian macron restoration, island-specific patterns,
 """
 
 import re
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict
 
 from ...base import RegionRuleError, RegionSpec
 

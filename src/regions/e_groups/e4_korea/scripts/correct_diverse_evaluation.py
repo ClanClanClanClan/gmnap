@@ -2,7 +2,9 @@
 """
 Correct evaluation of diverse dataset using CanonicalLatin field
 """
-import yaml, sys, os
+import yaml
+import sys
+import os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 from converter import eng2kor, kor2eng
@@ -64,7 +66,7 @@ for key, info in diverse_data.items():
                 diverse_failures.append((key, canonical, expected_korean, None, None))
 
 print(f"DIVERSE DATASET: {diverse_ok}/{diverse_tot} = {diverse_ok/diverse_tot*100:.2f}%")
-print(f"Previous (wrong): 75/200 = 37.50%")
+print("Previous (wrong): 75/200 = 37.50%")
 print(f"Improvement: +{diverse_ok-75} cases\n")
 
 if diverse_failures:
@@ -79,7 +81,7 @@ if diverse_failures:
             print(f"   Roundtrip: {roundtrip}")
 
 # Also verify a few success cases
-print(f"\n=== VERIFICATION OF SUCCESS CASES ===")
+print("\n=== VERIFICATION OF SUCCESS CASES ===")
 success_count = 0
 for key, info in diverse_data.items():
     if isinstance(info, dict) and success_count < 5:
@@ -91,7 +93,7 @@ for key, info in diverse_data.items():
                 print(f"✅ {key}: {canonical} → {actual}")
                 success_count += 1
 
-print(f"\n=== CONCLUSION ===")
+print("\n=== CONCLUSION ===")
 print("The diverse dataset IS high quality!")
 print("Previous poor performance was due to testing wrong input.")
 print("Using CanonicalLatin gives much better results.")

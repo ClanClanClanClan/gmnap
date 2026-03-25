@@ -1,9 +1,8 @@
 """Unit tests for OpenAlex authority adapter."""
 
 import asyncio
-import os
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 
 @pytest.fixture(autouse=True)

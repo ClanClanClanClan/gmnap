@@ -10,7 +10,6 @@ License: Open Access
 Daily Quota: Unlimited (open API)
 """
 
-import asyncio
 import aiohttp
 import logging
 from typing import Dict, List, Any, Optional

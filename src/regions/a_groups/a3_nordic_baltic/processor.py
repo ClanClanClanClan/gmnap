@@ -7,7 +7,7 @@ Features: Icelandic patronymic system, Scandinavian particles, Baltic surname pa
 """
 
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from ...base import RegionRuleError, RegionSpec
 

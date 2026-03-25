@@ -2,7 +2,9 @@
 """
 Check which specific cases improved with Patch C
 """
-import yaml, sys, os
+import yaml
+import sys
+import os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 from converter import eng2kor, kor2eng
@@ -36,16 +38,16 @@ for name, info in data.items():
                 )
                 normalized_roundtrip = roundtrip.lower().replace(" ", "")
                 if normalized_original == normalized_roundtrip:
-                    print(f"  ✅ PASS")
+                    print("  ✅ PASS")
                     potential_improvements.append(name)
                 else:
-                    print(f"  ❌ FAIL (roundtrip mismatch)")
+                    print("  ❌ FAIL (roundtrip mismatch)")
             else:
-                print(f"  ❌ FAIL (no roundtrip)")
+                print("  ❌ FAIL (no roundtrip)")
         else:
             print(f"\n{name}: ❌ FAIL (no Korean output)")
 
-print(f"\n=== SUMMARY ===")
+print("\n=== SUMMARY ===")
 print(f"Potential loanword improvements: {len(potential_improvements)}")
 if potential_improvements:
     print("Passing cases:", potential_improvements)

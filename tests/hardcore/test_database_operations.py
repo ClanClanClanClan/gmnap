@@ -6,15 +6,12 @@ and concurrent access scenarios that could cause data corruption.
 """
 
 import gc
-import random
-import sqlite3
 import tempfile
-import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from queue import Empty, Queue
-from unittest.mock import Mock, patch
+from queue import Queue
+from unittest.mock import patch
 
 import psutil
 import pytest
@@ -186,7 +183,7 @@ class TestDatabaseIntegrity:
                         worker_db.insert_initial_stats(new_entry)
 
                         # Read statistics
-                        stats = worker_db.get_statistics()
+                        worker_db.get_statistics()
 
                         successful_operations += 1
 
@@ -274,12 +271,12 @@ class TestDatabaseIntegrity:
 
             # Build surname statistics
             start_time = time.time()
-            surname_stats = db.build_surname_stats()
+            db.build_surname_stats()
             stats_time = time.time() - start_time
 
             # Detect collisions
             start_time = time.time()
-            collisions = db.detect_collisions(threshold=2)
+            db.detect_collisions(threshold=2)
             collision_time = time.time() - start_time
 
             # Performance assertions
@@ -352,7 +349,7 @@ class TestDatabaseMemoryManagement:
                 db.insert_initial_stats(entries)
                 db.build_surname_stats()
                 db.detect_collisions()
-                stats = db.get_statistics()
+                db.get_statistics()
 
             # Force garbage collection
             gc.collect()
@@ -442,11 +439,11 @@ class TestDatabaseRecovery:
                 )
 
             db.insert_initial_stats(entries)
-            stats_before = db.get_statistics()
+            db.get_statistics()
 
         # Verify WAL files exist
         wal_path = Path(str(db_path) + "-wal")
-        shm_path = Path(str(db_path) + "-shm")
+        Path(str(db_path) + "-shm")
 
         if wal_path.exists():
             # Simulate crash by copying database without WAL

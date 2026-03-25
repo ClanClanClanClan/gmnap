@@ -25,12 +25,12 @@ class WeightLinter:
                     hangul = row[0]
                     roman = row[1]
                     weight = row[2] if len(row) > 2 else "0.0"
-                    context = row[3] if len(row) > 3 else ""
+                    row[3] if len(row) > 3 else ""
                     pos = row[4] if len(row) > 4 else ""
 
                     try:
                         weight_val = float(weight)
-                    except:
+                    except Exception:
                         weight_val = 0.0
 
                     self.existing_mappings[hangul].append((roman, weight_val, pos))
@@ -83,7 +83,7 @@ class WeightLinter:
                         )
 
             if conflicts:
-                issues.append(f"CONFLICTS with existing mappings:")
+                issues.append("CONFLICTS with existing mappings:")
                 for c in conflicts:
                     issues.append(f"  - {c}")
 

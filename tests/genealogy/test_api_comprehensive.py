@@ -10,7 +10,6 @@ Run with: pytest tests/genealogy/ -m live_api
 import pytest
 import requests
 import time
-from typing import Dict, List, Optional
 from neo4j import GraphDatabase
 
 BASE_URL = "http://localhost:8080"
@@ -246,7 +245,7 @@ class TestGenealogyAPI:
         advisor_id = self.sample_data[0]["advisor_id"]
 
         # Get lineage from student
-        lineage = requests.get(
+        requests.get(
             f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": 1}
         ).json()
 

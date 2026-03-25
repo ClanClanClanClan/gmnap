@@ -2,7 +2,10 @@
 """
 Patch D: Validation with tolerance for common romanization variants
 """
-import yaml, unicodedata, sys, pathlib
+import yaml
+import unicodedata
+import sys
+import pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 from converter import eng2kor, kor2eng
@@ -160,7 +163,7 @@ for k, v in data.items():
     tot += 1
 
 print(f"Result: {ok}/{tot} = {ok/tot*100:.2f}% with tolerance")
-print(f"Baseline: 680/733 = 92.77%")
+print("Baseline: 680/733 = 92.77%")
 print(f"Improvement: +{ok-680} cases\n")
 
 if improvements:

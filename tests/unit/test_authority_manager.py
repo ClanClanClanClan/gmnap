@@ -6,13 +6,11 @@ caching, enrichment merging, and individual adapter implementations.
 """
 
 import asyncio
-import json
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
-import pytest
 
 from src.authority.manager_tier01 import (
     TIER_HANDLERS,

@@ -4,10 +4,13 @@ Unit tests for YAML schema validation.
 Tests JSON schema v1.5 validation and custom validation rules.
 """
 
-from datetime import datetime
 
 import pytest
+from unittest.mock import patch
 
+from src.pipeline.stage8_global_validate import (
+    stage8_global_validate,
+)
 from src.validation.schema import SchemaValidator, validate_entry
 
 
@@ -425,14 +428,6 @@ class TestSchemaValidator:
 
 
 # ── Stage 8 Schema Strict Mode Tests ─────────────────────────────────────
-
-
-from unittest.mock import patch
-from src.pipeline.stage8_global_validate import (
-    stage8_global_validate,
-    validate_entry_schema,
-    validate_roundtrip,
-)
 
 
 def _stage8_entry(**overrides):

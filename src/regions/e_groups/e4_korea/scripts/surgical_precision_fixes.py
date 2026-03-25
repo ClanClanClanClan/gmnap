@@ -92,7 +92,7 @@ for hangul, roman, weight in surgical_fixes:
                     updated_count += 1
                 break
 
-print(f"\nSurgical precision results:")
+print("\nSurgical precision results:")
 print(f"- Added: {added_count} new mappings")
 print(f"- Updated: {updated_count} weights")
 print(f"- Skipped (conservative): {skipped_count}")

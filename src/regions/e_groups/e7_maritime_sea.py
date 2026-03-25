@@ -7,7 +7,7 @@ Features: Patronymic handling, mononym detection, diverse naming patterns.
 """
 
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 from ..base import RegionSpec, RegionRuleError
 
 

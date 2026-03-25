@@ -8,7 +8,7 @@ Features: Traditional Chinese characters, multiple romanization systems,
 
 import re
 import unicodedata
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 from ..base import RegionRuleError, RegionSpec
 

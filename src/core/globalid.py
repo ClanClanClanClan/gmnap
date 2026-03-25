@@ -10,7 +10,7 @@ Implements the GlobalID specification:
 import base64
 import hashlib
 import logging
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, Set
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +31,6 @@ class GlobalIDGenerator:
         self._true_collisions: Dict[str, Dict[str, int]] = (
             {}
         )  # base_id -> {hash_input: collision_num}
-
-    def clear(self):
-        """Reset the collision tracking state."""
-        self._true_collisions.clear()
 
     def generate(self, entry: Dict[str, Any]) -> str:
         """

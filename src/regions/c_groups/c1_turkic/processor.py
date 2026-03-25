@@ -8,7 +8,7 @@ Features: Multi-script handling (Latin/Cyrillic/Arabic), script reform schedules
 
 import re
 import unicodedata
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 from ...base import RegionRuleError, RegionSpec
 
@@ -270,8 +270,6 @@ class C1TurkicProcessor(RegionSpec):
             # Turkish
             "oğlu": "son of",
             "kızı": "daughter of",
-            # Azerbaijani
-            "oğlu": "son of",
             "qızı": "daughter of",
             # Uzbek
             "o'g'li": "son of",

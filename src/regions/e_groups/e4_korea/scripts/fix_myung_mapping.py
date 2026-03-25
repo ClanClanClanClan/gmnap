@@ -29,11 +29,11 @@ for h, r in rows:
         filtered_rows.append((h, r))
 
 # Add correct mapping
-print(f"ADDING correct mapping: 명,myung")
+print("ADDING correct mapping: 명,myung")
 filtered_rows.append(("명", "myung"))
 
 print(f"Removed {removed_count} wrong mappings")
-print(f"Added 1 correct mapping")
+print("Added 1 correct mapping")
 print(f"Final rows: {len(filtered_rows)}")
 
 # Write updated file
@@ -45,7 +45,7 @@ with open("resources/rr_syllable_map.csv", "w", encoding="utf8", newline="") as 
 print("✅ Fixed myung mapping!")
 
 # Verify the fix
-print(f"\nVerifying myung mappings:")
+print("\nVerifying myung mappings:")
 with open("resources/rr_syllable_map.csv", encoding="utf8") as f:
     new_lookup = {r.lower(): h for h, r in csv.reader(f)}
 

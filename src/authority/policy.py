@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Literal, Optional
-import yaml, os
+import yaml
 
 Strategy = Literal["source_priority", "set_union", "weighted"]
 

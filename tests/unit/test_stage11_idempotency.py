@@ -1,6 +1,5 @@
 """Unit tests for Stage 11: Idempotency Check."""
 
-import pytest
 import tempfile
 from src.pipeline.stage11_idempotency_check import idempotency_check
 

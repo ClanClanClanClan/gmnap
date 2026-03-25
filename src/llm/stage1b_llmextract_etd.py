@@ -1,5 +1,10 @@
 from __future__ import annotations
-import os, re, json, hashlib, yaml, pathlib
+import os
+import re
+import json
+import hashlib
+import yaml
+import pathlib
 from typing import Dict, Any, Tuple
 from jsonschema import Draft202012Validator
 
@@ -31,7 +36,6 @@ def _load_etd_schema(spec_paths=("specs_v7.yaml", "v7.0.yaml")) -> Dict[str, Any
 
 
 def _cache_key(text: str) -> str:
-    import hashlib
 
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 

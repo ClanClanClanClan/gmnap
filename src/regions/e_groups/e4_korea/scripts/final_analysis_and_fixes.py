@@ -2,7 +2,9 @@
 """
 Final analysis of math dataset failures and ultra-conservative fixes
 """
-import yaml, sys, os
+import yaml
+import sys
+import os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 from converter import eng2kor, kor2eng
@@ -60,7 +62,7 @@ print(f"Roundtrip failures: {len(roundtrip_failures)}")
 print(f"Total failures: {len(eng_kor_failures) + len(roundtrip_failures)}")
 
 # Focus on eng→kor failures (these are true errors)
-print(f"\n=== CRITICAL ENG→KOR FAILURES ===")
+print("\n=== CRITICAL ENG→KOR FAILURES ===")
 print("These are definitive errors that can be fixed:")
 
 missing_mappings = []
@@ -73,14 +75,14 @@ for name, input_rom, expected, actual in eng_kor_failures[:15]:
     print(f"  Actual: {actual}")
 
     if actual is None:
-        print(f"  Issue: Missing mapping")
+        print("  Issue: Missing mapping")
         missing_mappings.append((name, input_rom, expected))
     else:
-        print(f"  Issue: Wrong conversion")
+        print("  Issue: Wrong conversion")
         wrong_mappings.append((name, input_rom, expected, actual))
 
 # Extract specific missing patterns
-print(f"\n=== FIXABLE PATTERNS ===")
+print("\n=== FIXABLE PATTERNS ===")
 print("Missing mappings that cause None:")
 for name, rom, exp in missing_mappings[:10]:
     # Try to identify the problematic part
@@ -89,7 +91,7 @@ for name, rom, exp in missing_mappings[:10]:
         if eng2kor(part) is None:
             print(f"  '{part}' from {name}")
 
-print(f"\nWrong mappings (character-level analysis):")
+print("\nWrong mappings (character-level analysis):")
 for name, rom, exp, act in wrong_mappings[:5]:
     if len(exp) == len(act):
         for i, (e, a) in enumerate(zip(exp, act)):
@@ -97,7 +99,7 @@ for name, rom, exp, act in wrong_mappings[:5]:
                 print(f"  Position {i}: {a}→{e} in {name}")
 
 # Ultra-conservative final fixes
-print(f"\n=== ULTRA-CONSERVATIVE FINAL FIXES ===")
+print("\n=== ULTRA-CONSERVATIVE FINAL FIXES ===")
 print("Only adding mappings that:")
 print("1. Return None (complete failures)")
 print("2. Have zero chance of conflicts")
@@ -113,16 +115,16 @@ ultra_safe_fixes = [
 for fix in ultra_safe_fixes:
     print(f"  - {fix}")
 
-print(f"\n=== PATH TO 95.4% ===")
-print(f"Current failures breakdown:")
+print("\n=== PATH TO 95.4% ===")
+print("Current failures breakdown:")
 print(f"- Eng→Kor: {len(eng_kor_failures)} (fixable with mappings)")
 print(f"- Roundtrip: {len(roundtrip_failures)} (mostly formatting)")
-print(f"")
-print(f"Strategy:")
-print(f"1. Fix obvious None failures → +3-5 cases")
-print(f"2. Add missing surname mappings → +5-8 cases")
-print(f"3. Context improvements → +5-7 cases")
-print(f"4. Consider relaxing dice threshold → +5 cases")
-print(f"")
-print(f"Total potential: +18-25 cases = 697-704/733 (95.1-96.0%)")
-print(f"The 95.4% target is achievable!")
+print("")
+print("Strategy:")
+print("1. Fix obvious None failures → +3-5 cases")
+print("2. Add missing surname mappings → +5-8 cases")
+print("3. Context improvements → +5-7 cases")
+print("4. Consider relaxing dice threshold → +5 cases")
+print("")
+print("Total potential: +18-25 cases = 697-704/733 (95.1-96.0%)")
+print("The 95.4% target is achievable!")

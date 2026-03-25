@@ -78,7 +78,7 @@ for hangul, roman, weight in reverse_compound_mappings:
         print(f"  ADDED: {hangul} → {roman} (weight: {weight})")
         added_count += 1
 
-print(f"\nReverse compound mappings:")
+print("\nReverse compound mappings:")
 print(f"- Added: {added_count} new reverse mappings")
 print(f"- Updated: {updated_count} existing mappings")
 print(f"- Total rows: {len(rows)}")

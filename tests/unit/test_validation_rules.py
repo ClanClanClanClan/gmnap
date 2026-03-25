@@ -7,7 +7,7 @@ import pytest
 
 os.environ.setdefault("GMNAP_NO_NETWORK", "1")
 
-from src.regions.validation_rules import RegionalValidationEngine
+from src.regions.validation_rules import RegionalValidationEngine  # noqa: E402
 
 
 @pytest.fixture

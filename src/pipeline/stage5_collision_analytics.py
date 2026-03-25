@@ -5,7 +5,10 @@ to detect collisions across separate batch runs.
 """
 
 from __future__ import annotations
-import json, os, pathlib, logging
+import json
+import os
+import pathlib
+import logging
 from typing import Dict, List, Set, Tuple
 from collections import defaultdict
 
@@ -53,8 +56,9 @@ def stage5_collision_analytics(
 
     # Try DuckDB first, fall back to in-memory
     try:
-        import duckdb
-
+        import importlib.util
+        if importlib.util.find_spec("duckdb") is None:
+            raise ImportError("duckdb not installed")
         out, collisions = _duckdb_dedup(batch, workdir)
     except (ImportError, Exception) as e:
         logger.info(f"DuckDB dedup unavailable ({e}), using in-memory collision detection")
@@ -133,7 +137,6 @@ def _duckdb_dedup(batch: List[Dict], workdir: str) -> Tuple[List[Dict], int]:
     con.execute("PRAGMA memory_limit='1GB'")
 
     # Write entries to a temp JSON file for DuckDB to read
-    import tempfile
 
     tmp = os.path.join(workdir, "_stage5_tmp.json")
     rows = [

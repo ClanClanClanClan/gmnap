@@ -5,11 +5,9 @@ Tests in-batch dedup, cross-batch collision tracking,
 GlobalID suffixing, and edge CSV generation.
 """
 
-import json
 import tempfile
 from pathlib import Path
 
-import pytest
 
 from src.pipeline.stage5_collision_analytics import (
     _load_registry,

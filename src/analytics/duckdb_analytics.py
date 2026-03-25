@@ -1,5 +1,5 @@
 from __future__ import annotations
-import duckdb, os, pathlib, json
+import duckdb
 from typing import List, Dict, Tuple
 
 SCHEMA_DDL = """
@@ -60,7 +60,7 @@ class DuckDBAnalytics:
         suffixed = 0
         coll_map = {}
         for c in collisions:
-            ok, by, gids = c["order_key"], c["BirthYear"], list(c["gids"])
+            _ok, _by, gids = c["order_key"], c["BirthYear"], list(c["gids"])
             for i, gid in enumerate(sorted(gids)):
                 if i == 0:
                     continue

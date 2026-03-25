@@ -16,7 +16,7 @@ comprehensive protection against malicious input.
 import re
 import unicodedata
 import html
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict
 from urllib.parse import unquote
 
 
@@ -253,7 +253,7 @@ class SecurityFilter:
                 # If URL decoding changed the string, scan the decoded version
                 self.scan_for_attacks(decoded, "URL-decoded content")
                 text = decoded
-        except:
+        except Exception:
             pass  # Keep original if decoding fails
 
         # Normalize Unicode if preserving international characters
@@ -302,7 +302,7 @@ class SecurityFilter:
 
         # Scan entire entry structure
         try:
-            scan_recursive(entry, f"entry")
+            scan_recursive(entry, "entry")
         except SecurityError as e:
             # Add region context to error
             raise SecurityError(f"Security violation in region {region_code}: {e}")

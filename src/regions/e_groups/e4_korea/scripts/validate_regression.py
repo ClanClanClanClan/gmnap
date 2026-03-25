@@ -2,7 +2,10 @@
 """
 Exit‑0 if no regression, non‑zero otherwise.
 """
-import json, sys, importlib, hashlib, unicodedata, yaml
+import json
+import sys
+import unicodedata
+import yaml
 from pathlib import Path
 
 # Add src to path for converter import
@@ -11,7 +14,7 @@ import converter as conv
 
 
 def norm(s):  # same as make_locks.py
-    import unicodedata, re
+    import re
 
     s = unicodedata.normalize("NFKC", s).casefold()
     return re.sub(r"\W+", "", s)

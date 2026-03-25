@@ -6,7 +6,6 @@ Features: Persian/Dari/Tajik scripts, patronymic patterns, flexible order
 """
 
 import re
-import unicodedata
 from typing import Any, Dict, List, Optional
 
 from ..base import RegionRuleError, RegionSpec
@@ -719,7 +718,7 @@ class C2_PersianTajik(RegionSpec):
         variants = []
 
         root = zadeh_info.get("zadeh_root", "")
-        zadeh_type = zadeh_info.get("zadeh_type", "")
+        zadeh_info.get("zadeh_type", "")
         current_suffix = zadeh_info.get("zadeh_suffix", "")
 
         if not root:

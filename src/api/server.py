@@ -9,16 +9,13 @@ Rate limits:
   - Paid tier: 10,000 req/min (Bearer token)
 """
 
-import asyncio
 import hashlib
-import json
 import logging
 import os
 import threading
 import time
 from collections import defaultdict
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)

@@ -8,7 +8,6 @@ import fcntl
 import os
 import shutil
 import subprocess
-import tempfile
 import time
 from contextlib import contextmanager
 from pathlib import Path

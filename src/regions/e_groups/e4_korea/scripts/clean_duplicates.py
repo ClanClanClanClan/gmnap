@@ -7,7 +7,6 @@ Keeps first occurrence of each (hangul, roman) pair.
 import csv
 import shutil
 from datetime import datetime
-from pathlib import Path
 
 
 def clean_duplicates_direct():
@@ -52,7 +51,7 @@ def clean_duplicates_direct():
                 print(f"🗑️  Removing duplicate line {line_num}: {line}")
                 removed_count += 1
 
-        except:
+        except Exception:
             # Keep malformed lines as-is
             clean_lines.append(line + "\n")
 

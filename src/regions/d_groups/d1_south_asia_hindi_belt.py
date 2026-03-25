@@ -6,8 +6,7 @@ Features: Devanagari script, patronymic patterns, caste/community indicators, ho
 """
 
 import re
-import unicodedata
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from ..base import RegionRuleError, RegionSpec
 

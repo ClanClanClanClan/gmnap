@@ -8,7 +8,6 @@ import psutil
 import subprocess
 import time
 import sys
-from pathlib import Path
 
 
 def monitor_fst_build():
@@ -69,7 +68,7 @@ def monitor_validation():
     start_time = time.time()
 
     try:
-        result = subprocess.run(
+        subprocess.run(
             ["python3", "scripts/validate.py"], capture_output=True, text=True, timeout=300
         )
 
@@ -100,7 +99,9 @@ def main():
 
     # Check if psutil is available
     try:
-        import psutil
+        import importlib.util
+        if importlib.util.find_spec("psutil") is None:
+            raise ImportError("psutil not installed")
     except ImportError:
         print("❌ psutil not available - install with: pip install psutil")
         sys.exit(1)

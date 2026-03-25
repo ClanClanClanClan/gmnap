@@ -1,5 +1,6 @@
 from __future__ import annotations
-import unicodedata, re
+import unicodedata
+import re
 
 # Basic fold map (can be extended; spec lists several exceptions)
 _FOLD = {

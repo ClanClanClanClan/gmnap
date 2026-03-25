@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Safely add Tier 1 mappings one by one with validation."""
 import subprocess
-import sys
 
 mappings = [
     ("식", "shik", "-2.8", "GN", "G"),
@@ -27,7 +26,7 @@ for hangul, roman, weight, context, pos in mappings:
         print(f"  ❌ Linter failed: {result.stdout.strip()}")
         continue
 
-    print(f"  ✅ Linter passed")
+    print("  ✅ Linter passed")
 
     # Test conversion for known cases
     if roman == "shik":

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
+from collections import Counter
 import yaml
 import sys
 
 sys.path.append("src")
-from converter import eng2kor, kor2eng
+from converter import eng2kor, kor2eng  # noqa: E402
 
 # Analyze all remaining failures
 data = yaml.safe_load(open("data/korean.yaml", encoding="utf8"))
@@ -42,8 +43,6 @@ print(f"Total round-trip surname mismatches: {len(roundtrip_fails)}")
 
 # Analyze patterns
 print("\n=== ENG→KOR Failure Patterns ===")
-from collections import Counter
-
 patterns = Counter()
 for rr, ko_exp, ko in eng_kor_fails[:30]:  # First 30
     if ko is None:

@@ -66,14 +66,10 @@ def apply_context(romanization: str, position: str, full_name: str) -> str:
         "kim, yo-jong": ("yo", "yeo"),  # Yo → yeo → 여 for 김여정
         "yi, sun-sin": ("sun", "soon"),  # Sun → soon → 순 for 이순신
         "lee, kun-hee": ("kun", "geon"),  # Kun → geon → 건 for 이건희
-        "kim, yo-jong": ("jong", "jeong"),  # Jong → jeong → 정 for 김여정
         # Suk → seok context fixes (3 cases)
         "jeong, suk-min": ("suk", "seok"),  # Suk → seok → 석 for 정석민
         "wang, min-suk": ("suk", "seok"),  # Suk → seok → 석 for 왕민석
-        "suk, hyun-joo": ("suk", "seok"),  # Suk → seok → 석 for 석현주
-        # Additional diverse dataset fixes
-        "kim, yo-jong": ("yo", "yeo"),  # Yo → yeo → 여 for 김여정 (override duplicate)
-        "shim, chang-min": ("chang", "chaang"),  # Chang → chaang → 창 for 심창민
+        "suk, hyun-joo": ("suk", "seok"),  # Chang → chaang → 창 for 심창민
         "lee, chun-hyang": ("chun", "cheon"),  # Chun → cheon → 춘 for 이춘향
         "park, hyun-chang": ("chang", "chaang"),  # Chang → chaang → 창 for 박현창
     }

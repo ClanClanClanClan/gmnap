@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Add targeted fixes for independent dataset failures."""
 import csv
-import sys
 from pathlib import Path
 
 # Mappings to fix the "no_conversion" failures

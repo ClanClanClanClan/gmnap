@@ -7,10 +7,6 @@ pagination, and error handling.
 Uses FastAPI's TestClient (via starlette) — no live server needed.
 """
 
-import os
-import sys
-import types
-from unittest.mock import AsyncMock, MagicMock, patch
 from enum import Enum
 
 import pytest

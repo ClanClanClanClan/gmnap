@@ -37,7 +37,7 @@ def remove_only_true_duplicates():
                 if len(row) >= 2:
                     key = (row[0], row[1])
                     entries[key].append((line_num, row, line))
-            except:
+            except Exception:
                 continue
 
     # Find true duplicates (completely identical rows)
@@ -58,7 +58,7 @@ def remove_only_true_duplicates():
         for row_key, occurrences in row_groups.items():
             if len(occurrences) > 1:
                 # Keep first, remove others
-                keep_first = occurrences[0]
+                occurrences[0]
                 to_remove = occurrences[1:]
 
                 print(f"🗑️  Removing {len(to_remove)} true duplicates of: {key[0]},{key[1]}")

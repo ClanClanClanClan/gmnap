@@ -1,6 +1,5 @@
 """Unit tests for Stage 8: Global Schema Validation."""
 
-import pytest
 from src.pipeline.stage8_global_validate import validate_entry_schema
 
 

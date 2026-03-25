@@ -5,7 +5,7 @@ Prevents XSS, SQL injection, command injection, and other attacks.
 
 import re
 import unicodedata
-from typing import Any, Dict, List, Set
+from typing import Any, Dict
 import logging
 
 logger = logging.getLogger(__name__)
@@ -389,19 +389,18 @@ class SecurityValidator:
             SecurityError: If encoded attack patterns detected
         """
         # Check for URL encoding
-        url_decode_count = 0
         if "%" in text:
             import urllib.parse
 
             try:
                 decoded = urllib.parse.unquote(text)
                 if decoded != text:
-                    url_decode_count = text.count("%")
+                    text.count("%")
                     # Check if decoded version contains attacks
                     for pattern in self.compiled_patterns[:20]:  # Check first 20 patterns
                         if pattern.search(decoded):
                             raise SecurityError(f"URL-encoded attack detected in {context}")
-            except:
+            except Exception:
                 pass
 
         # Check for HTML entity encoding

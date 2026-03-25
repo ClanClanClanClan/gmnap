@@ -1,6 +1,5 @@
 """Unit tests for GDPR compliance module."""
 
-import pytest
 from src.core.gdpr import (
     mark_gdpr_fields,
     apply_birth_year_privacy,
@@ -8,8 +7,6 @@ from src.core.gdpr import (
     apply_drop_personal,
     gdpr_pipeline,
     PERSONAL_DATA_FIELDS,
-    SCRUBBER_SOURCES,
-    MIN_COHORT_SIZE,
 )
 
 

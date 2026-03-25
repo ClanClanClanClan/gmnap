@@ -4,10 +4,9 @@ Unit tests for the LLM ETD extractor module.
 Tests cost metering, caching, JSON validation, and stub fallback.
 """
 
-import json
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 

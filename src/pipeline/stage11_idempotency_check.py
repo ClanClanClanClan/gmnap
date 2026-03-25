@@ -1,7 +1,12 @@
 """Stage 11: IdempotencyCheck - Rerun pipeline, diff, assert identical."""
 
 from __future__ import annotations
-import os, json, pathlib, random, hashlib, logging
+import os
+import json
+import pathlib
+import random
+import hashlib
+import logging
 from typing import Dict, List, Tuple, Any
 from src.ops.metrics import IDEMP_DIFF_BYTES, IDEMP_OK_TOTAL, IDEMP_FAIL_TOTAL
 from src.ops.yaml_deterministic import to_canonical_bytes

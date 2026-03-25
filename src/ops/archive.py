@@ -1,6 +1,9 @@
 from __future__ import annotations
 import logging
-import os, pathlib, time, zipfile
+import os
+import pathlib
+import time
+import zipfile
 from typing import Optional
 from .metrics import ARCHIVE_UPLOADS_SUCCEEDED, ARCHIVE_UPLOADS_FAILED
 

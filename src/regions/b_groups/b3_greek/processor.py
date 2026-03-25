@@ -7,7 +7,7 @@ Features: Greek script detection, ELOT 743 & ISO 843 romanisation,
 """
 
 import re
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 from ...base import RegionRuleError, RegionSpec
 
@@ -652,71 +652,6 @@ class B3GreekProcessor(RegionSpec):
         """Transliterate Greek to Latin using ISO 843 standard."""
         # ISO 843 is similar to ELOT but with some differences
         # This is a simplified version
-        iso_map = {
-            "Α": "A",
-            "α": "a",
-            "Ά": "Á",
-            "ά": "á",
-            "Β": "V",
-            "β": "v",
-            "Γ": "G",
-            "γ": "g",
-            "Δ": "D",
-            "δ": "d",
-            "Ε": "E",
-            "ε": "e",
-            "Έ": "É",
-            "έ": "é",
-            "Ζ": "Z",
-            "ζ": "z",
-            "Η": "Ī",
-            "η": "ī",
-            "Ή": "Ī́",
-            "ή": "ī́",
-            "Θ": "Th",
-            "θ": "th",
-            "Ι": "I",
-            "ι": "i",
-            "Ί": "Í",
-            "ί": "í",
-            "Κ": "K",
-            "κ": "k",
-            "Λ": "L",
-            "λ": "l",
-            "Μ": "M",
-            "μ": "m",
-            "Ν": "N",
-            "ν": "n",
-            "Ξ": "X",
-            "ξ": "x",
-            "Ο": "O",
-            "ο": "o",
-            "Ό": "Ó",
-            "ό": "ó",
-            "Π": "P",
-            "π": "p",
-            "Ρ": "R",
-            "ρ": "r",
-            "Σ": "S",
-            "σ": "s",
-            "ς": "s",
-            "Τ": "T",
-            "τ": "t",
-            "Υ": "Y",
-            "υ": "y",
-            "Ύ": "Ý",
-            "ύ": "ý",
-            "Φ": "F",
-            "φ": "f",
-            "Χ": "Ch",
-            "χ": "ch",
-            "Ψ": "Ps",
-            "ψ": "ps",
-            "Ω": "Ō",
-            "ω": "ō",
-            "Ώ": "Ṓ",
-            "ώ": "ṓ",
-        }
 
         # Similar logic to ELOT but with ISO differences
         result = self._transliterate_elot743(greek_text)

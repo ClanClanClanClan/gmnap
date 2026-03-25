@@ -1,4 +1,5 @@
-import yaml, pathlib, collections, re, unicodedata
+import yaml
+import pathlib
 
 for tag, file in (
     ("math", "data/korean.yaml"),

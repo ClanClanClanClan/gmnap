@@ -10,7 +10,6 @@ Mark: @pytest.mark.stress — not included in regular CI.
 
 import hashlib
 import random
-import string
 import time
 
 import pytest

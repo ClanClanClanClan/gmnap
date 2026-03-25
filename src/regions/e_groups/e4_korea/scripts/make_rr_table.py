@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import csv, pathlib
+import csv
+import pathlib
 
 BASE, L, V, T = 0xAC00, 19, 21, 28
 LEADS = [
@@ -81,10 +82,10 @@ path.parent.mkdir(exist_ok=True)
 w = csv.writer(path.open("w", encoding="utf8", newline=""))
 for cp in range(BASE, BASE + 11172):
     off = cp - BASE
-    l = off // (V * T)
+    lead = off // (V * T)
     v = (off // T) % V
     t = off % T
-    w.writerow([chr(cp), LEADS[l] + VOW[v] + TAIL[t]])
+    w.writerow([chr(cp), LEADS[lead] + VOW[v] + TAIL[t]])
 # critical long‑tail syllables
 w.writerows([["안", "ahn"], ["철", "cheol"], ["환", "hwan"], ["김", "kim"], ["영", "young"]])
 print("✓ resources/rr_syllable_map.csv lines:", sum(1 for _ in open(path)))

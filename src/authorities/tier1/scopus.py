@@ -10,7 +10,6 @@ License: Requires API key + institutional access
 Daily Quota: 20,000 calls/week (institutional)
 """
 
-import asyncio
 import aiohttp
 import logging
 import yaml

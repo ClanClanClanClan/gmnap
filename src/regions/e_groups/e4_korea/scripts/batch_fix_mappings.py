@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Batch fix mappings to resolve failures."""
-import csv
 import shutil
 import subprocess
+import sys
 from datetime import datetime
 
 # Mappings to add (that don't conflict if we use proper positions)
@@ -58,10 +58,8 @@ test_names = [
     ("So, Ji-Sub", "소지섭"),
 ]
 
-import sys
-
 sys.path.insert(0, "src")
-import converter
+import converter  # noqa: E402
 
 passed = 0
 for name, expected in test_names:

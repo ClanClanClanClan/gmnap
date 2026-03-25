@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 try:
-    import neo4j
+    import neo4j  # noqa: F401 — imported to test availability
     from neo4j import GraphDatabase
 
     MEMGRAPH_AVAILABLE = True

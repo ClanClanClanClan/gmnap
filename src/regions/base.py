@@ -7,7 +7,7 @@ Enforces V7 linguistic rules (IDs 1-34) and quality gates.
 import logging
 import pathlib
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field as dc_field
+from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional
 
 from .security import SecurityError, secure_validate_entry, secure_clean_name
@@ -300,7 +300,6 @@ class RegionSpec(ABC):
         # Normalize quotation marks and apostrophes
         quote_map = {
             """: "'", """: "'",  # Curly single quotes → straight
-            '"': '"',
             '"': '"',  # Curly double quotes → straight
             "‚": ",",
             "„": '"',  # German/Eastern European quotes
@@ -596,7 +595,6 @@ class RegionSpec(ABC):
             return None
 
         # Check if this involves CJK scripts
-        import unicodedata
 
         cjk_ranges = [
             (0x4E00, 0x9FFF),  # CJK Unified Ideographs
@@ -1014,7 +1012,6 @@ TERRITORY_TO_REGION = {
     "PS": "C3",
     "EG": "C3",
     "SD": "C3",
-    "SS": "C3",
     # C4 - Arabic Gulf
     "SA": "C4",
     "KW": "C4",
@@ -1128,7 +1125,6 @@ TERRITORY_TO_REGION = {
     "DO": "G1",
     "EC": "G1",
     "GT": "G1",
-    "GY": "G1",
     "HN": "G1",
     "HT": "G1",
     "MX": "G1",

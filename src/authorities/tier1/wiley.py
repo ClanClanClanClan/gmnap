@@ -10,7 +10,6 @@ License: Requires TDM token
 Daily Quota: 3 requests/second (rate limit)
 """
 
-import asyncio
 import aiohttp
 import logging
 import yaml

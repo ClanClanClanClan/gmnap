@@ -5,7 +5,7 @@ Implements the NFC → NFKD → custom fold → NFC chain as specified.
 
 import unicodedata
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 
 @dataclass

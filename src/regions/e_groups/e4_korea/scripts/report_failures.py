@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-import yaml, unicodedata, csv, collections, re, pathlib
+import yaml
+import unicodedata
+import collections
+import re
 import sys
 
 sys.path.append("src")

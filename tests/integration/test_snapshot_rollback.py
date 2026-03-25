@@ -7,11 +7,7 @@ Validates: "git revert HEAD~1 restores coherence"
 
 import hashlib
 import json
-import os
-import shutil
 import subprocess
-import tempfile
-from pathlib import Path
 
 import pytest
 

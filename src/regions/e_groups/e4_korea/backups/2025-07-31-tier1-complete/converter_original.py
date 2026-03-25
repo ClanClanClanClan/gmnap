@@ -1,4 +1,5 @@
-import pynini as pn, pathlib
+import os
+import pynini as pn
 from fst_utils import first_output
 from preprocess import tokenise
 from segment import segment
@@ -12,7 +13,8 @@ def _dice(a, b):
     b = "" if not b else b.replace(",", "").replace("-", " ")
     a = b"" if not a else unicodedata.normalize("NFC", a.casefold().replace(" ", "")).encode()
     b = b"" if not b else unicodedata.normalize("NFC", b.casefold().replace(" ", "")).encode()
-    bigr = lambda s: {s[i : i + 2] for i in range(len(s) - 1)}
+    def bigr(s):
+        return {s[i:i + 2] for i in range(len(s) - 1)}
     x, y = bigr(a), bigr(b)
     return (2 * len(x & y)) / (len(x) + len(y) or 1)
 
@@ -65,7 +67,6 @@ def _enhanced_dice(a, b):
         "rinda": "linda",
         # Additional patterns from final analysis
         "joon": "jung",
-        "jung": "joon",
         "myung": "myeong",
         "myeong": "myung",
         "yum": "yom",
@@ -84,12 +85,11 @@ def _enhanced_dice(a, b):
     a_bytes = unicodedata.normalize("NFC", a_norm).encode()
     b_bytes = unicodedata.normalize("NFC", b_norm).encode()
 
-    bigr = lambda s: {s[i : i + 2] for i in range(len(s) - 1)}
+    def bigr(s):
+        return {s[i:i + 2] for i in range(len(s) - 1)}
     x, y = bigr(a_bytes), bigr(b_bytes)
     return (2 * len(x & y)) / (len(x) + len(y) or 1)
 
-
-import os
 
 _base_dir = os.path.dirname(os.path.dirname(__file__))
 ROM2 = pn.Fst.read(os.path.join(_base_dir, "models/rom2han_multi.fst"))

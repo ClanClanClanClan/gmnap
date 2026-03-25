@@ -305,7 +305,7 @@ def main():
         framework.capture_baseline_performance()
 
     elif command == "validate":
-        baseline = framework.capture_baseline_performance()  # Acts as validation
+        framework.capture_baseline_performance()  # Acts as validation
 
     elif command == "add":
         if len(sys.argv) < 3:

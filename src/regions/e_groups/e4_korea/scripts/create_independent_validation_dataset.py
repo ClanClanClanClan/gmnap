@@ -4,7 +4,6 @@ Create a high-quality independent validation dataset
 Different from math/diverse datasets to test true generalization
 """
 import json
-import random
 from datetime import datetime
 
 print("=== CREATING INDEPENDENT VALIDATION DATASET ===")
@@ -329,7 +328,7 @@ with open("data/independent_validation_dataset.json", "w", encoding="utf8") as f
     json.dump(dataset, f, indent=2, ensure_ascii=False)
 
 print("✅ Independent validation dataset created!")
-print(f"Saved to: data/independent_validation_dataset.json")
+print("Saved to: data/independent_validation_dataset.json")
 print()
 print("=== DATASET STATISTICS ===")
 for category, count in dataset_info["categories"].items():

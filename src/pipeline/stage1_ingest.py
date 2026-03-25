@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 from typing import Dict, List, Any
-import json, yaml
+import json
+import yaml
 from src.ops.unicode_norm import normalise_entry_strings, nfc_nfkd_fold_nfc
 
 

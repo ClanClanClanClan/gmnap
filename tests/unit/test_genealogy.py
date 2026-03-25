@@ -1,6 +1,5 @@
 """Tests for src/genealogy/query module."""
 
-import pytest
 from unittest.mock import MagicMock, patch
 
 

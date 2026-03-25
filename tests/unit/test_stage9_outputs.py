@@ -5,11 +5,9 @@ from __future__ import annotations
 import json
 import pathlib
 
-import pytest
 
 from src.pipeline.stage9_write_and_diff import (
     write_snapshot,
-    diff_snapshots,
     generate_sql_changelog,
     generate_cypher_changelog,
 )

@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import asyncio
 
 import httpx
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 from src.authority.common import retry_with_backoff
 
@@ -105,7 +104,6 @@ async def test_exponential_backoff_timing(monkeypatch):
             raise httpx.TimeoutException("timeout")
         return "done"
 
-    original_sleep = asyncio.sleep
 
     async def mock_sleep(delay):
         sleep_calls.append(delay)

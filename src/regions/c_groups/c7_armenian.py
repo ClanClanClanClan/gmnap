@@ -8,7 +8,7 @@ Features: Armenian script U+0530-U+058F, -yan/-ian surname suffixes,
 
 import re
 import unicodedata
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from ..base import RegionRuleError, RegionSpec
 

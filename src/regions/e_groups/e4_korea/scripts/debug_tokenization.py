@@ -9,9 +9,9 @@ from pathlib import Path
 E4_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(E4_ROOT / "src"))
 
-from preprocess import tokenise
-from segment import segment
-from converter import eng2kor
+from preprocess import tokenise  # noqa: E402
+from segment import segment  # noqa: E402
+from converter import eng2kor  # noqa: E402
 
 
 def debug_processing():

@@ -37,7 +37,7 @@ def diagnose_fst_build():
         print(f"  {status} {name} → {result} (expected {expected})")
 
     # Now test with a temporary addition
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with tempfile.TemporaryDirectory():
         # Backup and modify
         csv_backup = Path("resources/rr_syllable_map.csv.diagnose")
         shutil.copy("resources/rr_syllable_map.csv", csv_backup)

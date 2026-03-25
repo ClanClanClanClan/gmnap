@@ -2,10 +2,12 @@
 """
 Deep analysis of context-sensitive patterns that could yield +10-15 cases
 """
-import yaml, sys, os
+import yaml
+import sys
+import os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
-from converter import eng2kor, kor2eng
+from converter import eng2kor
 
 print("=== CONTEXT PATTERN ANALYSIS FOR 95.4% TARGET ===")
 print("Analyzing the 31 eng→kor failures for context opportunities...\n")
@@ -72,7 +74,7 @@ for pattern, positions in sorted(
             print(f"    Given examples: {', '.join(positions['given'][:3])}")
 
 # CONTEXT PATTERN 2: Romanization ambiguity
-print(f"\n2. ROMANIZATION AMBIGUITY ANALYSIS")
+print("\n2. ROMANIZATION AMBIGUITY ANALYSIS")
 ambiguous_patterns = {}
 
 for name, rom, expected, actual in eng_kor_failures:
@@ -106,7 +108,7 @@ for syllable, cases in sorted(ambiguous_patterns.items(), key=lambda x: len(x[1]
             print(f"    {name}: {rom} → expected {exp}, got {act}")
 
 # CONTEXT PATTERN 3: Compound vs single syllable analysis
-print(f"\n3. SEGMENTATION ISSUES")
+print("\n3. SEGMENTATION ISSUES")
 segmentation_issues = []
 
 for name, rom, expected, actual in eng_kor_failures:
@@ -122,23 +124,23 @@ for name, rom, exp, act, exp_len, act_len in segmentation_issues[:5]:
     print(f"    Issue: {issue_type}")
 
 # STRATEGIC RECOMMENDATIONS
-print(f"\n=== STRATEGIC RECOMMENDATIONS FOR +17 CASES ===")
-print(f"1. CONTEXT ENGINE ENHANCEMENT (potential +8-10 cases):")
-print(f"   - Position-aware jung/jeong/준 selection")
-print(f"   - Surname vs given name patterns for suk/seok")
-print(f"   - Frequency-based disambiguation")
+print("\n=== STRATEGIC RECOMMENDATIONS FOR +17 CASES ===")
+print("1. CONTEXT ENGINE ENHANCEMENT (potential +8-10 cases):")
+print("   - Position-aware jung/jeong/준 selection")
+print("   - Surname vs given name patterns for suk/seok")
+print("   - Frequency-based disambiguation")
 
-print(f"\n2. COMPOUND PATTERN RECOGNITION (potential +4-6 cases):")
-print(f"   - Better segmentation for compound names")
-print(f"   - Multi-syllable unit preservation")
+print("\n2. COMPOUND PATTERN RECOGNITION (potential +4-6 cases):")
+print("   - Better segmentation for compound names")
+print("   - Multi-syllable unit preservation")
 
-print(f"\n3. PREFERENCE TUNING (potential +3-5 cases):")
-print(f"   - Stronger weights for ambiguous mappings")
-print(f"   - Context-dependent weight adjustment")
+print("\n3. PREFERENCE TUNING (potential +3-5 cases):")
+print("   - Stronger weights for ambiguous mappings")
+print("   - Context-dependent weight adjustment")
 
-print(f"\n4. SPECIAL CASE HANDLING (potential +2-3 cases):")
-print(f"   - Initials (J. → *)")
-print(f"   - Titles and edge cases")
+print("\n4. SPECIAL CASE HANDLING (potential +2-3 cases):")
+print("   - Initials (J. → *)")
+print("   - Titles and edge cases")
 
-print(f"\nTOTAL POTENTIAL: +17-24 cases → 699-706/733 (95.4-96.3%)")
-print(f"The 95.4% target is highly achievable!")
+print("\nTOTAL POTENTIAL: +17-24 cases → 699-706/733 (95.4-96.3%)")
+print("The 95.4% target is highly achievable!")

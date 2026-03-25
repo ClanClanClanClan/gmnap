@@ -3,7 +3,11 @@
 score.py  – run both test suites, print   math  diverse   to stdout
 Returns 0 on success, 2 if either test fails to import.
 """
-import subprocess, json, sys, pathlib, re
+import subprocess
+import json
+import sys
+import pathlib
+import re
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 

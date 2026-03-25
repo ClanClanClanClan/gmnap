@@ -5,9 +5,7 @@ Tests end-to-end processing through all 12 stages with realistic data.
 """
 
 import asyncio
-import json
 
-import pytest
 
 from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 

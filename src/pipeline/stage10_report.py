@@ -1,7 +1,12 @@
 """Stage 10: Report - Markdown metrics, DOI draft, push snapshot to archive."""
 
 from __future__ import annotations
-import os, json, pathlib, hashlib, datetime, logging
+import os
+import json
+import pathlib
+import hashlib
+import datetime
+import logging
 from collections import Counter
 from typing import Dict, Any, List, Tuple
 from src.ops.metrics import REPORTS_EMITTED, DOI_DRAFTS_CREATED
@@ -75,17 +80,17 @@ def _build_doi_draft(
 def _render_markdown_report(context: Dict[str, Any]) -> str:
     """Render a markdown report from context dict."""
     lines = [
-        f"# GMNAP V7 Pipeline Report",
-        f"",
+        "# GMNAP V7 Pipeline Report",
+        "",
         f"**Run Hash**: {context['run_hash']}",
         f"**Date**: {context['date_utc']}",
         f"**Mode**: {context.get('mode', 'Quick')}",
-        f"",
-        f"## Entry Counts",
+        "",
+        "## Entry Counts",
         f"- Total entries: {context['counts']['entries']}",
         f"- Regions covered: {context['counts']['regions']}",
-        f"",
-        f"## Performance Metrics",
+        "",
+        "## Performance Metrics",
     ]
     for k, v in context.get("metrics", {}).items():
         lines.append(f"- {k}: {v}")

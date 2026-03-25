@@ -1,8 +1,14 @@
 """Stage 9: Write&Diff - Deterministic YAML snapshot, HTML diff, SQL changelog."""
 
 from __future__ import annotations
-import os, json, pathlib, hashlib, datetime, difflib, shutil, unicodedata
-from typing import Dict, List, Tuple
+import json
+import pathlib
+import hashlib
+import datetime
+import difflib
+import shutil
+import unicodedata
+from typing import Dict, List
 from src.ops.metrics_ext import (
     WRITE_DIFF_ADDED,
     WRITE_DIFF_REMOVED,

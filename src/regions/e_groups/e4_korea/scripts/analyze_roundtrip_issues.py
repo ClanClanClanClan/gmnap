@@ -2,7 +2,10 @@
 """
 Analyze roundtrip quality issues and their patterns
 """
-import yaml, unicodedata, sys, pathlib
+import yaml
+import unicodedata
+import sys
+import pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 from converter import eng2kor, kor2eng
@@ -55,7 +58,7 @@ for k, v in data.items():
 roundtrip_issues.sort(key=lambda x: x["dice"])
 
 print(f"Total roundtrip issues: {len(roundtrip_issues)}")
-print(f"\n=== WORST ROUNDTRIP CASES (Top 15) ===")
+print("\n=== WORST ROUNDTRIP CASES (Top 15) ===")
 
 for i, issue in enumerate(roundtrip_issues[:15]):
     print(f"{i+1:2d}. {issue['name']} (dice: {issue['dice']:.3f})")
@@ -75,7 +78,7 @@ for i, issue in enumerate(roundtrip_issues[:15]):
     print()
 
 # Analyze patterns
-print(f"=== ROUNDTRIP ISSUE PATTERNS ===")
+print("=== ROUNDTRIP ISSUE PATTERNS ===")
 romanization_changes = {}
 for issue in roundtrip_issues:
     input_parts = issue["input"].lower().replace(",", "").replace("-", " ").split()

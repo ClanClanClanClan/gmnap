@@ -8,7 +8,7 @@ import json
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -162,9 +162,9 @@ class AuthorityFetcher(ABC):
         sensitive_fields = ["email", "phone", "address", "ssn", "tax_id"]
 
         scrubbed = data.copy()
-        for field in sensitive_fields:
-            if field in scrubbed:
-                scrubbed[field] = "[REDACTED]"
+        for field_name in sensitive_fields:
+            if field_name in scrubbed:
+                scrubbed[field_name] = "[REDACTED]"
 
         return scrubbed
 

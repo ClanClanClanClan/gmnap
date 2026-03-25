@@ -8,7 +8,6 @@ import sys
 import os
 import shutil
 import fcntl
-import json
 import tempfile
 import subprocess
 from pathlib import Path
@@ -25,7 +24,7 @@ def acquire_lock(lockfile):
         fd = os.open(lockfile, os.O_CREAT | os.O_WRONLY)
         fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         return fd
-    except:
+    except Exception:
         raise ProductionError("Could not acquire lock - another process may be running")
 
 

@@ -6,7 +6,6 @@ Features: Arabic script, tribal prefixes (Al-), patronymic patterns, royal title
 """
 
 import re
-import unicodedata
 from typing import Any, Dict, List, Optional
 
 from ..base import RegionRuleError, RegionSpec

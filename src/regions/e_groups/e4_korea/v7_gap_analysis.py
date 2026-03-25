@@ -3,9 +3,7 @@
 GMNAP v7 Specification Gap Analysis
 Critical analysis of Korean Regional Processor readiness for v7 integration
 """
-import json
 import subprocess
-from datetime import datetime
 
 
 def analyze_v7_requirements():
@@ -32,7 +30,7 @@ def analyze_v7_requirements():
         current_math = 94.27  # Use known value
 
     # v7 Requirements Analysis
-    print(f"\n🎯 GMNAP v7 REQUIREMENTS")
+    print("\n🎯 GMNAP v7 REQUIREMENTS")
     v7_requirements = {
         "round_trip_script_rate": 0.97,  # ≥97%
         "peak_rss_2m_entries": 6_000_000_000,  # ≤6 GB
@@ -47,7 +45,7 @@ def analyze_v7_requirements():
         print(f"  {req}: {threshold}")
 
     # Gap Analysis
-    print(f"\n⚠️  CRITICAL GAP ANALYSIS")
+    print("\n⚠️  CRITICAL GAP ANALYSIS")
     current_rate = current_math / 100
     required_rate = v7_requirements["round_trip_script_rate"]
     gap = required_rate - current_rate
@@ -60,13 +58,13 @@ def analyze_v7_requirements():
         print(f"🚨 BLOCKING ISSUE: {gap*100:.2f}% performance gap prevents v7 integration")
         return False
     else:
-        print(f"✅ Performance requirement met")
+        print("✅ Performance requirement met")
         return True
 
 
 def analyze_executive_patches():
     """Analyze the six required patches from executive opinion"""
-    print(f"\n🔧 REQUIRED PATCHES FOR v7 INTEGRATION")
+    print("\n🔧 REQUIRED PATCHES FOR v7 INTEGRATION")
 
     patches = {
         "A": {
@@ -129,7 +127,7 @@ def analyze_executive_patches():
 
 def analyze_integration_readiness():
     """Comprehensive integration readiness assessment"""
-    print(f"\n🎯 INTEGRATION READINESS ASSESSMENT")
+    print("\n🎯 INTEGRATION READINESS ASSESSMENT")
 
     # Check performance gap
     performance_ready = analyze_v7_requirements()
@@ -167,7 +165,7 @@ def main():
     """Run comprehensive v7 gap analysis"""
     readiness_score = analyze_integration_readiness()
 
-    print(f"\n🎯 EXECUTIVE SUMMARY")
+    print("\n🎯 EXECUTIVE SUMMARY")
     print("=" * 60)
 
     if readiness_score >= 60:
@@ -176,7 +174,7 @@ def main():
         print("  • Apply Patch A (weight recalibration) to close 2.73% performance gap")
         print("  • Implement Patches C & D for full security compliance")
         print("  • Address 10 duplicate mappings found in audit")
-        print(f"\nEst. effort: 2-3 person-days (matches executive opinion)")
+        print("\nEst. effort: 2-3 person-days (matches executive opinion)")
     else:
         print("Significant gaps prevent immediate v7 integration.")
         print("Recommend completing missing patches before proceeding.")

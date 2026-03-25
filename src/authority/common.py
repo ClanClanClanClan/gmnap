@@ -1,5 +1,7 @@
 from __future__ import annotations
-import json, asyncio, logging
+import json
+import asyncio
+import logging
 from typing import Any, Callable, Dict, TypeVar
 
 try:

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Debug conversion issues."""
+import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-import converter as conv
+import converter as conv  # noqa: E402
 
 # Test some of the failing names
 test_names = ["Youn, Yuh-Jung", "Choi, Min-Shik", "So, Ji-Sub", "Psy", "Rhee, Syngman"]
@@ -22,8 +23,6 @@ for name in test_names:
         print(f"  {part.lower()} → {part_result}")
 
 # Check if FST files exist
-import os
-
 base_dir = os.path.dirname(os.path.dirname(__file__))
 models = ["rom2han_multi.fst", "rom2han_surname.fst", "rom2han_given.fst"]
 print("\n=== FST FILES ===")

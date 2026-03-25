@@ -30,7 +30,7 @@ def check_baseline():
 
     math_pass = None
     if "PASSED:" in result.stdout:
-        line = [l for l in result.stdout.split("\n") if "PASSED:" in l][0]
+        line = [ln for ln in result.stdout.split("\n") if "PASSED:" in ln][0]
         math_pass = int(line.split()[1].split("/")[0])
         print(f"  Mathematician: {math_pass}/733 = {math_pass/733*100:.2f}%")
 
@@ -41,7 +41,7 @@ def check_baseline():
 
     div_pass = None
     if "PASSED:" in result.stdout:
-        line = [l for l in result.stdout.split("\n") if "PASSED:" in l][0]
+        line = [ln for ln in result.stdout.split("\n") if "PASSED:" in ln][0]
         div_pass = int(line.split()[1].split("/")[0])
         print(f"  Diverse: {div_pass}/200 = {div_pass/200*100:.2f}%")
 
@@ -77,7 +77,7 @@ def main():
         if math_diff <= 5 and div_diff <= 5:
             print("\n✅ Baseline matches expected values (within tolerance)")
         else:
-            print(f"\n⚠️  Baseline differs from expected:")
+            print("\n⚠️  Baseline differs from expected:")
             print(f"  Math difference: {math_diff}")
             print(f"  Diverse difference: {div_diff}")
 

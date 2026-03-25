@@ -2,10 +2,12 @@
 """
 Analyze the specific failure cases mentioned in expert Patch A
 """
-import yaml, sys, os
+import yaml
+import sys
+import os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
-from converter import eng2kor, kor2eng
+from converter import eng2kor, kor2eng  # noqa: E402
 
 # Load test data
 with open("data/korean.yaml", encoding="utf8") as f:
@@ -60,8 +62,8 @@ for case_name in target_cases:
     else:
         print(f"\n{case_name}: NOT FOUND in test data")
 
-print(f"\n=== CURRENT MAPPINGS CHECK ===")
-from lookup import rom2han
+print("\n=== CURRENT MAPPINGS CHECK ===")
+from lookup import rom2han  # noqa: E402
 
 mappings = rom2han()
 

@@ -7,8 +7,7 @@ API Documentation: https://docs.openalex.org/
 
 import asyncio
 import urllib.parse
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from src.authorities.base import (
     AuthorityData,

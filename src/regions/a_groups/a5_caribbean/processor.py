@@ -10,7 +10,7 @@ Features: Creole particle handling, apostrophe normalization,
 """
 
 import re
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, Optional
 
 from ...base import RegionRuleError, RegionSpec
 

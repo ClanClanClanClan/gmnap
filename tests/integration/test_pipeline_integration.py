@@ -11,7 +11,6 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 import yaml
 
-from src.authorities.tier0.openalex import OpenAlexFetcher
 from src.core.config import GMNAPConfig
 from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 from src.regions.a_groups.a1_anglo_sphere import A1_AngloSphere
@@ -485,7 +484,7 @@ class TestPipelineIntegration:
         # Check that checkpoints were saved
         checkpoint_dir = Path(self.config.cache.cache_dir) / "checkpoints"
         if checkpoint_dir.exists():
-            checkpoint_files = list(checkpoint_dir.glob("*_checkpoint.json"))
+            list(checkpoint_dir.glob("*_checkpoint.json"))
             # May or may not have checkpoints depending on implementation
 
     def test_metrics_collection(self):

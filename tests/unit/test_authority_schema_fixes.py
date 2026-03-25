@@ -11,9 +11,8 @@ Validates:
 - Pipeline report includes 'entries' key
 """
 
-import asyncio
 import os
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -110,7 +109,7 @@ def test_gnd_birthyear_is_int():
     """GND adapter should return BirthYear as plain int, not dict."""
     from src.authority.gnd_adapter import GNDAdapter
 
-    adapter = GNDAdapter()
+    GNDAdapter()
     # Simulate what the adapter does with birth data
     # The adapter extracts int(str(birthDate)[:4])
     year_str = "1882-03-14"
@@ -155,7 +154,6 @@ def test_affiliation_timeline_requires_country():
     """AffiliationTimeline items without country should be skipped."""
     # Simulate the synthesis logic
     merged = {"Institution": "MIT", "InstitutionCountry": ""}
-    entry = {}
 
     cc = merged.get("InstitutionCountry", "")
     if cc:

@@ -1,4 +1,7 @@
-import csv, pathlib, pynini as pn
+import os
+import csv
+import pathlib
+import pynini as pn
 
 TOK = "utf8"
 
@@ -60,8 +63,6 @@ def build_positional(direction: str):
 
 
 # Support atomic operations via FST_OUTPUT_DIR environment variable
-import os
-
 output_dir = os.environ.get("FST_OUTPUT_DIR", "models")
 pathlib.Path(output_dir).mkdir(exist_ok=True, parents=True)
 

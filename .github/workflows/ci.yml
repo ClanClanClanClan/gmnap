@@ -30,11 +30,10 @@ jobs:
 
       - name: Ruff
         run: ruff check src/ tests/
-        continue-on-error: true  # Pre-existing lint issues; fix incrementally
 
       - name: isort
         run: isort src/ tests/ --check-only --profile black
-        continue-on-error: true  # Pre-existing import order issues
+        continue-on-error: true  # Import order not yet fully sorted
 
       - name: codespell
         run: codespell src/ tests/ --skip "*.json,*.yaml,*.yml,*.csv,*.bin"

@@ -2,7 +2,8 @@
 """
 Debug cases that return None to understand segmentation failures
 """
-import sys, pathlib
+import sys
+import pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 from converter import eng2kor
@@ -33,7 +34,7 @@ for case in none_cases:
             seg_result = eng2kor(seg)
             print(f"    Segment {j} '{seg}' → {seg_result}")
 
-print(f"\n=== INDIVIDUAL WORD TESTS ===")
+print("\n=== INDIVIDUAL WORD TESTS ===")
 individual_tests = ["Kim", "J", "Linda", "Goh", "Beom", "Seok", "Sohn", "Yoon", "Ah"]
 for word in individual_tests:
     result = eng2kor(word)

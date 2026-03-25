@@ -29,12 +29,10 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import duckdb
 import ruamel.yaml
-import yaml
 
 from src.authorities.base import AuthorityData, AuthorityFetcher, QuotaManager
 from src.authorities.cache import AuthorityCache
-from src.core.config import GMNAPConfig, get_config
-from src.core.errors import GMNAPError, ValidationError
+from src.core.config import GMNAPConfig
 from src.core.globalid import GlobalIDGenerator
 from src.core.security_validator import security_validator, SecurityError
 from src.core.unicode_handler import UnicodeNormalizer
@@ -564,7 +562,7 @@ class GMNAPPipeline:
                             cached_data = self._authority_cache.get(service, canonical_latin)
                             if cached_data:
                                 break
-                        except:
+                        except Exception:
                             continue
 
                 if cached_data:
@@ -1407,13 +1405,13 @@ class GMNAPPipeline:
                             orig_str = json.dumps(orig_clean, sort_keys=True)
                             check_str = json.dumps(check_clean, sort_keys=True)
                             if orig_str != check_str:
-                                logger.error(f"JSON serialization difference detected")
+                                logger.error("JSON serialization difference detected")
                                 logger.error(f"Orig JSON length: {len(orig_str)}")
                                 logger.error(f"Check JSON length: {len(check_str)}")
                             else:
                                 logger.error("JSON serializations match - file/count difference")
 
-                    metrics.errors.append(f"Pipeline is not idempotent (hash mismatch)")
+                    metrics.errors.append("Pipeline is not idempotent (hash mismatch)")
                     self._metrics.validation_errors.append("Idempotency check failed")
 
         except Exception as e:
@@ -1732,7 +1730,6 @@ class GMNAPPipeline:
     def _validate_roundtrip(self) -> None:
         """Validate round-trip for deterministic scripts."""
         deterministic_scripts = ["CJK", "Thai", "Khmer", "Lao"]
-        required_accuracy = 0.97
 
         try:
             for canonical_latin, entry in self._entries.items():

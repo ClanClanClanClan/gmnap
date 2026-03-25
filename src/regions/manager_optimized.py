@@ -8,11 +8,9 @@ Performance improvements:
 """
 
 import logging
-import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-from functools import lru_cache
+from typing import Any, Dict, List, Optional
 
 try:
     import fasttext
@@ -22,8 +20,6 @@ except ImportError:
 from src.core.unicode_handler import UnicodeNormalizer
 from .base import (
     REGION_CODES,
-    TERRITORY_TO_REGION,
-    RegionRuleError,
     RegionSpec,
     get_region_for_territory,
 )
@@ -654,7 +650,7 @@ class RegionManager:
         """
         inst_raw = entry.get("Institution", "") or entry.get("Affiliation", "")
         institution = " ".join(inst_raw) if isinstance(inst_raw, list) else (inst_raw or "")
-        institution_country = entry.get("InstitutionCountry", "")
+        entry.get("InstitutionCountry", "")
 
         for country in country_codes:
             # Build candidate overlay keys from available context

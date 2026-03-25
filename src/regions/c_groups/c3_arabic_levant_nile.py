@@ -6,7 +6,6 @@ Features: Arabic script, patronymic (ibn/bint), flexible order
 """
 
 import re
-import unicodedata
 from typing import Any, Dict, List, Optional
 
 from ..base import RegionRuleError, RegionSpec

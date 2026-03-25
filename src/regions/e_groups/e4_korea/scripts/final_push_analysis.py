@@ -2,7 +2,10 @@
 """
 Final analysis: What's needed to reach 97%+ target
 """
-import yaml, unicodedata, sys, pathlib
+import yaml
+import unicodedata
+import sys
+import pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 from converter import eng2kor, kor2eng
@@ -29,8 +32,8 @@ def find_hangul(variants):
 data = yaml.safe_load(open("data/korean.yaml", encoding="utf8"))
 
 print("=== FINAL PUSH ANALYSIS ===")
-print(f"🎯 TARGET: 97%+ = 699/733 math (need +47), 190/200 diverse (need +6)")
-print(f"📊 CURRENT: 652/733 math (88.95%), 184/200 diverse (92.00%)")
+print("🎯 TARGET: 97%+ = 699/733 math (need +47), 190/200 diverse (need +6)")
+print("📊 CURRENT: 652/733 math (88.95%), 184/200 diverse (92.00%)")
 
 eng_to_kor_failures = []
 roundtrip_failures = []
@@ -62,7 +65,7 @@ for k, v in data.items():
             }
         )
 
-print(f"\n=== FAILURE BREAKDOWN ===")
+print("\n=== FAILURE BREAKDOWN ===")
 print(f"✅ Successes: {total_cases - len(eng_to_kor_failures) - len(roundtrip_failures)}/733")
 print(
     f"❌ Eng→Kor failures: {len(eng_to_kor_failures)} (-{len(eng_to_kor_failures)} direct losses)"
@@ -70,7 +73,7 @@ print(
 print(f"🔄 Roundtrip failures: {len(roundtrip_failures)} (-{len(roundtrip_failures)} dice losses)")
 print(f"📈 Total failures: {len(eng_to_kor_failures) + len(roundtrip_failures)}")
 
-print(f"\n=== PATH TO 97%+ ===")
+print("\n=== PATH TO 97%+ ===")
 needed_math = 699 - (total_cases - len(eng_to_kor_failures) - len(roundtrip_failures))
 print(f"Need to fix: {needed_math} more cases")
 
@@ -83,7 +86,7 @@ else:
         f"🚀 CHALLENGING: Need to fix {len(eng_to_kor_failures)} eng→kor + {needed_math - len(eng_to_kor_failures)} roundtrip"
     )
 
-print(f"\n=== QUICKEST WINS (Top 10 fixable) ===")
+print("\n=== QUICKEST WINS (Top 10 fixable) ===")
 
 # Find cases closest to passing roundtrip threshold
 near_miss_roundtrip = sorted(roundtrip_failures, key=lambda x: x["dice_score"], reverse=True)[:10]
@@ -92,7 +95,7 @@ for i, case in enumerate(near_miss_roundtrip):
     print(f"{i+1:2d}. {case['name']} (dice: {case['dice_score']:.3f}) - ALMOST PASSING")
     print(f"    {case['input']} → {case['korean']} → {case['got_romanization']}")
 
-print(f"\n=== RECOMMENDATION ===")
+print("\n=== RECOMMENDATION ===")
 if needed_math <= 10:
     print(f"🎯 FOCUS: Target top {needed_math} highest-dice roundtrip cases")
     print("📝 APPROACH: Fine-tune romanization preferences in variant_map.csv")

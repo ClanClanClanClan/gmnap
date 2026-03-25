@@ -11,12 +11,10 @@ Implements the caching strategy from specs v6:
 import hashlib
 import json
 import logging
-import os
 import threading
-import time
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 try:
     import zstandard as zstd
@@ -419,7 +417,7 @@ class CacheManager:
                 else:
                     original_size = compressed_size
                     compression_ratio = 1.0
-            except:
+            except Exception:
                 original_size = compressed_size
                 compression_ratio = 1.0
 

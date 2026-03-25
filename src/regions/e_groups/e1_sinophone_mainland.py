@@ -7,7 +7,7 @@ Features: Simplified Chinese characters, pinyin romanization, family-given order
 
 import re
 import unicodedata
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from ..base import RegionRuleError, RegionSpec
 
@@ -580,7 +580,6 @@ class E1_SinophoneMainland(RegionSpec):
         Returns:
             Dice coefficient (0.0 to 1.0)
         """
-        import unicodedata
 
         try:
             # Step 1: Romanize original CJK to get expected romanization

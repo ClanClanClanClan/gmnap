@@ -7,7 +7,6 @@ import csv
 import unicodedata as U
 import pathlib
 import re
-import sys
 import json
 
 RR = pathlib.Path(__file__).parents[1] / "resources" / "rr_syllable_map.csv"

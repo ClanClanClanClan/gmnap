@@ -1,8 +1,9 @@
 """Stage 7: TagShortForms - Populate ShortFormClusters."""
 
 from __future__ import annotations
-import re, logging
-from collections import Counter, defaultdict
+import re
+import logging
+from collections import Counter
 from typing import Dict, List, Tuple
 
 logger = logging.getLogger(__name__)

@@ -107,11 +107,11 @@ def create_regression_lock():
         except Exception as e:
             print(f"❌ {dataset_name}: Error processing - {e}")
 
-    print(f"\n=== REGRESSION LOCK SUMMARY ===")
+    print("\n=== REGRESSION LOCK SUMMARY ===")
     print(f"Total cases locked: {total_locked}")
     print(f"Lock files created: {[f'{name}_lock.json' for name in datasets.keys()]}")
-    print(f"\n✅ Regression protection established!")
-    print(f"These cases MUST always pass in future optimizations.")
+    print("\n✅ Regression protection established!")
+    print("These cases MUST always pass in future optimizations.")
 
 
 if __name__ == "__main__":

@@ -6,8 +6,7 @@ for V7 pipeline integration without loading the heavy Korean conversion modules.
 """
 
 import re
-import unicodedata
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict
 
 from ...base import RegionRuleError, RegionSpec
 

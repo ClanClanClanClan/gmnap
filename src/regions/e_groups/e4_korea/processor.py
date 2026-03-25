@@ -8,7 +8,7 @@ Features: Hangul script, Hanja characters, romanization systems (RR, MR),
 
 import re
 import unicodedata
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Set
 
 from ...base import RegionRuleError, RegionSpec
 
@@ -477,7 +477,7 @@ class E4KoreanProcessor(RegionSpec):
             romanized = self._simple_romanize(name)
             if romanized and romanized != name:
                 variants.append({"str": romanized, "type": "revised-romanization"})
-        except:
+        except Exception:
             pass  # Skip if romanization fails
 
         return variants

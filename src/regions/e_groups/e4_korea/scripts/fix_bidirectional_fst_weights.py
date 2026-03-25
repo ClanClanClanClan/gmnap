@@ -81,7 +81,7 @@ for hangul, roman, weight in bidirectional_fixes:
                     updated_count += 1
                 break
 
-print(f"\nBidirectional alignment results:")
+print("\nBidirectional alignment results:")
 print(f"- Added: {added_count} reverse mappings")
 print(f"- Updated: {updated_count} weights")
 print(f"- Total rows: {len(rows)}")

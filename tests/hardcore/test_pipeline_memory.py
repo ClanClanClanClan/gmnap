@@ -6,23 +6,16 @@ or excessive usage.
 """
 
 import gc
-import random
-import string
 import tempfile
 import threading
-import time
-from pathlib import Path
-from queue import Empty, Queue
+from queue import Queue
 from typing import Any, Dict, List
-from unittest.mock import Mock, patch
 
 import psutil
 import pytest
 
-from src.core.config import GMNAPConfig
 from src.core.globalid import GlobalIDGenerator
 from src.core.unicode_handler import UnicodeNormalizer
-from src.regions.manager import RegionManager
 
 
 class TestPipelineMemoryManagement:
@@ -90,7 +83,7 @@ class TestPipelineMemoryManagement:
 
             # Process chunk
             for entry in chunk:
-                normalized = normalizer.normalize(entry["CanonicalLatin"])
+                normalizer.normalize(entry["CanonicalLatin"])
                 gid = generator.generate(entry)
                 assert isinstance(gid, str)
 

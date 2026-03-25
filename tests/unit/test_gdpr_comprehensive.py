@@ -13,7 +13,6 @@ from src.core.gdpr import (
     apply_drop_personal,
     gdpr_pipeline,
     PERSONAL_DATA_FIELDS,
-    SCRUBBER_SOURCES,
     MIN_COHORT_SIZE,
 )
 

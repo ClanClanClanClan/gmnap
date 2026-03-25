@@ -77,7 +77,7 @@ for hangul, roman, weight in balanced_fixes:
         print(f"  ADDED: {hangul} → {roman} (weight: {weight})")
         added_count += 1
 
-print(f"\nBalance adjustments:")
+print("\nBalance adjustments:")
 print(f"- Fixed: {fixed_count} existing mappings")
 print(f"- Added: {added_count} new mappings")
 print(f"- Total rows: {len(rows)}")

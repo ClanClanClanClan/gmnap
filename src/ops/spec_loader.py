@@ -1,5 +1,6 @@
 from __future__ import annotations
-import os, yaml
+import os
+import yaml
 from typing import Any, Dict
 
 SPEC_CANDIDATES = ("docs/specs_v7_clean.yaml", "specs_v7.yaml", "v7.0.yaml")

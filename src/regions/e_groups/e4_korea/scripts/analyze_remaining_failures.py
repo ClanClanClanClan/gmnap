@@ -48,9 +48,9 @@ for full_name, expected_romanization in new_failure_patterns:
 
                         # Identify character mapping issues
                         if i == 0:  # Surname
-                            print(f"    → Surname mapping issue")
+                            print("    → Surname mapping issue")
                         else:  # Given name
-                            print(f"    → Given name mapping issue")
+                            print("    → Given name mapping issue")
             else:
                 print("✅ This case actually works now!")
 

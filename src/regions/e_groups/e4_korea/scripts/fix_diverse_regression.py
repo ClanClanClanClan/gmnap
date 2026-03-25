@@ -62,7 +62,7 @@ for hangul, roman, weight in regression_fixes:
         print(f"  ADDED: {roman} → {hangul} (weight: {weight})")
         added_count += 1
 
-print(f"\nRegression fixes:")
+print("\nRegression fixes:")
 print(f"- Fixed: {fixed_count} existing mappings")
 print(f"- Added: {added_count} new mappings")
 print(f"- Total rows: {len(rows)}")

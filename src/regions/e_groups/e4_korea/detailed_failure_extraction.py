@@ -322,7 +322,7 @@ def save_expert_analysis(failures, patterns, recommendations):
     with open("expert_failure_analysis.json", "w", encoding="utf-8") as f:
         json.dump(analysis, f, indent=2, ensure_ascii=False)
 
-    print(f"\n💾 Complete analysis saved to: expert_failure_analysis.json")
+    print("\n💾 Complete analysis saved to: expert_failure_analysis.json")
     print(f"📊 Total data points: {len(failures)} failures across {len(patterns)} patterns")
 
 
@@ -351,14 +351,14 @@ def main():
     print("\n" + "=" * 80)
     print("🎯 EXPERT ANALYSIS COMPLETE")
     print("=" * 80)
-    print(f"Ready for linguistic expert review:")
+    print("Ready for linguistic expert review:")
     print(f"  • {len(failures)} failure cases analyzed")
     print(f"  • {len(patterns)} systematic patterns identified")
-    print(f"  • Complete technical recommendations provided")
-    print(f"  • Analysis saved to expert_failure_analysis.json")
+    print("  • Complete technical recommendations provided")
+    print("  • Analysis saved to expert_failure_analysis.json")
 
     print(f"\nNext step: Apply linguistic expertise to top {min(5, len(patterns))} patterns")
-    print(f"Expected result: Close 2.73% performance gap to achieve ≥97% v7 compliance")
+    print("Expected result: Close 2.73% performance gap to achieve ≥97% v7 compliance")
 
 
 if __name__ == "__main__":

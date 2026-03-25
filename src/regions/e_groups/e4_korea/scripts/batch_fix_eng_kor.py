@@ -2,7 +2,10 @@
 """
 Batch fix remaining eng→kor failures with targeted mappings
 """
-import yaml, sys, pathlib, csv
+import yaml
+import sys
+import pathlib
+import csv
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 from converter import eng2kor
@@ -35,7 +38,7 @@ for k, v in data.items():
 print(f"Found {len(eng_kor_failures)} eng→kor failures")
 
 # Analyze patterns for batch fixes
-print(f"\n=== ANALYZING PATTERNS FOR BATCH FIXES ===")
+print("\n=== ANALYZING PATTERNS FOR BATCH FIXES ===")
 
 syllable_fixes = {}
 for failure in eng_kor_failures:
@@ -68,7 +71,7 @@ targeted_fixes = [
     ("구", "goo"),  # Goo variant should → 구 (not 고오)
 ]
 
-print(f"\n=== ADDING TARGETED FIXES ===")
+print("\n=== ADDING TARGETED FIXES ===")
 with open("resources/rr_syllable_map.csv", "a", encoding="utf8", newline="") as f:
     writer = csv.writer(f)
     for hangul, romanization in targeted_fixes:

@@ -11,7 +11,7 @@ for fst in Path("models").glob("*.fst"):
     print(f"  - {fst.name} ({fst.stat().st_size} bytes)")
 
 # Import converter and check FST loading
-import converter
+import converter  # noqa: E402
 
 print("\nChecking converter FST attributes:")
 attrs = ["ROM2_SURNAME", "ROM2_GIVEN", "HAN2_SURNAME", "HAN2_GIVEN"]

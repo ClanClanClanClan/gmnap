@@ -6,13 +6,9 @@ chunking, and error handling.
 """
 
 import asyncio
-import json
-import os
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
-import pytest
 
 from src.core.pipeline_v7 import PipelineMetrics, PipelineMode, V7Pipeline, V7QualityGates
 
@@ -266,7 +262,7 @@ class TestStage6GraphConsistency:
             {"GlobalID": "A" * 22, "Advisors": ["B" * 22]},
             {"GlobalID": "B" * 22},
         ]
-        result = _run(p._stage_6_graph_consistency(entries))
+        _run(p._stage_6_graph_consistency(entries))
         # Bayesian posterior: 1 resolved / 1 total → Beta(3,1) mean = 0.75
         assert 0 < p.metrics.graph_coherence <= 1.0
         assert p.metrics.edges == 1

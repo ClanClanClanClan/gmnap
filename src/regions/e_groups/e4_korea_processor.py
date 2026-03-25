@@ -8,11 +8,10 @@ Performance: 97.42% math accuracy, 89.50% diverse accuracy
 
 import re
 import unicodedata
-import sys
-import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from ..base import RegionRuleError, RegionSpec
+from ..validation_rules import regional_validator
 
 
 class E4_Korea(RegionSpec):

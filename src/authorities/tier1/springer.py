@@ -13,7 +13,6 @@ License: Requires API keys
 Daily Quota: 5,000 calls/day (free tier), 100 hits/min
 """
 
-import asyncio
 import aiohttp
 import logging
 import yaml

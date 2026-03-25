@@ -2,7 +2,12 @@
 """
 Atomic weight addition with subprocess isolation to avoid module caching.
 """
-import os, sys, shutil, subprocess, fcntl, time, csv
+import os
+import sys
+import shutil
+import subprocess
+import fcntl
+import time
 from pathlib import Path
 from datetime import datetime
 
@@ -17,7 +22,7 @@ def acquire_lock(lockfile):
         fd = os.open(str(lockfile), os.O_CREAT | os.O_WRONLY)
         fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         return fd
-    except:
+    except Exception:
         raise ProductionError("Could not acquire lock - another process may be running")
 
 
@@ -124,8 +129,8 @@ print('Park:', converter.eng2kor('Park'))""",
 
         print(f"\n✅ Successfully added: {roman} → {hangul}")
 
-    except Exception as e:
-        print(f"\n⚠️  Rolling back changes...")
+    except Exception:
+        print("\n⚠️  Rolling back changes...")
         shutil.copy(csv_backup, csv_path)
         if fst_backup.exists():
             shutil.rmtree("models", ignore_errors=True)

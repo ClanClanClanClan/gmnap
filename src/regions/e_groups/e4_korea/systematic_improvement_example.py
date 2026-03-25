@@ -5,7 +5,6 @@ This shows exactly how another AI would use the tools to improve Independent dat
 """
 
 import json
-import yaml
 from safe_addition_validator import SafeAdditionValidator
 
 
@@ -155,23 +154,23 @@ def systematic_improvement_demo():
             print(f"❌ FAILED: {result['reason']}")
 
     # Step 4: Summary and recommendations
-    print(f"\\n📊 Step 4: Results Summary")
+    print("\\n📊 Step 4: Results Summary")
     print("=" * 30)
     print(f"Successful fixes found: {len(successful_fixes)}")
     print(f"Failed to fix safely: {len(failed_fixes)}")
 
     if successful_fixes:
-        print(f"\\n✅ SAFE ADDITIONS READY FOR IMPLEMENTATION:")
+        print("\\n✅ SAFE ADDITIONS READY FOR IMPLEMENTATION:")
         for fix in successful_fixes:
             print(f"  • {fix['failure']['name']}: {fix['fix']['weight']}")
 
-        print(f"\\n📋 TO IMPLEMENT THESE FIXES:")
-        print(f"1. Add the weights to resources/rr_syllable_map.csv")
-        print(f"2. Run: python3 scripts/build_fsts_multi.py")
-        print(f"3. Validate: python3 scripts/test_expanded_independent_dataset.py")
+        print("\\n📋 TO IMPLEMENT THESE FIXES:")
+        print("1. Add the weights to resources/rr_syllable_map.csv")
+        print("2. Run: python3 scripts/build_fsts_multi.py")
+        print("3. Validate: python3 scripts/test_expanded_independent_dataset.py")
 
     if failed_fixes:
-        print(f"\\n⚠️  CASES THAT NEED ALTERNATIVE APPROACHES:")
+        print("\\n⚠️  CASES THAT NEED ALTERNATIVE APPROACHES:")
         for fail in failed_fixes:
             print(f"  • {fail['failure']['name']}: {fail['reason']}")
 
@@ -180,7 +179,7 @@ def systematic_improvement_demo():
     total_independent = 165  # Total cases
 
     new_success_rate = (current_independent + estimated_improvement) / total_independent * 100
-    print(f"\\n🎯 ESTIMATED IMPROVEMENT:")
+    print("\\n🎯 ESTIMATED IMPROVEMENT:")
     print(f"Current Independent: {current_independent}/{total_independent} = 87.88%")
     print(
         f"After safe fixes: {current_independent + estimated_improvement}/{total_independent} = {new_success_rate:.2f}%"
@@ -218,16 +217,16 @@ def apply_safe_fixes_example(fixes):
     # 2. Rebuild FSTs
     # 3. Validate all datasets
 
-    print(f"\\n📝 IMPLEMENTATION STEPS:")
+    print("\\n📝 IMPLEMENTATION STEPS:")
     print(
-        f"1. echo '# Safe additions from systematic improvement' >> resources/rr_syllable_map.csv"
+        "1. echo '# Safe additions from systematic improvement' >> resources/rr_syllable_map.csv"
     )
     for weight in weights_to_add:
         print(f"   echo '{weight}' >> resources/rr_syllable_map.csv")
-    print(f"2. python3 scripts/build_fsts_multi.py")
-    print(f"3. python3 scripts/validate.py  # Should still be 98.36%")
-    print(f"4. python3 scripts/correct_diverse_evaluation.py  # Should still be 97.50%")
-    print(f"5. python3 scripts/test_expanded_independent_dataset.py  # Should improve!")
+    print("2. python3 scripts/build_fsts_multi.py")
+    print("3. python3 scripts/validate.py  # Should still be 98.36%")
+    print("4. python3 scripts/correct_diverse_evaluation.py  # Should still be 97.50%")
+    print("5. python3 scripts/test_expanded_independent_dataset.py  # Should improve!")
 
 
 if __name__ == "__main__":

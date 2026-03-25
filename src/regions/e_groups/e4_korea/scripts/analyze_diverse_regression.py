@@ -2,7 +2,9 @@
 """
 Analyze diverse dataset regression to find what broke
 """
-import yaml, sys, pathlib
+import yaml
+import sys
+import pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 from converter import eng2kor
@@ -46,7 +48,7 @@ for name_key, info in data.items():
 print(f"Successes: {len(successes)}/200 ({len(successes)/2:.1f}%)")
 print(f"Failures: {len(failures)}/200 ({len(failures)/2:.1f}%)")
 
-print(f"\n=== FIRST 20 FAILURES ===")
+print("\n=== FIRST 20 FAILURES ===")
 for i, (input_name, got, expected) in enumerate(failures[:20]):
     print(f"{i+1:2d}. {input_name}")
     print(f"    Got: {got}")
@@ -54,7 +56,7 @@ for i, (input_name, got, expected) in enumerate(failures[:20]):
     print()
 
 # Look for patterns in failures
-print(f"=== FAILURE PATTERNS ===")
+print("=== FAILURE PATTERNS ===")
 surname_failures = {}
 for input_name, got, expected in failures:
     if "," in input_name:

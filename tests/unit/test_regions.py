@@ -3,13 +3,10 @@ Hell-level unit tests for regional processing.
 Tests all 43 regions with various edge cases and malicious inputs.
 """
 
-import asyncio
-from datetime import datetime
-from unittest.mock import Mock, patch
 
 import pytest
 
-from src.regions.base import REGION_CODES, RegionRuleError, RegionSpec, get_region_for_territory
+from src.regions.base import REGION_CODES, RegionSpec, get_region_for_territory
 
 
 # Test fixtures

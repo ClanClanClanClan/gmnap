@@ -5,18 +5,16 @@ Tests data integrity under extreme concurrent load, race conditions,
 and chaos engineering scenarios.
 """
 
-import asyncio
 import gc
 import random
-import sqlite3
 import tempfile
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from queue import Empty, Queue
-from threading import Barrier, Lock
-from unittest.mock import Mock, patch
+from threading import Barrier
+from unittest.mock import patch
 
 import psutil
 import pytest
@@ -25,7 +23,6 @@ import yaml
 from src.core.config import GMNAPConfig
 from src.core.globalid import GlobalIDGenerator
 from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
-from src.core.unicode_handler import UnicodeNormalizer
 from src.utils.cache import CacheManager
 from src.utils.database import DatabaseManager
 
@@ -230,7 +227,7 @@ class TestConcurrentGlobalIDGeneration:
         # Verify all GlobalIDs are unique
         global_ids = [result[2] for result in results]
         unique_ids = set(global_ids)
-        assert len(unique_ids) == len(global_ids), f"Memory corruption caused duplicate GlobalIDs"
+        assert len(unique_ids) == len(global_ids), "Memory corruption caused duplicate GlobalIDs"
 
 
 class TestConcurrentCacheAccess:
@@ -562,7 +559,7 @@ class TestConcurrentDatabaseAccess:
                             deadlock_detected.set()
                             try:
                                 worker_db.connection.execute("ROLLBACK")
-                            except:
+                            except Exception:
                                 pass  # Rollback might fail if transaction is already aborted
                             # Retry after brief delay
                             time.sleep(0.001)

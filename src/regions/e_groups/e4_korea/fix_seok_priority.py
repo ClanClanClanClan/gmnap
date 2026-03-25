@@ -24,7 +24,7 @@ def remove_wrong_seok_mapping():
     filepath = "resources/rr_syllable_map.csv"
 
     # Backup first
-    backup_path = backup_file(filepath)
+    backup_file(filepath)
 
     # Read all mappings
     mappings = []

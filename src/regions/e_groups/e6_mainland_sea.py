@@ -14,7 +14,7 @@ Script ranges:
 
 import re
 import unicodedata
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from ..base import RegionSpec, RegionRuleError
 

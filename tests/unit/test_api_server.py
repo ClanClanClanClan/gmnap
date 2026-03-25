@@ -3,7 +3,6 @@
 Tests use FastAPI's TestClient (via starlette) — no live server needed.
 """
 
-import os
 import pytest
 
 
@@ -65,7 +64,7 @@ class TestHashcashEnforcement:
     def test_paid_tier_bypasses_hashcash(self, client, monkeypatch):
         monkeypatch.setenv("GMNAP_API_TOKENS", "test-token-123")
         # Need to recreate app with updated tokens
-        from src.api.server import create_app, _PAID_TOKENS
+        from src.api.server import _PAID_TOKENS
 
         _PAID_TOKENS.add("test-token-123")
         try:

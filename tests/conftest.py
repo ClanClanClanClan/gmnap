@@ -4,15 +4,11 @@ Provides shared fixtures, test utilities, and configuration.
 """
 
 import gc
-import json
 import logging
-import os
 import shutil
-import sys
 import tempfile
 import tracemalloc
 from pathlib import Path
-from typing import Any, Dict, Generator, List
 from unittest.mock import Mock, patch
 
 import psutil
@@ -29,6 +25,14 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "smoke: marks tests as smoke tests")
     config.addinivalue_line("markers", "unit: marks tests as unit tests")
     config.addinivalue_line("markers", "regression: marks tests as regression tests")
+    config.addinivalue_line(
+        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+    )
+    config.addinivalue_line("markers", "stress: marks tests as stress tests")
+    config.addinivalue_line("markers", "security: marks tests as security tests")
+    config.addinivalue_line("markers", "property: marks tests as property-based tests")
+    config.addinivalue_line("markers", "integration: marks tests as integration tests")
+    config.addinivalue_line("markers", "memory: marks tests as memory-intensive")
 
 
 # Test configuration
@@ -406,19 +410,6 @@ def schema_config(temp_schema_path):
         "strict_validation": True,
         "custom_validators": True,
     }
-
-
-# Test markers
-def pytest_configure(config):
-    """Configure pytest markers."""
-    config.addinivalue_line(
-        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
-    )
-    config.addinivalue_line("markers", "stress: marks tests as stress tests")
-    config.addinivalue_line("markers", "security: marks tests as security tests")
-    config.addinivalue_line("markers", "property: marks tests as property-based tests")
-    config.addinivalue_line("markers", "integration: marks tests as integration tests")
-    config.addinivalue_line("markers", "memory: marks tests as memory-intensive")
 
 
 # Test collection hooks

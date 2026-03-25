@@ -10,7 +10,7 @@ Features: Bengali/Bangla script (U+0980 - U+09FF), common surname suffixes
 
 import re
 import unicodedata
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 from ..base import RegionRuleError, RegionSpec
 

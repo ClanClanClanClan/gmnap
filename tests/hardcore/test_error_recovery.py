@@ -9,14 +9,12 @@ import asyncio
 import gc
 import json
 import random
-import string
 import threading
 import time
-from collections import deque
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 from queue import Empty, Queue
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import patch
 
 import psutil
 import pytest
@@ -26,22 +24,15 @@ from src.core.errors import (
     CircuitBreaker,
     CircuitBreakerOpenError,
     CircuitBreakerState,
-    ConfigurationError,
     DatabaseError,
     ErrorCollector,
     ErrorContext,
     ErrorRecovery,
     ErrorSeverity,
-    GMNAPError,
     MaxRetriesExceededError,
     NetworkError,
-    RateLimitError,
     RecoveryStrategy,
-    ResourceExhaustedError,
     RetryableError,
-    SchemaError,
-    SkippableError,
-    UnicodeError,
     ValidationError,
 )
 
@@ -97,7 +88,7 @@ class TestCircuitBreakerResilience:
     def test_circuit_breaker_concurrent_access(self):
         """Test circuit breaker under concurrent access."""
         results = Queue()
-        errors = Queue()
+        Queue()
 
         def circuit_worker(worker_id, operations):
             """Worker that accesses circuit breaker."""
@@ -451,9 +442,6 @@ class TestErrorContextLeaks:
         """Test error tracebacks are sanitized."""
         # Create error with sensitive data in traceback
         try:
-            username = "admin"
-            password = "SuperSecret123"
-            api_key = "sk-1234567890abcdef"
 
             def sensitive_function():
                 database_url = "postgresql://user:pass@db.example.com:5432/prod"

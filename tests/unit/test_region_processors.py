@@ -6,7 +6,9 @@ and handle representative names correctly.
 """
 
 import pytest
+from unittest.mock import patch
 
+from src.regions.base import RegionSpec, _YAML_CACHE
 from src.regions.manager_optimized import RegionManager
 
 
@@ -209,13 +211,6 @@ class TestOrderKey:
 
 
 # ── YAML Config Loader Tests ────────────────────────────────────────────
-
-
-import tempfile
-import pathlib
-from unittest.mock import patch
-
-from src.regions.base import RegionSpec, _YAML_CACHE, _REGION_CONFIG_DIR
 
 
 class TestYAMLConfigLoader:

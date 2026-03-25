@@ -4,13 +4,12 @@ Handles collision analytics and surname statistics.
 """
 
 import logging
-import os
 import sqlite3
 import threading
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import psutil
 
@@ -525,7 +524,6 @@ class DatabaseManager:
         self, surname: str, birth_decade: Optional[int], country_code: Optional[str]
     ) -> List[str]:
         """Get GlobalIDs for a specific surname collision."""
-        import json
 
         query = "SELECT global_id FROM initial_stats WHERE family_name = ?"
         params = [surname]

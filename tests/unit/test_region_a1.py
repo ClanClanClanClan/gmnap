@@ -8,7 +8,7 @@ for English-speaking regions.
 import pytest
 
 from src.regions.a_groups.a1_anglo_sphere import A1_AngloSphere
-from src.regions.base import RegionSpec, RegionRuleError
+from src.regions.base import RegionRuleError
 
 
 class TestA1AngloSphere:
@@ -129,7 +129,7 @@ class TestA1AngloSphere:
         assert len(collapsed) > 0
 
         # Should have ASCII variant if needed
-        ascii_variants = [v for v in variants if v.get("type") == "ascii-lossy"]
+        [v for v in variants if v.get("type") == "ascii-lossy"]
         # May or may not have ASCII variant for this name
 
     def test_ascii_variant_generation(self):

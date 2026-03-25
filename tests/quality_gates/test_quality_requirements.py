@@ -7,9 +7,7 @@ Tests critical system requirements, performance targets, and quality thresholds.
 import gc
 import tempfile
 import time
-from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, Set
 
 import psutil
 import pytest

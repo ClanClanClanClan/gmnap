@@ -3,8 +3,6 @@ from typing import Dict, Any, List
 import asyncio
 import logging
 
-logger = logging.getLogger(__name__)
-
 # Tier 0 — free, no auth
 from .openalex_adapter import OpenAlexAdapter
 from .crossref_adapter import CrossrefAdapter
@@ -17,6 +15,8 @@ from .oai_university_adapter import OAIUniversityAdapter
 from .hal_adapter import HALAdapter
 from .gnd_adapter import GNDAdapter
 from .zbmath_open_adapter import ZbMathOpenAdapter
+
+logger = logging.getLogger(__name__)
 
 try:
     from .merge_authority_data import merge_authority_fragments

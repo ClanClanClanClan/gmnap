@@ -10,7 +10,6 @@ License: Open access via Crossref
 Daily Quota: Unlimited (Crossref open API, polite usage)
 """
 
-import asyncio
 import aiohttp
 import logging
 from typing import Dict, List, Any, Optional

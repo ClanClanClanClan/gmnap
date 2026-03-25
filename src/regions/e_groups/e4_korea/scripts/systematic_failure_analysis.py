@@ -7,7 +7,6 @@ import sys
 
 sys.path.append("src")
 from converter import eng2kor, kor2eng
-import re
 
 print("=== SYSTEMATIC FAILURE PATTERN ANALYSIS ===")
 print("Focus: Identify architectural issues, not individual case fixes")
@@ -69,14 +68,14 @@ for failure in validation_failures:
 
                 if len(roundtrip_result.split()) != len(expected_part.split()):
                     compound_issues.append((test_name, "segmentation mismatch"))
-                    print(f"  → COMPOUND PATTERN: segmentation")
+                    print("  → COMPOUND PATTERN: segmentation")
 
-print(f"\n=== SYSTEMATIC PATTERNS IDENTIFIED ===")
+print("\n=== SYSTEMATIC PATTERNS IDENTIFIED ===")
 print(f"1. Surname romanization issues: {len(set(surname_issues))}")
 print(f"2. English→Korean failures: {len(eng2kor_failures)}")
 print(f"3. Compound segmentation issues: {len(compound_issues)}")
 
-print(f"\n=== ARCHITECTURAL ISSUES DISCOVERED ===")
+print("\n=== ARCHITECTURAL ISSUES DISCOVERED ===")
 
 # Check for systematic English→Korean issues
 print("English→Korean failure analysis:")
@@ -86,17 +85,17 @@ for failure in eng2kor_failures:
     print(f"  {test_name} → {result}")
 
     if result is None:
-        print(f"    → MISSING MAPPING in rom2han FST")
+        print("    → MISSING MAPPING in rom2han FST")
     else:
-        print(f"    → Conversion works, validation issue?")
+        print("    → Conversion works, validation issue?")
 
-print(f"\n=== SYSTEMATIC IMPROVEMENTS NEEDED ===")
+print("\n=== SYSTEMATIC IMPROVEMENTS NEEDED ===")
 print("1. FST Coverage Analysis: Missing rom2han mappings")
 print("2. Surname Context Logic: Systematic surname preference rules")
 print("3. Compound Processing: Better tokenization vs character-by-char balance")
 print("4. Validation Logic: Check for validation script inconsistencies")
 
-print(f"\n=== NON-OVERFITTING SOLUTIONS ===")
+print("\n=== NON-OVERFITTING SOLUTIONS ===")
 print("Focus on:")
 print("- Missing character mappings in FST (coverage gaps)")
 print("- Systematic context rules (not individual weights)")

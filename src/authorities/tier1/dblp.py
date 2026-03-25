@@ -8,7 +8,6 @@ API Documentation: https://dblp.org/faq/13501473.html
 import asyncio
 import urllib.parse
 import xml.etree.ElementTree as ET
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from src.authorities.base import (

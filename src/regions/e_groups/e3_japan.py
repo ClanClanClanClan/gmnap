@@ -7,7 +7,7 @@ Features: Kanji, Hiragana, Katakana scripts, family-given order, romanization
 
 import re
 import unicodedata
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from ..base import RegionRuleError, RegionSpec
 

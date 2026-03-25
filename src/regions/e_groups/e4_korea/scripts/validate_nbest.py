@@ -2,7 +2,10 @@
 """
 Patch D: N-best validation with tolerance for multiple valid romanizations
 """
-import yaml, unicodedata, sys, pathlib
+import yaml
+import unicodedata
+import sys
+import pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 from converter import eng2kor, kor2eng
@@ -41,7 +44,7 @@ def get_nbest_romanizations(hangul, n=5):
         lat = pn.project(lat, "output")
         paths = pn.shortestpath(lat, nshortest=n, unique=True).paths()
         return list(paths.ostrings())
-    except:
+    except Exception:
         # Fallback to single path
         result = kor2eng(hangul)
         return [result] if result else []

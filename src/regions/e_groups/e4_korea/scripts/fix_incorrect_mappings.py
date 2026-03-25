@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Identify and fix incorrect mappings causing dice score failures."""
+import subprocess
 import csv
 import shutil
 from datetime import datetime
@@ -56,14 +57,12 @@ with open("resources/rr_syllable_map.csv", "w", encoding="utf-8", newline="") as
     writer = csv.writer(f)
     writer.writerows(rows)
 
-print(f"\nSummary:")
+print("\nSummary:")
 print(f"- Removed {removed_count} incorrect mappings")
 print(f"- Modified {modified_count} mappings")
 print(f"- Total rows: {len(rows)}")
 
 # Rebuild FSTs
-import subprocess
-
 print("\nRebuilding FSTs...")
 result = subprocess.run(["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True)
 if result.returncode == 0:

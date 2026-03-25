@@ -8,7 +8,7 @@ Features: Georgian script U+10A0-U+10FF (Mkhedruli), -shvili/-dze/-adze/-eli
 
 import re
 import unicodedata
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from ..base import RegionRuleError, RegionSpec
 

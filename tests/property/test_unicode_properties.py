@@ -5,7 +5,6 @@ Uses Hypothesis to generate exhaustive test cases.
 
 import re
 import unicodedata
-from typing import List, Set, Tuple
 
 import pytest
 from hypothesis import HealthCheck, assume, given, settings
@@ -15,7 +14,6 @@ from hypothesis.strategies import characters, composite, integers, lists, text
 from src.core.unicode_handler import (
     UnicodeConfig,
     UnicodeNormalizer,
-    generate_name_variants,
     normalize_name,
 )
 
@@ -294,12 +292,12 @@ class TestUnicodeNormalizationProperties:
         normalizer = UnicodeNormalizer()
 
         # Individual normalization
-        individual_results = [normalizer.normalize(text) for text in text_list]
+        individual_results = [normalizer.normalize(txt) for txt in text_list]
 
         # Batch normalization (simulated)
         batch_results = []
-        for text in text_list:
-            batch_results.append(normalizer.normalize(text))
+        for txt in text_list:
+            batch_results.append(normalizer.normalize(txt))
 
         assert individual_results == batch_results, "Batch normalization inconsistent"
 
@@ -435,8 +433,8 @@ class TestUnicodeNormalizationRegression:
         # Test Greek characters with tonos
         test_cases = ["Παπαδόπουλος", "Γιάννης", "Μαρία", "Αθήνα", "Θεσσαλονίκη"]
 
-        for text in test_cases:
-            normalized = normalizer.normalize(text)
+        for txt in test_cases:
+            normalized = normalizer.normalize(txt)
             # Should not crash and should be valid Greek
             assert isinstance(normalized, str)
             assert len(normalized) > 0
@@ -447,8 +445,8 @@ class TestUnicodeNormalizationRegression:
 
         test_cases = ["الخوارزمي", "محمد بن موسى", "أبو عبدالله", "ابن سينا", "الفارابي"]
 
-        for text in test_cases:
-            normalized = normalizer.normalize(text)
+        for txt in test_cases:
+            normalized = normalizer.normalize(txt)
             assert isinstance(normalized, str)
             assert len(normalized) > 0
 
@@ -463,8 +461,8 @@ class TestUnicodeNormalizationRegression:
             "123 العربية 456",
         ]
 
-        for text in test_cases:
-            normalized = normalizer.normalize(text)
+        for txt in test_cases:
+            normalized = normalizer.normalize(txt)
             assert isinstance(normalized, str)
             # Should preserve basic structure
-            assert len(normalized) >= len(text) * 0.5  # Allow some compression
+            assert len(normalized) >= len(txt) * 0.5  # Allow some compression

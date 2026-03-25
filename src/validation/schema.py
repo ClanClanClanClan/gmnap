@@ -4,13 +4,10 @@ Validates against the JSON schema defined in docs/schema.json
 """
 
 import json
-import os
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import jsonschema
-from jsonschema import Draft7Validator, ValidationError
+from jsonschema import Draft7Validator
 from ruamel.yaml import YAML
 
 

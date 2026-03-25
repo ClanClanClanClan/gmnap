@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Check what mappings exist for specific hangul characters."""
 import csv
-from collections import defaultdict
 
 
 def check_mappings(hangul_char):

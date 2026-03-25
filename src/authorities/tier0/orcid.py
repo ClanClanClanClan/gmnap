@@ -7,7 +7,6 @@ API Documentation: https://info.orcid.org/documentation/features/public-api/
 
 import asyncio
 import urllib.parse
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from src.authorities.base import (

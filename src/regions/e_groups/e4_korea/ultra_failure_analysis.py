@@ -1,3 +1,4 @@
+import json
 import yaml
 import sys
 
@@ -66,12 +67,12 @@ for name, info in data.items():
             }
         )
 
-print(f"=== ULTRA FAILURE ANALYSIS ===")
+print("=== ULTRA FAILURE ANALYSIS ===")
 print(f"Conversion failures: {len(conversion_issues)}")
 print(f"Roundtrip failures: {len(roundtrip_issues)}")
 print(f"Total failures: {len(conversion_issues) + len(roundtrip_issues)}")
 
-print(f"\n=== CONVERSION FAILURES ANALYSIS ===")
+print("\n=== CONVERSION FAILURES ANALYSIS ===")
 for i, failure in enumerate(conversion_issues[:10]):
     print(
         f"{i+1}. {failure['name']}: {failure['input']} → {failure['actual']} (exp: {failure['expected']})"
@@ -79,7 +80,7 @@ for i, failure in enumerate(conversion_issues[:10]):
     if failure["hypos"]:
         print(f"   N-best: {failure['hypos']}")
 
-print(f"\n=== ROUNDTRIP FAILURES ANALYSIS ===")
+print("\n=== ROUNDTRIP FAILURES ANALYSIS ===")
 roundtrip_patterns = defaultdict(list)
 for failure in roundtrip_issues:
     # Group by type of mismatch
@@ -95,7 +96,7 @@ for pattern, failures in list(roundtrip_patterns.items())[:10]:
         print(f"    Input:  '{example['norm_input']}'")
         print(f"    Output: '{example['norm_output']}'")
 
-print(f"\n=== ULTRA-SPECIFIC PATTERNS ===")
+print("\n=== ULTRA-SPECIFIC PATTERNS ===")
 # Analyze specific character-level mismatches
 char_mismatches = Counter()
 for failure in roundtrip_issues:
@@ -110,8 +111,6 @@ for char, count in char_mismatches.most_common(15):
     print(f"'{char}': {count} mismatches")
 
 # Save detailed failure data for optimization
-import json
-
 with open("ultra_failure_data.json", "w", encoding="utf8") as f:
     json.dump(
         {
@@ -124,4 +123,4 @@ with open("ultra_failure_data.json", "w", encoding="utf8") as f:
         indent=2,
     )
 
-print(f"\n✓ Detailed failure data saved to ultra_failure_data.json")
+print("\n✓ Detailed failure data saved to ultra_failure_data.json")

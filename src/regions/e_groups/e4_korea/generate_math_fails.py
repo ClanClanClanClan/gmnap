@@ -1,4 +1,5 @@
-import yaml, pathlib
+import yaml
+import pathlib
 import sys
 
 sys.path.append("src")
