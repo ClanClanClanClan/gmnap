@@ -1,5 +1,5 @@
 # GMNAP v7 Current Development Status
-*Last Updated: 2026-03-24*
+*Last Updated: 2026-03-25*
 
 ## 🎯 System State (Honest Assessment)
 
@@ -15,7 +15,7 @@
 **CLI**: `query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve`
 **Diaspora Detection**: Implemented — uses `config/diaspora.yaml` date ranges
 **Region Overlay Map**: Spec §2a wired — sub-national overrides (CH-FR, IN-HN, etc.)
-**Testing**: 706+ tests (unit + integration + API + GDPR + region + batch + retry + stage isolation)
+**Testing**: 718+ tests (unit + integration + API + GDPR + region + batch + retry + stage isolation)
 **Test Fixtures**: 1,500 entries across all 37 regions
 
 ---
@@ -102,7 +102,7 @@ Benchmarks are OFFLINE mode. Live enrichment will be slower due to API rate limi
 
 ## 📊 Testing
 
-- **706+ tests passing** (unit + integration + API + GDPR + retry + batch + stage isolation)
+- **718+ tests passing** (unit + integration + API + GDPR + retry + batch + stage isolation)
 - **1,500 test fixtures** across all 37 regions
 - SEA roundtrip: Thai RTGS, Khmer UNGEGN, Lao MOICT 2019
 - Snapshot rollback: git revert coherence validated
