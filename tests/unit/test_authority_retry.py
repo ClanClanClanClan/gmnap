@@ -104,7 +104,6 @@ async def test_exponential_backoff_timing(monkeypatch):
             raise httpx.TimeoutException("timeout")
         return "done"
 
-
     async def mock_sleep(delay):
         sleep_calls.append(delay)
         # Don't actually sleep to keep tests fast

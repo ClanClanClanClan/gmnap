@@ -11,7 +11,6 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 
 
-
 class MockOpenAlexAPI:
     """Mock OpenAlex API for testing."""
 

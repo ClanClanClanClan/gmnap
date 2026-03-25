@@ -2,7 +2,6 @@
 Tests for YAML schema validation.
 """
 
-
 import pytest
 
 from src.validation.schema import SchemaValidator, validate_entry

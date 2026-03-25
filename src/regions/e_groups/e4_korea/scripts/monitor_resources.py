@@ -100,6 +100,7 @@ def main():
     # Check if psutil is available
     try:
         import importlib.util
+
         if importlib.util.find_spec("psutil") is None:
             raise ImportError("psutil not installed")
     except ImportError:

@@ -218,9 +218,7 @@ def apply_safe_fixes_example(fixes):
     # 3. Validate all datasets
 
     print("\\n📝 IMPLEMENTATION STEPS:")
-    print(
-        "1. echo '# Safe additions from systematic improvement' >> resources/rr_syllable_map.csv"
-    )
+    print("1. echo '# Safe additions from systematic improvement' >> resources/rr_syllable_map.csv")
     for weight in weights_to_add:
         print(f"   echo '{weight}' >> resources/rr_syllable_map.csv")
     print("2. python3 scripts/build_fsts_multi.py")

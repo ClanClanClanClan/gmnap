@@ -57,6 +57,7 @@ def stage5_collision_analytics(
     # Try DuckDB first, fall back to in-memory
     try:
         import importlib.util
+
         if importlib.util.find_spec("duckdb") is None:
             raise ImportError("duckdb not installed")
         out, collisions = _duckdb_dedup(batch, workdir)

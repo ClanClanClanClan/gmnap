@@ -13,8 +13,10 @@ def _dice(a, b):
     b = "" if not b else b.replace(",", "").replace("-", " ")
     a = b"" if not a else unicodedata.normalize("NFC", a.casefold().replace(" ", "")).encode()
     b = b"" if not b else unicodedata.normalize("NFC", b.casefold().replace(" ", "")).encode()
+
     def bigr(s):
-        return {s[i:i + 2] for i in range(len(s) - 1)}
+        return {s[i : i + 2] for i in range(len(s) - 1)}
+
     x, y = bigr(a), bigr(b)
     return (2 * len(x & y)) / (len(x) + len(y) or 1)
 
@@ -86,7 +88,8 @@ def _enhanced_dice(a, b):
     b_bytes = unicodedata.normalize("NFC", b_norm).encode()
 
     def bigr(s):
-        return {s[i:i + 2] for i in range(len(s) - 1)}
+        return {s[i : i + 2] for i in range(len(s) - 1)}
+
     x, y = bigr(a_bytes), bigr(b_bytes)
     return (2 * len(x & y)) / (len(x) + len(y) or 1)
 
