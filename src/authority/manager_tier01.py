@@ -389,7 +389,7 @@ async def _fetch_oai_university(entry: Dict) -> Dict:
         best_doc = None
         for doc in docs:
             creators = doc.get("dccreator", [])
-            for creator in (creators if isinstance(creators, list) else [creators]):
+            for creator in creators if isinstance(creators, list) else [creators]:
                 if isinstance(creator, str) and family_lower in creator.lower():
                     best_doc = doc
                     break

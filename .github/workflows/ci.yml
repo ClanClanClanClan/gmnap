@@ -9,6 +9,7 @@ on:
 env:
   PYTHONPATH: "."
   OFFLINE: "1"
+  GMNAP_NO_NETWORK: "1"
 
 jobs:
   lint:
@@ -22,7 +23,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install linters
-        run: pip install black ruff isort codespell yamllint
+        run: pip install black==24.4.2 ruff==0.4.8 isort==5.13.2 codespell==2.3.0 yamllint==1.35.1
 
       - name: Black
         run: black src/ tests/ --check
@@ -49,6 +50,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libicu-dev pkg-config
 
       - name: Install dependencies
         run: |
