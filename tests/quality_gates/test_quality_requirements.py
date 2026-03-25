@@ -26,12 +26,12 @@ from src.validation.schema import SchemaValidator
 
 class TestGlobalIDQualityGates:
     """Test GlobalID quality requirements."""
-    
+
     def setup_method(self):
         """Set up test fixtures."""
         self.generator = GlobalIDGenerator()
         self.generator.clear()
-    
+
     def test_no_duplicate_globalids(self):
         """Test that no duplicate GlobalIDs are generated."""
         # Generate many IDs from different inputs
@@ -39,21 +39,23 @@ class TestGlobalIDQualityGates:
             {"CanonicalNative": f"Test{i:06d}, Person{i:03d}", "BirthYear": 1950 + i}
             for i in range(1000)
         ]
-        
+
         generated_ids = set()
         duplicates = []
-        
+
         for entry in entries:
             global_id = self.generator.generate(entry)
-            
+
             if global_id in generated_ids:
                 duplicates.append(global_id)
             else:
                 generated_ids.add(global_id)
-        
+
         # Quality gate: 0 duplicates allowed
-        assert len(duplicates) == 0, f"Found {len(duplicates)} duplicate GlobalIDs: {duplicates[:5]}"
-    
+        assert (
+            len(duplicates) == 0
+        ), f"Found {len(duplicates)} duplicate GlobalIDs: {duplicates[:5]}"
+
     def test_globalid_format_compliance(self):
         """Test that all GlobalIDs comply with format requirements."""
         test_cases = [
@@ -67,25 +69,25 @@ class TestGlobalIDQualityGates:
             {"CanonicalNative": "Test, Person", "BirthYear": "1970s"},
             {"CanonicalNative": "Ancient, Mathematician", "BirthYear": "c1150"},
         ]
-        
+
         invalid_formats = []
-        
+
         for entry in test_cases:
             global_id = self.generator.generate(entry)
-            
+
             if not validate_global_id(global_id):
                 invalid_formats.append((entry, global_id))
-        
+
         # Quality gate: All GlobalIDs must be valid format
         assert len(invalid_formats) == 0, f"Invalid GlobalID formats: {invalid_formats}"
-    
+
     def test_globalid_collision_handling(self):
         """Test GlobalID collision handling: different inputs that produce
         the same base ID should get disambiguated with --N suffixes."""
         # Force multiple distinct inputs to produce the same base ID
         base_id = "ABCDEFGHIJKLMNOPQRSTUV"
 
-        with patch.object(self.generator, '_compute_base_id', return_value=base_id):
+        with patch.object(self.generator, "_compute_base_id", return_value=base_id):
             id1 = self.generator.generate({"CanonicalNative": "Person, Alpha"})
             id2 = self.generator.generate({"CanonicalNative": "Person, Beta"})
             id3 = self.generator.generate({"CanonicalNative": "Person, Gamma"})
@@ -97,28 +99,28 @@ class TestGlobalIDQualityGates:
         # All should be valid
         for gid in [id1, id2, id3]:
             assert validate_global_id(gid), f"Invalid GlobalID: {gid}"
-    
+
     def test_globalid_deterministic_generation(self):
         """Test that GlobalID generation is deterministic."""
         test_entry = {"CanonicalNative": "Test, Person", "BirthYear": 1980}
-        
+
         # Generate multiple times
         ids = [self.generator.generate(test_entry) for _ in range(10)]
-        
+
         # All should be identical
         unique_ids = set(ids)
-        
+
         # Quality gate: Deterministic generation
         assert len(unique_ids) == 1, f"Non-deterministic generation: {unique_ids}"
 
 
 class TestUnicodeQualityGates:
     """Test Unicode handling quality requirements."""
-    
+
     def setup_method(self):
         """Set up test fixtures."""
         self.handler = UnicodeNormalizer()
-    
+
     def test_unicode_normalization_idempotency(self):
         """Test Unicode normalization idempotency."""
         test_cases = [
@@ -130,21 +132,21 @@ class TestUnicodeQualityGates:
             "Müller, Hans",
             "José María García-López",
             "Παπαδόπουλος, Γιάννης",
-            "الخوارزمي, محمد بن موسى"
+            "الخوارزمي, محمد بن موسى",
         ]
-        
+
         non_idempotent = []
-        
+
         for text in test_cases:
             normalized1 = self.handler.normalize(text)
             normalized2 = self.handler.normalize(normalized1)
-            
+
             if normalized1 != normalized2:
                 non_idempotent.append((text, normalized1, normalized2))
-        
+
         # Quality gate: Normalization must be idempotent
         assert len(non_idempotent) == 0, f"Non-idempotent normalizations: {non_idempotent}"
-    
+
     def test_unicode_script_detection_accuracy(self):
         """Test Unicode script detection accuracy."""
         test_cases = [
@@ -158,47 +160,47 @@ class TestUnicodeQualityGates:
             ("การันต์", "Thai"),
             ("អនុក្រឹត្យ", "Khmer"),
         ]
-        
+
         incorrect_detections = []
-        
+
         for text, expected_script in test_cases:
             detected_script = self.handler.detect_primary_script(text)
-            
+
             if detected_script != expected_script:
                 incorrect_detections.append((text, expected_script, detected_script))
-        
+
         # Quality gate: ≥85% script detection accuracy
         # (Tibetan maps to "Other" — rare script not in detector)
         accuracy = (len(test_cases) - len(incorrect_detections)) / len(test_cases)
         assert accuracy >= 0.85, f"Script detection accuracy {accuracy:.2%} < 85%"
-    
+
     def test_unicode_roundtrip_preservation(self):
         """Test Unicode roundtrip preservation."""
         # Test important Unicode categories
         test_cases = [
-            "Café",           # Latin with diacritics
-            "naïve",          # Diaeresis
-            "résumé",         # Acute accents
-            "Zürich",         # Umlaut
-            "Москва",         # Cyrillic
-            "北京",           # CJK
-            "한국어",         # Hangul
-            "العربية",        # Arabic
-            "ελληνικά",       # Greek
-            "हिन्दी",         # Devanagari
+            "Café",  # Latin with diacritics
+            "naïve",  # Diaeresis
+            "résumé",  # Acute accents
+            "Zürich",  # Umlaut
+            "Москва",  # Cyrillic
+            "北京",  # CJK
+            "한국어",  # Hangul
+            "العربية",  # Arabic
+            "ελληνικά",  # Greek
+            "हिन्दी",  # Devanagari
         ]
-        
+
         roundtrip_failures = []
-        
+
         for text in test_cases:
             normalized = self.handler.normalize(text)
             # Check if essential characters are preserved
             original_alphanumeric = set(c for c in text if c.isalnum())
             normalized_alphanumeric = set(c for c in normalized if c.isalnum())
-            
+
             if not original_alphanumeric.issubset(normalized_alphanumeric):
                 roundtrip_failures.append((text, normalized))
-        
+
         # Quality gate: ≥97% roundtrip preservation
         accuracy = (len(test_cases) - len(roundtrip_failures)) / len(test_cases)
         assert accuracy >= 0.97, f"Roundtrip preservation {accuracy:.2%} < 97%"
@@ -206,11 +208,11 @@ class TestUnicodeQualityGates:
 
 class TestRegionQualityGates:
     """Test region detection and processing quality."""
-    
+
     def setup_method(self):
         """Set up test fixtures."""
         self.region_manager = RegionManager()
-    
+
     def test_region_detection_coverage(self):
         """Test region detection coverage for known-good cases."""
         # These expected values match the actual RegionManager behavior
@@ -233,8 +235,10 @@ class TestRegionQualityGates:
                 undetected_regions.append((name, expected_region, result.region_code))
 
         accuracy = (len(test_cases) - len(undetected_regions)) / len(test_cases)
-        assert accuracy >= 0.80, f"Region detection accuracy {accuracy:.2%} < 80%: {undetected_regions}"
-    
+        assert (
+            accuracy >= 0.80
+        ), f"Region detection accuracy {accuracy:.2%} < 80%: {undetected_regions}"
+
     def test_region_fallback_handling(self):
         """Test that region detection never crashes on edge-case inputs."""
         # Without FastText, Latin-script names default to A1 rather than
@@ -249,7 +253,7 @@ class TestRegionQualityGates:
             result = self.region_manager.detect_region(entry)
             assert result is not None, f"detect_region returned None for {entry}"
             assert isinstance(result.region_code, str), f"Non-string region code for {entry}"
-    
+
     def test_order_key_consistency(self):
         """Test order key consistency across regions."""
         test_entries = [
@@ -281,12 +285,12 @@ class TestRegionQualityGates:
 
 class TestPerformanceQualityGates:
     """Test performance requirements."""
-    
+
     def setup_method(self):
         """Set up test fixtures."""
         self.config = GMNAPConfig()
         self.process = psutil.Process()
-    
+
     def test_memory_usage_limits(self):
         """Test memory usage stays bounded when processing 10k entries."""
         initial_memory = self.process.memory_info().rss / 1024 / 1024  # MB
@@ -295,15 +299,17 @@ class TestPerformanceQualityGates:
         entries = []
         for i in range(10000):
             canonical = f"Test{i:06d}, Person{i:03d}"
-            entries.append({
-                "GlobalID": f"ABCDEFGHIJKLMNOPQR{i:05d}",
-                "UpdatedAt": "2025-01-01T00:00:00Z",
-                "CanonicalLatin": canonical,
-                "CanonicalNative": canonical,
-                "BirthYear": 1950 + (i % 50),
-                "CountryCodes": ["US"],
-                "Confidence": 80 + (i % 20),
-            })
+            entries.append(
+                {
+                    "GlobalID": f"ABCDEFGHIJKLMNOPQR{i:05d}",
+                    "UpdatedAt": "2025-01-01T00:00:00Z",
+                    "CanonicalLatin": canonical,
+                    "CanonicalNative": canonical,
+                    "BirthYear": 1950 + (i % 50),
+                    "CountryCodes": ["US"],
+                    "Confidence": 80 + (i % 20),
+                }
+            )
 
         # Process GlobalIDs for each entry
         generator = GlobalIDGenerator()
@@ -319,27 +325,28 @@ class TestPerformanceQualityGates:
         # Cleanup
         del entries
         gc.collect()
-    
+
     def test_processing_speed_targets(self):
         """Test processing speed targets."""
         # Test GlobalID generation speed
         generator = GlobalIDGenerator()
         entries = [
-            {"CanonicalNative": f"Test{i:06d}, Person", "BirthYear": 1950 + i}
-            for i in range(1000)
+            {"CanonicalNative": f"Test{i:06d}, Person", "BirthYear": 1950 + i} for i in range(1000)
         ]
-        
+
         start_time = time.time()
         for entry in entries:
             generator.generate(entry)
         end_time = time.time()
-        
+
         total_time = end_time - start_time
         time_per_entry = total_time / len(entries)
-        
+
         # Quality gate: GlobalID generation ≤ 0.5ms per entry (relaxed for pytest overhead)
-        assert time_per_entry <= 0.0005, f"GlobalID generation {time_per_entry:.6f}s > 0.5ms per entry"
-        
+        assert (
+            time_per_entry <= 0.0005
+        ), f"GlobalID generation {time_per_entry:.6f}s > 0.5ms per entry"
+
         # Test Unicode normalization speed
         handler = UnicodeNormalizer()
         test_names = [
@@ -347,47 +354,52 @@ class TestPerformanceQualityGates:
             "李明",
             "Владимир Петров",
             "محمد الأحمد",
-            "Σωκράτης"
+            "Σωκράτης",
         ] * 200  # 1000 total
-        
+
         start_time = time.time()
         for name in test_names:
             handler.normalize(name)
         end_time = time.time()
-        
+
         total_time = end_time - start_time
         time_per_entry = total_time / len(test_names)
-        
+
         # Quality gate: Unicode normalization ≤ 1ms per entry
-        assert time_per_entry <= 0.001, f"Unicode normalization {time_per_entry:.6f}s > 1ms per entry"
-    
+        assert (
+            time_per_entry <= 0.001
+        ), f"Unicode normalization {time_per_entry:.6f}s > 1ms per entry"
+
     def test_concurrent_processing_performance(self):
         """Test concurrent processing performance."""
         import concurrent.futures
 
         # Test concurrent GlobalID generation
         generator = GlobalIDGenerator()
-        
+
         def generate_batch(batch_id):
             entries = [
-                {"CanonicalNative": f"Batch{batch_id:03d}Test{i:03d}, Person", "BirthYear": 1950 + i}
+                {
+                    "CanonicalNative": f"Batch{batch_id:03d}Test{i:03d}, Person",
+                    "BirthYear": 1950 + i,
+                }
                 for i in range(100)
             ]
             return [generator.generate(entry) for entry in entries]
-        
+
         start_time = time.time()
-        
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             futures = [executor.submit(generate_batch, i) for i in range(10)]
             results = [future.result() for future in concurrent.futures.as_completed(futures)]
-        
+
         end_time = time.time()
         total_time = end_time - start_time
-        
+
         # Quality gate: Concurrent processing should be faster than sequential
         # (This is more of a performance regression test)
         assert total_time < 5.0, f"Concurrent processing took {total_time:.2f}s > 5s"
-        
+
         # Verify all results are valid
         all_ids = [global_id for batch in results for global_id in batch]
         assert len(all_ids) == 1000
@@ -396,11 +408,11 @@ class TestPerformanceQualityGates:
 
 class TestValidationQualityGates:
     """Test validation quality requirements."""
-    
+
     def setup_method(self):
         """Set up test fixtures."""
         self.validator = SchemaValidator()
-    
+
     def test_schema_validation_coverage(self):
         """Test schema validation coverage."""
         # Test valid entries
@@ -409,7 +421,7 @@ class TestValidationQualityGates:
                 "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
                 "UpdatedAt": "2025-01-01T00:00:00Z",
                 "CanonicalLatin": "Smith, John",
-                "CanonicalNative": "Smith, John"
+                "CanonicalNative": "Smith, John",
             },
             {
                 "GlobalID": "BCDEFGHIJKLMNOPQRSTUVW",
@@ -418,28 +430,31 @@ class TestValidationQualityGates:
                 "CanonicalNative": "García, José",
                 "BirthYear": 1980,
                 "CountryCodes": ["ES"],
-                "Confidence": 85
-            }
+                "Confidence": 85,
+            },
         ]
-        
+
         for entry in valid_entries:
             is_valid = self.validator.validate_entry(entry)
             assert is_valid, f"Valid entry failed validation: {entry}"
-        
+
         # Test entries missing required schema fields.
         # Note: validate_entry treats dicts without GlobalID+CanonicalLatin as
         # file structures, so {} passes (zero entries is valid).  We test
         # actual single-entry validation by including those two keys.
         incomplete_entries = [
-            {"GlobalID": "ABCDEFGHIJKLMNOPQRSTUV", "CanonicalLatin": "Smith, John",
-             "CanonicalNative": "Smith, John"},  # Missing many required fields
+            {
+                "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
+                "CanonicalLatin": "Smith, John",
+                "CanonicalNative": "Smith, John",
+            },  # Missing many required fields
         ]
 
         for entry in incomplete_entries:
             is_valid, errors = self.validator.validate_entry(entry)
             assert not is_valid, f"Incomplete entry passed validation: {entry}"
             assert len(errors) > 0
-    
+
     def test_external_id_present_in_entry(self):
         """Test that AuthorityIDs field is accepted by schema validation."""
         # Schema validates structure, not ORCID format.  Verify that
@@ -457,7 +472,7 @@ class TestValidationQualityGates:
         # but AuthorityIDs should not cause additional errors.
         orcid_errors = [e for e in errors if "AuthorityIDs" in e or "ORCID" in e]
         assert len(orcid_errors) == 0, f"AuthorityIDs caused errors: {orcid_errors}"
-    
+
     def test_consistency_validation(self):
         """Test consistency validation across fields."""
         # Entries missing required fields should fail validation.
@@ -470,7 +485,7 @@ class TestValidationQualityGates:
             "CanonicalLatin": "Smith, John",
             "CanonicalNative": "Smith, John",
             "BirthYear": 1980,
-            "DeathYear": 1970  # No cross-field consistency check exists
+            "DeathYear": 1970,  # No cross-field consistency check exists
         }
 
         is_valid, errors = self.validator.validate_entry(incomplete_entry)
@@ -481,14 +496,14 @@ class TestValidationQualityGates:
 
 class TestSystemIntegrationQualityGates:
     """Test system integration quality requirements."""
-    
+
     def test_end_to_end_pipeline_quality(self):
         """Test end-to-end pipeline quality."""
         # Create test dataset
         temp_dir = tempfile.mkdtemp()
         input_dir = Path(temp_dir) / "input"
         input_dir.mkdir(parents=True)
-        
+
         # Mixed region entries
         entries = {
             "Smith, John": {
@@ -498,7 +513,7 @@ class TestSystemIntegrationQualityGates:
                 "CanonicalNative": "Smith, John",
                 "BirthYear": 1980,
                 "CountryCodes": ["US"],
-                "Confidence": 85
+                "Confidence": 85,
             },
             "García, José": {
                 "GlobalID": "BCDEFGHIJKLMNOPQRSTUVW",
@@ -507,7 +522,7 @@ class TestSystemIntegrationQualityGates:
                 "CanonicalNative": "García, José",
                 "BirthYear": 1975,
                 "CountryCodes": ["ES"],
-                "Confidence": 90
+                "Confidence": 90,
             },
             "李明": {
                 "GlobalID": "CDEFGHIJKLMNOPQRSTUVWX",
@@ -516,54 +531,56 @@ class TestSystemIntegrationQualityGates:
                 "CanonicalNative": "李明",
                 "BirthYear": 1985,
                 "CountryCodes": ["CN"],
-                "Confidence": 80
-            }
+                "Confidence": 80,
+            },
         }
-        
+
         test_file = input_dir / "test_entries.yaml"
-        with open(test_file, 'w', encoding='utf-8') as f:
+        with open(test_file, "w", encoding="utf-8") as f:
             yaml.dump(entries, f, allow_unicode=True)
-        
+
         # Run pipeline
         config = GMNAPConfig()
         pipeline = GMNAPPipeline(config, PipelineMode.QUICK)
-        
-        with patch('src.authorities.tier0.openalex.OpenAlexFetcher'):
+
+        with patch("src.authorities.tier0.openalex.OpenAlexFetcher"):
             result = pipeline.run(input_dir)
-        
+
         # Quality gates
         assert result.total_entries == 3
         assert result.mode == PipelineMode.QUICK
         assert len(result.stage_metrics) > 0
-        
+
         # No critical errors
         critical_errors = [
-            error for stage_metrics in result.stage_metrics.values()
+            error
+            for stage_metrics in result.stage_metrics.values()
             for error in stage_metrics.errors
             if "critical" in error.lower()
         ]
         assert len(critical_errors) == 0, f"Critical errors found: {critical_errors}"
-        
+
         # Clean up
         import shutil
+
         shutil.rmtree(temp_dir, ignore_errors=True)
-    
+
     def test_system_reliability_requirements(self):
         """Test system reliability requirements."""
         # Test graceful error handling
         config = GMNAPConfig()
         pipeline = GMNAPPipeline(config, PipelineMode.QUICK)
-        
+
         # Test with invalid input
         temp_dir = tempfile.mkdtemp()
         input_dir = Path(temp_dir) / "input"
         input_dir.mkdir(parents=True)
-        
+
         # Create invalid YAML
         invalid_file = input_dir / "invalid.yaml"
-        with open(invalid_file, 'w') as f:
+        with open(invalid_file, "w") as f:
             f.write("invalid: yaml: content: [")
-        
+
         # Should handle gracefully
         try:
             result = pipeline.run(input_dir)
@@ -571,9 +588,10 @@ class TestSystemIntegrationQualityGates:
             assert result is not None
         except Exception as e:
             pytest.fail(f"Pipeline crashed on invalid input: {e}")
-        
+
         # Clean up
         import shutil
+
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 

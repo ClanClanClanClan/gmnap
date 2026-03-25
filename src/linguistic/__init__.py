@@ -2,4 +2,4 @@
 
 from .rules_engine import LinguisticRule, LinguisticRulesEngine, RuleType
 
-__all__ = ['LinguisticRulesEngine', 'LinguisticRule', 'RuleType']
+__all__ = ["LinguisticRulesEngine", "LinguisticRule", "RuleType"]

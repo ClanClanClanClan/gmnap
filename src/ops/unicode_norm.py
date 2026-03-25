@@ -1,15 +1,15 @@
-
 from __future__ import annotations
 import unicodedata, re
 
 # Basic fold map (can be extended; spec lists several exceptions)
 _FOLD = {
-    "\u00DF": "ss",  # ß
-    "\u1E9E": "SS",  # ẞ
-    "\u00A0": " ",   # NBSP
+    "\u00df": "ss",  # ß
+    "\u1e9e": "SS",  # ẞ
+    "\u00a0": " ",  # NBSP
 }
 
 _CONTROL_RE = re.compile(r"[\u0000-\u001F\u007F]")  # ASCII control chars
+
 
 def nfc_nfkd_fold_nfc(s: str) -> str:
     """NFC → NFKD (strip combining) → fold (few exceptions) → NFC. Also drop control chars."""
@@ -23,6 +23,7 @@ def nfc_nfkd_fold_nfc(s: str) -> str:
     out = _CONTROL_RE.sub("", out)
     return unicodedata.normalize("NFC", out)
 
+
 def normalise_text(text):
     """Normalize text using Unicode normalization"""
     return unicodedata.normalize("NFC", text)
@@ -31,6 +32,8 @@ def normalise_text(text):
 def normalise_entry_strings(entry):
     """Normalise all string values in an entry dict to NFC."""
     if isinstance(entry, dict):
-        return {k: unicodedata.normalize('NFC', v) if isinstance(v, str) else v
-                for k, v in entry.items()}
+        return {
+            k: unicodedata.normalize("NFC", v) if isinstance(v, str) else v
+            for k, v in entry.items()
+        }
     return entry

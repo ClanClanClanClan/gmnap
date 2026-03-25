@@ -35,35 +35,89 @@ def _has_bengali(text: str) -> bool:
 # ---------------------------------------------------------------------------
 _TITLES = {
     # Bengali / Indian titles (Latin)
-    "Shri", "Sri", "Sree", "Srimati", "Smt", "Smt.",
-    "Babu", "Begum", "Bibi",
-    "Dr", "Dr.", "Prof", "Prof.", "Er", "Er.",
-    "Maulvi", "Maulana", "Haji",
-    "Joy", "Bangla",
+    "Shri",
+    "Sri",
+    "Sree",
+    "Srimati",
+    "Smt",
+    "Smt.",
+    "Babu",
+    "Begum",
+    "Bibi",
+    "Dr",
+    "Dr.",
+    "Prof",
+    "Prof.",
+    "Er",
+    "Er.",
+    "Maulvi",
+    "Maulana",
+    "Haji",
+    "Joy",
+    "Bangla",
     # Bengali script titles
-    "\u09B6\u09CD\u09B0\u09C0",               # Shri
-    "\u09B6\u09CD\u09B0\u09C0\u09AE\u09A4\u09BF",  # Srimati
-    "\u09AC\u09BE\u09AC\u09C1",                # Babu
+    "\u09b6\u09cd\u09b0\u09c0",  # Shri
+    "\u09b6\u09cd\u09b0\u09c0\u09ae\u09a4\u09bf",  # Srimati
+    "\u09ac\u09be\u09ac\u09c1",  # Babu
 }
 
 # Common Bengali surname suffixes (lowercase for matching)
 _SURNAME_SUFFIXES = {
-    "das", "dutta", "datta", "gupta", "roy", "ray",
-    "sen", "bose", "basu", "ghosh", "gosh",
-    "banerjee", "bandyopadhyay", "bandopadhyay",
-    "chatterjee", "chattopadhyay",
-    "mukherjee", "mukhopadhyay",
-    "bhattacharya", "bhattacharyya", "bhattacharjee",
-    "ganguly", "gangopadhyay",
-    "sarkar", "sarker", "mitra", "mitter",
-    "chakraborty", "chakrabarti", "chakravarty",
-    "majumdar", "mazumdar",
-    "kundu", "mondal", "mandal",
-    "paul", "pal", "saha", "biswas",
-    "chowdhury", "choudhury",
-    "barman", "nath", "kar", "dey",
-    "islam", "ahmed", "hossain", "hasan", "rahman", "alam",
-    "uddin", "khan", "begum", "khatun",
+    "das",
+    "dutta",
+    "datta",
+    "gupta",
+    "roy",
+    "ray",
+    "sen",
+    "bose",
+    "basu",
+    "ghosh",
+    "gosh",
+    "banerjee",
+    "bandyopadhyay",
+    "bandopadhyay",
+    "chatterjee",
+    "chattopadhyay",
+    "mukherjee",
+    "mukhopadhyay",
+    "bhattacharya",
+    "bhattacharyya",
+    "bhattacharjee",
+    "ganguly",
+    "gangopadhyay",
+    "sarkar",
+    "sarker",
+    "mitra",
+    "mitter",
+    "chakraborty",
+    "chakrabarti",
+    "chakravarty",
+    "majumdar",
+    "mazumdar",
+    "kundu",
+    "mondal",
+    "mandal",
+    "paul",
+    "pal",
+    "saha",
+    "biswas",
+    "chowdhury",
+    "choudhury",
+    "barman",
+    "nath",
+    "kar",
+    "dey",
+    "islam",
+    "ahmed",
+    "hossain",
+    "hasan",
+    "rahman",
+    "alam",
+    "uddin",
+    "khan",
+    "begum",
+    "khatun",
 }
 
 # Bangladesh-specific patronymic connectors
@@ -146,10 +200,7 @@ class D3SouthAsiaBengali(RegionSpec):
     # ------------------------------------------------------------------
     def augment(self, entry: Dict[str, Any]) -> None:
         """Augment entry with D3-specific data (in-place)."""
-        canonical = (
-            entry.get("CanonicalLatin", "")
-            or entry.get("CanonicalNative", "")
-        )
+        canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
         if not canonical:
             return
 
@@ -231,7 +282,7 @@ class D3SouthAsiaBengali(RegionSpec):
         if connector_idx is not None:
             comps["given_name"] = " ".join(words[:connector_idx])
             comps["patronymic_connector"] = words[connector_idx]
-            comps["family_name"] = " ".join(words[connector_idx + 1:])
+            comps["family_name"] = " ".join(words[connector_idx + 1 :])
             return comps
 
         if len(words) == 1:
@@ -252,8 +303,18 @@ class D3SouthAsiaBengali(RegionSpec):
         if comps.get("patronymic_connector"):
             return "BD"
         family = comps.get("family_name", "").lower()
-        bd_surnames = {"islam", "ahmed", "hossain", "hasan", "rahman", "alam",
-                       "uddin", "khan", "begum", "khatun"}
+        bd_surnames = {
+            "islam",
+            "ahmed",
+            "hossain",
+            "hasan",
+            "rahman",
+            "alam",
+            "uddin",
+            "khan",
+            "begum",
+            "khatun",
+        }
         if family in bd_surnames:
             return "BD"
         return "IN"
@@ -273,8 +334,7 @@ class D3SouthAsiaBengali(RegionSpec):
         if canon_native:
             has_bn = _has_bengali(canon_native)
             is_pure_latin = all(
-                c.isascii() or c in " -'.,"
-                for c in canon_native if not c.isspace()
+                c.isascii() or c in " -'.," for c in canon_native if not c.isspace()
             )
             if not has_bn and not is_pure_latin:
                 raise RegionRuleError(
@@ -283,9 +343,7 @@ class D3SouthAsiaBengali(RegionSpec):
 
         # Latin canonical must not contain Bengali code-points
         if canon_latin and _has_bengali(canon_latin):
-            raise RegionRuleError(
-                "D3: CanonicalLatin must not contain Bengali script characters"
-            )
+            raise RegionRuleError("D3: CanonicalLatin must not contain Bengali script characters")
 
         # Minimum length
         effective = canon_latin or canon_native
@@ -294,9 +352,7 @@ class D3SouthAsiaBengali(RegionSpec):
 
         # Character validation on Latin form
         if canon_latin and not self._valid_latin_chars(canon_latin):
-            raise RegionRuleError(
-                f"D3: invalid characters in CanonicalLatin: {canon_latin!r}"
-            )
+            raise RegionRuleError(f"D3: invalid characters in CanonicalLatin: {canon_latin!r}")
 
     @staticmethod
     def _valid_latin_chars(text: str) -> bool:

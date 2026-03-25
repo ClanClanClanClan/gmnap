@@ -36,38 +36,92 @@ class F2SSAAnglophone(RegionSpec):
             scripts=["Latin"],
             mixed_scripts=False,
             canonical_order="Family, Given",
-            romanisation_standards=["English"]
+            romanisation_standards=["English"],
         )
 
         # English titles to remove
         self.titles = {
-            "Dr", "Dr.", "Doctor",
-            "Prof", "Prof.", "Professor",
-            "Mr", "Mr.", "Mrs", "Mrs.", "Ms", "Ms.", "Miss",
-            "Sir", "Chief", "Alhaji", "Alhaja",
-            "Rev", "Rev.", "Reverend",
-            "Hon", "Hon.", "Honourable",
-            "Engr", "Engr.", "Barrister", "Barr.",
+            "Dr",
+            "Dr.",
+            "Doctor",
+            "Prof",
+            "Prof.",
+            "Professor",
+            "Mr",
+            "Mr.",
+            "Mrs",
+            "Mrs.",
+            "Ms",
+            "Ms.",
+            "Miss",
+            "Sir",
+            "Chief",
+            "Alhaji",
+            "Alhaja",
+            "Rev",
+            "Rev.",
+            "Reverend",
+            "Hon",
+            "Hon.",
+            "Honourable",
+            "Engr",
+            "Engr.",
+            "Barrister",
+            "Barr.",
         }
 
         # Yoruba surname prefixes (must stay attached)
         self.yoruba_prefixes = [
-            "Ade", "Ola", "Olu", "Ayo", "Oba",
-            "Omo", "Ojo", "Ige", "Aina", "Oke",
-            "Oso", "Akin", "Bam", "Odu", "Ogo",
+            "Ade",
+            "Ola",
+            "Olu",
+            "Ayo",
+            "Oba",
+            "Omo",
+            "Ojo",
+            "Ige",
+            "Aina",
+            "Oke",
+            "Oso",
+            "Akin",
+            "Bam",
+            "Odu",
+            "Ogo",
         ]
 
         # Igbo surname prefixes (must stay attached)
         self.igbo_prefixes = [
-            "Nna", "Chi", "Eze", "Obi", "Nwa",
-            "Ike", "Udo", "Onu", "Agu", "Okw",
-            "Nne", "Ama", "Ugo",
+            "Nna",
+            "Chi",
+            "Eze",
+            "Obi",
+            "Nwa",
+            "Ike",
+            "Udo",
+            "Onu",
+            "Agu",
+            "Okw",
+            "Nne",
+            "Ama",
+            "Ugo",
         ]
 
         # Akan day-names (Ghana) - these are given names
         self.akan_day_names = {
-            "Kwame", "Kwasi", "Kwadwo", "Kwaku", "Yaw", "Kofi", "Kwabena",
-            "Ama", "Akosua", "Adwoa", "Akua", "Yaa", "Afia", "Abena",
+            "Kwame",
+            "Kwasi",
+            "Kwadwo",
+            "Kwaku",
+            "Yaw",
+            "Kofi",
+            "Kwabena",
+            "Ama",
+            "Akosua",
+            "Adwoa",
+            "Akua",
+            "Yaa",
+            "Afia",
+            "Abena",
         }
 
     def clean(self, entry: Dict[str, Any]) -> None:
@@ -179,10 +233,12 @@ class F2SSAAnglophone(RegionSpec):
 
         # Order-swap variant (Given Family)
         if family and given:
-            variants.append({
-                "str": f"{given} {family}",
-                "type": "order-swap",
-            })
+            variants.append(
+                {
+                    "str": f"{given} {family}",
+                    "type": "order-swap",
+                }
+            )
 
         entry["RegionCode"] = self.code
 
@@ -204,9 +260,7 @@ class F2SSAAnglophone(RegionSpec):
         # Latin script + common punctuation
         for ch in canonical:
             if ord(ch) > 0x024F and ch not in " ,-.'\u2019":
-                raise RegionRuleError(
-                    f"Non-Latin character U+{ord(ch):04X} in F2 name"
-                )
+                raise RegionRuleError(f"Non-Latin character U+{ord(ch):04X} in F2 name")
 
         if len(canonical) > 120:
             raise RegionRuleError("Name exceeds 120 character limit")

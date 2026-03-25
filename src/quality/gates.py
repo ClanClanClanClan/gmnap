@@ -2,6 +2,7 @@
 
 All 8 gates with mode-specific thresholds per V7 spec.
 """
+
 from __future__ import annotations
 
 import platform
@@ -22,9 +23,11 @@ DEFAULT_GATES = {
 
 def dice(a: str, b: str) -> float:
     """Sørensen-Dice coefficient for two strings."""
+
     def bigrams(s: str):
         s = s or ""
-        return set(s[i:i + 2] for i in range(len(s) - 1)) if len(s) >= 2 else {s}
+        return set(s[i : i + 2] for i in range(len(s) - 1)) if len(s) >= 2 else {s}
+
     A, B = bigrams(a.casefold()), bigrams(b.casefold())
     if not A and not B:
         return 1.0
@@ -65,7 +68,11 @@ class QualityGateChecker:
         ext_ids = []
         for e in entries:
             for source, val in (e.get("AuthorityIDs") or {}).items():
-                eid = val if isinstance(val, str) else (val.get("id") if isinstance(val, dict) else str(val))
+                eid = (
+                    val
+                    if isinstance(val, str)
+                    else (val.get("id") if isinstance(val, dict) else str(val))
+                )
                 ext_ids.append(f"{source}:{eid}")
         seen, dup = set(), 0
         for eid in ext_ids:
@@ -93,7 +100,9 @@ class QualityGateChecker:
         rate = ok_count / len(pairs)
         return rate >= threshold, rate
 
-    def check_genealogy_edge_conflicts(self, conflict_count: int, total_edges: int) -> Tuple[bool, float]:
+    def check_genealogy_edge_conflicts(
+        self, conflict_count: int, total_edges: int
+    ) -> Tuple[bool, float]:
         """Gate 4: genealogy_edge_conflict_pct (Quick ≤2%, Full ≤1%, Extreme 0%)."""
         if total_edges == 0:
             return True, 0.0
@@ -129,7 +138,9 @@ class QualityGateChecker:
         limit = self._gate("idempotent_diff_bytes_max", 0)
         return diff_bytes <= limit, diff_bytes
 
-    def check_all(self, entries: List[Dict], metrics: Dict) -> Tuple[bool, Dict[str, Tuple[bool, float]]]:
+    def check_all(
+        self, entries: List[Dict], metrics: Dict
+    ) -> Tuple[bool, Dict[str, Tuple[bool, float]]]:
         """Run all 8 quality gates and return (all_passed, {gate_name: (passed, value)})."""
         results = {}
 

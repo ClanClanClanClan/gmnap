@@ -1,4 +1,5 @@
 """Stage 1: Ingest - Read YAML/JSON, Unicode NFC->NFKD->fold->NFC."""
+
 from __future__ import annotations
 from typing import Dict, List, Any
 import json, yaml

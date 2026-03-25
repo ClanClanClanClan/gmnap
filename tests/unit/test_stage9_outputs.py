@@ -1,4 +1,5 @@
 """Tests for stage 9 write-and-diff functions."""
+
 from __future__ import annotations
 
 import json
@@ -17,11 +18,13 @@ from src.pipeline.stage9_write_and_diff import (
 def _make_entries(count: int = 1) -> list[dict]:
     entries = []
     for i in range(count):
-        entries.append({
-            "GlobalID": f"GID-{i:04d}",
-            "CanonicalLatin": f"Author-{i}, Test",
-            "UpdatedAt": "2026-01-15T00:00:00Z",
-        })
+        entries.append(
+            {
+                "GlobalID": f"GID-{i:04d}",
+                "CanonicalLatin": f"Author-{i}, Test",
+                "UpdatedAt": "2026-01-15T00:00:00Z",
+            }
+        )
     return entries
 
 
@@ -86,7 +89,8 @@ class TestChangelogs:
         curr_dir = write_snapshot(_make_entries(1), out_root=str(tmp_path / "curr"))
 
         sql_path = generate_sql_changelog(
-            prev_dir, curr_dir,
+            prev_dir,
+            curr_dir,
             out_path=str(tmp_path / "changelog.sql"),
         )
         sql_content = pathlib.Path(sql_path).read_text(encoding="utf-8")
@@ -101,10 +105,9 @@ class TestChangelogs:
         curr_dir = write_snapshot(_make_entries(1), out_root=str(tmp_path / "curr"))
 
         cypher_path = generate_cypher_changelog(
-            prev_dir, curr_dir,
+            prev_dir,
+            curr_dir,
             out_path=str(tmp_path / "changelog.cypher"),
         )
         cypher_content = pathlib.Path(cypher_path).read_text(encoding="utf-8")
-        assert "MERGE" in cypher_content, (
-            f"Expected MERGE in Cypher changelog:\n{cypher_content}"
-        )
+        assert "MERGE" in cypher_content, f"Expected MERGE in Cypher changelog:\n{cypher_content}"

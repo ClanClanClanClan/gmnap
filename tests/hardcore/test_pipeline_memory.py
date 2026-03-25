@@ -37,6 +37,7 @@ class TestPipelineMemoryManagement:
     def teardown_method(self):
         """Clean up test fixtures."""
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
         gc.collect()
 
@@ -68,8 +69,9 @@ class TestPipelineMemoryManagement:
         end_memory = self.process.memory_info().rss / 1024 / 1024
         memory_growth = end_memory - start_memory
 
-        assert memory_growth < 200, \
-            f"Excessive memory growth: {memory_growth:.1f}MB for 10K entries"
+        assert (
+            memory_growth < 200
+        ), f"Excessive memory growth: {memory_growth:.1f}MB for 10K entries"
 
     def test_chunk_processing_efficiency(self):
         """Test that chunked processing limits peak memory."""
@@ -84,7 +86,7 @@ class TestPipelineMemoryManagement:
         max_memory = start_memory
 
         for i in range(0, total_entries, chunk_size):
-            chunk = entries[i:i + chunk_size]
+            chunk = entries[i : i + chunk_size]
 
             # Process chunk
             for entry in chunk:
@@ -99,8 +101,7 @@ class TestPipelineMemoryManagement:
             gc.collect()
 
         memory_growth = max_memory - start_memory
-        assert memory_growth < 200, \
-            f"Excessive peak memory: {memory_growth:.1f}MB"
+        assert memory_growth < 200, f"Excessive peak memory: {memory_growth:.1f}MB"
 
     def test_memory_leaks_during_pipeline(self):
         """Test for memory leaks in repeated processing."""
@@ -123,8 +124,9 @@ class TestPipelineMemoryManagement:
         memory_growth = end_memory - start_memory
 
         # Should not leak significantly over 10 iterations
-        assert memory_growth < 100, \
-            f"Potential memory leak: {memory_growth:.1f}MB growth over 10 iterations"
+        assert (
+            memory_growth < 100
+        ), f"Potential memory leak: {memory_growth:.1f}MB growth over 10 iterations"
 
     def test_memory_cleanup_between_stages(self):
         """Test that memory is reclaimed between processing stages."""
@@ -147,8 +149,7 @@ class TestPipelineMemoryManagement:
 
         # Memory should decrease (or at least not increase significantly)
         # Python may not release all memory immediately
-        assert after_cleanup < after_stage1 + 50, \
-            "Memory not reclaimed after stage cleanup"
+        assert after_cleanup < after_stage1 + 50, "Memory not reclaimed after stage cleanup"
 
     def test_memory_pressure_handling(self):
         """Test processing under memory pressure."""
@@ -197,7 +198,7 @@ class TestPipelineMemoryManagement:
 
         threads = []
         for i in range(num_workers):
-            batch = entries[i * batch_size:(i + 1) * batch_size]
+            batch = entries[i * batch_size : (i + 1) * batch_size]
             thread = threading.Thread(target=process_batch, args=(i, batch))
             threads.append(thread)
             thread.start()
@@ -234,8 +235,7 @@ class TestPipelineMemoryManagement:
         end_memory = self.process.memory_info().rss / 1024 / 1024
         growth = end_memory - start_memory
 
-        assert growth < 100, \
-            f"Streaming should not accumulate memory: {growth:.1f}MB growth"
+        assert growth < 100, f"Streaming should not accumulate memory: {growth:.1f}MB growth"
 
     def test_memory_limits_enforcement(self):
         """Test that processing stays within reasonable memory bounds."""
@@ -254,8 +254,7 @@ class TestPipelineMemoryManagement:
         memory_per_entry_kb = ((end_memory - start_memory) * 1024) / len(entries)
 
         # Should use less than 50KB per entry
-        assert memory_per_entry_kb < 50, \
-            f"Too much memory per entry: {memory_per_entry_kb:.1f}KB"
+        assert memory_per_entry_kb < 50, f"Too much memory per entry: {memory_per_entry_kb:.1f}KB"
 
     def test_memory_optimization_strategies(self):
         """Test that clearing generators reclaims memory."""

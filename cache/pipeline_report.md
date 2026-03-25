@@ -1,16 +1,16 @@
 # GMNAP Pipeline Report
 
 **Mode**: quick
-**Start Time**: 2025-08-03 22:54:17.412716
-**End Time**: 2025-08-03 22:54:17.443882
+**Start Time**: 2026-03-25 22:02:14.419189
+**End Time**: 2026-03-25 22:02:14.429615
 **Total Entries**: 0
 
 ## Stage Metrics
 
 ### stage_0
-- Processed: 37
+- Processed: 14
 - Failed: 0
-- Duration: 0.01s
+- Duration: 0.00s
 
 ### stage_1
 - Processed: 0

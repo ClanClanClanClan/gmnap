@@ -104,8 +104,12 @@ class TestEdgeCSV:
 
     def test_edges_csv_created(self):
         entries = [
-            {"GlobalID": "A" * 22, "CanonicalLatin": "Smith", "BirthYear": 1975,
-             "Advisors": ["B" * 22]},
+            {
+                "GlobalID": "A" * 22,
+                "CanonicalLatin": "Smith",
+                "BirthYear": 1975,
+                "Advisors": ["B" * 22],
+            },
         ]
         with tempfile.TemporaryDirectory() as workdir:
             _, metrics = stage5_collision_analytics(entries, workdir=workdir)

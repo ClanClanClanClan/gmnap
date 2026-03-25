@@ -40,16 +40,16 @@ class C9CaucasusTurkic(RegionSpec):
 
         # Azerbaijani-specific Latin characters
         self.az_special_chars = {
-            "\u0259": "e",   # schwa (Azerbaijani e)
-            "\u018f": "E",   # capital schwa
-            "\u011f": "g",   # g with breve
-            "\u011e": "G",   # G with breve
-            "\u0131": "i",   # dotless i
-            "\u0130": "I",   # dotted I
-            "\u00f6": "o",   # o with diaeresis
-            "\u00d6": "O",   # O with diaeresis
-            "\u00fc": "u",   # u with diaeresis
-            "\u00dc": "U",   # U with diaeresis
+            "\u0259": "e",  # schwa (Azerbaijani e)
+            "\u018f": "E",  # capital schwa
+            "\u011f": "g",  # g with breve
+            "\u011e": "G",  # G with breve
+            "\u0131": "i",  # dotless i
+            "\u0130": "I",  # dotted I
+            "\u00f6": "o",  # o with diaeresis
+            "\u00d6": "O",  # O with diaeresis
+            "\u00fc": "u",  # u with diaeresis
+            "\u00dc": "U",  # U with diaeresis
             "\u015f": "sh",  # s with cedilla
             "\u015e": "Sh",  # S with cedilla
             "\u00e7": "ch",  # c with cedilla
@@ -81,56 +81,103 @@ class C9CaucasusTurkic(RegionSpec):
         # Titles and honorifics to strip
         self.titles = {
             # Azerbaijani
-            "c\u0259nab", "xan\u0131m", "b\u0259y",
+            "c\u0259nab",
+            "xan\u0131m",
+            "b\u0259y",
             # Cyrillic forms
             "\u0433\u043e\u0441\u043f\u043e\u0434\u0438\u043d",  # Gospodin
-            "\u0433\u043e\u0441\u043f\u043e\u0436\u0430",        # Gospozha
+            "\u0433\u043e\u0441\u043f\u043e\u0436\u0430",  # Gospozha
             # Latin
-            "Dr", "Dr.", "Prof", "Prof.", "Professor",
-            "Mr", "Mr.", "Mrs", "Mrs.", "Ms", "Ms.",
+            "Dr",
+            "Dr.",
+            "Prof",
+            "Prof.",
+            "Professor",
+            "Mr",
+            "Mr.",
+            "Mrs",
+            "Mrs.",
+            "Ms",
+            "Ms.",
         }
 
         # Cyrillic to Azerbaijani-Latin transliteration map
         self.cyrillic_to_latin = {
-            "\u0410": "A",   "\u0430": "a",
-            "\u0411": "B",   "\u0431": "b",
-            "\u0412": "V",   "\u0432": "v",
-            "\u0413": "Q",   "\u0433": "q",   # Azerbaijani: G -> Q
-            "\u0414": "D",   "\u0434": "d",
-            "\u0415": "Ye",  "\u0435": "ye",  # initial, otherwise e
-            "\u0416": "J",   "\u0436": "j",
-            "\u0417": "Z",   "\u0437": "z",
-            "\u0418": "\u0130", "\u0438": "i",  # dotted I / i
-            "\u0419": "Y",   "\u0439": "y",
-            "\u041a": "K",   "\u043a": "k",
-            "\u041b": "L",   "\u043b": "l",
-            "\u041c": "M",   "\u043c": "m",
-            "\u041d": "N",   "\u043d": "n",
-            "\u041e": "O",   "\u043e": "o",
-            "\u041f": "P",   "\u043f": "p",
-            "\u0420": "R",   "\u0440": "r",
-            "\u0421": "S",   "\u0441": "s",
-            "\u0422": "T",   "\u0442": "t",
-            "\u0423": "U",   "\u0443": "u",
-            "\u0424": "F",   "\u0444": "f",
-            "\u0425": "X",   "\u0445": "x",
-            "\u0426": "Ts",  "\u0446": "ts",
-            "\u0427": "\u00c7", "\u0447": "\u00e7",  # Ch
-            "\u0428": "\u015e", "\u0448": "\u015f",  # Sh
-            "\u042b": "I",   "\u044b": "\u0131",     # dotless i
-            "\u042d": "E",   "\u044d": "e",
-            "\u042e": "Yu",  "\u044e": "yu",
-            "\u042f": "Ya",  "\u044f": "ya",
+            "\u0410": "A",
+            "\u0430": "a",
+            "\u0411": "B",
+            "\u0431": "b",
+            "\u0412": "V",
+            "\u0432": "v",
+            "\u0413": "Q",
+            "\u0433": "q",  # Azerbaijani: G -> Q
+            "\u0414": "D",
+            "\u0434": "d",
+            "\u0415": "Ye",
+            "\u0435": "ye",  # initial, otherwise e
+            "\u0416": "J",
+            "\u0436": "j",
+            "\u0417": "Z",
+            "\u0437": "z",
+            "\u0418": "\u0130",
+            "\u0438": "i",  # dotted I / i
+            "\u0419": "Y",
+            "\u0439": "y",
+            "\u041a": "K",
+            "\u043a": "k",
+            "\u041b": "L",
+            "\u043b": "l",
+            "\u041c": "M",
+            "\u043c": "m",
+            "\u041d": "N",
+            "\u043d": "n",
+            "\u041e": "O",
+            "\u043e": "o",
+            "\u041f": "P",
+            "\u043f": "p",
+            "\u0420": "R",
+            "\u0440": "r",
+            "\u0421": "S",
+            "\u0441": "s",
+            "\u0422": "T",
+            "\u0442": "t",
+            "\u0423": "U",
+            "\u0443": "u",
+            "\u0424": "F",
+            "\u0444": "f",
+            "\u0425": "X",
+            "\u0445": "x",
+            "\u0426": "Ts",
+            "\u0446": "ts",
+            "\u0427": "\u00c7",
+            "\u0447": "\u00e7",  # Ch
+            "\u0428": "\u015e",
+            "\u0448": "\u015f",  # Sh
+            "\u042b": "I",
+            "\u044b": "\u0131",  # dotless i
+            "\u042d": "E",
+            "\u044d": "e",
+            "\u042e": "Yu",
+            "\u044e": "yu",
+            "\u042f": "Ya",
+            "\u044f": "ya",
             # Azerbaijani-specific Cyrillic
-            "\u0492": "\u011e", "\u0493": "\u011f",  # Ghe with stroke -> breve-g
-            "\u04e8": "\u00d6", "\u04e9": "\u00f6",  # Barred O -> o-diaeresis
-            "\u04ae": "\u00dc", "\u04af": "\u00fc",  # Straight U -> u-diaeresis
-            "\u0498": "\u015e", "\u0499": "\u015f",  # Ze with cedilla -> Sh
-            "\u04ba": "H",   "\u04bb": "h",          # Shha
-            "\u0258": "\u0259",                        # schwa
+            "\u0492": "\u011e",
+            "\u0493": "\u011f",  # Ghe with stroke -> breve-g
+            "\u04e8": "\u00d6",
+            "\u04e9": "\u00f6",  # Barred O -> o-diaeresis
+            "\u04ae": "\u00dc",
+            "\u04af": "\u00fc",  # Straight U -> u-diaeresis
+            "\u0498": "\u015e",
+            "\u0499": "\u015f",  # Ze with cedilla -> Sh
+            "\u04ba": "H",
+            "\u04bb": "h",  # Shha
+            "\u0258": "\u0259",  # schwa
             # Soft/hard signs (typically dropped)
-            "\u042c": "", "\u044c": "",
-            "\u042a": "", "\u044a": "",
+            "\u042c": "",
+            "\u044c": "",
+            "\u042a": "",
+            "\u044a": "",
         }
 
     # ------------------------------------------------------------------
@@ -209,9 +256,7 @@ class C9CaucasusTurkic(RegionSpec):
     # ------------------------------------------------------------------
     def augment(self, entry: Dict[str, Any]) -> None:
         """Augment entry with C9-specific regional data (in-place)."""
-        canonical = (
-            entry.get("CanonicalNative", "") or entry.get("CanonicalLatin", "")
-        )
+        canonical = entry.get("CanonicalNative", "") or entry.get("CanonicalLatin", "")
         if not canonical:
             return
 
@@ -306,7 +351,7 @@ class C9CaucasusTurkic(RegionSpec):
             if pat_idx >= 2:
                 components["father_name"] = " ".join(words[1:pat_idx])
             if pat_idx + 1 < len(words):
-                components["family_name"] = " ".join(words[pat_idx + 1:])
+                components["family_name"] = " ".join(words[pat_idx + 1 :])
             else:
                 components["family_name"] = ""
             return components
@@ -360,16 +405,12 @@ class C9CaucasusTurkic(RegionSpec):
         lower = word.lower()
         return bool(re.search(r"(ovich|ovna|evich|evna|ogly|kyzy)$", lower))
 
-    def _detect_surname_suffix(
-        self, family: str
-    ) -> Optional[Dict[str, str]]:
+    def _detect_surname_suffix(self, family: str) -> Optional[Dict[str, str]]:
         if not family:
             return None
         lower = family.lower()
         # Check longest suffixes first
-        sorted_suffixes = sorted(
-            self.surname_suffixes.items(), key=lambda x: -len(x[0])
-        )
+        sorted_suffixes = sorted(self.surname_suffixes.items(), key=lambda x: -len(x[0]))
         for suffix, stype in sorted_suffixes:
             if lower.endswith(suffix):
                 return {"suffix": suffix, "type": stype}
@@ -408,13 +449,11 @@ class C9CaucasusTurkic(RegionSpec):
             return family + "a"
         return None
 
-    def _strip_patronymic(
-        self, name: str, pat_info: Dict[str, Any]
-    ) -> Optional[str]:
+    def _strip_patronymic(self, name: str, pat_info: Dict[str, Any]) -> Optional[str]:
         words = name.split()
         idx = pat_info["index"]
         # Remove the particle
-        cleaned = words[:idx] + words[idx + 1:]
+        cleaned = words[:idx] + words[idx + 1 :]
         return " ".join(cleaned) if cleaned else None
 
     def _transliterate_to_latin(self, name: str) -> str:
@@ -448,18 +487,14 @@ class C9CaucasusTurkic(RegionSpec):
         cl = entry.get("CanonicalLatin", "")
 
         if not cn and not cl:
-            raise RegionRuleError(
-                "C9: Missing both CanonicalNative and CanonicalLatin"
-            )
+            raise RegionRuleError("C9: Missing both CanonicalNative and CanonicalLatin")
 
         # For C9, both Latin and Cyrillic are acceptable for CanonicalNative
         # (dual-script region)
 
         # CanonicalLatin should not be Cyrillic
         if cl and self._is_cyrillic(cl) and not self._is_latin(cl):
-            raise RegionRuleError(
-                f"C9: CanonicalLatin should be Latin script: {cl}"
-            )
+            raise RegionRuleError(f"C9: CanonicalLatin should be Latin script: {cl}")
 
         # Minimum length
         effective = cl or cn
@@ -468,9 +503,7 @@ class C9CaucasusTurkic(RegionSpec):
 
         # Character validity for Latin form
         if cl and not self._valid_chars(cl):
-            raise RegionRuleError(
-                f"C9: Invalid characters in CanonicalLatin: {cl}"
-            )
+            raise RegionRuleError(f"C9: Invalid characters in CanonicalLatin: {cl}")
 
     def _valid_chars(self, name: str) -> bool:
         s, e = self.cyrillic_range

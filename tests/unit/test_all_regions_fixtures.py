@@ -38,14 +38,43 @@ class TestFixtureIntegrity:
 
     def test_all_37_regions_present(self, region_data):
         expected_regions = {
-            "A1", "A2", "A3", "A4", "A5",
-            "B1", "B2", "B3",
-            "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9",
-            "D1", "D2", "D3", "D4", "D5",
-            "E1", "E2", "E3", "E4", "E5", "E6", "E7",
-            "F1", "F2", "F3", "F4",
+            "A1",
+            "A2",
+            "A3",
+            "A4",
+            "A5",
+            "B1",
+            "B2",
+            "B3",
+            "C1",
+            "C2",
+            "C3",
+            "C4",
+            "C5",
+            "C6",
+            "C7",
+            "C8",
+            "C9",
+            "D1",
+            "D2",
+            "D3",
+            "D4",
+            "D5",
+            "E1",
+            "E2",
+            "E3",
+            "E4",
+            "E5",
+            "E6",
+            "E7",
+            "F1",
+            "F2",
+            "F3",
+            "F4",
             "G1",
-            "H1", "R0", "Z0",
+            "H1",
+            "R0",
+            "Z0",
         }
         actual = {k for k in region_data.keys() if not k.startswith("_")}
         missing = expected_regions - actual
@@ -79,9 +108,9 @@ class TestFixtureDetection:
             for entry_data in data.get("entries", []):
                 entry = dict(entry_data)
                 result = region_manager.detect_region(entry)
-                assert result.region_code is not None, (
-                    f"Detection failed for {entry.get('CanonicalLatin')} (region {code})"
-                )
+                assert (
+                    result.region_code is not None
+                ), f"Detection failed for {entry.get('CanonicalLatin')} (region {code})"
                 assert result.confidence >= 0
 
 

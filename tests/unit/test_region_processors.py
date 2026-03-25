@@ -197,8 +197,12 @@ class TestOrderKey:
         if "A1" not in region_manager.IMPLEMENTED_REGIONS:
             pytest.skip("A1 not implemented")
         proc = region_manager.get_region("A1")
-        entry = {"CanonicalLatin": "Smith, John", "RegionCode": "A1",
-                 "FamilyName": "Smith", "GivenName": "John"}
+        entry = {
+            "CanonicalLatin": "Smith, John",
+            "RegionCode": "A1",
+            "FamilyName": "Smith",
+            "GivenName": "John",
+        }
         ok1 = proc.order_key(entry)
         ok2 = proc.order_key(entry)
         assert ok1 == ok2
@@ -245,10 +249,17 @@ class TestYAMLConfigLoader:
             _YAML_CACHE.clear()
 
             class TestRegion(RegionSpec):
-                def clean(self, entry): pass
-                def augment(self, entry): pass
-                def validate(self, entry): pass
-                def order_key(self, entry): return ""
+                def clean(self, entry):
+                    pass
+
+                def augment(self, entry):
+                    pass
+
+                def validate(self, entry):
+                    pass
+
+                def order_key(self, entry):
+                    return ""
 
             proc = TestRegion(code="CC", yaml_files=[], scripts=["Latin"])
             cfg1 = proc.load_yaml_config()
@@ -288,10 +299,17 @@ class TestYAMLConfigLoader:
 
             # Create a minimal concrete RegionSpec to test with
             class TestRegion(RegionSpec):
-                def clean(self, entry): pass
-                def augment(self, entry): pass
-                def validate(self, entry): pass
-                def order_key(self, entry): return ""
+                def clean(self, entry):
+                    pass
+
+                def augment(self, entry):
+                    pass
+
+                def validate(self, entry):
+                    pass
+
+                def order_key(self, entry):
+                    return ""
 
             proc = TestRegion(code="XX", yaml_files=[], scripts=["Latin"])
             cfg = proc.load_yaml_config()
@@ -310,10 +328,17 @@ class TestYAMLConfigLoader:
             _YAML_CACHE.clear()
 
             class TestRegion(RegionSpec):
-                def clean(self, entry): pass
-                def augment(self, entry): pass
-                def validate(self, entry): pass
-                def order_key(self, entry): return ""
+                def clean(self, entry):
+                    pass
+
+                def augment(self, entry):
+                    pass
+
+                def validate(self, entry):
+                    pass
+
+                def order_key(self, entry):
+                    return ""
 
             proc = TestRegion(code="YY", yaml_files=[], scripts=["Latin"])
             cfg = proc.load_yaml_config()
@@ -341,10 +366,17 @@ class TestYAMLConfigLoader:
                     if "titles" in cfg:
                         self.titles = set(cfg["titles"])
 
-                def clean(self, entry): pass
-                def augment(self, entry): pass
-                def validate(self, entry): pass
-                def order_key(self, entry): return ""
+                def clean(self, entry):
+                    pass
+
+                def augment(self, entry):
+                    pass
+
+                def validate(self, entry):
+                    pass
+
+                def order_key(self, entry):
+                    return ""
 
             proc = TestRegion()
 

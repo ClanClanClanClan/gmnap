@@ -39,10 +39,7 @@ def _sample_entries(n: int = 5) -> list:
         ("da Silva, Maria", 1985),
         ("Nakamura, Yuki", 1990),
     ]
-    return [
-        {"CanonicalLatin": name, "BirthYear": year}
-        for name, year in names[:n]
-    ]
+    return [{"CanonicalLatin": name, "BirthYear": year} for name, year in names[:n]]
 
 
 # ── PipelineMode ─────────────────────────────────────────────────────────

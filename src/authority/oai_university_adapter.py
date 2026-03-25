@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 import os
 from typing import Dict, Any
@@ -13,6 +12,7 @@ class OAIUniversityAdapter:
     Endpoint: api.base-search.net/cgi-bin/BaseHttpSearchInterface.fcgi
     Returns: thesis metadata, institution, degree date.
     """
+
     name = "OAI_University"
 
     def __init__(self, cfg: Dict[str, Any] = None):
@@ -40,7 +40,7 @@ class OAIUniversityAdapter:
         if c is not None:
             return c
         await self.ctx.limiter.acquire()
-        url = f'{self.ctx.base_url}?{urlencode(q)}'
+        url = f"{self.ctx.base_url}?{urlencode(q)}"
         out = {"_source": {"service": self.name, "url": url}}
         try:
             if self.ctx.http:

@@ -49,69 +49,102 @@ class C6HebrewDiaspora(RegionSpec):
         # Patronymic particles
         self.patronymic_particles = {
             "ben": "son of",
-            "\u05d1\u05df": "son of",       # Hebrew: ben
+            "\u05d1\u05df": "son of",  # Hebrew: ben
             "bat": "daughter of",
-            "\u05d1\u05ea": "daughter of",   # Hebrew: bat
+            "\u05d1\u05ea": "daughter of",  # Hebrew: bat
             "bar": "son of (Aramaic)",
         }
 
         # Titles and honorifics to strip
         self.titles = {
             # Hebrew titles
-            "\u05e4\u05e8\u05d5\u05e4\u05f3",    # Prof'
-            "\u05d3\u05f4\u05e8",                  # Dr
-            "\u05de\u05e8",                         # Mr
-            "\u05d2\u05d1\u05e8\u05ea",            # Mrs
-            "\u05e8\u05d1",                         # Rav (Rabbi)
-            "\u05d4\u05e8\u05d1",                  # HaRav
+            "\u05e4\u05e8\u05d5\u05e4\u05f3",  # Prof'
+            "\u05d3\u05f4\u05e8",  # Dr
+            "\u05de\u05e8",  # Mr
+            "\u05d2\u05d1\u05e8\u05ea",  # Mrs
+            "\u05e8\u05d1",  # Rav (Rabbi)
+            "\u05d4\u05e8\u05d1",  # HaRav
             # Latin titles
-            "Dr", "Dr.", "Prof", "Prof.", "Professor",
-            "Mr", "Mr.", "Mrs", "Mrs.", "Ms", "Ms.",
-            "Rabbi", "Rav",
+            "Dr",
+            "Dr.",
+            "Prof",
+            "Prof.",
+            "Professor",
+            "Mr",
+            "Mr.",
+            "Mrs",
+            "Mrs.",
+            "Ms",
+            "Ms.",
+            "Rabbi",
+            "Rav",
         }
 
         # Common Hebrew-to-Latin romanization (Academy of the Hebrew Language)
         self.romanization_map = {
-            "\u05d0": "",   # Alef (silent)
+            "\u05d0": "",  # Alef (silent)
             "\u05d1": "v",  # Vet (default; Bet with dagesh = b)
             "\u05d2": "g",  # Gimel
             "\u05d3": "d",  # Dalet
             "\u05d4": "h",  # He
             "\u05d5": "v",  # Vav (consonantal)
             "\u05d6": "z",  # Zayin
-            "\u05d7": "ch", # Chet
+            "\u05d7": "ch",  # Chet
             "\u05d8": "t",  # Tet
             "\u05d9": "y",  # Yod
-            "\u05da": "kh", # Final Kaf
-            "\u05db": "kh", # Kaf (without dagesh)
+            "\u05da": "kh",  # Final Kaf
+            "\u05db": "kh",  # Kaf (without dagesh)
             "\u05dc": "l",  # Lamed
             "\u05dd": "m",  # Final Mem
             "\u05de": "m",  # Mem
             "\u05df": "n",  # Final Nun
             "\u05e0": "n",  # Nun
             "\u05e1": "s",  # Samekh
-            "\u05e2": "",   # Ayin (silent in many dialects)
+            "\u05e2": "",  # Ayin (silent in many dialects)
             "\u05e3": "f",  # Final Pe
             "\u05e4": "f",  # Pe (without dagesh)
-            "\u05e5": "ts", # Final Tsadi
-            "\u05e6": "ts", # Tsadi
+            "\u05e5": "ts",  # Final Tsadi
+            "\u05e6": "ts",  # Tsadi
             "\u05e7": "k",  # Qof
             "\u05e8": "r",  # Resh
-            "\u05e9": "sh", # Shin (default; Sin = s)
+            "\u05e9": "sh",  # Shin (default; Sin = s)
             "\u05ea": "t",  # Tav
         }
 
         # Diaspora surname suffixes (for pattern detection)
         self.ashkenazi_suffixes = [
-            "stein", "berg", "man", "mann", "ski", "sky", "witz",
-            "vitz", "ovich", "ovitch", "baum", "feld", "haus",
-            "blatt", "gold", "silver", "rosen", "green", "klein",
+            "stein",
+            "berg",
+            "man",
+            "mann",
+            "ski",
+            "sky",
+            "witz",
+            "vitz",
+            "ovich",
+            "ovitch",
+            "baum",
+            "feld",
+            "haus",
+            "blatt",
+            "gold",
+            "silver",
+            "rosen",
+            "green",
+            "klein",
         ]
 
         self.sephardic_patterns = [
-            "ben-", "bar-", "ibn-",
-            "cohen", "levi", "levy",
-            "mizrahi", "azoulay", "abecassis", "benveniste",
+            "ben-",
+            "bar-",
+            "ibn-",
+            "cohen",
+            "levi",
+            "levy",
+            "mizrahi",
+            "azoulay",
+            "abecassis",
+            "benveniste",
         ]
 
     # ------------------------------------------------------------------
@@ -156,9 +189,7 @@ class C6HebrewDiaspora(RegionSpec):
 
     def _strip_niqqud(self, text: str) -> str:
         """Remove Hebrew niqqud (vowel points) and cantillation marks."""
-        return "".join(
-            ch for ch in text if ord(ch) not in self.niqqud_range
-        )
+        return "".join(ch for ch in text if ord(ch) not in self.niqqud_range)
 
     def _remove_titles(self, text: str) -> str:
         if not text:
@@ -187,9 +218,7 @@ class C6HebrewDiaspora(RegionSpec):
     # ------------------------------------------------------------------
     def augment(self, entry: Dict[str, Any]) -> None:
         """Augment entry with C6-specific regional data (in-place)."""
-        canonical = (
-            entry.get("CanonicalNative", "") or entry.get("CanonicalLatin", "")
-        )
+        canonical = entry.get("CanonicalNative", "") or entry.get("CanonicalLatin", "")
         if not canonical:
             return
 
@@ -262,10 +291,10 @@ class C6HebrewDiaspora(RegionSpec):
             components["given_name"] = " ".join(words[:pat_idx])
             # Everything from patronymic onward is patronymic + family
             if pat_idx + 2 <= len(words):
-                components["family_name"] = " ".join(words[pat_idx + 2:])
+                components["family_name"] = " ".join(words[pat_idx + 2 :])
                 components["parent_name"] = words[pat_idx + 1] if pat_idx + 1 < len(words) else ""
             else:
-                components["family_name"] = " ".join(words[pat_idx + 1:])
+                components["family_name"] = " ".join(words[pat_idx + 1 :])
         elif len(words) >= 2:
             components["given_name"] = " ".join(words[:-1])
             components["family_name"] = words[-1]
@@ -310,14 +339,12 @@ class C6HebrewDiaspora(RegionSpec):
                 return "sephardic"
         return "israeli"
 
-    def _variant_without_patronymic(
-        self, name: str, pat: Dict[str, Any]
-    ) -> Optional[str]:
+    def _variant_without_patronymic(self, name: str, pat: Dict[str, Any]) -> Optional[str]:
         words = name.split()
         idx = pat["index"]
         # Remove the particle and the parent name after it
         before = words[:idx]
-        after = words[idx + 2:] if idx + 2 <= len(words) else words[idx + 1:]
+        after = words[idx + 2 :] if idx + 2 <= len(words) else words[idx + 1 :]
         combined = before + after
         return " ".join(combined) if combined else None
 
@@ -330,9 +357,7 @@ class C6HebrewDiaspora(RegionSpec):
         # Spaced -> hyphenated
         m = re.search(r"\b(Ben|Bat|Bar)\s+(\w)", name)
         if m:
-            return re.sub(
-                r"\b(Ben|Bat|Bar)\s+", r"\1-", name, count=1
-            )
+            return re.sub(r"\b(Ben|Bat|Bar)\s+", r"\1-", name, count=1)
         return None
 
     def _romanize_name(self, name: str) -> str:
@@ -358,9 +383,7 @@ class C6HebrewDiaspora(RegionSpec):
         cl = entry.get("CanonicalLatin", "")
 
         if not cn and not cl:
-            raise RegionRuleError(
-                "C6: Missing both CanonicalNative and CanonicalLatin"
-            )
+            raise RegionRuleError("C6: Missing both CanonicalNative and CanonicalLatin")
 
         # Script consistency
         if cn and not self._is_hebrew(cn) and not cn.isascii():
@@ -368,9 +391,7 @@ class C6HebrewDiaspora(RegionSpec):
             pass
 
         if cl and self._is_hebrew(cl):
-            raise RegionRuleError(
-                f"C6: CanonicalLatin must not contain Hebrew script: {cl}"
-            )
+            raise RegionRuleError(f"C6: CanonicalLatin must not contain Hebrew script: {cl}")
 
         # Minimum length
         effective = cl or cn
@@ -379,9 +400,7 @@ class C6HebrewDiaspora(RegionSpec):
 
         # Character validity for Latin form
         if cl and not self._valid_latin_chars(cl):
-            raise RegionRuleError(
-                f"C6: Invalid characters in CanonicalLatin: {cl}"
-            )
+            raise RegionRuleError(f"C6: Invalid characters in CanonicalLatin: {cl}")
 
     def _valid_latin_chars(self, name: str) -> bool:
         s, e = self.hebrew_range

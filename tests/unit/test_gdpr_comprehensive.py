@@ -22,6 +22,7 @@ from src.core.gdpr import (
 # mark_gdpr_fields
 # ---------------------------------------------------------------------------
 
+
 class TestMarkGDPRFields:
     def test_mark_gdpr_fields_with_birth_year(self):
         """Entry containing BirthYear should be marked GDPR_DATA=True."""
@@ -46,6 +47,7 @@ class TestMarkGDPRFields:
 # ---------------------------------------------------------------------------
 # apply_birth_year_privacy
 # ---------------------------------------------------------------------------
+
 
 class TestBirthYearPrivacy:
     def test_small_cohort_is_masked(self):
@@ -96,12 +98,10 @@ class TestBirthYearPrivacy:
     def test_mixed_cohorts(self):
         """Different regions should have independent cohort counts."""
         small = [
-            {"CanonicalLatin": f"S{i}", "BirthYear": 1980, "DetectedRegion": "A1"}
-            for i in range(2)
+            {"CanonicalLatin": f"S{i}", "BirthYear": 1980, "DetectedRegion": "A1"} for i in range(2)
         ]
         large = [
-            {"CanonicalLatin": f"L{i}", "BirthYear": 1980, "DetectedRegion": "B2"}
-            for i in range(6)
+            {"CanonicalLatin": f"L{i}", "BirthYear": 1980, "DetectedRegion": "B2"} for i in range(6)
         ]
         result = apply_birth_year_privacy(small + large)
         # A1 cohort (size 2) should be masked
@@ -122,6 +122,7 @@ class TestBirthYearPrivacy:
 # ---------------------------------------------------------------------------
 # scrub_sources
 # ---------------------------------------------------------------------------
+
 
 class TestScrubSources:
     def test_scrub_google_scholar(self):
@@ -172,6 +173,7 @@ class TestScrubSources:
 # ---------------------------------------------------------------------------
 # ShadowNode conversion (apply_drop_personal)
 # ---------------------------------------------------------------------------
+
 
 class TestShadowNodeConversion:
     def _make_entry(self, **overrides):
@@ -233,6 +235,7 @@ class TestShadowNodeConversion:
 # ---------------------------------------------------------------------------
 # gdpr_pipeline (end-to-end)
 # ---------------------------------------------------------------------------
+
 
 class TestGDPRPipelineEndToEnd:
     def test_gdpr_pipeline_end_to_end(self):

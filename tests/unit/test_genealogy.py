@@ -10,6 +10,7 @@ class TestQueryLineage:
     def test_import_succeeds(self):
         """Module can be imported."""
         from src.genealogy.query import query_lineage, lineage_to_dot
+
         assert callable(query_lineage)
         assert callable(lineage_to_dot)
 
@@ -17,6 +18,7 @@ class TestQueryLineage:
         """Returns None when neo4j driver is not installed."""
         with patch("src.genealogy.query.GraphDatabase", None):
             from src.genealogy.query import query_lineage
+
             result = query_lineage("SOME_GID")
             assert result is None
 
@@ -37,6 +39,7 @@ class TestQueryLineage:
 
         with patch("src.genealogy.query.GraphDatabase", mock_gd):
             from src.genealogy.query import query_lineage
+
             result = query_lineage("NONEXISTENT_GID")
             assert result is None
 
@@ -110,6 +113,7 @@ class TestQueryLineage:
 
         with patch("src.genealogy.query.GraphDatabase", mock_gd):
             from src.genealogy.query import query_lineage
+
             result = query_lineage("EULER_1707", depth=3)
 
         assert result is not None
@@ -124,6 +128,7 @@ class TestQueryLineage:
         """Depth is clamped between 1 and 10."""
         with patch("src.genealogy.query.GraphDatabase", None):
             from src.genealogy.query import query_lineage
+
             # Just verify it doesn't crash with extreme depth values
             query_lineage("X", depth=0)
             query_lineage("X", depth=100)

@@ -30,8 +30,7 @@ try:
     from pydantic import BaseModel
 except ImportError:
     raise ImportError(
-        "FastAPI is required for the API server. "
-        "Install with: pip install fastapi uvicorn"
+        "FastAPI is required for the API server. " "Install with: pip install fastapi uvicorn"
     )
 
 # ---------------------------------------------------------------------------
@@ -49,12 +48,8 @@ try:
     PROM_AVAILABLE = True
 
     UPTIME_GAUGE = Gauge("gmnap_uptime_seconds", "Server uptime in seconds")
-    PIPELINE_RUNS = Counter(
-        "gmnap_pipeline_runs_total", "Total pipeline runs", ["mode"]
-    )
-    ENTRIES_PROCESSED = Counter(
-        "gmnap_entries_processed_total", "Total entries processed"
-    )
+    PIPELINE_RUNS = Counter("gmnap_pipeline_runs_total", "Total pipeline runs", ["mode"])
+    ENTRIES_PROCESSED = Counter("gmnap_entries_processed_total", "Total entries processed")
     PIPELINE_DURATION = Histogram(
         "gmnap_pipeline_duration_seconds",
         "Pipeline execution duration",
@@ -150,8 +145,8 @@ class ProcessRequest(BaseModel):
     entries: List[Dict[str, Any]]
     mode: str = "quick"
     schema_strict: int = 0
-    limit: int = 100     # max entries to return per page (1-10000)
-    offset: int = 0      # skip first N results
+    limit: int = 100  # max entries to return per page (1-10000)
+    offset: int = 0  # skip first N results
 
     @property
     def pipeline_mode(self) -> str:
@@ -172,11 +167,7 @@ _start_time = time.time()
 _rate_limiter = RateLimiter()
 
 # Bearer tokens for paid tier (loaded from env)
-_PAID_TOKENS = set(
-    t.strip()
-    for t in os.getenv("GMNAP_API_TOKENS", "").split(",")
-    if t.strip()
-)
+_PAID_TOKENS = set(t.strip() for t in os.getenv("GMNAP_API_TOKENS", "").split(",") if t.strip())
 
 
 def create_app() -> FastAPI:
@@ -273,6 +264,7 @@ def create_app() -> FastAPI:
             try:
                 # Attempt a connection check
                 import socket
+
                 host, port = bolt_uri.replace("bolt://", "").split(":")
                 s = socket.create_connection((host, int(port)), timeout=2)
                 s.close()
@@ -335,6 +327,7 @@ def create_app() -> FastAPI:
 
             if format == "dot":
                 from starlette.responses import PlainTextResponse
+
                 return PlainTextResponse(lineage_to_dot(result), media_type="text/vnd.graphviz")
 
             return result
@@ -357,9 +350,7 @@ def create_app() -> FastAPI:
     async def process_batch(req: ProcessRequest):
         """Run V7 pipeline on a batch of entries."""
         if len(req.entries) > 10_000:
-            raise HTTPException(
-                status_code=400, detail="Batch size limited to 10,000 entries"
-            )
+            raise HTTPException(status_code=400, detail="Batch size limited to 10,000 entries")
 
         # Validate entries have required fields
         invalid = [i for i, e in enumerate(req.entries) if not e.get("CanonicalLatin")]
@@ -377,7 +368,11 @@ def create_app() -> FastAPI:
             os.environ["GMNAP_SCHEMA_STRICT"] = str(req.schema_strict)
             from src.core.pipeline_v7 import V7Pipeline, PipelineMode
 
-            mode_map = {"quick": PipelineMode.QUICK, "full": PipelineMode.FULL, "extreme": PipelineMode.EXTREME}
+            mode_map = {
+                "quick": PipelineMode.QUICK,
+                "full": PipelineMode.FULL,
+                "extreme": PipelineMode.EXTREME,
+            }
             pipeline = V7Pipeline(mode=mode_map.get(req.pipeline_mode, PipelineMode.QUICK))
 
             start_t = time.time()

@@ -3,6 +3,7 @@
 Check which specific cases improved with Patch C
 """
 import yaml, sys, os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 from converter import eng2kor, kor2eng
 
@@ -11,7 +12,7 @@ with open("data/korean.yaml", encoding="utf8") as f:
     data = yaml.safe_load(f)
 
 # Check cases that might benefit from loanword handling
-loanword_patterns = ['David', 'Grace', 'Linda', 'Michael', 'J.', 'Brian', 'Frank']
+loanword_patterns = ["David", "Grace", "Linda", "Michael", "J.", "Brian", "Frank"]
 potential_improvements = []
 
 print("=== CHECKING LOANWORD IMPROVEMENTS ===")
@@ -20,17 +21,19 @@ for name, info in data.items():
     if any(pattern in name for pattern in loanword_patterns):
         romanized = name.replace("_", ", ")
         actual = eng2kor(romanized)
-        
+
         if actual:
             roundtrip = kor2eng(actual)
             print(f"\n{name}:")
             print(f"  Romanized: {romanized}")
             print(f"  Korean: {actual}")
             print(f"  Roundtrip: {roundtrip}")
-            
+
             # Check if roundtrip is close enough
             if roundtrip:
-                normalized_original = romanized.lower().replace(",", "").replace(" ", "").replace("-", "")
+                normalized_original = (
+                    romanized.lower().replace(",", "").replace(" ", "").replace("-", "")
+                )
                 normalized_roundtrip = roundtrip.lower().replace(" ", "")
                 if normalized_original == normalized_roundtrip:
                     print(f"  ✅ PASS")

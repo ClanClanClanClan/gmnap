@@ -3,6 +3,7 @@
 Deep analysis of diverse dataset romanization patterns
 """
 import yaml, sys, os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 from converter import eng2kor, kor2eng
 
@@ -11,11 +12,13 @@ print("=== DIVERSE DATASET PATTERN ANALYSIS ===\n")
 with open("data/korean_diverse_test.yaml", encoding="utf8") as f:
     diverse_data = yaml.safe_load(f)
 
+
 def find_hangul(variants):
     for v in variants:
-        if isinstance(v, str) and any('\uac00' <= c <= '\ud7af' for c in v):
+        if isinstance(v, str) and any("\uac00" <= c <= "\ud7af" for c in v):
             return v.replace(" ", "")
     return None
+
 
 # Analyze romanization patterns in diverse dataset
 print("1. ROMANIZATION PATTERN ANALYSIS")
@@ -29,14 +32,14 @@ for name, info in diverse_data.items():
     rom = name.replace("_", ", ")
     expected = find_hangul(info.get("AllCommonVariants", []))
     actual = eng2kor(rom)
-    
+
     if not expected:
         continue
-        
+
     if actual != expected:
         # Analyze the specific issue
         if actual is None:
-            patterns.setdefault('None_failures', []).append((name, rom, expected))
+            patterns.setdefault("None_failures", []).append((name, rom, expected))
         elif len(actual) != len(expected):
             length_issues.append((name, rom, expected, actual, len(expected), len(actual)))
         else:
@@ -44,10 +47,10 @@ for name, info in diverse_data.items():
             for i, (exp_char, act_char) in enumerate(zip(expected, actual)):
                 if exp_char != act_char:
                     issue = f"{act_char}→{exp_char}"
-                    patterns.setdefault(f'char_sub_{i}', []).append((name, issue, rom))
-                    
+                    patterns.setdefault(f"char_sub_{i}", []).append((name, issue, rom))
+
                     # Check if it's a vowel issue
-                    vowels = ['ㅏ', 'ㅓ', 'ㅗ', 'ㅜ', 'ㅡ', 'ㅣ', 'ㅑ', 'ㅕ', 'ㅛ', 'ㅠ']
+                    vowels = ["ㅏ", "ㅓ", "ㅗ", "ㅜ", "ㅡ", "ㅣ", "ㅑ", "ㅕ", "ㅛ", "ㅠ"]
                     if any(v in exp_char for v in vowels) or any(v in act_char for v in vowels):
                         vowel_issues.append((name, rom, exp_char, act_char, i))
 
@@ -57,7 +60,7 @@ for name, info in diverse_data.items():
     rom = name.replace("_", ", ")
     expected = find_hangul(info.get("AllCommonVariants", []))
     actual = eng2kor(rom)
-    
+
     if actual is None and expected:
         none_failures.append((name, rom, expected))
 
@@ -93,7 +96,7 @@ for name, rom, expected, actual, exp_len, act_len in length_issues[:10]:
     print(f"  {name}: {rom}")
     print(f"    Expected: {expected} ({exp_len} chars)")
     print(f"    Actual: {actual} ({act_len} chars)")
-    
+
     # Try to identify segmentation issues
     if act_len > exp_len:
         print(f"    Issue: Over-segmentation")
@@ -105,8 +108,18 @@ print("\n5. TARGETED FIXES NEEDED")
 
 # Common romanization variants in diverse dataset
 diverse_patterns = [
-    'yuna', 'heui', 'suzy', 'duksoo', 'yojong', 'sunsin', 'sejong', 
-    'junggeun', 'kunhee', 'gildong', 'chunhyang', 'yeongja'
+    "yuna",
+    "heui",
+    "suzy",
+    "duksoo",
+    "yojong",
+    "sunsin",
+    "sejong",
+    "junggeun",
+    "kunhee",
+    "gildong",
+    "chunhyang",
+    "yeongja",
 ]
 
 print("Missing patterns that need mapping:")

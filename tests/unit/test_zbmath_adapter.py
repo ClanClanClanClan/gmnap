@@ -1,4 +1,5 @@
 """Unit tests for zbMATH Open authority adapter."""
+
 import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock
@@ -11,6 +12,7 @@ def offline_mode(monkeypatch):
 
 def _make_adapter():
     from src.authority.zbmath_open_adapter import ZbMathOpenAdapter
+
     return ZbMathOpenAdapter()
 
 

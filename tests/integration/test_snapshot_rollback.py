@@ -115,6 +115,7 @@ class TestSnapshotRollback:
 
         This validates the V7 idempotent_diff_bytes_max = 0 gate.
         """
+
         # Simulate processing: just sort and normalise
         def process(entries):
             return sorted(
@@ -135,11 +136,13 @@ class TestSnapshotRollback:
         subprocess.run(["git", "init"], cwd=repo, capture_output=True)
         subprocess.run(
             ["git", "config", "user.email", "test@gmnap.org"],
-            cwd=repo, capture_output=True,
+            cwd=repo,
+            capture_output=True,
         )
         subprocess.run(
             ["git", "config", "user.name", "GMNAP Test"],
-            cwd=repo, capture_output=True,
+            cwd=repo,
+            capture_output=True,
         )
 
         snap_file = repo / "snapshot.json"
@@ -149,7 +152,8 @@ class TestSnapshotRollback:
         subprocess.run(["git", "add", "."], cwd=repo, capture_output=True)
         subprocess.run(
             ["git", "commit", "-m", "Original snapshot"],
-            cwd=repo, capture_output=True,
+            cwd=repo,
+            capture_output=True,
         )
 
         original_hash = self._snapshot_hash(sample_entries)
@@ -161,7 +165,8 @@ class TestSnapshotRollback:
         subprocess.run(["git", "add", "."], cwd=repo, capture_output=True)
         subprocess.run(
             ["git", "commit", "-m", "Modified snapshot"],
-            cwd=repo, capture_output=True,
+            cwd=repo,
+            capture_output=True,
         )
 
         modified_hash = self._snapshot_hash(modified)
@@ -170,7 +175,9 @@ class TestSnapshotRollback:
         # Revert: git revert HEAD
         result = subprocess.run(
             ["git", "revert", "--no-commit", "HEAD"],
-            cwd=repo, capture_output=True, text=True,
+            cwd=repo,
+            capture_output=True,
+            text=True,
         )
         assert result.returncode == 0, f"git revert failed: {result.stderr}"
 
@@ -178,5 +185,6 @@ class TestSnapshotRollback:
         reverted = json.loads(snap_file.read_text())
         reverted_hash = self._snapshot_hash(reverted)
 
-        assert reverted_hash == original_hash, \
-            "git revert HEAD~1 must restore original snapshot coherence"
+        assert (
+            reverted_hash == original_hash
+        ), "git revert HEAD~1 must restore original snapshot coherence"

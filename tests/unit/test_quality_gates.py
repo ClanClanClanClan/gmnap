@@ -283,11 +283,24 @@ class TestCheckAll:
     def test_duplicate_fails_all(self):
         checker = QualityGateChecker(mode="quick")
         entries = [
-            {"GlobalID": "AAAAAAAAAAAAAAAAAAAAAA", "CanonicalLatin": "Smith", "CanonicalNative": "Smith"},
-            {"GlobalID": "AAAAAAAAAAAAAAAAAAAAAA", "CanonicalLatin": "Jones", "CanonicalNative": "Jones"},
+            {
+                "GlobalID": "AAAAAAAAAAAAAAAAAAAAAA",
+                "CanonicalLatin": "Smith",
+                "CanonicalNative": "Smith",
+            },
+            {
+                "GlobalID": "AAAAAAAAAAAAAAAAAAAAAA",
+                "CanonicalLatin": "Jones",
+                "CanonicalNative": "Jones",
+            },
         ]
-        metrics = {"graph_conflicts": 0, "edges": 0, "graph_coherence": 0.95,
-                   "projected_time_per_million": 20, "idempotency_diff_bytes": 0}
+        metrics = {
+            "graph_conflicts": 0,
+            "edges": 0,
+            "graph_coherence": 0.95,
+            "projected_time_per_million": 20,
+            "idempotency_diff_bytes": 0,
+        }
         all_ok, results = checker.check_all(entries, metrics)
         assert not all_ok
         assert not results["duplicate_global_id"][0]

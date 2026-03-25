@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 from .spec_loader import load_specs
 
@@ -12,6 +11,7 @@ SPDX = {
     "Commercial": "Proprietary",
     "Scraping": "Terms-of-Service",
 }
+
 
 def generate_attribution_text() -> str:
     try:

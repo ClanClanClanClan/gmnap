@@ -16,54 +16,54 @@ import pytest
 # Region classes to test: (module_path, class_name)
 # ---------------------------------------------------------------------------
 REGIONS_TO_TEST = [
-    ('src.regions.a_groups.a1_anglo_sphere', 'A1_AngloSphere'),
-    ('src.regions.a_groups.a2_western_europe', 'A2_WesternEurope'),
-    ('src.regions.b_groups.b1_east_slavic', 'B1_EastSlavic'),
-    ('src.regions.b_groups.b2_south_slavic_central', 'B2_SouthSlavicCentral'),
-    ('src.regions.c_groups.c2_persian_tajik', 'C2_PersianTajik'),
-    ('src.regions.c_groups.c5_arabic_maghreb', 'C5ArabicMaghreb'),
-    ('src.regions.c_groups.c6_hebrew_diaspora', 'C6HebrewDiaspora'),
-    ('src.regions.d_groups.d1_south_asia_hindi_belt', 'D1_SouthAsiaHindiBelt'),
-    ('src.regions.e_groups.e1_sinophone_mainland', 'E1_SinophoneMainland'),
-    ('src.regions.e_groups.e3_japan', 'E3_Japan'),
-    ('src.regions.g_groups.g1_latin_america', 'G1_LatinAmerica'),
+    ("src.regions.a_groups.a1_anglo_sphere", "A1_AngloSphere"),
+    ("src.regions.a_groups.a2_western_europe", "A2_WesternEurope"),
+    ("src.regions.b_groups.b1_east_slavic", "B1_EastSlavic"),
+    ("src.regions.b_groups.b2_south_slavic_central", "B2_SouthSlavicCentral"),
+    ("src.regions.c_groups.c2_persian_tajik", "C2_PersianTajik"),
+    ("src.regions.c_groups.c5_arabic_maghreb", "C5ArabicMaghreb"),
+    ("src.regions.c_groups.c6_hebrew_diaspora", "C6HebrewDiaspora"),
+    ("src.regions.d_groups.d1_south_asia_hindi_belt", "D1_SouthAsiaHindiBelt"),
+    ("src.regions.e_groups.e1_sinophone_mainland", "E1_SinophoneMainland"),
+    ("src.regions.e_groups.e3_japan", "E3_Japan"),
+    ("src.regions.g_groups.g1_latin_america", "G1_LatinAmerica"),
 ]
 
 # Test data per region
 TEST_CASES = {
-    'A1_AngloSphere': [
+    "A1_AngloSphere": [
         {"CanonicalLatin": "Smith, John William"},
         {"CanonicalLatin": "O'Brien, Mary Catherine"},
     ],
-    'A2_WesternEurope': [
+    "A2_WesternEurope": [
         {"CanonicalLatin": "García Márquez, Gabriel José"},
         {"CanonicalLatin": "Müller, François"},
     ],
-    'B1_EastSlavic': [
+    "B1_EastSlavic": [
         {"CanonicalLatin": "Ivanov, Aleksandr Petrovich"},
     ],
-    'B2_SouthSlavicCentral': [
+    "B2_SouthSlavicCentral": [
         {"CanonicalLatin": "Kowalski, Jan"},
     ],
-    'C2_PersianTajik': [
+    "C2_PersianTajik": [
         {"CanonicalLatin": "Mohammad Ahmadi"},
     ],
-    'C5ArabicMaghreb': [
+    "C5ArabicMaghreb": [
         {"CanonicalLatin": "Ben Ali, Mohamed"},
     ],
-    'C6HebrewDiaspora': [
+    "C6HebrewDiaspora": [
         {"CanonicalLatin": "Cohen, David"},
     ],
-    'D1_SouthAsiaHindiBelt': [
+    "D1_SouthAsiaHindiBelt": [
         {"CanonicalLatin": "Rajesh Kumar Sharma"},
     ],
-    'E1_SinophoneMainland': [
+    "E1_SinophoneMainland": [
         {"CanonicalLatin": "Wang Ming"},
     ],
-    'E3_Japan': [
+    "E3_Japan": [
         {"CanonicalLatin": "Tanaka Taro"},
     ],
-    'G1_LatinAmerica': [
+    "G1_LatinAmerica": [
         {"CanonicalLatin": "García López, Juan Carlos"},
     ],
 }
@@ -118,14 +118,14 @@ class TestRegionInstantiation:
 
     def test_each_has_code(self, instances):
         for name, inst in instances.items():
-            assert hasattr(inst, 'code'), f"{name} missing .code"
+            assert hasattr(inst, "code"), f"{name} missing .code"
             assert isinstance(inst.code, str), f"{name}.code not a string"
 
 
 class TestRegionMethods:
     """Test that all required methods exist and are callable."""
 
-    REQUIRED = ['clean', 'augment', 'validate', 'order_key']
+    REQUIRED = ["clean", "augment", "validate", "order_key"]
 
     def test_methods_exist(self, instances):
         for name, inst in instances.items():

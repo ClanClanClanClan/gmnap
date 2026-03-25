@@ -20,27 +20,29 @@ sys.path.insert(0, str(E4_ROOT / "src"))
 
 try:
     from src.converter import eng2kor, kor2eng
+
     CONVERTER_AVAILABLE = True
 except ImportError as e:
     logging.error(f"Korean v6 converter core modules not available: {e}")
     CONVERTER_AVAILABLE = False
 
+
 class KoreanConverterV6:
     """
     Korean Converter v6 implementing GMNAP v6.1 E4 regional requirements.
-    
+
     Features:
     - Bidirectional Korean ↔ English conversion
     - ≥97% round-trip accuracy (GMNAP v6.1 Rule 11)
     - Hyphen/space variation handling (GMNAP v6.1 Rule 13)
     - FST-based deterministic conversion
     """
-    
+
     def __init__(self, e4_root: Optional[Path] = None):
         """Initialize Korean v6 converter."""
         self.e4_root = e4_root or E4_ROOT
         self.initialized = False
-        
+
         if CONVERTER_AVAILABLE:
             # Change to E4 directory for resource loading
             original_cwd = os.getcwd()
@@ -56,20 +58,20 @@ class KoreanConverterV6:
                 os.chdir(original_cwd)
         else:
             logging.warning("Korean v6 converter not available - core modules missing")
-    
+
     def english_to_korean(self, english_name: str) -> Optional[str]:
         """
         Convert English romanized name to Korean Hangul.
-        
+
         Args:
             english_name: English romanized name (e.g., "Kim Young Soo")
-            
+
         Returns:
             Korean Hangul name (e.g., "김영수") or None if conversion fails
         """
         if not self.initialized:
             return None
-            
+
         try:
             original_cwd = os.getcwd()
             os.chdir(self.e4_root)
@@ -79,20 +81,20 @@ class KoreanConverterV6:
         except Exception as e:
             logging.error(f"Error converting '{english_name}' to Korean: {e}")
             return None
-    
+
     def korean_to_english(self, korean_name: str) -> Optional[str]:
         """
         Convert Korean Hangul name to English romanization.
-        
+
         Args:
             korean_name: Korean Hangul name (e.g., "김영수")
-            
+
         Returns:
             English romanized name (e.g., "kim young soo") or None if conversion fails
         """
         if not self.initialized:
             return None
-            
+
         try:
             original_cwd = os.getcwd()
             os.chdir(self.e4_root)
@@ -102,51 +104,52 @@ class KoreanConverterV6:
         except Exception as e:
             logging.error(f"Error converting '{korean_name}' to English: {e}")
             return None
-    
+
     def validate_round_trip(self, english_name: str) -> float:
         """
         Validate round-trip conversion accuracy using Dice coefficient.
-        
+
         Args:
             english_name: Original English name
-            
+
         Returns:
             Dice similarity score (0.0-1.0), with ≥0.97 indicating compliance
         """
         korean = self.english_to_korean(english_name)
         if not korean:
             return 0.0
-            
+
         english_back = self.korean_to_english(korean)
         if not english_back:
             return 0.0
-            
+
         # Normalize for comparison (NFC casefold, remove spaces)
         import unicodedata
+
         def norm(s):
             return unicodedata.normalize("NFC", s.casefold().replace(" ", ""))
-        
+
         orig_norm = norm(english_name)
         back_norm = norm(english_back)
-        
+
         # Dice coefficient using character bigrams
         orig_bigrams = set(zip(orig_norm, orig_norm[1:]))
         back_bigrams = set(zip(back_norm, back_norm[1:]))
-        
+
         if not orig_bigrams and not back_bigrams:
             return 1.0
         if not orig_bigrams or not back_bigrams:
             return 0.0
-            
+
         intersection = len(orig_bigrams & back_bigrams)
         total = len(orig_bigrams) + len(back_bigrams)
-        
+
         return 2 * intersection / total if total > 0 else 0.0
-    
+
     def is_available(self) -> bool:
         """Check if the converter is properly initialized and available."""
         return self.initialized
-    
+
     def get_status(self) -> dict:
         """Get converter status and configuration."""
         return {
@@ -156,13 +159,15 @@ class KoreanConverterV6:
             "core_modules_available": CONVERTER_AVAILABLE,
         }
 
+
 # Convenience functions for backward compatibility
 def eng2kor_v6(name: str) -> Optional[str]:
     """Convert English to Korean using v6 converter."""
     converter = KoreanConverterV6()
     return converter.english_to_korean(name)
 
+
 def kor2eng_v6(name: str) -> Optional[str]:
     """Convert Korean to English using v6 converter."""
-    converter = KoreanConverterV6()  
+    converter = KoreanConverterV6()
     return converter.korean_to_english(name)

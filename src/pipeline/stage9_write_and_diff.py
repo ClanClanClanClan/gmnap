@@ -1,8 +1,14 @@
 """Stage 9: Write&Diff - Deterministic YAML snapshot, HTML diff, SQL changelog."""
+
 from __future__ import annotations
 import os, json, pathlib, hashlib, datetime, difflib, shutil, unicodedata
 from typing import Dict, List, Tuple
-from src.ops.metrics_ext import WRITE_DIFF_ADDED, WRITE_DIFF_REMOVED, WRITE_DIFF_MODIFIED, WRITE_DIFF_LATEST
+from src.ops.metrics_ext import (
+    WRITE_DIFF_ADDED,
+    WRITE_DIFF_REMOVED,
+    WRITE_DIFF_MODIFIED,
+    WRITE_DIFF_LATEST,
+)
 
 _VOLATILE_KEYS = {"ProcessedAt", "ProcessingLatencyMs", "_debug", "_trace_id", "_meta"}
 
@@ -26,11 +32,13 @@ def _scrub(entry: Dict) -> Dict:
 
 def _order_entry(e: Dict) -> Dict:
     """Sort nested structures deterministically."""
+
     def sort_list(xs):
         try:
             return sorted(xs, key=lambda x: json.dumps(x, sort_keys=True, ensure_ascii=True))
         except Exception:
             return xs
+
     out = {}
     for k in sorted(e.keys()):
         v = e[k]
@@ -46,8 +54,7 @@ def _order_entry(e: Dict) -> Dict:
 def _batch_hash(batch: List[Dict]) -> str:
     """Deterministic hash for a batch."""
     canonical = json.dumps(
-        [_order_entry(_scrub(dict(e))) for e in batch],
-        sort_keys=True, ensure_ascii=False
+        [_order_entry(_scrub(dict(e))) for e in batch], sort_keys=True, ensure_ascii=False
     ).encode("utf-8")
     return hashlib.sha256(canonical).hexdigest()[:16]
 
@@ -60,6 +67,7 @@ def _write_yaml_file(data: Dict, path: pathlib.Path):
     """Write a single YAML entry file."""
     try:
         from ruamel.yaml import YAML
+
         y = YAML()
         y.default_flow_style = False
         y.indent(sequence=2, offset=2)
@@ -70,12 +78,14 @@ def _write_yaml_file(data: Dict, path: pathlib.Path):
             y.dump(data, f)
     except ImportError:
         import yaml
+
         with open(path, "w", encoding="utf-8") as f:
             yaml.dump(data, f, default_flow_style=False, allow_unicode=True, sort_keys=True)
 
 
-def write_snapshot(batch: List[Dict], out_root: str = "out/yaml",
-                   run_hash: str | None = None) -> str:
+def write_snapshot(
+    batch: List[Dict], out_root: str = "out/yaml", run_hash: str | None = None
+) -> str:
     """
     Write a deterministic YAML snapshot: one file per entry under out/yaml/run-<hash>/.
     Returns the snapshot directory path.
@@ -87,7 +97,9 @@ def write_snapshot(batch: List[Dict], out_root: str = "out/yaml",
     # Write manifest
     manifest = {
         "run_hash": run_hash,
-        "generated_utc": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+        "generated_utc": datetime.datetime.now(datetime.timezone.utc)
+        .isoformat()
+        .replace("+00:00", "Z"),
         "count": len(batch),
         "schema_version": "7.0",
     }
@@ -110,18 +122,23 @@ def write_snapshot(batch: List[Dict], out_root: str = "out/yaml",
     # Update snapshot index
     idx_path = pathlib.Path(out_root) / "SNAPSHOT_INDEX.json"
     idx_path.parent.mkdir(parents=True, exist_ok=True)
-    idx = {"latest": str(snap_dir), "run_hash": run_hash,
-           "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")}
+    idx = {
+        "latest": str(snap_dir),
+        "run_hash": run_hash,
+        "timestamp": datetime.datetime.now(datetime.timezone.utc)
+        .isoformat()
+        .replace("+00:00", "Z"),
+    }
     with open(idx_path, "w", encoding="utf-8") as f:
         json.dump(idx, f, ensure_ascii=False, indent=2)
 
     return str(snap_dir)
 
 
-def diff_snapshots(prev_dir: str, curr_dir: str,
-                   out_dir: str | None = None) -> Dict[str, int]:
+def diff_snapshots(prev_dir: str, curr_dir: str, out_dir: str | None = None) -> Dict[str, int]:
     """Diff two snapshot directories and write HTML report with per-file diffs."""
-    prev = pathlib.Path(prev_dir); curr = pathlib.Path(curr_dir)
+    prev = pathlib.Path(prev_dir)
+    curr = pathlib.Path(curr_dir)
     out_dir_p = pathlib.Path(out_dir or (str(curr) + "/diff"))
     if out_dir_p.exists():
         shutil.rmtree(out_dir_p)
@@ -141,8 +158,9 @@ def diff_snapshots(prev_dir: str, curr_dir: str,
         if a != b:
             modified.append(name)
             d = difflib.HtmlDiff(tabsize=2, wrapcolumn=120)
-            html = d.make_file(a.splitlines(), b.splitlines(),
-                               fromdesc=f"prev/{name}", todesc=f"curr/{name}")
+            html = d.make_file(
+                a.splitlines(), b.splitlines(), fromdesc=f"prev/{name}", todesc=f"curr/{name}"
+            )
             (out_dir_p / f"{name}.html").write_text(html, encoding="utf-8")
 
     # Write index HTML
@@ -150,8 +168,10 @@ def diff_snapshots(prev_dir: str, curr_dir: str,
     index.append("<h1>Write&amp;Diff Report</h1>")
     index.append(f"<p><b>Prev:</b> {prev}</p><p><b>Curr:</b> {curr}</p>")
     index.append("<h2>Summary</h2>")
-    index.append(f"<ul><li>Added: {len(added)}</li><li>Removed: {len(removed)}</li>"
-                 f"<li>Modified: {len(modified)}</li></ul>")
+    index.append(
+        f"<ul><li>Added: {len(added)}</li><li>Removed: {len(removed)}</li>"
+        f"<li>Modified: {len(modified)}</li></ul>"
+    )
     if modified:
         index.append("<h2>Modified</h2><ul>")
         for n in modified:
@@ -175,14 +195,16 @@ def diff_snapshots(prev_dir: str, curr_dir: str,
     return summary
 
 
-def generate_sql_changelog(prev_snapshot: str, curr_snapshot: str,
-                           out_path: str | None = None) -> str:
+def generate_sql_changelog(
+    prev_snapshot: str, curr_snapshot: str, out_path: str | None = None
+) -> str:
     """Emit deterministic SQL changelog for audit table."""
-    prev = pathlib.Path(prev_snapshot); curr = pathlib.Path(curr_snapshot)
+    prev = pathlib.Path(prev_snapshot)
+    curr = pathlib.Path(curr_snapshot)
     out_path = out_path or str(curr / "diff" / "changelog.sql")
     sql_lines = [
         "-- GMNAP Stage 9 SQL changelog",
-        "CREATE TABLE IF NOT EXISTS gmnap_changelog (ts TEXT, op TEXT, global_id TEXT, details TEXT);"
+        "CREATE TABLE IF NOT EXISTS gmnap_changelog (ts TEXT, op TEXT, global_id TEXT, details TEXT);",
     ]
 
     prev_files = {p.name for p in prev.glob("*.yaml")} if prev.exists() else set()
@@ -197,13 +219,15 @@ def generate_sql_changelog(prev_snapshot: str, curr_snapshot: str,
         gid = name[:-5]
         sql_lines.append(
             f"INSERT INTO gmnap_changelog(ts,op,global_id,details) "
-            f"VALUES('{utc}','INSERT','{gid}','new entry');")
+            f"VALUES('{utc}','INSERT','{gid}','new entry');"
+        )
 
     for name in removed:
         gid = name[:-5]
         sql_lines.append(
             f"INSERT INTO gmnap_changelog(ts,op,global_id,details) "
-            f"VALUES('{utc}','DELETE','{gid}','removed');")
+            f"VALUES('{utc}','DELETE','{gid}','removed');"
+        )
 
     for name in common:
         a = (prev / name).read_text(encoding="utf-8") if (prev / name).exists() else ""
@@ -212,7 +236,8 @@ def generate_sql_changelog(prev_snapshot: str, curr_snapshot: str,
             gid = name[:-5]
             sql_lines.append(
                 f"INSERT INTO gmnap_changelog(ts,op,global_id,details) "
-                f"VALUES('{utc}','UPDATE','{gid}','modified');")
+                f"VALUES('{utc}','UPDATE','{gid}','modified');"
+            )
 
     out_file = pathlib.Path(out_path)
     out_file.parent.mkdir(parents=True, exist_ok=True)
@@ -220,10 +245,12 @@ def generate_sql_changelog(prev_snapshot: str, curr_snapshot: str,
     return str(out_file)
 
 
-def generate_cypher_changelog(prev_snapshot: str, curr_snapshot: str,
-                              out_path: str | None = None) -> str:
+def generate_cypher_changelog(
+    prev_snapshot: str, curr_snapshot: str, out_path: str | None = None
+) -> str:
     """Emit deterministic Cypher changelog for graph DB audit."""
-    prev = pathlib.Path(prev_snapshot); curr = pathlib.Path(curr_snapshot)
+    prev = pathlib.Path(prev_snapshot)
+    curr = pathlib.Path(curr_snapshot)
     out_path = out_path or str(curr / "diff" / "changelog.cypher")
 
     prev_files = {p.name for p in prev.glob("*.yaml")} if prev.exists() else set()
@@ -243,13 +270,15 @@ def generate_cypher_changelog(prev_snapshot: str, curr_snapshot: str,
         gid = name[:-5]
         cypher_lines.append(
             f"MERGE (m:Mathematician {{globalId: '{gid}'}}) "
-            f"SET m.updatedAt = '{utc}', m._changeType = 'INSERT';")
+            f"SET m.updatedAt = '{utc}', m._changeType = 'INSERT';"
+        )
 
     for name in removed:
         gid = name[:-5]
         cypher_lines.append(
             f"MATCH (m:Mathematician {{globalId: '{gid}'}}) "
-            f"SET m._deletedAt = '{utc}', m._changeType = 'DELETE';")
+            f"SET m._deletedAt = '{utc}', m._changeType = 'DELETE';"
+        )
 
     for name in common:
         a = (prev / name).read_text(encoding="utf-8") if (prev / name).exists() else ""
@@ -258,7 +287,8 @@ def generate_cypher_changelog(prev_snapshot: str, curr_snapshot: str,
             gid = name[:-5]
             cypher_lines.append(
                 f"MATCH (m:Mathematician {{globalId: '{gid}'}}) "
-                f"SET m.updatedAt = '{utc}', m._changeType = 'UPDATE';")
+                f"SET m.updatedAt = '{utc}', m._changeType = 'UPDATE';"
+            )
 
     out_file = pathlib.Path(out_path)
     out_file.parent.mkdir(parents=True, exist_ok=True)

@@ -1,4 +1,5 @@
 """Unit tests for ORCID ETD authority adapter."""
+
 import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock
@@ -11,6 +12,7 @@ def offline_mode(monkeypatch):
 
 def _make_adapter():
     from src.authority.orcid_etd_adapter import ORCIDETDAdapter
+
     return ORCIDETDAdapter()
 
 
@@ -31,10 +33,12 @@ class TestORCIDETDAdapter:
         adapter = _make_adapter()
         mock_r = MagicMock(status_code=200)
         mock_r.json.return_value = {
-            "expanded-result": [{
-                "orcid-id": "0000-0001-2345-6789",
-                "institution-name": ["MIT", "Stanford"],
-            }]
+            "expanded-result": [
+                {
+                    "orcid-id": "0000-0001-2345-6789",
+                    "institution-name": ["MIT", "Stanford"],
+                }
+            ]
         }
         adapter.ctx.http = AsyncMock(get=AsyncMock(return_value=mock_r))
         adapter.ctx.cache = AsyncMock(get_json=AsyncMock(return_value=None), set_json=AsyncMock())

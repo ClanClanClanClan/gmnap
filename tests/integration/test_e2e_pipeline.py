@@ -1,4 +1,5 @@
 """End-to-end integration test: run full V7 pipeline on fixture data."""
+
 import asyncio
 import json
 import os
@@ -57,8 +58,7 @@ class TestE2EPipeline:
 
         # Metrics
         metrics = report["metrics"]
-        assert metrics.get("schema_errors", 999) < len(processed), \
-            "Too many schema errors"
+        assert metrics.get("schema_errors", 999) < len(processed), "Too many schema errors"
 
     def test_pipeline_handles_single_entry(self):
         """Pipeline works with just one entry."""

@@ -1,9 +1,16 @@
 import csv, collections, unicodedata as ud, pathlib, sys
+
 rows, best = [], {}
 for row in csv.reader(open("resources/rr_syllable_map.csv")):
-    if len(row)<3: continue
+    if len(row) < 3:
+        continue
     han, rom, w, *rest = [ud.normalize("NFC", c.strip()) for c in row[:4]]
-    key = (han, rom.lower(), rest[0] if rest else "", rest[1] if len(rest)>1 else "")  # han,rom,pos,context
+    key = (
+        han,
+        rom.lower(),
+        rest[0] if rest else "",
+        rest[1] if len(rest) > 1 else "",
+    )  # han,rom,pos,context
     try:
         w = float(w)
         row[2] = f"{w:.4f}"

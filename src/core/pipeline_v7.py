@@ -28,7 +28,11 @@ from src.pipeline.stage3_region_hooks import stage3_region_hooks
 from src.pipeline.stage5_collision_analytics import stage5_collision_analytics
 from src.pipeline.stage7_tag_short_forms import tag_short_forms
 from src.pipeline.stage8_global_validate import stage8_global_validate
-from src.pipeline.stage9_write_and_diff import write_snapshot, diff_snapshots, generate_sql_changelog
+from src.pipeline.stage9_write_and_diff import (
+    write_snapshot,
+    diff_snapshots,
+    generate_sql_changelog,
+)
 from src.pipeline.stage10_report import generate_report
 from src.pipeline.stage11_idempotency_check import idempotency_check
 
@@ -68,14 +72,16 @@ logger = logging.getLogger(__name__)
 
 class PipelineMode(Enum):
     """V7 runtime profiles from spec section 6."""
-    QUICK = "quick"      # tier-0 APIs, 4 workers, <=35 min/1M
-    FULL = "full"        # tier-0+1 APIs, 8 workers, <=70 min/1M
+
+    QUICK = "quick"  # tier-0 APIs, 4 workers, <=35 min/1M
+    FULL = "full"  # tier-0+1 APIs, 8 workers, <=70 min/1M
     EXTREME = "extreme"  # all tiers, 12 workers, no SLA
 
 
 @dataclass
 class V7QualityGates:
     """Quality gates from specs_v7.yaml section 7, mode-aware."""
+
     duplicate_global_id: int = 0
     duplicate_external_id_pct_max: float = 0.10
     roundtrip_script_rate_min: float = 0.97
@@ -89,6 +95,7 @@ class V7QualityGates:
 @dataclass
 class PipelineMetrics:
     """Metrics tracked during pipeline execution."""
+
     total_entries: int = 0
     processed_entries: int = 0
     failed_entries: int = 0
@@ -125,7 +132,7 @@ class PipelineMetrics:
     def projected_time_per_million(self) -> float:
         if self.entries_per_second > 0:
             return (1_000_000 / self.entries_per_second) / 60
-        return float('inf')
+        return float("inf")
 
     @property
     def peak_rss_gb(self) -> float:
@@ -133,6 +140,7 @@ class PipelineMetrics:
             ru = resource.getrusage(resource.RUSAGE_SELF)
             # macOS returns bytes, Linux returns KB
             import platform
+
             if platform.system() == "Darwin":
                 return ru.ru_maxrss / (1024 * 1024 * 1024)
             return ru.ru_maxrss / (1024 * 1024)
@@ -160,8 +168,7 @@ class V7Pipeline:
     11. IdempotencyCheck - Rerun pipeline, assert identical
     """
 
-    def __init__(self, mode: PipelineMode = PipelineMode.QUICK,
-                 output_dir: str = "out/yaml"):
+    def __init__(self, mode: PipelineMode = PipelineMode.QUICK, output_dir: str = "out/yaml"):
         self.mode = mode
         self.output_dir = output_dir
         self.config = self._load_config()
@@ -200,14 +207,11 @@ class V7Pipeline:
         return gates
 
     def _get_worker_count(self) -> int:
-        return {
-            PipelineMode.QUICK: 4,
-            PipelineMode.FULL: 8,
-            PipelineMode.EXTREME: 12
-        }[self.mode]
+        return {PipelineMode.QUICK: 4, PipelineMode.FULL: 8, PipelineMode.EXTREME: 12}[self.mode]
 
-    async def process_batch(self, entries: List[Dict[str, Any]],
-                            chunk_size: int | None = None) -> Dict[str, Any]:
+    async def process_batch(
+        self, entries: List[Dict[str, Any]], chunk_size: int | None = None
+    ) -> Dict[str, Any]:
         """Process a batch of entries through the full V7 pipeline.
 
         Chunk size and inflight limits are read from environment variables:
@@ -217,15 +221,18 @@ class V7Pipeline:
         """
         # Honour env var overrides (V7 spec streaming config)
         if chunk_size is None:
-            chunk_size = int(os.getenv("GMNAP_CHUNK",
-                             self.config.get("streaming_chunk_size", 8000)))
+            chunk_size = int(
+                os.getenv("GMNAP_CHUNK", self.config.get("streaming_chunk_size", 8000))
+            )
         inflight = int(os.getenv("GMNAP_INFLIGHT", self.workers))
         self.workers = inflight
 
         self.metrics = PipelineMetrics()
         self.metrics.total_entries = len(entries)
-        logger.info(f"V7 Pipeline: mode={self.mode.value}, entries={len(entries)}, "
-                     f"workers={self.workers}, chunk_size={chunk_size}")
+        logger.info(
+            f"V7 Pipeline: mode={self.mode.value}, entries={len(entries)}, "
+            f"workers={self.workers}, chunk_size={chunk_size}"
+        )
 
         # Stage 0: Config
         await self._timed_stage("0_config", self._stage_0_config)
@@ -233,19 +240,31 @@ class V7Pipeline:
         # Process in chunks for memory efficiency
         all_results = []
         for i in range(0, len(entries), chunk_size):
-            chunk = entries[i:i + chunk_size]
+            chunk = entries[i : i + chunk_size]
             logger.info(f"Chunk {i // chunk_size + 1}: {len(chunk)} entries")
 
             results = chunk
             results = await self._timed_stage("1_ingest", self._stage_1_ingest, results)
             results = await self._timed_stage("1b_llm_etd", self._stage_1b_llm_etd, results)
-            results = await self._timed_stage("2_detect_region", self._stage_2_detect_region, results)
+            results = await self._timed_stage(
+                "2_detect_region", self._stage_2_detect_region, results
+            )
             results = await self._timed_stage("3_region_hooks", self._stage_3_region_hooks, results)
-            results = await self._timed_stage("4_authority_enrich", self._stage_4_authority_enrich, results)
-            results = await self._timed_stage("5_collision_analytics", self._stage_5_collision_analytics, results)
-            results = await self._timed_stage("6_graph_consistency", self._stage_6_graph_consistency, results)
-            results = await self._timed_stage("7_tag_short_forms", self._stage_7_tag_short_forms, results)
-            results = await self._timed_stage("8_global_validate", self._stage_8_global_validate, results)
+            results = await self._timed_stage(
+                "4_authority_enrich", self._stage_4_authority_enrich, results
+            )
+            results = await self._timed_stage(
+                "5_collision_analytics", self._stage_5_collision_analytics, results
+            )
+            results = await self._timed_stage(
+                "6_graph_consistency", self._stage_6_graph_consistency, results
+            )
+            results = await self._timed_stage(
+                "7_tag_short_forms", self._stage_7_tag_short_forms, results
+            )
+            results = await self._timed_stage(
+                "8_global_validate", self._stage_8_global_validate, results
+            )
 
             all_results.extend(results)
 
@@ -344,7 +363,9 @@ class V7Pipeline:
         """Stage 3: RegionHooks - clean->augment->validate->order_key."""
         return stage3_region_hooks(entries, self.region_manager)
 
-    async def _stage_4_authority_enrich(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_4_authority_enrich(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 4: AuthorityEnrich - Fetch from tier-appropriate sources."""
         tiers = {
             PipelineMode.QUICK: [0],
@@ -355,13 +376,16 @@ class V7Pipeline:
 
         try:
             from src.authority.manager_tier01 import enrich_by_tiers
+
             entries = await enrich_by_tiers(entries, tiers=tiers)
         except (ImportError, Exception) as e:
             logger.warning(f"Authority enrichment unavailable: {e}")
 
         return entries
 
-    async def _stage_5_collision_analytics(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_5_collision_analytics(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 5: CollisionAnalytics - DuckDB duplicate detection, suffix GlobalIDs."""
         # Generate GlobalIDs if missing
         for entry in entries:
@@ -383,7 +407,9 @@ class V7Pipeline:
         self.metrics.duplicate_global_ids = dup_gids
         return results
 
-    async def _stage_6_graph_consistency(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_6_graph_consistency(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 6: GraphConsistency - Betweenness, Bayesian confidence, reject cycles <3."""
         bolt_uri = os.getenv("MEMGRAPH_BOLT", "")
         if MemgraphOps and bolt_uri:
@@ -395,19 +421,19 @@ class V7Pipeline:
                     auth = (mg_user, mg_pass)
                 ops = MemgraphOps(uri=bolt_uri, auth=auth)
                 try:
-                    if hasattr(ops, 'import_entries'):
+                    if hasattr(ops, "import_entries"):
                         ops.import_entries(entries)
-                    if hasattr(ops, 'calculate_betweenness_centrality'):
+                    if hasattr(ops, "calculate_betweenness_centrality"):
                         scores = ops.calculate_betweenness_centrality()
                         for e in entries:
                             gid = e.get("GlobalID", "")
                             if gid in scores:
                                 e["BetweennessScore"] = scores[gid]
-                    if hasattr(ops, 'detect_cycles'):
+                    if hasattr(ops, "detect_cycles"):
                         cycles = ops.detect_cycles(max_depth=3)
                         self.metrics.graph_conflicts = len(cycles) if cycles else 0
                 finally:
-                    if hasattr(ops, 'close'):
+                    if hasattr(ops, "close"):
                         ops.close()
             except Exception as e:
                 logger.warning(f"Graph consistency (Memgraph) failed: {e}")
@@ -456,6 +482,7 @@ class V7Pipeline:
         DetectedRegion, authority data, etc. are already present.
         """
         from src.regions.base import TERRITORY_TO_REGION
+
         # Build reverse map: region -> primary country codes
         _region_to_countries: Dict[str, List[str]] = {}
         for cc, reg in TERRITORY_TO_REGION.items():
@@ -476,18 +503,37 @@ class V7Pipeline:
             if not e.get("LanguageOfPublication"):
                 region = e.get("DetectedRegion", "R0")
                 lang_map = {
-                    "A1": ["eng"], "A2": ["eng"], "A3": ["eng"],
-                    "B1": ["rus"], "B2": ["eng"], "B3": ["ell"],
-                    "C1": ["tur"], "C2": ["fas"], "C3": ["ara"],
-                    "C4": ["ara"], "C5": ["ara"], "C6": ["heb"],
-                    "C7": ["hye"], "C8": ["kat"],
-                    "D1": ["hin", "eng"], "D2": ["tam", "eng"],
-                    "D3": ["ben"], "D4": ["urd", "eng"], "D5": ["sin"],
-                    "E1": ["zho"], "E2": ["zho"], "E3": ["jpn"],
-                    "E4": ["kor"], "E5": ["vie"], "E6": ["tha"],
+                    "A1": ["eng"],
+                    "A2": ["eng"],
+                    "A3": ["eng"],
+                    "B1": ["rus"],
+                    "B2": ["eng"],
+                    "B3": ["ell"],
+                    "C1": ["tur"],
+                    "C2": ["fas"],
+                    "C3": ["ara"],
+                    "C4": ["ara"],
+                    "C5": ["ara"],
+                    "C6": ["heb"],
+                    "C7": ["hye"],
+                    "C8": ["kat"],
+                    "D1": ["hin", "eng"],
+                    "D2": ["tam", "eng"],
+                    "D3": ["ben"],
+                    "D4": ["urd", "eng"],
+                    "D5": ["sin"],
+                    "E1": ["zho"],
+                    "E2": ["zho"],
+                    "E3": ["jpn"],
+                    "E4": ["kor"],
+                    "E5": ["vie"],
+                    "E6": ["tha"],
                     "E7": ["msa", "eng"],
-                    "F1": ["fra"], "F2": ["eng"], "F3": ["amh"],
-                    "F4": ["por"], "G1": ["spa", "por"],
+                    "F1": ["fra"],
+                    "F2": ["eng"],
+                    "F3": ["amh"],
+                    "F4": ["por"],
+                    "G1": ["spa", "por"],
                 }
                 e["LanguageOfPublication"] = lang_map.get(region, ["eng"])
 
@@ -539,9 +585,11 @@ class V7Pipeline:
         # GMNAP_SCHEMA_STRICT: 0=advisory (default), 1=quarantine all, 2=reject all
         schema_strict = int(os.getenv("GMNAP_SCHEMA_STRICT", "0"))
         results, val_metrics = stage8_global_validate(
-            entries, mode=self.mode.value,
+            entries,
+            mode=self.mode.value,
             graph_coherence=self.metrics.graph_coherence,
-            schema_strict=schema_strict)
+            schema_strict=schema_strict,
+        )
         self.metrics.schema_errors = val_metrics.get("schema_errors", 0)
         self.metrics.roundtrip_failures = val_metrics.get("roundtrip_failures", 0)
         self.metrics.schema_quarantined = val_metrics.get("quarantined_count", 0)
@@ -556,10 +604,13 @@ class V7Pipeline:
 
         if self.prev_snapshot_dir and Path(self.prev_snapshot_dir).exists():
             diff_summary = diff_snapshots(self.prev_snapshot_dir, snapshot_dir)
-            logger.info(f"Diff: +{diff_summary['added']} -{diff_summary['removed']} ~{diff_summary['modified']}")
+            logger.info(
+                f"Diff: +{diff_summary['added']} -{diff_summary['removed']} ~{diff_summary['modified']}"
+            )
             generate_sql_changelog(self.prev_snapshot_dir, snapshot_dir)
             try:
                 from src.pipeline.stage9_write_and_diff import generate_cypher_changelog
+
                 generate_cypher_changelog(self.prev_snapshot_dir, snapshot_dir)
             except (ImportError, Exception) as e:
                 logger.debug(f"Cypher changelog skipped: {e}")
@@ -581,9 +632,13 @@ class V7Pipeline:
             "roundtrip_failures": self.metrics.roundtrip_failures,
             "graph_coherence": self.metrics.graph_coherence,
         }
-        generate_report(entries, metrics=metrics_dict, snapshot_dir=snapshot_dir,
-                        shortform_clusters=self._shortform_clusters,
-                        mode=self.mode.value.capitalize())
+        generate_report(
+            entries,
+            metrics=metrics_dict,
+            snapshot_dir=snapshot_dir,
+            shortform_clusters=self._shortform_clusters,
+            mode=self.mode.value.capitalize(),
+        )
         self.metrics.stage_timings["10_report"] = time.time() - t0
 
     def _stage_11_idempotency_check(self, entries: List[Dict[str, Any]], snapshot_dir: str) -> None:
@@ -595,7 +650,8 @@ class V7Pipeline:
         """
         t0 = time.time()
         _, idemp_metrics = idempotency_check(
-            entries, snapshot_dir=snapshot_dir, mode="shuffled", strict=False)
+            entries, snapshot_dir=snapshot_dir, mode="shuffled", strict=False
+        )
         self.metrics.idempotency_diff_bytes = int(idemp_metrics.get("idempotency_diff_bytes", 0))
         self.metrics.stage_timings["11_idempotency"] = time.time() - t0
 
@@ -613,6 +669,7 @@ class V7Pipeline:
                 pass
         # Fallback
         import base64
+
         canonical = entry.get("CanonicalNative") or entry.get("CanonicalLatin", "")
         birth = str(entry.get("BirthYear", ""))
         death = str(entry.get("DeathYear", ""))
@@ -700,7 +757,10 @@ class V7Pipeline:
         if not ok:
             all_passed = False
 
-        ok = m.projected_time_per_million <= gates.warm_cache_runtime_per_1M_min or m.processed_entries < 100
+        ok = (
+            m.projected_time_per_million <= gates.warm_cache_runtime_per_1M_min
+            or m.processed_entries < 100
+        )
         results["runtime_per_1M"] = ok
         if not ok:
             all_passed = False
@@ -746,8 +806,8 @@ class V7Pipeline:
                     "roundtrip_script_rate_min": self.quality_gates.roundtrip_script_rate_min,
                     "peak_rss_gb": self.quality_gates.peak_rss_gb_on_2M,
                     "idempotent_diff_bytes_max": self.quality_gates.idempotent_diff_bytes_max,
-                }
-            }
+                },
+            },
         }
 
 

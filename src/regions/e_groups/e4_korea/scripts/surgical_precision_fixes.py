@@ -28,40 +28,32 @@ existing_mappings = {(row[0], row[1]) for row in rows if len(row) >= 2}
 # SURGICAL FIXES based on exact failure analysis
 surgical_fixes = [
     # 1. FOREIGN ELEMENT PRECISION
-    ("래", "lai", "-0.9"),      # lai → 래 (for Kai-Lai, distinct from rae)
-    
-    # 2. CONTEXT DISAMBIGUATION 
-    ("정", "jeong", "-0.4"),    # jeong → 정 (surname context, lighter than existing)
-    
+    ("래", "lai", "-0.9"),  # lai → 래 (for Kai-Lai, distinct from rae)
+    # 2. CONTEXT DISAMBIGUATION
+    ("정", "jeong", "-0.4"),  # jeong → 정 (surname context, lighter than existing)
     # 3. SEGMENTATION PRECISION
-    ("준", "joon", "-0.7"),     # joon → 준 (for SeongJoon = Seong + Joon)
-    ("준", "june", "-0.3"),     # june → 준 (alternative for compound names)
-    
+    ("준", "joon", "-0.7"),  # joon → 준 (for SeongJoon = Seong + Joon)
+    ("준", "june", "-0.3"),  # june → 준 (alternative for compound names)
     # 4. INITIAL HANDLING
-    ("제이", "j.", "-0.5"),     # j. → 제이 (middle initial with period)
-    ("제이", "j", "-0.3"),      # j → 제이 (middle initial without period)
-    
-    # 5. SURNAME DISAMBIGUATION  
-    ("리", "ri", "-0.8"),       # ri → 리 (distinct from lee → 이)
-    
+    ("제이", "j.", "-0.5"),  # j. → 제이 (middle initial with period)
+    ("제이", "j", "-0.3"),  # j → 제이 (middle initial without period)
+    # 5. SURNAME DISAMBIGUATION
+    ("리", "ri", "-0.8"),  # ri → 리 (distinct from lee → 이)
     # 6. ADDITIONAL PRECISION TARGETS
-    ("민정", "minjeong", "-0.6"), # minjeong → 민정 (compound)
-    ("성준", "seongjoon", "-0.6"), # seongjoon → 성준 (compound)
-    ("영철", "youngchul", "-0.6"), # youngchul → 영철 (compound)
-    
+    ("민정", "minjeong", "-0.6"),  # minjeong → 민정 (compound)
+    ("성준", "seongjoon", "-0.6"),  # seongjoon → 성준 (compound)
+    ("영철", "youngchul", "-0.6"),  # youngchul → 영철 (compound)
     # 7. EDGE CASE PATTERNS
-    ("계", "kai", "-0.7"),      # kai → 계 (for foreign names like Kai-Lai)
-    ("존", "joon", "-0.4"),     # joon → 존 (alternative for john-like names)
-    ("혼", "hon", "-0.5"),      # hon → 혼 (for compound patterns)
-    
+    ("계", "kai", "-0.7"),  # kai → 계 (for foreign names like Kai-Lai)
+    ("존", "joon", "-0.4"),  # joon → 존 (alternative for john-like names)
+    ("혼", "hon", "-0.5"),  # hon → 혼 (for compound patterns)
     # 8. COMPOUND STRENGTHENING (light weights)
-    ("광민", "kwangmin", "-0.4"), # kwangmin → 광민
+    ("광민", "kwangmin", "-0.4"),  # kwangmin → 광민
     ("준혁", "junhyuk", "-0.4"),  # junhyuk → 준혁
-    ("민수", "minsoo", "-0.4"),   # minsoo → 민수
-    ("혜진", "hyejin", "-0.4"),   # hyejin → 혜진
-    
+    ("민수", "minsoo", "-0.4"),  # minsoo → 민수
+    ("혜진", "hyejin", "-0.4"),  # hyejin → 혜진
     # 9. SPECIAL HANDLING
-    ("철민", "cheolmin", "-0.4"), # cheolmin → 철민
+    ("철민", "cheolmin", "-0.4"),  # cheolmin → 철민
     ("영호", "youngho", "-0.4"),  # youngho → 영호
     ("재현", "jaehyun", "-0.4"),  # jaehyun → 재현
 ]
@@ -85,12 +77,14 @@ for hangul, roman, weight in surgical_fixes:
                     old_weight = float(row[2])
                     new_weight = float(weight)
                     # Be conservative - only strengthen if significantly better
-                    if new_weight < old_weight - 0.1:  
+                    if new_weight < old_weight - 0.1:
                         rows[i] = [hangul, roman, weight]
                         print(f"  UPDATED: {roman} → {hangul} (weight: {old_weight} → {weight})")
                         updated_count += 1
                     else:
-                        print(f"  CONSERVATIVE: {roman} → {hangul} (kept {old_weight}, new {weight} not strong enough)")
+                        print(
+                            f"  CONSERVATIVE: {roman} → {hangul} (kept {old_weight}, new {weight} not strong enough)"
+                        )
                         skipped_count += 1
                 else:
                     rows[i] = [hangul, roman, weight]
@@ -100,7 +94,7 @@ for hangul, roman, weight in surgical_fixes:
 
 print(f"\nSurgical precision results:")
 print(f"- Added: {added_count} new mappings")
-print(f"- Updated: {updated_count} weights")  
+print(f"- Updated: {updated_count} weights")
 print(f"- Skipped (conservative): {skipped_count}")
 print(f"- Total rows: {len(rows)}")
 
@@ -114,7 +108,7 @@ print("\n✅ Surgical precision fixes applied!")
 print("\n=== PRECISION TARGETING ===")
 print("Failure Mode Fixes:")
 print("1. Foreign elements: lai → 래, kai → 계")
-print("2. Context disambiguation: jeong → 정 (surname)")  
+print("2. Context disambiguation: jeong → 정 (surname)")
 print("3. Segmentation: joon → 준 (for SeongJoon)")
 print("4. Initials: j./j → 제이")
 print("5. Surnames: ri → 리 (distinct from lee)")

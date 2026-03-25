@@ -9,6 +9,7 @@ import pytest
 @pytest.fixture(scope="module")
 def region_manager():
     from src.regions.manager_optimized import RegionManager
+
     return RegionManager()
 
 

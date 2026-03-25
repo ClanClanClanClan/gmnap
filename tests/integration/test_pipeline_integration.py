@@ -44,6 +44,7 @@ class TestPipelineIntegration:
     def teardown_method(self):
         """Clean up test fixtures."""
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def create_test_entries(self, count: int = 10) -> None:
@@ -59,12 +60,12 @@ class TestPipelineIntegration:
                 "CanonicalNative": canonical,
                 "BirthYear": 1950 + i,
                 "CountryCodes": ["US"],
-                "Confidence": 80 + i % 20
+                "Confidence": 80 + i % 20,
             }
 
         # Write to YAML file
         test_file = self.input_dir / "test_entries.yaml"
-        with open(test_file, 'w') as f:
+        with open(test_file, "w") as f:
             yaml.dump(entries, f)
 
     def create_mixed_region_entries(self) -> None:
@@ -77,7 +78,7 @@ class TestPipelineIntegration:
                 "CanonicalNative": "Smith, John",
                 "BirthYear": 1980,
                 "CountryCodes": ["US"],
-                "Confidence": 85
+                "Confidence": 85,
             },
             "García, José": {
                 "GlobalID": "BCDEFGHIJKLMNOPQRSTUVW",
@@ -86,7 +87,7 @@ class TestPipelineIntegration:
                 "CanonicalNative": "García, José",
                 "BirthYear": 1975,
                 "CountryCodes": ["ES"],
-                "Confidence": 90
+                "Confidence": 90,
             },
             "李明": {
                 "GlobalID": "CDEFGHIJKLMNOPQRSTUVWX",
@@ -95,7 +96,7 @@ class TestPipelineIntegration:
                 "CanonicalNative": "李明",
                 "BirthYear": 1985,
                 "CountryCodes": ["CN"],
-                "Confidence": 75
+                "Confidence": 75,
             },
             "Владимир Петров": {
                 "GlobalID": "DEFGHIJKLMNOPQRSTUVWXY",
@@ -104,12 +105,12 @@ class TestPipelineIntegration:
                 "CanonicalNative": "Владимир Петров",
                 "BirthYear": 1970,
                 "CountryCodes": ["RU"],
-                "Confidence": 82
-            }
+                "Confidence": 82,
+            },
         }
 
         test_file = self.input_dir / "mixed_regions.yaml"
-        with open(test_file, 'w', encoding='utf-8') as f:
+        with open(test_file, "w", encoding="utf-8") as f:
             yaml.dump(entries, f, allow_unicode=True)
 
     def test_quick_mode_pipeline(self):
@@ -117,12 +118,11 @@ class TestPipelineIntegration:
         self.create_test_entries(5)
 
         # Mock authority fetcher to avoid real API calls
-        with patch('src.authorities.tier0.openalex.OpenAlexFetcher') as mock_fetcher:
+        with patch("src.authorities.tier0.openalex.OpenAlexFetcher") as mock_fetcher:
             mock_instance = Mock()
-            mock_instance.fetch = AsyncMock(return_value=Mock(
-                status=Mock(value="not_found"),
-                error_message="Not found"
-            ))
+            mock_instance.fetch = AsyncMock(
+                return_value=Mock(status=Mock(value="not_found"), error_message="Not found")
+            )
             mock_fetcher.return_value = mock_instance
 
             pipeline = GMNAPPipeline(self.config, PipelineMode.QUICK)
@@ -145,25 +145,65 @@ class TestPipelineIntegration:
             def _inner(*args, **kwargs):
                 execution_order.append(stage_name)
                 return Mock()
+
             return _inner
 
         # Mock all stages
-        with patch.object(pipeline, '_stage_0_config', side_effect=mock_stage("stage_0")):
-            with patch.object(pipeline, '_stage_1_ingest', side_effect=mock_stage("stage_1")):
-                with patch.object(pipeline, '_stage_2_detect_region', side_effect=mock_stage("stage_2")):
-                    with patch.object(pipeline, '_stage_3_region_hooks', side_effect=mock_stage("stage_3")):
-                        with patch.object(pipeline, '_stage_4_authority_enrich', side_effect=mock_stage("stage_4")):
-                            with patch.object(pipeline, '_stage_5_collision_analytics', side_effect=mock_stage("stage_5")):
-                                with patch.object(pipeline, '_stage_6_tag_short_forms', side_effect=mock_stage("stage_6")):
-                                    with patch.object(pipeline, '_stage_7_global_validate', side_effect=mock_stage("stage_7")):
-                                        with patch.object(pipeline, '_stage_8_write_diff', side_effect=mock_stage("stage_8")):
-                                            with patch.object(pipeline, '_stage_9_report', side_effect=mock_stage("stage_9")):
-                                                with patch.object(pipeline, '_stage_10_idempotency_check', side_effect=mock_stage("stage_10")):
+        with patch.object(pipeline, "_stage_0_config", side_effect=mock_stage("stage_0")):
+            with patch.object(pipeline, "_stage_1_ingest", side_effect=mock_stage("stage_1")):
+                with patch.object(
+                    pipeline, "_stage_2_detect_region", side_effect=mock_stage("stage_2")
+                ):
+                    with patch.object(
+                        pipeline, "_stage_3_region_hooks", side_effect=mock_stage("stage_3")
+                    ):
+                        with patch.object(
+                            pipeline, "_stage_4_authority_enrich", side_effect=mock_stage("stage_4")
+                        ):
+                            with patch.object(
+                                pipeline,
+                                "_stage_5_collision_analytics",
+                                side_effect=mock_stage("stage_5"),
+                            ):
+                                with patch.object(
+                                    pipeline,
+                                    "_stage_6_tag_short_forms",
+                                    side_effect=mock_stage("stage_6"),
+                                ):
+                                    with patch.object(
+                                        pipeline,
+                                        "_stage_7_global_validate",
+                                        side_effect=mock_stage("stage_7"),
+                                    ):
+                                        with patch.object(
+                                            pipeline,
+                                            "_stage_8_write_diff",
+                                            side_effect=mock_stage("stage_8"),
+                                        ):
+                                            with patch.object(
+                                                pipeline,
+                                                "_stage_9_report",
+                                                side_effect=mock_stage("stage_9"),
+                                            ):
+                                                with patch.object(
+                                                    pipeline,
+                                                    "_stage_10_idempotency_check",
+                                                    side_effect=mock_stage("stage_10"),
+                                                ):
                                                     pipeline.run(self.input_dir)
 
         expected_order = [
-            "stage_0", "stage_1", "stage_2", "stage_3", "stage_4",
-            "stage_5", "stage_6", "stage_7", "stage_8", "stage_9", "stage_10"
+            "stage_0",
+            "stage_1",
+            "stage_2",
+            "stage_3",
+            "stage_4",
+            "stage_5",
+            "stage_6",
+            "stage_7",
+            "stage_8",
+            "stage_9",
+            "stage_10",
         ]
 
         assert execution_order == expected_order
@@ -173,7 +213,7 @@ class TestPipelineIntegration:
         self.create_mixed_region_entries()
 
         # Mock FastText to avoid loading model
-        with patch('src.regions.manager.fasttext') as mock_fasttext:
+        with patch("src.regions.manager.fasttext") as mock_fasttext:
             mock_model = Mock()
             mock_model.predict.return_value = (["__label__en"], [0.8])
             mock_fasttext.load_model.return_value = mock_model
@@ -209,12 +249,12 @@ class TestPipelineIntegration:
                 "CanonicalNative": "Dr. Smith, John C. Jr.",
                 "BirthYear": 1980,
                 "CountryCodes": ["US"],
-                "Confidence": 85
+                "Confidence": 85,
             }
         }
 
         test_file = self.input_dir / "a1_entries.yaml"
-        with open(test_file, 'w') as f:
+        with open(test_file, "w") as f:
             yaml.dump(entries, f)
 
         pipeline = GMNAPPipeline(self.config, PipelineMode.QUICK)
@@ -258,7 +298,7 @@ class TestPipelineIntegration:
         mock_response.data.identifiers = {"ORCID": "0000-0003-1234-5678"}
         mock_response.data.confidence_score = 0.8
 
-        with patch('src.authorities.tier0.openalex.OpenAlexFetcher') as mock_fetcher:
+        with patch("src.authorities.tier0.openalex.OpenAlexFetcher") as mock_fetcher:
             mock_instance = Mock()
             mock_instance.fetch = AsyncMock(return_value=mock_response)
             mock_instance.tier = Mock(value=0)
@@ -299,7 +339,7 @@ class TestPipelineIntegration:
         pipeline._stage_5_collision_analytics()
 
         # Check that collision stats were generated
-        assert hasattr(pipeline, '_collision_stats')
+        assert hasattr(pipeline, "_collision_stats")
         assert "total_entries" in pipeline._collision_stats
         assert pipeline._collision_stats["total_entries"] == 20
 
@@ -313,6 +353,7 @@ class TestPipelineIntegration:
 
         # Monitor memory usage
         import psutil
+
         process = psutil.Process()
         initial_memory = process.memory_info().rss
 
@@ -339,12 +380,12 @@ class TestPipelineIntegration:
                 "BirthYear": 1980,
                 "DeathYear": 1970,  # Before birth year
                 "Confidence": 150,  # Out of range
-                "CountryCodes": ["US"]
+                "CountryCodes": ["US"],
             }
         }
 
         test_file = self.input_dir / "invalid_entries.yaml"
-        with open(test_file, 'w') as f:
+        with open(test_file, "w") as f:
             yaml.dump(entries, f)
 
         pipeline = GMNAPPipeline(self.config, PipelineMode.QUICK)
@@ -362,9 +403,8 @@ class TestPipelineIntegration:
         # Check that validation/quality errors were recorded
         # V6 pipeline stores quality issues in stage metrics, not validation_errors
         stage7 = pipeline._metrics.stage_metrics.get("stage_7")
-        has_errors = (
-            len(pipeline._metrics.validation_errors) > 0
-            or (stage7 and len(stage7.errors) > 0)
+        has_errors = len(pipeline._metrics.validation_errors) > 0 or (
+            stage7 and len(stage7.errors) > 0
         )
         assert has_errors, "Expected validation or quality errors for invalid entry"
 
@@ -393,7 +433,7 @@ class TestPipelineIntegration:
         assert len(output_files) > 0
 
         # Verify output can be read back
-        with open(output_files[0], 'r') as f:
+        with open(output_files[0], "r") as f:
             output_data = yaml.safe_load(f)
 
         assert isinstance(output_data, dict)
@@ -406,7 +446,9 @@ class TestPipelineIntegration:
         pipeline = GMNAPPipeline(self.config, PipelineMode.QUICK)
 
         # Mock a stage to raise an error
-        with patch.object(pipeline, '_stage_4_authority_enrich', side_effect=Exception("Test error")):
+        with patch.object(
+            pipeline, "_stage_4_authority_enrich", side_effect=Exception("Test error")
+        ):
             with pytest.raises(Exception, match="Test error"):
                 pipeline.run(self.input_dir)
 
@@ -420,7 +462,7 @@ class TestPipelineIntegration:
             pipeline = GMNAPPipeline(self.config, mode)
 
             # Mock authority components
-            with patch('src.authorities.tier0.openalex.OpenAlexFetcher'):
+            with patch("src.authorities.tier0.openalex.OpenAlexFetcher"):
                 result = pipeline.run(self.input_dir)
 
                 assert result.mode == mode
@@ -480,7 +522,7 @@ class TestPipelineIntegration:
         pipeline = GMNAPPipeline(self.config, PipelineMode.QUICK)
 
         # Mock stage to raise exception
-        with patch.object(pipeline, '_stage_2_detect_region', side_effect=Exception("Test error")):
+        with patch.object(pipeline, "_stage_2_detect_region", side_effect=Exception("Test error")):
             with pytest.raises(Exception):
                 pipeline.run(self.input_dir)
 

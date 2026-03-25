@@ -23,11 +23,11 @@ from ..base import RegionRuleError, RegionSpec
 # Script helpers
 # ---------------------------------------------------------------------------
 _ARABIC_URDU_RANGES: List[Tuple[int, int]] = [
-    (0x0600, 0x06FF),   # Arabic
-    (0x0750, 0x077F),   # Arabic Supplement (Urdu-specific letters)
-    (0x08A0, 0x08FF),   # Arabic Extended-A
-    (0xFB50, 0xFDFF),   # Arabic Presentation Forms-A
-    (0xFE70, 0xFEFF),   # Arabic Presentation Forms-B
+    (0x0600, 0x06FF),  # Arabic
+    (0x0750, 0x077F),  # Arabic Supplement (Urdu-specific letters)
+    (0x08A0, 0x08FF),  # Arabic Extended-A
+    (0xFB50, 0xFDFF),  # Arabic Presentation Forms-A
+    (0xFE70, 0xFEFF),  # Arabic Presentation Forms-B
 ]
 
 
@@ -43,7 +43,7 @@ def _has_arabic_urdu(text: str) -> bool:
 # ---------------------------------------------------------------------------
 # RTL handling helpers
 # ---------------------------------------------------------------------------
-_RTL_MARKS = {"\u200F", "\u200E", "\u061C", "\u202B", "\u202C", "\u202A"}
+_RTL_MARKS = {"\u200f", "\u200e", "\u061c", "\u202b", "\u202c", "\u202a"}
 
 
 def _strip_bidi(text: str) -> str:
@@ -56,28 +56,65 @@ def _strip_bidi(text: str) -> str:
 # ---------------------------------------------------------------------------
 _TITLES = {
     # Urdu / Pakistani titles (Latin transliterations)
-    "Khan", "Chaudhry", "Chaudhary", "Choudhry", "Choudhary",
-    "Malik", "Mian", "Mir", "Syed", "Sayyid", "Sayyed",
-    "Sheikh", "Shaikh", "Pir", "Sardar", "Nawab", "Begum",
-    "Bibi", "Rani", "Raja",
+    "Khan",
+    "Chaudhry",
+    "Chaudhary",
+    "Choudhry",
+    "Choudhary",
+    "Malik",
+    "Mian",
+    "Mir",
+    "Syed",
+    "Sayyid",
+    "Sayyed",
+    "Sheikh",
+    "Shaikh",
+    "Pir",
+    "Sardar",
+    "Nawab",
+    "Begum",
+    "Bibi",
+    "Rani",
+    "Raja",
     # Professional / religious
-    "Dr", "Dr.", "Prof", "Prof.", "Engr", "Engr.",
-    "Maulvi", "Maulana", "Mufti", "Qari", "Hafiz", "Hafiza",
-    "Haji", "Hajia", "Allama", "Justice",
+    "Dr",
+    "Dr.",
+    "Prof",
+    "Prof.",
+    "Engr",
+    "Engr.",
+    "Maulvi",
+    "Maulana",
+    "Mufti",
+    "Qari",
+    "Hafiz",
+    "Hafiza",
+    "Haji",
+    "Hajia",
+    "Allama",
+    "Justice",
     # Urdu script titles
-    "\u062E\u0627\u0646",           # Khan
-    "\u0686\u0648\u062F\u0631\u06CC",  # Chaudhry
-    "\u0645\u0644\u06A9",           # Malik
-    "\u0645\u06CC\u0627\u0646",     # Mian
-    "\u0633\u06CC\u062F",           # Syed
-    "\u0628\u06CC\u06AF\u0645",     # Begum
+    "\u062e\u0627\u0646",  # Khan
+    "\u0686\u0648\u062f\u0631\u06cc",  # Chaudhry
+    "\u0645\u0644\u06a9",  # Malik
+    "\u0645\u06cc\u0627\u0646",  # Mian
+    "\u0633\u06cc\u062f",  # Syed
+    "\u0628\u06cc\u06af\u0645",  # Begum
 }
 
 # Titles that may ALSO be surnames -- we only strip them from the leading
 # position when they appear before a longer name.
 _TITLE_ALSO_SURNAME = {
-    "Khan", "Malik", "Chaudhry", "Chaudhary", "Choudhry",
-    "Sheikh", "Shaikh", "Syed", "Sayyid", "Mir",
+    "Khan",
+    "Malik",
+    "Chaudhry",
+    "Chaudhary",
+    "Choudhry",
+    "Sheikh",
+    "Shaikh",
+    "Syed",
+    "Sayyid",
+    "Mir",
 }
 
 # Patronymic connectors
@@ -85,13 +122,45 @@ _PATRONYMIC_CONNECTORS = {"bin", "ibn", "bint", "binte"}
 
 # Common Pakistani tribal / caste identifiers that appear as final element
 _TRIBAL_IDENTIFIERS = {
-    "khan", "malik", "butt", "bhatti", "rajput", "jatt", "jutt",
-    "awan", "qureshi", "siddiqui", "abbasi", "shah", "mirza",
-    "mughal", "moghul", "hashmi", "zaidi", "naqvi", "rizvi",
-    "gilani", "bukhari", "chaudhry", "choudhry", "sheikh",
-    "shaikh", "paracha", "marwat", "khattak", "afridi",
-    "yousafzai", "wazir", "mehsud", "baloch", "baluch",
-    "durrani", "lodhi", "gujjar", "arain", "niazi",
+    "khan",
+    "malik",
+    "butt",
+    "bhatti",
+    "rajput",
+    "jatt",
+    "jutt",
+    "awan",
+    "qureshi",
+    "siddiqui",
+    "abbasi",
+    "shah",
+    "mirza",
+    "mughal",
+    "moghul",
+    "hashmi",
+    "zaidi",
+    "naqvi",
+    "rizvi",
+    "gilani",
+    "bukhari",
+    "chaudhry",
+    "choudhry",
+    "sheikh",
+    "shaikh",
+    "paracha",
+    "marwat",
+    "khattak",
+    "afridi",
+    "yousafzai",
+    "wazir",
+    "mehsud",
+    "baloch",
+    "baluch",
+    "durrani",
+    "lodhi",
+    "gujjar",
+    "arain",
+    "niazi",
 }
 
 
@@ -184,10 +253,7 @@ class D4PakistanUrdu(RegionSpec):
     # ------------------------------------------------------------------
     def augment(self, entry: Dict[str, Any]) -> None:
         """Augment entry with D4-specific data (in-place)."""
-        canonical = (
-            entry.get("CanonicalLatin", "")
-            or entry.get("CanonicalNative", "")
-        )
+        canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
         if not canonical:
             return
 
@@ -239,10 +305,12 @@ class D4PakistanUrdu(RegionSpec):
         connector = comps.get("patronymic_connector")
         father = comps.get("father_name", "")
         if connector and father and given:
-            synth.append({
-                "str": f"{given} {connector} {father}",
-                "type": "patronymic-expanded",
-            })
+            synth.append(
+                {
+                    "str": f"{given} {connector} {father}",
+                    "type": "patronymic-expanded",
+                }
+            )
 
         # Variant: without patronymic (short form)
         if connector and given and family_raw:
@@ -272,7 +340,7 @@ class D4PakistanUrdu(RegionSpec):
         if connector_idx is not None:
             comps["given_name"] = " ".join(words[:connector_idx])
             comps["patronymic_connector"] = words[connector_idx]
-            remaining = words[connector_idx + 1:]
+            remaining = words[connector_idx + 1 :]
             if len(remaining) == 1:
                 comps["father_name"] = remaining[0]
                 comps["family_name"] = remaining[0]
@@ -311,10 +379,7 @@ class D4PakistanUrdu(RegionSpec):
         # Native text should be Arabic/Urdu script or Latin transliteration
         if canon_native:
             has_au = _has_arabic_urdu(canon_native)
-            is_latin = all(
-                c.isascii() or c in " -'.,"
-                for c in canon_native if not c.isspace()
-            )
+            is_latin = all(c.isascii() or c in " -'.," for c in canon_native if not c.isspace())
             if not has_au and not is_latin:
                 raise RegionRuleError(
                     f"D4: CanonicalNative contains unexpected script: {canon_native!r}"
@@ -333,9 +398,7 @@ class D4PakistanUrdu(RegionSpec):
 
         # Character validation on Latin form
         if canon_latin and not self._valid_latin_chars(canon_latin):
-            raise RegionRuleError(
-                f"D4: invalid characters in CanonicalLatin: {canon_latin!r}"
-            )
+            raise RegionRuleError(f"D4: invalid characters in CanonicalLatin: {canon_latin!r}")
 
     @staticmethod
     def _valid_latin_chars(text: str) -> bool:

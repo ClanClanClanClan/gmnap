@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 import os
 from typing import Dict, Any
@@ -13,6 +12,7 @@ class OpenAlexAdapter:
     Endpoint: api.openalex.org/authors?search=
     Returns: OpenAlex ID, ORCID, institution, works count, h-index.
     """
+
     name = "OpenAlex"
 
     def __init__(self, cfg: Dict[str, Any] = None):
@@ -33,7 +33,7 @@ class OpenAlexAdapter:
         if cached is not None:
             return cached
         await self.ctx.limiter.acquire()
-        url = f'{self.ctx.base_url}/authors?{urlencode(q)}'
+        url = f"{self.ctx.base_url}/authors?{urlencode(q)}"
         out = {"_source": {"service": self.name, "url": url}}
         try:
             if self.ctx.http:

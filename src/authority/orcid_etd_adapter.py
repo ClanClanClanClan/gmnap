@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 import os
 from typing import Dict, Any
@@ -13,6 +12,7 @@ class ORCIDETDAdapter:
     Endpoint: pub.orcid.org/v3.0/expanded-search/
     Returns: ORCID iD, affiliations, works count.
     """
+
     name = "ORCID_ETD"
 
     def __init__(self, cfg: Dict[str, Any] = None):
@@ -38,12 +38,13 @@ class ORCIDETDAdapter:
         if c is not None:
             return c
         await self.ctx.limiter.acquire()
-        url = f'{self.ctx.base_url}/expanded-search/?{urlencode(q)}'
+        url = f"{self.ctx.base_url}/expanded-search/?{urlencode(q)}"
         out = {"_source": {"service": self.name, "url": url}}
         try:
             if self.ctx.http:
                 r = await self.ctx.http.get(
-                    url, timeout=15.0,
+                    url,
+                    timeout=15.0,
                     headers={"Accept": "application/json"},
                 )
                 if r.status_code == 200:
@@ -65,7 +66,8 @@ class ORCIDETDAdapter:
                             try:
                                 edu_url = f"https://pub.orcid.org/v3.0/{orcid_id}/educations"
                                 edu_r = await self.ctx.http.get(
-                                    edu_url, timeout=10.0,
+                                    edu_url,
+                                    timeout=10.0,
                                     headers={"Accept": "application/json"},
                                 )
                                 if edu_r.status_code == 200:

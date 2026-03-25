@@ -14,12 +14,12 @@ print(f"Backed up to: {backup_name}")
 # Patch A: Only the 8 specific ambiguous mappings that are guaranteed improvements
 patch_a_mappings = [
     # Cases where current mapping is wrong and this fixes it
-    ("숙", "suk"),   # For given names like Minsuk - adds alternative to existing suk→석
+    ("숙", "suk"),  # For given names like Minsuk - adds alternative to existing suk→석
     ("균", "kyun"),  # For Jaekyun - adds missing mapping
-    ("곽", "gwak"),  # For Gwak surnames - adds alternative to kwak→곽  
-    ("육", "yuk"),   # For Yook surnames - adds missing mapping
-    ("어", "eoh"),   # For Eoh surnames - adds missing mapping
-    ("정", "cheong"), # For Cheong surnames - adds alternative to jeong→정
+    ("곽", "gwak"),  # For Gwak surnames - adds alternative to kwak→곽
+    ("육", "yuk"),  # For Yook surnames - adds missing mapping
+    ("어", "eoh"),  # For Eoh surnames - adds missing mapping
+    ("정", "cheong"),  # For Cheong surnames - adds alternative to jeong→정
 ]
 
 print("=== APPLYING PATCH A: SURGICAL AMBIGUOUS MAPPINGS ===")
@@ -60,7 +60,7 @@ with open("resources/rr_syllable_map.csv", "w", encoding="utf8", newline="") as 
 print("✅ Patch A applied surgically!")
 print("\n=== TARGET CASES ===")
 print("- Wang_Minsuk: suk→숙 now available")
-print("- Shim_Jaekyun: kyun→균 now available") 
+print("- Shim_Jaekyun: kyun→균 now available")
 print("- Gwak_JungHoon: gwak→곽 now available")
 print("- Yook_JiSun: yuk→육 now available")
 print("- Eoh_Hyunji: eoh→어 now available")

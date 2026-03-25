@@ -1,4 +1,5 @@
 """Integration tests for batch processing edge cases."""
+
 from __future__ import annotations
 
 import pytest

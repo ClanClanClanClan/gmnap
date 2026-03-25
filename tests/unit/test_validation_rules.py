@@ -1,4 +1,5 @@
 """Tests for the 7 additional regional validation rules."""
+
 from __future__ import annotations
 
 import os
@@ -81,14 +82,14 @@ class TestDravidianInitial:
 
 class TestSEAMonosyllabic:
     def test_very_short_thai_warns(self, engine):
-        entry = {"CanonicalLatin": "Test", "CanonicalNative": "\u0E01"}  # single Thai char
+        entry = {"CanonicalLatin": "Test", "CanonicalNative": "\u0e01"}  # single Thai char
         results = engine.validate_entry(entry, "E6", "Thai")
         sea_results = [r for r in results if r.rule_id == "e6_sea_monosyllabic_check"]
         if sea_results:
             assert any("short" in w.lower() for r in sea_results for w in r.warnings)
 
     def test_normal_thai_ok(self, engine):
-        entry = {"CanonicalLatin": "Test", "CanonicalNative": "\u0E2A\u0E21\u0E0A\u0E32\u0E22"}
+        entry = {"CanonicalLatin": "Test", "CanonicalNative": "\u0e2a\u0e21\u0e0a\u0e32\u0e22"}
         results = engine.validate_entry(entry, "E6", "Thai")
         sea_results = [r for r in results if r.rule_id == "e6_sea_monosyllabic_check"]
         assert not sea_results

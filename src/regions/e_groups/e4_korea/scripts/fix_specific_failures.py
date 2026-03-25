@@ -25,28 +25,24 @@ specific_fixes = [
     # 1. Cheon_Jinwoo: cheon → 춘 (wrong), should be → 천
     # Need to add 천,cheon with lower weight than existing 춘,cheon
     ("천", "cheon", "-0.5"),  # Prefer 천 over 춘
-    
     # 2. Ko_Sueng-Kook: segmentation issue sueng → 수엥 instead of 승
     ("승", "sueng", "-0.3"),  # Add missing sueng → 승 mapping
-    
     # 3. Huh_Junghan: jung → 정 instead of 준
     # This is tricky - need context-sensitive handling
     # For now, add jun variants that might help
-    ("준", "joon", "0.1"),    # Alternative spelling
-    
+    ("준", "joon", "0.1"),  # Alternative spelling
     # 4. Missing compound patterns from math dataset
-    ("범석", "beomseok", "0.0"),   # Goh_Beomseok
-    ("윤아", "yoonah", "0.0"),     # Sohn_Yoonah (if it wasn't already fixed)
-    
+    ("범석", "beomseok", "0.0"),  # Goh_Beomseok
+    ("윤아", "yoonah", "0.0"),  # Sohn_Yoonah (if it wasn't already fixed)
     # 5. Additional diverse dataset patterns that don't conflict
-    ("연아", "yuna", "0.2"),       # Kim_YuNa alternative (higher weight than yu→유)
-    ("희찬", "heuichan", "0.0"),   # Hwang_HeuiChan compound
-    ("덕수", "duksoo", "0.0"),     # Han_DukSoo compound
-    ("여정", "yojong", "0.2"),     # Kim_YoJong alternative
-    ("중근", "junggeun", "0.0"),   # An_JungGeun compound
-    ("건희", "kunhee", "0.0"),     # Lee_KunHee compound
-    ("주영", "juyung", "0.0"),     # Chung_JuYung compound
-    ("동연", "dongyeon", "0.0"),   # Kwak_DongYeon compound
+    ("연아", "yuna", "0.2"),  # Kim_YuNa alternative (higher weight than yu→유)
+    ("희찬", "heuichan", "0.0"),  # Hwang_HeuiChan compound
+    ("덕수", "duksoo", "0.0"),  # Han_DukSoo compound
+    ("여정", "yojong", "0.2"),  # Kim_YoJong alternative
+    ("중근", "junggeun", "0.0"),  # An_JungGeun compound
+    ("건희", "kunhee", "0.0"),  # Lee_KunHee compound
+    ("주영", "juyung", "0.0"),  # Chung_JuYung compound
+    ("동연", "dongyeon", "0.0"),  # Kwak_DongYeon compound
 ]
 
 print(f"Current rows: {len(rows)}")

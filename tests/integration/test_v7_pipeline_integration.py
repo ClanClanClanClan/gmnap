@@ -125,6 +125,7 @@ class TestGDPRIntegration:
 
     def test_gdpr_flag_set(self):
         import os
+
         os.environ["GMNAP_DROP_PERSONAL"] = "0"
         entries = [{"CanonicalLatin": "Smith, John", "BirthYear": 1975}]
         pipeline = V7Pipeline(mode=PipelineMode.QUICK)

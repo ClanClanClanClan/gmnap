@@ -1,4 +1,5 @@
 """Tests for _Limiter in src/authority/common."""
+
 from __future__ import annotations
 
 import asyncio

@@ -35,18 +35,30 @@ class F1SSAFrancophone(RegionSpec):
             scripts=["Latin"],
             mixed_scripts=False,
             canonical_order="Family, Given",
-            romanisation_standards=["French"]
+            romanisation_standards=["French"],
         )
 
         # French titles to remove
         self.titles = {
-            "Dr", "Dr.", "Docteur",
-            "Prof", "Prof.", "Professeur",
-            "M", "M.", "Monsieur",
-            "Mme", "Mme.", "Madame",
-            "Mlle", "Mlle.", "Mademoiselle",
-            "Pr", "Pr.",
-            "Mgr", "Mgr.",
+            "Dr",
+            "Dr.",
+            "Docteur",
+            "Prof",
+            "Prof.",
+            "Professeur",
+            "M",
+            "M.",
+            "Monsieur",
+            "Mme",
+            "Mme.",
+            "Madame",
+            "Mlle",
+            "Mlle.",
+            "Mademoiselle",
+            "Pr",
+            "Pr.",
+            "Mgr",
+            "Mgr.",
         }
 
         # French particles per Rule 22-23 (kept lowercase, not used for sorting)
@@ -54,16 +66,34 @@ class F1SSAFrancophone(RegionSpec):
 
         # African surname prefixes (must be kept attached)
         self.african_prefixes = [
-            "Ndi", "Ngo", "Nga", "Ngu",
-            "Ba", "Ma", "Mba", "Mbi",
-            "Bi", "Di", "Fo", "Fa",
-            "Nde", "Nke", "Nji", "Nta",
+            "Ndi",
+            "Ngo",
+            "Nga",
+            "Ngu",
+            "Ba",
+            "Ma",
+            "Mba",
+            "Mbi",
+            "Bi",
+            "Di",
+            "Fo",
+            "Fa",
+            "Nde",
+            "Nke",
+            "Nji",
+            "Nta",
         ]
 
         # Compound French given name starters
         self.compound_starters = {
-            "Jean", "Marie", "Pierre", "Anne",
-            "Louis", "Charles", "Paul", "Claude",
+            "Jean",
+            "Marie",
+            "Pierre",
+            "Anne",
+            "Louis",
+            "Charles",
+            "Paul",
+            "Claude",
         }
 
         # French diacritics
@@ -165,19 +195,23 @@ class F1SSAFrancophone(RegionSpec):
 
         # Order-swap variant (Given Family)
         if family and given:
-            variants.append({
-                "str": f"{given} {family}",
-                "type": "order-swap",
-            })
+            variants.append(
+                {
+                    "str": f"{given} {family}",
+                    "type": "order-swap",
+                }
+            )
 
         # Particle-drop variant for sorting aid
         if particles:
             no_particle = self._strip_particles(family)
             if no_particle != family:
-                variants.append({
-                    "str": f"{no_particle}, {given}" if given else no_particle,
-                    "type": "particle-drop",
-                })
+                variants.append(
+                    {
+                        "str": f"{no_particle}, {given}" if given else no_particle,
+                        "type": "particle-drop",
+                    }
+                )
 
         entry["RegionCode"] = self.code
 
@@ -268,9 +302,10 @@ class F1SSAFrancophone(RegionSpec):
         """Remove particles from the family name string."""
         words = family.split()
         return " ".join(
-            w for w in words
+            w
+            for w in words
             if w.lower().rstrip(",") not in self.particles
-               and w.lower().rstrip(",") + "'" not in self.particles
+            and w.lower().rstrip(",") + "'" not in self.particles
         )
 
     def _remove_diacritics(self, text: str) -> str:

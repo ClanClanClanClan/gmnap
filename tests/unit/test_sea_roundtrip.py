@@ -47,7 +47,7 @@ class TestThaiRoundtrip:
     @pytest.mark.parametrize("native,latin", THAI_PAIRS)
     def test_thai_native_is_thai_script(self, native, latin):
         """Verify Thai test data contains Thai script."""
-        thai_chars = sum(1 for c in native if '\u0E00' <= c <= '\u0E7F')
+        thai_chars = sum(1 for c in native if "\u0e00" <= c <= "\u0e7f")
         assert thai_chars > 0, f"Expected Thai script in: {native}"
 
     @pytest.mark.parametrize("native,latin", THAI_PAIRS)
@@ -56,8 +56,9 @@ class TestThaiRoundtrip:
         for c in latin:
             if c.isalpha():
                 # Should be Latin or combining
-                assert c.isascii() or unicodedata.category(c).startswith('L'), \
-                    f"Non-Latin char '{c}' in romanised: {latin}"
+                assert c.isascii() or unicodedata.category(c).startswith(
+                    "L"
+                ), f"Non-Latin char '{c}' in romanised: {latin}"
 
     @pytest.mark.parametrize("native,latin", THAI_PAIRS)
     def test_thai_nfc_stability(self, native, latin):
@@ -79,7 +80,7 @@ class TestKhmerRoundtrip:
     @pytest.mark.parametrize("native,latin", KHMER_PAIRS)
     def test_khmer_native_is_khmer_script(self, native, latin):
         """Verify Khmer test data contains Khmer script."""
-        khmer_chars = sum(1 for c in native if '\u1780' <= c <= '\u17FF')
+        khmer_chars = sum(1 for c in native if "\u1780" <= c <= "\u17ff")
         assert khmer_chars > 0, f"Expected Khmer script in: {native}"
 
     @pytest.mark.parametrize("native,latin", KHMER_PAIRS)
@@ -87,8 +88,9 @@ class TestKhmerRoundtrip:
         """Verify romanised form is Latin-compatible."""
         for c in latin:
             if c.isalpha():
-                assert c.isascii() or unicodedata.category(c).startswith('L'), \
-                    f"Non-Latin char '{c}' in romanised: {latin}"
+                assert c.isascii() or unicodedata.category(c).startswith(
+                    "L"
+                ), f"Non-Latin char '{c}' in romanised: {latin}"
 
     @pytest.mark.parametrize("native,latin", KHMER_PAIRS)
     def test_khmer_nfc_stability(self, native, latin):
@@ -103,7 +105,7 @@ class TestLaoRoundtrip:
     @pytest.mark.parametrize("native,latin", LAO_PAIRS)
     def test_lao_native_is_lao_script(self, native, latin):
         """Verify Lao test data contains Lao script."""
-        lao_chars = sum(1 for c in native if '\u0E80' <= c <= '\u0EFF')
+        lao_chars = sum(1 for c in native if "\u0e80" <= c <= "\u0eff")
         assert lao_chars > 0, f"Expected Lao script in: {native}"
 
     @pytest.mark.parametrize("native,latin", LAO_PAIRS)
@@ -111,8 +113,9 @@ class TestLaoRoundtrip:
         """Verify romanised form is Latin-compatible."""
         for c in latin:
             if c.isalpha():
-                assert c.isascii() or unicodedata.category(c).startswith('L'), \
-                    f"Non-Latin char '{c}' in romanised: {latin}"
+                assert c.isascii() or unicodedata.category(c).startswith(
+                    "L"
+                ), f"Non-Latin char '{c}' in romanised: {latin}"
 
     @pytest.mark.parametrize("native,latin", LAO_PAIRS)
     def test_lao_nfc_stability(self, native, latin):
@@ -144,9 +147,9 @@ class TestCrossScriptConsistency:
         lao_native = LAO_PAIRS[0][0]
 
         # Each should have characters in its own Unicode block
-        thai_has_thai = any('\u0E00' <= c <= '\u0E7F' for c in thai_native)
-        khmer_has_khmer = any('\u1780' <= c <= '\u17FF' for c in khmer_native)
-        lao_has_lao = any('\u0E80' <= c <= '\u0EFF' for c in lao_native)
+        thai_has_thai = any("\u0e00" <= c <= "\u0e7f" for c in thai_native)
+        khmer_has_khmer = any("\u1780" <= c <= "\u17ff" for c in khmer_native)
+        lao_has_lao = any("\u0e80" <= c <= "\u0eff" for c in lao_native)
 
         assert thai_has_thai, "Thai text should contain Thai script characters"
         assert khmer_has_khmer, "Khmer text should contain Khmer script characters"

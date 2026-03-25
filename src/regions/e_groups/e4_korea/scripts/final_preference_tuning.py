@@ -27,44 +27,38 @@ existing_mappings = {(row[0], row[1]) for row in rows if len(row) >= 2}
 # FINAL HIGH-IMPACT TUNING based on remaining failure patterns
 final_tuning = [
     # CRITICAL PREFERENCE ADJUSTMENTS
-    ("천", "cheon", "-1.5"),    # VERY STRONG cheon → 천 (not 춘)
-    ("정", "chung", "-1.2"),    # STRONG chung → 정 (for remaining cases)
-    ("준", "jung", "-0.9"),     # Context-aware jung → 준 (when applicable)
-    
+    ("천", "cheon", "-1.5"),  # VERY STRONG cheon → 천 (not 춘)
+    ("정", "chung", "-1.2"),  # STRONG chung → 정 (for remaining cases)
+    ("준", "jung", "-0.9"),  # Context-aware jung → 준 (when applicable)
     # SURNAME OPTIMIZATION
-    ("임", "rim", "-1.0"),      # STRONG rim → 임 (not 림)
-    ("류", "ryeo", "-0.8"),     # ryeo → 류 (surname correction)
-    ("음", "eum", "-0.7"),      # eum → 음 (prefer over um)
-    ("도", "do", "-0.8"),       # do → 도 (prefer over to)
-    ("염", "yeom", "-0.6"),     # yeom → 염 (prefer over yom)
-    
+    ("임", "rim", "-1.0"),  # STRONG rim → 임 (not 림)
+    ("류", "ryeo", "-0.8"),  # ryeo → 류 (surname correction)
+    ("음", "eum", "-0.7"),  # eum → 음 (prefer over um)
+    ("도", "do", "-0.8"),  # do → 도 (prefer over to)
+    ("염", "yeom", "-0.6"),  # yeom → 염 (prefer over yom)
     # GIVEN NAME OPTIMIZATION
-    ("현", "hyun", "-0.5"),     # hyun → 현 (strengthen)
-    ("민", "min", "-0.7"),      # min → 민 (strengthen, very common)
-    ("준", "jun", "-0.6"),      # jun → 준 (strengthen)
-    ("석", "seok", "-0.4"),     # seok → 석 (context-dependent)
-    ("영", "young", "-0.5"),    # young → 영 (strengthen)
-    
+    ("현", "hyun", "-0.5"),  # hyun → 현 (strengthen)
+    ("민", "min", "-0.7"),  # min → 민 (strengthen, very common)
+    ("준", "jun", "-0.6"),  # jun → 준 (strengthen)
+    ("석", "seok", "-0.4"),  # seok → 석 (context-dependent)
+    ("영", "young", "-0.5"),  # young → 영 (strengthen)
     # COMPOUND PATTERN STRENGTHENING
-    ("종모", "jongmo", "-0.5"), # jongmo → 종모 (compound)
-    ("현지", "hyunji", "-0.5"), # hyunji → 현지 (compound)
-    ("상묵", "sangmook", "-0.5"), # sangmook → 상묵 (compound)
-    ("동건", "donggun", "-0.5"), # donggun → 동건 (compound)
-    
+    ("종모", "jongmo", "-0.5"),  # jongmo → 종모 (compound)
+    ("현지", "hyunji", "-0.5"),  # hyunji → 현지 (compound)
+    ("상묵", "sangmook", "-0.5"),  # sangmook → 상묵 (compound)
+    ("동건", "donggun", "-0.5"),  # donggun → 동건 (compound)
     # SPECIAL EDGE CASES
-    ("*", "j", "0.0"),          # j → * (for initials like Kim J.)
-    ("박사", "dr", "0.0"),      # dr → 박사 (title)
-    ("교수", "prof", "0.0"),    # prof → 교수 (title)
-    ("박사", "phd", "0.0"),     # phd → 박사 (degree)
-    
+    ("*", "j", "0.0"),  # j → * (for initials like Kim J.)
+    ("박사", "dr", "0.0"),  # dr → 박사 (title)
+    ("교수", "prof", "0.0"),  # prof → 교수 (title)
+    ("박사", "phd", "0.0"),  # phd → 박사 (degree)
     # FOREIGN ELEMENTS
-    ("계", "gye", "-0.3"),      # gye → 계 (for Kai-Lai → 계래)
-    ("래", "rae", "-0.3"),      # rae → 래 (for Kai-Lai → 계래)
-    
+    ("계", "gye", "-0.3"),  # gye → 계 (for Kai-Lai → 계래)
+    ("래", "rae", "-0.3"),  # rae → 래 (for Kai-Lai → 계래)
     # ADDITIONAL PATTERN FIXES
-    ("광", "kwang", "-0.7"),    # kwang → 광 (strengthen)
-    ("건", "gun", "-0.9"),      # gun → 건 (strengthen vs 군)
-    ("철", "chol", "-0.6"),     # chol → 철 (strengthen vs 촐)
+    ("광", "kwang", "-0.7"),  # kwang → 광 (strengthen)
+    ("건", "gun", "-0.9"),  # gun → 건 (strengthen vs 군)
+    ("철", "chol", "-0.6"),  # chol → 철 (strengthen vs 촐)
     ("춘", "jaechun", "-0.5"),  # jaechun → 춘 (for 재춘)
 ]
 
@@ -113,7 +107,7 @@ print("\n=== ULTRA-OPTIMIZED SYSTEM ===")
 print("Critical optimizations:")
 print("- Strongest cheon → 천 preference (-1.5)")
 print("- Enhanced surname mappings")
-print("- Compound pattern strengthening") 
+print("- Compound pattern strengthening")
 print("- Special case handling (titles, initials)")
 print("- Foreign element support")
 print("\nExpected: +5-8 additional cases")

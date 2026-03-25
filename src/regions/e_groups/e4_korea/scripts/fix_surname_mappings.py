@@ -20,16 +20,14 @@ print(f"Original rows: {len(rows)}")
 # Define fixes
 wrong_mappings = {
     ("춘", "chun"),  # Keep 전,chun instead
-    ("창", "chang"), # Wrong character, should be 장
-    ("팩", "paek"),  # Keep 백,paek instead  
+    ("창", "chang"),  # Wrong character, should be 장
+    ("팩", "paek"),  # Keep 백,paek instead
     ("팪", "paek"),  # Keep 백,paek instead
-    ("팤", "pak")    # Keep 박,pak instead
+    ("팤", "pak"),  # Keep 박,pak instead
 }
 
 # Add correct mapping for chang → 장
-new_mappings = [
-    ("장", "chang")  # Chang should map to same as Jang
-]
+new_mappings = [("장", "chang")]  # Chang should map to same as Jang
 
 # Filter out wrong mappings
 filtered_rows = []

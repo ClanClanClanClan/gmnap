@@ -25,6 +25,7 @@ import pytest
 def uncached_entry():
     """An entry name unlikely to be in cache."""
     import uuid
+
     return {"CanonicalLatin": f"Uncached, Test{uuid.uuid4().hex[:8]}"}
 
 
@@ -33,6 +34,7 @@ async def test_offline_blocks_tier0_openalex(uncached_entry):
     """OpenAlex adapter returns hit=False when GMNAP_NO_NETWORK=1."""
     with patch.dict(os.environ, {"GMNAP_NO_NETWORK": "1"}):
         from src.authority.openalex_adapter import OpenAlexAdapter
+
         adapter = OpenAlexAdapter()
         result = await adapter.enrich(uncached_entry)
         assert result["_source"]["hit"] is False
@@ -43,6 +45,7 @@ async def test_offline_blocks_tier0_crossref(uncached_entry):
     """Crossref adapter returns hit=False when GMNAP_NO_NETWORK=1."""
     with patch.dict(os.environ, {"GMNAP_NO_NETWORK": "1"}):
         from src.authority.crossref_adapter import CrossrefAdapter
+
         adapter = CrossrefAdapter()
         result = await adapter.enrich(uncached_entry)
         assert result["_source"]["hit"] is False
@@ -53,6 +56,7 @@ async def test_offline_blocks_tier0_orcid(uncached_entry):
     """ORCID_ETD adapter returns hit=False when GMNAP_NO_NETWORK=1."""
     with patch.dict(os.environ, {"GMNAP_NO_NETWORK": "1"}):
         from src.authority.orcid_etd_adapter import ORCIDETDAdapter
+
         adapter = ORCIDETDAdapter()
         result = await adapter.enrich(uncached_entry)
         assert result["_source"]["hit"] is False
@@ -64,6 +68,7 @@ async def test_offline_blocks_hal(uncached_entry):
     with patch.dict(os.environ, {"OFFLINE": "1"}):
         import importlib
         import src.authority.manager_tier01 as m
+
         importlib.reload(m)
         result = await m._fetch_hal(uncached_entry)
         assert result == {"HAL": {"hit": False}}
@@ -75,6 +80,7 @@ async def test_offline_blocks_zbmath(uncached_entry):
     with patch.dict(os.environ, {"OFFLINE": "1"}):
         import importlib
         import src.authority.manager_tier01 as m
+
         importlib.reload(m)
         result = await m._fetch_zbmath(uncached_entry)
         assert result == {"zbMATH_Open": {"hit": False}}
@@ -87,6 +93,7 @@ def test_institution_is_string_concept():
     """Verify the schema expects Institution as a string."""
     import json
     from pathlib import Path
+
     schema_path = Path("docs/schema_v2.0.json")
     if not schema_path.exists():
         pytest.skip("Schema file not found")
@@ -102,6 +109,7 @@ def test_institution_is_string_concept():
 def test_gnd_birthyear_is_int():
     """GND adapter should return BirthYear as plain int, not dict."""
     from src.authority.gnd_adapter import GNDAdapter
+
     adapter = GNDAdapter()
     # Simulate what the adapter does with birth data
     # The adapter extracts int(str(birthDate)[:4])
@@ -124,7 +132,9 @@ def test_no_name_events_without_year():
     if "AlternativeLatin" in merged:
         alts = merged.pop("AlternativeLatin", [])
         canonical = entry.get("CanonicalLatin", "")
-        synth = [{"str": alt, "type": "authority-alias"} for alt in alts if alt and alt != canonical]
+        synth = [
+            {"str": alt, "type": "authority-alias"} for alt in alts if alt and alt != canonical
+        ]
         if synth:
             merged.setdefault("Variants", {}).setdefault("Synthesised", []).extend(synth)
 
@@ -160,11 +170,16 @@ def test_affiliation_timeline_requires_country():
 
 def test_affiliation_timeline_with_country():
     """AffiliationTimeline items WITH country should be created correctly."""
-    merged = {"Institution": "MIT", "InstitutionCountry": "US",
-              "_InstitutionAll": ["MIT", "Harvard"]}
+    merged = {
+        "Institution": "MIT",
+        "InstitutionCountry": "US",
+        "_InstitutionAll": ["MIT", "Harvard"],
+    }
 
     cc = merged.get("InstitutionCountry", "")
-    insts = merged.get("_InstitutionAll") or ([merged["Institution"]] if isinstance(merged.get("Institution"), str) else [])
+    insts = merged.get("_InstitutionAll") or (
+        [merged["Institution"]] if isinstance(merged.get("Institution"), str) else []
+    )
     timeline = [{"institution": inst, "country": cc} for inst in insts if inst]
 
     assert len(timeline) == 2
@@ -182,7 +197,7 @@ def test_authority_ids_strings_only():
         "OpenAlex": "A12345",
         "ORCID": "0000-0001-2345-6789",
         "PublicationCount": 42,  # int — should be filtered
-        "HIndex": 15,           # int — should be filtered
+        "HIndex": 15,  # int — should be filtered
         "CoAuthors": ["a", "b"],  # list — should be filtered
     }
     filtered = {k: v for k, v in ids.items() if isinstance(v, str)}

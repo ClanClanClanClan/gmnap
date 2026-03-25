@@ -28,14 +28,12 @@ comprehensive_mappings = [
     ("shin", "신"),
     ("suh", "서"),
     ("yong", "용"),
-    
     # Double vowel variations for better round-trip
     ("soo", "수"),
     ("woo", "우"),
     ("oo", "우"),
     ("ee", "이"),
     ("ii", "이"),
-    
     # Common variations
     ("hwan", "환"),
     ("kwan", "관"),
@@ -47,7 +45,6 @@ comprehensive_mappings = [
     ("jun", "준"),
     ("jin", "진"),
     ("chin", "진"),
-    
     # More name syllables
     ("dong", "동"),
     ("han", "한"),
@@ -67,29 +64,31 @@ comprehensive_mappings = [
     ("yul", "율"),
 ]
 
+
 def main():
     syllable_map_path = E4_ROOT / "resources" / "rr_syllable_map.csv"
-    
+
     # Load existing syllables to avoid duplicates
     existing = set()
     with open(syllable_map_path, encoding="utf8") as f:
         for row in csv.reader(f):
             if row:
                 existing.add(row[0].lower())
-    
+
     # Add new mappings
     added = 0
-    with open(syllable_map_path, 'a', encoding='utf8') as f:
+    with open(syllable_map_path, "a", encoding="utf8") as f:
         writer = csv.writer(f)
         for rom, han in comprehensive_mappings:
             if rom.lower() not in existing:
                 writer.writerow([rom, han])
                 existing.add(rom.lower())
                 added += 1
-    
+
     print(f"✓ Added {added} new syllable mappings")
     print(f"✓ Total syllables: {len(existing)}")
     print("✓ Rebuild FSTs with: python scripts/build_fsts.py")
+
 
 if __name__ == "__main__":
     main()

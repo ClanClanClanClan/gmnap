@@ -195,7 +195,7 @@ def query_lineage(
 # ---------------------------------------------------------------------------
 def lineage_to_dot(lineage: Dict[str, Any]) -> str:
     """Convert lineage result to DOT format for Graphviz rendering."""
-    lines = ['digraph lineage {', '  rankdir=BT;', '  node [shape=box, style=rounded];']
+    lines = ["digraph lineage {", "  rankdir=BT;", "  node [shape=box, style=rounded];"]
 
     root = lineage["root"]
     root_gid = root["global_id"]

@@ -35,33 +35,60 @@ class F4LusophoneAfrica(RegionSpec):
             scripts=["Latin"],
             mixed_scripts=False,
             canonical_order="Family, Given",
-            romanisation_standards=["Portuguese"]
+            romanisation_standards=["Portuguese"],
         )
 
         # Portuguese titles
         self.titles = {
-            "Dr", "Dr.", "Doutor", "Doutora",
-            "Prof", "Prof.", "Professor", "Professora",
-            "Sr", "Sr.", "Senhor",
-            "Sra", "Sra.", "Senhora",
-            "Dom", "Dona",
-            "Eng", "Eng.", "Engenheiro",
+            "Dr",
+            "Dr.",
+            "Doutor",
+            "Doutora",
+            "Prof",
+            "Prof.",
+            "Professor",
+            "Professora",
+            "Sr",
+            "Sr.",
+            "Senhor",
+            "Sra",
+            "Sra.",
+            "Senhora",
+            "Dom",
+            "Dona",
+            "Eng",
+            "Eng.",
+            "Engenheiro",
         }
 
         # Portuguese particles per Rule 22-23 (lowercase, ignored in sorting)
         self.particles = {"de", "da", "do", "dos", "das", "d'", "e"}
 
         # Portuguese diacritics
-        self.portuguese_chars = set(
-            "àáâãçéêíóôõúüÀÁÂÃÇÉÊÍÓÔÕÚÜ"
-        )
+        self.portuguese_chars = set("àáâãçéêíóôõúüÀÁÂÃÇÉÊÍÓÔÕÚÜ")
 
         # Common Lusophone African surname indicators
         self.common_surnames = {
-            "silva", "santos", "ferreira", "pereira", "oliveira",
-            "costa", "rodrigues", "martins", "jesus", "sousa",
-            "mendes", "gomes", "alves", "ribeiro", "fernandes",
-            "neto", "lopes", "nascimento", "carvalho", "teixeira",
+            "silva",
+            "santos",
+            "ferreira",
+            "pereira",
+            "oliveira",
+            "costa",
+            "rodrigues",
+            "martins",
+            "jesus",
+            "sousa",
+            "mendes",
+            "gomes",
+            "alves",
+            "ribeiro",
+            "fernandes",
+            "neto",
+            "lopes",
+            "nascimento",
+            "carvalho",
+            "teixeira",
         }
 
     def clean(self, entry: Dict[str, Any]) -> None:
@@ -169,27 +196,33 @@ class F4LusophoneAfrica(RegionSpec):
 
         # Order-swap variant
         if family and given:
-            variants.append({
-                "str": f"{given} {family}",
-                "type": "order-swap",
-            })
+            variants.append(
+                {
+                    "str": f"{given} {family}",
+                    "type": "order-swap",
+                }
+            )
 
         # Particle-drop variant for matching
         if particles:
             stripped = self._strip_particles(family)
             if stripped != family:
-                variants.append({
-                    "str": f"{stripped}, {given}" if given else stripped,
-                    "type": "particle-drop",
-                })
+                variants.append(
+                    {
+                        "str": f"{stripped}, {given}" if given else stripped,
+                        "type": "particle-drop",
+                    }
+                )
 
         # Paternal-only variant (common short form)
         if surname_parts.get("paternal") and surname_parts.get("maternal"):
             paternal_only = surname_parts["paternal"]
-            variants.append({
-                "str": f"{paternal_only}, {given}" if given else paternal_only,
-                "type": "paternal-surname-only",
-            })
+            variants.append(
+                {
+                    "str": f"{paternal_only}, {given}" if given else paternal_only,
+                    "type": "paternal-surname-only",
+                }
+            )
 
         entry["RegionCode"] = self.code
 
@@ -274,9 +307,7 @@ class F4LusophoneAfrica(RegionSpec):
     def _strip_particles(self, family: str) -> str:
         """Remove particles from the family name."""
         words = family.split()
-        return " ".join(
-            w for w in words if w.lower().rstrip(",") not in self.particles
-        )
+        return " ".join(w for w in words if w.lower().rstrip(",") not in self.particles)
 
     def _parse_portuguese_surnames(self, family: str) -> Dict[str, str]:
         """

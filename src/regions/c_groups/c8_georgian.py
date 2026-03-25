@@ -46,27 +46,37 @@ class C8Georgian(RegionSpec):
             # Georgian titles
             "\u10d1\u10d0\u10e2\u10dd\u10dc\u10dd",  # Batono (Sir)
             "\u10e5\u10d0\u10da\u10d1\u10d0\u10e2\u10dd\u10dc\u10dd",  # Kalbatono (Madam)
-            "\u10de\u10e0\u10dd\u10e4.",               # Prof. (Georgian)
-            "\u10d3-\u10e0",                            # Dr (Georgian)
+            "\u10de\u10e0\u10dd\u10e4.",  # Prof. (Georgian)
+            "\u10d3-\u10e0",  # Dr (Georgian)
             # Latin equivalents
-            "Dr", "Dr.", "Prof", "Prof.", "Professor",
-            "Mr", "Mr.", "Mrs", "Mrs.", "Ms", "Ms.",
-            "Batoni", "Kalbatoni",
+            "Dr",
+            "Dr.",
+            "Prof",
+            "Prof.",
+            "Professor",
+            "Mr",
+            "Mr.",
+            "Mrs",
+            "Mrs.",
+            "Ms",
+            "Ms.",
+            "Batoni",
+            "Kalbatoni",
         }
 
         # Georgian surname suffixes with meaning
         self.surname_suffixes = {
-            "shvili": "child of",        # Mkhedruli: -შვილი
-            "dze": "son of",             # Mkhedruli: -ძე
+            "shvili": "child of",  # Mkhedruli: -შვილი
+            "dze": "son of",  # Mkhedruli: -ძე
             "adze": "son of (variant)",  # Mkhedruli: -აძე
-            "eli": "from (place)",       # Mkhedruli: -ელი
-            "iani": "belonging to",      # Mkhedruli: -იანი
-            "ani": "of (place/clan)",    # Mkhedruli: -ანი
-            "uri": "of / related to",    # Mkhedruli: -ური
-            "uli": "of / related to",    # Mkhedruli: -ული
-            "ava": "of (Mingrelian)",    # Mkhedruli: -ავა
-            "ia": "of (Mingrelian)",     # Mkhedruli: -ია
-            "ua": "of (Svan)",           # Mkhedruli: -უა
+            "eli": "from (place)",  # Mkhedruli: -ელი
+            "iani": "belonging to",  # Mkhedruli: -იანი
+            "ani": "of (place/clan)",  # Mkhedruli: -ანი
+            "uri": "of / related to",  # Mkhedruli: -ური
+            "uli": "of / related to",  # Mkhedruli: -ული
+            "ava": "of (Mingrelian)",  # Mkhedruli: -ავა
+            "ia": "of (Mingrelian)",  # Mkhedruli: -ია
+            "ua": "of (Svan)",  # Mkhedruli: -უა
         }
 
         # Georgian script suffix forms (Mkhedruli)
@@ -86,45 +96,45 @@ class C8Georgian(RegionSpec):
 
         # ISO 9984 romanisation map (Mkhedruli -> Latin)
         self.romanization_map = {
-            "\u10d0": "a",   # Ani
-            "\u10d1": "b",   # Bani
-            "\u10d2": "g",   # Gani
-            "\u10d3": "d",   # Doni
-            "\u10d4": "e",   # Eni
-            "\u10d5": "v",   # Vini
-            "\u10d6": "z",   # Zeni
+            "\u10d0": "a",  # Ani
+            "\u10d1": "b",  # Bani
+            "\u10d2": "g",  # Gani
+            "\u10d3": "d",  # Doni
+            "\u10d4": "e",  # Eni
+            "\u10d5": "v",  # Vini
+            "\u10d6": "z",  # Zeni
             "\u10d7": "t'",  # T'ani (ejective)
-            "\u10d8": "i",   # Ini
+            "\u10d8": "i",  # Ini
             "\u10d9": "k'",  # K'ani (ejective)
-            "\u10da": "l",   # Lasi
-            "\u10db": "m",   # Mani
-            "\u10dc": "n",   # Nari
-            "\u10dd": "o",   # Oni
+            "\u10da": "l",  # Lasi
+            "\u10db": "m",  # Mani
+            "\u10dc": "n",  # Nari
+            "\u10dd": "o",  # Oni
             "\u10de": "p'",  # P'ari (ejective)
             "\u10df": "zh",  # Zhani
-            "\u10e0": "r",   # Rae
-            "\u10e1": "s",   # Sani
-            "\u10e2": "t",   # T'ari
-            "\u10e3": "u",   # Uni
-            "\u10e4": "p",   # Pari
-            "\u10e5": "k",   # Kani
+            "\u10e0": "r",  # Rae
+            "\u10e1": "s",  # Sani
+            "\u10e2": "t",  # T'ari
+            "\u10e3": "u",  # Uni
+            "\u10e4": "p",  # Pari
+            "\u10e5": "k",  # Kani
             "\u10e6": "gh",  # Ghani
             "\u10e7": "q'",  # Q'ari (ejective)
             "\u10e8": "sh",  # Shini
             "\u10e9": "ch",  # Chini
             "\u10ea": "ts",  # Tsani
             "\u10eb": "dz",  # Dzili
-            "\u10ec": "ts'", # Ts'ili (ejective)
-            "\u10ed": "ch'", # Ch'ari (ejective)
+            "\u10ec": "ts'",  # Ts'ili (ejective)
+            "\u10ed": "ch'",  # Ch'ari (ejective)
             "\u10ee": "kh",  # Khani
-            "\u10ef": "j",   # Jani
-            "\u10f0": "h",   # Hae
+            "\u10ef": "j",  # Jani
+            "\u10f0": "h",  # Hae
             # Archaic letters (rarely used in names)
-            "\u10f1": "e",   # He
+            "\u10f1": "e",  # He
             "\u10f2": "hi",  # Hie
             "\u10f3": "we",  # We
-            "\u10f4": "har", # Har
-            "\u10f5": "hoe", # Hoe
+            "\u10f4": "har",  # Har
+            "\u10f5": "hoe",  # Hoe
         }
 
         # Asomtavruli (uppercase) map - same sounds, different codepoints
@@ -198,9 +208,7 @@ class C8Georgian(RegionSpec):
     # ------------------------------------------------------------------
     def augment(self, entry: Dict[str, Any]) -> None:
         """Augment entry with C8-specific regional data (in-place)."""
-        canonical = (
-            entry.get("CanonicalNative", "") or entry.get("CanonicalLatin", "")
-        )
+        canonical = entry.get("CanonicalNative", "") or entry.get("CanonicalLatin", "")
         if not canonical:
             return
 
@@ -307,16 +315,12 @@ class C8Georgian(RegionSpec):
                 return True
         return False
 
-    def _detect_surname_suffix(
-        self, family: str
-    ) -> Optional[Dict[str, str]]:
+    def _detect_surname_suffix(self, family: str) -> Optional[Dict[str, str]]:
         if not family:
             return None
         lower = family.lower()
         # Check Latin suffixes (longest first to avoid partial matches)
-        sorted_suffixes = sorted(
-            self.surname_suffixes.items(), key=lambda x: -len(x[0])
-        )
+        sorted_suffixes = sorted(self.surname_suffixes.items(), key=lambda x: -len(x[0]))
         for suffix, meaning in sorted_suffixes:
             if lower.endswith(suffix):
                 return {"suffix": suffix, "meaning": meaning}
@@ -329,9 +333,7 @@ class C8Georgian(RegionSpec):
                 }
         return None
 
-    def _detect_ethnic_group(
-        self, suffix_info: Optional[Dict[str, str]]
-    ) -> str:
+    def _detect_ethnic_group(self, suffix_info: Optional[Dict[str, str]]) -> str:
         """Infer sub-ethnic group from surname suffix."""
         if not suffix_info:
             return "kartvelian"
@@ -353,9 +355,7 @@ class C8Georgian(RegionSpec):
         lower = word.lower()
         return bool(re.search(r"(ovich|ovna|evich|evna)$", lower))
 
-    def _strip_soviet_patronymic(
-        self, name: str, patronymic: str
-    ) -> Optional[str]:
+    def _strip_soviet_patronymic(self, name: str, patronymic: str) -> Optional[str]:
         words = name.split()
         cleaned = [w for w in words if w != patronymic]
         return " ".join(cleaned) if cleaned else None
@@ -387,20 +387,14 @@ class C8Georgian(RegionSpec):
         cl = entry.get("CanonicalLatin", "")
 
         if not cn and not cl:
-            raise RegionRuleError(
-                "C8: Missing both CanonicalNative and CanonicalLatin"
-            )
+            raise RegionRuleError("C8: Missing both CanonicalNative and CanonicalLatin")
 
         # Script consistency
         if cn and not self._is_georgian(cn) and not cn.isascii():
-            self.logger.warning(
-                f"C8: CanonicalNative contains non-Georgian script: {cn}"
-            )
+            self.logger.warning(f"C8: CanonicalNative contains non-Georgian script: {cn}")
 
         if cl and self._is_georgian(cl):
-            raise RegionRuleError(
-                f"C8: CanonicalLatin must not contain Georgian script: {cl}"
-            )
+            raise RegionRuleError(f"C8: CanonicalLatin must not contain Georgian script: {cl}")
 
         # Minimum length
         effective = cl or cn
@@ -409,9 +403,7 @@ class C8Georgian(RegionSpec):
 
         # Character validity for Latin form
         if cl and not self._valid_latin_chars(cl):
-            raise RegionRuleError(
-                f"C8: Invalid characters in CanonicalLatin: {cl}"
-            )
+            raise RegionRuleError(f"C8: Invalid characters in CanonicalLatin: {cl}")
 
     def _valid_latin_chars(self, name: str) -> bool:
         ms, me = self.mkhedruli_range

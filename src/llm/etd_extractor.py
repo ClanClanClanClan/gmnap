@@ -4,6 +4,7 @@ Stage 1b of the V7 pipeline. Uses Claude/GPT-4o-mini to extract structured
 metadata from thesis PDFs. Includes cost metering (CHF 40/month cap) and
 result caching.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -47,9 +48,7 @@ class CostMeter:
     def add(self, chf: float) -> None:
         self.spent += chf
         if self.spent > self.cap:
-            raise RuntimeError(
-                f"LLM cost cap exceeded: CHF {self.spent:.2f} > {self.cap:.2f}"
-            )
+            raise RuntimeError(f"LLM cost cap exceeded: CHF {self.spent:.2f} > {self.cap:.2f}")
         self._persist(chf)
 
     def _persist(self, increment: float) -> None:
@@ -108,7 +107,15 @@ def _cache_set(key: pathlib.Path, obj: Dict) -> None:
 
 
 ETD_SCHEMA = {
-    "required": ["title", "authors", "advisors", "degree_date", "degree", "institution", "language"],
+    "required": [
+        "title",
+        "authors",
+        "advisors",
+        "degree_date",
+        "degree",
+        "institution",
+        "language",
+    ],
     "properties": {
         "title": {"type": "string"},
         "authors": {"type": "array"},
@@ -183,7 +190,9 @@ def call_llm_claude(text: str, meter: CostMeter) -> Dict:
         model="claude-haiku-4-5-20251001",
         max_tokens=1024,
         system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": f"Extract metadata from this thesis:\n\n{truncated}"}],
+        messages=[
+            {"role": "user", "content": f"Extract metadata from this thesis:\n\n{truncated}"}
+        ],
     )
 
     input_tokens = response.usage.input_tokens

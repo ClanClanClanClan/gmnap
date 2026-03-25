@@ -1,4 +1,5 @@
 """Tests for stage 5 collision analytics — SQL injection prevention + correctness."""
+
 from __future__ import annotations
 
 import pytest
@@ -12,7 +13,11 @@ def _offline(monkeypatch):
 
 
 def _entry(name: str, gid: str = "", birth=None) -> dict:
-    return {"CanonicalLatin": name, "GlobalID": gid or name.upper().replace(", ", "_"), "BirthYear": birth}
+    return {
+        "CanonicalLatin": name,
+        "GlobalID": gid or name.upper().replace(", ", "_"),
+        "BirthYear": birth,
+    }
 
 
 class TestCollisionDetection:

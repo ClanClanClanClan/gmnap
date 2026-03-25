@@ -29,6 +29,7 @@ NOTE: OFFLINE defaults to "1" (True).  In OFFLINE mode, most fetchers
 return cached results or empty dicts.  Set OFFLINE=0 to enable real
 API calls.
 """
+
 from __future__ import annotations
 import os, json, asyncio, pathlib, hashlib, zlib, logging
 from typing import Dict, Any, List, Optional
@@ -40,6 +41,7 @@ CACHE_DIR = pathlib.Path(os.getenv("GMNAP_CACHE_DIR", "./cache/authority")).reso
 
 
 # ── Cache helpers ──────────────────────────────────────────────────────────
+
 
 def _cache_key(namespace: str, payload: Dict[str, Any]) -> pathlib.Path:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -62,6 +64,7 @@ def _cache_set(path: pathlib.Path, obj: Dict) -> None:
 
 # ── Tier 0 fetchers (free, no auth) ───────────────────────────────────────
 
+
 async def _fetch_openalex(entry: Dict) -> Dict:
     """OpenAlex authors search by name. Free, no auth, 864K/day."""
     ck = _cache_key("openalex", {"name": entry.get("CanonicalLatin", "")})
@@ -70,14 +73,18 @@ async def _fetch_openalex(entry: Dict) -> Dict:
         return cached
     try:
         from src.authority.openalex_adapter import OpenAlexAdapter
+
         adapter = OpenAlexAdapter()
         try:
             result = await adapter.enrich(entry)
             if result.get("_source", {}).get("hit"):
-                data = {"OpenAlex": {"hit": True,
-                                     "source_id": result.get("OpenAlexID"),
-                                     "identifiers": {k: v for k, v in result.items()
-                                                     if k not in ("_source",)}}}
+                data = {
+                    "OpenAlex": {
+                        "hit": True,
+                        "source_id": result.get("OpenAlexID"),
+                        "identifiers": {k: v for k, v in result.items() if k not in ("_source",)},
+                    }
+                }
                 _cache_set(ck, data)
                 return data
         finally:
@@ -95,13 +102,17 @@ async def _fetch_crossref(entry: Dict) -> Dict:
         return cached
     try:
         from src.authority.crossref_adapter import CrossrefAdapter
+
         adapter = CrossrefAdapter()
         try:
             result = await adapter.enrich(entry)
             if result.get("_source", {}).get("hit"):
-                data = {"Crossref": {"hit": True,
-                                     "identifiers": {k: v for k, v in result.items()
-                                                     if k not in ("_source",)}}}
+                data = {
+                    "Crossref": {
+                        "hit": True,
+                        "identifiers": {k: v for k, v in result.items() if k not in ("_source",)},
+                    }
+                }
                 _cache_set(ck, data)
                 return data
         finally:
@@ -119,14 +130,18 @@ async def _fetch_orcid_etd(entry: Dict) -> Dict:
         return cached
     try:
         from src.authority.orcid_etd_adapter import ORCIDETDAdapter
+
         adapter = ORCIDETDAdapter()
         try:
             result = await adapter.enrich(entry)
             if result.get("_source", {}).get("hit"):
-                data = {"ORCID_ETD": {"hit": True,
-                                       "source_id": result.get("ORCID"),
-                                       "identifiers": {k: v for k, v in result.items()
-                                                       if k not in ("_source",)}}}
+                data = {
+                    "ORCID_ETD": {
+                        "hit": True,
+                        "source_id": result.get("ORCID"),
+                        "identifiers": {k: v for k, v in result.items() if k not in ("_source",)},
+                    }
+                }
                 _cache_set(ck, data)
                 return data
         finally:
@@ -153,6 +168,7 @@ async def _fetch_crossref_thesis(entry: Dict) -> Dict:
         return {"Crossref_Thesis": {"works": 0, "match": False}}
     try:
         import aiohttp
+
         # Parse name robustly
         if "," in name:
             family = name.split(",")[0].strip()
@@ -163,15 +179,25 @@ async def _fetch_crossref_thesis(entry: Dict) -> Dict:
             family = parts[-1] if parts else name
             given = parts[0] if len(parts) > 1 else ""
 
-        url = (f"https://api.crossref.org/works?"
-               f"query.author={family}+{given}&filter=type:dissertation&rows=5")
-        headers = {"User-Agent": f"GMNAP/7.0 (mailto:{os.getenv('GMNAP_EMAIL', 'gmnap@example.com')})"}
+        url = (
+            f"https://api.crossref.org/works?"
+            f"query.author={family}+{given}&filter=type:dissertation&rows=5"
+        )
+        headers = {
+            "User-Agent": f"GMNAP/7.0 (mailto:{os.getenv('GMNAP_EMAIL', 'gmnap@example.com')})"
+        }
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers,
-                                   timeout=aiohttp.ClientTimeout(total=15)) as resp:
+            async with session.get(
+                url, headers=headers, timeout=aiohttp.ClientTimeout(total=15)
+            ) as resp:
                 if resp.status != 200:
-                    return {"Crossref_Thesis": {"works": 0, "match": False,
-                                                "reason": f"http_{resp.status}"}}
+                    return {
+                        "Crossref_Thesis": {
+                            "works": 0,
+                            "match": False,
+                            "reason": f"http_{resp.status}",
+                        }
+                    }
                 data = await resp.json()
 
         items = data.get("message", {}).get("items", [])
@@ -191,14 +217,16 @@ async def _fetch_crossref_thesis(entry: Dict) -> Dict:
         if date_parts and date_parts[0]:
             year = date_parts[0][0]
 
-        result = {"Crossref_Thesis": {
-            "works": len(items),
-            "match": True,
-            "source_id": best.get("DOI"),
-            "thesis_title": thesis_title,
-            "institution": inst_name,
-            "year": year,
-        }}
+        result = {
+            "Crossref_Thesis": {
+                "works": len(items),
+                "match": True,
+                "source_id": best.get("DOI"),
+                "thesis_title": thesis_title,
+                "institution": inst_name,
+                "year": year,
+            }
+        }
         _cache_set(ck, result)
         return result
     except Exception as e:
@@ -207,6 +235,7 @@ async def _fetch_crossref_thesis(entry: Dict) -> Dict:
 
 
 # ── Tier 1 fetchers (free, rate limited) ──────────────────────────────────
+
 
 async def _fetch_wikidata_p184(entry: Dict) -> Dict:
     """Wikidata doctoral advisor (P184) edge lookup via SPARQL.
@@ -227,6 +256,7 @@ async def _fetch_wikidata_p184(entry: Dict) -> Dict:
         return {"Wikidata_P184": {"hit": False}}
     try:
         import aiohttp
+
         # Step 1: Find Wikidata item via wbsearchentities
         search_url = (
             "https://www.wikidata.org/w/api.php"
@@ -237,8 +267,9 @@ async def _fetch_wikidata_p184(entry: Dict) -> Dict:
         async with aiohttp.ClientSession() as session:
             # Rate limit: Wikidata allows ~1 req/s for bots
             await asyncio.sleep(0.5)
-            async with session.get(search_url, headers=headers,
-                                   timeout=aiohttp.ClientTimeout(total=15)) as resp:
+            async with session.get(
+                search_url, headers=headers, timeout=aiohttp.ClientTimeout(total=15)
+            ) as resp:
                 if resp.status != 200:
                     return {"Wikidata_P184": {"hit": False, "reason": "search_failed"}}
                 search_data = await resp.json()
@@ -266,8 +297,9 @@ async def _fetch_wikidata_p184(entry: Dict) -> Dict:
             sparql_url = "https://query.wikidata.org/sparql"
             params = {"query": sparql, "format": "json"}
             await asyncio.sleep(0.5)  # Rate limit
-            async with session.get(sparql_url, params=params, headers=headers,
-                                   timeout=aiohttp.ClientTimeout(total=15)) as resp:
+            async with session.get(
+                sparql_url, params=params, headers=headers, timeout=aiohttp.ClientTimeout(total=15)
+            ) as resp:
                 if resp.status != 200:
                     result = {"Wikidata_P184": {"hit": False, "reason": "sparql_failed"}}
                     _cache_set(ck, result)
@@ -280,18 +312,22 @@ async def _fetch_wikidata_p184(entry: Dict) -> Dict:
                 advisor_uri = b.get("advisor", {}).get("value", "")
                 advisor_label = b.get("advisorLabel", {}).get("value", "")
                 advisor_qid = advisor_uri.split("/")[-1] if advisor_uri else ""
-                edges.append({
-                    "relation": "doctoralAdvisor",
-                    "target": advisor_label,
-                    "wikidata_id": advisor_qid,
-                    "confidence": 0.95,
-                })
+                edges.append(
+                    {
+                        "relation": "doctoralAdvisor",
+                        "target": advisor_label,
+                        "wikidata_id": advisor_qid,
+                        "confidence": 0.95,
+                    }
+                )
 
-            result = {"Wikidata_P184": {
-                "hit": len(edges) > 0,
-                "wikidata_id": qid,
-                "edges": edges,
-            }}
+            result = {
+                "Wikidata_P184": {
+                    "hit": len(edges) > 0,
+                    "wikidata_id": qid,
+                    "edges": edges,
+                }
+            }
             _cache_set(ck, result)
             return result
     except Exception as e:
@@ -316,6 +352,7 @@ async def _fetch_oai_university(entry: Dict) -> Dict:
         return {"OAI_University": {"hit": False}}
     try:
         import aiohttp
+
         # Parse name into family/given for more precise query
         if "," in name:
             family = name.split(",")[0].strip()
@@ -370,13 +407,15 @@ async def _fetch_oai_university(entry: Dict) -> Dict:
             institution = institution[0] if institution else None
         title = best_doc.get("dctitle", "")
 
-        result = {"OAI_University": {
-            "hit": True,
-            "source_id": source_id,
-            "institution": institution,
-            "thesis_title": title,
-            "year": best_doc.get("dcyear"),
-        }}
+        result = {
+            "OAI_University": {
+                "hit": True,
+                "source_id": source_id,
+                "institution": institution,
+                "thesis_title": title,
+                "year": best_doc.get("dcyear"),
+            }
+        }
         _cache_set(ck, result)
         return result
     except Exception as e:
@@ -394,12 +433,16 @@ async def _fetch_hal(entry: Dict) -> Dict:
         return {"HAL": {"hit": False}}
     try:
         from src.authority.hal_adapter import HALAdapter
+
         adapter = HALAdapter({})
         result = await adapter.enrich(entry)
         if result.get("_source", {}).get("hit") or result.get("Institution"):
-            data = {"HAL": {"hit": True,
-                            "identifiers": {k: v for k, v in result.items()
-                                            if k not in ("_source",)}}}
+            data = {
+                "HAL": {
+                    "hit": True,
+                    "identifiers": {k: v for k, v in result.items() if k not in ("_source",)},
+                }
+            }
             _cache_set(ck, data)
             return data
     except Exception as e:
@@ -418,6 +461,7 @@ async def _fetch_gnd(entry: Dict) -> Dict:
         return {"GND": {"hit": False}}
     try:
         import aiohttp
+
         family = name.split(",")[0].strip() if "," in name else name.split()[-1]
         given = name.split(",")[1].strip().split()[0] if "," in name else name.split()[0]
         url = f"https://lobid.org/gnd/search?q=preferredNameForThePerson:{family}+{given}&filter=type:DifferentiatedPerson&size=3&format=json"
@@ -426,10 +470,12 @@ async def _fetch_gnd(entry: Dict) -> Dict:
                 if resp.status == 200:
                     data = await resp.json()
                     members = data.get("member", [])
-                    result = {"GND": {
-                        "hit": len(members) > 0,
-                        "source_id": members[0].get("gndIdentifier") if members else None,
-                    }}
+                    result = {
+                        "GND": {
+                            "hit": len(members) > 0,
+                            "source_id": members[0].get("gndIdentifier") if members else None,
+                        }
+                    }
                     _cache_set(ck, result)
                     return result
     except Exception as e:
@@ -447,12 +493,16 @@ async def _fetch_zbmath(entry: Dict) -> Dict:
         return {"zbMATH_Open": {"hit": False}}
     try:
         from src.authority.zbmath_open_adapter import ZbMathOpenAdapter
+
         adapter = ZbMathOpenAdapter({})
         result = await adapter.enrich(entry)
         if result.get("_source", {}).get("hit") or result.get("Publications"):
-            data = {"zbMATH_Open": {"hit": True,
-                                    "identifiers": {k: v for k, v in result.items()
-                                                    if k not in ("_source",)}}}
+            data = {
+                "zbMATH_Open": {
+                    "hit": True,
+                    "identifiers": {k: v for k, v in result.items() if k not in ("_source",)},
+                }
+            }
             _cache_set(ck, data)
             return data
     except Exception as e:
@@ -461,6 +511,7 @@ async def _fetch_zbmath(entry: Dict) -> Dict:
 
 
 # ── Tier 2 fetchers (subscription required) ──────────────────────────────
+
 
 async def _fetch_mathscinet(entry: Dict) -> Dict:
     """MathSciNet author lookup via AMS MR Lookup.
@@ -479,6 +530,7 @@ async def _fetch_mathscinet(entry: Dict) -> Dict:
         return {"MathSciNet": {"hit": False}}
     try:
         import aiohttp
+
         # Parse name
         if "," in name:
             family = name.split(",")[0].strip()
@@ -502,20 +554,20 @@ async def _fetch_mathscinet(entry: Dict) -> Dict:
             }
         else:
             # Free MR Lookup (limited but no auth needed)
-            url = (
-                "https://mathscinet.ams.org/mrlookup"
-                f"?s3={family}&s4={given}&format=json"
-            )
+            url = "https://mathscinet.ams.org/mrlookup" f"?s3={family}&s4={given}&format=json"
             headers = {"User-Agent": "GMNAP/7.0"}
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers,
-                                   timeout=aiohttp.ClientTimeout(total=15)) as resp:
+            async with session.get(
+                url, headers=headers, timeout=aiohttp.ClientTimeout(total=15)
+            ) as resp:
                 if resp.status != 200:
-                    result = {"MathSciNet": {
-                        "hit": False,
-                        "reason": f"http_{resp.status}",
-                    }}
+                    result = {
+                        "MathSciNet": {
+                            "hit": False,
+                            "reason": f"http_{resp.status}",
+                        }
+                    }
                     _cache_set(ck, result)
                     return result
 
@@ -538,12 +590,14 @@ async def _fetch_mathscinet(entry: Dict) -> Dict:
                                 mr_numbers.append(data.get("mrnumber", ""))
                             except json.JSONDecodeError:
                                 pass
-                    result = {"MathSciNet": {
-                        "hit": len(mr_numbers) > 0,
-                        "mr_numbers": mr_numbers[:5],
-                        "source_id": mr_numbers[0] if mr_numbers else None,
-                        "api_mode": "mr_lookup",
-                    }}
+                    result = {
+                        "MathSciNet": {
+                            "hit": len(mr_numbers) > 0,
+                            "mr_numbers": mr_numbers[:5],
+                            "source_id": mr_numbers[0] if mr_numbers else None,
+                            "api_mode": "mr_lookup",
+                        }
+                    }
                     _cache_set(ck, result)
                     return result
 
@@ -555,12 +609,14 @@ async def _fetch_mathscinet(entry: Dict) -> Dict:
                     return result
 
                 first = results_list[0] if results_list else {}
-                result = {"MathSciNet": {
-                    "hit": True,
-                    "source_id": first.get("mrnumber") or first.get("id"),
-                    "publications_count": len(results_list),
-                    "api_mode": "full_api" if api_key else "mr_lookup",
-                }}
+                result = {
+                    "MathSciNet": {
+                        "hit": True,
+                        "source_id": first.get("mrnumber") or first.get("id"),
+                        "publications_count": len(results_list),
+                        "api_mode": "full_api" if api_key else "mr_lookup",
+                    }
+                }
                 _cache_set(ck, result)
                 return result
     except Exception as e:
@@ -574,6 +630,7 @@ async def _fetch_scopus(entry: Dict) -> Dict:
         return {"Scopus": {"hit": False, "reason": "no_api_key"}}
     try:
         from src.authorities.tier1.scopus import ScopusFetcher
+
         fetcher = ScopusFetcher({"api_key": api_key})
         result = await fetcher.fetch(entry.get("CanonicalLatin", ""))
         if result.data:
@@ -605,6 +662,7 @@ async def _fetch_dimensions(entry: Dict) -> Dict:
         return {"Dimensions": {"hit": False}}
     try:
         import aiohttp
+
         # Parse name
         if "," in name:
             family = name.split(",")[0].strip()
@@ -619,8 +677,8 @@ async def _fetch_dimensions(entry: Dict) -> Dict:
         dsl_query = (
             f'search researchers where last_name="{family}"'
             f' and first_name="{given}"'
-            ' return researchers[id,first_name,last_name,orcid_id,'
-            'current_research_org,total_publications] limit 5'
+            " return researchers[id,first_name,last_name,orcid_id,"
+            "current_research_org,total_publications] limit 5"
         )
 
         url = "https://app.dimensions.ai/api/dsl/v2"
@@ -632,9 +690,10 @@ async def _fetch_dimensions(entry: Dict) -> Dict:
 
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                url, headers=headers,
+                url,
+                headers=headers,
                 json={"query": dsl_query},
-                timeout=aiohttp.ClientTimeout(total=15)
+                timeout=aiohttp.ClientTimeout(total=15),
             ) as resp:
                 if resp.status == 401:
                     result = {"Dimensions": {"hit": False, "reason": "auth_failed"}}
@@ -652,15 +711,19 @@ async def _fetch_dimensions(entry: Dict) -> Dict:
             return result
 
         best = researchers[0]
-        result = {"Dimensions": {
-            "hit": True,
-            "source_id": best.get("id"),
-            "orcid": best.get("orcid_id"),
-            "institution": (best.get("current_research_org") or [{}])[0].get("name")
-                           if isinstance(best.get("current_research_org"), list)
-                           else None,
-            "publications_count": best.get("total_publications"),
-        }}
+        result = {
+            "Dimensions": {
+                "hit": True,
+                "source_id": best.get("id"),
+                "orcid": best.get("orcid_id"),
+                "institution": (
+                    (best.get("current_research_org") or [{}])[0].get("name")
+                    if isinstance(best.get("current_research_org"), list)
+                    else None
+                ),
+                "publications_count": best.get("total_publications"),
+            }
+        }
         _cache_set(ck, result)
         return result
     except Exception as e:
@@ -669,6 +732,7 @@ async def _fetch_dimensions(entry: Dict) -> Dict:
 
 
 # ── Tier 3 fetchers (scraper / subscription) ─────────────────────────────
+
 
 async def _fetch_proquest(entry: Dict) -> Dict:
     """ProQuest Dissertations & Theses lookup.
@@ -694,8 +758,13 @@ async def _fetch_google_scholar(entry: Dict) -> Dict:
     """
     # V7 spec §10: require explicit opt-in
     if os.environ.get("YES_I_ACCEPT_GS_TOS", "").lower() != "yes":
-        return {"GoogleScholar": {"hit": False, "reason": "tos_optin_required",
-                "info": "Set YES_I_ACCEPT_GS_TOS=yes and use --force-extreme"}}
+        return {
+            "GoogleScholar": {
+                "hit": False,
+                "reason": "tos_optin_required",
+                "info": "Set YES_I_ACCEPT_GS_TOS=yes and use --force-extreme",
+            }
+        }
     # Even with opt-in, actual scraping is not implemented (ToS violation risk)
     return {"GoogleScholar": {"hit": False, "reason": "not_implemented_scraper_deferred"}}
 
@@ -808,7 +877,9 @@ async def enrich_by_tiers(entries: List[Dict], tiers: Optional[List[int]] = None
                             if key not in seen:
                                 existing_events.append(ev)
                                 seen.add(key)
-                        merged["NameEvents"] = sorted(existing_events, key=lambda x: x.get("year", 0))
+                        merged["NameEvents"] = sorted(
+                            existing_events, key=lambda x: x.get("year", 0)
+                        )
 
             # Extract AffiliationTimeline from authority sources (v7 spec glossary)
             for source_name, source_data in r.items():

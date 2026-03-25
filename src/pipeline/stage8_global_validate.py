@@ -1,4 +1,5 @@
 """Stage 8: GlobalValidate - JSON-Schema, transliteration round-trip, graph coherence gate."""
+
 from __future__ import annotations
 import json, logging, pathlib, re, unicodedata
 from typing import Dict, List, Tuple, Any
@@ -20,9 +21,17 @@ _VALID_GENDERS = frozenset({"male", "female", "nonbinary", "unspecified"})
 
 # V2.0 schema required fields
 V2_REQUIRED_FIELDS = [
-    "GlobalID", "UpdatedAt", "CanonicalLatin", "CanonicalNative",
-    "LanguageOfPublication", "FamilyNameType", "Gender", "CountryCodes",
-    "Confidence", "Historic", "GDPR_DATA",
+    "GlobalID",
+    "UpdatedAt",
+    "CanonicalLatin",
+    "CanonicalNative",
+    "LanguageOfPublication",
+    "FamilyNameType",
+    "Gender",
+    "CountryCodes",
+    "Confidence",
+    "Historic",
+    "GDPR_DATA",
 ]
 
 # Load the JSON Schema entry definition once
@@ -31,8 +40,8 @@ _SCHEMA_VALIDATOR = None  # Pre-compiled jsonschema validator
 _SCHEMA_PATH = pathlib.Path(__file__).resolve().parents[2] / "docs" / "schema_v2.0.json"
 
 # Pre-compiled regexes
-_RE_GLOBALID = re.compile(r'^[A-Z2-7]{22}(--\d+)?$')
-_RE_COUNTRY_CODE = re.compile(r'^[A-Z]{2}$')
+_RE_GLOBALID = re.compile(r"^[A-Z2-7]{22}(--\d+)?$")
+_RE_COUNTRY_CODE = re.compile(r"^[A-Z]{2}$")
 
 
 def _load_entry_schema() -> Dict[str, Any] | None:
@@ -77,8 +86,8 @@ def _dice_coefficient(a: str, b: str) -> float:
     b = unicodedata.normalize("NFC", b.casefold())
     if a == b:
         return 1.0
-    a_bigrams = set(a[i:i+2] for i in range(len(a) - 1))
-    b_bigrams = set(b[i:i+2] for i in range(len(b) - 1))
+    a_bigrams = set(a[i : i + 2] for i in range(len(a) - 1))
+    b_bigrams = set(b[i : i + 2] for i in range(len(b) - 1))
     if not a_bigrams or not b_bigrams:
         return 0.0
     overlap = len(a_bigrams & b_bigrams)
@@ -179,9 +188,9 @@ def validate_roundtrip(entry: Dict[str, Any]) -> float:
     return _dice_coefficient(canonical_latin, latinized)
 
 
-def stage8_global_validate(batch: List[Dict], mode: str = "quick",
-                           graph_coherence: float = 1.0,
-                           schema_strict: int = 0) -> Tuple[List[Dict], Dict[str, Any]]:
+def stage8_global_validate(
+    batch: List[Dict], mode: str = "quick", graph_coherence: float = 1.0, schema_strict: int = 0
+) -> Tuple[List[Dict], Dict[str, Any]]:
     """
     Stage 8: Validate all entries against V7 schema, roundtrip, and coherence gates.
 
@@ -220,9 +229,7 @@ def stage8_global_validate(batch: List[Dict], mode: str = "quick",
             if schema_strict == 2:
                 # Strict reject: ALL schema errors → exclude from output
                 rejected_count += 1
-                logger.error(
-                    f"REJECTED {e.get('GlobalID', '?')}: {errors}"
-                )
+                logger.error(f"REJECTED {e.get('GlobalID', '?')}: {errors}")
                 continue  # skip this entry entirely
 
             if schema_strict == 1:
@@ -234,9 +241,7 @@ def stage8_global_validate(batch: List[Dict], mode: str = "quick",
                 ]
                 e["RegionalExtras"]["needs_human_review"] = True
                 quarantined_count += 1
-                logger.error(
-                    f"QUARANTINED {e.get('GlobalID', '?')}: {errors}"
-                )
+                logger.error(f"QUARANTINED {e.get('GlobalID', '?')}: {errors}")
             else:
                 # Default (strict=0): only quarantine on missing REQUIRED fields
                 required_missing = [
@@ -250,9 +255,7 @@ def stage8_global_validate(batch: List[Dict], mode: str = "quick",
                     ]
                     e["RegionalExtras"]["needs_human_review"] = True
                     quarantined_count += 1
-                    logger.error(
-                        f"QUARANTINED {e.get('GlobalID', '?')}: {required_missing}"
-                    )
+                    logger.error(f"QUARANTINED {e.get('GlobalID', '?')}: {required_missing}")
 
         # Roundtrip validation
         rt_score = validate_roundtrip(e)
@@ -261,7 +264,9 @@ def stage8_global_validate(batch: List[Dict], mode: str = "quick",
             roundtrip_failures += 1
             region = e.get("DetectedRegion", "unknown")
             ROUNDTRIP_FAILURES.labels(region=region).inc()
-            logger.warning(f"Roundtrip failure for {e.get('GlobalID', '?')}: {rt_score:.4f} < {ROUNDTRIP_MIN}")
+            logger.warning(
+                f"Roundtrip failure for {e.get('GlobalID', '?')}: {rt_score:.4f} < {ROUNDTRIP_MIN}"
+            )
 
         out.append(e)
 
@@ -291,8 +296,6 @@ def stage8_global_validate(batch: List[Dict], mode: str = "quick",
         )
 
     if rejected_count > 0:
-        logger.warning(
-            f"Stage 8: {rejected_count}/{total} entries rejected due to schema_strict=2"
-        )
+        logger.warning(f"Stage 8: {rejected_count}/{total} entries rejected due to schema_strict=2")
 
     return out, metrics

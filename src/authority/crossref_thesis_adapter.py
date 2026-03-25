@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 import os
 from typing import Dict, Any
@@ -13,6 +12,7 @@ class CrossrefThesisAdapter:
     Endpoint: api.crossref.org/works?filter=type:dissertation
     Returns: thesis DOI, degree date, institution.
     """
+
     name = "CrossrefThesis"
 
     def __init__(self, cfg: Dict[str, Any] = None):
@@ -38,7 +38,7 @@ class CrossrefThesisAdapter:
         if c is not None:
             return c
         await self.ctx.limiter.acquire()
-        url = f'{self.ctx.base_url}/works?{urlencode(q)}'
+        url = f"{self.ctx.base_url}/works?{urlencode(q)}"
         out = {"_source": {"service": self.name, "url": url}}
         try:
             if self.ctx.http:
@@ -57,7 +57,10 @@ class CrossrefThesisAdapter:
                         if dp and len(dp) >= 1:
                             year = str(dp[0])
                             if len(dp) >= 2:
-                                out["DegreeDate"] = {"date": f"{dp[0]}-{dp[1]:02d}", "precision": "month"}
+                                out["DegreeDate"] = {
+                                    "date": f"{dp[0]}-{dp[1]:02d}",
+                                    "precision": "month",
+                                }
                             else:
                                 out["DegreeDate"] = {"date": year, "precision": "year"}
                         # Institution

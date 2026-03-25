@@ -20,8 +20,8 @@ with open("resources/rr_syllable_map.csv", encoding="utf8") as f:
 
 # Context-aware alternatives needed:
 context_alternatives = [
-    ("숙", "suk"),   # Alternative for given names like Wang_Minsuk
-    ("정", "cheong"), # Alternative for surnames like Cheong_Munho  
+    ("숙", "suk"),  # Alternative for given names like Wang_Minsuk
+    ("정", "cheong"),  # Alternative for surnames like Cheong_Munho
 ]
 
 print(f"Total rows before alternatives: {len(rows)}")
@@ -30,7 +30,7 @@ additions_made = 0
 for hangul, roman in context_alternatives:
     # Check if this mapping already exists
     exists = any(len(r) >= 2 and r[0] == hangul and r[1] == roman for r in rows)
-    
+
     if not exists:
         rows.append([hangul, roman])
         print(f"  ADDED: {roman} → {hangul} (context alternative)")
@@ -52,7 +52,7 @@ print("\n=== EXPECTED BEHAVIOR ===")
 print("Now FST has multiple paths:")
 print("- suk → 석 (primary)")
 print("- suk → 숙 (alternative for given names)")
-print("- cheong → 청 (primary)")  
+print("- cheong → 청 (primary)")
 print("- cheong → 정 (alternative for surnames)")
 print("\nFST will choose the first path unless constrained by context.")
 print("This should improve cases where the primary choice was wrong.")

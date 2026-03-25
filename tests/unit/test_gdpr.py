@@ -1,4 +1,5 @@
 """Unit tests for GDPR compliance module."""
+
 import pytest
 from src.core.gdpr import (
     mark_gdpr_fields,
@@ -81,14 +82,16 @@ class TestShadowNode:
         assert result[0]["BirthYear"] == 1990
 
     def test_drop_personal_creates_shadow_node(self):
-        batch = [{
-            "GlobalID": "TESTID",
-            "CanonicalLatin": "Euler, Leonhard",
-            "BirthYear": 1707,
-            "DetectedRegion": "A2",
-            "Advisors": ["ADV1"],
-            "OrderKey": "EULER, LEONHARD",
-        }]
+        batch = [
+            {
+                "GlobalID": "TESTID",
+                "CanonicalLatin": "Euler, Leonhard",
+                "BirthYear": 1707,
+                "DetectedRegion": "A2",
+                "Advisors": ["ADV1"],
+                "OrderKey": "EULER, LEONHARD",
+            }
+        ]
         result = apply_drop_personal(batch, drop_personal=True)
         shadow = result[0]
         assert shadow["ShadowNode"] is True
@@ -106,8 +109,12 @@ class TestShadowNode:
 class TestGDPRPipeline:
     def test_full_pipeline(self):
         batch = [
-            {"CanonicalLatin": f"Person{i}", "BirthYear": 1985,
-             "DetectedRegion": "A1", "_sources": ["OpenAlex"]}
+            {
+                "CanonicalLatin": f"Person{i}",
+                "BirthYear": 1985,
+                "DetectedRegion": "A1",
+                "_sources": ["OpenAlex"],
+            }
             for i in range(3)
         ]
         result = gdpr_pipeline(batch, drop_personal=False)
@@ -117,8 +124,15 @@ class TestGDPRPipeline:
             assert e["BirthYear"] == "1980s"  # cohort < 5
 
     def test_full_pipeline_with_drop_personal(self):
-        batch = [{"CanonicalLatin": "Test", "BirthYear": 1990,
-                  "GlobalID": "XYZ", "DetectedRegion": "A1", "_sources": []}]
+        batch = [
+            {
+                "CanonicalLatin": "Test",
+                "BirthYear": 1990,
+                "GlobalID": "XYZ",
+                "DetectedRegion": "A1",
+                "_sources": [],
+            }
+        ]
         result = gdpr_pipeline(batch, drop_personal=True)
         assert result[0]["ShadowNode"] is True
         assert "CanonicalLatin" not in result[0]

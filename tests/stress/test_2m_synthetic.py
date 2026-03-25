@@ -58,15 +58,39 @@ REGIONS = {
 
 # Sample surname pools per script family
 LATIN_SURNAMES = [
-    "Smith", "Müller", "García", "Dubois", "Rossi", "da Silva", "O'Brien",
-    "van der Berg", "Johansson", "Nielsen", "Kovács", "Nowak", "Svoboda",
+    "Smith",
+    "Müller",
+    "García",
+    "Dubois",
+    "Rossi",
+    "da Silva",
+    "O'Brien",
+    "van der Berg",
+    "Johansson",
+    "Nielsen",
+    "Kovács",
+    "Nowak",
+    "Svoboda",
 ]
 CYRILLIC_SURNAMES = ["Иванов", "Петров", "Козлов", "Новиков", "Морозов"]
 ARABIC_SURNAMES = ["الحسن", "العربي", "محمد", "عبدالله", "الشريف"]
 CJK_SURNAMES = ["王", "李", "张", "刘", "陈", "杨", "黄", "赵"]
 GIVEN_NAMES = [
-    "John", "Maria", "Ahmed", "Wei", "Yuki", "Sven", "Anna", "Boris",
-    "Priya", "Carlos", "Fatima", "Hiroshi", "Olga", "Kwame", "Mei",
+    "John",
+    "Maria",
+    "Ahmed",
+    "Wei",
+    "Yuki",
+    "Sven",
+    "Anna",
+    "Boris",
+    "Priya",
+    "Carlos",
+    "Fatima",
+    "Hiroshi",
+    "Olga",
+    "Kwame",
+    "Mei",
 ]
 
 
@@ -74,6 +98,7 @@ def _generate_global_id(name: str, birth: int) -> str:
     """Generate a deterministic GlobalID."""
     raw = hashlib.sha256(f"{name}:{birth}".encode()).digest()[:16]
     import base64
+
     b32 = base64.b32encode(raw).decode().rstrip("=")[:22]
     return b32.upper()
 
@@ -167,9 +192,17 @@ class TestSyntheticStress:
         """All generated entries should have required fields."""
         batch = _generate_batch(10_000)
         required = [
-            "GlobalID", "CanonicalLatin", "CanonicalNative",
-            "BirthYear", "CountryCodes", "Gender", "FamilyNameType",
-            "LanguageOfPublication", "Historic", "GDPR_DATA", "Confidence",
+            "GlobalID",
+            "CanonicalLatin",
+            "CanonicalNative",
+            "BirthYear",
+            "CountryCodes",
+            "Gender",
+            "FamilyNameType",
+            "LanguageOfPublication",
+            "Historic",
+            "GDPR_DATA",
+            "Confidence",
         ]
         for e in batch:
             for field in required:
@@ -178,10 +211,12 @@ class TestSyntheticStress:
     def test_memory_usage_within_bounds(self):
         """Memory usage should stay within 6GB RSS limit (spec quality gate)."""
         import resource
+
         batch = _generate_batch(500_000)
         rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024)
         # macOS reports in bytes, Linux in KB
         import sys
+
         if sys.platform == "darwin":
             rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024)
         else:

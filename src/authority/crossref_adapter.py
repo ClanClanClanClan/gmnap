@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 import os
 from typing import Dict, Any
@@ -13,6 +12,7 @@ class CrossrefAdapter:
     Endpoint: api.crossref.org/works?query.author=
     Returns: DOIs, publication count, co-author names, venue names.
     """
+
     name = "Crossref"
 
     def __init__(self, cfg: Dict[str, Any] = None):
@@ -37,7 +37,7 @@ class CrossrefAdapter:
         if c is not None:
             return c
         await self.ctx.limiter.acquire()
-        url = f'{self.ctx.base_url}/works?{urlencode(q)}'
+        url = f"{self.ctx.base_url}/works?{urlencode(q)}"
         out = {"_source": {"service": self.name, "url": url}}
         try:
             if self.ctx.http:
@@ -57,7 +57,7 @@ class CrossrefAdapter:
                         # Collect unique co-authors (across all items)
                         coauthors = set()
                         for it in items:
-                            for auth in (it.get("author") or []):
+                            for auth in it.get("author") or []:
                                 family = auth.get("family", "")
                                 given = auth.get("given", "")
                                 if family:
@@ -70,7 +70,7 @@ class CrossrefAdapter:
                         # Collect subjects / MSC-like topics
                         subjects = set()
                         for it in items:
-                            for s in (it.get("subject") or []):
+                            for s in it.get("subject") or []:
                                 subjects.add(s)
                         if subjects:
                             out["Subjects"] = sorted(subjects)[:10]

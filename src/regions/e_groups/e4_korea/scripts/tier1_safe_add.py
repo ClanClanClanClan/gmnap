@@ -18,19 +18,17 @@ for hangul, roman, weight, context, pos in mappings:
     # Test with linter
     mapping_str = f"{hangul},{roman},{weight},{context},{pos}"
     print(f"Testing: {roman} → {hangul} (weight={weight}, pos={pos})")
-    
+
     result = subprocess.run(
-        ["python3", "scripts/lint_weights.py", mapping_str],
-        capture_output=True,
-        text=True
+        ["python3", "scripts/lint_weights.py", mapping_str], capture_output=True, text=True
     )
-    
+
     if result.returncode != 0:
         print(f"  ❌ Linter failed: {result.stdout.strip()}")
         continue
-    
+
     print(f"  ✅ Linter passed")
-    
+
     # Test conversion for known cases
     if roman == "shik":
         test_name = "Choi, Min-Shik"
@@ -52,7 +50,7 @@ for hangul, roman, weight, context, pos in mappings:
         expected = "민병두"
     else:
         continue
-    
+
     print(f"  Test case: {test_name} → {expected}")
 
 print("\nAll mappings tested. Ready to add to CSV.")

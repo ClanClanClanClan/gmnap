@@ -25,8 +25,7 @@ _GEEZ_SUPPLEMENT_END = 0x139F
 def _is_geez(ch: str) -> bool:
     """Return True if character is in the Ge'ez/Ethiopic block."""
     cp = ord(ch)
-    return (_GEEZ_START <= cp <= _GEEZ_END
-            or _GEEZ_SUPPLEMENT_START <= cp <= _GEEZ_SUPPLEMENT_END)
+    return _GEEZ_START <= cp <= _GEEZ_END or _GEEZ_SUPPLEMENT_START <= cp <= _GEEZ_SUPPLEMENT_END
 
 
 def _has_geez(text: str) -> bool:
@@ -52,25 +51,40 @@ class F3HornOfAfrica(RegionSpec):
             scripts=["Ge'ez", "Latin"],
             mixed_scripts=True,
             canonical_order="Patronymic",
-            romanisation_standards=["Amharic-Latin", "Tigrinya-Latin"]
+            romanisation_standards=["Amharic-Latin", "Tigrinya-Latin"],
         )
 
         # Titles / honorifics in Amharic romanisation
         self.titles = {
-            "Dr", "Dr.", "Doctor",
-            "Prof", "Prof.", "Professor",
-            "Ato", "Woizero", "Woizerit",
-            "Dejazmach", "Ras", "Negus",
-            "Fitawrari", "Grazmach", "Blatta",
-            "Rev", "Rev.",
+            "Dr",
+            "Dr.",
+            "Doctor",
+            "Prof",
+            "Prof.",
+            "Professor",
+            "Ato",
+            "Woizero",
+            "Woizerit",
+            "Dejazmach",
+            "Ras",
+            "Negus",
+            "Fitawrari",
+            "Grazmach",
+            "Blatta",
+            "Rev",
+            "Rev.",
         }
 
         # Common Amharic romanisation alternates (for variant generation)
         self.romanisation_alternates = {
-            "ou": "u", "oo": "u",
-            "ee": "i", "ei": "e",
-            "sh": "ch", "tch": "ch",
-            "dj": "j", "gn": "ny",
+            "ou": "u",
+            "oo": "u",
+            "ee": "i",
+            "ei": "e",
+            "sh": "ch",
+            "tch": "ch",
+            "dj": "j",
+            "gn": "ny",
             "w": "ou",
         }
 
@@ -149,8 +163,7 @@ class F3HornOfAfrica(RegionSpec):
         extras["has_patronymic"] = True
         extras["is_mononym"] = not chain.get("father")
         extras["patronymic_depth"] = len(
-            [v for v in [chain["given"], chain.get("father"),
-                         chain.get("grandfather")] if v]
+            [v for v in [chain["given"], chain.get("father"), chain.get("grandfather")] if v]
         )
 
         # Detect Ge'ez script in native field
@@ -165,10 +178,12 @@ class F3HornOfAfrica(RegionSpec):
 
         # Given-name-only variant (common short form)
         if chain.get("father"):
-            variants.append({
-                "str": chain["given"],
-                "type": "given-only",
-            })
+            variants.append(
+                {
+                    "str": chain["given"],
+                    "type": "given-only",
+                }
+            )
 
         # Two-generation variant (given + father)
         if chain.get("grandfather"):
@@ -198,9 +213,7 @@ class F3HornOfAfrica(RegionSpec):
             has_g = _has_geez(native)
             has_latin = any("A" <= c <= "z" for c in native if c.isalpha())
             if not has_g and not has_latin:
-                raise RegionRuleError(
-                    "CanonicalNative must be Ge'ez or Latin script"
-                )
+                raise RegionRuleError("CanonicalNative must be Ge'ez or Latin script")
 
         # Validate patronymic chain has at least a given name
         chain = self._parse_patronymic_chain(canonical)
@@ -280,7 +293,7 @@ class F3HornOfAfrica(RegionSpec):
                 variant = name
                 # Case-preserving replacement (first occurrence)
                 idx = lower.find(original)
-                variant = variant[:idx] + alternate + variant[idx + len(original):]
+                variant = variant[:idx] + alternate + variant[idx + len(original) :]
                 if variant != name and variant not in generated:
                     generated.append(variant)
 

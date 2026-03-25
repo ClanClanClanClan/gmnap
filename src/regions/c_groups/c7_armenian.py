@@ -43,82 +43,139 @@ class C7Armenian(RegionSpec):
         # Titles and honorifics to strip
         self.titles = {
             # Armenian titles
-            "\u054a\u0580\u0578\u0586.",     # Prof. (Armenian)
-            "\u0534-\u0580",                  # Dr (Armenian)
-            "\u054a\u0561\u0580\u0578\u0576", # Baron (Mr)
-            "\u054f\u056b\u056f\u056b\u0576", # Tikin (Mrs)
+            "\u054a\u0580\u0578\u0586.",  # Prof. (Armenian)
+            "\u0534-\u0580",  # Dr (Armenian)
+            "\u054a\u0561\u0580\u0578\u0576",  # Baron (Mr)
+            "\u054f\u056b\u056f\u056b\u0576",  # Tikin (Mrs)
             # Latin equivalents
-            "Dr", "Dr.", "Prof", "Prof.", "Professor",
-            "Mr", "Mr.", "Mrs", "Mrs.", "Ms", "Ms.",
+            "Dr",
+            "Dr.",
+            "Prof",
+            "Prof.",
+            "Professor",
+            "Mr",
+            "Mr.",
+            "Mrs",
+            "Mrs.",
+            "Ms",
+            "Ms.",
         }
 
         # Armenian surname suffixes (patronymic-derived)
         self.surname_suffixes = {
             # Eastern Armenian (Republic of Armenia)
-            "\u0575\u0561\u0576": "yan",     # -yan
-            "\u0565\u0561\u0576": "ean",     # -ean
-            "\u0578\u0582\u0576\u056b": "uni", # -uni
-            "\u0561\u0576": "an",             # -an
+            "\u0575\u0561\u0576": "yan",  # -yan
+            "\u0565\u0561\u0576": "ean",  # -ean
+            "\u0578\u0582\u0576\u056b": "uni",  # -uni
+            "\u0561\u0576": "an",  # -an
             # Western Armenian (diaspora)
             # -ian is the Western transliteration of -yan
         }
 
         self.latin_surname_suffixes = [
-            "yan", "ian", "ean", "uni", "ants", "yants", "iants",
-            "djian", "jian", "chian", "tzian", "gian",
+            "yan",
+            "ian",
+            "ean",
+            "uni",
+            "ants",
+            "yants",
+            "iants",
+            "djian",
+            "jian",
+            "chian",
+            "tzian",
+            "gian",
         ]
 
         # Hubschmann-Meillet romanization map (Armenian -> Latin)
         self.romanization_map = {
-            "\u0531": "A",   "\u0561": "a",   # Ayb
-            "\u0532": "B",   "\u0562": "b",   # Ben
-            "\u0533": "G",   "\u0563": "g",   # Gim
-            "\u0534": "D",   "\u0564": "d",   # Da
-            "\u0535": "E",   "\u0565": "e",   # Ech
-            "\u0536": "Z",   "\u0566": "z",   # Za
-            "\u0537": "E",   "\u0567": "e",   # Eh (E with diacritic in HM)
-            "\u0538": "E'",  "\u0568": "e'",  # Et
-            "\u0539": "T'",  "\u0569": "t'",  # To
-            "\u053a": "Zh",  "\u056a": "zh",  # Zhe
-            "\u053b": "I",   "\u056b": "i",   # Ini
-            "\u053c": "L",   "\u056c": "l",   # Liwn
-            "\u053d": "X",   "\u056d": "x",   # Xeh
-            "\u053e": "C'",  "\u056e": "c'",  # Ca
-            "\u053f": "K",   "\u056f": "k",   # Ken
-            "\u0540": "H",   "\u0570": "h",   # Ho
-            "\u0541": "Dz",  "\u0571": "dz",  # Ja
-            "\u0542": "Gh",  "\u0572": "gh",  # Ghad
-            "\u0543": "Ch",  "\u0573": "ch",  # Cheh
-            "\u0544": "M",   "\u0574": "m",   # Men
-            "\u0545": "Y",   "\u0575": "y",   # Yi
-            "\u0546": "N",   "\u0576": "n",   # Now
-            "\u0547": "Sh",  "\u0577": "sh",  # Sha
-            "\u0548": "O",   "\u0578": "o",   # Vo (initial = vo)
-            "\u0549": "Ch'", "\u0579": "ch'", # Cha
-            "\u054a": "P",   "\u057a": "p",   # Peh
-            "\u054b": "J",   "\u057b": "j",   # Jheh
-            "\u054c": "R'",  "\u057c": "r'",  # Ra
-            "\u054d": "S",   "\u057d": "s",   # Seh
-            "\u054e": "V",   "\u057e": "v",   # Vew
-            "\u054f": "T",   "\u057f": "t",   # Tiwn
-            "\u0550": "R",   "\u0580": "r",   # Reh
-            "\u0551": "C",   "\u0581": "c",   # Co
-            "\u0552": "W",   "\u0582": "w",   # Yiwn (u/w)
-            "\u0553": "P'",  "\u0583": "p'",  # Piwr
-            "\u0554": "K'",  "\u0584": "k'",  # Keh
-            "\u0555": "O'",  "\u0585": "o'",  # Oh
-            "\u0556": "F",   "\u0586": "f",   # Feh
+            "\u0531": "A",
+            "\u0561": "a",  # Ayb
+            "\u0532": "B",
+            "\u0562": "b",  # Ben
+            "\u0533": "G",
+            "\u0563": "g",  # Gim
+            "\u0534": "D",
+            "\u0564": "d",  # Da
+            "\u0535": "E",
+            "\u0565": "e",  # Ech
+            "\u0536": "Z",
+            "\u0566": "z",  # Za
+            "\u0537": "E",
+            "\u0567": "e",  # Eh (E with diacritic in HM)
+            "\u0538": "E'",
+            "\u0568": "e'",  # Et
+            "\u0539": "T'",
+            "\u0569": "t'",  # To
+            "\u053a": "Zh",
+            "\u056a": "zh",  # Zhe
+            "\u053b": "I",
+            "\u056b": "i",  # Ini
+            "\u053c": "L",
+            "\u056c": "l",  # Liwn
+            "\u053d": "X",
+            "\u056d": "x",  # Xeh
+            "\u053e": "C'",
+            "\u056e": "c'",  # Ca
+            "\u053f": "K",
+            "\u056f": "k",  # Ken
+            "\u0540": "H",
+            "\u0570": "h",  # Ho
+            "\u0541": "Dz",
+            "\u0571": "dz",  # Ja
+            "\u0542": "Gh",
+            "\u0572": "gh",  # Ghad
+            "\u0543": "Ch",
+            "\u0573": "ch",  # Cheh
+            "\u0544": "M",
+            "\u0574": "m",  # Men
+            "\u0545": "Y",
+            "\u0575": "y",  # Yi
+            "\u0546": "N",
+            "\u0576": "n",  # Now
+            "\u0547": "Sh",
+            "\u0577": "sh",  # Sha
+            "\u0548": "O",
+            "\u0578": "o",  # Vo (initial = vo)
+            "\u0549": "Ch'",
+            "\u0579": "ch'",  # Cha
+            "\u054a": "P",
+            "\u057a": "p",  # Peh
+            "\u054b": "J",
+            "\u057b": "j",  # Jheh
+            "\u054c": "R'",
+            "\u057c": "r'",  # Ra
+            "\u054d": "S",
+            "\u057d": "s",  # Seh
+            "\u054e": "V",
+            "\u057e": "v",  # Vew
+            "\u054f": "T",
+            "\u057f": "t",  # Tiwn
+            "\u0550": "R",
+            "\u0580": "r",  # Reh
+            "\u0551": "C",
+            "\u0581": "c",  # Co
+            "\u0552": "W",
+            "\u0582": "w",  # Yiwn (u/w)
+            "\u0553": "P'",
+            "\u0583": "p'",  # Piwr
+            "\u0554": "K'",
+            "\u0584": "k'",  # Keh
+            "\u0555": "O'",
+            "\u0585": "o'",  # Oh
+            "\u0556": "F",
+            "\u0586": "f",  # Feh
             # Special characters
             "\u0587": "ev",  # Ligature ew
-            "\u0589": ".",   # Armenian full stop
-            "\u058a": "-",   # Armenian hyphen
+            "\u0589": ".",  # Armenian full stop
+            "\u058a": "-",  # Armenian hyphen
         }
 
         # Common Armenian given name gender markers (not definitive)
         self.female_suffixes_arm = [
             "\u0578\u0582\u0570\u056b",  # -uhi
-            "\u056b\u0576\u0565",         # -ine
-            "\u0561\u0576\u0578\u0582\u0577", # -anush
+            "\u056b\u0576\u0565",  # -ine
+            "\u0561\u0576\u0578\u0582\u0577",  # -anush
         ]
 
     # ------------------------------------------------------------------
@@ -204,9 +261,7 @@ class C7Armenian(RegionSpec):
     # ------------------------------------------------------------------
     def augment(self, entry: Dict[str, Any]) -> None:
         """Augment entry with C7-specific regional data (in-place)."""
-        canonical = (
-            entry.get("CanonicalNative", "") or entry.get("CanonicalLatin", "")
-        )
+        canonical = entry.get("CanonicalNative", "") or entry.get("CanonicalLatin", "")
         if not canonical:
             return
 
@@ -327,9 +382,7 @@ class C7Armenian(RegionSpec):
 
     def _is_soviet_patronymic(self, word: str) -> bool:
         lower = word.lower()
-        return bool(
-            re.search(r"(ovich|ovna|evich|evna|ich)$", lower)
-        )
+        return bool(re.search(r"(ovich|ovna|evich|evna|ich)$", lower))
 
     def _strip_soviet_patronymic(self, name: str, patronymic: str) -> Optional[str]:
         words = name.split()
@@ -371,9 +424,7 @@ class C7Armenian(RegionSpec):
         cl = entry.get("CanonicalLatin", "")
 
         if not cn and not cl:
-            raise RegionRuleError(
-                "C7: Missing both CanonicalNative and CanonicalLatin"
-            )
+            raise RegionRuleError("C7: Missing both CanonicalNative and CanonicalLatin")
 
         # Script consistency
         if cn and self._is_armenian(cn):
@@ -383,9 +434,7 @@ class C7Armenian(RegionSpec):
             self.logger.warning(f"C7: CanonicalNative contains non-Armenian script: {cn}")
 
         if cl and self._is_armenian(cl):
-            raise RegionRuleError(
-                f"C7: CanonicalLatin must not contain Armenian script: {cl}"
-            )
+            raise RegionRuleError(f"C7: CanonicalLatin must not contain Armenian script: {cl}")
 
         # Minimum length
         effective = cl or cn
@@ -394,9 +443,7 @@ class C7Armenian(RegionSpec):
 
         # Validate character set for Latin form
         if cl and not self._valid_latin_chars(cl):
-            raise RegionRuleError(
-                f"C7: Invalid characters in CanonicalLatin: {cl}"
-            )
+            raise RegionRuleError(f"C7: Invalid characters in CanonicalLatin: {cl}")
 
     def _valid_latin_chars(self, name: str) -> bool:
         s, e = self.armenian_range

@@ -11,7 +11,7 @@ existing_mappings = defaultdict(set)  # roman -> set of hangul
 existing_keys = set()  # (hangul, roman, pos) tuples
 
 csv_path = Path("resources/rr_syllable_map.csv")
-with open(csv_path, 'r', encoding='utf-8') as f:
+with open(csv_path, "r", encoding="utf-8") as f:
     reader = csv.reader(f)
     for row in reader:
         if len(row) >= 2:
@@ -50,12 +50,12 @@ for syllable, names in sorted(no_conv_syllables.items())[:10]:
 # 2. Check specific missing mappings we know about
 print("\n\n2. CHECKING SPECIFIC MISSING MAPPINGS:")
 specific_checks = [
-    ("소", "so", "S"),      # For So, Ji-Sub  
-    ("싸이", "psy", "S"),   # For Psy
-    ("이", "rhee", "S"),    # Alternative spelling of Lee
-    ("승만", "syngman", "G"), # For Rhee, Syngman
-    ("식", "shik", "G"),    # For Min-Shik
-    ("섭", "sub", "G"),     # For Ji-Sub
+    ("소", "so", "S"),  # For So, Ji-Sub
+    ("싸이", "psy", "S"),  # For Psy
+    ("이", "rhee", "S"),  # Alternative spelling of Lee
+    ("승만", "syngman", "G"),  # For Rhee, Syngman
+    ("식", "shik", "G"),  # For Min-Shik
+    ("섭", "sub", "G"),  # For Ji-Sub
 ]
 
 safe_to_add = []
@@ -64,13 +64,13 @@ for hangul, roman, pos in specific_checks:
     if (hangul, roman, pos) in existing_keys:
         print(f"  ❌ {roman}→{hangul} (pos={pos}): Already exists")
         continue
-    
+
     # Check for conflicts
     conflicts = []
     for r, h_set in existing_mappings.items():
         if hangul in h_set and r != roman:
             conflicts.append(f"{hangul}→{r}")
-    
+
     if conflicts:
         print(f"  ⚠️  {roman}→{hangul} (pos={pos}): Conflicts with {', '.join(conflicts)}")
     else:
@@ -95,9 +95,11 @@ print("\nCommon character substitutions (expected → actual):")
 for (exp, act), count in sorted(low_dice_patterns.items(), key=lambda x: -x[1])[:10]:
     print(f"  {exp} → {act}: {count} times")
     # Check if we can boost the correct mapping
-    for row in csv.DictReader(open(csv_path, 'r', encoding='utf-8'), 
-                              fieldnames=['hangul', 'roman', 'weight', 'context', 'pos']):
-        if row and row['hangul'] == exp:
+    for row in csv.DictReader(
+        open(csv_path, "r", encoding="utf-8"),
+        fieldnames=["hangul", "roman", "weight", "context", "pos"],
+    ):
+        if row and row["hangul"] == exp:
             print(f"    Current mapping: {row['roman']} (weight={row['weight']})")
 
 print(f"\n\n=== SUMMARY ===")
@@ -107,6 +109,6 @@ for h, r, p in safe_to_add:
 
 print("\nThese additions should improve:")
 print("  - Rhee, Syngman (이승만)")
-print("  - So, Ji-Sub (소지섭)")  
+print("  - So, Ji-Sub (소지섭)")
 print("  - Choi, Min-Shik (최민식)")
 print("  - Psy (싸이)")

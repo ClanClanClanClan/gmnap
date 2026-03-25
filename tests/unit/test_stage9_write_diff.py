@@ -89,7 +89,9 @@ class TestWriteSnapshot:
 
     def test_volatile_keys_scrubbed(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            entries = [{"GlobalID": "A" * 22, "ProcessedAt": "2025-01-01", "CanonicalLatin": "Test"}]
+            entries = [
+                {"GlobalID": "A" * 22, "ProcessedAt": "2025-01-01", "CanonicalLatin": "Test"}
+            ]
             snap = write_snapshot(entries, out_root=tmpdir)
             data = json.loads((Path(snap) / "entries.json").read_text())
             assert "ProcessedAt" not in data[0]

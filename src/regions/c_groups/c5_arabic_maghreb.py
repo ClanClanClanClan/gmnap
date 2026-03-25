@@ -53,17 +53,41 @@ class C5ArabicMaghreb(RegionSpec):
         # Titles and honorifics to strip
         self.titles = {
             # French-style titles common in Maghreb
-            "Dr", "Dr.", "Pr", "Pr.", "Prof", "Prof.", "M.", "Mme", "Mlle",
-            "Monsieur", "Madame", "Mademoiselle", "Maitre", "Me",
+            "Dr",
+            "Dr.",
+            "Pr",
+            "Pr.",
+            "Prof",
+            "Prof.",
+            "M.",
+            "Mme",
+            "Mlle",
+            "Monsieur",
+            "Madame",
+            "Mademoiselle",
+            "Maitre",
+            "Me",
             # Arabic titles
-            "Si", "Lalla", "Moulay", "Sidi",
+            "Si",
+            "Lalla",
+            "Moulay",
+            "Sidi",
             # Arabic script titles
-            "\u062f\u0643\u062a\u0648\u0631", "\u0623\u0633\u062a\u0627\u0630",
+            "\u062f\u0643\u062a\u0648\u0631",
+            "\u0623\u0633\u062a\u0627\u0630",
             "\u0628\u0631\u0648\u0641\u064a\u0633\u0648\u0631",
-            "\u0627\u0644\u0634\u064a\u062e", "\u0627\u0644\u0623\u0633\u062a\u0627\u0630",
-            "\u0633\u064a\u062f", "\u0633\u064a\u062f\u0629",
+            "\u0627\u0644\u0634\u064a\u062e",
+            "\u0627\u0644\u0623\u0633\u062a\u0627\u0630",
+            "\u0633\u064a\u062f",
+            "\u0633\u064a\u062f\u0629",
             # English fallbacks
-            "Mr", "Mr.", "Mrs", "Mrs.", "Ms", "Ms.", "Professor",
+            "Mr",
+            "Mr.",
+            "Mrs",
+            "Mrs.",
+            "Ms",
+            "Ms.",
+            "Professor",
         }
 
         # French transliteration map (Maghreb convention overrides)
@@ -92,20 +116,52 @@ class C5ArabicMaghreb(RegionSpec):
 
         # Romanisation map (Arabic to ALA-LC, with Maghreb adjustments)
         self.romanization_map = {
-            "\u0627": "a", "\u0628": "b", "\u062a": "t", "\u062b": "th",
-            "\u062c": "dj", "\u062d": "h", "\u062e": "kh", "\u062f": "d",
-            "\u0630": "dh", "\u0631": "r", "\u0632": "z", "\u0633": "s",
-            "\u0634": "ch", "\u0635": "s", "\u0636": "d", "\u0637": "t",
-            "\u0638": "z", "\u0639": "", "\u063a": "gh", "\u0641": "f",
-            "\u0642": "q", "\u0643": "k", "\u0644": "l", "\u0645": "m",
-            "\u0646": "n", "\u0647": "h", "\u0648": "ou", "\u064a": "i",
-            "\u0649": "a", "\u0629": "a",
-            "\u0621": "", "\u0623": "a", "\u0625": "i", "\u0622": "a",
-            "\u0624": "ou", "\u0626": "i",
+            "\u0627": "a",
+            "\u0628": "b",
+            "\u062a": "t",
+            "\u062b": "th",
+            "\u062c": "dj",
+            "\u062d": "h",
+            "\u062e": "kh",
+            "\u062f": "d",
+            "\u0630": "dh",
+            "\u0631": "r",
+            "\u0632": "z",
+            "\u0633": "s",
+            "\u0634": "ch",
+            "\u0635": "s",
+            "\u0636": "d",
+            "\u0637": "t",
+            "\u0638": "z",
+            "\u0639": "",
+            "\u063a": "gh",
+            "\u0641": "f",
+            "\u0642": "q",
+            "\u0643": "k",
+            "\u0644": "l",
+            "\u0645": "m",
+            "\u0646": "n",
+            "\u0647": "h",
+            "\u0648": "ou",
+            "\u064a": "i",
+            "\u0649": "a",
+            "\u0629": "a",
+            "\u0621": "",
+            "\u0623": "a",
+            "\u0625": "i",
+            "\u0622": "a",
+            "\u0624": "ou",
+            "\u0626": "i",
             # Vowel marks
-            "\u064e": "a", "\u064f": "ou", "\u0650": "i",
-            "\u064b": "an", "\u064c": "oun", "\u064d": "in",
-            "\u0652": "", "\u0651": "", "\u0670": "a",
+            "\u064e": "a",
+            "\u064f": "ou",
+            "\u0650": "i",
+            "\u064b": "an",
+            "\u064c": "oun",
+            "\u064d": "in",
+            "\u0652": "",
+            "\u0651": "",
+            "\u0670": "a",
         }
 
         # Common fused Ben-forms (written as one word)
@@ -193,9 +249,7 @@ class C5ArabicMaghreb(RegionSpec):
     # ------------------------------------------------------------------
     def augment(self, entry: Dict[str, Any]) -> None:
         """Augment entry with C5-specific regional data (in-place)."""
-        canonical = (
-            entry.get("CanonicalNative", "") or entry.get("CanonicalLatin", "")
-        )
+        canonical = entry.get("CanonicalNative", "") or entry.get("CanonicalLatin", "")
         if not canonical:
             return
 
@@ -248,9 +302,7 @@ class C5ArabicMaghreb(RegionSpec):
         self._generate_ben_variants(canonical, synthesised)
 
         # Particle-stripped variant for matching
-        stripped = self._strip_particles(
-            entry.get("CanonicalLatin", "") or canonical
-        )
+        stripped = self._strip_particles(entry.get("CanonicalLatin", "") or canonical)
         if stripped and stripped != canonical and stripped != entry.get("CanonicalLatin", ""):
             synthesised.append({"str": stripped, "type": "no-particle"})
 
@@ -322,14 +374,10 @@ class C5ArabicMaghreb(RegionSpec):
         """Convert standard romanisation to French-Maghreb spelling."""
         result = latin
         for standard, french in self.french_transliteration_map.items():
-            result = re.sub(
-                r"\b" + re.escape(standard) + r"\b", french, result
-            )
+            result = re.sub(r"\b" + re.escape(standard) + r"\b", french, result)
         return result
 
-    def _generate_ben_variants(
-        self, name: str, synthesised: List[Dict[str, str]]
-    ) -> None:
+    def _generate_ben_variants(self, name: str, synthesised: List[Dict[str, str]]) -> None:
         """Generate fused/split Ben-prefix variants."""
         words = name.split()
         for i, w in enumerate(words):
@@ -338,21 +386,19 @@ class C5ArabicMaghreb(RegionSpec):
             m = self._fused_ben_re.match(w)
             if m:
                 split_form = f"{m.group(1)} {m.group(2).title()}"
-                full = " ".join(words[:i] + [split_form] + words[i + 1:])
+                full = " ".join(words[:i] + [split_form] + words[i + 1 :])
                 synthesised.append({"str": full, "type": "ben-split"})
                 return
             # Fuse separated: Ben Ali -> Benali
             if wl == "ben" and i + 1 < len(words):
                 fused = f"Ben{words[i + 1].lower()}"
-                full = " ".join(words[:i] + [fused] + words[i + 2:])
+                full = " ".join(words[:i] + [fused] + words[i + 2 :])
                 synthesised.append({"str": full, "type": "ben-fused"})
                 return
 
     def _strip_particles(self, name: str) -> str:
         """Remove el-/al-/bel-/bou- particles from name."""
-        stripped = re.sub(
-            r"\b(el|al|bel|bou)[- ]", "", name, flags=re.IGNORECASE
-        )
+        stripped = re.sub(r"\b(el|al|bel|bou)[- ]", "", name, flags=re.IGNORECASE)
         return " ".join(stripped.split())
 
     def _romanize_name(self, name: str) -> str:
@@ -386,13 +432,9 @@ class C5ArabicMaghreb(RegionSpec):
 
         # Script consistency checks
         if cn and not self._is_arabic(cn) and not cn.isascii():
-            raise RegionRuleError(
-                f"C5: CanonicalNative should be Arabic script: {cn}"
-            )
+            raise RegionRuleError(f"C5: CanonicalNative should be Arabic script: {cn}")
         if cl and self._is_arabic(cl):
-            raise RegionRuleError(
-                f"C5: CanonicalLatin must not be Arabic script: {cl}"
-            )
+            raise RegionRuleError(f"C5: CanonicalLatin must not be Arabic script: {cl}")
 
         # Minimum length
         effective = cl or cn

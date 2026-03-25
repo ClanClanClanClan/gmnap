@@ -1,4 +1,5 @@
 """Unit tests for GND authority adapter."""
+
 import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock
@@ -11,6 +12,7 @@ def offline_mode(monkeypatch):
 
 def _make_adapter():
     from src.authority.gnd_adapter import GNDAdapter
+
     return GNDAdapter()
 
 
@@ -27,11 +29,13 @@ class TestGNDAdapter:
         adapter = _make_adapter()
         mock_r = MagicMock(status_code=200)
         mock_r.json.return_value = {
-            "member": [{
-                "preferredName": "Hilbert, David",
-                "birthDate": "1862-01-23",
-                "deathDate": "1943-02-14",
-            }]
+            "member": [
+                {
+                    "preferredName": "Hilbert, David",
+                    "birthDate": "1862-01-23",
+                    "deathDate": "1943-02-14",
+                }
+            ]
         }
         adapter.ctx.http = AsyncMock(get=AsyncMock(return_value=mock_r))
         adapter.ctx.cache = AsyncMock(get_json=AsyncMock(return_value=None), set_json=AsyncMock())

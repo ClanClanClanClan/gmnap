@@ -37,14 +37,30 @@ def _has_sinhala(text: str) -> bool:
 # ---------------------------------------------------------------------------
 _TITLES = {
     # Sinhala Latin-transliterated titles
-    "Mr", "Mr.", "Mrs", "Mrs.", "Miss", "Ms", "Ms.",
-    "Dr", "Dr.", "Prof", "Prof.", "Rev", "Rev.",
-    "Sir", "Lady", "Ven", "Ven.",               # Venerable (monks)
-    "Vidyajothi", "Deshamanya", "Deshabandu",    # National honours
-    "Mahanayaka",                                 # Senior Buddhist monk
+    "Mr",
+    "Mr.",
+    "Mrs",
+    "Mrs.",
+    "Miss",
+    "Ms",
+    "Ms.",
+    "Dr",
+    "Dr.",
+    "Prof",
+    "Prof.",
+    "Rev",
+    "Rev.",
+    "Sir",
+    "Lady",
+    "Ven",
+    "Ven.",  # Venerable (monks)
+    "Vidyajothi",
+    "Deshamanya",
+    "Deshabandu",  # National honours
+    "Mahanayaka",  # Senior Buddhist monk
     # Sinhala script titles (common)
-    "\u0DB8\u0DC4\u0DAD\u0DCF",                  # Mahatha (Mr)
-    "\u0DB8\u0DC4\u0DAD\u0DCA\u0DB8\u0DD2\u0DBA",  # Mahathmiya
+    "\u0db8\u0dc4\u0dad\u0dcf",  # Mahatha (Mr)
+    "\u0db8\u0dc4\u0dad\u0dca\u0db8\u0dd2\u0dba",  # Mahathmiya
 }
 
 # ---------------------------------------------------------------------------
@@ -52,26 +68,50 @@ _TITLES = {
 # ---------------------------------------------------------------------------
 _GE_NAMES = {
     # High-caste Ge names (Govigama and related)
-    "mudiyanselage", "mudiyanse", "herath", "herat",
-    "dissanayake", "dissanayaka",
-    "bandaranayake", "bandaranaike",
-    "jayawardena", "jayawardene", "jayewardene",
-    "wickramasinghe", "wickremasinghe",
-    "ratnayake", "rathnayake",
-    "kumarasinghe", "kumarasingha",
-    "samarasinghe", "samarasingha",
-    "senanayake", "senanayaka",
-    "ekanayake", "ekanayaka",
-    "karunaratne", "karunarathne",
-    "gunawardena", "gunawardene",
-    "weerasinghe", "weerasingha",
-    "pathirana", "pathiraja",
-    "liyanage", "liyanaarachchi",
-    "amarasinghe", "amarasingha",
-    "hewage", "gamage", "arachchige",
-    "vithanage", "hettiarachchi",
+    "mudiyanselage",
+    "mudiyanse",
+    "herath",
+    "herat",
+    "dissanayake",
+    "dissanayaka",
+    "bandaranayake",
+    "bandaranaike",
+    "jayawardena",
+    "jayawardene",
+    "jayewardene",
+    "wickramasinghe",
+    "wickremasinghe",
+    "ratnayake",
+    "rathnayake",
+    "kumarasinghe",
+    "kumarasingha",
+    "samarasinghe",
+    "samarasingha",
+    "senanayake",
+    "senanayaka",
+    "ekanayake",
+    "ekanayaka",
+    "karunaratne",
+    "karunarathne",
+    "gunawardena",
+    "gunawardene",
+    "weerasinghe",
+    "weerasingha",
+    "pathirana",
+    "pathiraja",
+    "liyanage",
+    "liyanaarachchi",
+    "amarasinghe",
+    "amarasingha",
+    "hewage",
+    "gamage",
+    "arachchige",
+    "vithanage",
+    "hettiarachchi",
     # Ge prefixes (appear before personal name)
-    "don", "dona", "de",
+    "don",
+    "dona",
+    "de",
 }
 
 # Ge suffixes that indicate the name is a Ge element
@@ -81,23 +121,60 @@ _GE_SUFFIXES = {"ge", "lage", "arachchi", "achchi"}
 # Colonial anglicised surnames
 # ---------------------------------------------------------------------------
 _COLONIAL_SURNAMES = {
-    "de silva", "de mel", "de soysa", "de alwis", "de zoysa",
-    "fernando", "perera", "pereira", "de saram",
-    "fonseka", "fonseca", "peiris", "pieris",
-    "dias", "jayasuriya", "mendis", "rodrigo",
-    "gomes", "corea", "ondaatje",
+    "de silva",
+    "de mel",
+    "de soysa",
+    "de alwis",
+    "de zoysa",
+    "fernando",
+    "perera",
+    "pereira",
+    "de saram",
+    "fonseka",
+    "fonseca",
+    "peiris",
+    "pieris",
+    "dias",
+    "jayasuriya",
+    "mendis",
+    "rodrigo",
+    "gomes",
+    "corea",
+    "ondaatje",
 }
 
 # Common long Sinhalese surnames (for validation heuristic)
 _COMMON_SURNAMES_LOWER = {
-    "jayawardena", "wickramasinghe", "bandara", "dissanayake",
-    "senanayake", "ratnayake", "gunawardena", "karunaratne",
-    "samarasinghe", "ekanayake", "kumarasinghe", "weerasinghe",
-    "pathirana", "liyanage", "amarasinghe", "vithanage",
-    "fernando", "perera", "de silva", "silva",
-    "fonseka", "peiris", "mendis", "dias",
-    "bandara", "herath", "kumara", "lakmal",
-    "gamage", "rathnayake",
+    "jayawardena",
+    "wickramasinghe",
+    "bandara",
+    "dissanayake",
+    "senanayake",
+    "ratnayake",
+    "gunawardena",
+    "karunaratne",
+    "samarasinghe",
+    "ekanayake",
+    "kumarasinghe",
+    "weerasinghe",
+    "pathirana",
+    "liyanage",
+    "amarasinghe",
+    "vithanage",
+    "fernando",
+    "perera",
+    "de silva",
+    "silva",
+    "fonseka",
+    "peiris",
+    "mendis",
+    "dias",
+    "bandara",
+    "herath",
+    "kumara",
+    "lakmal",
+    "gamage",
+    "rathnayake",
 }
 
 
@@ -177,10 +254,7 @@ class D5Sinhala(RegionSpec):
     # ------------------------------------------------------------------
     def augment(self, entry: Dict[str, Any]) -> None:
         """Augment entry with D5-specific data (in-place)."""
-        canonical = (
-            entry.get("CanonicalLatin", "")
-            or entry.get("CanonicalNative", "")
-        )
+        canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
         if not canonical:
             return
 
@@ -204,9 +278,7 @@ class D5Sinhala(RegionSpec):
 
         # Flag colonial surname
         family = comps.get("family_name", "").lower()
-        family_two = " ".join(
-            [comps.get("surname_particle", ""), family]
-        ).strip().lower()
+        family_two = " ".join([comps.get("surname_particle", ""), family]).strip().lower()
         extras["has_colonial_surname"] = (
             family_two in _COLONIAL_SURNAMES or family in _COLONIAL_SURNAMES
         )
@@ -239,10 +311,12 @@ class D5Sinhala(RegionSpec):
 
         # Variant: with Ge name fully expanded
         if ge and given and full_family:
-            synth.append({
-                "str": f"{ge} {given} {full_family}",
-                "type": "ge-expanded",
-            })
+            synth.append(
+                {
+                    "str": f"{ge} {given} {full_family}",
+                    "type": "ge-expanded",
+                }
+            )
 
     def _extract_components(self, name: str) -> Dict[str, Any]:
         comps: Dict[str, Any] = {}
@@ -318,10 +392,7 @@ class D5Sinhala(RegionSpec):
         # Native text should be Sinhala script or Latin transliteration
         if canon_native:
             has_sinh = _has_sinhala(canon_native)
-            is_latin = all(
-                c.isascii() or c in " -'.,"
-                for c in canon_native if not c.isspace()
-            )
+            is_latin = all(c.isascii() or c in " -'.," for c in canon_native if not c.isspace())
             if not has_sinh and not is_latin:
                 raise RegionRuleError(
                     f"D5: CanonicalNative contains unexpected script: {canon_native!r}"
@@ -329,9 +400,7 @@ class D5Sinhala(RegionSpec):
 
         # Latin canonical must not contain Sinhala code-points
         if canon_latin and _has_sinhala(canon_latin):
-            raise RegionRuleError(
-                "D5: CanonicalLatin must not contain Sinhala script characters"
-            )
+            raise RegionRuleError("D5: CanonicalLatin must not contain Sinhala script characters")
 
         # Minimum length
         effective = canon_latin or canon_native
@@ -340,9 +409,7 @@ class D5Sinhala(RegionSpec):
 
         # Character validation on Latin form
         if canon_latin and not self._valid_latin_chars(canon_latin):
-            raise RegionRuleError(
-                f"D5: invalid characters in CanonicalLatin: {canon_latin!r}"
-            )
+            raise RegionRuleError(f"D5: invalid characters in CanonicalLatin: {canon_latin!r}")
 
     @staticmethod
     def _valid_latin_chars(text: str) -> bool:

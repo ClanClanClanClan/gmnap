@@ -1,4 +1,5 @@
 """Unit tests for Wikidata P184 authority adapter."""
+
 import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock
@@ -11,6 +12,7 @@ def offline_mode(monkeypatch):
 
 def _make_adapter():
     from src.authority.wikidata_p184_adapter import WikidataP184Adapter
+
     return WikidataP184Adapter()
 
 
@@ -31,15 +33,19 @@ class TestWikidataP184Adapter:
         adapter = _make_adapter()
         mock_r = MagicMock(status_code=200)
         mock_r.json.return_value = {
-            "results": {"bindings": [{
-                "advisor": {"value": "Q1234"},
-                "advisorLabel": {"value": "Johann Bernoulli"},
-                "student": {"value": "Q5678"},
-                "studentLabel": {"value": "Joseph-Louis Lagrange"},
-                "orcid": {"value": "0000-0001-2345-6789"},
-                "birth": {"value": "1707-04-15T00:00:00Z"},
-                "death": {"value": "1783-09-18T00:00:00Z"},
-            }]}
+            "results": {
+                "bindings": [
+                    {
+                        "advisor": {"value": "Q1234"},
+                        "advisorLabel": {"value": "Johann Bernoulli"},
+                        "student": {"value": "Q5678"},
+                        "studentLabel": {"value": "Joseph-Louis Lagrange"},
+                        "orcid": {"value": "0000-0001-2345-6789"},
+                        "birth": {"value": "1707-04-15T00:00:00Z"},
+                        "death": {"value": "1783-09-18T00:00:00Z"},
+                    }
+                ]
+            }
         }
         adapter.ctx.http = AsyncMock(get=AsyncMock(return_value=mock_r))
         adapter.ctx.cache = AsyncMock(get_json=AsyncMock(return_value=None), set_json=AsyncMock())

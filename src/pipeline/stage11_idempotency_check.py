@@ -1,4 +1,5 @@
 """Stage 11: IdempotencyCheck - Rerun pipeline, diff, assert identical."""
+
 from __future__ import annotations
 import os, json, pathlib, random, hashlib, logging
 from typing import Dict, List, Tuple, Any
@@ -17,7 +18,7 @@ def _write_report(dir_path: pathlib.Path, payload: Dict[str, Any]) -> str:
         "GMNAP V7 - Stage 11 IdempotencyCheck",
         f"mode: {payload.get('mode')}",
         f"diff_bytes: {payload.get('diff_bytes')}",
-        f"len_run_a: {payload.get('len_a')}, len_run_b: {payload.get('len_b')}"
+        f"len_run_a: {payload.get('len_a')}, len_run_b: {payload.get('len_b')}",
     ]
     if payload.get("first_diff_at") is not None:
         lines.append(f"first_diff_at: {payload['first_diff_at']}")
@@ -49,9 +50,14 @@ def _bytes_diff(a: bytes, b: bytes) -> Tuple[int, int | None]:
     return n, first
 
 
-def idempotency_check(batch: List[Dict[str, Any]], snapshot_dir: str | None = None,
-                      out_base: str = "snapshots", mode: str = "shuffled",
-                      strict: bool | None = None, gate_max: int | None = None) -> Tuple[List[Dict], Dict[str, Any]]:
+def idempotency_check(
+    batch: List[Dict[str, Any]],
+    snapshot_dir: str | None = None,
+    out_base: str = "snapshots",
+    mode: str = "shuffled",
+    strict: bool | None = None,
+    gate_max: int | None = None,
+) -> Tuple[List[Dict], Dict[str, Any]]:
     """
     Stage 11: Verify 0-byte idempotency.
       - mode="shuffled": recompute canonical bytes after deterministic shuffle; compare
@@ -101,8 +107,11 @@ def idempotency_check(batch: List[Dict[str, Any]], snapshot_dir: str | None = No
     diff_bytes, first_idx = _bytes_diff(canon_a, canon_b)
     IDEMP_DIFF_BYTES.set(float(diff_bytes))
     payload = {
-        "mode": mode, "diff_bytes": int(diff_bytes),
-        "len_a": len(canon_a), "len_b": len(canon_b), "first_diff_at": first_idx
+        "mode": mode,
+        "diff_bytes": int(diff_bytes),
+        "len_a": len(canon_a),
+        "len_b": len(canon_b),
+        "first_diff_at": first_idx,
     }
     _write_report(sdir, payload)
 
@@ -113,7 +122,9 @@ def idempotency_check(batch: List[Dict[str, Any]], snapshot_dir: str | None = No
         IDEMP_FAIL_TOTAL.inc()
         logger.warning(f"Stage 11: Idempotency diff_bytes={diff_bytes}")
         if strict and diff_bytes > (gate_max or 0):
-            raise RuntimeError(f"Stage 11 idempotency gate failed: diff_bytes={diff_bytes} > {gate_max}")
+            raise RuntimeError(
+                f"Stage 11 idempotency gate failed: diff_bytes={diff_bytes} > {gate_max}"
+            )
 
     metrics = {"idempotency_diff_bytes": float(diff_bytes), "idempotency_mode": mode}
     return batch, metrics

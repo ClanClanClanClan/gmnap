@@ -32,32 +32,26 @@ with open("resources/rr_syllable_map.csv", encoding="utf8") as f:
 # ULTRA-TARGETED FIXES for the final 5 cases
 final_five_fixes = [
     # Fix Lee surname preference (currently 이 → "ri" is winning)
-    ("이", "lee", "-1.1"),      # Make lee stronger than ri (-1.2) for Lee surnames
-    
+    ("이", "lee", "-1.1"),  # Make lee stronger than ri (-1.2) for Lee surnames
     # Fix specific given name mappings
-    ("현", "hyeon", "-0.9"),    # hyeon > hyun for Hyeon names
-    ("주", "ju", "-0.8"),       # ju for given names
-    ("정", "jeong", "-1.1"),    # Make jeong stronger for Jeong names
-    
+    ("현", "hyeon", "-0.9"),  # hyeon > hyun for Hyeon names
+    ("주", "ju", "-0.8"),  # ju for given names
+    ("정", "jeong", "-1.1"),  # Make jeong stronger for Jeong names
     # Fix Um/음 English→Korean issue
-    ("음", "um", "-0.9"),       # um → 음 (stronger)
-    ("음", "eum", "-0.7"),      # eum → 음 (weaker alternative)
-    
+    ("음", "um", "-0.9"),  # um → 음 (stronger)
+    ("음", "eum", "-0.7"),  # eum → 음 (weaker alternative)
     # Fix June compound issue
-    ("준이", "june", "-1.0"),   # june → 준이 (experimental compound fix)
-    ("준", "june", "-0.8"),     # june → 준 (strengthen alternative)
-    
+    ("준이", "june", "-1.0"),  # june → 준이 (experimental compound fix)
+    ("준", "june", "-0.8"),  # june → 준 (strengthen alternative)
     # Rare initials fix attempts
-    ("제이", "j", "-2.5"),      # Make 제이 → "j" ultra-strong
-    ("제", "j", "-1.5"),        # Make 제 → "j" very strong too
-    
+    ("제이", "j", "-2.5"),  # Make 제이 → "j" ultra-strong
+    ("제", "j", "-1.5"),  # Make 제 → "j" very strong too
     # Additional precision fixes
-    ("현주", "hyeonju", "-0.8"), # hyeonju → 현주 compound
+    ("현주", "hyeonju", "-0.8"),  # hyeonju → 현주 compound
     ("정민", "jungmin", "-0.8"),  # jungmin → 정민 compound
-    ("형태", "hyungtae", "-0.8"), # Additional common name
-    
+    ("형태", "hyungtae", "-0.8"),  # Additional common name
     # Weaken problematic alternatives
-    ("이", "ri", "-1.0"),       # Reduce ri from -1.2 to -1.0 so lee (-1.1) wins
+    ("이", "ri", "-1.0"),  # Reduce ri from -1.2 to -1.0 so lee (-1.1) wins
 ]
 
 print(f"Current rows: {len(rows)}")
@@ -80,7 +74,7 @@ for hangul, roman, weight in final_five_fixes:
                 fixed_count += 1
             found = True
             break
-    
+
     if not found:
         rows.append([hangul, roman, weight])
         print(f"  ADDED: {hangul} → {roman} (weight: {weight})")
@@ -100,7 +94,7 @@ with open("resources/rr_syllable_map.csv", "w", encoding="utf8", newline="") as 
 print("\n✅ Final 5 targeted fixes applied!")
 print("\n=== ULTRA-PRECISION TARGETING ===")
 print("Weight adjustments:")
-print("- 이: lee (-1.1) > ri (-1.0) for Lee surnames") 
+print("- 이: lee (-1.1) > ri (-1.0) for Lee surnames")
 print("- 현: hyeon (-0.9) > hyun for Hyeon names")
 print("- 음: um (-0.9) > eum for Um surnames")
 print("- 제이: j (-2.5) ultra-strong for initials")

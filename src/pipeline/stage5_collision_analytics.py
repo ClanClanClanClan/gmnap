@@ -3,6 +3,7 @@
 Cross-batch collision tracking: persists seen GlobalIDs in work/globalid_registry.json
 to detect collisions across separate batch runs.
 """
+
 from __future__ import annotations
 import json, os, pathlib, logging
 from typing import Dict, List, Set, Tuple
@@ -35,7 +36,9 @@ def _save_registry(workdir: str, ids: Set[str]) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
 
 
-def stage5_collision_analytics(batch: List[Dict], workdir: str = "work") -> Tuple[List[Dict], Dict[str, float]]:
+def stage5_collision_analytics(
+    batch: List[Dict], workdir: str = "work"
+) -> Tuple[List[Dict], Dict[str, float]]:
     """
     Stage 5: Detect duplicate entries and apply --N suffixes to GlobalIDs.
     Also synthesise genealogy edges CSV.
@@ -51,6 +54,7 @@ def stage5_collision_analytics(batch: List[Dict], workdir: str = "work") -> Tupl
     # Try DuckDB first, fall back to in-memory
     try:
         import duckdb
+
         out, collisions = _duckdb_dedup(batch, workdir)
     except (ImportError, Exception) as e:
         logger.info(f"DuckDB dedup unavailable ({e}), using in-memory collision detection")
@@ -87,7 +91,7 @@ def stage5_collision_analytics(batch: List[Dict], workdir: str = "work") -> Tupl
         f.write("source,target,relation_type\n")
         for e in out:
             sid = e.get("GlobalID")
-            for a in (e.get("Advisors") or []):
+            for a in e.get("Advisors") or []:
                 if sid and a:
                     f.write(f"{sid},{a},doctoralAdvisor\n")
                     edge_count += 1
@@ -130,21 +134,31 @@ def _duckdb_dedup(batch: List[Dict], workdir: str) -> Tuple[List[Dict], int]:
 
     # Write entries to a temp JSON file for DuckDB to read
     import tempfile
+
     tmp = os.path.join(workdir, "_stage5_tmp.json")
-    rows = [{"GlobalID": e.get("GlobalID", ""), "CanonicalLatin": e.get("CanonicalLatin", ""),
-             "BirthYear": e.get("BirthYear")} for e in batch]
+    rows = [
+        {
+            "GlobalID": e.get("GlobalID", ""),
+            "CanonicalLatin": e.get("CanonicalLatin", ""),
+            "BirthYear": e.get("BirthYear"),
+        }
+        for e in batch
+    ]
     with open(tmp, "w", encoding="utf-8") as f:
         import json as _json
+
         _json.dump(rows, f)
     con.execute("CREATE TABLE entries AS SELECT * FROM read_json_auto(?)", [tmp])
 
     # Find duplicates
     dup_keys = set()
-    con.execute("""
+    con.execute(
+        """
         SELECT CanonicalLatin, BirthYear
         FROM entries
         GROUP BY 1, 2 HAVING COUNT(*) > 1
-    """)
+    """
+    )
     for row in con.fetchall():
         dup_keys.add((row[0], row[1]))
     con.close()

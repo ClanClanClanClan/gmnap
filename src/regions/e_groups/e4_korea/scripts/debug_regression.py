@@ -3,23 +3,28 @@
 Debug the math dataset regression from comprehensive fixes
 """
 import yaml, sys, os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 from converter import eng2kor, kor2eng
 import unicodedata
 
-def norm(s): 
-    s = s.replace(",", "").replace("-", " ")
-    return unicodedata.normalize("NFC", s.casefold().replace(" ",""))
 
-def dice(a,b):
-    a,b=set(zip(a,a[1:])),set(zip(b,b[1:]))
-    return 2*len(a&b)/(len(a)+len(b) or 1)
+def norm(s):
+    s = s.replace(",", "").replace("-", " ")
+    return unicodedata.normalize("NFC", s.casefold().replace(" ", ""))
+
+
+def dice(a, b):
+    a, b = set(zip(a, a[1:])), set(zip(b, b[1:]))
+    return 2 * len(a & b) / (len(a) + len(b) or 1)
+
 
 def find_hangul(variants):
     for v in variants:
-        if isinstance(v, str) and any('\uac00' <= c <= '\ud7af' for c in v):
+        if isinstance(v, str) and any("\uac00" <= c <= "\ud7af" for c in v):
             return v.replace(" ", "")
     return None
+
 
 print("=== DEBUGGING MATH DATASET REGRESSION ===\n")
 print("Before: 680/733 (92.77%)")
@@ -38,12 +43,12 @@ for k, v in data.items():
         ko_exp = find_hangul(v.get("AllCommonVariants", []))
         if not rr or not ko_exp:
             continue
-        
+
         ko = eng2kor(rr)
         if ko != ko_exp:
             current_failures.append((k, "eng→kor", rr, ko_exp, ko))
             continue
-            
+
         rr2 = kor2eng(ko, rr) or ""
         if dice(norm(rr), norm(rr2)) < 0.90:
             current_failures.append((k, "roundtrip", rr, ko, rr2))
@@ -60,9 +65,7 @@ segmentation_issues = []
 weight_conflicts = []
 
 # Recently added mappings that might cause conflicts
-recent_mappings = [
-    'jung', 'gun', 'mook', 'heu', 'zy', 'duk', 'yo', 'sun', 'sin', 'kun'
-]
+recent_mappings = ["jung", "gun", "mook", "heu", "zy", "duk", "yo", "sun", "sin", "kun"]
 
 problem_cases = []
 for name, fail_type, input_text, expected, actual in current_failures:
@@ -84,13 +87,7 @@ for name, pattern, input_text, exp, act in problem_cases[:10]:
 print("\n=== SPECIFIC CONFLICT ANALYSIS ===")
 
 # Test specific cases that might have regressed
-test_cases = [
-    "Kim, Hee-Sun",
-    "Kim, Sun-Young", 
-    "Jung, Min-Ho",
-    "Park, Jong-Gun",
-    "Lee, Duk-Soo"
-]
+test_cases = ["Kim, Hee-Sun", "Kim, Sun-Young", "Jung, Min-Ho", "Park, Jong-Gun", "Lee, Duk-Soo"]
 
 for case in test_cases:
     result = eng2kor(case)

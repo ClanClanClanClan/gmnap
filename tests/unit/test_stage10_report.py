@@ -1,4 +1,5 @@
 """Tests for stage 10 report generation — DOI draft, attribution, markdown report."""
+
 from __future__ import annotations
 
 import json
@@ -14,10 +15,18 @@ def _offline(monkeypatch):
 
 def _sample_batch():
     return [
-        {"CanonicalLatin": "Euler, Leonhard", "DetectedRegion": "A2",
-         "_sources": ["OpenAlex", "Crossref"], "GlobalID": "EULER_TEST"},
-        {"CanonicalLatin": "Gauss, Carl", "DetectedRegion": "A2",
-         "_sources": ["Crossref"], "GlobalID": "GAUSS_TEST"},
+        {
+            "CanonicalLatin": "Euler, Leonhard",
+            "DetectedRegion": "A2",
+            "_sources": ["OpenAlex", "Crossref"],
+            "GlobalID": "EULER_TEST",
+        },
+        {
+            "CanonicalLatin": "Gauss, Carl",
+            "DetectedRegion": "A2",
+            "_sources": ["Crossref"],
+            "GlobalID": "GAUSS_TEST",
+        },
     ]
 
 

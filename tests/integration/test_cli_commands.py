@@ -24,6 +24,7 @@ def runner():
 # query command
 # ---------------------------------------------------------------------------
 
+
 class TestQueryCommand:
     def test_query_command(self, runner):
         result = runner.invoke(cli, ["query", "Euler, Leonhard"])
@@ -43,6 +44,7 @@ class TestQueryCommand:
 # regions command
 # ---------------------------------------------------------------------------
 
+
 class TestRegionsCommand:
     def test_regions_command(self, runner):
         result = runner.invoke(cli, ["regions"])
@@ -54,6 +56,7 @@ class TestRegionsCommand:
 # ---------------------------------------------------------------------------
 # sources command
 # ---------------------------------------------------------------------------
+
 
 class TestSourcesCommand:
     def test_sources_command(self, runner):
@@ -67,6 +70,7 @@ class TestSourcesCommand:
 # validate command
 # ---------------------------------------------------------------------------
 
+
 class TestValidateCommand:
     def test_validate_valid_entry(self, runner):
         """A minimal valid entry should pass validation."""
@@ -79,9 +83,7 @@ class TestValidateCommand:
                 "RegionCode": "A2",
             }
         ]
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(entry, f)
             f.flush()
             tmp = f.name
@@ -96,9 +98,7 @@ class TestValidateCommand:
     def test_validate_invalid_entry(self, runner):
         """An entry missing required fields should produce errors."""
         entry = [{"Foo": "bar"}]  # no CanonicalLatin or other required fields
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(entry, f)
             f.flush()
             tmp = f.name
@@ -107,7 +107,9 @@ class TestValidateCommand:
             # With schema_strict >= 1, exit code should be 1 when errors exist
             result = runner.invoke(cli, ["validate", tmp, "--schema-strict", "1"])
             # Either exit_code 1 or error info in output
-            has_errors = result.exit_code != 0 or "Invalid" in result.output or "Error" in result.output
+            has_errors = (
+                result.exit_code != 0 or "Invalid" in result.output or "Error" in result.output
+            )
             assert has_errors, (
                 f"Expected validation failure for invalid entry. "
                 f"exit_code={result.exit_code}, output={result.output}"

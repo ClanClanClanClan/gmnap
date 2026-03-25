@@ -1,4 +1,5 @@
 """Stage 3: RegionHooks - clean->augment->validate->order_key per detected region."""
+
 from __future__ import annotations
 import logging
 from typing import Dict, List
@@ -30,25 +31,27 @@ def stage3_region_hooks(batch: List[Dict], region_manager) -> List[Dict]:
             e2 = dict(e)  # shallow copy to avoid mutating input
 
             # Ensure YAML config overrides are applied (lazy, runs once per processor)
-            if hasattr(region, 'ensure_yaml_loaded'):
+            if hasattr(region, "ensure_yaml_loaded"):
                 region.ensure_yaml_loaded()
 
             # V7 spec: clean -> augment -> validate -> order_key
             # Processor methods modify entry in-place (return None), except order_key which returns str
-            if hasattr(region, 'clean'):
+            if hasattr(region, "clean"):
                 region.clean(e2)
-            if hasattr(region, 'augment'):
+            if hasattr(region, "augment"):
                 region.augment(e2)
-            if hasattr(region, 'validate'):
+            if hasattr(region, "validate"):
                 region.validate(e2)
-            if hasattr(region, 'order_key'):
+            if hasattr(region, "order_key"):
                 order_key = region.order_key(e2)
                 if order_key:
                     e2["OrderKey"] = order_key
 
             out.append(e2)
         except Exception as ex:
-            logger.error(f"Region hooks failed for {code} on entry {e.get('CanonicalLatin', '?')}: {ex}")
+            logger.error(
+                f"Region hooks failed for {code} on entry {e.get('CanonicalLatin', '?')}: {ex}"
+            )
             e["_region_hook_error"] = str(ex)
             out.append(e)
 

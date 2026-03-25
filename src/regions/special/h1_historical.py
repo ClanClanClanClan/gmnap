@@ -36,29 +36,56 @@ class H1Historical(RegionSpec):
             scripts=["Latin"],
             mixed_scripts=False,
             canonical_order="Family, Given",
-            romanisation_standards=["Latin", "Historical"]
+            romanisation_standards=["Latin", "Historical"],
         )
 
         # Latin suffixes that indicate Latinised forms
         self.latin_suffixes = [
-            "us", "ius", "eus", "aeus", "anus", "inus",
-            "is", "es",
+            "us",
+            "ius",
+            "eus",
+            "aeus",
+            "anus",
+            "inus",
+            "is",
+            "es",
         ]
 
         # Common epithets / place indicators
         self.epithet_markers = {
-            "of", "de", "von", "van", "di", "da",
-            "al-", "el-", "ibn", "bin", "ben",
+            "of",
+            "de",
+            "von",
+            "van",
+            "di",
+            "da",
+            "al-",
+            "el-",
+            "ibn",
+            "bin",
+            "ben",
             "the",
         }
 
         # Historical titles to remove
         self.titles = {
-            "Sir", "Lord", "Count", "Baron", "Duke",
-            "Bishop", "Abbot", "Friar", "Brother",
-            "Father", "Rev", "Rev.",
-            "Prof", "Prof.", "Professor",
-            "Dr", "Dr.",
+            "Sir",
+            "Lord",
+            "Count",
+            "Baron",
+            "Duke",
+            "Bishop",
+            "Abbot",
+            "Friar",
+            "Brother",
+            "Father",
+            "Rev",
+            "Rev.",
+            "Prof",
+            "Prof.",
+            "Professor",
+            "Dr",
+            "Dr.",
         }
 
         # Date-annotation patterns (strip from names)
@@ -70,10 +97,19 @@ class H1Historical(RegionSpec):
 
         # Known mononyms (no family name)
         self.known_mononyms = {
-            "Euclid", "Archimedes", "Hypatia", "Pythagoras",
-            "Ptolemy", "Thales", "Diophantus", "Eratosthenes",
-            "Apollonius", "Aristarchus", "Brahmagupta",
-            "Aryabhata", "Bhaskara",
+            "Euclid",
+            "Archimedes",
+            "Hypatia",
+            "Pythagoras",
+            "Ptolemy",
+            "Thales",
+            "Diophantus",
+            "Eratosthenes",
+            "Apollonius",
+            "Aristarchus",
+            "Brahmagupta",
+            "Aryabhata",
+            "Bhaskara",
         }
 
     def clean(self, entry: Dict[str, Any]) -> None:
@@ -167,10 +203,12 @@ class H1Historical(RegionSpec):
             extras["epithet_type"] = epithet["type"]
             # Generate variant without epithet
             if epithet.get("base_name"):
-                variants.append({
-                    "str": epithet["base_name"],
-                    "type": "epithet-stripped",
-                })
+                variants.append(
+                    {
+                        "str": epithet["base_name"],
+                        "type": "epithet-stripped",
+                    }
+                )
 
         # Detect Arabic-style components
         arabic = self._detect_arabic_components(canonical)
@@ -187,10 +225,12 @@ class H1Historical(RegionSpec):
             family = extras.get("family_name", "")
             given = extras.get("given_name", "")
             if family and given:
-                variants.append({
-                    "str": f"{given} {family}",
-                    "type": "order-swap",
-                })
+                variants.append(
+                    {
+                        "str": f"{given} {family}",
+                        "type": "order-swap",
+                    }
+                )
 
         entry["RegionCode"] = self.code
 
@@ -213,9 +253,7 @@ class H1Historical(RegionSpec):
         # Block only control characters and obviously invalid codepoints.
         for ch in canonical:
             if unicodedata.category(ch).startswith("C") and ch not in "\t\n":
-                raise RegionRuleError(
-                    f"Control character U+{ord(ch):04X} in H1 name"
-                )
+                raise RegionRuleError(f"Control character U+{ord(ch):04X} in H1 name")
 
         if len(canonical) > 200:
             raise RegionRuleError("Name exceeds 200 character limit")
@@ -332,9 +370,7 @@ class H1Historical(RegionSpec):
         "William the Conqueror" (though we focus on mathematicians).
         """
         # Pattern: Name "of" Place
-        match = re.search(
-            r"^(.+?)\s+(of|de|von|van|di|da)\s+(.+)$", name, re.IGNORECASE
-        )
+        match = re.search(r"^(.+?)\s+(of|de|von|van|di|da)\s+(.+)$", name, re.IGNORECASE)
         if match:
             return {
                 "base_name": match.group(1).strip(),

@@ -1,4 +1,5 @@
 """Unit tests for HAL authority adapter."""
+
 import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock
@@ -11,6 +12,7 @@ def offline_mode(monkeypatch):
 
 def _make_adapter():
     from src.authority.hal_adapter import HALAdapter
+
     return HALAdapter()
 
 
@@ -27,9 +29,16 @@ class TestHALAdapter:
         adapter = _make_adapter()
         mock_r = MagicMock(status_code=200)
         mock_r.json.return_value = {
-            "response": {"docs": [{
-                "authLabStructName_fs": ["CNRS_JoinKey_Institut de Mathematiques", "ENS_JoinKey_Ecole Normale"],
-            }]}
+            "response": {
+                "docs": [
+                    {
+                        "authLabStructName_fs": [
+                            "CNRS_JoinKey_Institut de Mathematiques",
+                            "ENS_JoinKey_Ecole Normale",
+                        ],
+                    }
+                ]
+            }
         }
         adapter.ctx.http = AsyncMock(get=AsyncMock(return_value=mock_r))
         adapter.ctx.cache = AsyncMock(get_json=AsyncMock(return_value=None), set_json=AsyncMock())

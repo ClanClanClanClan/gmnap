@@ -188,10 +188,16 @@ class TestWikidataP184:
         """Test with mocked Wikidata API response."""
         entry = {"CanonicalLatin": "Euler, Leonhard"}
         search_response = {"search": [{"id": "Q7604", "label": "Leonhard Euler"}]}
-        sparql_response = {"results": {"bindings": [
-            {"advisor": {"value": "http://www.wikidata.org/entity/Q131tried"},
-             "advisorLabel": {"value": "Johann Bernoulli"}},
-        ]}}
+        sparql_response = {
+            "results": {
+                "bindings": [
+                    {
+                        "advisor": {"value": "http://www.wikidata.org/entity/Q131tried"},
+                        "advisorLabel": {"value": "Johann Bernoulli"},
+                    },
+                ]
+            }
+        }
 
         class MockResponse:
             def __init__(self, data):
@@ -223,10 +229,12 @@ class TestWikidataP184:
             async def __aexit__(self, *args):
                 pass
 
-        with patch("src.authority.manager_tier01.OFFLINE", False), \
-             tempfile.TemporaryDirectory() as tmpdir, \
-             patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)), \
-             patch("aiohttp.ClientSession", return_value=MockSession()):
+        with (
+            patch("src.authority.manager_tier01.OFFLINE", False),
+            tempfile.TemporaryDirectory() as tmpdir,
+            patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)),
+            patch("aiohttp.ClientSession", return_value=MockSession()),
+        ):
             result = _run(_fetch_wikidata_p184(entry))
 
         assert result["Wikidata_P184"]["hit"] is True
@@ -322,8 +330,10 @@ class TestDimensions:
 
     def test_offline_returns_no_hit(self):
         entry = {"CanonicalLatin": "Smith, John"}
-        with patch("src.authority.manager_tier01.OFFLINE", True), \
-             patch.dict(os.environ, {"DIMENSIONS_API_KEY": "test_key"}):
+        with (
+            patch("src.authority.manager_tier01.OFFLINE", True),
+            patch.dict(os.environ, {"DIMENSIONS_API_KEY": "test_key"}),
+        ):
             result = _run(_fetch_dimensions(entry))
         assert result["Dimensions"]["hit"] is False
 

@@ -1,4 +1,5 @@
 """Unit tests for Stage 7: TagShortForms."""
+
 import pytest
 from src.pipeline.stage7_tag_short_forms import tag_short_forms
 

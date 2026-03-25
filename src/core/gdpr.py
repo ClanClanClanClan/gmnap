@@ -6,6 +6,7 @@ Implements:
 - Scrubber configuration for sources requiring consent
 - --drop-personal flag support (ShadowNode insertion)
 """
+
 from __future__ import annotations
 import hashlib
 import logging
@@ -16,8 +17,14 @@ logger = logging.getLogger(__name__)
 
 # Fields that constitute personal data under GDPR
 PERSONAL_DATA_FIELDS = {
-    "BirthYear", "DeathYear", "Gender", "Institution",
-    "Email", "ORCID", "Affiliation", "Nationality",
+    "BirthYear",
+    "DeathYear",
+    "Gender",
+    "Institution",
+    "Email",
+    "ORCID",
+    "Affiliation",
+    "Nationality",
 }
 
 # Sources requiring GDPR scrubbing (subscription / scraper-based)
@@ -76,8 +83,9 @@ def scrub_sources(entry: Dict[str, Any]) -> None:
             logger.debug(f"Scrubbed {src} data from {entry.get('GlobalID', '?')}")
 
 
-def apply_drop_personal(batch: List[Dict[str, Any]],
-                         drop_personal: bool = False) -> List[Dict[str, Any]]:
+def apply_drop_personal(
+    batch: List[Dict[str, Any]], drop_personal: bool = False
+) -> List[Dict[str, Any]]:
     """If --drop-personal is set, replace personal data with ShadowNodes.
 
     A ShadowNode retains the GlobalID and structural relationships but
@@ -109,8 +117,7 @@ def apply_drop_personal(batch: List[Dict[str, Any]],
     return out
 
 
-def gdpr_pipeline(batch: List[Dict[str, Any]],
-                   drop_personal: bool = False) -> List[Dict[str, Any]]:
+def gdpr_pipeline(batch: List[Dict[str, Any]], drop_personal: bool = False) -> List[Dict[str, Any]]:
     """Full GDPR compliance pass on a batch.
 
     Steps:

@@ -1,4 +1,5 @@
 """Tests for retry_with_backoff in src/authority/common."""
+
 from __future__ import annotations
 
 import asyncio

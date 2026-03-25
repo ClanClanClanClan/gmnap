@@ -51,16 +51,42 @@ class E6MainlandSEA(RegionSpec):
         # Common titles to strip
         self.titles = {
             # Thai
-            "นาย", "นาง", "นางสาว", "ดร.", "ดร", "ศ.", "ศ.ดร.",
-            "รศ.", "รศ.ดร.", "ผศ.", "ผศ.ดร.",
-            "คุณ", "พ.ต.อ.", "พล.อ.", "พล.ต.",
+            "นาย",
+            "นาง",
+            "นางสาว",
+            "ดร.",
+            "ดร",
+            "ศ.",
+            "ศ.ดร.",
+            "รศ.",
+            "รศ.ดร.",
+            "ผศ.",
+            "ผศ.ดร.",
+            "คุณ",
+            "พ.ต.อ.",
+            "พล.อ.",
+            "พล.ต.",
             # Khmer
-            "លោក", "អ្នកស្រី", "ឯកឧត្តម",
+            "លោក",
+            "អ្នកស្រី",
+            "ឯកឧត្តម",
             # Lao
-            "ທ່ານ", "ນາງ",
+            "ທ່ານ",
+            "ນາງ",
             # Latin equivalents common in academic contexts
-            "Dr", "Dr.", "Prof", "Prof.", "Mr", "Mr.", "Mrs", "Mrs.",
-            "Ms", "Ms.", "Khun", "Nai", "Nang",
+            "Dr",
+            "Dr.",
+            "Prof",
+            "Prof.",
+            "Mr",
+            "Mr.",
+            "Mrs",
+            "Mrs.",
+            "Ms",
+            "Ms.",
+            "Khun",
+            "Nai",
+            "Nang",
         }
 
         # Thai honorific particles (often follow given name)
@@ -68,7 +94,14 @@ class E6MainlandSEA(RegionSpec):
 
         # Common Thai compound surname prefixes
         self.thai_surname_prefixes = {
-            "วง", "ศรี", "สุ", "ชัย", "พร", "ทอง", "สิริ", "วัฒน",
+            "วง",
+            "ศรี",
+            "สุ",
+            "ชัย",
+            "พร",
+            "ทอง",
+            "สิริ",
+            "วัฒน",
         }
 
     # ------------------------------------------------------------------
@@ -90,9 +123,7 @@ class E6MainlandSEA(RegionSpec):
     def _clean_name(self, name: str) -> str:
         """Clean a single Mainland SEA name string."""
         if not isinstance(name, str):
-            raise RegionRuleError(
-                f"Name must be string, not {type(name).__name__}"
-            )
+            raise RegionRuleError(f"Name must be string, not {type(name).__name__}")
         if not name:
             return name
 
@@ -125,7 +156,7 @@ class E6MainlandSEA(RegionSpec):
             stripped = text.lstrip()
             for title in sorted(self.titles, key=len, reverse=True):
                 if stripped.startswith(title):
-                    stripped = stripped[len(title):].lstrip(" .")
+                    stripped = stripped[len(title) :].lstrip(" .")
                     text = stripped
                     changed = True
                     break
@@ -175,9 +206,7 @@ class E6MainlandSEA(RegionSpec):
         if family and given:
             swapped = f"{family}, {given}"
             if swapped != canonical:
-                entry["Variants"]["Synthesised"].append(
-                    {"str": swapped, "type": "order-swap"}
-                )
+                entry["Variants"]["Synthesised"].append({"str": swapped, "type": "order-swap"})
 
         # Rule 27: Generate romanisation variant for native-script names
         if native and script in ("Thai", "Khmer", "Lao"):
@@ -210,18 +239,9 @@ class E6MainlandSEA(RegionSpec):
 
     def _detect_script(self, name: str) -> str:
         """Detect primary script in name."""
-        thai_count = sum(
-            1 for c in name
-            if self.thai_range[0] <= ord(c) <= self.thai_range[1]
-        )
-        khmer_count = sum(
-            1 for c in name
-            if self.khmer_range[0] <= ord(c) <= self.khmer_range[1]
-        )
-        lao_count = sum(
-            1 for c in name
-            if self.lao_range[0] <= ord(c) <= self.lao_range[1]
-        )
+        thai_count = sum(1 for c in name if self.thai_range[0] <= ord(c) <= self.thai_range[1])
+        khmer_count = sum(1 for c in name if self.khmer_range[0] <= ord(c) <= self.khmer_range[1])
+        lao_count = sum(1 for c in name if self.lao_range[0] <= ord(c) <= self.lao_range[1])
         latin_count = sum(1 for c in name if c.isascii() and c.isalpha())
 
         counts = {
@@ -246,40 +266,113 @@ class E6MainlandSEA(RegionSpec):
     # cover the initial consonant onsets used in proper names.
 
     _THAI_RTGS_ONSETS: Dict[str, str] = {
-        "\u0e01": "k", "\u0e02": "kh", "\u0e03": "kh", "\u0e04": "kh",
-        "\u0e06": "kh", "\u0e07": "ng", "\u0e08": "ch", "\u0e09": "ch",
-        "\u0e0a": "ch", "\u0e0b": "s", "\u0e0c": "ch", "\u0e0d": "y",
-        "\u0e0e": "d", "\u0e0f": "t", "\u0e10": "th", "\u0e11": "th",
-        "\u0e12": "th", "\u0e13": "n", "\u0e14": "d", "\u0e15": "t",
-        "\u0e16": "th", "\u0e17": "th", "\u0e18": "th", "\u0e19": "n",
-        "\u0e1a": "b", "\u0e1b": "p", "\u0e1c": "ph", "\u0e1d": "f",
-        "\u0e1e": "ph", "\u0e1f": "f", "\u0e20": "ph", "\u0e21": "m",
-        "\u0e22": "y", "\u0e23": "r", "\u0e25": "l", "\u0e27": "w",
-        "\u0e28": "s", "\u0e29": "s", "\u0e2a": "s", "\u0e2b": "h",
-        "\u0e2c": "l", "\u0e2d": "o", "\u0e2e": "h",
+        "\u0e01": "k",
+        "\u0e02": "kh",
+        "\u0e03": "kh",
+        "\u0e04": "kh",
+        "\u0e06": "kh",
+        "\u0e07": "ng",
+        "\u0e08": "ch",
+        "\u0e09": "ch",
+        "\u0e0a": "ch",
+        "\u0e0b": "s",
+        "\u0e0c": "ch",
+        "\u0e0d": "y",
+        "\u0e0e": "d",
+        "\u0e0f": "t",
+        "\u0e10": "th",
+        "\u0e11": "th",
+        "\u0e12": "th",
+        "\u0e13": "n",
+        "\u0e14": "d",
+        "\u0e15": "t",
+        "\u0e16": "th",
+        "\u0e17": "th",
+        "\u0e18": "th",
+        "\u0e19": "n",
+        "\u0e1a": "b",
+        "\u0e1b": "p",
+        "\u0e1c": "ph",
+        "\u0e1d": "f",
+        "\u0e1e": "ph",
+        "\u0e1f": "f",
+        "\u0e20": "ph",
+        "\u0e21": "m",
+        "\u0e22": "y",
+        "\u0e23": "r",
+        "\u0e25": "l",
+        "\u0e27": "w",
+        "\u0e28": "s",
+        "\u0e29": "s",
+        "\u0e2a": "s",
+        "\u0e2b": "h",
+        "\u0e2c": "l",
+        "\u0e2d": "o",
+        "\u0e2e": "h",
     }
 
     _KHMER_UNGEGN_ONSETS: Dict[str, str] = {
-        "\u1780": "ka", "\u1781": "kha", "\u1782": "ko", "\u1783": "kho",
-        "\u1784": "ngo", "\u1785": "cha", "\u1786": "chha", "\u1787": "cho",
-        "\u1788": "chho", "\u1789": "nho", "\u178a": "da", "\u178b": "ttha",
-        "\u178c": "do", "\u178d": "ttho", "\u178e": "nno", "\u178f": "ta",
-        "\u1790": "tha", "\u1791": "to", "\u1792": "tho", "\u1793": "no",
-        "\u1794": "ba", "\u1795": "pha", "\u1796": "po", "\u1797": "pho",
-        "\u1798": "mo", "\u1799": "yo", "\u179a": "ro", "\u179b": "lo",
-        "\u179c": "vo", "\u179f": "sa", "\u17a0": "ha", "\u17a1": "la",
+        "\u1780": "ka",
+        "\u1781": "kha",
+        "\u1782": "ko",
+        "\u1783": "kho",
+        "\u1784": "ngo",
+        "\u1785": "cha",
+        "\u1786": "chha",
+        "\u1787": "cho",
+        "\u1788": "chho",
+        "\u1789": "nho",
+        "\u178a": "da",
+        "\u178b": "ttha",
+        "\u178c": "do",
+        "\u178d": "ttho",
+        "\u178e": "nno",
+        "\u178f": "ta",
+        "\u1790": "tha",
+        "\u1791": "to",
+        "\u1792": "tho",
+        "\u1793": "no",
+        "\u1794": "ba",
+        "\u1795": "pha",
+        "\u1796": "po",
+        "\u1797": "pho",
+        "\u1798": "mo",
+        "\u1799": "yo",
+        "\u179a": "ro",
+        "\u179b": "lo",
+        "\u179c": "vo",
+        "\u179f": "sa",
+        "\u17a0": "ha",
+        "\u17a1": "la",
         "\u17a2": "qa",
     }
 
     _LAO_MOICT_ONSETS: Dict[str, str] = {
-        "\u0e81": "k", "\u0e82": "kh", "\u0e84": "kh",
-        "\u0e87": "ng", "\u0e88": "ch", "\u0e8a": "s",
-        "\u0e8d": "ny", "\u0e94": "d", "\u0e95": "t",
-        "\u0e96": "th", "\u0e97": "th", "\u0e99": "n",
-        "\u0e9a": "b", "\u0e9b": "p", "\u0e9c": "ph", "\u0e9d": "f",
-        "\u0e9e": "ph", "\u0e9f": "f", "\u0ea1": "m",
-        "\u0ea2": "y", "\u0ea3": "r", "\u0ea5": "l", "\u0ea7": "v",
-        "\u0eab": "h", "\u0ead": "o",
+        "\u0e81": "k",
+        "\u0e82": "kh",
+        "\u0e84": "kh",
+        "\u0e87": "ng",
+        "\u0e88": "ch",
+        "\u0e8a": "s",
+        "\u0e8d": "ny",
+        "\u0e94": "d",
+        "\u0e95": "t",
+        "\u0e96": "th",
+        "\u0e97": "th",
+        "\u0e99": "n",
+        "\u0e9a": "b",
+        "\u0e9b": "p",
+        "\u0e9c": "ph",
+        "\u0e9d": "f",
+        "\u0e9e": "ph",
+        "\u0e9f": "f",
+        "\u0ea1": "m",
+        "\u0ea2": "y",
+        "\u0ea3": "r",
+        "\u0ea5": "l",
+        "\u0ea7": "v",
+        "\u0eab": "h",
+        "\u0ead": "o",
     }
 
     def romanise_native(self, native: str, standard: str = "auto") -> str:
@@ -319,9 +412,7 @@ class E6MainlandSEA(RegionSpec):
         native = entry.get("CanonicalNative", "")
 
         if not canonical and not native:
-            raise RegionRuleError(
-                "Missing both CanonicalLatin and CanonicalNative"
-            )
+            raise RegionRuleError("Missing both CanonicalLatin and CanonicalNative")
 
         name = native if native else canonical
 
@@ -339,9 +430,7 @@ class E6MainlandSEA(RegionSpec):
                 for c in native
             )
             if not has_sea_script and not any(c.isascii() and c.isalpha() for c in native):
-                raise RegionRuleError(
-                    "CanonicalNative contains no recognised E6 script characters"
-                )
+                raise RegionRuleError("CanonicalNative contains no recognised E6 script characters")
 
     # ------------------------------------------------------------------
     # order_key

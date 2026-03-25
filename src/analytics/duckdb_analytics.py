@@ -17,6 +17,7 @@ CREATE INDEX IF NOT EXISTS idx_entries_key ON entries(order_key);
 CREATE INDEX IF NOT EXISTS idx_entries_gid ON entries(GlobalID);
 """
 
+
 class DuckDBAnalytics:
     def __init__(self, db_path: str = ":memory:") -> None:
         self.db_path = db_path
@@ -25,10 +26,19 @@ class DuckDBAnalytics:
 
     def load_entries(self, batch: List[Dict]) -> None:
         # Create a temp view and insert deterministically (sorted by GlobalID)
-        rows = [(e.get("GlobalID",""), e.get("CanonicalLatin",""), e.get("order_key",""),
-                 int(e.get("BirthYear") or 0) if e.get("BirthYear") is not None else None,
-                 e.get("Field",""), e.get("Source",""), e.get("LastUpdated",""), e.get("ValidationStatus",""))
-                for e in sorted(batch, key=lambda x: x.get("GlobalID",""))]
+        rows = [
+            (
+                e.get("GlobalID", ""),
+                e.get("CanonicalLatin", ""),
+                e.get("order_key", ""),
+                int(e.get("BirthYear") or 0) if e.get("BirthYear") is not None else None,
+                e.get("Field", ""),
+                e.get("Source", ""),
+                e.get("LastUpdated", ""),
+                e.get("ValidationStatus", ""),
+            )
+            for e in sorted(batch, key=lambda x: x.get("GlobalID", ""))
+        ]
         self.con.execute("DELETE FROM entries")
         self.con.executemany("INSERT INTO entries VALUES (?,?,?,?,?,?,?,?)", rows)
 
@@ -40,7 +50,10 @@ class DuckDBAnalytics:
         HAVING n > 1
         ORDER BY n DESC, order_key
         """
-        return [dict(zip([c[0] for c in self.con.description], row)) for row in self.con.execute(q).fetchall()]
+        return [
+            dict(zip([c[0] for c in self.con.description], row))
+            for row in self.con.execute(q).fetchall()
+        ]
 
     def suffix_duplicates(self, batch: List[Dict]) -> Tuple[List[Dict], int]:
         collisions = self.detect_collisions()
@@ -54,13 +67,14 @@ class DuckDBAnalytics:
                 coll_map[gid] = f"{gid}--{i}"
         out = []
         for e in batch:
-            gid = e.get("GlobalID","")
+            gid = e.get("GlobalID", "")
             if gid in coll_map:
                 e = dict(e)
                 e["GlobalID"] = coll_map[gid]
                 suffixed += 1
             out.append(e)
         return out, suffixed
+
 
 def stage5_collision_analytics_duckdb(batch: List[Dict], db_path: str = ":memory:"):
     d = DuckDBAnalytics(db_path=db_path)

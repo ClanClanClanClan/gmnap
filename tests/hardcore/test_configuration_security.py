@@ -37,6 +37,7 @@ class TestConfigurationSecurity:
     def teardown_method(self):
         """Clean up test fixtures."""
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
         # Restore original environment
@@ -188,9 +189,7 @@ class TestConfigurationSecurity:
 
         threads = []
         for i in range(num_workers):
-            thread = threading.Thread(
-                target=config_worker, args=(i, operations_per_worker)
-            )
+            thread = threading.Thread(target=config_worker, args=(i, operations_per_worker))
             threads.append(thread)
             thread.start()
 
@@ -284,9 +283,7 @@ class TestConfigurationSecurity:
         assert config.database.path is not None
 
         # Non-existent path also handled
-        mgr2 = ConfigurationManager(
-            config_path=Path("/non/existent/directory/config.yaml")
-        )
+        mgr2 = ConfigurationManager(config_path=Path("/non/existent/directory/config.yaml"))
         config2 = mgr2.load()
         assert isinstance(config2, GMNAPConfig)
 
@@ -305,6 +302,7 @@ class TestConfigurationPerformance:
     def teardown_method(self):
         """Clean up test fixtures."""
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_config_loading_performance(self):
@@ -357,9 +355,7 @@ class TestConfigurationPerformance:
 
         threads = []
         for i in range(num_workers):
-            thread = threading.Thread(
-                target=performance_worker, args=(i, iterations_per_worker)
-            )
+            thread = threading.Thread(target=performance_worker, args=(i, iterations_per_worker))
             threads.append(thread)
             thread.start()
 
@@ -373,9 +369,7 @@ class TestConfigurationPerformance:
             except Empty:
                 break
 
-        assert (
-            len(worker_times) == num_workers
-        ), f"Not all workers completed: {len(worker_times)}"
+        assert len(worker_times) == num_workers, f"Not all workers completed: {len(worker_times)}"
 
         avg_times = [t for _, t in worker_times]
         overall_avg = sum(avg_times) / len(avg_times)

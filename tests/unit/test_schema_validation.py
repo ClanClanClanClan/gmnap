@@ -192,9 +192,7 @@ class TestSchemaValidator:
         ]
 
         for msc_code, should_be_valid in test_cases:
-            entry = _base_entry(
-                PrimaryMSC=[{"code": msc_code, "source": "zbMATH"}]
-            )
+            entry = _base_entry(PrimaryMSC=[{"code": msc_code, "source": "zbMATH"}])
 
             file_data = {"Smith, John": entry}
             is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -337,9 +335,7 @@ class TestSchemaValidator:
         """Test affiliation timeline validation."""
         # Invalid country code
         entry = _base_entry(
-            AffiliationTimeline=[
-                {"country": "USA", "from": 2010, "to": 2020}  # Should be US
-            ]
+            AffiliationTimeline=[{"country": "USA", "from": 2010, "to": 2020}]  # Should be US
         )
 
         file_data = {"Smith, John": entry}
@@ -351,9 +347,7 @@ class TestSchemaValidator:
     def test_affiliation_timeline_date_consistency(self):
         """Test affiliation timeline date consistency."""
         # 'To' before 'from' (invalid)
-        entry = _base_entry(
-            AffiliationTimeline=[{"country": "US", "from": 2020, "to": 2010}]
-        )
+        entry = _base_entry(AffiliationTimeline=[{"country": "US", "from": 2020, "to": 2010}])
 
         file_data = {"Smith, John": entry}
         is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -376,9 +370,7 @@ class TestSchemaValidator:
         # Test valid types
         for variant_type in valid_types:
             entry = _base_entry(
-                Variants={
-                    "Synthesised": [{"str": "Smith, J", "type": variant_type}]
-                }
+                Variants={"Synthesised": [{"str": "Smith, J", "type": variant_type}]}
             )
 
             file_data = {"Smith, John": entry}
@@ -387,11 +379,7 @@ class TestSchemaValidator:
             assert is_valid, f"Valid variant type failed: {variant_type}, errors: {errors}"
 
         # Test invalid type
-        entry = _base_entry(
-            Variants={
-                "Synthesised": [{"str": "Smith, J", "type": "invalid-type"}]
-            }
-        )
+        entry = _base_entry(Variants={"Synthesised": [{"str": "Smith, J", "type": "invalid-type"}]})
 
         file_data = {"Smith, John": entry}
         is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -413,9 +401,7 @@ class TestSchemaValidator:
     def test_canonical_name_consistency(self):
         """Test consistency between key and CanonicalLatin."""
         # Mismatched canonical name
-        entry = _base_entry(
-            CanonicalLatin="Johnson, Mary", CanonicalNative="Johnson, Mary"
-        )
+        entry = _base_entry(CanonicalLatin="Johnson, Mary", CanonicalNative="Johnson, Mary")
 
         file_data = {"Smith, John": entry}  # Key doesn't match
         is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -647,6 +633,7 @@ class TestStage8StrictMode:
     def test_env_var_default_is_0(self):
         """GMNAP_SCHEMA_STRICT defaults to 0 if not set."""
         import os
+
         with patch.dict(os.environ, {}, clear=False):
             os.environ.pop("GMNAP_SCHEMA_STRICT", None)
             val = int(os.getenv("GMNAP_SCHEMA_STRICT", "0"))
@@ -655,6 +642,7 @@ class TestStage8StrictMode:
     def test_env_var_parses_correctly(self):
         """GMNAP_SCHEMA_STRICT env var parses to int."""
         import os
+
         for expected in [0, 1, 2]:
             with patch.dict(os.environ, {"GMNAP_SCHEMA_STRICT": str(expected)}):
                 val = int(os.getenv("GMNAP_SCHEMA_STRICT", "0"))

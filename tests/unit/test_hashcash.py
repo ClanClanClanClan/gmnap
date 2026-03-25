@@ -1,4 +1,5 @@
 """Tests for API server hashcash PoW verification and rate limiting."""
+
 from __future__ import annotations
 
 import hashlib
@@ -21,6 +22,7 @@ except ImportError:
 @pytest.fixture
 def client():
     import src.api.server as srv
+
     # Clear rate limiter windows to avoid 429 from other tests
     srv._rate_limiter._windows.clear()
     app = create_app()
@@ -76,6 +78,7 @@ class TestRateLimiting:
     def test_paid_tier_bypasses_hashcash(self, client):
         """Paid tier with valid Bearer token should bypass hashcash."""
         import src.api.server as srv
+
         srv._PAID_TOKENS.add("rate-test-token")
         try:
             r = client.get(

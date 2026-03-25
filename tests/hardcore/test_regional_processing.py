@@ -35,6 +35,7 @@ class TestRegionDetectionAccuracy:
     def teardown_method(self):
         """Clean up test fixtures."""
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_region_detection_by_script(self):
@@ -44,14 +45,11 @@ class TestRegionDetectionAccuracy:
             ("Smith, John", "Latin"),
             ("García, José", "Latin"),
             ("Müller, Hans", "Latin"),
-
             # Cyrillic script names
             ("Иванов, Петр", "Cyrillic"),
             ("Петров, Александр", "Cyrillic"),
-
             # Arabic script names
             ("محمد, أحمد", "Arabic"),
-
             # CJK names
             ("李明", "CJK"),
             ("田中太郎", "CJK"),
@@ -63,14 +61,12 @@ class TestRegionDetectionAccuracy:
             detection = self.region_manager.detect_region(entry)
 
             # Should detect a valid region
-            assert detection.region_code is not None, \
-                f"No region detected for {name}"
-            assert isinstance(detection.region_code, str), \
-                f"Region code should be a string for {name}"
-            assert detection.confidence >= 0.0, \
-                f"Negative confidence for {name}"
-            assert detection.confidence <= 1.0, \
-                f"Confidence > 1.0 for {name}"
+            assert detection.region_code is not None, f"No region detected for {name}"
+            assert isinstance(
+                detection.region_code, str
+            ), f"Region code should be a string for {name}"
+            assert detection.confidence >= 0.0, f"Negative confidence for {name}"
+            assert detection.confidence <= 1.0, f"Confidence > 1.0 for {name}"
 
     def test_region_detection_by_country(self):
         """Test region detection with country information."""
@@ -95,10 +91,8 @@ class TestRegionDetectionAccuracy:
 
             detection = self.region_manager.detect_region(entry)
 
-            assert detection.region_code is not None, \
-                f"No region detected for {name} in {country}"
-            assert detection.confidence > 0, \
-                f"Zero confidence for {name} in {country}"
+            assert detection.region_code is not None, f"No region detected for {name} in {country}"
+            assert detection.confidence > 0, f"Zero confidence for {name} in {country}"
 
     def test_region_detection_by_institution(self):
         """Test region detection with institutional affiliation."""
@@ -117,8 +111,9 @@ class TestRegionDetectionAccuracy:
             }
 
             detection = self.region_manager.detect_region(entry)
-            assert detection.region_code is not None, \
-                f"No region detected for {name} at {institution}"
+            assert (
+                detection.region_code is not None
+            ), f"No region detected for {name} at {institution}"
 
     def test_region_detection_edge_cases(self):
         """Test region detection edge cases."""
@@ -127,7 +122,6 @@ class TestRegionDetectionAccuracy:
             {},
             {"canonical_name": ""},
             {"canonical_name": "???"},
-
             # Normal names
             {"canonical_name": "Smith, John", "CanonicalLatin": "Smith, John"},
             {"canonical_name": "李明", "CanonicalLatin": "Li, Ming"},
@@ -136,8 +130,7 @@ class TestRegionDetectionAccuracy:
         for entry in edge_cases:
             detection = self.region_manager.detect_region(entry)
             # Should always produce a result
-            assert detection.region_code is not None, \
-                f"No region for entry: {entry}"
+            assert detection.region_code is not None, f"No region for entry: {entry}"
 
     def test_region_detection_confidence_scoring(self):
         """Test region detection confidence is bounded."""
@@ -151,8 +144,9 @@ class TestRegionDetectionAccuracy:
         for entry in test_entries:
             detection = self.region_manager.detect_region(entry)
 
-            assert 0.0 <= detection.confidence <= 1.0, \
-                f"Confidence {detection.confidence} out of bounds for {entry}"
+            assert (
+                0.0 <= detection.confidence <= 1.0
+            ), f"Confidence {detection.confidence} out of bounds for {entry}"
 
 
 class TestRegionalRuleValidation:
@@ -166,6 +160,7 @@ class TestRegionalRuleValidation:
     def teardown_method(self):
         """Clean up test fixtures."""
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_a1_region_validation(self):
@@ -221,6 +216,7 @@ class TestRegionalRuleValidation:
 
         for code, module_path, class_name in region_classes:
             import importlib
+
             mod = importlib.import_module(module_path)
             cls = getattr(mod, class_name)
             processor = cls()
@@ -260,6 +256,7 @@ class TestRegionalPerformance:
     def teardown_method(self):
         """Clean up test fixtures."""
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_region_detection_performance(self):
@@ -291,8 +288,9 @@ class TestRegionalPerformance:
         total_time = time.time() - start_time
         entries_per_second = len(test_entries) / total_time
 
-        assert entries_per_second > 100, \
-            f"Region detection too slow: {entries_per_second:.1f} entries/second"
+        assert (
+            entries_per_second > 100
+        ), f"Region detection too slow: {entries_per_second:.1f} entries/second"
         assert len(detections) == len(test_entries)
 
         for detection in detections:
@@ -376,8 +374,7 @@ class TestRegionalPerformance:
         final_memory = process.memory_info().rss / 1024 / 1024
         total_memory_growth = final_memory - initial_memory
 
-        assert total_memory_growth < 200, \
-            f"Excessive memory usage: {total_memory_growth}MB"
+        assert total_memory_growth < 200, f"Excessive memory usage: {total_memory_growth}MB"
 
 
 class TestRegionalEdgeCases:
@@ -391,6 +388,7 @@ class TestRegionalEdgeCases:
     def teardown_method(self):
         """Clean up test fixtures."""
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_quarantine_region_handling(self):
@@ -403,8 +401,7 @@ class TestRegionalEdgeCases:
 
         for entry in quarantine_cases:
             detection = self.region_manager.detect_region(entry)
-            assert detection.region_code is not None, \
-                f"No region for quarantine case: {entry}"
+            assert detection.region_code is not None, f"No region for quarantine case: {entry}"
 
     def test_historical_region_handling(self):
         """Test historical names get a region."""
@@ -417,8 +414,9 @@ class TestRegionalEdgeCases:
         for entry in historical_cases:
             entry["CanonicalLatin"] = entry["canonical_name"]
             detection = self.region_manager.detect_region(entry)
-            assert detection.region_code is not None, \
-                f"No region for historical name: {entry['canonical_name']}"
+            assert (
+                detection.region_code is not None
+            ), f"No region for historical name: {entry['canonical_name']}"
 
     def test_diaspora_region_handling(self):
         """Test names with multiple countries get a region."""
@@ -437,10 +435,12 @@ class TestRegionalEdgeCases:
 
         for entry in diaspora_cases:
             detection = self.region_manager.detect_region(entry)
-            assert detection.region_code is not None, \
-                f"No region for diaspora case: {entry['canonical_name']}"
-            assert detection.confidence > 0, \
-                f"Zero confidence for diaspora case: {entry['canonical_name']}"
+            assert (
+                detection.region_code is not None
+            ), f"No region for diaspora case: {entry['canonical_name']}"
+            assert (
+                detection.confidence > 0
+            ), f"Zero confidence for diaspora case: {entry['canonical_name']}"
 
 
 if __name__ == "__main__":

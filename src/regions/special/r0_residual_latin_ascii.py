@@ -34,13 +34,23 @@ class R0ResidualLatinASCII(RegionSpec):
             scripts=["Latin"],
             mixed_scripts=False,
             canonical_order="Family, Given",
-            romanisation_standards=[]
+            romanisation_standards=[],
         )
 
         # Minimal title set (only universally recognised ones)
         self.titles = {
-            "Dr", "Dr.", "Prof", "Prof.", "Professor",
-            "Mr", "Mr.", "Mrs", "Mrs.", "Ms", "Ms.", "Miss",
+            "Dr",
+            "Dr.",
+            "Prof",
+            "Prof.",
+            "Professor",
+            "Mr",
+            "Mr.",
+            "Mrs",
+            "Mrs.",
+            "Ms",
+            "Ms.",
+            "Miss",
         }
 
         # Universal particles (only the very common ones)
@@ -138,10 +148,12 @@ class R0ResidualLatinASCII(RegionSpec):
 
         # Order-swap variant
         if family and given:
-            variants.append({
-                "str": f"{given} {family}",
-                "type": "order-swap",
-            })
+            variants.append(
+                {
+                    "str": f"{given} {family}",
+                    "type": "order-swap",
+                }
+            )
 
         entry["RegionCode"] = self.code
 
@@ -229,9 +241,7 @@ class R0ResidualLatinASCII(RegionSpec):
     def _strip_particles(self, family: str) -> str:
         """Remove particles from family name."""
         words = family.split()
-        return " ".join(
-            w for w in words if w.lower().rstrip(",") not in self.particles
-        )
+        return " ".join(w for w in words if w.lower().rstrip(",") not in self.particles)
 
     def _remove_diacritics(self, text: str) -> str:
         """Strip diacritics, keeping base Latin letters."""

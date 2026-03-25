@@ -24,6 +24,7 @@ import src.api.server as srv
 # (e.g. Python 3.9 where `int | None` syntax is unsupported).
 # ---------------------------------------------------------------------------
 
+
 class _FakePipelineMode(Enum):
     QUICK = "quick"
     FULL = "full"
@@ -75,6 +76,7 @@ def paid_client():
 # Health / readiness
 # ---------------------------------------------------------------------------
 
+
 class TestHealthEndpoints:
     def test_healthz_returns_200(self, client):
         r = client.get("/healthz")
@@ -96,6 +98,7 @@ class TestHealthEndpoints:
 # Metrics
 # ---------------------------------------------------------------------------
 
+
 class TestMetrics:
     def test_metrics_returns_prometheus(self, client):
         r = client.get("/metrics")
@@ -107,6 +110,7 @@ class TestMetrics:
 # ---------------------------------------------------------------------------
 # Query endpoint (paid tier — Bearer token)
 # ---------------------------------------------------------------------------
+
 
 class TestQueryEndpoint:
     def test_query_with_valid_token(self, paid_client):
@@ -133,6 +137,7 @@ class TestQueryEndpoint:
 # ---------------------------------------------------------------------------
 # Process endpoint
 # ---------------------------------------------------------------------------
+
 
 class TestProcessEndpoint:
     _TWO_ENTRIES = [
@@ -194,6 +199,7 @@ class TestProcessEndpoint:
 # Error handling
 # ---------------------------------------------------------------------------
 
+
 class TestErrorHandling:
     def test_error_does_not_leak_internals(self, paid_client):
         """A server-side crash should return a generic message, not a traceback."""
@@ -206,12 +212,13 @@ class TestErrorHandling:
         detail = body.get("detail", "")
         # Should not contain Python traceback markers
         assert "Traceback" not in detail
-        assert "File \"" not in detail
+        assert 'File "' not in detail
 
 
 # ---------------------------------------------------------------------------
 # CORS
 # ---------------------------------------------------------------------------
+
 
 class TestCORS:
     def test_cors_headers_present(self, client):
@@ -229,6 +236,7 @@ class TestCORS:
 # ---------------------------------------------------------------------------
 # Request ID
 # ---------------------------------------------------------------------------
+
 
 class TestRequestID:
     def test_request_id_header_returned(self, client):

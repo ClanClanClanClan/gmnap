@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 import logging
 import os, pathlib, time, zipfile
@@ -6,6 +5,7 @@ from typing import Optional
 from .metrics import ARCHIVE_UPLOADS_SUCCEEDED, ARCHIVE_UPLOADS_FAILED
 
 logger = logging.getLogger(__name__)
+
 
 def zip_dir(src_dir: str, out_zip: str) -> str:
     p = pathlib.Path(src_dir)
@@ -16,7 +16,10 @@ def zip_dir(src_dir: str, out_zip: str) -> str:
                 zf.write(path, path.relative_to(p))
     return out_zip
 
-def archive_snapshot(snapshot_dir: str, target_dir: Optional[str] = None, method: str = "local_zip") -> str:
+
+def archive_snapshot(
+    snapshot_dir: str, target_dir: Optional[str] = None, method: str = "local_zip"
+) -> str:
     """
     Archive a snapshot directory. Default: create a local zip under `archive/`.
     If method == "sftp" and paramiko available, supports SFTP upload (best-effort).
@@ -38,7 +41,10 @@ def archive_snapshot(snapshot_dir: str, target_dir: Optional[str] = None, method
     if method == "sftp":
         try:
             import paramiko  # type: ignore
-            host = os.getenv("SFTP_HOST"); user = os.getenv("SFTP_USER"); pw = os.getenv("SFTP_PASSWORD")
+
+            host = os.getenv("SFTP_HOST")
+            user = os.getenv("SFTP_USER")
+            pw = os.getenv("SFTP_PASSWORD")
             remote_dir = os.getenv("SFTP_PATH", "/")
             if not all([host, user, pw]):
                 return artifact
@@ -46,17 +52,23 @@ def archive_snapshot(snapshot_dir: str, target_dir: Optional[str] = None, method
             transport.connect(username=user, password=pw)
             sftp = paramiko.SFTPClient.from_transport(transport)
             try:
-                try: sftp.chdir(remote_dir)
+                try:
+                    sftp.chdir(remote_dir)
                 except IOError:
-                    sftp.mkdir(remote_dir); sftp.chdir(remote_dir)
+                    sftp.mkdir(remote_dir)
+                    sftp.chdir(remote_dir)
                 remote_path = f"{remote_dir.rstrip('/')}/{snap_name}.zip"
                 sftp.put(artifact, remote_path)
                 return f"sftp://{host}{remote_path}"
             finally:
-                try: sftp.close()
-                except Exception: pass
-                try: transport.close()
-                except Exception: pass
+                try:
+                    sftp.close()
+                except Exception:
+                    pass
+                try:
+                    transport.close()
+                except Exception:
+                    pass
         except Exception:
             return artifact
 

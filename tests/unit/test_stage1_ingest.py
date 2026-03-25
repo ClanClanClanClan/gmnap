@@ -1,4 +1,5 @@
 """Unit tests for Stage 1: Ingest + Unicode normalisation."""
+
 import pytest
 from src.pipeline.stage1_ingest import ingest_entries
 

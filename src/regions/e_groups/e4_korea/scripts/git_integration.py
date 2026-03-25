@@ -15,8 +15,7 @@ def run_command(cmd, check=True, capture_output=True):
     """Run shell command with proper error handling"""
     try:
         result = subprocess.run(
-            cmd, shell=True, check=check, 
-            capture_output=capture_output, text=True
+            cmd, shell=True, check=check, capture_output=capture_output, text=True
         )
         return result
     except subprocess.CalledProcessError as e:
@@ -29,28 +28,28 @@ def create_green_tag():
     """Create immutable green baseline tag"""
     # Get current performance
     try:
-        math_result = subprocess.run([
-            'python3', 'scripts/validate.py'
-        ], capture_output=True, text=True, timeout=60)
-        
-        math_line = math_result.stdout.split('\n')[0] if math_result.stdout else "Unknown"
-        
+        math_result = subprocess.run(
+            ["python3", "scripts/validate.py"], capture_output=True, text=True, timeout=60
+        )
+
+        math_line = math_result.stdout.split("\n")[0] if math_result.stdout else "Unknown"
+
         # Get git info
         commit = run_command("git rev-parse --short HEAD").stdout.strip()
         timestamp = datetime.now().strftime("%Y-%m-%d")
-        
+
         # Create tag
         tag_name = f"krp-green-{timestamp}"
         tag_message = f"Green baseline: {math_line} (commit {commit})"
-        
+
         result = run_command(f'git tag -a {tag_name} -m "{tag_message}"')
-        
+
         print(f"🏷️  Created tag: {tag_name}")
         print(f"📊 Performance: {math_line}")
         print(f"💡 Commit: {commit}")
-        
+
         return tag_name
-        
+
     except Exception as e:
         print(f"❌ Failed to create green tag: {e}")
         return None
@@ -58,8 +57,8 @@ def create_green_tag():
 
 def install_pre_commit_hook():
     """Install production-grade pre-commit hook"""
-    
-    hook_content = '''#!/bin/bash
+
+    hook_content = """#!/bin/bash
 # Production pre-commit hook for Korean name system
 # Prevents commits that would break regression locks
 
@@ -138,28 +137,28 @@ else
 fi
 
 echo "🎯 Pre-commit validation complete"
-'''
-    
+"""
+
     hook_path = Path(".git/hooks/pre-commit")
-    
+
     # Ensure hooks directory exists
     hook_path.parent.mkdir(exist_ok=True)
-    
+
     # Write hook
     hook_path.write_text(hook_content)
     hook_path.chmod(0o755)  # Make executable
-    
+
     print("🪝 Pre-commit hook installed")
     print("   Location: .git/hooks/pre-commit")
     print("   All commits will now be validated automatically")
-    
+
     return True
 
 
 def setup_ci_workflow():
     """Create GitHub Actions workflow for CI/CD"""
-    
-    workflow_content = '''name: Korean Name System CI
+
+    workflow_content = """name: Korean Name System CI
 
 on:
   push:
@@ -265,25 +264,25 @@ if max_memory > 2048:  # 2GB limit
 else:
     print(f'✅ Memory usage within limits: {max_memory:.1f} MB <= 2048 MB')
 "
-'''
-    
+"""
+
     workflow_dir = Path(".github/workflows")
     workflow_dir.mkdir(parents=True, exist_ok=True)
-    
+
     workflow_path = workflow_dir / "korean-validation.yml"
     workflow_path.write_text(workflow_content)
-    
+
     print("🚀 GitHub Actions workflow created")
     print("   Location: .github/workflows/korean-validation.yml")
     print("   Features: Regression validation, performance monitoring, resource limits")
-    
+
     return True
 
 
 def create_release_checklist():
     """Create release checklist for production deployment"""
-    
-    checklist_content = '''# Korean Name System - Production Release Checklist
+
+    checklist_content = """# Korean Name System - Production Release Checklist
 
 ## Pre-Release Validation
 - [ ] `make validate-all` passes (exit code 0)
@@ -339,92 +338,93 @@ make add-weight WEIGHT="fix,fix,-1.0,GN,G"
 - [ ] Update regression locks if new cases added
 - [ ] Archive old performance baselines
 - [ ] Update team documentation
-'''
-    
+"""
+
     checklist_path = Path("RELEASE_CHECKLIST.md")
     checklist_path.write_text(checklist_content)
-    
+
     print("📋 Release checklist created")
     print("   Location: RELEASE_CHECKLIST.md")
-    
+
     return True
 
 
 def setup_non_interactive():
     """Set up git integration without prompts (for make)"""
-    
+
     print("🔧 Setting up Git integration for Korean name system...")
-    
+
     # Check if we're in a git repository
     try:
         run_command("git rev-parse --git-dir")
     except subprocess.CalledProcessError:
         print("❌ Not in a git repository")
         return False
-    
+
     # Install pre-commit hook
     if install_pre_commit_hook():
         print("✅ Pre-commit hook installed")
-    
+
     # Create CI/CD workflow
     if setup_ci_workflow():
         print("✅ GitHub Actions workflow created")
-    
+
     # Create release checklist
     if create_release_checklist():
         print("✅ Release checklist created")
-    
+
     print("\n🎯 Git integration setup complete!")
     print("   • Pre-commit validation enabled")
     print("   • CI/CD workflow ready")
     print("   • Release checklist available")
     print("   • Use 'make tag-green' to create baseline tag")
-    
+
     return True
+
 
 def main():
     """Set up complete git integration"""
-    
+
     # Check for non-interactive mode
     if len(sys.argv) > 1 and sys.argv[1] == "--non-interactive":
         return setup_non_interactive()
-    
+
     print("🔧 Setting up Git integration for Korean name system...")
-    
+
     # Check if we're in a git repository
     try:
         run_command("git rev-parse --git-dir")
     except subprocess.CalledProcessError:
         print("❌ Not in a git repository")
         return False
-    
+
     # Install pre-commit hook
     if install_pre_commit_hook():
         print("✅ Pre-commit hook installed")
-    
+
     # Create CI/CD workflow
     if setup_ci_workflow():
         print("✅ GitHub Actions workflow created")
-    
+
     # Create release checklist
     if create_release_checklist():
         print("✅ Release checklist created")
-    
+
     # Offer to create green tag
     print("\n🏷️  Create green baseline tag? (y/n): ", end="")
     try:
-        if input().lower().startswith('y'):
+        if input().lower().startswith("y"):
             if create_green_tag():
                 print("✅ Green tag created")
     except EOFError:
         print("\n⚠️  Skipping tag creation (non-interactive mode)")
-    
+
     print("\n🎯 Git integration setup complete!")
     print("   • Pre-commit validation enabled")
     print("   • CI/CD workflow ready")
     print("   • Release checklist available")
     print("   • Ready for production deployment")
-    
+
     return True
 
 

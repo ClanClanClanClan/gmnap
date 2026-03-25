@@ -24,9 +24,9 @@ from ..base import RegionRuleError, RegionSpec
 # Script-range helpers
 # ---------------------------------------------------------------------------
 _SCRIPT_RANGES: Dict[str, List[Tuple[int, int]]] = {
-    "Tamil":     [(0x0B80, 0x0BFF)],
-    "Telugu":    [(0x0C00, 0x0C7F)],
-    "Kannada":   [(0x0C80, 0x0CFF)],
+    "Tamil": [(0x0B80, 0x0BFF)],
+    "Telugu": [(0x0C00, 0x0C7F)],
+    "Kannada": [(0x0C80, 0x0CFF)],
     "Malayalam": [(0x0D00, 0x0D7F)],
 }
 
@@ -62,12 +62,24 @@ def _detect_dravidian_script(text: str) -> Optional[str]:
 # ---------------------------------------------------------------------------
 _TITLES = {
     # Common honorifics (Latin transliterations)
-    "Thiru", "Thirumathi", "Selvi", "Selvan",
-    "Sri", "Shri", "Smt", "Smt.", "Kumari",
-    "Dr", "Dr.", "Prof", "Prof.", "Er", "Er.",
+    "Thiru",
+    "Thirumathi",
+    "Selvi",
+    "Selvan",
+    "Sri",
+    "Shri",
+    "Smt",
+    "Smt.",
+    "Kumari",
+    "Dr",
+    "Dr.",
+    "Prof",
+    "Prof.",
+    "Er",
+    "Er.",
     # Tamil script titles
-    "\u0BA4\u0BBF\u0BB0\u0BC1",           # Thiru
-    "\u0BA4\u0BBF\u0BB0\u0BC1\u0BAE\u0BA4\u0BBF",  # Thirumathi
+    "\u0ba4\u0bbf\u0bb0\u0bc1",  # Thiru
+    "\u0ba4\u0bbf\u0bb0\u0bc1\u0bae\u0ba4\u0bbf",  # Thirumathi
 }
 
 # Patronymic initial pattern: single uppercase letter followed by a dot
@@ -76,15 +88,41 @@ _INITIAL_RE = re.compile(r"^([A-Z])\.\s*")
 # Common Dravidian caste / community suffixes (Latin)
 _CASTE_SUFFIXES = {
     # Tamil
-    "Pillai", "Mudaliar", "Nadar", "Gounder", "Thevar", "Naicker",
-    "Nair", "Naidu", "Chettiar", "Iyer", "Iyengar", "Mudali",
+    "Pillai",
+    "Mudaliar",
+    "Nadar",
+    "Gounder",
+    "Thevar",
+    "Naicker",
+    "Nair",
+    "Naidu",
+    "Chettiar",
+    "Iyer",
+    "Iyengar",
+    "Mudali",
     # Telugu
-    "Reddy", "Rao", "Naidu", "Raju", "Setty", "Chetty",
+    "Reddy",
+    "Rao",
+    "Naidu",
+    "Raju",
+    "Setty",
+    "Chetty",
     # Kannada
-    "Gowda", "Shetty", "Hegde", "Bhat", "Acharya",
+    "Gowda",
+    "Shetty",
+    "Hegde",
+    "Bhat",
+    "Acharya",
     # Malayalam
-    "Nair", "Menon", "Nambiar", "Kurup", "Pillai", "Warrier",
-    "Namboothiri", "Nambudiri", "Panicker",
+    "Nair",
+    "Menon",
+    "Nambiar",
+    "Kurup",
+    "Pillai",
+    "Warrier",
+    "Namboothiri",
+    "Nambudiri",
+    "Panicker",
 }
 
 # Lowercase versions for matching
@@ -92,10 +130,26 @@ _CASTE_SUFFIXES_LOWER = {s.lower() for s in _CASTE_SUFFIXES}
 
 # Common Dravidian given names for validation heuristic
 _COMMON_GIVEN = {
-    "Ramanujan", "Srinivasa", "Venkatesh", "Subramaniam",
-    "Krishnamurthy", "Raghavan", "Lakshmi", "Meenakshi",
-    "Anand", "Arun", "Balaji", "Ganesh", "Hari", "Karthik",
-    "Mohan", "Nandini", "Priya", "Ravi", "Selvam", "Vimal",
+    "Ramanujan",
+    "Srinivasa",
+    "Venkatesh",
+    "Subramaniam",
+    "Krishnamurthy",
+    "Raghavan",
+    "Lakshmi",
+    "Meenakshi",
+    "Anand",
+    "Arun",
+    "Balaji",
+    "Ganesh",
+    "Hari",
+    "Karthik",
+    "Mohan",
+    "Nandini",
+    "Priya",
+    "Ravi",
+    "Selvam",
+    "Vimal",
 }
 
 
@@ -177,10 +231,7 @@ class D2SouthAsiaDravidian(RegionSpec):
     # ------------------------------------------------------------------
     def augment(self, entry: Dict[str, Any]) -> None:
         """Augment entry with D2-specific data (in-place)."""
-        canonical = (
-            entry.get("CanonicalLatin", "")
-            or entry.get("CanonicalNative", "")
-        )
+        canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
         if not canonical:
             return
 
@@ -213,9 +264,7 @@ class D2SouthAsiaDravidian(RegionSpec):
             extras["has_caste_suffix"] = False
 
         # Flag mononym (traditional Tamil -- no family name)
-        extras["is_mononym"] = (
-            bool(comps.get("given_name")) and not comps.get("family_name")
-        )
+        extras["is_mononym"] = bool(comps.get("given_name")) and not comps.get("family_name")
 
         # Build synthesised variants
         if "Variants" not in entry:
@@ -249,7 +298,7 @@ class D2SouthAsiaDravidian(RegionSpec):
         m = _INITIAL_RE.match(name)
         if m:
             comps["patronymic_initial"] = m.group(1)
-            rest = name[m.end():].strip()
+            rest = name[m.end() :].strip()
         else:
             rest = name
 
@@ -291,22 +340,15 @@ class D2SouthAsiaDravidian(RegionSpec):
         # If native text is present it must belong to a Dravidian script (or Latin)
         if canon_native:
             is_dravidian = _has_any_dravidian(canon_native)
-            is_latin = all(
-                c.isascii() or c in " -'.,"
-                for c in canon_native
-                if not c.isspace()
-            )
+            is_latin = all(c.isascii() or c in " -'.," for c in canon_native if not c.isspace())
             if not is_dravidian and not is_latin:
                 raise RegionRuleError(
-                    f"D2: CanonicalNative contains non-Dravidian script: "
-                    f"{canon_native!r}"
+                    f"D2: CanonicalNative contains non-Dravidian script: " f"{canon_native!r}"
                 )
 
         # Latin canonical should not contain Dravidian code-points
         if canon_latin and _has_any_dravidian(canon_latin):
-            raise RegionRuleError(
-                "D2: CanonicalLatin must not contain Dravidian script characters"
-            )
+            raise RegionRuleError("D2: CanonicalLatin must not contain Dravidian script characters")
 
         # Minimum length
         effective = canon_latin or canon_native
@@ -315,9 +357,7 @@ class D2SouthAsiaDravidian(RegionSpec):
 
         # Validate characters in Latin form
         if canon_latin and not self._valid_latin_chars(canon_latin):
-            raise RegionRuleError(
-                f"D2: invalid characters in CanonicalLatin: {canon_latin!r}"
-            )
+            raise RegionRuleError(f"D2: invalid characters in CanonicalLatin: {canon_latin!r}")
 
     @staticmethod
     def _valid_latin_chars(text: str) -> bool:

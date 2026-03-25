@@ -1,4 +1,5 @@
 """GMNAP V7 CLI - Global Mathematician-Name Authority Project."""
+
 from __future__ import annotations
 
 import asyncio
@@ -99,16 +100,18 @@ def lineage(gid: str, depth: int, fmt: str):
         try:
             import subprocess
 
-            proc = subprocess.run(
-                ["dot", "-Tsvg"], input=dot, capture_output=True, text=True
-            )
+            proc = subprocess.run(["dot", "-Tsvg"], input=dot, capture_output=True, text=True)
             if proc.returncode == 0:
                 click.echo(proc.stdout)
             else:
-                click.echo("Error: graphviz 'dot' failed. Install graphviz or use --format dot", err=True)
+                click.echo(
+                    "Error: graphviz 'dot' failed. Install graphviz or use --format dot", err=True
+                )
                 click.echo(dot)
         except FileNotFoundError:
-            click.echo("Error: graphviz not installed. Use --format dot for raw DOT output.", err=True)
+            click.echo(
+                "Error: graphviz not installed. Use --format dot for raw DOT output.", err=True
+            )
             click.echo(dot)
 
 
@@ -117,8 +120,11 @@ def lineage(gid: str, depth: int, fmt: str):
 @click.option("--mode", default="quick", type=click.Choice(["quick", "full", "extreme"]))
 @click.option("--output", "-o", default="out/", help="Output directory")
 @click.option("--drop-personal", is_flag=True, help="GDPR: replace personal data with ShadowNodes")
-@click.option("--force-extreme", is_flag=True,
-              help="Enable tier-3 sources (GoogleScholar). Requires YES_I_ACCEPT_GS_TOS=yes")
+@click.option(
+    "--force-extreme",
+    is_flag=True,
+    help="Enable tier-3 sources (GoogleScholar). Requires YES_I_ACCEPT_GS_TOS=yes",
+)
 def process(input_file: str, mode: str, output: str, drop_personal: bool, force_extreme: bool):
     """Run V7 pipeline on an input file (JSON or YAML)."""
     import os
@@ -157,8 +163,18 @@ def sources():
 
     tiers = {
         0: [("OpenAlex", "CC0"), ("Crossref", "CC0"), ("ORCID", "CC0"), ("Crossref_Thesis", "CC0")],
-        1: [("Wikidata_P184", "CC0"), ("OAI_University", "CC-BY"), ("HAL", "CC-BY"), ("GND", "CC0"), ("zbMATH_Open", "CC-BY")],
-        2: [("MathSciNet", "Subscription"), ("Scopus", "Elsevier"), ("Dimensions", "DigitalScience")],
+        1: [
+            ("Wikidata_P184", "CC0"),
+            ("OAI_University", "CC-BY"),
+            ("HAL", "CC-BY"),
+            ("GND", "CC0"),
+            ("zbMATH_Open", "CC-BY"),
+        ],
+        2: [
+            ("MathSciNet", "Subscription"),
+            ("Scopus", "Elsevier"),
+            ("Dimensions", "DigitalScience"),
+        ],
         3: [("ProQuest", "Commercial"), ("GoogleScholar", "ToS")],
     }
     for tier, srcs in tiers.items():
@@ -184,8 +200,12 @@ def regions():
 
 @cli.command()
 @click.argument("input_file", type=click.Path(exists=True))
-@click.option("--schema-strict", default=0, type=click.IntRange(0, 2),
-              help="Schema strict mode: 0=advisory, 1=quarantine, 2=reject")
+@click.option(
+    "--schema-strict",
+    default=0,
+    type=click.IntRange(0, 2),
+    help="Schema strict mode: 0=advisory, 1=quarantine, 2=reject",
+)
 @click.option("--json-output", "as_json", is_flag=True, help="Output raw JSON")
 def validate(input_file: str, schema_strict: int, as_json: bool):
     """Validate an input file against the GMNAP v2.0 schema (no pipeline run)."""
@@ -215,13 +235,19 @@ def validate(input_file: str, schema_strict: int, as_json: bool):
             all_errors.append({"entry": name, "errors": errors})
 
     if as_json:
-        click.echo(json.dumps({
-            "total": total,
-            "valid": total - errors_found,
-            "invalid": errors_found,
-            "schema_strict": schema_strict,
-            "errors": all_errors,
-        }, indent=2, ensure_ascii=False))
+        click.echo(
+            json.dumps(
+                {
+                    "total": total,
+                    "valid": total - errors_found,
+                    "invalid": errors_found,
+                    "schema_strict": schema_strict,
+                    "errors": all_errors,
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
     else:
         click.echo(f"Validated {total} entries against schema v2.0")
         click.echo(f"  Valid:   {total - errors_found}")
@@ -283,11 +309,17 @@ async def _run_pipeline(entries: list, mode: str, output_dir: str):
     """Run V7 pipeline."""
     from src.core.pipeline_v7 import V7Pipeline, PipelineMode
 
-    mode_map = {"quick": PipelineMode.QUICK, "full": PipelineMode.FULL, "extreme": PipelineMode.EXTREME}
+    mode_map = {
+        "quick": PipelineMode.QUICK,
+        "full": PipelineMode.FULL,
+        "extreme": PipelineMode.EXTREME,
+    }
     pipeline = V7Pipeline(mode=mode_map[mode])
     result = await pipeline.process_batch(entries)
     entry_count = len(result.get("entries", [])) if isinstance(result, dict) else len(result)
-    passed = result.get("quality_gates", {}).get("passed", "N/A") if isinstance(result, dict) else "N/A"
+    passed = (
+        result.get("quality_gates", {}).get("passed", "N/A") if isinstance(result, dict) else "N/A"
+    )
     click.echo(f"Processed {entry_count} entries. Quality gates: {passed}. Output in {output_dir}/")
 
 
@@ -328,7 +360,11 @@ def _traverse_local(gid: str, depth: int, out_dir: Path, edges: list, visited: s
 
 def _edges_to_dot(root: str, edges: list) -> str:
     """Convert edge list to Graphviz DOT format."""
-    lines = ["digraph lineage {", '  rankdir=BT;', f'  "{root}" [style=filled, fillcolor=lightblue];']
+    lines = [
+        "digraph lineage {",
+        "  rankdir=BT;",
+        f'  "{root}" [style=filled, fillcolor=lightblue];',
+    ]
     for e in edges:
         lines.append(f'  "{e["from"]}" -> "{e["to"]}" [label="{e.get("relation", "")}"];')
     lines.append("}")

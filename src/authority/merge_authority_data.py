@@ -1,12 +1,22 @@
-
 from __future__ import annotations
 from typing import Dict, Any, List
 from .policy import ConflictPolicy
 
-ARRAY_FIELDS = {"Advisors", "Students", "Publications", "AlternativeLatin", "AlternativeNative", "NameEvents", "AffiliationTimeline"}
+ARRAY_FIELDS = {
+    "Advisors",
+    "Students",
+    "Publications",
+    "AlternativeLatin",
+    "AlternativeNative",
+    "NameEvents",
+    "AffiliationTimeline",
+}
 SCALAR_PRIORITY = {"BirthYear", "DeathYear", "DegreeDate"}
 
-def merge_authority_fragments(fragments: List[Dict[str, Any]], policy: ConflictPolicy | None = None) -> Dict[str, Any]:
+
+def merge_authority_fragments(
+    fragments: List[Dict[str, Any]], policy: ConflictPolicy | None = None
+) -> Dict[str, Any]:
     policy = policy or ConflictPolicy.load()
     merged: Dict[str, Any] = {}
     # build field→source map
@@ -14,7 +24,7 @@ def merge_authority_fragments(fragments: List[Dict[str, Any]], policy: ConflictP
     for frag in fragments:
         src = (frag.get("_source") or {}).get("service", "Unknown")
         for k, v in frag.items():
-            if k == "_source": 
+            if k == "_source":
                 continue
             field_sources.setdefault(k, {})[src] = v
     for field, by_src in field_sources.items():
@@ -22,7 +32,7 @@ def merge_authority_fragments(fragments: List[Dict[str, Any]], policy: ConflictP
             # union with stable ordering (handles both hashable and unhashable items)
             out = []
             for src, arr in sorted(by_src.items(), key=lambda kv: kv[0]):
-                for x in (arr or []):
+                for x in arr or []:
                     if x not in out:
                         out.append(x)
             merged[field] = out
@@ -31,7 +41,8 @@ def merge_authority_fragments(fragments: List[Dict[str, Any]], policy: ConflictP
             merged[field] = by_src[choice]
         else:
             # weighted pick if present, else max length
-            best = None; best_w = -1.0
+            best = None
+            best_w = -1.0
             for src, val in by_src.items():
                 w = policy.weights.get(src, 0.0)
                 if w > best_w:

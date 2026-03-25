@@ -1,4 +1,5 @@
 """Unit tests for Stage 11: Idempotency Check."""
+
 import pytest
 import tempfile
 from src.pipeline.stage11_idempotency_check import idempotency_check
@@ -11,17 +12,12 @@ class TestIdempotencyCheck:
             {"GlobalID": "BBB", "CanonicalLatin": "Gauss, Carl"},
         ]
         with tempfile.TemporaryDirectory() as td:
-            result, metrics = idempotency_check(
-                batch, snapshot_dir=td, mode="self", strict=False
-            )
+            result, metrics = idempotency_check(batch, snapshot_dir=td, mode="self", strict=False)
             assert metrics["idempotency_diff_bytes"] == 0.0
             assert metrics["idempotency_mode"] == "self"
 
     def test_shuffled_mode(self):
-        batch = [
-            {"GlobalID": f"ID{i}", "CanonicalLatin": f"Name{i}, Given{i}"}
-            for i in range(10)
-        ]
+        batch = [{"GlobalID": f"ID{i}", "CanonicalLatin": f"Name{i}, Given{i}"} for i in range(10)]
         with tempfile.TemporaryDirectory() as td:
             result, metrics = idempotency_check(
                 batch, snapshot_dir=td, mode="shuffled", strict=False
@@ -32,9 +28,7 @@ class TestIdempotencyCheck:
 
     def test_empty_batch(self):
         with tempfile.TemporaryDirectory() as td:
-            result, metrics = idempotency_check(
-                [], snapshot_dir=td, mode="self", strict=False
-            )
+            result, metrics = idempotency_check([], snapshot_dir=td, mode="self", strict=False)
             assert metrics["idempotency_diff_bytes"] == 0.0
 
     def test_strict_mode_raises_on_diff(self, monkeypatch):

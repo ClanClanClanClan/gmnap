@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 from typing import Dict, Any, List
 import asyncio
@@ -98,9 +97,7 @@ async def enrich_all(
 
     merged = merge_authority_fragments(fragments, None)
     merged["_sources"] = [
-        f.get("_source", {}).get("service")
-        for f in fragments
-        if f.get("_source", {}).get("hit")
+        f.get("_source", {}).get("service") for f in fragments if f.get("_source", {}).get("hit")
     ]
 
     # Synthesize AffiliationTimeline from Institution + country data
@@ -108,7 +105,9 @@ async def enrich_all(
     if "Institution" in merged and "AffiliationTimeline" not in merged:
         cc = merged.get("InstitutionCountry", "")
         if cc:
-            insts = merged.get("_InstitutionAll") or ([merged["Institution"]] if isinstance(merged.get("Institution"), str) else [])
+            insts = merged.get("_InstitutionAll") or (
+                [merged["Institution"]] if isinstance(merged.get("Institution"), str) else []
+            )
             timeline = [{"institution": inst, "country": cc} for inst in insts if inst]
             if timeline:
                 merged["AffiliationTimeline"] = timeline
@@ -117,7 +116,9 @@ async def enrich_all(
     if "AlternativeLatin" in merged:
         alts = merged.pop("AlternativeLatin", [])
         canonical = entry.get("CanonicalLatin", "")
-        synth = [{"str": alt, "type": "authority-alias"} for alt in alts if alt and alt != canonical]
+        synth = [
+            {"str": alt, "type": "authority-alias"} for alt in alts if alt and alt != canonical
+        ]
         if synth:
             merged.setdefault("Variants", {}).setdefault("Synthesised", []).extend(synth)
 

@@ -1,29 +1,45 @@
-
 from __future__ import annotations
 from typing import Any, Dict, List
 import json
 
 _VOLATILE_KEYS = {
-    "ProcessedAt", "ProcessingLatencyMs", "_trace_id", "_debug", "_meta", "_runtime",
-    "ETDText"  # raw text not part of canonical output
+    "ProcessedAt",
+    "ProcessingLatencyMs",
+    "_trace_id",
+    "_debug",
+    "_meta",
+    "_runtime",
+    "ETDText",  # raw text not part of canonical output
 }
 
 # Arrays whose order is not semantically meaningful -> sort deterministically
 _SET_ARRAY_FIELDS = {
-    "AlternativeLatin", "AlternativeNative", "Institution", "Advisors", "Students",
-    "Collaborators", "Publications", "Subfield", "Awards"
+    "AlternativeLatin",
+    "AlternativeNative",
+    "Institution",
+    "Advisors",
+    "Students",
+    "Collaborators",
+    "Publications",
+    "Subfield",
+    "Awards",
 }
+
 
 def scrub_volatiles(entry: Dict[str, Any]) -> Dict[str, Any]:
     return {k: v for k, v in entry.items() if k not in _VOLATILE_KEYS}
 
+
 def _sort_key_for_value(v: Any) -> str:
     try:
-        if isinstance(v, (int, float)): return f"#{v}"
-        if isinstance(v, str): return v
+        if isinstance(v, (int, float)):
+            return f"#{v}"
+        if isinstance(v, str):
+            return v
         return json.dumps(v, sort_keys=True, ensure_ascii=False)
     except Exception:
         return str(v)
+
 
 def canonicalise_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
     """Return a deep-copy with sorted keys and set-arrays deterministically ordered."""
@@ -47,16 +63,21 @@ def canonicalise_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
 
     return canon(e)
 
+
 def to_canonical_bytes(batch: List[Dict[str, Any]]) -> bytes:
     """Stable bytes for idempotency / diff, with per-entry canonicalisation and batch sort."""
     canon = [canonicalise_entry(e) for e in batch]
     canon_sorted = sorted(canon, key=lambda e: (e.get("GlobalID", ""), e.get("Source", "")))
-    return json.dumps(canon_sorted, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return json.dumps(
+        canon_sorted, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+
 
 def dump_yaml_deterministic(data: Any) -> str:
     """Dump YAML with stable formatting (no anchors, fixed indentation, sorted keys assumed)."""
     try:
         from ruamel.yaml import YAML
+
         y = YAML()
         y.indent(mapping=2, sequence=2, offset=0)
         y.explicit_start = False
@@ -64,6 +85,7 @@ def dump_yaml_deterministic(data: Any) -> str:
         y.allow_unicode = True
         y.width = 1000000
         from io import StringIO
+
         buf = StringIO()
         y.dump(data, buf)
         text = buf.getvalue()
@@ -72,4 +94,5 @@ def dump_yaml_deterministic(data: Any) -> str:
         return text
     except ImportError:
         import yaml
+
         return yaml.dump(data, default_flow_style=False, allow_unicode=True, sort_keys=True)

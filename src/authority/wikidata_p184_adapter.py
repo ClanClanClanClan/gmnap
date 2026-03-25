@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 import os
 from typing import Dict, Any
@@ -13,6 +12,7 @@ class WikidataP184Adapter:
     Endpoint: query.wikidata.org/sparql
     Returns: advisor/student QIDs, birth/death years, ORCID.
     """
+
     name = "Wikidata_P184"
 
     def __init__(self, cfg: Dict[str, Any] = None):
@@ -51,10 +51,13 @@ WHERE {{
         try:
             if self.ctx.http:
                 r = await self.ctx.http.get(
-                    url, timeout=20.0,
+                    url,
+                    timeout=20.0,
                     params={"query": sparql, "format": "json"},
-                    headers={"Accept": "application/sparql-results+json",
-                             "User-Agent": "GMNAP/7.0 (mailto:gmnap@example.com)"},
+                    headers={
+                        "Accept": "application/sparql-results+json",
+                        "User-Agent": "GMNAP/7.0 (mailto:gmnap@example.com)",
+                    },
                 )
                 if r.status_code == 200:
                     data = r.json()

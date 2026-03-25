@@ -33,7 +33,7 @@ class Z0Quarantine(RegionSpec):
             scripts=["Latin"],
             mixed_scripts=True,  # Accept any script
             canonical_order="Family, Given",
-            romanisation_standards=[]
+            romanisation_standards=[],
         )
 
         # Quarantine thresholds
@@ -71,8 +71,7 @@ class Z0Quarantine(RegionSpec):
         text = unicodedata.normalize("NFC", text)
         # Remove control characters (except newline, tab)
         text = "".join(
-            c for c in text
-            if not unicodedata.category(c).startswith("C") or c in "\t\n"
+            c for c in text if not unicodedata.category(c).startswith("C") or c in "\t\n"
         )
         # Collapse whitespace
         text = re.sub(r"\s+", " ", text.strip())
@@ -114,9 +113,7 @@ class Z0Quarantine(RegionSpec):
         reasons: List[str] = []
         detection_conf = entry.get("DetectionConfidence", 0.0)
         if detection_conf < self.confidence_threshold:
-            reasons.append(
-                f"low-confidence ({detection_conf:.2f} < {self.confidence_threshold})"
-            )
+            reasons.append(f"low-confidence ({detection_conf:.2f} < {self.confidence_threshold})")
 
         # Check for mixed scripts (possible ambiguity)
         scripts_detected = self._detect_scripts(canonical)
@@ -149,9 +146,7 @@ class Z0Quarantine(RegionSpec):
         native = entry.get("CanonicalNative", "")
 
         if not canonical and not native:
-            raise RegionRuleError(
-                "Quarantine entry must have CanonicalLatin or CanonicalNative"
-            )
+            raise RegionRuleError("Quarantine entry must have CanonicalLatin or CanonicalNative")
 
         # Accept anything with content -- the point of quarantine is to
         # preserve data that other processors could not handle.
@@ -168,11 +163,7 @@ class Z0Quarantine(RegionSpec):
         given = extras.get("given_name", "")
 
         if not family and not given:
-            canonical = (
-                entry.get("CanonicalLatin", "")
-                or entry.get("CanonicalNative", "")
-                or ""
-            )
+            canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "") or ""
             family, given = self._split_canonical(canonical)
 
         sort_family = self._ascii_fold(family).upper()

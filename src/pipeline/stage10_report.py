@@ -1,4 +1,5 @@
 """Stage 10: Report - Markdown metrics, DOI draft, push snapshot to archive."""
+
 from __future__ import annotations
 import os, json, pathlib, hashlib, datetime, logging
 from collections import Counter
@@ -35,29 +36,39 @@ def _list_authorities(batch: List[Dict[str, Any]]) -> Dict[str, int]:
     return dict(sorted(c.items(), key=lambda kv: (-kv[1], kv[0])))
 
 
-def _build_doi_draft(run_hash: str, snapshot_dir: str, batch: List[Dict[str, Any]],
-                     shoulder: str = "10.3929/ethz-lineage") -> Dict[str, Any]:
+def _build_doi_draft(
+    run_hash: str,
+    snapshot_dir: str,
+    batch: List[Dict[str, Any]],
+    shoulder: str = "10.3929/ethz-lineage",
+) -> Dict[str, Any]:
     """Build DataCite DOI draft metadata."""
     now = datetime.datetime.now(datetime.timezone.utc)
     return {
         "doi": f"{shoulder}/{run_hash}",
-        "creators": [{
-            "nameType": "Organizational",
-            "name": "ETH Zurich - Global Name Authority Project (MathLineage)"
-        }],
-        "titles": [{
-            "title": f"MathLineage snapshot {now.date().isoformat()} (run {run_hash})"
-        }],
+        "creators": [
+            {
+                "nameType": "Organizational",
+                "name": "ETH Zurich - Global Name Authority Project (MathLineage)",
+            }
+        ],
+        "titles": [{"title": f"MathLineage snapshot {now.date().isoformat()} (run {run_hash})"}],
         "publisher": "ETH Zurich",
         "publicationYear": now.year,
         "types": {"resourceTypeGeneral": "Dataset", "resourceType": "Authority snapshot"},
-        "descriptions": [{
-            "descriptionType": "Abstract",
-            "description": "Snapshot of mathematician authority records and genealogy edges produced by the GMNAP V7 pipeline."
-        }],
+        "descriptions": [
+            {
+                "descriptionType": "Abstract",
+                "description": "Snapshot of mathematician authority records and genealogy edges produced by the GMNAP V7 pipeline.",
+            }
+        ],
         "schemaVersion": "http://datacite.org/schema/kernel-4",
-        "rightsList": [{"rights": "CC0 1.0 Universal",
-                        "rightsUri": "https://creativecommons.org/publicdomain/zero/1.0/"}]
+        "rightsList": [
+            {
+                "rights": "CC0 1.0 Universal",
+                "rightsUri": "https://creativecommons.org/publicdomain/zero/1.0/",
+            }
+        ],
     }
 
 
@@ -94,7 +105,9 @@ def _render_markdown_report(context: Dict[str, Any]) -> str:
         lines.append("## Quality Gates")
         for gate, result in context["gates"].items():
             status = "PASS" if result.get("pass") else "FAIL"
-            lines.append(f"- {gate}: {status} (value={result.get('value')}, threshold={result.get('min', result.get('max'))})")
+            lines.append(
+                f"- {gate}: {status} (value={result.get('value')}, threshold={result.get('min', result.get('max'))})"
+            )
 
     if context.get("shortform_top"):
         lines.append("")
@@ -105,9 +118,13 @@ def _render_markdown_report(context: Dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def generate_report(batch: List[Dict[str, Any]], metrics: Dict[str, Any] | None = None,
-                    snapshot_dir: str | None = None, shortform_clusters: Dict[str, int] | None = None,
-                    mode: str = "Quick") -> Tuple[str, Dict[str, Any]]:
+def generate_report(
+    batch: List[Dict[str, Any]],
+    metrics: Dict[str, Any] | None = None,
+    snapshot_dir: str | None = None,
+    shortform_clusters: Dict[str, int] | None = None,
+    mode: str = "Quick",
+) -> Tuple[str, Dict[str, Any]]:
     """
     Stage 10: Generate Markdown report, DOI draft, archive snapshot.
     Returns (report_dir, payload_json).

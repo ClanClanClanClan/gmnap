@@ -1,4 +1,5 @@
 """Integration tests for V7Pipeline across different modes."""
+
 from __future__ import annotations
 
 import asyncio
@@ -38,9 +39,9 @@ async def test_all_modes_produce_valid_output(monkeypatch, tmp_path):
         entries = result["entries"]
         assert len(entries) >= 1, f"Mode {mode.value} returned no entries"
         for entry in entries:
-            assert "GlobalID" in entry, (
-                f"Mode {mode.value}: entry missing GlobalID: {list(entry.keys())}"
-            )
+            assert (
+                "GlobalID" in entry
+            ), f"Mode {mode.value}: entry missing GlobalID: {list(entry.keys())}"
 
 
 @pytest.mark.asyncio

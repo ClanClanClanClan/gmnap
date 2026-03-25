@@ -1,4 +1,5 @@
 """Unit tests for Crossref authority adapter."""
+
 import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock
@@ -11,6 +12,7 @@ def offline_mode(monkeypatch):
 
 def _make_adapter():
     from src.authority.crossref_adapter import CrossrefAdapter
+
     return CrossrefAdapter()
 
 
@@ -33,8 +35,14 @@ class TestCrossrefAdapter:
         mock_r.json.return_value = {
             "message": {
                 "total-results": 5,
-                "items": [{"DOI": "10.1234/test", "author": [{"family": "Euler", "given": "L"}],
-                           "subject": ["Mathematics"], "container-title": ["J. Math"]}],
+                "items": [
+                    {
+                        "DOI": "10.1234/test",
+                        "author": [{"family": "Euler", "given": "L"}],
+                        "subject": ["Mathematics"],
+                        "container-title": ["J. Math"],
+                    }
+                ],
             }
         }
         adapter.ctx.http = AsyncMock()

@@ -3,7 +3,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, 'src')
+sys.path.insert(0, "src")
 
 # Check what FST files exist
 print("FST files in models/:")
@@ -14,7 +14,7 @@ for fst in Path("models").glob("*.fst"):
 import converter
 
 print("\nChecking converter FST attributes:")
-attrs = ['ROM2_SURNAME', 'ROM2_GIVEN', 'HAN2_SURNAME', 'HAN2_GIVEN']
+attrs = ["ROM2_SURNAME", "ROM2_GIVEN", "HAN2_SURNAME", "HAN2_GIVEN"]
 for attr in attrs:
     if hasattr(converter, attr):
         fst = getattr(converter, attr)
@@ -23,7 +23,7 @@ for attr in attrs:
         print(f"  {attr}: NOT FOUND")
 
 # Check if converter has old ROM2HAN attribute
-if hasattr(converter, 'ROM2HAN'):
+if hasattr(converter, "ROM2HAN"):
     print("  ROM2HAN: Found (old style)")
 else:
     print("  ROM2HAN: Not found")
@@ -38,7 +38,7 @@ for name in test_names:
 # Check converter source for FST loading
 print("\nChecking converter.py FST loading code...")
 converter_path = Path("src/converter.py")
-with open(converter_path, 'r') as f:
+with open(converter_path, "r") as f:
     content = f.read()
     if "ROM2_SURNAME" in content:
         print("  ✓ Uses position-specific FSTs (ROM2_SURNAME, etc.)")
