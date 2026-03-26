@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MathLineage — Global Mathematician Name Authority</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>&#x222B;</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav id="nav">
+    <div class="nav-inner">
+      <a href="#" class="logo" data-view="search">
+        <span class="logo-symbol">&int;</span>
+        <span class="logo-text">MathLineage</span>
+      </a>
+      <div class="nav-links">
+        <a href="#" data-view="search" class="nav-link active">Search</a>
+        <a href="#" data-view="stats" class="nav-link">Statistics</a>
+        <a href="#" data-view="about" class="nav-link">About</a>
+      </div>
+      <div class="nav-status" id="apiStatus">
+        <span class="status-dot"></span>
+        <span class="status-text">Connecting...</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Search View -->
+  <main id="view-search" class="view active">
+    <section class="hero">
+      <h1>Search the world's mathematicians</h1>
+      <p class="hero-sub">Authority records for 1M+ researchers across 37 regions, enriched from 9 academic sources</p>
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search by name... (e.g. Euler, Ramanujan, Tao)" autocomplete="off" spellcheck="false">
+        <kbd class="search-shortcut">/</kbd>
+      </div>
+    </section>
+
+    <section id="searchResults" class="results hidden">
+      <div class="results-header">
+        <span id="resultsCount"></span>
+        <span id="resultsTime"></span>
+      </div>
+      <div id="resultsList" class="results-list"></div>
+    </section>
+
+    <!-- Recent / Featured when no search -->
+    <section id="featured" class="featured">
+      <h2>How it works</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">&#x1D4D0;</div>
+          <h3>37 Regions</h3>
+          <p>Linguistic processing for every naming convention — from Anglo-Saxon to CJK, Arabic patronymics to Dravidian initials</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F517;</div>
+          <h3>9 Authority Sources</h3>
+          <p>Cross-referenced with OpenAlex, Crossref, ORCID, zbMATH, Wikidata, HAL, GND, and more</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F4CA;</div>
+          <h3>Quality Gates</h3>
+          <p>8 automated quality checks ensure data integrity — schema validation, collision detection, idempotency</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#x1F333;</div>
+          <h3>Academic Lineage</h3>
+          <p>Doctoral advisor-student relationships tracked in a graph database, replacing outdated manual records</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Detail View -->
+  <main id="view-detail" class="view">
+    <div class="detail-back">
+      <a href="#" data-view="search">&larr; Back to search</a>
+    </div>
+    <div id="detailContent" class="detail-content"></div>
+  </main>
+
+  <!-- Statistics View -->
+  <main id="view-stats" class="view">
+    <section class="stats-header">
+      <h1>Pipeline Statistics</h1>
+      <p>Real-time metrics from the GMNAP V7 pipeline</p>
+    </section>
+    <div id="statsContent" class="stats-grid"></div>
+  </main>
+
+  <!-- About View -->
+  <main id="view-about" class="view">
+    <section class="about-content">
+      <h1>About MathLineage</h1>
+      <p class="about-lead">MathLineage is the Global Mathematician Name Authority Pipeline (GMNAP) v7 — an automated system for creating and maintaining authoritative records for the world's mathematicians.</p>
+
+      <h2>Why?</h2>
+      <p>The Mathematics Genealogy Project has served the community for decades, but it relies on manual volunteer updates, contains errors, and covers only PhD relationships. MathLineage automates this with data from 9 academic authority sources, linguistic processing for 37 world regions, and graph-based lineage tracking.</p>
+
+      <h2>How it works</h2>
+      <ol>
+        <li><strong>Ingest</strong> — Unicode normalisation (NFC/NFKD), script detection</li>
+        <li><strong>Region Detection</strong> — FastText language ID + script analysis + diaspora overlay</li>
+        <li><strong>Linguistic Processing</strong> — 34 rules for name ordering, particles, patronymics, transliteration</li>
+        <li><strong>Authority Enrichment</strong> — Cross-reference with OpenAlex, Crossref, ORCID, zbMATH, Wikidata, HAL, GND</li>
+        <li><strong>Collision Detection</strong> — DuckDB-based duplicate analysis with deterministic GlobalID assignment</li>
+        <li><strong>Graph Consistency</strong> — Bayesian coherence scoring against Memgraph genealogy database</li>
+        <li><strong>Schema Validation</strong> — JSON Schema v2.0 with configurable strictness</li>
+        <li><strong>Quality Gates</strong> — 8 automated checks before any record is published</li>
+      </ol>
+
+      <h2>Technology</h2>
+      <p>Python 3.12, FastAPI, Memgraph, DuckDB, FastText, Docker. Processes 2,000 entries/sec offline, handles 1M+ records in under 10 minutes.</p>
+
+      <div class="about-footer">
+        <p>ETH Zurich &middot; Department of Mathematics &middot; 2026</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
