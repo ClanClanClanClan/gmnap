@@ -7,7 +7,7 @@
 **Regional Coverage**: 37/37 regions fully implemented (100%)
 **Linguistic Rules**: 34 implemented (10 core normalisation + 17 regional validation + 7 region-specific)
 **Security**: Injection attack blocking validated
-**Performance**: ~610 entries/sec OFFLINE mode (measured); ~27 min/1M projected. Bottleneck was adapter instantiation (fixed). See `tools/benchmark_live_enrichment.py`.
+**Performance**: ~550 entries/sec OFFLINE mode (measured, 10K batches); ~30 min/1M projected. Process via API in 10K batches for optimal throughput. See benchmark table below.
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
 **Authority Enrichment**: 9 of 14 sources with real HTTP calls; 2 gated behind API keys; 3 deferred. DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms.
 **Region Config**: 37/37 YAML config files auto-loaded via lazy `ensure_yaml_loaded()` in base class
@@ -99,11 +99,14 @@ Tier 0 sources (OpenAlex, Crossref, ORCID, Crossref_Thesis) call APIs directly.
 Benchmarks run OFFLINE mode (GMNAP_NO_NETWORK=1), Python 3.12, Apple M1:
 | Batch Size | Elapsed | Entries/sec | Projected 1M | Peak RSS |
 |------------|---------|-------------|--------------|----------|
-| 100 | 0.6s | 180/s | 93 min | 0.32 GB |
-| 1,000 | 1.5s | 660/s | 25 min | 0.32 GB |
-| 10,000 | 16.4s | 611/s | 27 min | 0.36 GB |
+| 100 | 0.2s | 560/s | 30 min | 0.32 GB |
+| 1,000 | 1.6s | 628/s | 27 min | 0.33 GB |
+| 10,000 | 16.4s | 609/s | 27 min | 0.41 GB |
+| 100,000 | 182s | 550/s | 30 min | 0.87 GB |
+| 1,000,000 | 38,721s | 26/s | — | 1.28 GB |
 
-**Bottleneck**: Stage 8 (JSON schema validation) was 90% of time; fixed via pre-compiled validator. Authority adapter instantiation was creating new httpx clients per call; fixed via singleton pattern. Current throughput ~600 entries/sec at scale.
+**Bottleneck**: Stage 8 (JSON schema validation) was 90% of time; fixed via pre-compiled validator. Authority adapter instantiation was creating new httpx clients per call; fixed via singleton pattern. Current throughput ~550 entries/sec up to 100K. At 1M, post-chunk stages (report, idempotency, YAML output) degrade to ~26/s due to full-batch I/O.
+**Recommendation**: Process in batches of 10K via the API for optimal throughput. `POST /api/v1/process` already enforces a 10K limit.
 Live enrichment (OFFLINE=0) will be slower due to API rate limits.
 
 ---
