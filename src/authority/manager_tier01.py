@@ -867,99 +867,111 @@ async def enrich_by_tiers(entries: List[Dict], tiers: Optional[List[int]] = None
 
     logger.info(f"Authority enrichment: tiers={tiers}, sources={[n for n, _ in handlers]}")
 
-    out = []
-    for e in entries:
-        merged = dict(e)
-        tasks = [h(e) for _, h in handlers]
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+    # Concurrency limit: prevent overwhelming APIs while allowing parallelism
+    entry_sem = asyncio.Semaphore(50)
 
-        sources = set(merged.get("_sources") or [])
-        identifiers = dict(merged.get("AuthorityIDs") or merged.get("ExternalIDs") or {})
+    async def _enrich_one(e: Dict) -> Dict:
+        async with entry_sem:
+            merged = dict(e)
+            tasks = [h(e) for _, h in handlers]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        for (name, _), r in zip(handlers, results):
-            if isinstance(r, Exception):
-                logger.debug(f"Authority {name} failed for {e.get('CanonicalLatin', '?')}: {r}")
-                continue
-            if not isinstance(r, dict):
-                continue
+            sources = set(merged.get("_sources") or [])
+            identifiers = dict(
+                merged.get("AuthorityIDs") or merged.get("ExternalIDs") or {}
+            )
 
-            sources.add(name)
-            # Extract identifiers from the result
-            for source_name, source_data in r.items():
-                if isinstance(source_data, dict):
-                    if source_data.get("hit"):
-                        sid = source_data.get("source_id")
-                        if sid:
-                            identifiers[source_name] = sid
-                    ids = source_data.get("identifiers")
-                    if isinstance(ids, dict):
-                        for k, v in ids.items():
-                            if isinstance(v, str):
-                                identifiers[k] = v
+            for (name, _), r in zip(handlers, results):
+                if isinstance(r, Exception):
+                    logger.debug(
+                        f"Authority {name} failed for {e.get('CanonicalLatin', '?')}: {r}"
+                    )
+                    continue
+                if not isinstance(r, dict):
+                    continue
 
-            # Merge advisor edges from Wikidata P184
-            if name == "Wikidata_P184":
-                wd = r.get("Wikidata_P184", {})
-                edges = wd.get("edges", []) if isinstance(wd, dict) else []
-                if edges:
-                    existing = set(merged.get("Advisors") or [])
-                    for edge in edges:
-                        if isinstance(edge, dict) and edge.get("target"):
-                            existing.add(edge["target"])
-                    merged["Advisors"] = sorted(existing)
+                sources.add(name)
+                for source_name, source_data in r.items():
+                    if isinstance(source_data, dict):
+                        if source_data.get("hit"):
+                            sid = source_data.get("source_id")
+                            if sid:
+                                identifiers[source_name] = sid
+                        ids = source_data.get("identifiers")
+                        if isinstance(ids, dict):
+                            for k, v in ids.items():
+                                if isinstance(v, str):
+                                    identifiers[k] = v
 
-            # Extract NameEvents from authority sources (v7 spec glossary)
-            for source_name, source_data in r.items():
-                if isinstance(source_data, dict):
-                    name_events = source_data.get("name_events", [])
-                    if name_events:
-                        existing_events = merged.get("NameEvents", [])
-                        seen = {(ev.get("type"), ev.get("year")) for ev in existing_events}
-                        for ev in name_events:
-                            key = (ev.get("type"), ev.get("year"))
-                            if key not in seen:
-                                existing_events.append(ev)
-                                seen.add(key)
-                        merged["NameEvents"] = sorted(
-                            existing_events, key=lambda x: x.get("year", 0)
-                        )
+                if name == "Wikidata_P184":
+                    wd = r.get("Wikidata_P184", {})
+                    edges = wd.get("edges", []) if isinstance(wd, dict) else []
+                    if edges:
+                        existing = set(merged.get("Advisors") or [])
+                        for edge in edges:
+                            if isinstance(edge, dict) and edge.get("target"):
+                                existing.add(edge["target"])
+                        merged["Advisors"] = sorted(existing)
 
-            # Extract AffiliationTimeline from authority sources (v7 spec glossary)
-            for source_name, source_data in r.items():
-                if isinstance(source_data, dict):
-                    affiliations = source_data.get("affiliations", [])
-                    if affiliations:
-                        existing_aff = merged.get("AffiliationTimeline", [])
-                        seen_aff = {(a.get("country"), a.get("from")) for a in existing_aff}
-                        for aff in affiliations:
-                            key = (aff.get("country"), aff.get("from"))
-                            if key not in seen_aff and "country" in aff:
-                                existing_aff.append(aff)
-                                seen_aff.add(key)
-                        merged["AffiliationTimeline"] = existing_aff
+                for source_name, source_data in r.items():
+                    if isinstance(source_data, dict):
+                        name_events = source_data.get("name_events", [])
+                        if name_events:
+                            existing_events = merged.get("NameEvents", [])
+                            seen = {
+                                (ev.get("type"), ev.get("year"))
+                                for ev in existing_events
+                            }
+                            for ev in name_events:
+                                key = (ev.get("type"), ev.get("year"))
+                                if key not in seen:
+                                    existing_events.append(ev)
+                                    seen.add(key)
+                            merged["NameEvents"] = sorted(
+                                existing_events, key=lambda x: x.get("year", 0)
+                            )
 
-            # Extract DegreeDate from thesis/ETD sources (v7 spec glossary)
-            for source_name, source_data in r.items():
-                if isinstance(source_data, dict):
-                    degree_date = source_data.get("degree_date")
-                    if degree_date and "DegreeDate" not in merged:
-                        if isinstance(degree_date, dict):
-                            merged["DegreeDate"] = degree_date
-                        elif isinstance(degree_date, str):
-                            # Infer precision from format
-                            precision = "year"
-                            if len(degree_date) == 10:
-                                precision = "day"
-                            elif len(degree_date) == 7:
-                                precision = "month"
-                            merged["DegreeDate"] = {"date": degree_date, "precision": precision}
+                for source_name, source_data in r.items():
+                    if isinstance(source_data, dict):
+                        affiliations = source_data.get("affiliations", [])
+                        if affiliations:
+                            existing_aff = merged.get("AffiliationTimeline", [])
+                            seen_aff = {
+                                (a.get("country"), a.get("from"))
+                                for a in existing_aff
+                            }
+                            for aff in affiliations:
+                                key = (aff.get("country"), aff.get("from"))
+                                if key not in seen_aff and "country" in aff:
+                                    existing_aff.append(aff)
+                                    seen_aff.add(key)
+                            merged["AffiliationTimeline"] = existing_aff
 
-        merged["_sources"] = sorted(sources)
-        if identifiers:
-            merged["AuthorityIDs"] = identifiers
-        out.append(merged)
+                for source_name, source_data in r.items():
+                    if isinstance(source_data, dict):
+                        degree_date = source_data.get("degree_date")
+                        if degree_date and "DegreeDate" not in merged:
+                            if isinstance(degree_date, dict):
+                                merged["DegreeDate"] = degree_date
+                            elif isinstance(degree_date, str):
+                                precision = "year"
+                                if len(degree_date) == 10:
+                                    precision = "day"
+                                elif len(degree_date) == 7:
+                                    precision = "month"
+                                merged["DegreeDate"] = {
+                                    "date": degree_date,
+                                    "precision": precision,
+                                }
 
-    return out
+            merged["_sources"] = sorted(sources)
+            if identifiers:
+                merged["AuthorityIDs"] = identifiers
+            return merged
+
+    # Parallelize across all entries (rate limiters in adapters control API throughput)
+    out = await asyncio.gather(*[_enrich_one(e) for e in entries])
+    return list(out)
 
 
 # Backward compatibility

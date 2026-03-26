@@ -25,7 +25,7 @@ class _NullCache:
 
 
 class _Limiter:
-    """Token-bucket rate limiter: allows `burst` concurrent requests, spaced at 1/rps."""
+    """Token-bucket rate limiter: allows `burst` concurrent in-flight, refills at `rps`."""
 
     def __init__(self, rps: int = 1, burst: int = 1):
         self._sem = asyncio.Semaphore(max(burst, 1))
@@ -33,10 +33,9 @@ class _Limiter:
 
     async def acquire(self):
         await self._sem.acquire()
-        try:
-            await asyncio.sleep(self._interval)
-        finally:
-            self._sem.release()
+        # Return the token after interval (non-blocking) — allows true concurrency
+        loop = asyncio.get_running_loop()
+        loop.call_later(self._interval, self._sem.release)
 
 
 class AuthorityContext:
@@ -50,7 +49,7 @@ class AuthorityContext:
         if httpx:
             self.http = httpx.AsyncClient(
                 timeout=httpx.Timeout(30.0, connect=10.0),
-                limits=httpx.Limits(max_keepalive_connections=5, max_connections=20),
+                limits=httpx.Limits(max_keepalive_connections=20, max_connections=100),
                 headers={"User-Agent": "GMNAP/7.0 (mailto:gmnap@example.com)"},
             )
         else:
