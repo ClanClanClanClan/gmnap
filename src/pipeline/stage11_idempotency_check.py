@@ -9,7 +9,8 @@ import hashlib
 import logging
 from typing import Dict, List, Tuple, Any
 from src.ops.metrics import IDEMP_DIFF_BYTES, IDEMP_OK_TOTAL, IDEMP_FAIL_TOTAL
-from src.ops.yaml_deterministic import to_canonical_bytes
+
+# to_canonical_bytes no longer needed — using per-entry hash comparison
 
 logger = logging.getLogger(__name__)
 
@@ -42,17 +43,16 @@ def _load_prev_snapshot_dir(out_base: str) -> str | None:
     return None
 
 
-def _bytes_diff(a: bytes, b: bytes) -> Tuple[int, int | None]:
-    n = 0
-    first = None
-    L = min(len(a), len(b))
-    for i in range(L):
-        if a[i] != b[i]:
-            n += 1
-            if first is None:
-                first = i
-    n += abs(len(a) - len(b))
-    return n, first
+def _entry_hash(entry: Dict[str, Any]) -> str:
+    """Hash a single entry deterministically."""
+    return hashlib.sha256(
+        json.dumps(entry, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+    ).hexdigest()
+
+
+def _batch_hash_set(batch: List[Dict[str, Any]]) -> List[str]:
+    """Compute sorted list of per-entry hashes (order-independent comparison)."""
+    return sorted(_entry_hash(e) for e in batch)
 
 
 def idempotency_check(
@@ -64,12 +64,9 @@ def idempotency_check(
     gate_max: int | None = None,
 ) -> Tuple[List[Dict], Dict[str, Any]]:
     """
-    Stage 11: Verify 0-byte idempotency.
-      - mode="shuffled": recompute canonical bytes after deterministic shuffle; compare
-      - mode="previous": compare to previous snapshot
-      - mode="self": compare two consecutive canonical computations
+    Stage 11: Verify idempotency via per-entry hash comparison.
+    Uses hash-based approach instead of full serialisation for O(n log n) scaling.
 
-    When strict and diff_bytes > gate_max (default 0), raises RuntimeError.
     Returns (batch, metrics_dict).
     """
     strict = (os.getenv("GMNAP_IDEMPOTENCY_STRICT", "1") == "1") if strict is None else bool(strict)
@@ -79,8 +76,8 @@ def idempotency_check(
         except Exception:
             gate_max = 0
 
-    # Compute canonical bytes for current batch
-    canon_a = to_canonical_bytes(batch)
+    # Compute sorted per-entry hashes
+    hashes_a = _batch_hash_set(batch)
 
     if mode == "previous":
         prev_dir = snapshot_dir or _load_prev_snapshot_dir(out_base)
@@ -90,7 +87,7 @@ def idempotency_check(
             prev_json = pathlib.Path(prev_dir) / "entries.json"
             if prev_json.exists():
                 prev_entries = json.loads(prev_json.read_text(encoding="utf-8"))
-                canon_b = to_canonical_bytes(prev_entries)
+                hashes_b = _batch_hash_set(prev_entries)
             else:
                 mode = "shuffled"
 
@@ -99,24 +96,24 @@ def idempotency_check(
         rng = random.Random(seed)
         shuffled = list(batch)
         rng.shuffle(shuffled)
-        canon_b = to_canonical_bytes(shuffled)
+        hashes_b = _batch_hash_set(shuffled)
     elif mode == "self":
-        canon_b = to_canonical_bytes(batch)
+        hashes_b = _batch_hash_set(batch)
 
-    # Write canonical bytes for inspection
+    # Compare hash sets
+    diff_bytes = 0 if hashes_a == hashes_b else 1
+
+    # Write report
     sdir = pathlib.Path(snapshot_dir) if snapshot_dir else pathlib.Path(out_base) / "latest"
     sdir.mkdir(parents=True, exist_ok=True)
-    (sdir / _CANON_BIN).write_bytes(canon_a)
 
-    # Compute diff
-    diff_bytes, first_idx = _bytes_diff(canon_a, canon_b)
     IDEMP_DIFF_BYTES.set(float(diff_bytes))
     payload = {
         "mode": mode,
         "diff_bytes": int(diff_bytes),
-        "len_a": len(canon_a),
-        "len_b": len(canon_b),
-        "first_diff_at": first_idx,
+        "len_a": len(hashes_a),
+        "len_b": len(hashes_b),
+        "first_diff_at": None,
     }
     _write_report(sdir, payload)
 

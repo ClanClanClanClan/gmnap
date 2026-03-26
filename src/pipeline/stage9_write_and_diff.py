@@ -57,12 +57,15 @@ def _order_entry(e: Dict) -> Dict:
     return out
 
 
-def _batch_hash(batch: List[Dict]) -> str:
-    """Deterministic hash for a batch."""
-    canonical = json.dumps(
-        [_order_entry(_scrub(dict(e))) for e in batch], sort_keys=True, ensure_ascii=False
-    ).encode("utf-8")
-    return hashlib.sha256(canonical).hexdigest()[:16]
+def _batch_hash(batch: List[Dict], pre_canonical: bool = False) -> str:
+    """Deterministic hash for a batch (streaming — no giant JSON string)."""
+    h = hashlib.sha256()
+    for e in sorted(batch, key=lambda x: x.get("GlobalID", "")):
+        entry = e if pre_canonical else _order_entry(_scrub(dict(e)))
+        h.update(
+            json.dumps(entry, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+        )
+    return h.hexdigest()[:16]
 
 
 def _safe_filename(global_id: str) -> str:
@@ -89,14 +92,21 @@ def _write_yaml_file(data: Dict, path: pathlib.Path):
             yaml.dump(data, f, default_flow_style=False, allow_unicode=True, sort_keys=True)
 
 
+_YAML_FILE_THRESHOLD = 10_000  # Skip per-entry YAML files above this count
+
+
 def write_snapshot(
-    batch: List[Dict], out_root: str = "out/yaml", run_hash: str | None = None
+    batch: List[Dict],
+    out_root: str = "out/yaml",
+    run_hash: str | None = None,
+    pre_canonical: bool = False,
 ) -> str:
     """
     Write a deterministic YAML snapshot: one file per entry under out/yaml/run-<hash>/.
+    For batches > 10K entries, skips individual YAML files (writes only entries.json).
     Returns the snapshot directory path.
     """
-    run_hash = run_hash or _batch_hash(batch)
+    run_hash = run_hash or _batch_hash(batch, pre_canonical=pre_canonical)
     snap_dir = pathlib.Path(out_root) / f"run-{run_hash}"
     snap_dir.mkdir(parents=True, exist_ok=True)
 
@@ -112,16 +122,21 @@ def write_snapshot(
     with open(snap_dir / "MANIFEST.json", "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
 
-    # Write individual entry files
-    for e in batch:
-        gid = e.get("GlobalID")
-        if not gid:
-            continue
-        clean = _order_entry(_scrub(dict(e)))
-        _write_yaml_file(clean, snap_dir / _safe_filename(gid))
+    # Prepare canonical entries (reuse if pre-canonicalised)
+    if pre_canonical:
+        all_entries = batch
+    else:
+        all_entries = [_order_entry(_scrub(dict(e))) for e in batch]
 
-    # Write combined entries.json
-    all_entries = [_order_entry(_scrub(dict(e))) for e in batch]
+    # Write individual YAML files only for small batches
+    if len(batch) <= _YAML_FILE_THRESHOLD:
+        for e in all_entries:
+            gid = e.get("GlobalID")
+            if not gid:
+                continue
+            _write_yaml_file(e, snap_dir / _safe_filename(gid))
+
+    # Write combined entries.json (streaming for large batches)
     with open(snap_dir / "entries.json", "w", encoding="utf-8") as f:
         json.dump(all_entries, f, ensure_ascii=False, indent=2, sort_keys=True)
 

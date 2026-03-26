@@ -274,11 +274,20 @@ class V7Pipeline:
             drop_personal = os.getenv("GMNAP_DROP_PERSONAL", "0") == "1"
             all_results = gdpr_pipeline(all_results, drop_personal=drop_personal)
 
+        # For large batches, pre-canonicalise ONCE to avoid redundant work in stages 9-11
+        use_pre_canonical = len(all_results) > 1000
+        if use_pre_canonical:
+            from src.pipeline.stage9_write_and_diff import _scrub, _order_entry
+
+            canonical_results = [_order_entry(_scrub(dict(e))) for e in all_results]
+        else:
+            canonical_results = all_results
+
         # Final stages (whole batch)
-        snapshot_dir = self._stage_9_write_diff(all_results)
+        snapshot_dir = self._stage_9_write_diff(canonical_results, pre_canonical=use_pre_canonical)
         self.metrics.stage_timings["9_write_diff"] = 0  # timed inline
         self._stage_10_report(all_results, snapshot_dir)
-        self._stage_11_idempotency_check(all_results, snapshot_dir)
+        self._stage_11_idempotency_check(canonical_results, snapshot_dir)
 
         # Quality gates
         self.metrics.end_time = datetime.now()
@@ -595,10 +604,14 @@ class V7Pipeline:
         self.metrics.schema_rejected = val_metrics.get("rejected_count", 0)
         return results
 
-    def _stage_9_write_diff(self, entries: List[Dict[str, Any]]) -> str:
+    def _stage_9_write_diff(
+        self, entries: List[Dict[str, Any]], pre_canonical: bool = False
+    ) -> str:
         """Stage 9: Write&Diff - Deterministic YAML, HTML diff, SQL changelog."""
         t0 = time.time()
-        snapshot_dir = write_snapshot(entries, out_root=self.output_dir)
+        snapshot_dir = write_snapshot(
+            entries, out_root=self.output_dir, pre_canonical=pre_canonical
+        )
         logger.info(f"Snapshot written to {snapshot_dir}")
 
         if self.prev_snapshot_dir and Path(self.prev_snapshot_dir).exists():
