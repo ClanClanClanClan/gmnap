@@ -1,5 +1,5 @@
 # GMNAP v7 Current Development Status
-*Last Updated: 2026-03-25*
+*Last Updated: 2026-03-26*
 
 ## 🎯 System State (Honest Assessment)
 
@@ -103,6 +103,7 @@ Benchmarks run OFFLINE mode (GMNAP_NO_NETWORK=1), Python 3.12, Apple M1:
 | 1,000 | 2.3s | 437/s | 38 min | 0.55 GB |
 | 10,000 | 25.6s | 391/s | 43 min | 0.42 GB |
 | 100,000 | 51.0s | 1,963/s | 8 min | 0.87 GB |
+| 1,000,000 | 504s | 1,983/s | 8.4 min | 3.18 GB |
 
 **Optimisations applied** (cumulative 75x speedup from original baseline):
 1. Pre-compiled jsonschema validator (stage 8: 90% → <0.1%)
