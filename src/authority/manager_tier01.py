@@ -877,15 +877,11 @@ async def enrich_by_tiers(entries: List[Dict], tiers: Optional[List[int]] = None
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
             sources = set(merged.get("_sources") or [])
-            identifiers = dict(
-                merged.get("AuthorityIDs") or merged.get("ExternalIDs") or {}
-            )
+            identifiers = dict(merged.get("AuthorityIDs") or merged.get("ExternalIDs") or {})
 
             for (name, _), r in zip(handlers, results):
                 if isinstance(r, Exception):
-                    logger.debug(
-                        f"Authority {name} failed for {e.get('CanonicalLatin', '?')}: {r}"
-                    )
+                    logger.debug(f"Authority {name} failed for {e.get('CanonicalLatin', '?')}: {r}")
                     continue
                 if not isinstance(r, dict):
                     continue
@@ -918,10 +914,7 @@ async def enrich_by_tiers(entries: List[Dict], tiers: Optional[List[int]] = None
                         name_events = source_data.get("name_events", [])
                         if name_events:
                             existing_events = merged.get("NameEvents", [])
-                            seen = {
-                                (ev.get("type"), ev.get("year"))
-                                for ev in existing_events
-                            }
+                            seen = {(ev.get("type"), ev.get("year")) for ev in existing_events}
                             for ev in name_events:
                                 key = (ev.get("type"), ev.get("year"))
                                 if key not in seen:
@@ -936,10 +929,7 @@ async def enrich_by_tiers(entries: List[Dict], tiers: Optional[List[int]] = None
                         affiliations = source_data.get("affiliations", [])
                         if affiliations:
                             existing_aff = merged.get("AffiliationTimeline", [])
-                            seen_aff = {
-                                (a.get("country"), a.get("from"))
-                                for a in existing_aff
-                            }
+                            seen_aff = {(a.get("country"), a.get("from")) for a in existing_aff}
                             for aff in affiliations:
                                 key = (aff.get("country"), aff.get("from"))
                                 if key not in seen_aff and "country" in aff:
