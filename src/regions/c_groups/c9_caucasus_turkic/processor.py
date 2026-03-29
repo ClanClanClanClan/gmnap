@@ -417,7 +417,7 @@ class C9_CaucasusTurkic(RegionSpec):
             has_cyrillic = any(
                 ord(c) in range(self.cyrillic_range[0], self.cyrillic_range[1] + 1) for c in native
             )
-            has_arabic = any("\u0600" <= c <= "\u06FF" for c in native)
+            has_arabic = any("\u0600" <= c <= "\u06ff" for c in native)
 
             if has_cyrillic:
                 script_info["cyrillic_script_detected"] = True

@@ -4,6 +4,7 @@ genealogy/normalize_names.py
 Normalize student and advisor names for GMNAP ID matching.
 Handles French diacritics, particles, format standardization.
 """
+
 import json
 import re
 from pathlib import Path

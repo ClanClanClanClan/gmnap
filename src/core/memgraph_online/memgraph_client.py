@@ -86,24 +86,20 @@ class MemgraphClient:
         if s is None:
             return 0.0
         try:
-            rec = s.run(
-                """                CALL betweenness_centrality.get()
+            rec = s.run("""                CALL betweenness_centrality.get()
                 YIELD node, betweenness_centrality
                 RETURN avg(betweenness_centrality) AS avg, max(betweenness_centrality) AS mx
-                """
-            ).single()
+                """).single()
             if rec and rec.get("mx") and float(rec["mx"]) > 0.0:
                 avg = float(rec["avg"] or 0.0)
                 mx = float(rec["mx"] or 1.0)
                 return max(0.0, min(1.0, avg / mx))
         except Exception:
             try:
-                rec = s.run(
-                    """                    CALL algo.betweenness.stream()
+                rec = s.run("""                    CALL algo.betweenness.stream()
                     YIELD nodeId, score
                     RETURN avg(score) AS avg, max(score) AS mx
-                    """
-                ).single()
+                    """).single()
                 if rec and rec.get("mx") and float(rec["mx"]) > 0.0:
                     avg = float(rec["avg"] or 0.0)
                     mx = float(rec["mx"] or 1.0)

@@ -2,6 +2,7 @@
 """
 Deep analysis of context-sensitive patterns that could yield +10-15 cases
 """
+
 import yaml, sys, os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))

@@ -43,8 +43,7 @@ class SQLiteAnalytics:
         cursor = self.conn.cursor()
 
         # Main entries table
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS entries (
                 global_id TEXT PRIMARY KEY,
                 canonical_native TEXT,
@@ -55,12 +54,10 @@ class SQLiteAnalytics:
                 entry_hash TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """
-        )
+        """)
 
         # Collision tracking table
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS collisions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 hash_value TEXT,
@@ -69,12 +66,10 @@ class SQLiteAnalytics:
                 collision_type TEXT,
                 detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """
-        )
+        """)
 
         # Field distribution table
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS field_distribution (
                 field_name TEXT PRIMARY KEY,
                 count INTEGER,
@@ -82,12 +77,10 @@ class SQLiteAnalytics:
                 distinct_values INTEGER,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """
-        )
+        """)
 
         # Authority coverage table
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS authority_coverage (
                 source_name TEXT PRIMARY KEY,
                 entries_covered INTEGER,
@@ -95,8 +88,7 @@ class SQLiteAnalytics:
                 avg_confidence REAL,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """
-        )
+        """)
 
         self.conn.commit()
 

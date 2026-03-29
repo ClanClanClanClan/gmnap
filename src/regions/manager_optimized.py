@@ -39,7 +39,6 @@ from src.core.security_validator import SecurityValidator, SecurityError
 from src.core.cache.sized_lru import SizedLRU
 from .base import REGION_CODES, RegionSpec, get_region_for_territory
 
-
 # Token extraction and word-boundary utilities for systematic pattern matching
 _WORD = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?:-[A-Za-zÀ-ÖØ-öø-ÿ]+)?")  # token incl. hyphenated
 

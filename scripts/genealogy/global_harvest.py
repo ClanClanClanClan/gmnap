@@ -21,6 +21,7 @@ Usage:
 Configuration:
     config/genealogy/sources.yaml - All source definitions
 """
+
 import sys
 import yaml
 import json

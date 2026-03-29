@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Fix the ordering of hangul,roman in the incorrectly added entries."""
+
 import csv
 from pathlib import Path
 

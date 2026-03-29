@@ -4,7 +4,7 @@ Diagnostic script for the 4 failing V7 compliance regions.
 
 Diagnoses specific failures in:
 - E2: Traditional Chinese (0% compliance - critical issue)
-- F1: SSA Francophone (0% compliance - critical issue)  
+- F1: SSA Francophone (0% compliance - critical issue)
 - A3: Nordic Baltic (93.4% compliance - needs minor fixes)
 - B3: Greek (93.4% compliance - needs minor fixes)
 """
@@ -30,8 +30,8 @@ class RegionDiagnostic:
         # Test cases from the comprehensive test
         self.security_attacks = [
             {"name": "NULL character", "input": "Test\x00Malicious"},
-            {"name": "DELETE character", "input": "Test\x7F"},
-            {"name": "Zero-width space", "input": "Test\u200B"},
+            {"name": "DELETE character", "input": "Test\x7f"},
+            {"name": "Zero-width space", "input": "Test\u200b"},
             {"name": "DoS length attack", "input": "A" * 200},
         ]
 

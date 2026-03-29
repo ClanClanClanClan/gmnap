@@ -161,8 +161,8 @@ class TestThaiProcessing:
         # Test that security risks are properly detected
         malicious_inputs = [
             "สมชาย\x00",  # NULL character
-            "จันทร์\x1F",  # Control character
-            "ศรี\uFEFFสุข",  # Zero-width character
+            "จันทร์\x1f",  # Control character
+            "ศรี\ufeffสุข",  # Zero-width character
         ]
 
         for malicious in malicious_inputs:

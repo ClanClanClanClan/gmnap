@@ -79,7 +79,14 @@ class E6_MainlandSEA(RegionSpec):
         return {
             "thai": {
                 "script_range": self.THAI_RANGE,
-                "common_elements": ["วรรณ", "สุข", "ชาย", "หญิง", "นาค", "ทอง"],  # Gold, dragon, etc.
+                "common_elements": [
+                    "วรรณ",
+                    "สุข",
+                    "ชาย",
+                    "หญิง",
+                    "นาค",
+                    "ทอง",
+                ],  # Gold, dragon, etc.
                 "royal_elements": ["พระ", "หลวง", "ขุน", "หม่อม"],  # Royal prefixes
                 "religious_elements": ["พุทธ", "ธรรม", "สงฆ์", "วัด"],  # Buddhist terms
                 "tonal_markers": True,

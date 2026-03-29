@@ -142,7 +142,7 @@ class ValidationTestSuite:
             },
             {
                 "name": "Unicode Direction Override",
-                "input": {"CanonicalLatin": "John\u202EDoe"},
+                "input": {"CanonicalLatin": "John\u202eDoe"},
                 "should_pass": False,
             },
             {

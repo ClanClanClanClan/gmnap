@@ -2,7 +2,7 @@
 """
 Apply V7 security fixes to the 3 regions missing security methods:
 - E2: Traditional Chinese
-- A3: Nordic Baltic  
+- A3: Nordic Baltic
 - B3: Greek
 
 These regions are failing the DoS length attack (200 chars) because they lack

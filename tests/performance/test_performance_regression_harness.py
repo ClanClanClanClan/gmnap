@@ -5,7 +5,7 @@ from typing import Optional
 from typing import Any
 Comprehensive Performance Regression Test Harness
 
-Provides statistical validation and edge case coverage for performance regression 
+Provides statistical validation and edge case coverage for performance regression
 detection in the GMNAP v7 pipeline system.
 """
 

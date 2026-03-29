@@ -3,6 +3,7 @@
 Comprehensive scale testing for 200k, 500k, and 1M entries
 Tests system performance, memory usage, and stability at scale
 """
+
 import asyncio
 import time
 import json

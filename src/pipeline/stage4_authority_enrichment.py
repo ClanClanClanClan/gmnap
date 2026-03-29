@@ -3,6 +3,7 @@
 GMNAP V7 Stage 4: Authority Enrichment
 Simplified implementation with real Crossref API integration
 """
+
 import asyncio
 import logging
 from typing import Dict, List, Any, Tuple

@@ -4,7 +4,7 @@ B2 - South-Slavic & Central Europe region implementation.
 Covers: Bulgaria, Serbia, Montenegro, Croatia, Slovenia, Bosnia and Herzegovina,
 North Macedonia, Poland, Czech Republic, Slovakia, Hungary, Romania, Albania, Kosovo.
 
-Features: Mixed Latin & Cyrillic scripts, Gaj's Latin alphabet, 
+Features: Mixed Latin & Cyrillic scripts, Gaj's Latin alphabet,
 Hungarian name-order flip, diverse naming conventions across Central Europe.
 """
 

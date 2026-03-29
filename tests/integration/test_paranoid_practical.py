@@ -104,10 +104,10 @@ class PracticalParanoidTester:
 
         # Unicode attacks
         unicode_attacks = [
-            "admin\u200B",  # Zero-width space
-            "admin\u202E",  # Right-to-left override
+            "admin\u200b",  # Zero-width space
+            "admin\u202e",  # Right-to-left override
             "\u0430dmin",  # Cyrillic 'a'
-            "admin\uFEFF",  # Zero-width no-break space
+            "admin\ufeff",  # Zero-width no-break space
             "adm\u0131n",  # Dotless i
         ]
 
@@ -368,9 +368,9 @@ class PracticalParanoidTester:
 
         # Security-relevant Unicode
         security_unicode = [
-            "admin\u200B",  # Zero-width space
-            "test\u202E",  # Right-to-left override
-            "\uFEFF test",  # BOM
+            "admin\u200b",  # Zero-width space
+            "test\u202e",  # Right-to-left override
+            "\ufeff test",  # BOM
             "a\u0300\u0301",  # Multiple combining
         ]
 

@@ -26,7 +26,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from hypothesis import assume, given, strategies as st, settings
 from hypothesis.stateful import RuleBasedStateMachine, Bundle, rule, invariant, precondition
 
-
 # Formal specifications as mathematical properties
 
 

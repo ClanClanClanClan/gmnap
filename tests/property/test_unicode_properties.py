@@ -109,7 +109,7 @@ def problematic_unicode_strategy(draw):
         # Bidirectional text
         text(alphabet=characters(categories=["L", "R", "AL"])),
         # Zero-width characters
-        st.just("\u200B\u200C\u200D\u2060\uFEFF"),
+        st.just("\u200b\u200c\u200d\u2060\ufeff"),
         # Normalization test cases
         combining_text_strategy(),
     ]

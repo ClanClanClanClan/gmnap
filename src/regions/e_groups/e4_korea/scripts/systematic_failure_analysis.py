@@ -3,6 +3,7 @@
 ULTRACHECK: Systematic failure pattern analysis to identify architectural improvements
 Look for consistent patterns that indicate structural issues, not individual cases
 """
+
 import sys
 
 sys.path.append("src")

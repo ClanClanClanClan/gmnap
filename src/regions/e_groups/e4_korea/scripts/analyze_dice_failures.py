@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Analyze low dice score failures to find weight adjustment opportunities."""
+
 import json
 import csv
 from collections import defaultdict, Counter

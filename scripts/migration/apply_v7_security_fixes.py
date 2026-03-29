@@ -4,7 +4,7 @@ V7 Security and Edge Case Fixes Application Script
 
 This script applies comprehensive V7 security and edge case fixes to newly loaded regions:
 - Security validation for control characters, zero-width characters
-- DoS protection with 150 character limits  
+- DoS protection with 150 character limits
 - Graceful degradation for missing canonical names
 - Single character name support
 
@@ -94,12 +94,9 @@ def update_clean_method(content: str) -> str:
 '''
 
         # Remove old method body and replace with security check + simplified version
-        new_method_body = (
-            security_check
-            + """        # Apply region-specific cleaning rules here
+        new_method_body = security_check + """        # Apply region-specific cleaning rules here
         # This is a stub implementation - region-specific logic should be added
         pass"""
-        )
 
         return method_def + new_method_body + method_end
 

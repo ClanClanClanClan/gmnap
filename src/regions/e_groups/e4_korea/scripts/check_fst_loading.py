@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Check how FSTs are loaded in converter."""
+
 import sys
 from pathlib import Path
 

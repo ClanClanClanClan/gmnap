@@ -2,6 +2,7 @@
 """
 Detailed failure analysis - get complete list of failing cases
 """
+
 import sys
 
 sys.path.append("src")

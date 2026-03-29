@@ -2,7 +2,7 @@
 E4 Korea Regional Processor - GMNAP V7
 
 Simplified Korean processor for V7 integration:
-- ISO territories: KR, KP  
+- ISO territories: KR, KP
 - Primary scripts: Hangul, Latin romanization
 - Basic Korean name detection and standardization
 - Provides foundation for future advanced Korean processing

@@ -88,7 +88,7 @@ def test_missing_implementations():
         {
             "name": "Normalization Security",
             "entry": {
-                "CanonicalLatin": "Test\u0300\u0301\u0302\u0303\u0304\u0305\u0306\u0307\u0308\u0309\u030A\u030B\u030C, Name"
+                "CanonicalLatin": "Test\u0300\u0301\u0302\u0303\u0304\u0305\u0306\u0307\u0308\u0309\u030a\u030b\u030c, Name"
             },  # 12 combining chars bomb (exceeds limit of 10)
             "should_fail": True,
             "reason": "Excessive combining characters should be rejected",

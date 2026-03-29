@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Diagnose a single name conversion."""
+
 import sys
 from pathlib import Path
 

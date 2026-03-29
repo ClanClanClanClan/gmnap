@@ -21,7 +21,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.regions.hybrid_region_manager import HybridRegionManager
 
-
 # Country code to region mapping (ISO 3166-1 alpha-2)
 COUNTRY_TO_REGION = {
     # A1 - Anglo-Sphere

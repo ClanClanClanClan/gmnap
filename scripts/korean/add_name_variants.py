@@ -2,6 +2,7 @@
 """
 Add common Korean name variants to the syllable map
 """
+
 import csv
 from pathlib import Path
 

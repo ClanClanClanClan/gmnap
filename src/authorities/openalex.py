@@ -4,6 +4,7 @@ OpenAlex Authority API Implementation for GMNAP V7
 Tier-0 authority source: CC0 license, 864k daily quota
 Provides comprehensive author profiles with institution data
 """
+
 import asyncio
 import logging
 import time

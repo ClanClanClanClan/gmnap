@@ -3,6 +3,7 @@
 GMNAP V7 Performance Benchmark Suite
 Measures performance against V7 specification SLAs
 """
+
 import asyncio
 import json
 import psutil

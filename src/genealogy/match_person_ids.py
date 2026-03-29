@@ -4,6 +4,7 @@ genealogy/match_person_ids.py
 Match normalized names to GMNAP GlobalIDs for genealogy edges.
 Supports both lookup (existing DB) and generate (new data) modes.
 """
+
 import json
 import logging
 from pathlib import Path

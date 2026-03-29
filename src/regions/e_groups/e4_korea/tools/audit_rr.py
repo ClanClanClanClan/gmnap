@@ -3,6 +3,7 @@
 Find impossible Hangul ↔ roman pairs, e.g. han='뮹', rom='myeong'.
 Rule-of-thumb heuristics are encoded in SUSPECT().
 """
+
 import csv
 import unicodedata as U
 import pathlib

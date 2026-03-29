@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Diagnose why FST additions cause regressions."""
+
 import csv
 import subprocess
 import tempfile

@@ -3,6 +3,7 @@
 Mathematics Genealogy Project API Implementation for GMNAP V7
 Tier-1 authority source: Academic genealogy data
 """
+
 import asyncio
 import logging
 import re

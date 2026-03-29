@@ -425,8 +425,8 @@ class TestRealWorldMathematicianNames:
             },
             {"name": "𝕊𝕞𝕚𝕥𝕙, 𝕁𝕠𝕙𝕟", "description": "Mathematical alphanumeric symbols"},
             {"name": "Ｓｍｉｔｈ，Ｊｏｈｎ", "description": "Full-width characters"},
-            {"name": "Smith\u200B, \u200CJohn\u200D", "description": "Zero-width characters"},
-            {"name": "Smith\uFEFF, John\u061C", "description": "Invisible formatting characters"},
+            {"name": "Smith\u200b, \u200cJohn\u200d", "description": "Zero-width characters"},
+            {"name": "Smith\ufeff, John\u061c", "description": "Invisible formatting characters"},
         ]
 
         for case in extreme_cases:
@@ -461,7 +461,7 @@ class TestRealWorldMathematicianNames:
             {"name": "Smith, John\r\n", "issue": "crlf_injection"},
             {"name": "Smith, John\t\t\t", "issue": "tab_injection"},
             {"name": "Smith, John" + "\u0000" * 10, "issue": "multiple_null_bytes"},
-            {"name": "Smith, John" + "\uFFFE\uFFFF", "issue": "unicode_noncharacters"},
+            {"name": "Smith, John" + "\ufffe\uffff", "issue": "unicode_noncharacters"},
         ]
 
         for pattern in corruption_patterns:

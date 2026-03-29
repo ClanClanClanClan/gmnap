@@ -6,11 +6,11 @@ from typing import Optional
 HELL-LEVEL PARANOID LINGUISTIC RULES TESTING FOR V7 COMPLIANCE
 ==============================================================
 
-This framework provides comprehensive, adversarial testing for ALL 34 v7 
+This framework provides comprehensive, adversarial testing for ALL 34 v7
 linguistic rules with brutal edge case coverage. Tests are designed to:
 
 1. Test EVERY possible edge case and corner case
-2. Use adversarial inputs designed to break rule implementations  
+2. Use adversarial inputs designed to break rule implementations
 3. Test cross-rule interactions and conflicts
 4. Validate exact v7 specification compliance
 5. Provide tests for unimplemented rules (ready when we implement them)
@@ -22,7 +22,7 @@ linguistic rules with brutal edge case coverage. Tests are designed to:
 
 Each rule has:
 - Basic functionality tests
-- Edge case tests  
+- Edge case tests
 - Adversarial attack tests
 - Unicode normalization tests
 - Performance benchmarks
@@ -1117,7 +1117,7 @@ class V7LinguisticRulesHellTester:
                     "cjk_variant_selectors",
                     {
                         "CanonicalLatin": "Wang Wei",
-                        "CanonicalNative": "王\uFE00伟",
+                        "CanonicalNative": "王\ufe00伟",
                     },  # Variant selector
                     "cjk_roundtrip",
                     test_category="unicode",

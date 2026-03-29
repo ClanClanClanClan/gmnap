@@ -14,7 +14,6 @@ Based on expert guidance and integration contract.
 from typing import Dict, Optional, Tuple
 from collections import namedtuple
 
-
 DetectionResult = namedtuple(
     "DetectionResult", ["region_code", "confidence", "detection_method", "metadata"]
 )

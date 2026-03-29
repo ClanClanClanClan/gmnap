@@ -10,7 +10,6 @@ from pathlib import Path
 from collections import defaultdict
 from typing import Dict, Set
 
-
 # Map YAML files to region codes
 FILE_TO_REGION = {
     "chinese.yaml": "E1",  # Sinophone Mainland
@@ -170,8 +169,7 @@ def create_integration_script(region_surnames: Dict[str, Set[str]]):
     script_path = Path(__file__).parent / "update_manager_surnames.py"
 
     with open(script_path, "w") as f:
-        f.write(
-            '''#!/usr/bin/env python3
+        f.write('''#!/usr/bin/env python3
 """
 Update manager.py with real mathematician surnames.
 Generated from docs/regional/*.yaml files.
@@ -181,8 +179,7 @@ from pathlib import Path
 
 # Mathematician surnames extracted from YAML files
 MATHEMATICIAN_SURNAMES = {
-'''
-        )
+''')
 
         # Write surname data
         for region, surnames in sorted(region_surnames.items()):
@@ -200,8 +197,7 @@ MATHEMATICIAN_SURNAMES = {
 
             f.write("    },\n")
 
-        f.write(
-            '''}
+        f.write('''}
 
 def update_manager():
     """Update manager.py with mathematician surnames."""
@@ -249,8 +245,7 @@ def update_manager():
 
 if __name__ == "__main__":
     update_manager()
-'''
-        )
+''')
 
     print(f"✅ Created integration script: {script_path}")
     print("   Run it to update manager.py with real mathematician surnames")

@@ -47,11 +47,11 @@ def test_security_hell():
         # Regex DoS
         "a" + "a" * 50 + "!": {"GlobalID": "evil011"},
         # Unicode direction override
-        "\u202E\u0061\u0062\u0063": {"GlobalID": "evil012"},
+        "\u202e\u0061\u0062\u0063": {"GlobalID": "evil012"},
         # Homograph attack
         "Аррӏе": {"GlobalID": "evil013"},  # Cyrillic 'Apple'
         # Zero-width characters
-        "John\u200B\u200C\u200DSmith": {"GlobalID": "evil014"},
+        "John\u200b\u200c\u200dSmith": {"GlobalID": "evil014"},
         # Control characters
         "Test\x1b[31mRed\x1b[0m": {"GlobalID": "evil015"},
     }

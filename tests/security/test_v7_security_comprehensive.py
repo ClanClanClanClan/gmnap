@@ -286,14 +286,14 @@ class TestV7SecurityFramework:
         """Test Unicode-based security bypass attempts"""
         unicode_attacks = [
             "Smith\u2024DROP TABLE users",  # One dot leader
-            "Johnson\u00A0OR\u00A01=1",  # Non-breaking space
+            "Johnson\u00a0OR\u00a01=1",  # Non-breaking space
             "Brown\u2028<script>",  # Line separator
             "Davis\u2029alert()",  # Paragraph separator
-            "Wilson\uFEFF'; --",  # Zero width no-break space
-            "Miller\u200E<iframe>",  # Left-to-right mark
-            "Moore\u202E>tpircs<",  # Right-to-left override
-            "Taylor\u200C$(whoami)",  # Zero width non-joiner
-            "Anderson\u200D{{7*7}}",  # Zero width joiner
+            "Wilson\ufeff'; --",  # Zero width no-break space
+            "Miller\u200e<iframe>",  # Left-to-right mark
+            "Moore\u202e>tpircs<",  # Right-to-left override
+            "Taylor\u200c$(whoami)",  # Zero width non-joiner
+            "Anderson\u200d{{7*7}}",  # Zero width joiner
             "Thomas\u2060*)(uid=*",  # Word joiner
         ]
 

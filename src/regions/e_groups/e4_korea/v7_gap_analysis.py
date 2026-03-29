@@ -3,6 +3,7 @@
 GMNAP v7 Specification Gap Analysis
 Critical analysis of Korean Regional Processor readiness for v7 integration
 """
+
 import subprocess
 
 

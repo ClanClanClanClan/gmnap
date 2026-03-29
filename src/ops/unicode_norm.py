@@ -3,9 +3,9 @@ import unicodedata, re
 
 # Basic fold map (can be extended; spec lists several exceptions)
 _FOLD = {
-    "\u00DF": "ss",  # ß
-    "\u1E9E": "SS",  # ẞ
-    "\u00A0": " ",  # NBSP
+    "\u00df": "ss",  # ß
+    "\u1e9e": "SS",  # ẞ
+    "\u00a0": " ",  # NBSP
 }
 
 _CONTROL_RE = re.compile(r"[\u0000-\u001F\u007F]")  # ASCII control chars

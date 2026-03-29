@@ -15,7 +15,6 @@ import unicodedata
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
 
-
 # Regional surname patterns (from GMNAP's existing system)
 SURNAME_PATTERNS = {
     # E4 - Korean

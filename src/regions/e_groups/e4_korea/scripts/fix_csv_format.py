@@ -2,6 +2,7 @@
 """
 Fix CSV format - ensure all entries are (hangul, romanization)
 """
+
 import csv
 from pathlib import Path
 
@@ -10,7 +11,7 @@ E4_ROOT = Path(__file__).parent.parent
 
 def is_hangul(text):
     """Check if text contains Hangul characters."""
-    return any("\uAC00" <= char <= "\uD7A3" for char in text)
+    return any("\uac00" <= char <= "\ud7a3" for char in text)
 
 
 def main():

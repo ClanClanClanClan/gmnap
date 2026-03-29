@@ -496,10 +496,10 @@ class TestSecurityValidator(unittest.TestCase):
     def test_unicode_category_filtering(self):
         """Test suspicious Unicode category detection."""
         malicious_inputs = [
-            "Test\u200B",  # Zero-width space (category Cf)
+            "Test\u200b",  # Zero-width space (category Cf)
             "Name\u0000",  # Null character (category Cc)
-            "User\uFFF9",  # Interlinear annotation (category Cf)
-            "Text\uE000",  # Private use character (category Co)
+            "User\ufff9",  # Interlinear annotation (category Cf)
+            "Text\ue000",  # Private use character (category Co)
         ]
         for malicious in malicious_inputs:
             with self.assertRaises(SecurityError):

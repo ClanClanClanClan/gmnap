@@ -8,7 +8,7 @@ Tests performance requirements from V7 specification
 
 V7 Performance Requirements:
 - Quick mode: <=35 min per 1M entries
-- Full mode: <=70 min per 1M entries  
+- Full mode: <=70 min per 1M entries
 - Memory: <=6GB RSS
 - Warm cache runtime per 1M min: Quick 35min, Full 70min
 """

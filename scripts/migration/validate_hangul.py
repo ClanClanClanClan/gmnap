@@ -2,6 +2,7 @@
 """
 Validation script that compares against Hangul variants in the dataset
 """
+
 import yaml
 import unicodedata
 import sys

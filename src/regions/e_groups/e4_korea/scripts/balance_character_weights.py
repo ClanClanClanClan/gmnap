@@ -3,6 +3,7 @@
 Balance character weights for final +10 cases to reach 95.4%
 Focus on 이 character balance and given name improvements
 """
+
 import csv
 import shutil
 from datetime import datetime

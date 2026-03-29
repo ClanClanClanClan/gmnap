@@ -322,7 +322,9 @@ class UltrathinkAuditor:
         if handled_correctly == len(collision_tests):
             self.audit_results["claims_verified"].append("✅ Collision suffixes handled correctly")
         else:
-            self.audit_results["issues_found"].append(f"⚠️ Collision handling issues: {len(issues)}")
+            self.audit_results["issues_found"].append(
+                f"⚠️ Collision handling issues: {len(issues)}"
+            )
             for issue in issues:
                 self.audit_results["issues_found"].append(f"Collision: {issue}")
 

@@ -2,6 +2,7 @@
 """
 Train fastText model for regional name classification.
 """
+
 import fasttext
 import time
 from pathlib import Path

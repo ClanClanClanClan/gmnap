@@ -8,6 +8,7 @@ Strategy:
 - Quality validation
 - Regional balance (overweight problem regions)
 """
+
 import sys
 import random
 import json
@@ -18,7 +19,6 @@ from collections import defaultdict
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.regions.manager_optimized import _STRONG, _MEDIUM
-
 
 # Regional targets (50k total, excluding R0/Z0)
 REGIONAL_TARGETS = {

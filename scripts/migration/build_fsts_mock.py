@@ -3,6 +3,7 @@
 Mock FST builder for environments where PyNini is not available.
 Creates placeholder FST files and fallback lookup tables.
 """
+
 import csv, pathlib, json
 
 

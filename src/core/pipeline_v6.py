@@ -3,7 +3,7 @@ GMNAP Pipeline Implementation - Version 6.
 
 Implements the 10-stage processing pipeline as specified in specs v6:
 0. Config
-1. Ingest  
+1. Ingest
 2. Detect Region
 3. Region hooks
 4. Authority Enrich
@@ -707,8 +707,7 @@ class GMNAPPipeline:
             conn = duckdb.connect(":memory:")
 
             # Initial stats table
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE initial_stats (
                     canonical_latin VARCHAR,
                     region VARCHAR,
@@ -718,12 +717,10 @@ class GMNAPPipeline:
                     country VARCHAR,
                     confidence FLOAT
                 )
-            """
-            )
+            """)
 
             # Surname stats table
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE surname_stats (
                     surname VARCHAR,
                     surname_prefix VARCHAR,
@@ -731,8 +728,7 @@ class GMNAPPipeline:
                     count INTEGER,
                     birth_decade INTEGER
                 )
-            """
-            )
+            """)
 
             # Populate tables
             for canonical_latin, entry in self._entries.items():
@@ -1075,8 +1071,7 @@ class GMNAPPipeline:
 
             # Create change log database
             changes_db = self.db_manager.connection
-            changes_db.execute(
-                """
+            changes_db.execute("""
                 CREATE TABLE IF NOT EXISTS changes (
                     global_id TEXT,
                     canonical_latin TEXT,
@@ -1086,8 +1081,7 @@ class GMNAPPipeline:
                     new_value TEXT,
                     timestamp TEXT
                 )
-            """
-            )
+            """)
 
             # TODO: Track actual changes
 

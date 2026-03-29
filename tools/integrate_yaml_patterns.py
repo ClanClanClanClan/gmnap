@@ -5,7 +5,7 @@ Integrates mathematician YAML patterns into the core pipeline to fix classificat
 
 Target fixes:
 - Hungarian: Rényi → G1 instead of A2 (add Hungarian surnames)
-- Korean: Lee, Choi → A1 instead of E4 (expand Korean patterns)  
+- Korean: Lee, Choi → A1 instead of E4 (expand Korean patterns)
 - Slavic: Hájek, Novák → G1 instead of B2 (add Czech/Polish surnames)
 """
 

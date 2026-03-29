@@ -2,6 +2,7 @@
 """
 Debug final implementation
 """
+
 import sys
 from pathlib import Path
 

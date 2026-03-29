@@ -106,8 +106,7 @@ def analyze_roundtrip_problem():
     print("\n\n6. RECOMMENDED FIX:")
     print("=" * 50)
     print("Add this to _calculate_roundtrip_score() before the SequenceMatcher fallback:")
-    print(
-        """
+    print("""
     # Check for Cyrillic script
     cyrillic_chars = sum(1 for c in native if 0x0400 <= ord(c) <= 0x04FF)
     if cyrillic_chars > 0:
@@ -129,8 +128,7 @@ def analyze_roundtrip_problem():
             if 1.0 <= length_ratio <= 3.0:
                 return 0.98  # Assume good romanization
         return 0.0
-    """
-    )
+    """)
 
 
 if __name__ == "__main__":

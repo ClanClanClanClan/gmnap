@@ -7,7 +7,7 @@ Tests V7 graph coherence requirements and quality gates
 
 V7 Quality Gates:
 - Quick mode: >=0.85 coherence score
-- Full mode: >=0.92 coherence score  
+- Full mode: >=0.92 coherence score
 - Extreme mode: >=0.97 coherence score
 """
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """1M entry validation test for GMNAP V7 with expert streaming solution"""
+
 import asyncio, os, time, json
 from typing import List, Dict, Any
 from src.quality.gates_rolling import RollingGates, GateLimits

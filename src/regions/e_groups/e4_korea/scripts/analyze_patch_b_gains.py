@@ -2,6 +2,7 @@
 """
 Analyze which cases were fixed by Patch B weighted FST
 """
+
 import yaml, sys, os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))

@@ -118,8 +118,7 @@ class DatabaseManager:
         # Use BEGIN/COMMIT to ensure table creation is atomic
         self.connection.execute("BEGIN TRANSACTION")
         try:
-            self.connection.execute(
-                """
+            self.connection.execute("""
                 CREATE TABLE IF NOT EXISTS initial_stats (
                     global_id VARCHAR PRIMARY KEY,
                     canonical_latin VARCHAR NOT NULL,
@@ -133,11 +132,9 @@ class DatabaseManager:
                     confidence INTEGER,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """
-            )
+            """)
 
-            self.connection.execute(
-                """
+            self.connection.execute("""
                 CREATE TABLE IF NOT EXISTS surname_stats (
                     surname VARCHAR NOT NULL,
                     surname_prefix VARCHAR NOT NULL,
@@ -147,11 +144,9 @@ class DatabaseManager:
                     count INTEGER DEFAULT 1,
                     PRIMARY KEY (surname, birth_decade, country_code)
                 )
-            """
-            )
+            """)
 
-            self.connection.execute(
-                """
+            self.connection.execute("""
                 CREATE TABLE IF NOT EXISTS collision_analysis (
                     collision_type VARCHAR NOT NULL,
                     collision_key VARCHAR NOT NULL,
@@ -161,8 +156,7 @@ class DatabaseManager:
                     resolved BOOLEAN DEFAULT FALSE,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """
-            )
+            """)
 
             self.connection.execute("COMMIT")
         except Exception as e:
@@ -171,8 +165,7 @@ class DatabaseManager:
 
     def _create_sqlite_tables(self):
         """Create tables for SQLite with partial indexing."""
-        self.connection.execute(
-            """
+        self.connection.execute("""
             CREATE TABLE IF NOT EXISTS initial_stats (
                 global_id TEXT PRIMARY KEY,
                 canonical_latin TEXT NOT NULL,
@@ -186,11 +179,9 @@ class DatabaseManager:
                 confidence INTEGER,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """
-        )
+        """)
 
-        self.connection.execute(
-            """
+        self.connection.execute("""
             CREATE TABLE IF NOT EXISTS surname_stats (
                 surname TEXT NOT NULL,
                 surname_prefix TEXT NOT NULL,
@@ -200,20 +191,16 @@ class DatabaseManager:
                 count INTEGER DEFAULT 1,
                 PRIMARY KEY (surname, birth_decade, country_code)
             )
-        """
-        )
+        """)
 
         # Partial index for memory efficiency
-        self.connection.execute(
-            """
+        self.connection.execute("""
             CREATE INDEX IF NOT EXISTS idx_surname_prefix_decade 
             ON surname_stats(surname_prefix, birth_decade) 
             WHERE birth_decade IS NOT NULL
-        """
-        )
+        """)
 
-        self.connection.execute(
-            """
+        self.connection.execute("""
             CREATE TABLE IF NOT EXISTS collision_analysis (
                 collision_type TEXT NOT NULL,
                 collision_key TEXT NOT NULL,
@@ -223,8 +210,7 @@ class DatabaseManager:
                 resolved BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """
-        )
+        """)
 
         self.connection.commit()
 
@@ -345,8 +331,7 @@ class DatabaseManager:
     def _build_surname_stats_duckdb(self) -> Dict[str, Any]:
         """Build surname statistics using DuckDB."""
         # Group by surname and birth decade
-        self.connection.execute(
-            """
+        self.connection.execute("""
             INSERT INTO surname_stats (surname, surname_prefix, birth_decade, country_code, region_code, count)
             SELECT 
                 family_name as surname,
@@ -358,20 +343,17 @@ class DatabaseManager:
             FROM initial_stats
             WHERE family_name IS NOT NULL
             GROUP BY family_name, birth_decade, country_codes[1], region_code
-        """
-        )
+        """)
 
         # Get statistics
-        stats = self.connection.execute(
-            """
+        stats = self.connection.execute("""
             SELECT 
                 COUNT(DISTINCT surname) as unique_surnames,
                 COUNT(*) as total_combinations,
                 AVG(count) as avg_count,
                 MAX(count) as max_count
             FROM surname_stats
-        """
-        ).fetchone()
+        """).fetchone()
 
         return {
             "unique_surnames": stats[0],
@@ -385,13 +367,11 @@ class DatabaseManager:
         import json
 
         # Get all entries
-        cursor = self.connection.execute(
-            """
+        cursor = self.connection.execute("""
             SELECT family_name, birth_year, country_codes, region_code
             FROM initial_stats
             WHERE family_name IS NOT NULL
-        """
-        )
+        """)
 
         surname_counts = {}
         for row in cursor:
@@ -428,16 +408,14 @@ class DatabaseManager:
         self.connection.commit()
 
         # Get statistics
-        stats = self.connection.execute(
-            """
+        stats = self.connection.execute("""
             SELECT 
                 COUNT(DISTINCT surname) as unique_surnames,
                 COUNT(*) as total_combinations,
                 AVG(count) as avg_count,
                 MAX(count) as max_count
             FROM surname_stats
-        """
-        ).fetchone()
+        """).fetchone()
 
         return {
             "unique_surnames": stats[0],

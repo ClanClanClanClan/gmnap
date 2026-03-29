@@ -689,8 +689,7 @@ def test_summary():
     print("\n" + "=" * 60)
     print("🎯 REGIONAL LINGUISTIC RULES TEST SUMMARY")
     print("=" * 60)
-    print(
-        """
+    print("""
     Tested linguistic processing for all 33 regions:
     
     PASS Anglo-sphere (A1-A5): Titles, suffixes, particles
@@ -707,8 +706,7 @@ def test_summary():
     - Linguistic rules (particles, suffixes, etc.)
     - Name normalization
     - Special character handling
-    """
-    )
+    """)
     print("=" * 60)
 
 

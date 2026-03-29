@@ -127,8 +127,7 @@ class V7MonitoringSystem:
         self.config.metrics_db_path.parent.mkdir(parents=True, exist_ok=True)
 
         with sqlite3.connect(str(self.config.metrics_db_path)) as conn:
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS metrics (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     metric_type TEXT NOT NULL,
@@ -138,11 +137,9 @@ class V7MonitoringSystem:
                     timestamp DATETIME NOT NULL,
                     additional_data TEXT
                 )
-            """
-            )
+            """)
 
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS alerts (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     level TEXT NOT NULL,
@@ -155,8 +152,7 @@ class V7MonitoringSystem:
                     resolved DATETIME,
                     resolved_by TEXT
                 )
-            """
-            )
+            """)
 
             # Indexes for performance
             conn.execute("CREATE INDEX IF NOT EXISTS idx_metrics_timestamp ON metrics(timestamp)")

@@ -432,7 +432,7 @@ class ParanoidHellTestSuite:
         # Memory stress patterns
         memory_stress = [
             "A" * 1000000,  # 1MB string
-            "\U0001F600" * 100000,  # Many 4-byte UTF-8 chars
+            "\U0001f600" * 100000,  # Many 4-byte UTF-8 chars
             ("Test " * 1000 + "\n") * 1000,  # Large multiline
         ]
 
