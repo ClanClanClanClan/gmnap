@@ -91,10 +91,10 @@ class V7HellLevelCompliance:
                 {"CanonicalLatin": "C:\\Windows\\System32\\drivers\\etc\\hosts"},
             ],
             "unicode_attacks": [
-                {"CanonicalLatin": "\u202E\u0645\u0644\u0641.exe"},  # RLO
+                {"CanonicalLatin": "\u202e\u0645\u0644\u0641.exe"},  # RLO
                 {"CanonicalLatin": "gооgle"},  # Homograph
-                {"CanonicalLatin": "test\u200B\u200Cword"},  # Zero-width
-                {"CanonicalLatin": "\uFEFF\uFEFFJohn\uFEFF"},  # BOM
+                {"CanonicalLatin": "test\u200b\u200cword"},  # Zero-width
+                {"CanonicalLatin": "\ufeff\ufeffJohn\ufeff"},  # BOM
             ],
             "overflow_attacks": [
                 {"CanonicalLatin": "A" * 10000},  # Long name
@@ -462,7 +462,10 @@ class V7HellLevelCompliance:
             ],
             "unicode_edge_cases": [
                 {"CanonicalLatin": "🔬 Science Emoji Name 🧮", "description": "Emoji in name"},
-                {"CanonicalLatin": "Z̴̡̺̩̳̗̈́̈́̇ả̸̧̨̺̦̟̟̈́l̵̢̜̦̰̇g̷̱̝̈́̄̊̕o̶̭̊ ̸̨̛̺̬̇T̷̺̆ë̵́x̸̌t̸̾", "description": "Zalgo text"},
+                {
+                    "CanonicalLatin": "Z̴̡̺̩̳̗̈́̈́̇ả̸̧̨̺̦̟̟̈́l̵̢̜̦̰̇g̷̱̝̈́̄̊̕o̶̭̊ ̸̨̛̺̬̇T̷̺̆ë̵́x̸̌t̸̾",
+                    "description": "Zalgo text",
+                },
             ],
         }
 

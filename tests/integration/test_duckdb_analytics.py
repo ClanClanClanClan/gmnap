@@ -63,25 +63,21 @@ def test_duckdb_connection():
         conn = duckdb.connect(":memory:")
 
         # Create test table
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE test_entries (
                 GlobalID VARCHAR PRIMARY KEY,
                 CanonicalLatin VARCHAR,
                 Confidence INTEGER
             )
-        """
-        )
+        """)
 
         # Insert test data
-        conn.execute(
-            """
+        conn.execute("""
             INSERT INTO test_entries VALUES 
             ('TEST001', 'Smith, John', 95),
             ('TEST002', 'García, María', 98),
             ('TEST003', 'Kim, Min-jun', 92)
-        """
-        )
+        """)
 
         # Query data
         result = conn.execute("SELECT COUNT(*) FROM test_entries").fetchone()
@@ -108,16 +104,14 @@ def test_collision_detection():
         conn = duckdb.connect(":memory:")
 
         # Create entries table
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE entries (
                 GlobalID VARCHAR PRIMARY KEY,
                 CanonicalLatin VARCHAR,
                 CanonicalNative VARCHAR,
                 Confidence INTEGER
             )
-        """
-        )
+        """)
 
         # Insert test data with collisions
         test_data = [
@@ -132,15 +126,13 @@ def test_collision_detection():
             conn.execute("INSERT INTO entries VALUES (?, ?, ?, ?)", entry)
 
         # Detect exact collisions
-        exact_collisions = conn.execute(
-            """
+        exact_collisions = conn.execute("""
             SELECT CanonicalLatin, COUNT(*) as count
             FROM entries
             GROUP BY CanonicalLatin
             HAVING COUNT(*) > 1
             ORDER BY count DESC
-        """
-        ).fetchall()
+        """).fetchall()
 
         print("PASS Exact collisions detected:")
         for name, count in exact_collisions:
@@ -149,14 +141,12 @@ def test_collision_detection():
         assert len(exact_collisions) > 0, "Should detect collisions"
 
         # Detect near-duplicates (simplified - real implementation would use fuzzy matching)
-        near_duplicates = conn.execute(
-            """
+        near_duplicates = conn.execute("""
             SELECT a.GlobalID, b.GlobalID, a.CanonicalLatin, b.CanonicalLatin
             FROM entries a, entries b
             WHERE a.GlobalID < b.GlobalID
             AND LOWER(REPLACE(a.CanonicalLatin, ' ', '')) = LOWER(REPLACE(b.CanonicalLatin, ' ', ''))
-        """
-        ).fetchall()
+        """).fetchall()
 
         if near_duplicates:
             print("PASS Near-duplicates detected:")
@@ -246,46 +236,40 @@ def test_analytics_performance():
         conn = duckdb.connect(":memory:")
 
         # Create table
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE perf_test (
                 id INTEGER,
                 name VARCHAR,
                 value DOUBLE
             )
-        """
-        )
+        """)
 
         # Generate test data
         num_rows = 10000
         start_time = time.time()
 
         # Batch insert
-        conn.execute(
-            f"""
+        conn.execute(f"""
             INSERT INTO perf_test
             SELECT 
                 generate_series AS id,
                 'Name_' || generate_series AS name,
                 random() * 100 AS value
             FROM generate_series(1, {num_rows})
-        """
-        )
+        """)
 
         insert_time = time.time() - start_time
 
         # Test query performance
         start_time = time.time()
-        result = conn.execute(
-            """
+        result = conn.execute("""
             SELECT 
                 COUNT(*) as total,
                 AVG(value) as avg_value,
                 MIN(value) as min_value,
                 MAX(value) as max_value
             FROM perf_test
-        """
-        ).fetchone()
+        """).fetchone()
 
         query_time = time.time() - start_time
 

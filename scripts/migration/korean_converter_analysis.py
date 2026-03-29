@@ -259,8 +259,7 @@ def propose_fixes():
 
     print("\n7. IMPLEMENTATION PLAN:")
     print("-" * 40)
-    print(
-        """
+    print("""
   Week 1 (Analysis - THIS WEEK):
     ✓ Understand current implementation
     ✓ Identify failure patterns
@@ -284,8 +283,7 @@ def propose_fixes():
     - 97%+ round-trip accuracy
     - No hardcoded data
     - <10ms per name conversion
-    """
-    )
+    """)
 
 
 def main():

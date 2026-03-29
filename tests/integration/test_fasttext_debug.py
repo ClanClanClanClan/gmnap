@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Debug FastText language detection"""
+
 import sys
 from pathlib import Path
 import pytest

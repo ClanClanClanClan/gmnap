@@ -220,8 +220,8 @@ class TestNormalizeUnicode:
         control_chars = [
             "\x01",  # SOH
             "\x02",  # STX
-            "\x1F",  # Unit Separator
-            "\x7F",  # DEL
+            "\x1f",  # Unit Separator
+            "\x7f",  # DEL
         ]
 
         for char in control_chars:
@@ -235,8 +235,8 @@ class TestNormalizeUnicode:
         """Test that standard whitespace characters are allowed."""
         whitespace_chars = [
             "\x09",  # Tab
-            "\x0A",  # Line Feed
-            "\x0D",  # Carriage Return
+            "\x0a",  # Line Feed
+            "\x0d",  # Carriage Return
             "\x20",  # Space
         ]
 
@@ -249,7 +249,7 @@ class TestNormalizeUnicode:
     def test_format_character_rejection(self):
         """Test rejection of format control characters."""
         # Zero-width joiner
-        text = "Hello\u200DWorld"
+        text = "Hello\u200dWorld"
 
         with pytest.raises(SecurityError) as exc_info:
             self.validator.normalize_unicode(text, "Format char test")
@@ -258,7 +258,7 @@ class TestNormalizeUnicode:
     @pytest.mark.timeout(15)
     def test_private_use_character_rejection(self):
         """Test rejection of private use area characters."""
-        text = "Hello\uE000World"  # Private use area
+        text = "Hello\ue000World"  # Private use area
 
         with pytest.raises(SecurityError) as exc_info:
             self.validator.normalize_unicode(text, "Private use test")
@@ -602,9 +602,9 @@ class TestIntegration:
             # Script mixing
             "HelloПривет",  # Latin + Cyrillic
             # Direction override
-            "Hello\u202Eworld",  # Right-to-left override
+            "Hello\u202eworld",  # Right-to-left override
             # Zero-width characters
-            "Hello\u200Bworld",  # Zero-width space
+            "Hello\u200bworld",  # Zero-width space
         ]
 
         for text in test_cases:

@@ -493,8 +493,7 @@ class TestDatabaseStressEndurance:
         db.initialize()
 
         # Create test table
-        db.execute(
-            """
+        db.execute("""
             CREATE TABLE IF NOT EXISTS stress_test (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 worker_id INTEGER,
@@ -502,8 +501,7 @@ class TestDatabaseStressEndurance:
                 data TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-        """
-        )
+        """)
 
         # Stress test function
         def database_stress_worker(worker_id, operations):

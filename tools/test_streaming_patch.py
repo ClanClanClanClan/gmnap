@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Quick streaming patch smoke test (1k→50k)"""
+
 import asyncio, os, time, json
 from typing import List, Dict, Any
 

@@ -733,7 +733,7 @@ class PsychoticParanoidTester:
 
         whitespaces = [
             ("\u0020", "SPACE"),
-            ("\u00A0", "NBSP"),
+            ("\u00a0", "NBSP"),
             ("\u1680", "OGHAM_SPACE"),
             ("\u2000", "EN_QUAD"),
             ("\u2001", "EM_QUAD"),
@@ -745,9 +745,9 @@ class PsychoticParanoidTester:
             ("\u2007", "FIGURE_SPACE"),
             ("\u2008", "PUNCTUATION_SPACE"),
             ("\u2009", "THIN_SPACE"),
-            ("\u200A", "HAIR_SPACE"),
-            ("\u202F", "NARROW_NBSP"),
-            ("\u205F", "MEDIUM_MATH_SPACE"),
+            ("\u200a", "HAIR_SPACE"),
+            ("\u202f", "NARROW_NBSP"),
+            ("\u205f", "MEDIUM_MATH_SPACE"),
             ("\u3000", "IDEOGRAPHIC_SPACE"),
         ]
 

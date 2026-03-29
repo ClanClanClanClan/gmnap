@@ -4,7 +4,7 @@ Extracted from successful Crossref/OpenAlex/DBLP patterns
 
 This template provides the core patterns that enabled successful authority implementations:
 - Standard fetch/parse/validate workflow
-- Rate limiting and session management  
+- Rate limiting and session management
 - Error handling and retry logic
 - Response parsing templates
 - Confidence scoring algorithms

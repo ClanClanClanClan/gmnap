@@ -152,9 +152,9 @@ class HellLevelTester:
         # Zero-width characters
         bombs.extend(
             [
-                "\u200B" * 1000,  # Zero width space bomb
-                "\u200C" * 1000,  # Zero width non-joiner
-                "\uFEFF" * 1000,  # Byte order mark
+                "\u200b" * 1000,  # Zero width space bomb
+                "\u200c" * 1000,  # Zero width non-joiner
+                "\ufeff" * 1000,  # Byte order mark
             ]
         )
 
@@ -178,8 +178,8 @@ class HellLevelTester:
         # Surrogate pairs and high Unicode
         bombs.extend(
             [
-                "\U0001F4A9" * 1000,  # Poop emoji spam
-                "\U000E0000" * 500,  # Language tag spam
+                "\U0001f4a9" * 1000,  # Poop emoji spam
+                "\U000e0000" * 500,  # Language tag spam
             ]
         )
 

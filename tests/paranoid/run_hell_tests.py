@@ -11,10 +11,10 @@ security and robustness report for the GMNAP system.
 
 Usage:
     python tests/paranoid/run_hell_tests.py [--quick] [--category CATEGORY]
-    
+
 Categories:
     - security: Security and injection tests
-    - regional: Regional detection tests  
+    - regional: Regional detection tests
     - performance: Performance and memory tests
     - korean: Korean-specific tests
     - fuzzing: Fuzzing and property tests

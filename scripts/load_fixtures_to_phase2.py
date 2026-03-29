@@ -140,25 +140,21 @@ def load_fixtures():
             )
 
         # Count results
-        fixture_nodes = session.run(
-            """
+        fixture_nodes = session.run("""
             MATCH (n:Mathematician)
             WHERE n.is_fixture = true
             RETURN count(n) as count
-        """
-        ).single()["count"]
+        """).single()["count"]
 
         all_nodes = session.run("MATCH (n:Mathematician) RETURN count(n) as count").single()[
             "count"
         ]
 
-        fixture_edges = session.run(
-            """
+        fixture_edges = session.run("""
             MATCH ()-[r:DOCTORAL_ADVISOR]->()
             WHERE r.is_fixture = true
             RETURN count(r) as count
-        """
-        ).single()["count"]
+        """).single()["count"]
 
         all_edges = session.run(
             "MATCH ()-[r:DOCTORAL_ADVISOR]->() RETURN count(r) as count"

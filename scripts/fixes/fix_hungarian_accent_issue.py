@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Fix Hungarian accent disambiguation issue - Rényi should go to A2 not G1
-The problem: Hungarian surnames list has 'renyi' but name is 'rényi' 
+The problem: Hungarian surnames list has 'renyi' but name is 'rényi'
 Solution: Add accent-normalized matching for Hungarian surnames
 """
 

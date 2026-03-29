@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Safely add Tier 1 mappings one by one with validation."""
+
 import subprocess
 
 mappings = [

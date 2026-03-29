@@ -370,20 +370,20 @@ class TestInputFuzzing:
         normalization_attacks = [
             # Normalization collision attack
             "A\u0300",  # A with combining grave accent
-            "\u00C0",  # A with grave accent (precomposed)
+            "\u00c0",  # A with grave accent (precomposed)
             # Homograph attack with normalization
             "А",  # Cyrillic A (looks like Latin A)
             "A",  # Latin A
             # Mixed normalization forms
-            "caf\u00E9",  # café with é
+            "caf\u00e9",  # café with é
             "cafe\u0301",  # café with combining acute
             # Invisible character attack
-            "Smith\u200B, John",  # Zero-width space
-            "Smith\u200C, John",  # Zero-width non-joiner
-            "Smith\u200D, John",  # Zero-width joiner
+            "Smith\u200b, John",  # Zero-width space
+            "Smith\u200c, John",  # Zero-width non-joiner
+            "Smith\u200d, John",  # Zero-width joiner
             # Bidirectional override attack
-            "Smith\u202E, John",  # Right-to-left override
-            "Smith\u202D, John",  # Left-to-right override
+            "Smith\u202e, John",  # Right-to-left override
+            "Smith\u202d, John",  # Left-to-right override
         ]
 
         for attack_string in normalization_attacks:
@@ -394,7 +394,7 @@ class TestInputFuzzing:
                 # Should handle normalization attacks safely
                 if normalized:
                     # Should not contain dangerous invisible characters
-                    dangerous_chars = ["\u200B", "\u200C", "\u200D", "\u202E", "\u202D"]
+                    dangerous_chars = ["\u200b", "\u200c", "\u200d", "\u202e", "\u202d"]
                     for char in dangerous_chars:
                         assert (
                             char not in normalized

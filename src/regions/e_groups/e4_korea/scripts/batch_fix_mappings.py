@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Batch fix mappings to resolve failures."""
+
 import shutil
 import subprocess
 from datetime import datetime

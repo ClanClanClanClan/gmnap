@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Check what mappings exist for specific hangul characters."""
+
 import csv
 
 

@@ -32,8 +32,7 @@ def get_sample_v7_mathematician():
     driver = GraphDatabase.driver("bolt://localhost:7687", auth=None)
 
     with driver.session() as sess:
-        result = sess.run(
-            """
+        result = sess.run("""
             MATCH (m:Mathematician)
             WHERE m.global_id IS NOT NULL
               AND m.canonical_latin IS NOT NULL
@@ -41,8 +40,7 @@ def get_sample_v7_mathematician():
                    m.canonical_latin as canonical_latin,
                    m.region_code as region_code
             LIMIT 1
-        """
-        )
+        """)
 
         record = result.single()
         if not record:

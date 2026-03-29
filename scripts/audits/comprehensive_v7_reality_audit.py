@@ -419,27 +419,23 @@ def test_collision_detection() -> Tuple[int, int]:
         conn = duckdb.connect(":memory:")
 
         # Create test table
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE entries (
                 GlobalID VARCHAR,
                 CanonicalLatin VARCHAR
             )
-        """
-        )
+        """)
 
         # Insert test data with collision
         conn.execute("INSERT INTO entries VALUES ('ID1', 'John Smith'), ('ID2', 'John Smith')")
 
         # Detect collisions
-        result = conn.execute(
-            """
+        result = conn.execute("""
             SELECT CanonicalLatin, COUNT(*) as count
             FROM entries
             GROUP BY CanonicalLatin
             HAVING COUNT(*) > 1
-        """
-        ).fetchall()
+        """).fetchall()
 
         if result:
             print("  ✅ DuckDB collision detection working")

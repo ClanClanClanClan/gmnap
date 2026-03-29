@@ -38,21 +38,21 @@ class V7ComplianceTest:
             {"name": "Bell character", "input": "Test\x07Alert"},
             {"name": "Backspace attack", "input": "Test\x08"},
             {"name": "Tab injection", "input": "Test\x09\x09"},
-            {"name": "Newline injection", "input": "Test\x0A\x0D"},
-            {"name": "Vertical tab", "input": "Test\x0B"},
-            {"name": "Form feed", "input": "Test\x0C"},
-            {"name": "Escape sequence", "input": "Test\x1B[31m"},
-            {"name": "Unit separator", "input": "Test\x1F"},
-            {"name": "DELETE character", "input": "Test\x7F"},
+            {"name": "Newline injection", "input": "Test\x0a\x0d"},
+            {"name": "Vertical tab", "input": "Test\x0b"},
+            {"name": "Form feed", "input": "Test\x0c"},
+            {"name": "Escape sequence", "input": "Test\x1b[31m"},
+            {"name": "Unit separator", "input": "Test\x1f"},
+            {"name": "DELETE character", "input": "Test\x7f"},
             # Zero-width character attacks
-            {"name": "Zero-width space", "input": "Test\u200B"},
-            {"name": "Zero-width non-joiner", "input": "Test\u200C"},
-            {"name": "Zero-width joiner", "input": "Test\u200D"},
-            {"name": "Byte order mark", "input": "Test\uFEFF"},
+            {"name": "Zero-width space", "input": "Test\u200b"},
+            {"name": "Zero-width non-joiner", "input": "Test\u200c"},
+            {"name": "Zero-width joiner", "input": "Test\u200d"},
+            {"name": "Byte order mark", "input": "Test\ufeff"},
             # DoS attacks
             {"name": "DoS length attack", "input": "A" * 200},
             # Combined attacks
-            {"name": "Multi-vector attack", "input": "Test\x00\u200B\x1F" + "X" * 180},
+            {"name": "Multi-vector attack", "input": "Test\x00\u200b\x1f" + "X" * 180},
         ]
 
         # V7 edge cases (should be handled gracefully)

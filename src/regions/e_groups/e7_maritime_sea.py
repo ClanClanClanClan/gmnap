@@ -1,7 +1,7 @@
 """
 Maritime SEA (E7) regional processor.
 
-Implements Malay bin/binti (Rule 28), Indonesian mononyms (Rule 14), 
+Implements Malay bin/binti (Rule 28), Indonesian mononyms (Rule 14),
 Filipino maternal middle names (Rule 30).
 Features: Patronymic handling, mononym detection, diverse naming patterns.
 """

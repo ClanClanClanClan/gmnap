@@ -538,11 +538,11 @@ class D4_PakistanUrdu(RegionSpec):
 
         # Remove Arabic diacritical marks (but preserve letters)
         diacritics = [
-            "\u064B",
-            "\u064C",
-            "\u064D",
-            "\u064E",
-            "\u064F",  # Short vowels
+            "\u064b",
+            "\u064c",
+            "\u064d",
+            "\u064e",
+            "\u064f",  # Short vowels
             "\u0650",
             "\u0651",
             "\u0652",
@@ -553,12 +553,12 @@ class D4_PakistanUrdu(RegionSpec):
             "\u0657",
             "\u0658",
             "\u0659",
-            "\u065A",
-            "\u065B",
-            "\u065C",
-            "\u065D",
-            "\u065E",
-            "\u065F",
+            "\u065a",
+            "\u065b",
+            "\u065c",
+            "\u065d",
+            "\u065e",
+            "\u065f",
             "\u0670",  # Additional diacritics
         ]
 

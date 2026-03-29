@@ -72,7 +72,7 @@ class TestDatabaseIntegrity:
         # Corrupt the database file
         with open(self.db_path, "r+b") as f:
             f.seek(100)  # Seek to middle of file
-            f.write(b"\xFF" * 1000)  # Write garbage bytes to corrupt
+            f.write(b"\xff" * 1000)  # Write garbage bytes to corrupt
 
         # Try to access corrupted database
         corrupted_config = DatabaseConfig(db_path=str(self.db_path), use_duckdb=False)

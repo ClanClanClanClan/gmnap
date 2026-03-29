@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Analyze weight adjustment strategy for conflicting mappings."""
+
 import csv
 import json
 from collections import defaultdict

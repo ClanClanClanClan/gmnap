@@ -3,6 +3,7 @@
 Crossref Authority API Implementation for GMNAP V7
 Tier-0 authority source: CC0 license, 4.3M daily quota
 """
+
 import asyncio
 import json
 import logging

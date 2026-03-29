@@ -443,8 +443,7 @@ def test_summary():
     print("\n" + "=" * 60)
     print("🎯 COMPREHENSIVE REGIONAL TESTING COMPLETE")
     print("=" * 60)
-    print(
-        """
+    print("""
     All 33 regions tested for:
     PASS Loading and initialization
     PASS Basic name processing
@@ -454,8 +453,7 @@ def test_summary():
     PASS Validation methods
     PASS Augmentation methods
     PASS Performance characteristics
-    """
-    )
+    """)
     print("=" * 60)
 
 

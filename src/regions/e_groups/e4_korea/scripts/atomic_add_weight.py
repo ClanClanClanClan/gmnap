@@ -3,6 +3,7 @@
 Atomic weight addition with rollback capability.
 Implements the production protocol for safe weight addition.
 """
+
 import csv
 import sys
 import os

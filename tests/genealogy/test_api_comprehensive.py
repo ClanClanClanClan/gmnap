@@ -25,8 +25,7 @@ class TestGenealogyAPI:
 
         # Get sample IDs from database
         with cls.driver.session() as s:
-            result = s.run(
-                """
+            result = s.run("""
                 MATCH (student:Person)-[:DOCTORAL_ADVISOR]->(advisor:Person)
                 RETURN
                     student.global_id as student_id,
@@ -34,8 +33,7 @@ class TestGenealogyAPI:
                     advisor.global_id as advisor_id,
                     advisor.canonical_name as advisor_name
                 LIMIT 5
-            """
-            )
+            """)
             cls.sample_data = list(result)
 
     @classmethod
@@ -393,14 +391,12 @@ class TestGenealogyAPI:
         """Test person with no known advisors"""
         # Find a person with no advisors
         with self.driver.session() as s:
-            result = s.run(
-                """
+            result = s.run("""
                 MATCH (p:Person)
                 WHERE NOT (p)-[:DOCTORAL_ADVISOR]->()
                 RETURN p.global_id as id
                 LIMIT 1
-            """
-            )
+            """)
             record = result.single()
 
             if record:
@@ -416,14 +412,12 @@ class TestGenealogyAPI:
         """Test person with no known students"""
         # Find a person with no students
         with self.driver.session() as s:
-            result = s.run(
-                """
+            result = s.run("""
                 MATCH (p:Person)
                 WHERE NOT (p)<-[:DOCTORAL_ADVISOR]-()
                 RETURN p.global_id as id
                 LIMIT 1
-            """
-            )
+            """)
             record = result.single()
 
             if record:
@@ -438,15 +432,13 @@ class TestGenealogyAPI:
         """Test person with multiple advisors"""
         # Find someone with 2+ advisors
         with self.driver.session() as s:
-            result = s.run(
-                """
+            result = s.run("""
                 MATCH (student:Person)-[:DOCTORAL_ADVISOR]->(advisor:Person)
                 WITH student, count(advisor) as advisor_count
                 WHERE advisor_count >= 2
                 RETURN student.global_id as id
                 LIMIT 1
-            """
-            )
+            """)
             record = result.single()
 
             if record:

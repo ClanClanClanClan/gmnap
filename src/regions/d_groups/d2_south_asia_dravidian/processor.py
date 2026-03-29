@@ -5,7 +5,7 @@ Covers Tamil, Telugu, Kannada, Malayalam mathematician names
 
 HELL-LEVEL TESTED:
 - Tamil mathematicians (Chennai, Madurai, Coimbatore)
-- Telugu mathematicians (Hyderabad, Visakhapatnam, Vijayawada)  
+- Telugu mathematicians (Hyderabad, Visakhapatnam, Vijayawada)
 - Kannada mathematicians (Bangalore, Mysore, Hubli)
 - Malayalam mathematicians (Kerala - Thiruvananthapuram, Kochi, Kozhikode)
 - Multi-script detection (Tamil, Telugu, Kannada, Malayalam scripts)

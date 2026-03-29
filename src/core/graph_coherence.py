@@ -5,7 +5,7 @@ Implements V7 requirements for graph consistency and coherence validation
 
 V7 Quality Gates:
 - Quick mode: ≥0.85 coherence score
-- Full mode: ≥0.92 coherence score  
+- Full mode: ≥0.92 coherence score
 - Extreme mode: ≥0.97 coherence score
 """
 

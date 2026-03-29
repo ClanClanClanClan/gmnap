@@ -3,6 +3,7 @@
 Systematic Improvement Framework for Korean Regional Processor
 Deterministic way to add new names without introducing regressions
 """
+
 import json
 import csv
 import shutil

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Verify Memgraph graph contents."""
+
 import os
 from neo4j import GraphDatabase
 
@@ -21,13 +22,11 @@ with driver.session() as session:
     print(f"📊 Total doctoral advisor edges: {edge_count}")
 
     # Sample nodes
-    result = session.run(
-        """
+    result = session.run("""
         MATCH (m:Mathematician)
         RETURN m.canonical_latin AS name, m.region_code AS region, m.birth_year AS birth
         LIMIT 10
-    """
-    )
+    """)
     print("\n📋 Sample mathematician nodes:")
     for record in result:
         print(f"  - {record['name']} (Region: {record['region']}, Born: {record['birth']})")

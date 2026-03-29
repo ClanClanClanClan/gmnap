@@ -11,7 +11,7 @@ Tests the complete regional validation pipeline for v7 compliance:
 1. clean -> augment -> validate -> order_key pipeline for each region
 2. All 34 linguistic rules (IDs 1-34) with region-specific validation
 3. CJK round-trip validation (>=97% Dice coefficient requirement)
-4. Thai/Khmer/Lao romanization roundtrip testing  
+4. Thai/Khmer/Lao romanization roundtrip testing
 5. Script validation and mixed-script handling
 6. Regional particle handling (von/van/de, al-, bin/bint, etc.)
 7. Name order transformations (Hungarian, Japanese post-2020, etc.)

@@ -2,6 +2,7 @@
 """
 Investigate the new surname failure patterns revealed after FST fixes
 """
+
 import sys
 
 sys.path.append("src")

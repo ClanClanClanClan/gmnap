@@ -64,8 +64,7 @@ def fix_korean_test_imports():
     korean_converter = Path("src/regions/e_groups/e4_korea/src/converter.py")
     if not korean_converter.exists():
         korean_converter.parent.mkdir(parents=True, exist_ok=True)
-        korean_converter.write_text(
-            """\"\"\"Korean converter module\"\"\"
+        korean_converter.write_text("""\"\"\"Korean converter module\"\"\"
 
 class KoreanConverter:
     \"\"\"Korean name converter\"\"\"
@@ -87,15 +86,13 @@ class KoreanConverter:
 
 # Global instance
 converter = KoreanConverter()
-"""
-        )
+""")
         print(f"  Created: {korean_converter}")
 
     # Create segment module
     segment_module = Path("src/regions/e_groups/e4_korea/src/segment.py")
     if not segment_module.exists():
-        segment_module.write_text(
-            """\"\"\"Korean segmentation module\"\"\"
+        segment_module.write_text("""\"\"\"Korean segmentation module\"\"\"
 
 def segment(text):
     \"\"\"Segment Korean text\"\"\"
@@ -104,8 +101,7 @@ def segment(text):
 def tokenize(text):
     \"\"\"Tokenize Korean text\"\"\"
     return list(text)
-"""
-        )
+""")
         print(f"  Created: {segment_module}")
 
 
@@ -134,8 +130,7 @@ def fix_pipeline_stages():
     for stage in stages:
         stage_file = stages_dir / f"{stage}.py"
         if not stage_file.exists():
-            stage_file.write_text(
-                f'''"""Pipeline {stage}"""
+            stage_file.write_text(f'''"""Pipeline {stage}"""
 
 def {stage}(entry, context=None):
     """Process entry through {stage}"""
@@ -149,8 +144,7 @@ class {stage.title().replace("_", "")}:
     
     def process(self, entry):
         return entry
-'''
-            )
+''')
             print(f"  Created: {stage_file}")
 
 
@@ -165,8 +159,7 @@ def fix_ops_modules():
     # Create metrics module
     metrics_file = ops_dir / "metrics.py"
     if not metrics_file.exists():
-        metrics_file.write_text(
-            '''"""Metrics module"""
+        metrics_file.write_text('''"""Metrics module"""
 
 import time
 
@@ -191,15 +184,13 @@ class MetricsCollector:
 
 # Global collector
 collector = MetricsCollector()
-'''
-        )
+''')
         print(f"  Created: {metrics_file}")
 
     # Create unicode_norm module
     unicode_file = ops_dir / "unicode_norm.py"
     if not unicode_file.exists():
-        unicode_file.write_text(
-            '''"""Unicode normalization module"""
+        unicode_file.write_text('''"""Unicode normalization module"""
 
 import unicodedata
 
@@ -215,8 +206,7 @@ def remove_accents(text):
     """Remove accents from text"""
     nfd = unicodedata.normalize('NFD', text)
     return ''.join(char for char in nfd if unicodedata.category(char) != 'Mn')
-'''
-        )
+''')
         print(f"  Created: {unicode_file}")
 
 

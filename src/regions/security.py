@@ -139,19 +139,19 @@ class SecurityFilter:
 
         # Unicode normalization attack patterns
         self.dangerous_unicode = [
-            "\u200E",  # Left-to-right mark
-            "\u200F",  # Right-to-left mark
-            "\u202A",  # Left-to-right embedding
-            "\u202B",  # Right-to-left embedding
-            "\u202C",  # Pop directional formatting
-            "\u202D",  # Left-to-right override
-            "\u202E",  # Right-to-left override
+            "\u200e",  # Left-to-right mark
+            "\u200f",  # Right-to-left mark
+            "\u202a",  # Left-to-right embedding
+            "\u202b",  # Right-to-left embedding
+            "\u202c",  # Pop directional formatting
+            "\u202d",  # Left-to-right override
+            "\u202e",  # Right-to-left override
             "\u2066",  # Left-to-right isolate
             "\u2067",  # Right-to-left isolate
             "\u2068",  # First strong isolate
             "\u2069",  # Pop directional isolate
-            "\uFEFF",  # Zero width no-break space (BOM)
-            "\u00AD",  # Soft hyphen
+            "\ufeff",  # Zero width no-break space (BOM)
+            "\u00ad",  # Soft hyphen
         ]
 
     def scan_for_attacks(self, text: str, context: str = "unknown") -> None:

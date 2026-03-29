@@ -4,6 +4,7 @@ ORCID Authority API Implementation for GMNAP V7
 Tier-0/1 authority source: CC0 license, 100k daily quota
 Provides authoritative researcher identifiers
 """
+
 import asyncio
 import logging
 import time

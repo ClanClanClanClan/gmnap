@@ -11,6 +11,7 @@ CRITICAL FIXES IMPLEMENTED:
 - Statistical error bounds (§2.2)
 - TTY detection for CI safety (§3.4)
 """
+
 import json
 import csv
 import shutil

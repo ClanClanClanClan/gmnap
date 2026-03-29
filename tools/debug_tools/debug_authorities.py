@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Debug authority loading issue"""
+
 import sys
 import tempfile
 import yaml

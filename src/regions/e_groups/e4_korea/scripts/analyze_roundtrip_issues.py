@@ -2,6 +2,7 @@
 """
 Analyze roundtrip quality issues and their patterns
 """
+
 import yaml, unicodedata, sys, pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))

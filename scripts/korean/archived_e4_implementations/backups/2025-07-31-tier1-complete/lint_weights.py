@@ -3,6 +3,7 @@
 Weight safety linter - validates weight additions before applying.
 Detects conflicts, duplicates, and safety violations.
 """
+
 import csv
 import sys
 from pathlib import Path

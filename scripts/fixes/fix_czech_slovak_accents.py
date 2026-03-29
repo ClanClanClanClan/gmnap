@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Fix Czech/Slovak accent normalization issue - apply same logic as Hungarian
-The problem: Novák, Wójcik have accents that trigger Spanish detection, 
+The problem: Novák, Wójcik have accents that trigger Spanish detection,
 but we're not using accent normalization for Slavic surname matching like we do for Hungarian
 """
 

@@ -20,13 +20,11 @@ def mg_coherence(uri, auth, pairs):
                 a=a,
                 b=b,
             )
-        rec = s.run(
-            """
+        rec = s.run("""
             CALL betweenness_centrality.get()
             YIELD node, betweenness_centrality
             RETURN avg(betweenness_centrality) AS avg, max(betweenness_centrality) AS mx
-        """
-        ).single()
+        """).single()
     avg, mx = float(rec["avg"] or 0.0), float(rec["mx"] or 1.0)
     return 0.0 if mx <= 0 else max(0.0, min(1.0, avg / mx))
 

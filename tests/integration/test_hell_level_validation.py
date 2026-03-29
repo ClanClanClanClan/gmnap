@@ -89,9 +89,9 @@ class HellLevelValidator:
             # Massive input
             {"name": "A" * 1000000, "expected": "length_limited"},
             # Unicode attacks
-            {"name": "\u202E\u0645\u0644\u0641.exe", "expected": "normalized"},
+            {"name": "\u202e\u0645\u0644\u0641.exe", "expected": "normalized"},
             # Zero-width characters
-            {"name": "test\u200Bword", "expected": "cleaned"},
+            {"name": "test\u200bword", "expected": "cleaned"},
         ]
 
         stage0_results = []
@@ -369,10 +369,10 @@ class HellLevelValidator:
                 "C:\\Windows\\System32\\drivers\\etc\\hosts",
             ],
             "unicode_attacks": [
-                "\u202E\u0645\u0644\u0641.exe",  # RLO attack
+                "\u202e\u0645\u0644\u0641.exe",  # RLO attack
                 "gооgle.com",  # Homograph with Cyrillic o
-                "test\u200B\u200Cword",  # Zero-width characters
-                "\uFEFF\uFEFF\uFEFF",  # BOM characters
+                "test\u200b\u200cword",  # Zero-width characters
+                "\ufeff\ufeff\ufeff",  # BOM characters
             ],
             "resource_exhaustion": [
                 "A" * 10000000,  # 10MB string

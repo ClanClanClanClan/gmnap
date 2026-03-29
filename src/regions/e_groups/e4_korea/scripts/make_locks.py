@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Create SHA‑256 regression locks for all passing cases."""
+
 import json, hashlib, os, yaml, unicodedata, sys
 from pathlib import Path
 

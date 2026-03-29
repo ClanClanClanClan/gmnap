@@ -2,6 +2,7 @@
 """
 Validation script for Korean converter v6
 """
+
 import yaml
 import unicodedata
 import sys

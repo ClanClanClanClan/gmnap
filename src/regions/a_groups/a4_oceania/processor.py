@@ -2,7 +2,7 @@
 A4 - Oceania Island States region implementation.
 
 Covers: FJ, PG, SB, VU, WS, TO, KI, TV, NR, CK, NU, PF, NC
-(Fiji, Papua New Guinea, Solomon Islands, Vanuatu, Samoa, Tonga, 
+(Fiji, Papua New Guinea, Solomon Islands, Vanuatu, Samoa, Tonga,
 Kiribati, Tuvalu, Nauru, Cook Islands, Niue, French Polynesia, New Caledonia)
 
 Features: Polynesian macron restoration, island-specific patterns,

@@ -652,7 +652,7 @@ class UltraParanoidV7Tester:
                 "John\tSmith",  # Tab
                 " John Smith ",  # Leading/trailing
                 "John\nSmith",  # Newline
-                "John\u00A0Smith",  # Non-breaking space
+                "John\u00a0Smith",  # Non-breaking space
             ]
 
             results = set()
@@ -967,12 +967,12 @@ class UltraParanoidV7Tester:
 
             # Unicode security issues
             exploits = [
-                "admin\u200B",  # Zero-width space
-                "admin\u202E",  # Right-to-left override
+                "admin\u200b",  # Zero-width space
+                "admin\u202e",  # Right-to-left override
                 "adm\u0131n",  # Dotless i
                 "\u0430dmin",  # Cyrillic 'a' looking like Latin 'a'
-                "admin\uFEFF",  # Zero-width no-break space
-                "ad\u034Fmin",  # Combining grapheme joiner
+                "admin\ufeff",  # Zero-width no-break space
+                "ad\u034fmin",  # Combining grapheme joiner
             ]
 
             for exploit in exploits:

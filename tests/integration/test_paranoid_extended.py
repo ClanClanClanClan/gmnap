@@ -190,26 +190,26 @@ class ExtendedParanoidTester:
 
         bidi_tests = [
             # Basic RTL override
-            "John \u202ESmith",  # Right-to-left override
-            "John\u202D Smith",  # Left-to-right override
-            "\u202EJohn Smith",  # Entire name RTL
+            "John \u202eSmith",  # Right-to-left override
+            "John\u202d Smith",  # Left-to-right override
+            "\u202eJohn Smith",  # Entire name RTL
             # Mixed directionality
             "John محمد Smith",  # Latin-Arabic-Latin
             "محمد John احمد",  # Arabic-Latin-Arabic
             # Bidi format characters
-            "Jo\u200Fhn Smith",  # Right-to-left mark
-            "John\u200E Smith",  # Left-to-right mark
-            "John\u061C Smith",  # Arabic letter mark
+            "Jo\u200fhn Smith",  # Right-to-left mark
+            "John\u200e Smith",  # Left-to-right mark
+            "John\u061c Smith",  # Arabic letter mark
             # Pop directional formatting
-            "John\u202C Smith",  # Pop directional formatting
-            "\u202AJohn\u202CSmith",  # LTR embedding with pop
+            "John\u202c Smith",  # Pop directional formatting
+            "\u202aJohn\u202cSmith",  # LTR embedding with pop
             # Isolates
             "\u2066John\u2069 Smith",  # Left-to-right isolate
             "\u2067محمد\u2069 احمد",  # Right-to-left isolate
             "\u2068Mixed\u2069 Text",  # First strong isolate
             # Complex bidi
-            "John \u202Ehtims\u202C Smith",  # "smith" reversed
-            "2024 \u202E4202\u202C Year",  # Number reversal
+            "John \u202ehtims\u202c Smith",  # "smith" reversed
+            "2024 \u202e4202\u202c Year",  # Number reversal
             # Bidi with homographs
             "‏John Smith",  # Starts with RLM
             "John Smith‎",  # Ends with LRM
@@ -225,32 +225,32 @@ class ExtendedParanoidTester:
 
         zw_tests = [
             # Basic zero-width characters
-            "John\u200BSmith",  # Zero-width space
-            "John\u200CSmith",  # Zero-width non-joiner
-            "John\u200DSmith",  # Zero-width joiner
-            "John\uFEFFSmith",  # Zero-width no-break space (BOM)
+            "John\u200bSmith",  # Zero-width space
+            "John\u200cSmith",  # Zero-width non-joiner
+            "John\u200dSmith",  # Zero-width joiner
+            "John\ufeffSmith",  # Zero-width no-break space (BOM)
             # Multiple zero-width chars
-            "J\u200B\u200C\u200Dohn Smith",  # Multiple ZW chars
-            "\u200B" * 100 + "John Smith",  # ZW prefix bomb
-            "John Smith" + "\u200B" * 100,  # ZW suffix bomb
-            "J" + "\u200B" * 50 + "ohn Smith",  # ZW middle bomb
+            "J\u200b\u200c\u200dohn Smith",  # Multiple ZW chars
+            "\u200b" * 100 + "John Smith",  # ZW prefix bomb
+            "John Smith" + "\u200b" * 100,  # ZW suffix bomb
+            "J" + "\u200b" * 50 + "ohn Smith",  # ZW middle bomb
             # Combining with other tricks
-            "John\u200B\u202ESmith",  # ZW + Bidi
-            "John\u200B\u0301Smith",  # ZW + combining
+            "John\u200b\u202eSmith",  # ZW + Bidi
+            "John\u200b\u0301Smith",  # ZW + combining
             # Word joiner attacks
             "John\u2060Smith",  # Word joiner
             "Jo\u2060hn Sm\u2060ith",  # Multiple word joiners
             # Variation selectors
-            "John\uFE0F Smith",  # Variation selector-16
-            "John\uFE0E Smith",  # Variation selector-15
+            "John\ufe0f Smith",  # Variation selector-16
+            "John\ufe0e Smith",  # Variation selector-15
             # Mongolian vowel separator
-            "John\u180E Smith",  # Mongolian vowel separator
+            "John\u180e Smith",  # Mongolian vowel separator
             # Soft hyphen
-            "John\u00ADSmith",  # Soft hyphen
-            "Jo\u00ADhn Sm\u00ADith",  # Multiple soft hyphens
+            "John\u00adSmith",  # Soft hyphen
+            "Jo\u00adhn Sm\u00adith",  # Multiple soft hyphens
             # Zero-width pattern attacks
-            "J\u200Bo\u200Ch\u200Dn Smith",  # Pattern of different ZW
-            "John" + "\u200B\u200C" * 500,  # Alternating ZW bomb
+            "J\u200bo\u200ch\u200dn Smith",  # Pattern of different ZW
+            "John" + "\u200b\u200c" * 500,  # Alternating ZW bomb
         ]
 
         for zw_text in zw_tests:
@@ -401,12 +401,12 @@ class ExtendedParanoidTester:
             {"CanonicalLatin": "NaN"},
             {"CanonicalLatin": "Infinity"},
             # UTF-16 surrogates
-            {"CanonicalLatin": "\uD800\uDC00"},  # Valid surrogate pair
-            {"CanonicalLatin": "\uD800"},  # Lone high surrogate
-            {"CanonicalLatin": "\uDC00"},  # Lone low surrogate
+            {"CanonicalLatin": "\ud800\udc00"},  # Valid surrogate pair
+            {"CanonicalLatin": "\ud800"},  # Lone high surrogate
+            {"CanonicalLatin": "\udc00"},  # Lone low surrogate
             # BOM in strings
-            {"CanonicalLatin": "\uFEFFTest Name"},  # BOM at start
-            {"CanonicalLatin": "Test\uFEFFName"},  # BOM in middle
+            {"CanonicalLatin": "\ufeffTest Name"},  # BOM at start
+            {"CanonicalLatin": "Test\ufeffName"},  # BOM in middle
         ]
 
         for serialization_entry in serialization_tests:
@@ -647,7 +647,7 @@ class ExtendedParanoidTester:
                 result = self.pipeline.process_entry(entry)
 
                 # Check if bidi characters are handled safely
-                if any(c in text for c in "\u202A\u202B\u202C\u202D\u202E\u2066\u2067\u2068\u2069"):
+                if any(c in text for c in "\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069"):
                     if field == "CanonicalLatin":
                         # Latin field should reject bidi overrides
                         self.results["failed"] += 1
@@ -672,7 +672,7 @@ class ExtendedParanoidTester:
             result = self.pipeline.process_entry(entry)
 
             # Check if zero-width chars are stripped
-            zw_chars = "\u200B\u200C\u200D\u200E\u200F\uFEFF\u180E\u2060"
+            zw_chars = "\u200b\u200c\u200d\u200e\u200f\ufeff\u180e\u2060"
             if any(c in result.get("CanonicalLatin", "") for c in zw_chars):
                 self._record_test_result(False)
                 print(f"FAIL ZERO-WIDTH FAILURE: '{text}' - zero-width chars not stripped")

@@ -85,7 +85,7 @@ def romanize_cyrillic(text: str) -> str:
 
 
 def canonical_family_given(canon_latin: str) -> str:
-    if any("\u0400" <= ch <= "\u04FF" for ch in canon_latin):
+    if any("\u0400" <= ch <= "\u04ff" for ch in canon_latin):
         lat = romanize_cyrillic(canon_latin)
         parts = lat.split()
         if len(parts) == 2:

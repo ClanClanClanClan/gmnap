@@ -3,6 +3,7 @@
 GMNAP V7 Memgraph Integration
 Provides graph database operations for Stage 6 Graph Consistency
 """
+
 import asyncio
 import logging
 from typing import Dict, List, Any, Optional, Tuple
@@ -276,13 +277,11 @@ class MemgraphClient:
                 metrics["total_edges"] = record["count"]
 
                 # Find isolated nodes
-                result = await session.run(
-                    """
+                result = await session.run("""
                     MATCH (n:Mathematician)
                     WHERE NOT (n)-[]-()
                     RETURN count(n) as count
-                """
-                )
+                """)
                 record = await result.single()
                 metrics["isolated_nodes"] = record["count"]
 
@@ -291,14 +290,12 @@ class MemgraphClient:
                     metrics["avg_degree"] = (2 * metrics["total_edges"]) / metrics["total_nodes"]
 
                 # Find max degree
-                result = await session.run(
-                    """
+                result = await session.run("""
                     MATCH (n:Mathematician)
                     RETURN n.global_id as id, size((n)-[]-()) as degree
                     ORDER BY degree DESC
                     LIMIT 1
-                """
-                )
+                """)
                 record = await result.single()
                 if record:
                     metrics["max_degree"] = record["degree"]

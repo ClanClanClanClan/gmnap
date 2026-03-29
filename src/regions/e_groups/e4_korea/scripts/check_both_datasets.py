@@ -2,6 +2,7 @@
 """
 Check performance on both math and diverse datasets
 """
+
 import yaml, sys, os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))

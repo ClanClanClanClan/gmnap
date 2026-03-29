@@ -3,6 +3,7 @@
 GMNAP V7 Stage 0: Configuration and Environment Setup
 Loads config, validates environment, decrypts secrets, queries registry
 """
+
 import os
 import json
 import yaml

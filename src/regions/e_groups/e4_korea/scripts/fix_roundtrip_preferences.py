@@ -2,6 +2,7 @@
 """
 Fix roundtrip preferences by adjusting variant map weights
 """
+
 import csv
 import shutil
 from datetime import datetime

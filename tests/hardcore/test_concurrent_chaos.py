@@ -602,14 +602,12 @@ class TestConcurrentDatabaseAccess:
                 self.errors.put((worker_id, str(e)))
 
         # Create test table for deadlock testing
-        self.db.connection.execute(
-            """
+        self.db.connection.execute("""
             CREATE TABLE IF NOT EXISTS test_deadlock (
                 id INTEGER PRIMARY KEY,
                 value TEXT
             )
-        """
-        )
+        """)
 
         # Initialize test data
         self.db.connection.execute(

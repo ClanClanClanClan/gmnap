@@ -4,6 +4,7 @@ genealogy/harvest_fr_full.py
 Production-scale harvester for French mathematics theses.
 Collects 10,000+ records from STAR repository for genealogy pilot.
 """
+
 import asyncio
 import json
 import sys

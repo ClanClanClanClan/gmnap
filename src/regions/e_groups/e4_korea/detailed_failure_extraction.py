@@ -3,6 +3,7 @@
 Complete failure extraction for Korean linguistics expert
 Extracts all 42 failing cases with detailed analysis for systematic fixes
 """
+
 import yaml
 import unicodedata
 import sys

@@ -58,8 +58,7 @@ def run_tests():
 
     # Get sample data
     with driver.session() as s:
-        sample_result = s.run(
-            """
+        sample_result = s.run("""
             MATCH (student:Person)-[:DOCTORAL_ADVISOR]->(advisor:Person)
             RETURN
                 student.global_id as student_id,
@@ -67,8 +66,7 @@ def run_tests():
                 advisor.global_id as advisor_id,
                 advisor.canonical_name as advisor_name
             LIMIT 5
-        """
-        )
+        """)
         sample_data = list(sample_result)
 
     print(f"Found {len(sample_data)} sample relationships for testing\n")

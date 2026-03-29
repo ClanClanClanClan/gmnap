@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Profile pipeline stages to identify bottlenecks"""
+
 import sys
 import tempfile
 import yaml

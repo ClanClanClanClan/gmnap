@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Load Phase 1 mathematician nodes into Memgraph."""
+
 import os, json, asyncio
 from pathlib import Path
 

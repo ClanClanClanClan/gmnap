@@ -4,11 +4,11 @@ from typing import Dict, Any, Iterable
 
 # Control and zero-width characters commonly removed
 _ZW = [
-    "\u200B",
-    "\u200C",
-    "\u200D",
+    "\u200b",
+    "\u200c",
+    "\u200d",
     "\u2060",  # ZWSP, ZWNJ, ZWJ, WJ
-    "\uFEFF",  # ZWNBSP/BOM
+    "\ufeff",  # ZWNBSP/BOM
 ]
 _CTRL_PATTERN = re.compile(r"[\u0000-\u001F\u007F]")
 

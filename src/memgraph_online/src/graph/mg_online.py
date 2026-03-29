@@ -88,10 +88,8 @@ class MemgraphOnline:
                 return max(0.0, min(1.0, avg / mx))
         except Exception:
             try:
-                rec = s.run(
-                    """CALL algo.betweenness.stream() YIELD nodeId, score
-                               RETURN avg(score) AS avg, max(score) AS mx"""
-                ).single()
+                rec = s.run("""CALL algo.betweenness.stream() YIELD nodeId, score
+                               RETURN avg(score) AS avg, max(score) AS mx""").single()
                 if rec and rec.get("mx"):
                     avg = float(rec["avg"] or 0.0)
                     mx = float(rec["mx"] or 1.0)

@@ -3,11 +3,11 @@ from typing import Dict, Any
 
 
 def contains_cyrillic(s: str) -> bool:
-    return any("\u0400" <= ch <= "\u04FF" for ch in s or "")
+    return any("\u0400" <= ch <= "\u04ff" for ch in s or "")
 
 
 def contains_han(s: str) -> bool:
-    return any("\u4E00" <= ch <= "\u9FFF" for ch in s or "")
+    return any("\u4e00" <= ch <= "\u9fff" for ch in s or "")
 
 
 def detect_region(entry: Dict[str, Any]) -> str:

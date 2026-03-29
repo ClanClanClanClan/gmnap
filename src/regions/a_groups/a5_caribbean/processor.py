@@ -2,7 +2,7 @@
 A5 - Dutch/French Caribbean region implementation.
 
 Covers: CW, SX, BQ (Dutch Caribbean) + MQ, GF, GP, RE, YT, PM (French Caribbean)
-(Curaçao, Sint Maarten, Bonaire, Sint Eustatius, Saba + 
+(Curaçao, Sint Maarten, Bonaire, Sint Eustatius, Saba +
 Martinique, French Guiana, Guadeloupe, Réunion, Mayotte, Saint Pierre and Miquelon)
 
 Features: Creole particle handling, apostrophe normalization,

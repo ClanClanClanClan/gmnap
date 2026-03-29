@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Standalone test of streaming components without problematic imports"""
+
 import asyncio
 import time
 import random

@@ -9,6 +9,7 @@ Usage:
   python tools/duplicate_id_fixer.py --in stage9.json --policy extreme
   python tools/duplicate_id_fixer.py --in stage9.json --policy full --write fixed.json
 """
+
 from __future__ import annotations
 import json, sys, argparse, collections, re
 

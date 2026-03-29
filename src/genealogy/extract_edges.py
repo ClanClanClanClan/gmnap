@@ -4,6 +4,7 @@ genealogy/extract_edges.py
 Extract DOCTORAL_ADVISOR edges from harvested thesis metadata.
 Filters institutions, creates student-advisor pairs with metadata.
 """
+
 import json
 import re
 from pathlib import Path

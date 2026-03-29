@@ -150,8 +150,7 @@ class ProductionMonitoringSystem:
 
         with sqlite3.connect(str(self.db_path)) as conn:
             # System metrics table
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS system_metrics (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     timestamp DATETIME NOT NULL,
@@ -174,12 +173,10 @@ class ProductionMonitoringSystem:
                     error_rate_per_minute REAL,
                     warning_count_last_hour INTEGER
                 )
-            """
-            )
+            """)
 
             # Regional metrics table
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS regional_metrics (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     timestamp DATETIME NOT NULL,
@@ -190,12 +187,10 @@ class ProductionMonitoringSystem:
                     entries_failed INTEGER,
                     average_latency_ms REAL
                 )
-            """
-            )
+            """)
 
             # Alert history table
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS alert_history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     timestamp DATETIME NOT NULL,
@@ -209,8 +204,7 @@ class ProductionMonitoringSystem:
                     resolved_at DATETIME,
                     duration_minutes REAL
                 )
-            """
-            )
+            """)
 
             # Performance indexes
             conn.execute(

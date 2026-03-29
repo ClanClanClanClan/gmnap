@@ -2,6 +2,7 @@
 """
 Add required mappings to support enhanced context engine
 """
+
 import csv
 import shutil
 from datetime import datetime

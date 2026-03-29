@@ -224,9 +224,9 @@ class RegionSpec(ABC):
             "—": "-",  # Em dash → hyphen
             "−": "-",  # Minus sign → hyphen
             "‐": "-",  # Hyphen → standard hyphen
-            "\u00A0": " ",  # Non-breaking space → regular space
+            "\u00a0": " ",  # Non-breaking space → regular space
             "\u2009": " ",  # Thin space → regular space
-            "\u200A": " ",  # Hair space → regular space
+            "\u200a": " ",  # Hair space → regular space
             "\u2000": " ",  # En quad → regular space
             "\u2001": " ",  # Em quad → regular space
             "\u2002": " ",  # En space → regular space
@@ -604,19 +604,19 @@ class RegionSpec(ABC):
             return self.scripts[0] if self.scripts else "Latin"
 
         # Simple script detection based on Unicode ranges
-        if any("\u0400" <= c <= "\u04FF" for c in native):
+        if any("\u0400" <= c <= "\u04ff" for c in native):
             return "Cyrillic"
-        elif any("\u0600" <= c <= "\u06FF" for c in native):
+        elif any("\u0600" <= c <= "\u06ff" for c in native):
             return "Arabic"
-        elif any("\u0900" <= c <= "\u097F" for c in native):
+        elif any("\u0900" <= c <= "\u097f" for c in native):
             return "Devanagari"
-        elif any(("\u4E00" <= c <= "\u9FFF") or ("\u3400" <= c <= "\u4DBF") for c in native):
+        elif any(("\u4e00" <= c <= "\u9fff") or ("\u3400" <= c <= "\u4dbf") for c in native):
             return "CJK"
-        elif any("\uAC00" <= c <= "\uD7AF" for c in native):
+        elif any("\uac00" <= c <= "\ud7af" for c in native):
             return "Hangul"
-        elif any(("\u3040" <= c <= "\u309F") or ("\u30A0" <= c <= "\u30FF") for c in native):
+        elif any(("\u3040" <= c <= "\u309f") or ("\u30a0" <= c <= "\u30ff") for c in native):
             return "Japanese"
-        elif any("\u0E00" <= c <= "\u0E7F" for c in native):
+        elif any("\u0e00" <= c <= "\u0e7f" for c in native):
             return "Thai"
         else:
             return "Latin"

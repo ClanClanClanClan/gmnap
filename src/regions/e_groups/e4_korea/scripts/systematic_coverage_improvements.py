@@ -3,6 +3,7 @@
 SYSTEMATIC FST Coverage Improvements - Add missing systematic mappings
 Focus on categories of missing mappings, not individual cases
 """
+
 import csv
 import shutil
 from datetime import datetime

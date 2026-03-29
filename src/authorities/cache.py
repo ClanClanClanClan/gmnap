@@ -77,8 +77,7 @@ class AuthorityCache:
     def _init_db(self) -> None:
         """Initialize SQLite database."""
         with self._get_connection() as conn:
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS cache_entries (
                     key TEXT PRIMARY KEY,
                     service TEXT NOT NULL,
@@ -89,23 +88,18 @@ class AuthorityCache:
                     hit_count INTEGER DEFAULT 0,
                     size_bytes INTEGER NOT NULL
                 )
-            """
-            )
+            """)
 
             # Create indexes for efficient queries
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE INDEX IF NOT EXISTS idx_service_query 
                 ON cache_entries(service, query)
-            """
-            )
+            """)
 
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE INDEX IF NOT EXISTS idx_timestamp 
                 ON cache_entries(timestamp)
-            """
-            )
+            """)
 
     @contextmanager
     def _get_connection(self):
@@ -242,13 +236,11 @@ class AuthorityCache:
                 freed_space = 0
 
                 # Select least recently used entries
-                cursor = conn.execute(
-                    """
+                cursor = conn.execute("""
                     SELECT key, size_bytes 
                     FROM cache_entries 
                     ORDER BY timestamp + (hit_count * 3600) ASC
-                """
-                )
+                """)
 
                 keys_to_delete = []
                 for row in cursor:
@@ -286,15 +278,13 @@ class AuthorityCache:
     def get_stats(self) -> Dict[str, Any]:
         """Get cache statistics."""
         with self._get_connection() as conn:
-            cursor = conn.execute(
-                """
+            cursor = conn.execute("""
                 SELECT 
                     COUNT(*) as total_entries,
                     SUM(size_bytes) as total_size,
                     AVG(hit_count) as avg_hits
                 FROM cache_entries
-            """
-            )
+            """)
 
             row = cursor.fetchone()
 

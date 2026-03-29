@@ -36,15 +36,12 @@ def stage5_duckdb(
     tbl = _as_table(batch)
     con.execute("CREATE TABLE entries AS SELECT * FROM tbl").df()  # ensure table exists
     con.register("tbl", tbl)
-    con.execute(
-        """
+    con.execute("""
         CREATE TABLE entries AS
         SELECT * FROM tbl
-    """
-    )
+    """)
     # Duplicate detection: same CanonicalLatin + BirthYear
-    con.execute(
-        """
+    con.execute("""
         WITH d AS (
           SELECT CanonicalLatin, BirthYear, COUNT(*) AS c
           FROM entries
@@ -54,8 +51,7 @@ def stage5_duckdb(
         FROM entries e
         JOIN d ON e.CanonicalLatin = d.CanonicalLatin AND coalesce(e.BirthYear, -1) = coalesce(d.BirthYear, -1)
         ORDER BY e.CanonicalLatin, e.BirthYear, e.GlobalID
-    """
-    )
+    """)
     dup_rows = con.fetchall()
     collisions = 0
     seen = {}

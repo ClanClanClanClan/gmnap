@@ -2,6 +2,7 @@
 """
 Fix the final weight conflicts for the last 3 problematic characters
 """
+
 import csv
 import shutil
 from datetime import datetime

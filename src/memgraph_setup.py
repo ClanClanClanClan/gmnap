@@ -73,25 +73,19 @@ class MemgraphManager:
         """Create indexes and constraints for optimal performance."""
         with self.driver.session() as session:
             # Create index on GlobalID for fast lookups
-            session.run(
-                """
+            session.run("""
                 CREATE INDEX ON :Mathematician(global_id);
-            """
-            )
+            """)
 
             # Create index on CanonicalLatin for name searches
-            session.run(
-                """
+            session.run("""
                 CREATE INDEX ON :Mathematician(canonical_latin);
-            """
-            )
+            """)
 
             # Create index on region for regional queries
-            session.run(
-                """
+            session.run("""
                 CREATE INDEX ON :Mathematician(region_code);
-            """
-            )
+            """)
 
             logger.info("Created Memgraph schema indexes")
 
@@ -130,26 +124,22 @@ class MemgraphManager:
     def calculate_betweenness_centrality(self) -> Dict[str, float]:
         """Calculate betweenness centrality for all nodes."""
         with self.driver.session() as session:
-            result = session.run(
-                """
+            result = session.run("""
                 CALL algo.betweenness.stream('Mathematician', 'ADVISED_BY')
                 YIELD nodeId, centrality
                 RETURN algo.getNodeById(nodeId).global_id AS global_id, centrality
                 ORDER BY centrality DESC
-            """
-            )
+            """)
 
             return {record["global_id"]: record["centrality"] for record in result}
 
     def detect_cycles(self, max_length: int = 3) -> List[List[str]]:
         """Detect cycles of length <= max_length."""
         with self.driver.session() as session:
-            result = session.run(
-                f"""
+            result = session.run(f"""
                 MATCH path = (m:Mathematician)-[:ADVISED_BY*1..{max_length}]->(m)
                 RETURN [node IN nodes(path) | node.global_id] AS cycle
-            """
-            )
+            """)
 
             cycles = []
             for record in result:
@@ -220,15 +210,13 @@ class MemgraphManager:
                 return 0.0
 
             # Get largest connected component size
-            components = session.run(
-                """
+            components = session.run("""
                 CALL algo.unionFind.stream('Mathematician', 'ADVISED_BY')
                 YIELD nodeId, setId
                 RETURN setId, count(*) as size
                 ORDER BY size DESC
                 LIMIT 1
-            """
-            )
+            """)
 
             largest_component = 0
             for record in components:

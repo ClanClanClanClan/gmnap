@@ -4,10 +4,11 @@ Patch A Implementation: Round-trip weight recalibration
 Addresses the critical 2.73% performance gap for GMNAP v7 compliance
 
 Based on executive opinion:
-- suk/석 mapping recalibration  
+- suk/석 mapping recalibration
 - Loanword back-off from 1.5 → 1.2
 - Target: raise accuracy from 94.27% → 97.3%
 """
+
 import csv
 import yaml
 import shutil

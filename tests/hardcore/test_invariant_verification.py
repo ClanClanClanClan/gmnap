@@ -219,10 +219,10 @@ class TestUnicodeNormalizationInvariants:
             "naïve",
             "Zürich",
             "A\u0300",  # A with combining grave
-            "caf\u00E9",  # café with é
+            "caf\u00e9",  # café with é
             "cafe\u0301",  # café with combining acute
-            "Smith\u200B, John",  # Zero-width space
-            "Smith\u202E, John",  # Right-to-left override
+            "Smith\u200b, John",  # Zero-width space
+            "Smith\u202e, John",  # Right-to-left override
             "",  # Empty string
             "A",  # Single character
             "A" * 1000,  # Very long string
@@ -274,9 +274,9 @@ class TestUnicodeNormalizationInvariants:
             "Smith\x01, John",  # Control character
             "Smith\r\n, John",  # CRLF
             "Smith\t, John",  # Tab
-            "Smith\u200B, John",  # Zero-width space
-            "Smith\u202E, John",  # Right-to-left override
-            "Smith\uFEFF, John",  # Byte order mark
+            "Smith\u200b, John",  # Zero-width space
+            "Smith\u202e, John",  # Right-to-left override
+            "Smith\ufeff, John",  # Byte order mark
         ]
 
         for text in dangerous_inputs:

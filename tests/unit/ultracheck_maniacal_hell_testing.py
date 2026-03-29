@@ -415,9 +415,9 @@ def malicious_data_injection():
         "a" * 1000 + "!",
         "(a+)+$",
         # Unicode normalization attacks
-        "\u0041\u030A",  # A + combining ring above
+        "\u0041\u030a",  # A + combining ring above
         # Homograph attacks
-        "\u0430\u043E\u043C\u0430\u0438\u043D.com",  # Cyrillic chars that look like ASCII
+        "\u0430\u043e\u043c\u0430\u0438\u043d.com",  # Cyrillic chars that look like ASCII
     ]
 
     print(f"Testing {len(advanced_attacks)} advanced attack vectors...")
@@ -481,20 +481,20 @@ def data_corruption_scenarios():
         # Mixed encodings (impossible in Python strings, but simulate)
         {"name": "John\udcffSmith"},  # Surrogate escape
         # Impossible Unicode sequences
-        {"name": "\uD800"},  # Lone high surrogate
-        {"name": "\uDFFF"},  # Lone low surrogate
+        {"name": "\ud800"},  # Lone high surrogate
+        {"name": "\udfff"},  # Lone low surrogate
         # Control characters
         {"name": "John\x00Smith"},  # Null byte
         {"name": "John\x01\x02\x03Smith"},  # Control chars
-        {"name": "John\x7FSmith"},  # DEL character
+        {"name": "John\x7fSmith"},  # DEL character
         # Normalization hell
         {"name": "e\u0301"},  # Combining acute accent
         {"name": "e\u0301\u0300\u0302"},  # Multiple combining chars
         # Bidirectional text attacks
         {"name": "John\u202esmithSmith\u202d"},  # RTL override
         # Zero-width characters
-        {"name": "Jo\u200Bhn"},  # Zero-width space
-        {"name": "John\uFEFF"},  # Zero-width no-break space
+        {"name": "Jo\u200bhn"},  # Zero-width space
+        {"name": "John\ufeff"},  # Zero-width no-break space
         # Deeply nested structures (if JSON processing is involved)
         {"name": "John", "nested": {"deep": {"deeper": {"deepest": "attack"}}}},
         # Extremely long fields
@@ -506,8 +506,8 @@ def data_corruption_scenarios():
         {"name": float("inf")},  # Infinity
         {"name": float("nan")},  # NaN
         # Encoding edge cases
-        {"name": "\U0010FFFF"},  # Highest Unicode codepoint
-        {"name": "\U0001F4A9"},  # Pile of poo emoji
+        {"name": "\U0010ffff"},  # Highest Unicode codepoint
+        {"name": "\U0001f4a9"},  # Pile of poo emoji
         # Empty/null variations
         {"name": ""},
         {"name": None},

@@ -4,6 +4,7 @@ genealogy/load_memgraph.py
 Load genealogy edges to Memgraph with quality gates.
 Creates person nodes and DOCTORAL_ADVISOR relationships.
 """
+
 import json
 import logging
 from typing import Dict, List, Any

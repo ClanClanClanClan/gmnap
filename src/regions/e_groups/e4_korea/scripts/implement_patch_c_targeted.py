@@ -2,6 +2,7 @@
 """
 Patch C: Targeted loanword handling without interfering with Korean names
 """
+
 import csv
 import shutil
 from datetime import datetime

@@ -35,7 +35,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.ml.utils.names import normalize_nfc, extract_surname
 
-
 VALID_REGIONS = {
     # A-groups: Anglo/Western/Nordic
     "A1",

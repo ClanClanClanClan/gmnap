@@ -2,6 +2,7 @@
 """
 Debug tokenization and segmentation
 """
+
 import sys
 from pathlib import Path
 

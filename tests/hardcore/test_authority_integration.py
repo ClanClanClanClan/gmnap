@@ -374,7 +374,7 @@ class TestAPIDataCorruption:
                 "results": [
                     {
                         "id": "https://openalex.org/A12345",
-                        "display_name": "John Smith\uFFFE\uFFFF",  # Invalid Unicode
+                        "display_name": "John Smith\ufffe\uffff",  # Invalid Unicode
                         "works_count": 42,
                         "cited_by_count": 100,
                     }
@@ -392,8 +392,8 @@ class TestAPIDataCorruption:
                 if result.status == FetchStatus.SUCCESS:
                     assert result.data is not None
                     # Should not contain invalid Unicode
-                    assert "\uFFFE" not in result.data.canonical_name
-                    assert "\uFFFF" not in result.data.canonical_name
+                    assert "\ufffe" not in result.data.canonical_name
+                    assert "\uffff" not in result.data.canonical_name
 
         asyncio.run(run_test())
 

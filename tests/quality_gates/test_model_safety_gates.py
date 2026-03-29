@@ -14,7 +14,6 @@ from pathlib import Path
 from src.ml.model_gate import evaluate, gate, EvalReport
 from src.regions.hybrid_classifier import HybridRegionClassifier
 
-
 # Baseline performance from v4 hybrid (validated 2025-11-01)
 BASELINE_OVERALL = 0.875  # 87.5% on golden dataset (7/8)
 BASELINE_PER_CLASS = {

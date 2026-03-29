@@ -3,6 +3,7 @@
 Apply V7 patches in the correct order
 Triple-checks everything as requested
 """
+
 import subprocess
 import sys
 from pathlib import Path

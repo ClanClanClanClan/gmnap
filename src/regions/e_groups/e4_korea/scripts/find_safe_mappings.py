@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Find safe mappings to add based on independent dataset failures."""
+
 import csv
 import json
 from pathlib import Path

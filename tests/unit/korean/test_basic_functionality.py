@@ -2,6 +2,7 @@
 """
 Basic functionality tests for Korean processor
 """
+
 import pytest
 from src.regions.e_groups.e4_korea.processor import E4KoreanProcessor
 

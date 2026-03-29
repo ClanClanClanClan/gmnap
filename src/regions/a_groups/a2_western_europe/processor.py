@@ -1,11 +1,11 @@
 """
 A2 - Western Europe region implementation.
 
-Covers: France, Germany, Italy, Spain, Portugal, Netherlands, Belgium, 
-Switzerland, Austria, Luxembourg, Liechtenstein, San Marino, Monaco, 
+Covers: France, Germany, Italy, Spain, Portugal, Netherlands, Belgium,
+Switzerland, Austria, Luxembourg, Liechtenstein, San Marino, Monaco,
 Gibraltar, Andorra, Malta, Vatican City.
 
-Features: Latin script with diacritics, Iberian dual surnames, 
+Features: Latin script with diacritics, Iberian dual surnames,
 de/von/van particles, diverse naming conventions.
 """
 

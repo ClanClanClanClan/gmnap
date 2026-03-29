@@ -2,6 +2,7 @@
 """
 Batch fix remaining eng→kor failures with targeted mappings
 """
+
 import yaml, sys, pathlib, csv
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))

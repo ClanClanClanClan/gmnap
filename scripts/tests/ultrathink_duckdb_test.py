@@ -29,14 +29,12 @@ def test_duckdb_basic():
         conn = duckdb.connect(":memory:")
 
         # Create test table
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE test (
                 id INTEGER,
                 name VARCHAR
             )
-        """
-        )
+        """)
 
         # Insert data
         conn.execute("INSERT INTO test VALUES (1, 'test1'), (2, 'test2')")

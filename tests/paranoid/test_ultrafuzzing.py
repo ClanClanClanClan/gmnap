@@ -238,12 +238,12 @@ class TestUltraFuzzing:
     def test_fuzz_zero_width_characters(self):
         """Fuzz with zero-width and invisible characters"""
         zero_width_chars = [
-            "\u200B",  # Zero-width space
-            "\u200C",  # Zero-width non-joiner
-            "\u200D",  # Zero-width joiner
-            "\uFEFF",  # Zero-width no-break space
+            "\u200b",  # Zero-width space
+            "\u200c",  # Zero-width non-joiner
+            "\u200d",  # Zero-width joiner
+            "\ufeff",  # Zero-width no-break space
             "\u2060",  # Word joiner
-            "\u180E",  # Mongolian vowel separator
+            "\u180e",  # Mongolian vowel separator
             "\u2000",
             "\u2001",
             "\u2002",
@@ -254,7 +254,7 @@ class TestUltraFuzzing:
             "\u2007",
             "\u2008",
             "\u2009",
-            "\u200A",
+            "\u200a",
         ]
 
         for char in zero_width_chars:
@@ -285,8 +285,8 @@ class TestUltraFuzzing:
             "\u0302",  # Circumflex
             "\u0303",  # Tilde
             "\u0308",  # Diaeresis
-            "\u030A",  # Ring above
-            "\u030C",  # Caron
+            "\u030a",  # Ring above
+            "\u030c",  # Caron
             "\u0327",  # Cedilla
         ]
 
@@ -312,11 +312,11 @@ class TestUltraFuzzing:
     def test_fuzz_bidi_characters(self):
         """Fuzz with bidirectional text override characters"""
         bidi_chars = [
-            "\u202A",  # Left-to-right embedding
-            "\u202B",  # Right-to-left embedding
-            "\u202C",  # Pop directional formatting
-            "\u202D",  # Left-to-right override
-            "\u202E",  # Right-to-left override
+            "\u202a",  # Left-to-right embedding
+            "\u202b",  # Right-to-left embedding
+            "\u202c",  # Pop directional formatting
+            "\u202d",  # Left-to-right override
+            "\u202e",  # Right-to-left override
             "\u2066",  # Left-to-right isolate
             "\u2067",  # Right-to-left isolate
             "\u2068",  # First strong isolate

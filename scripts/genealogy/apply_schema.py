@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Apply graph schema to Memgraph."""
+
 import os
 from neo4j import GraphDatabase
 

@@ -3,6 +3,7 @@
 Patch C: Implement loanword transliteration micro-pipe
 Handles foreign (non-Korean) names with phonetic rules
 """
+
 import csv
 import shutil
 from datetime import datetime

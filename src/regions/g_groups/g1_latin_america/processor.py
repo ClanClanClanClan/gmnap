@@ -1,12 +1,12 @@
 """
 G1 - Latin America & Iberian Caribbean region implementation.
 
-Covers: Argentina, Bolivia, Brazil, Chile, Colombia, Costa Rica, Cuba, 
-Dominican Republic, Ecuador, Guatemala, Guyana, Honduras, Haiti, Mexico, 
-Nicaragua, Panama, Peru, Paraguay, El Salvador, Suriname, Uruguay, 
+Covers: Argentina, Bolivia, Brazil, Chile, Colombia, Costa Rica, Cuba,
+Dominican Republic, Ecuador, Guatemala, Guyana, Honduras, Haiti, Mexico,
+Nicaragua, Panama, Peru, Paraguay, El Salvador, Suriname, Uruguay,
 Venezuela, Puerto Rico.
 
-Features: Latin script, dual surnames (paternal + maternal), 
+Features: Latin script, dual surnames (paternal + maternal),
 Portuguese diacritics, Spanish naming conventions, Creole influences.
 """
 
