@@ -1,8 +1,8 @@
-
 #!/usr/bin/env python3
 """
 Test imports only - no async, no network calls
 """
+
 import os
 import sys
 

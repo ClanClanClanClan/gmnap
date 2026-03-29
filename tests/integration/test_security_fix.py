@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Test security fix for ULTRAFIX Phase 6

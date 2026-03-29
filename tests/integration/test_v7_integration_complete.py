@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Complete V7 System Integration Test

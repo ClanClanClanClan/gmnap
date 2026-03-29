@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Demonstrate actual race condition causing data corruption

@@ -1,6 +1,6 @@
-
 #!/usr/bin/env python3
 """Debug Korean CSV path resolution"""
+
 import sys
 from pathlib import Path
 

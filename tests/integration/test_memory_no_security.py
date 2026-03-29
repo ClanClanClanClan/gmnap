@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 ULTRAFIX Phase 4: Test memory leak with security validation DISABLED
@@ -191,9 +190,7 @@ if memory_points:
         print("\nPASS LEAK ISOLATED: Security validation was the primary source!")
         print(f"   Core detection leak: {current_leak:.3f} MB/1K ops (negligible)")
     elif security_overhead > current_leak:
-        print(
-            "\n🟡 LEAK PARTIALLY ISOLATED: Security validation was major contributor"
-        )
+        print("\n🟡 LEAK PARTIALLY ISOLATED: Security validation was major contributor")
         print(f"   But core detection still has leak: {current_leak:.3f} MB/1K ops")
     else:
         print("\n🔴 LEAK NOT ISOLATED: Core detection is the main source")

@@ -1,6 +1,6 @@
-
 #!/usr/bin/env python3
 """Minimal test - just the idempotency function"""
+
 import hashlib
 import json
 

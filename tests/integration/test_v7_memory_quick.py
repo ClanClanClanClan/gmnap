@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Quick V7 streaming memory test - demonstrating constant memory usage

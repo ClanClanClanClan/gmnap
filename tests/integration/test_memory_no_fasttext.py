@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 ULTRAFIX Phase 4: Test memory leak with FastText DISABLED

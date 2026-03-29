@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """Test if proposed fixes would break any currently working mathematician names"""
 

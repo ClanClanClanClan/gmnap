@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Test V7 Streaming Pipeline Implementation

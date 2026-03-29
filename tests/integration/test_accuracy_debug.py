@@ -1,6 +1,6 @@
-
 #!/usr/bin/env python3
 """Debug accuracy test failures"""
+
 import sys
 from pathlib import Path
 

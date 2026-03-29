@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Comprehensive Accuracy Test for GMNAP v7

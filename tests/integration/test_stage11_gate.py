@@ -181,7 +181,6 @@ def test_hash_stability():
         "Tags": ["test", "stability", "v7"],
     }
 
-
     # Get actual hash
     actual_hash = get_hash(test_data)
 

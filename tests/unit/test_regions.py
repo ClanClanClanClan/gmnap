@@ -3,7 +3,6 @@ Hell-level unit tests for regional processing.
 Tests all 43 regions with various edge cases and malicious inputs.
 """
 
-
 import pytest
 
 from src.regions.base import (

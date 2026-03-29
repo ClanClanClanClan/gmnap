@@ -194,9 +194,7 @@ class TestEndurance24Hour:
                     )
 
                 # Validate string
-                self.validator.validate_string(
-                    test_str, f"endurance_{iteration}"
-                )
+                self.validator.validate_string(test_str, f"endurance_{iteration}")
 
                 # Every 1000 iterations, checkpoint
                 if iteration % 1000 == 0:

@@ -808,9 +808,7 @@ class PredictiveAnalyticsEngine:
 
             if avg_utilization > 80:  # High utilization
                 # Predict when capacity will be exceeded
-                await self.predict_metric(
-                    metric_name, 240
-                )  # 4 hours ahead
+                await self.predict_metric(metric_name, 240)  # 4 hours ahead
 
                 capacity_insight = AnalyticsInsight(
                     insight_id=str(uuid.uuid4()),

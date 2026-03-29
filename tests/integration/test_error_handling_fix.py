@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Test ULTRAFIX Phase 8 error handling

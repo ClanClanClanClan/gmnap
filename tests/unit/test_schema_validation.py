@@ -4,7 +4,6 @@ Unit tests for YAML schema validation.
 Tests JSON schema v1.5 validation and custom validation rules.
 """
 
-
 import pytest
 
 from src.validation.schema import SchemaValidator, validate_entry
