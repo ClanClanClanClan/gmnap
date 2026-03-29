@@ -18,15 +18,16 @@ print(f"\nTokens: {tokens}")
 for tok in tokens:
     segments = list(segment(tok))
     print(f"\nToken '{tok}' → segments: {segments}")
-    
+
     # Check if segments exist in CSV
     import csv
+
     existing = set()
-    with open("resources/rr_syllable_map.csv", 'r', encoding='utf-8') as f:
+    with open("resources/rr_syllable_map.csv", "r", encoding="utf-8") as f:
         for row in csv.reader(f):
             if len(row) >= 2:
                 existing.add(row[1])  # roman column
-    
+
     for seg in segments:
         if seg.lower() in existing:
             print(f"  ✓ '{seg}' exists in mappings")

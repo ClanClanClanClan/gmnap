@@ -1,0 +1,202 @@
+# E1 Sinophone Mainland Region Processing Rules
+# Specialized rules for Mainland Chinese naming patterns
+
+schema_version: "7.0"
+region_code: "E1"
+region_name: "Sinophone Mainland"
+
+# Chinese linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 54
+    name: "Simplified Chinese Processing"
+    description: "Handle Simplified Chinese characters with proper stroke order and variants"
+    implementation: "simplified_chinese_processing"
+    
+  - id: 55
+    name: "Pinyin Romanization"
+    description: "Process Pinyin romanization with tone marks and standard transliterations"
+    implementation: "pinyin_processing"
+    
+  - id: 56
+    name: "PRC Naming Conventions"
+    description: "Handle post-1949 Chinese naming conventions and administrative changes"
+    implementation: "prc_naming_processing"
+
+# Mainland Chinese specific processing rules
+processing_rules:
+  simplified_chinese_handling:
+    enabled: true
+    script_type: "Han"
+    character_set: "Simplified"
+    normalization_form: "NFKC"
+    handle_variants: "prefer_simplified"
+    traditional_fallback: "limited"
+    
+  mainland_regional_patterns:
+    enabled: true
+    territories: ["CN"]
+    northern_patterns: true
+    southern_patterns: true
+    western_patterns: true
+    minority_region_patterns: true
+    
+  northern_china_patterns:
+    enabled: true
+    beijing_patterns: true
+    hebei_patterns: true
+    shandong_patterns: true
+    northeast_patterns: ["黑龙江", "吉林", "辽宁"]
+    northern_surnames: ["王", "李", "张", "刘", "陈"]
+    
+  southern_china_patterns:
+    enabled: true
+    guangdong_patterns: true
+    fujian_patterns: true
+    jiangsu_zhejiang_patterns: true
+    southern_surnames: ["陈", "林", "黄", "郑", "吴"]
+    
+  western_china_patterns:
+    enabled: true
+    sichuan_patterns: true
+    yunnan_patterns: true
+    xinjiang_patterns: true
+    tibet_patterns: true
+    minority_adaptations: true
+    
+  prc_period_adaptations:
+    enabled: true
+    revolutionary_names: ["建国", "解放", "卫东", "红梅"]
+    socialist_values: ["爱国", "为民", "建设", "进步"]
+    modernization_names: ["改革", "开放", "发展", "创新"]
+    one_child_policy_effects: "document_naming_changes"
+    
+  family_name_patterns:
+    enabled: true
+    common_surnames: ["王", "李", "张", "刘", "陈", "杨", "黄", "赵", "吴", "周"]
+    compound_surnames: ["欧阳", "司马", "上官", "东方", "独孤"]
+    minority_surnames: ["爱新觉罗", "博尔济吉特", "叶赫那拉"]
+    surname_origins: "preserve_historical_context"
+    
+  given_name_patterns:
+    enabled: true
+    generational_names: "preserve_family_traditions"
+    auspicious_meanings: ["福", "寿", "康", "宁", "吉", "祥"]
+    nature_elements: ["山", "水", "云", "月", "松", "竹"]
+    virtue_names: ["仁", "义", "礼", "智", "信", "孝"]
+    modern_aspirations: ["科", "技", "创", "新", "未", "来"]
+    
+  dialectal_variations:
+    enabled: true
+    mandarin_standard: true
+    regional_pronunciations: true
+    dialect_romanizations:
+      cantonese: "preserve_jyutping"
+      wu: "preserve_regional_systems"
+      min: "preserve_taiwanese_systems"
+      hakka: "preserve_traditional_systems"
+      
+  pinyin_processing:
+    enabled: true
+    standard_pinyin: true
+    tone_marks: "preserve_when_present"
+    tone_numbers: "convert_to_marks"
+    capitalization: "sentence_case"
+    word_separation: "standard_chinese_conventions"
+    
+  chinese_transliteration:
+    enabled: true
+    primary_standard: "Pinyin"
+    alternative_standards: ["Wade-Giles", "ALA-LC"]
+    preserve_original: true
+    create_variants: true
+    handle_polyphonic_characters: "context_dependent"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    chinese_given_names: "preserve_character_meanings"
+    generational_markers: "preserve_family_sequences"
+    courtesy_names: "document_when_present"
+    art_names: "preserve_literary_tradition"
+    
+  script_validation:
+    script_requirement: "Han_or_Latin"
+    validate_chinese_orthography: true
+    allow_han_original: true
+    allow_pinyin_romanizations: true
+    mixed_script_tolerance: "limited"
+    
+  cultural_elements:
+    enabled: true
+    confucian_values: ["仁", "义", "礼", "智", "信"]
+    buddhist_influences: ["慈", "悲", "智", "慧", "觉"]
+    taoist_elements: ["道", "德", "玄", "真", "自然"]
+    feng_shui_considerations: ["吉", "祥", "顺", "和"]
+    
+  historical_periods:
+    enabled: true
+    imperial_names: "preserve_classical_elements"
+    republican_period: "document_westernization"
+    prc_period: "socialist_naming_patterns"
+    reform_era: "modernization_influences"
+    
+  occupational_elements:
+    enabled: true
+    traditional_occupations: ["农", "工", "商", "学"]
+    modern_professions: ["医", "师", "工程", "科技"]
+    party_administrative: ["干", "部", "委", "书记"]
+    
+  geographic_elements:
+    enabled: true
+    preserve_origin_indicators: true
+    provincial_markers: true
+    city_references: ["京", "沪", "穗", "深"]
+    river_mountain_names: ["江", "河", "山", "峰"]
+    
+  generational_systems:
+    enabled: true
+    poem_based_naming: true
+    character_rotation: "preserve_family_sequences"
+    patrilineal_traditions: true
+    genealogy_preservation: true
+    
+  linguistic_features:
+    enabled: true
+    chinese_phonetic_patterns: true
+    tonal_considerations: "preserve_in_romanization"
+    character_composition: "preserve_radical_meanings"
+    semantic_associations: "maintain_cultural_significance"
+    
+  minority_adaptations:
+    enabled: true
+    tibetan_chinese_names: true
+    uyghur_chinese_names: true
+    mongolian_chinese_names: true
+    manchu_heritage_names: true
+    
+  orthography_handling:
+    preserve_original: true
+    create_romanized_variants: true
+    handle_chinese_punctuation: true
+    traditional_character_references: "document_when_relevant"
+    simplified_standardization: "preferred"
+
+# Quality thresholds for E1
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  han_script_detection_accuracy: 0.95
+  pinyin_accuracy: 0.92
+  dialectal_recognition: 0.88
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_romanizations: "prefer_pinyin"
+  unknown_dialectal_patterns: "accept_with_standard_processing"
+  script_conflicts: "prefer_han_original"

@@ -1,0 +1,69 @@
+FR_THESIS:
+  enabled: true
+  legal_blocked: false
+  type: oai_pmh
+  country: FR
+  language: fr
+  base_url: "https://example.theses.fr/oai/request"
+  set: "theses"
+  metadata_prefix: "oai_dc"
+  advisor_locale: fr
+  degree_hints: ["thèse","doctorat"]
+  trust:
+    source_weight: National_Thesis_Portal
+    prefer_structured_roles: true
+    committee_terms: ["rapporteur","examinateur","jury"]
+
+ES_TESEO:
+  enabled: false
+  legal_blocked: false
+  type: oai_pmh
+  country: ES
+  language: es
+  base_url: "https://example.teseo.es/oai/request"
+  metadata_prefix: "oai_dc"
+  advisor_locale: es
+  degree_hints: ["doctorado"]
+  trust:
+    source_weight: National_Thesis_Portal
+
+DE_OPUS_NET:
+  enabled: false
+  legal_blocked: false
+  type: oai_pmh
+  country: DE
+  language: de
+  base_url: "https://example.opus-bibliothek.de/oai/request"
+  metadata_prefix: "oai_dc"
+  advisor_locale: de
+  degree_hints: ["dr.rer.nat.","dr.phil.","promotion"]
+  trust:
+    source_weight: Institutional_IR
+
+US_CROSSREF_IR:
+  enabled: false
+  legal_blocked: false
+  type: rest_json
+  country: US
+  language: en
+  base_url: "https://api.crossref.org/works"
+  params:
+    filter: "type:dissertation"
+    rows: 100
+  advisor_locale: en
+  degree_hints: ["phd","doctor of philosophy"]
+  trust:
+    source_weight: Crossref_Dissertation
+
+BR_BDTD:
+  enabled: false
+  legal_blocked: false
+  type: oai_pmh
+  country: BR
+  language: pt
+  base_url: "https://example.bdtd.ibict.br/oai/request"
+  metadata_prefix: "oai_dc"
+  advisor_locale: pt
+  degree_hints: ["doutorado"]
+  trust:
+    source_weight: National_Thesis_Portal

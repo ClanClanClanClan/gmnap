@@ -1,0 +1,24 @@
+source_weights:
+  Wikidata_P184: 0.95
+  National_Thesis_Portal: 0.92
+  Institutional_IR: 0.90
+  Crossref_Dissertation: 0.85
+  PDF_LLM_Extract: 0.80
+  Coauthorship_Inference: 0.70
+
+bonuses:
+  multi_source_agreement: 0.03
+  advisor_appears_in_text_window: 0.02
+  institution_match: 0.02
+
+penalties:
+  ambiguous_role: -0.10
+  committee_only: -0.20
+  temporal_suspicious: -0.15
+  conflict_present: -0.05
+  uncorroborated_llm: -0.10
+
+thresholds:
+  accept_edge_min: 0.70
+  hide_in_ui_below: 0.65
+  auto_verified_min: 0.93

@@ -1,0 +1,90 @@
+# B1 East-Slavic Region Processing Rules
+# Specialized rules for East-Slavic naming patterns
+
+schema_version: "7.0"
+region_code: "B1"
+region_name: "East-Slavic"
+
+# East-Slavic linguistic rules
+linguistic_rules:
+  - id: 9
+    name: "East-Slavic Patronymic"
+    description: "strip middle token; gender inference"
+    implementation: "patronymic_processing"
+    
+  - id: 24
+    name: "Russian Transliteration"
+    description: "GOST 7.79-2000 (A) & BGN-PCGN 1947 variants"
+    implementation: "russian_transliteration"
+    
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+
+# East-Slavic specific processing rules
+processing_rules:
+  east_slavic_patronymic:
+    enabled: true
+    strip_middle_token: true
+    gender_inference: true
+    male_endings: ["ович", "евич", "ич"]
+    female_endings: ["овна", "евна", "инична"]
+    preserve_in_extras: true
+    
+  gender_suffixes:
+    enabled: true
+    male_surname_endings: ["ский", "цкий", "ов", "ев", "ин", "ын"]
+    female_surname_endings: ["ская", "цкая", "ова", "ева", "ина", "ына"]
+    automatic_inference: true
+    confidence_threshold: 0.85
+    
+  russian_transliteration:
+    enabled: true
+    primary_standard: "GOST 7.79-2000 (A)"
+    alternative_standard: "BGN-PCGN 1947"
+    create_variants: true
+    handle_й: "y_ending"
+    handle_ё: "yo_representation"
+    
+  ukrainian_specifics:
+    enabled: true
+    handle_ї: "yi_representation"
+    handle_є: "ye_representation"
+    transliteration_variants: true
+    
+  belarusian_specifics:
+    enabled: true
+    handle_ў: "w_representation"
+    cyrillic_preservation: true
+    
+  name_patterns:
+    canonical_order: "Family, Given Patronymic"
+    patronymic_handling: "detect_and_separate"
+    gender_based_variants: true
+    
+  script_validation:
+    script_requirement: "Cyrillic"
+    allow_latin_variants: true
+    validate_east_slavic_specific: true
+    
+  transliteration_handling:
+    preserve_cyrillic: true
+    create_latin_variants: true
+    normalization_form: "NFC"
+    bidirectional_mapping: true
+
+# Quality thresholds for B1
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  patronymic_detection_accuracy: 0.92
+  gender_inference_accuracy: 0.88
+  transliteration_accuracy: 0.9
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_patronymics: "preserve_as_middle_name"
+  ambiguous_gender: "prefer_masculine_default"
+  transliteration_conflicts: "prefer_gost_standard"

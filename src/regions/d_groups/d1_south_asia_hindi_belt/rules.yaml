@@ -1,0 +1,156 @@
+# D1 South Asia Hindi Belt Region Processing Rules
+# Specialized rules for Hindi Belt naming patterns
+
+schema_version: "7.0"
+region_code: "D1"
+region_name: "South Asia Hindi Belt"
+
+# Hindi Belt linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 43
+    name: "Devanagari Script Processing"
+    description: "Handle Devanagari script with proper conjuncts, matras, and normalization"
+    implementation: "devanagari_script_processing"
+    
+  - id: 44
+    name: "Hindi Belt Regional Variations"
+    description: "Process Hindi Belt regional naming patterns and dialects"
+    implementation: "hindi_belt_regional_processing"
+
+# Hindi Belt specific processing rules
+processing_rules:
+  devanagari_script_handling:
+    enabled: true
+    script_type: "Devanagari"
+    reading_direction: "left_to_right"
+    normalization_form: "NFKC"
+    handle_conjuncts: "preserve_traditional"
+    handle_matras: "preserve_positioning"
+    handle_nukta: "preserve_distinctions"
+    
+  hindi_belt_patterns:
+    enabled: true
+    territories: ["IN"]
+    states: ["UP", "MP", "RJ", "HR", "HP", "UK", "JH", "BI", "CG"]
+    hindi_urdu_continuum: true
+    regional_variations: true
+    
+  uttar_pradesh_patterns:
+    enabled: true
+    awadhi_influences: true
+    braj_influences: true
+    bundelkhandi_patterns: true
+    kayastha_surnames: ["श्रीवास्तव", "माथुर", "सक्सेना", "निगम"]
+    
+  rajasthani_patterns:
+    enabled: true
+    rajasthani_dialects: ["Marwari", "Mewari", "Dhundhari"]
+    rajput_clan_names: ["चौहान", "राठौड़", "सिसोदिया", "कछवाहा"]
+    merchant_community_names: ["अग्रवाल", "गुप्ता", "बंसल"]
+    
+  madhya_pradesh_patterns:
+    enabled: true
+    malwi_influences: true
+    bundelkhandi_overlap: true
+    tribal_influences: ["गोंड", "भील"]
+    
+  bihar_jharkhand_patterns:
+    enabled: true
+    bhojpuri_influences: true
+    magahi_patterns: true
+    tribal_surnames: ["मुंडा", "खलखो", "तिर्की"]
+    
+  haryana_punjab_overlap:
+    enabled: true
+    haryanvi_patterns: true
+    jat_community_surnames: ["मान", "यादव", "चौधरी"]
+    
+  caste_community_patterns:
+    enabled: true
+    brahmin_surnames: ["शर्मा", "त्रिपाठी", "द्विवेदी", "चतुर्वेदी"]
+    kshatriya_surnames: ["सिंह", "ठाकुर", "राजपूत"]
+    vaishya_surnames: ["गुप्ता", "अग्रवाल", "बंसल", "जैन"]
+    shudra_surnames: ["कुमार", "यादव", "पासवान"]
+    
+  patronymic_systems:
+    enabled: true
+    hindi_patronymics: ["पुत्र", "नंदन", "प्रसाद"]
+    titles: ["जी", "साहब", "बाबू"]
+    honorifics: ["श्री", "श्रीमती", "कुमारी"]
+    
+  hindi_transliteration:
+    enabled: true
+    primary_standard: "ALA-LC Devanagari"
+    alternative_standards: ["ISO 15919", "IAST", "Harvard-Kyoto"]
+    preserve_original: true
+    create_variants: true
+    handle_schwa_deletion: "context_dependent"
+    handle_retroflex: "distinguish"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    hindi_given_names: "preserve_original"
+    caste_surnames: "preserve_social_markers"
+    patronymic_middle_names: "preserve_genealogy"
+    religious_names: "preserve_devotional_elements"
+    
+  script_validation:
+    script_requirement: "Devanagari_or_Latin"
+    validate_devanagari_orthography: true
+    allow_devanagari_original: true
+    allow_latin_transliterations: true
+    mixed_script_tolerance: "moderate"
+    
+  religious_elements:
+    enabled: true
+    hindu_naming_traditions: true
+    sanskrit_elements: "preserve_classical"
+    devotional_names: ["राम", "कृष्ण", "शिव", "देवी"]
+    religious_titles: ["पंडित", "आचार्य", "गुरु"]
+    
+  linguistic_features:
+    enabled: true
+    hindi_phonetic_changes: true
+    sanskrit_tatsama_words: "preserve_classical"
+    persian_arabic_loanwords: "preserve_historical"
+    regional_dialect_variations: true
+    
+  occupational_surnames:
+    enabled: true
+    traditional_occupations: ["कुम्हार", "लोहार", "सुनार", "दर्जी"]
+    administrative_titles: ["चौधरी", "पटेल", "मुखिया"]
+    scholarly_titles: ["पंडित", "शास्त्री", "आचार्य"]
+    
+  geographic_markers:
+    enabled: true
+    preserve_origin_indicators: true
+    city_surnames: ["इलाहाबादी", "लखनवी", "दिल्ली"]
+    regional_markers: ["अवधी", "ब्रजी", "बुंदेली"]
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    handle_devanagari_numerals: true
+    classical_sanskrit_forms: "preserve_with_modern_variants"
+    modern_hindi_adaptations: "preferred"
+
+# Quality thresholds for D1
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  devanagari_script_detection_accuracy: 0.90
+  transliteration_accuracy: 0.87
+  regional_pattern_recognition: 0.83
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"
+  unknown_caste_patterns: "accept_with_standard_processing"
+  script_mixing_conflicts: "prefer_devanagari_original"

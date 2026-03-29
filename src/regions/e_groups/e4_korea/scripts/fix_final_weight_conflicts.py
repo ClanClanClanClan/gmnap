@@ -14,7 +14,7 @@ print(f"Backed up to: {backup_name}")
 print("=== FIXING FINAL WEIGHT CONFLICTS ===")
 print("Remaining issues:")
 print("- 오 → 'o' not 'oh' (both weight 0.0)")
-print("- 준 → 'jung' (-0.9) beats 'jun' (-0.8)")  
+print("- 준 → 'jung' (-0.9) beats 'jun' (-0.8)")
 print("- 제이 → 'je i' not 'j' (compound issue)")
 print()
 
@@ -26,17 +26,14 @@ with open("resources/rr_syllable_map.csv", encoding="utf8") as f:
 # FINAL WEIGHT CONFLICT FIXES
 final_weight_fixes = [
     # Fix 오 → "oh" preference
-    ("오", "oh", "-1.0"),      # Make "oh" stronger than "o" (0.0)
-    
-    # Fix 준 → "jun" preference  
-    ("준", "jun", "-1.2"),     # Make "jun" stronger than "jung" (-0.9)
-    
+    ("오", "oh", "-1.0"),  # Make "oh" stronger than "o" (0.0)
+    # Fix 준 → "jun" preference
+    ("준", "jun", "-1.2"),  # Make "jun" stronger than "jung" (-0.9)
     # Fix 제이 → "j" preference (compound)
-    ("제이", "j", "-2.0"),     # Very strong weight for compound initial
-    
+    ("제이", "j", "-2.0"),  # Very strong weight for compound initial
     # Additional compound fixes for better segmentation
-    ("성준", "seongjoon", "-1.5"), # Preserve SeongJoon compound
-    ("오", "o", "0.5"),         # Make "o" weaker so "oh" wins
+    ("성준", "seongjoon", "-1.5"),  # Preserve SeongJoon compound
+    ("오", "o", "0.5"),  # Make "o" weaker so "oh" wins
 ]
 
 print(f"Current rows: {len(rows)}")
@@ -58,7 +55,7 @@ for hangul, roman, weight in final_weight_fixes:
                 fixed_count += 1
             found = True
             break
-    
+
     if not found:
         rows.append([hangul, roman, weight])
         print(f"  ADDED: {hangul} → {roman} (weight: {weight})")
@@ -76,7 +73,7 @@ with open("resources/rr_syllable_map.csv", "w", encoding="utf8", newline="") as 
 print("\n✅ Final weight conflicts resolved!")
 print("\n=== EXPECTED FINAL FIXES ===")
 print("- 오 → 'oh' (-1.0) should beat 'o' (0.5)")
-print("- 준 → 'jun' (-1.2) should beat 'jung' (-0.9)")  
+print("- 준 → 'jun' (-1.2) should beat 'jung' (-0.9)")
 print("- 제이 → 'j' (-2.0) should work for initials")
 print("- 성준 → 'seongjoon' (-1.5) should preserve compounds")
 print("\nTarget: Fix remaining roundtrip failures → 95.4%!")

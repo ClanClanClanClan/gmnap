@@ -1,0 +1,39 @@
+# D5 Sinhala Region Configuration
+# Sinhala: Sri Lanka
+
+schema_version: "7.0"
+region_code: "D5"
+region_name: "Sinhala"
+
+# Regional characteristics
+iso_territories: [LK]
+primary_scripts: ["Sinhala", "Latin"]
+distinct_features: "Sinhala script; Buddhist traditions; caste system influences"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["ALA-LC Sinhala", "ISO 15919", "Wijesekera System"]
+
+# Regional processing rules
+processing_rules:
+  sinhala_script_handling: true
+  buddhist_tradition_processing: true
+  caste_pattern_processing: true
+  colonial_influence_processing: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: true
+  sinhala_script_validation: true
+  buddhist_pattern_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  sinhala_script_detection_accuracy: 0.90
+  transliteration_accuracy: 0.85

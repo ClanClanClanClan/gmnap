@@ -1,0 +1,167 @@
+{
+  "created_at": "2025-10-30T13:58:06.480175Z",
+  "root": "GMNAP_Genealogy_Kit_2025-10-30",
+  "file_count": 40,
+  "files": {
+    "README_SUPERPLAN_GLOBAL.md": {
+      "size_bytes": 83,
+      "sha256": "8454d5ff075191e3e5415ae2b6e40334d719b3ce2f557a5688a851d444560490"
+    },
+    "requirements.txt": {
+      "size_bytes": 198,
+      "sha256": "0b73e5122cee80590d6ed505799ab1b9ee732f7dc8ea678064cf2737bd569936"
+    },
+    "pyproject.toml": {
+      "size_bytes": 535,
+      "sha256": "727218eae63bec70c47665f51a034dff4c9163912eb3f1ce7ca094faaac42a64"
+    },
+    ".gitignore": {
+      "size_bytes": 66,
+      "sha256": "1095e5dbba36111aae59bc49a1ddfa79e76ac1ea98b3df86b3ff669e11d27f32"
+    },
+    "config/sources.yml": {
+      "size_bytes": 1582,
+      "sha256": "52ba1b1f50ecc0f2a8bc13bc40ebebc94da1df61b0cabe31d00a5804f248f984"
+    },
+    "config/scoring.yml": {
+      "size_bytes": 516,
+      "sha256": "3ca5bea30a034a9b956afc61492149a812e47d293e4dd132f38cb16451215add"
+    },
+    "config/pdf_extraction.yml": {
+      "size_bytes": 168,
+      "sha256": "f30748ee9c086a6ab224b0d6024fa4ff0931c13c1b2693bcd46a470df3013c11"
+    },
+    "config/pipeline.yml": {
+      "size_bytes": 436,
+      "sha256": "41e58812e1c85faedceb077271bb2c70016f975cad8531ca72012fff5c013462"
+    },
+    "config/rollout.yml": {
+      "size_bytes": 558,
+      "sha256": "98047153d78d836a4967e935e99123fc907f7b2fb2fd7ad39140cb30648995a7"
+    },
+    "config/locales/advisor_lexicons.yml": {
+      "size_bytes": 1129,
+      "sha256": "75407eff1999661ef5bd50c55f650cc9373563496d3a8fb59fbbbe7c33adfa1d"
+    },
+    "config/locales/degree_lexicons.yml": {
+      "size_bytes": 237,
+      "sha256": "d7e8d25c4efb6cf85550db51d49c11c3c12c2fabf26bce7625fcdd3a3195a006"
+    },
+    "config/locales/institution_aliases.yml": {
+      "size_bytes": 433,
+      "sha256": "fcfd1b53b5929f33f50416c34d0b2402a7eb6c85822458eb377993b608fe33a7"
+    },
+    "config/locales/language_hints.yml": {
+      "size_bytes": 197,
+      "sha256": "88e0ed45e94c02446107ced357f94294bd07af31b72e496e14f7ff7c0eb716b3"
+    },
+    "connectors/base.py": {
+      "size_bytes": 1461,
+      "sha256": "0eab9b8f7e284d02256aee288037881eb2e1ad27f2c4a56a9f3d1842bd3a38d2"
+    },
+    "connectors/oai_pmh.py": {
+      "size_bytes": 2229,
+      "sha256": "45e59fa69c8cff7820d1edd404ddb49e2856de219d8c16b53bede4165e0e8bad"
+    },
+    "connectors/rest_json.py": {
+      "size_bytes": 1609,
+      "sha256": "cabb247ca5be95c138445c1174fae1181b1bc2647bc5722b37efb491c2f03f06"
+    },
+    "connectors/html_scraper.py": {
+      "size_bytes": 949,
+      "sha256": "f82a24b25bf6167efbfb8820cd1a82ff9a1bd4b73010196d0f1faa4bc7e4e6d0"
+    },
+    "connectors/pdf_fetcher.py": {
+      "size_bytes": 446,
+      "sha256": "fdf8049d3809063dc0b8ce34de9944a8ecd832b1ae003380d3cecc66067ba327"
+    },
+    "connectors/sources/generic_mapper.py": {
+      "size_bytes": 665,
+      "sha256": "48524b03fbf67d70d58b0da6e1a4e1324b9fa227ae74b89a3b0e2c44607a396e"
+    },
+    "pipeline/normalize.py": {
+      "size_bytes": 1628,
+      "sha256": "02a3dc7f9508d880e4238997f64fac9c110577aac8507e19424f7b650c6570ae"
+    },
+    "pipeline/extract.py": {
+      "size_bytes": 1124,
+      "sha256": "e5958a065d9bc61ab361bfc2d21f3f4d76fd77f2a51bc346c7899d7c188552eb"
+    },
+    "pipeline/fuse.py": {
+      "size_bytes": 1355,
+      "sha256": "d4c26d02b5480d21fc4d6b2d11ce0f6817ff2170a94a8559c2a385113f7d4603"
+    },
+    "pipeline/validate.py": {
+      "size_bytes": 295,
+      "sha256": "3fba42ee259c9fc7e396eae104dcbc6f596cc9944cd5eb92ae8c87dc76ea63fb"
+    },
+    "pipeline/ingest.py": {
+      "size_bytes": 1714,
+      "sha256": "7d9032670770f33d325f744d61cce300fca10a95224725424668fe6d94d2a25e"
+    },
+    "pipeline/load_graph.py": {
+      "size_bytes": 1871,
+      "sha256": "ad422dc27759e6ab82568a55713ff03803e5026385534a665cf7fbd327ad7d8c"
+    },
+    "pipeline/metrics.py": {
+      "size_bytes": 367,
+      "sha256": "e10c99b8687c7bc9f2e55b0ecc10b3b0610fe6f11b5b1835f8d4acf009588dde"
+    },
+    "graph/cypher_indexes.cypher": {
+      "size_bytes": 278,
+      "sha256": "609140e5a3bcb91ff9bec55522855b9cb05b8fc0d34affe8317a7c9c318ead92"
+    },
+    "graph/cypher_constraints.cypher": {
+      "size_bytes": 106,
+      "sha256": "75dbde42dec624aac390948ebb852ecdd711791777a08c552d865d75f6c17e29"
+    },
+    "graph/cypher_diagnostics.cypher": {
+      "size_bytes": 193,
+      "sha256": "740e226e1971d4136672cabdd229c67a5a4186d171c6619ccb307acba8e85430"
+    },
+    "api/schema.py": {
+      "size_bytes": 242,
+      "sha256": "0ce0170e68e2042243ce1c06b5e86b79c8aef307a9bba9b08909cfc87f910248"
+    },
+    "api/server.py": {
+      "size_bytes": 1408,
+      "sha256": "c136100ab4a0854cc149bc668d2554f7fd0d69966fa5a6c6744c5e8716fed985"
+    },
+    "docker/docker-compose.yml": {
+      "size_bytes": 361,
+      "sha256": "97c2dce6356b0d364826d64cc3a2421439abe7f785224287c315076ed281f0e0"
+    },
+    "docker/Dockerfile.worker": {
+      "size_bytes": 154,
+      "sha256": "c4ad581e8e78fc47dc423f68ddd0fadfe868ad03c5ebe0384068983cf432fd0b"
+    },
+    "scripts/run_pipeline_python3.sh": {
+      "size_bytes": 2169,
+      "sha256": "28b3f79fcde2e9dac69ea5bbadb675dc37acbe3c3862190a86994756320f9d7f"
+    },
+    "scripts/backfill_country.sh": {
+      "size_bytes": 171,
+      "sha256": "d8291ab8ec184bc3016f625b53673eaa6b2f54a0c80c531cb4c037cc3cb81e5a"
+    },
+    "scripts/rebuild_graph.sh": {
+      "size_bytes": 136,
+      "sha256": "27b2c6e925a1216fcb58378f4339f850caa66a7c34e36b51a7d7752d6ae474ce"
+    },
+    "scripts/discover_oai.py": {
+      "size_bytes": 275,
+      "sha256": "f31e49c933aeb9df9221d594ef6f25781bdd0569eae2dd3b6a962f5647cbe12a"
+    },
+    "tests/unit/test_lexicon_extractor.py": {
+      "size_bytes": 282,
+      "sha256": "94223efa98039291dc2b434b0202340e8b1ca708cf058b2390de70c2fdc40dbc"
+    },
+    "tests/integration/test_smoke.py": {
+      "size_bytes": 192,
+      "sha256": "1d52d2604a002ee1083354f3fd5a164ba748d3fdf61e90dba4f541dda7be7fac"
+    },
+    "data/fixtures/theses.jsonl": {
+      "size_bytes": 1254,
+      "sha256": "aa2550b83e45ae21a493a6478fe4b31a299bb0753b2c14a55515ae12a890f61d"
+    }
+  }
+}

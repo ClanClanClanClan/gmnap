@@ -1,0 +1,96 @@
+# B2 South-Slavic & Central Europe Region Processing Rules
+# Specialized rules for South-Slavic and Central European naming patterns
+
+schema_version: "7.0"
+region_code: "B2"
+region_name: "South-Slavic & Central Europe"
+
+# South-Slavic and Central European linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 26
+    name: "Hungarian Name-Order Flip"
+    description: "Family Given → Given Family for Hungarian names"
+    implementation: "hungarian_name_order_processing"
+    
+  - id: 25
+    name: "Gaj Alphabet Processing"
+    description: "Latin extended alphabet for South-Slavic languages"
+    implementation: "gaj_alphabet_handling"
+
+# South-Slavic and Central European specific processing rules
+processing_rules:
+  hungarian_name_order:
+    enabled: true
+    detect_hungarian_names: true
+    flip_to_given_family: true
+    hungarian_territories: ["HU"]
+    confidence_threshold: 0.8
+    preserve_original_in_extras: true
+    
+  gaj_alphabet_handling:
+    enabled: true
+    territories: ["HR", "SI", "BA", "RS", "ME"]
+    extended_latin_chars: ["č", "ć", "đ", "š", "ž", "Č", "Ć", "Đ", "Š", "Ž"]
+    normalization_form: "NFC"
+    create_ascii_variants: true
+    
+  south_slavic_patterns:
+    enabled: true
+    patronymic_suffixes: ["ić", "ović", "ević", "ski", "ska"]
+    diminutive_forms: ["ko", "ka", "enko", "enka"]
+    regional_variants: true
+    preserve_original_forms: true
+    
+  central_european_conventions:
+    enabled: true
+    polish_patterns: ["ski", "cki", "owski", "ak", "ek", "ik"]
+    czech_slovak_patterns: ["ová", "ný", "ní", "ček", "ek"]
+    romanian_patterns: ["escu", "eanu", "oiu", "anu"]
+    albanian_patterns: ["aj", "i", "u", "e"]
+    
+  cyrillic_latin_mixed:
+    enabled: true
+    territories_cyrillic: ["BG", "RS", "ME", "MK"]
+    territories_latin: ["HR", "SI", "BA", "PL", "CZ", "SK", "HU", "RO", "AL"]
+    transliteration_standards: ["ISO 9", "ALA-LC"]
+    bidirectional_support: true
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    hungarian_exception: "Given Family"
+    multiple_surnames: "preserve_all"
+    hyphenated_names: "standard_handling"
+    particle_handling: "minimal"
+    
+  script_validation:
+    mixed_scripts: true
+    latin_requirement: "primary"
+    cyrillic_support: "secondary"
+    validate_regional_specific: true
+    
+  diacritic_handling:
+    preserve_original: true
+    create_ascii_variants: true
+    normalization_form: "NFC"
+    gaj_specific_handling: true
+    hungarian_umlauts: true
+
+# Quality thresholds for B2
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  name_order_detection_accuracy: 0.9
+  gaj_alphabet_accuracy: 0.92
+  hungarian_detection_accuracy: 0.88
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  ambiguous_name_order: "prefer_family_given_except_hungarian"
+  mixed_script_conflicts: "prefer_latin_primary"
+  unknown_regional_patterns: "accept_with_variants"

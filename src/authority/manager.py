@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 from typing import Dict, Any, List
 import asyncio
@@ -17,7 +16,8 @@ except Exception:
         out: Dict[str, Any] = {}
         for f in frags:
             for k, v in f.items():
-                if k == "_source": continue
+                if k == "_source":
+                    continue
                 if isinstance(v, list):
                     out.setdefault(k, [])
                     for x in v:
@@ -27,7 +27,15 @@ except Exception:
                     out[k] = out.get(k, v)
         return out
 
-ADAPTERS = [OpenAlexAdapter, CrossrefThesisAdapter, ORCIDETDAdapter, WikidataP184Adapter, OAIUniversityAdapter]
+
+ADAPTERS = [
+    OpenAlexAdapter,
+    CrossrefThesisAdapter,
+    ORCIDETDAdapter,
+    WikidataP184Adapter,
+    OAIUniversityAdapter,
+]
+
 
 async def enrich_all(entry: Dict[str, Any], cfg: Dict[str, Any] | None = None) -> Dict[str, Any]:
     tasks = []
@@ -39,7 +47,8 @@ async def enrich_all(entry: Dict[str, Any], cfg: Dict[str, Any] | None = None) -
     for r in results:
         if isinstance(r, Exception):
             continue
-        if isinstance(r, dict): fragments.append(r)
+        if isinstance(r, dict):
+            fragments.append(r)
     merged = merge_authority_fragments(fragments, None)
-    merged["_sources"] = [f.get("_source",{}).get("service") for f in fragments]
+    merged["_sources"] = [f.get("_source", {}).get("service") for f in fragments]
     return merged

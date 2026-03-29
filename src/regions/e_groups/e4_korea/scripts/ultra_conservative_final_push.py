@@ -26,26 +26,22 @@ existing_mappings = {(row[0], row[1]) for row in rows if len(row) >= 2}
 ultra_safe_fixes = [
     # 1. Fix the obvious preference issues with STRONG weights
     ("천", "cheon", "-1.0"),  # STRONGLY prefer 천 over 춘 for cheon
-    ("건", "gun", "-0.8"),    # Prefer 건 for gun (vs existing 군)
-    ("묵", "mook", "-0.5"),   # Prefer 묵 over 모옥 for mook
-    ("구", "goo", "-0.5"),    # Prefer 구 for goo
-    
+    ("건", "gun", "-0.8"),  # Prefer 건 for gun (vs existing 군)
+    ("묵", "mook", "-0.5"),  # Prefer 묵 over 모옥 for mook
+    ("구", "goo", "-0.5"),  # Prefer 구 for goo
     # 2. Add missing compound patterns (zero conflict risk)
-    ("종철", "jongchol", "0.0"),   # An_JongChol
-    ("백진", "baekjin", "0.0"),     # Chun_Baekjin
-    ("홍목", "hongmok", "0.0"),     # Chun_Hong-Mok
-    ("광현", "kwanghyun", "0.0"),   # Paek_Kwang-Hyun
-    ("재춘", "jaechun", "0.0"),     # Bong_Jae-Chun
-    
+    ("종철", "jongchol", "0.0"),  # An_JongChol
+    ("백진", "baekjin", "0.0"),  # Chun_Baekjin
+    ("홍목", "hongmok", "0.0"),  # Chun_Hong-Mok
+    ("광현", "kwanghyun", "0.0"),  # Paek_Kwang-Hyun
+    ("재춘", "jaechun", "0.0"),  # Bong_Jae-Chun
     # 3. Critical surname fixes
-    ("유", "eu", "-0.5"),      # Eu_Jungmin → 유정민 (not 으정민)
-    
+    ("유", "eu", "-0.5"),  # Eu_Jungmin → 유정민 (not 으정민)
     # 4. Context-sensitive given name patterns
-    ("숙", "sukja", "-0.3"),   # For -ja endings, prefer 숙 over 석
-    ("촐", "chol", "0.0"),     # Jong-Chol → 종촐 (specific variant)
-    
+    ("숙", "sukja", "-0.3"),  # For -ja endings, prefer 숙 over 석
+    ("촐", "chol", "0.0"),  # Jong-Chol → 종촐 (specific variant)
     # 5. Foreign name improvements
-    ("데이비드", "david", "-0.3"), # David → 데이비드 (compound, prefer over 데이빗)
+    ("데이비드", "david", "-0.3"),  # David → 데이비드 (compound, prefer over 데이빗)
 ]
 
 print(f"Current rows: {len(rows)}")

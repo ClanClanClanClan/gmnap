@@ -9,14 +9,14 @@ with open("data/expanded_independent_test_results.json") as f:
     data = json.load(f)
 
 # Focus on low dice score failures
-dice_failures = [f for f in data['failures'] if f['issue'] == 'low_dice_score']
+dice_failures = [f for f in data["failures"] if f["issue"] == "low_dice_score"]
 print(f"Analyzing {len(dice_failures)} low dice score failures\n")
 
 # Analyze character-level differences
 char_substitutions = Counter()
 for f in dice_failures:
-    expected = f['expected']
-    actual = f['actual']
+    expected = f["expected"]
+    actual = f["actual"]
     if actual and len(expected) == len(actual):
         for e, a in zip(expected, actual):
             if e != a:
@@ -30,9 +30,9 @@ for (exp, act), count in char_substitutions.most_common(10):
 # Check current mappings for these characters
 print("\n=== CHECKING CURRENT MAPPINGS ===")
 mappings = defaultdict(list)
-with open("resources/rr_syllable_map.csv", 'r', encoding='utf-8') as f:
+with open("resources/rr_syllable_map.csv", "r", encoding="utf-8") as f:
     for row in csv.reader(f):
-        if len(row) >= 2 and not row[0].startswith('#'):
+        if len(row) >= 2 and not row[0].startswith("#"):
             hangul = row[0]
             roman = row[1]
             weight = float(row[2]) if len(row) > 2 and row[2] else 0.0
@@ -52,11 +52,11 @@ for hangul in top_errors:
 print("\n=== SPECIFIC FAILURE EXAMPLES ===")
 for f in dice_failures[:5]:
     print(f"\n{f['name']}: {f['expected']} → {f['actual']} (dice={f['dice']:.3f})")
-    
+
     # Show character differences
-    if f['actual'] and len(f['expected']) == len(f['actual']):
+    if f["actual"] and len(f["expected"]) == len(f["actual"]):
         diffs = []
-        for i, (e, a) in enumerate(zip(f['expected'], f['actual'])):
+        for i, (e, a) in enumerate(zip(f["expected"], f["actual"])):
             if e != a:
                 diffs.append(f"position {i}: {e}→{a}")
         if diffs:

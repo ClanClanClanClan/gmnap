@@ -3,23 +3,28 @@
 Final analysis of math dataset failures and ultra-conservative fixes
 """
 import yaml, sys, os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
-from converter import eng2kor, kor2eng
+# from converter import eng2kor, kor2eng
 import unicodedata
 
-def norm(s): 
-    s = s.replace(",", "").replace("-", " ")
-    return unicodedata.normalize("NFC", s.casefold().replace(" ",""))
 
-def dice(a,b):
-    a,b=set(zip(a,a[1:])),set(zip(b,b[1:]))
-    return 2*len(a&b)/(len(a)+len(b) or 1)
+def norm(s):
+    s = s.replace(",", "").replace("-", " ")
+    return unicodedata.normalize("NFC", s.casefold().replace(" ", ""))
+
+
+def dice(a, b):
+    a, b = set(zip(a, a[1:])), set(zip(b, b[1:]))
+    return 2 * len(a & b) / (len(a) + len(b) or 1)
+
 
 def find_hangul(variants):
     for v in variants:
-        if isinstance(v, str) and any('\uac00' <= c <= '\ud7af' for c in v):
+        if isinstance(v, str) and any("\uac00" <= c <= "\ud7af" for c in v):
             return v.replace(" ", "")
     return None
+
 
 print("=== FINAL MATH DATASET ANALYSIS ===")
 print("Current: 679/733 (92.63%)")
@@ -40,12 +45,12 @@ for k, v in data.items():
         ko_exp = find_hangul(v.get("AllCommonVariants", []))
         if not rr or not ko_exp:
             continue
-        
+
         ko = eng2kor(rr)
         if ko != ko_exp:
             eng_kor_failures.append((k, rr, ko_exp, ko))
             continue
-            
+
         rr2 = kor2eng(ko, rr) or ""
         if dice(norm(rr), norm(rr2)) < 0.90:
             roundtrip_failures.append((k, rr, ko, rr2))
@@ -66,7 +71,7 @@ for name, input_rom, expected, actual in eng_kor_failures[:15]:
     print(f"  Input: {input_rom}")
     print(f"  Expected: {expected}")
     print(f"  Actual: {actual}")
-    
+
     if actual is None:
         print(f"  Issue: Missing mapping")
         missing_mappings.append((name, input_rom, expected))
@@ -101,7 +106,7 @@ print("3. Are clearly missing from the system")
 ultra_safe_fixes = [
     # Only obvious missing mappings that return None
     "Dr. → 박사 (title mapping)",
-    "Prof. → 교수 (title mapping)", 
+    "Prof. → 교수 (title mapping)",
     "PhD → 박사 (degree mapping)",
 ]
 
@@ -115,7 +120,7 @@ print(f"- Roundtrip: {len(roundtrip_failures)} (mostly formatting)")
 print(f"")
 print(f"Strategy:")
 print(f"1. Fix obvious None failures → +3-5 cases")
-print(f"2. Add missing surname mappings → +5-8 cases") 
+print(f"2. Add missing surname mappings → +5-8 cases")
 print(f"3. Context improvements → +5-7 cases")
 print(f"4. Consider relaxing dice threshold → +5 cases")
 print(f"")

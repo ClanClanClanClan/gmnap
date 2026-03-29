@@ -29,7 +29,7 @@ new_rows = []
 for row in rows:
     if len(row) >= 2:
         hangul, roman = row[0], row[1]
-        
+
         # Fix wrong mappings identified in analysis
         if hangul == "숰" and roman == "suk":
             # Wrong mapping: 숰,suk should be 석,suk (most common)
@@ -37,7 +37,7 @@ for row in rows:
             print(f"  FIXED: 숰,suk → 석,suk")
             fixes_applied += 1
         elif hangul == "큔" and roman == "kyun":
-            # Wrong mapping: 큔,kyun should be 균,kyun  
+            # Wrong mapping: 큔,kyun should be 균,kyun
             new_rows.append(["균", "kyun"])
             print(f"  FIXED: 큔,kyun → 균,kyun")
             fixes_applied += 1
@@ -81,7 +81,7 @@ with open("resources/rr_syllable_map.csv", "w", encoding="utf8", newline="") as 
 print("✅ Patch A wrong mappings fixed!")
 print("\n=== EXPECTED IMPROVEMENTS ===")
 print("- Wang_Minsuk: suk → 석 (correct)")
-print("- Jeong_Sukmin: suk → 석 (correct)")  
+print("- Jeong_Sukmin: suk → 석 (correct)")
 print("- Suk_Hyunjoo: suk → 석 (correct for surname)")
 print("- Shim_Jaekyun: kyun → 균 (fixed)")
 print("- Gwak_JungHoon: gwak → 곽 (fixed)")

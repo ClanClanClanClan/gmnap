@@ -14,17 +14,18 @@ remove_mappings = [
     ("휸", "hyun"),  # Should be 현
 ]
 
+
 def main():
     syllable_map_path = E4_ROOT / "resources" / "rr_syllable_map.csv"
-    temp_path = syllable_map_path.with_suffix('.tmp')
-    
+    temp_path = syllable_map_path.with_suffix(".tmp")
+
     removed = 0
     kept = 0
-    
+
     with open(syllable_map_path, encoding="utf8") as f_in:
-        with open(temp_path, 'w', encoding="utf8") as f_out:
+        with open(temp_path, "w", encoding="utf8") as f_out:
             writer = csv.writer(f_out)
-            
+
             for row in csv.reader(f_in):
                 if len(row) >= 2:
                     hangul, roman = row[0], row[1]
@@ -36,13 +37,14 @@ def main():
                         kept += 1
                 else:
                     writer.writerow(row)
-    
+
     # Replace original file
     temp_path.replace(syllable_map_path)
-    
+
     print(f"✓ Removed {removed} incorrect mappings")
     print(f"✓ Kept {kept} mappings")
     print("✓ Rebuild FSTs with: python scripts/build_fsts_multi.py")
+
 
 if __name__ == "__main__":
     main()

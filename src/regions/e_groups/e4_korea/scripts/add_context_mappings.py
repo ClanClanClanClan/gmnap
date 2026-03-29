@@ -23,27 +23,23 @@ existing_mappings = {(row[0], row[1]) for row in rows if len(row) >= 2}
 # Required mappings for enhanced context patterns
 context_support_mappings = [
     # Support for jung → jun pattern
-    ("준", "jun", "-0.2"),        # jun → 준 (context-sensitive alternative)
-    ("준한", "junhan", "0.0"),    # junhan → 준한 (compound)
-    
-    # Support for suk → sukja pattern  
-    ("숙", "sukja", "-0.2"),      # sukja → 숙 (for -ja endings)
-    
+    ("준", "jun", "-0.2"),  # jun → 준 (context-sensitive alternative)
+    ("준한", "junhan", "0.0"),  # junhan → 준한 (compound)
+    # Support for suk → sukja pattern
+    ("숙", "sukja", "-0.2"),  # sukja → 숙 (for -ja endings)
     # Support for segmentation fixes
-    ("철", "cheol", "-0.1"),      # cheol → 철 (alternative to chol)
-    ("춘", "cheon", "-0.8"),      # cheon → 춘 (for jae-cheon compounds, prefer over 천)
-    ("광", "gwang", "-0.3"),      # gwang → 광 (alternative to kwang)
-    
+    ("철", "cheol", "-0.1"),  # cheol → 철 (alternative to chol)
+    ("춘", "cheon", "-0.8"),  # cheon → 춘 (for jae-cheon compounds, prefer over 천)
+    ("광", "gwang", "-0.3"),  # gwang → 광 (alternative to kwang)
     # Support for surname corrections
-    ("류", "ryu", "-0.2"),        # ryu → 류 (alternative romanization)
-    ("음", "eum", "-0.3"),        # eum → 음 (alternative to um)
-    ("도", "do", "-0.5"),         # do → 도 (strengthen vs to)
-    ("염", "yeom", "-0.2"),       # yeom → 염 (alternative to yom)
-    
+    ("류", "ryu", "-0.2"),  # ryu → 류 (alternative romanization)
+    ("음", "eum", "-0.3"),  # eum → 음 (alternative to um)
+    ("도", "do", "-0.5"),  # do → 도 (strengthen vs to)
+    ("염", "yeom", "-0.2"),  # yeom → 염 (alternative to yom)
     # Support for segmentation fixes
-    ("미", "mi", "-0.4"),         # mi → 미 (prefer over mee segmentation)
-    ("준이", "juni", "0.0"),      # juni → 준이 (compound for June)
-    ("임", "im", "-0.3"),         # im → 임 (prefer over rim)
+    ("미", "mi", "-0.4"),  # mi → 미 (prefer over mee segmentation)
+    ("준이", "juni", "0.0"),  # juni → 준이 (compound for June)
+    ("임", "im", "-0.3"),  # im → 임 (prefer over rim)
 ]
 
 print(f"Current rows: {len(rows)}")

@@ -1,0 +1,1 @@
+CREATE CONSTRAINT uniq_mathematician_id IF NOT EXISTS FOR (m:Mathematician) REQUIRE m.global_id IS UNIQUE;

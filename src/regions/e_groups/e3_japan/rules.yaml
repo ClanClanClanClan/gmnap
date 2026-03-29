@@ -1,0 +1,232 @@
+# E3 Japan Region Processing Rules
+# Specialized rules for Japanese naming patterns and scripts
+
+schema_version: "7.0"
+region_code: "E3"
+region_name: "Japan"
+
+# Japanese linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 12
+    name: "Japanese Post-2020 Order Rule"
+    description: "Family-Given order for romanized names in English publications since 2020"
+    implementation: "japanese_post_2020_order_processing"
+    
+  - id: 61
+    name: "Kanji Processing"
+    description: "Handle Kanji ideographs with proper stroke order and readings"
+    implementation: "kanji_processing"
+    
+  - id: 62
+    name: "Hiragana Processing"
+    description: "Process Hiragana syllabary with proper phonetic representations"
+    implementation: "hiragana_processing"
+    
+  - id: 63
+    name: "Katakana Processing" 
+    description: "Handle Katakana syllabary with foreign word adaptations"
+    implementation: "katakana_processing"
+    
+  - id: 64
+    name: "Japanese Romanization"
+    description: "Process multiple romanization systems (Hepburn, Kunrei-shiki, Nihon-shiki)"
+    implementation: "japanese_romanization_processing"
+
+# Japanese specific processing rules
+processing_rules:
+  japanese_script_handling:
+    enabled: true
+    primary_scripts: ["Kanji", "Hiragana", "Katakana"]
+    secondary_scripts: ["Latin"]
+    character_ranges:
+      hiragana: [0x3040, 0x309F]
+      katakana: [0x30A0, 0x30FF, 0xFF65, 0xFF9F]
+      kanji: [0x4E00, 0x9FAF, 0x3400, 0x4DBF]
+      cjk_symbols: [0x3000, 0x303F]
+    mixed_script_support: true
+    script_transitions: "normalize_spacing"
+    
+  japanese_regional_patterns:
+    enabled: true
+    territories: ["JP"]
+    standard_japanese: true
+    regional_dialects: ["Kansai", "Tohoku", "Kyushu", "Okinawan"]
+    honorific_systems: true
+    family_given_order: true
+    
+  kanji_processing:
+    enabled: true
+    character_set: "CJK_Unified_Ideographs"
+    readings:
+      on_yomi: "preserve_chinese_readings"
+      kun_yomi: "preserve_japanese_readings"
+    stroke_order: "standard_japanese"
+    variant_handling: "prefer_standard_forms"
+    radical_analysis: "preserve_semantic_meaning"
+    
+  hiragana_processing:
+    enabled: true
+    phonetic_system: "Japanese_syllabary"
+    normalization_form: "NFKC"
+    small_characters: "preserve_phonetic_distinction"
+    long_vowel_marks: "preserve_pronunciation"
+    
+  katakana_processing:
+    enabled: true
+    foreign_word_adaptation: true
+    phonetic_approximation: "preserve_japanese_phonology"
+    extended_katakana: "support_foreign_sounds"
+    halfwidth_conversion: "normalize_to_fullwidth"
+    
+  japanese_family_names:
+    enabled: true
+    common_surnames: ["佐藤", "鈴木", "高橋", "田中", "渡辺", "伊藤", "山本", "中村", "小林", "加藤"]
+    compound_surnames: ["金田", "木村", "山田", "田村"]
+    regional_variations: "preserve_local_patterns"
+    historical_names: "preserve_classical_elements"
+    
+  japanese_given_names:
+    enabled: true
+    generation_patterns: true
+    gender_conventions: "preserve_traditional_distinctions"
+    auspicious_meanings: ["太郎", "次郎", "三郎", "花子", "美子", "恵子"]
+    modern_trends: "document_contemporary_patterns"
+    kanji_combinations: "preserve_semantic_harmony"
+    
+  post_2020_order_rule:
+    enabled: true
+    description: "Family-Given order for romanized Japanese names in English publications"
+    effective_date: "2020-01-01"
+    contexts:
+      academic_papers: "prefer_family_given"
+      international_publications: "prefer_family_given"
+      government_documents: "require_family_given"
+    variant_generation:
+      create_pre_2020_variants: true
+      create_post_2020_variants: true
+      create_canonical_format: true
+    
+  japanese_romanization:
+    enabled: true
+    primary_standard: "Hepburn"
+    alternative_standards: ["Kunrei-shiki", "Nihon-shiki"]
+    systems:
+      hepburn:
+        type: "Modified_Hepburn"
+        long_vowels: "macron_notation"
+        double_consonants: "geminate_notation"
+      kunrei_shiki:
+        type: "ISO_3602"
+        official_standard: "Japanese_government"
+      nihon_shiki:
+        type: "Classical_romanization"
+        linguistic_accuracy: "preserve_phonemic_distinctions"
+        
+  name_patterns:
+    canonical_order: "Family, Given"
+    japanese_structure: "preserve_traditional_order"
+    generational_markers: "preserve_family_sequences"
+    honorific_suffixes: "document_when_present"
+    childhood_names: "preserve_when_relevant"
+    
+  script_validation:
+    script_requirement: "Japanese_or_Latin"
+    validate_japanese_orthography: true
+    allow_kanji_original: true
+    allow_romanized_forms: true
+    mixed_script_tolerance: "standard"
+    character_validity: "strict_unicode_ranges"
+    
+  cultural_elements:
+    enabled: true
+    traditional_values: ["和", "礼", "義", "信", "仁"]
+    seasonal_references: ["春", "夏", "秋", "冬", "桜", "紅葉"]
+    nature_elements: ["山", "川", "海", "空", "雲", "月"]
+    buddhist_influences: ["仏", "法", "慈", "悲", "智"]
+    shinto_elements: ["神", "社", "祭", "清", "浄"]
+    
+  historical_periods:
+    enabled: true
+    heian_period: "preserve_classical_elements"
+    kamakura_period: "warrior_class_names"
+    edo_period: "merchant_artisan_patterns"
+    meiji_restoration: "westernization_influences"
+    modern_era: "contemporary_naming_trends"
+    
+  occupational_elements:
+    enabled: true
+    traditional_occupations: ["農", "工", "商", "侍", "僧"]
+    modern_professions: ["医師", "教師", "技師", "研究"]
+    artistic_traditions: ["茶道", "華道", "書道", "武道"]
+    
+  geographic_elements:
+    enabled: true
+    preserve_origin_indicators: true
+    prefectural_markers: true
+    city_references: ["東京", "大阪", "京都", "横浜"]
+    mountain_references: ["富士", "比叡", "高野", "箱根"]
+    
+  generational_systems:
+    enabled: true
+    traditional_naming: "preserve_family_patterns"
+    generation_characters: ["世", "代", "郎", "次", "三"]
+    birth_order_indicators: "preserve_sibling_sequences"
+    family_lineage: "document_genealogical_patterns"
+    
+  linguistic_features:
+    enabled: true
+    japanese_phonetic_patterns: true
+    mora_considerations: "preserve_in_romanization"
+    pitch_accent: "document_when_relevant"
+    sound_symbolism: "preserve_cultural_associations"
+    
+  honorific_systems:
+    enabled: true
+    personal_honorifics: ["さん", "様", "君", "ちゃん"]
+    professional_titles: ["先生", "教授", "博士", "師匠"]
+    age_respect_markers: "preserve_social_hierarchy"
+    gender_distinctions: "maintain_traditional_forms"
+    
+  dialectal_variations:
+    enabled: true
+    kansai_dialect: "preserve_regional_characteristics"
+    tohoku_dialect: "document_northern_patterns"
+    kyushu_dialect: "preserve_southern_variations"
+    okinawan_patterns: "special_handling_ryukyu"
+    
+  orthography_handling:
+    preserve_original: true
+    create_romanized_variants: true
+    handle_japanese_punctuation: true
+    fullwidth_character_handling: "normalize_appropriately"
+    traditional_writing_direction: "document_when_relevant"
+    
+  modern_adaptations:
+    enabled: true
+    international_names: "adapt_to_japanese_phonology"
+    technology_influences: "document_digital_age_patterns"
+    globalization_effects: "preserve_cultural_identity"
+    katakana_foreign_names: "standard_adaptation_rules"
+
+# Quality thresholds for E3
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  japanese_script_detection_accuracy: 0.95
+  romanization_accuracy: 0.90
+  kanji_recognition: 0.92
+  hiragana_katakana_accuracy: 0.95
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_romanizations: "prefer_hepburn"
+  unknown_kanji_readings: "preserve_with_phonetic_guide"
+  script_conflicts: "prefer_japanese_original"
+  mixed_script_validation: "lenient_for_international_names"

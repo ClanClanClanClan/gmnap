@@ -23,16 +23,14 @@ with open("resources/rr_syllable_map.csv", encoding="utf8") as f:
 # Avoid single letters and patterns that conflict with Korean romanization
 targeted_loanwords = [
     # Full foreign names only (no ambiguity)
-    ("린다", "linda", "0.0"),      # Linda
-    ("데이빗", "david", "0.0"),    # David  
+    ("린다", "linda", "0.0"),  # Linda
+    ("데이빗", "david", "0.0"),  # David
     ("그레이스", "grace", "0.0"),  # Grace
     ("마이클", "michael", "0.0"),  # Michael
-    
     # Unambiguous consonant clusters not used in Korean
-    ("브", "br", "0.1"),   # Brian, Brad (but higher weight to avoid conflicts)
-    ("프", "fr", "0.1"),   # Frank, Fred
-    ("그", "gr", "0.1"),   # Grace, Greg (but only in clusters)
-    
+    ("브", "br", "0.1"),  # Brian, Brad (but higher weight to avoid conflicts)
+    ("프", "fr", "0.1"),  # Frank, Fred
+    ("그", "gr", "0.1"),  # Grace, Greg (but only in clusters)
     # Special handling for "J." pattern (Korean practice for initials)
     ("제이", "j.", "0.0"),  # Kim J. → 김제이
 ]

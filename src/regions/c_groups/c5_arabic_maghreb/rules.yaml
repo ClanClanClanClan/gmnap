@@ -1,0 +1,135 @@
+# C5 Arabic Maghreb Region Processing Rules
+# Specialized rules for Arabic Maghrebi naming patterns
+
+schema_version: "7.0"
+region_code: "C5"
+region_name: "Arabic Maghreb"
+
+# Arabic Maghreb linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 33
+    name: "Arabic Script Processing"
+    description: "Handle Arabic script with proper joining, contextual forms, and diacritics"
+    implementation: "arabic_script_processing"
+    
+  - id: 36
+    name: "Maghrebi Dialect Variations"
+    description: "Process Maghrebi Arabic dialect-specific name patterns"
+    implementation: "maghrebi_dialect_processing"
+
+# Arabic Maghreb specific processing rules
+processing_rules:
+  arabic_script_handling:
+    enabled: true
+    script_type: "Arabic"
+    joining_behavior: "contextual"
+    normalization_form: "NFKC"
+    handle_diacritics: "optional"
+    right_to_left: true
+    
+  maghrebi_patterns:
+    enabled: true
+    territories: ["MA", "DZ", "TN", "LY", "MR"]
+    maghrebi_particles: ["بن", "ابن", "ولد", "بنت"]
+    tribal_markers: ["أيت", "آيت", "قبيلة"]
+    preserve_tribal_affiliations: true
+    
+  moroccan_patterns:
+    enabled: true
+    territories: ["MA"]
+    berber_influences: ["أمازيغ", "تامازيغت"]
+    royal_family_patterns: ["العلوي", "الحسني"]
+    regional_variations: ["الفاسي", "المراكشي", "الرباطي"]
+    
+  algerian_patterns:
+    enabled: true
+    territories: ["DZ"]
+    kabyle_berber_names: true
+    french_colonial_surnames: ["بوشيخ", "بلقاسم"]
+    regional_tribal_names: ["الشاوي", "القبائلي"]
+    
+  tunisian_patterns:
+    enabled: true
+    territories: ["TN"]
+    carthaginian_influences: true
+    andalusian_surnames: ["الأندلسي", "القرطبي"]
+    ottoman_period_names: true
+    
+  libyan_patterns:
+    enabled: true
+    territories: ["LY"]
+    cyrenaican_tripolitanian_distinctions: true
+    bedouin_tribal_confederations: ["قبائل", "عشائر"]
+    italian_colonial_influences: "minimal"
+    
+  mauritanian_patterns:
+    enabled: true
+    territories: ["MR"]
+    hassaniya_influences: true
+    sub_saharan_connections: true
+    nomadic_tribal_structures: ["بني", "أولاد"]
+    
+  berber_influences:
+    enabled: true
+    berber_name_patterns: ["أمزيان", "تافراوت", "أسيف"]
+    arabized_berber_names: true
+    preserve_berber_elements: true
+    tifinagh_script_awareness: "basic"
+    
+  french_colonial_patterns:
+    enabled: true
+    territories: ["MA", "DZ", "TN", "MR"]
+    gallicized_surnames: ["بوشيخ", "دوبريه"]
+    administrative_surnames: true
+    preserve_arabic_core: true
+    
+  arabic_transliteration:
+    enabled: true
+    primary_standard: "ALA-LC Arabic"
+    alternative_standards: ["BGN-PCGN", "ISO 233-2"]
+    preserve_original: true
+    create_variants: true
+    handle_hamza: "contextual"
+    handle_ayn: "apostrophe_or_backtick"
+    maghrebi_specific_sounds: true
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    multiple_given_names: "preserve_all"
+    tribal_names: "preserve_as_family"
+    berber_components: "preserve_separately"
+    patronymic_chains: "preserve_genealogy"
+    
+  script_validation:
+    script_requirement: "Arabic"
+    validate_joining_context: true
+    validate_right_to_left: true
+    allow_latin_transliterations: true
+    berber_latin_tolerance: "limited"
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    handle_arabic_digits: true
+    maghrebi_arabic: "preferred"
+    standard_arabic_alternatives: true
+
+# Quality thresholds for C5
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  arabic_script_detection_accuracy: 0.92
+  transliteration_accuracy: 0.88
+  berber_recognition_accuracy: 0.80
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"
+  unknown_berber_patterns: "accept_with_arabic_processing"

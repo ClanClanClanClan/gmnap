@@ -1,4 +1,4 @@
-import yaml, unicodedata, sys, pathlib
+import yaml, unicodedata, sys
 sys.path.append('src')
 from converter import eng2kor, kor2eng
 

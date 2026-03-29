@@ -1,0 +1,123 @@
+# C4 Arabic Gulf Region Processing Rules
+# Specialized rules for Arabic Gulf naming patterns
+
+schema_version: "7.0"
+region_code: "C4"
+region_name: "Arabic Gulf"
+
+# Arabic Gulf linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 33
+    name: "Arabic Script Processing"
+    description: "Handle Arabic script with proper joining, contextual forms, and diacritics"
+    implementation: "arabic_script_processing"
+    
+  - id: 35
+    name: "Gulf Dialect Variations"
+    description: "Process Gulf Arabic dialect-specific name patterns"
+    implementation: "gulf_dialect_processing"
+
+# Arabic Gulf specific processing rules
+processing_rules:
+  arabic_script_handling:
+    enabled: true
+    script_type: "Arabic"
+    joining_behavior: "contextual"
+    normalization_form: "NFKC"
+    handle_diacritics: "optional"
+    right_to_left: true
+    
+  gulf_patterns:
+    enabled: true
+    territories: ["SA", "AE", "QA", "BH", "KW", "OM"]
+    gulf_specific_particles: ["آل", "بن", "ابن", "أبو"]
+    tribal_markers: ["القحطاني", "العدناني", "البدوي"]
+    preserve_tribal_affiliations: true
+    
+  saudi_patterns:
+    enabled: true
+    territories: ["SA"]
+    regional_variations: ["النجدي", "الحجازي", "العسيري"]
+    royal_family_patterns: ["آل سعود", "آل الشيخ"]
+    bedouin_tribal_names: true
+    
+  gulf_states_patterns:
+    enabled: true
+    territories: ["AE", "QA", "BH", "KW", "OM"]
+    emirate_specific: ["القاسمي", "النهياني", "المكتوم"]
+    merchant_family_patterns: true
+    pearl_diver_surnames: true
+    
+  iraqi_patterns:
+    enabled: true
+    territories: ["IQ"]
+    mesopotamian_surnames: ["البغدادي", "البصري", "الموصلي"]
+    tribal_confederations: ["شمر", "عنزة", "تميم"]
+    
+  yemeni_patterns:
+    enabled: true
+    territories: ["YE"]
+    yemeni_tribal_names: ["الحاشدي", "البكيلي", "الحميري"]
+    highland_lowland_distinctions: true
+    
+  arabic_transliteration:
+    enabled: true
+    primary_standard: "ALA-LC Arabic"
+    alternative_standards: ["BGN-PCGN", "ISO 233-2"]
+    preserve_original: true
+    create_variants: true
+    handle_hamza: "contextual"
+    handle_ayn: "apostrophe_or_backtick"
+    
+  compound_surnames:
+    enabled: true
+    tribal_compound_patterns: ["آل", "بني", "أولاد"]
+    preserve_compound_structure: true
+    genealogical_chains: "preserve_full"
+    handle_definite_article: "preserve_al"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    multiple_given_names: "preserve_all"
+    tribal_names: "preserve_as_family"
+    patronymic_chains: "preserve_genealogy"
+    religious_titles: "preserve_in_extras"
+    
+  script_validation:
+    script_requirement: "Arabic"
+    validate_joining_context: true
+    validate_right_to_left: true
+    allow_latin_transliterations: true
+    
+  tribal_handling:
+    preserve_tribal_affiliations: true
+    recognize_major_tribes: true
+    handle_subtribe_markers: true
+    genealogical_validation: true
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    handle_arabic_digits: true
+    classical_arabic: "preferred"
+    gulf_dialectal_forms: "accepted"
+
+# Quality thresholds for C4
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  arabic_script_detection_accuracy: 0.92
+  transliteration_accuracy: 0.88
+  tribal_recognition_accuracy: 0.85
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"
+  unknown_tribal_patterns: "accept_with_standard_processing"

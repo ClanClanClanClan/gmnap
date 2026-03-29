@@ -1,0 +1,39 @@
+# D3 South Asia Bengali Region Configuration
+# Bengali: Eastern India and Bangladesh
+
+schema_version: "7.0"
+region_code: "D3"
+region_name: "South Asia Bengali"
+
+# Regional characteristics
+iso_territories: [IN, BD]
+primary_scripts: ["Bengali", "Latin"]
+distinct_features: "Bengali script; East Bengal traditions; intellectual heritage"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["ALA-LC Bengali", "ISO 15919", "National Library Romanization"]
+
+# Regional processing rules
+processing_rules:
+  bengali_script_handling: true
+  east_bengal_pattern_processing: true
+  intellectual_tradition_processing: true
+  diaspora_pattern_handling: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: true
+  bengali_script_validation: true
+  cultural_pattern_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  bengali_script_detection_accuracy: 0.92
+  transliteration_accuracy: 0.88

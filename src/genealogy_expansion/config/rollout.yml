@@ -1,0 +1,13 @@
+waves:
+  P0:
+    target_edges: 50000
+    countries: [FR, IN, ES, PT, DE, US, CA, BR, SE, NO, DK, FI, PL, KR, TW, HK, GR, JP, IT, MX, CL, PE, ZA]
+  P1:
+    target_edges: 150000
+    countries: [GB, IE, NL, BE, LU, CH, AT, CZ, SK, HU, RO, BG, SI, HR, BA, ME, RS, MK, AL, LT, LV, EE]
+  P2:
+    target_edges: 250000
+    countries: [AR, UY, CO, EC, BO, PY, CR, DO, PR, AU, NZ, SG, MY, TH, VN, ID, PH]
+  P3:
+    target_edges: 350000
+    countries: [MA, DZ, TN, EG, IL, SA, AE, QA, OM, JO, LB, IR, IQ, NG, KE, GH, ZA, ET, TZ, RW, AM, AZ, GE, KZ, KG, UZ, TM, TJ, TR]

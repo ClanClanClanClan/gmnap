@@ -3,8 +3,9 @@
 Deep analysis of context-sensitive patterns that could yield +10-15 cases
 """
 import yaml, sys, os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
-from converter import eng2kor, kor2eng
+# from converter import eng2kor, kor2eng
 
 print("=== CONTEXT PATTERN ANALYSIS FOR 95.4% TARGET ===")
 print("Analyzing the 31 eng→kor failures for context opportunities...\n")
@@ -13,11 +14,13 @@ print("Analyzing the 31 eng→kor failures for context opportunities...\n")
 with open("data/korean.yaml", encoding="utf8") as f:
     data = yaml.safe_load(f)
 
+
 def find_hangul(variants):
     for v in variants:
-        if isinstance(v, str) and any('\uac00' <= c <= '\ud7af' for c in v):
+        if isinstance(v, str) and any("\uac00" <= c <= "\ud7af" for c in v):
             return v.replace(" ", "")
     return None
+
 
 # Collect all eng→kor failures
 eng_kor_failures = []
@@ -42,21 +45,23 @@ for name, rom, expected, actual in eng_kor_failures:
         parts = rom.replace(",", "").split()
         surname_rom = parts[0].lower() if parts else ""
         given_rom = " ".join(parts[1:]).lower() if len(parts) > 1 else ""
-        
+
         for i, (exp_char, act_char) in enumerate(zip(expected, actual)):
             if exp_char != act_char:
                 # Determine if this is in surname or given name
                 position = "surname" if i == 0 else "given"  # Simplified
                 pattern_key = f"{act_char}→{exp_char}"
-                
+
                 if pattern_key not in position_patterns:
                     position_patterns[pattern_key] = {"surname": [], "given": []}
-                
+
                 position_patterns[pattern_key][position].append(name)
 
 # Show most common position-sensitive patterns
 print("Most frequent position-sensitive substitutions:")
-for pattern, positions in sorted(position_patterns.items(), key=lambda x: len(x[1]["surname"]) + len(x[1]["given"]), reverse=True)[:10]:
+for pattern, positions in sorted(
+    position_patterns.items(), key=lambda x: len(x[1]["surname"]) + len(x[1]["given"]), reverse=True
+)[:10]:
     surname_count = len(positions["surname"])
     given_count = len(positions["given"])
     if surname_count > 0 or given_count > 0:
@@ -74,8 +79,19 @@ for name, rom, expected, actual in eng_kor_failures:
     if actual:
         # Look for common ambiguous romanizations
         rom_lower = rom.lower()
-        ambiguous_syllables = ['jung', 'jeong', 'chung', 'jong', 'suk', 'seok', 'gun', 'kun', 'mook', 'muk']
-        
+        ambiguous_syllables = [
+            "jung",
+            "jeong",
+            "chung",
+            "jong",
+            "suk",
+            "seok",
+            "gun",
+            "kun",
+            "mook",
+            "muk",
+        ]
+
         for syllable in ambiguous_syllables:
             if syllable in rom_lower:
                 if syllable not in ambiguous_patterns:

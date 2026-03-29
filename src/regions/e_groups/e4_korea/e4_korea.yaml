@@ -1,0 +1,170 @@
+# E4 Korea Region Configuration
+# Korean naming conventions and processing rules for GMNAP v7
+
+region:
+  code: "E4"
+  name: "Korea"
+  description: "Korean mathematician names with Hangul/Hanja/Latin scripts"
+  
+scripts:
+  primary: 
+    - "Hangul"
+    - "Hanja" 
+    - "Latin"
+  mixed_scripts: true
+  
+canonical_order: "Family Given"  # Korean order: 김민수 (Kim Min-su)
+
+romanization:
+  standards:
+    - "Revised Romanization"  # Official ROK standard
+    - "McCune-Reischauer"     # Academic standard
+  default: "Revised Romanization"
+
+validation:
+  # V7 compliance requirements
+  round_trip_accuracy: 0.97  # ≥97% accuracy required
+  max_name_length: 150       # DoS protection
+  
+  # Script validation
+  hangul_ranges:
+    - [0xAC00, 0xD7AF]  # Hangul Syllables
+    - [0x1100, 0x11FF]  # Hangul Jamo
+    - [0x3130, 0x318F]  # Hangul Compatibility Jamo
+    - [0xA960, 0xA97F]  # Hangul Jamo Extended-A
+    - [0xD7B0, 0xD7FF]  # Hangul Jamo Extended-B
+    
+  hanja_ranges:
+    - [0x4E00, 0x9FFF]  # CJK Unified Ideographs
+    - [0x3400, 0x4DBF]  # CJK Extension A
+    - [0xF900, 0xFAFF]  # CJK Compatibility Ideographs
+
+patterns:
+  # Common Korean family names (most frequent)
+  family_names:
+    - "김"   # Kim
+    - "이"   # Lee/Yi
+    - "박"   # Park
+    - "최"   # Choi
+    - "정"   # Jung/Jeong
+    - "강"   # Kang
+    - "조"   # Cho
+    - "윤"   # Yoon
+    - "장"   # Jang/Chang
+    - "임"   # Lim/Im
+    - "한"   # Han
+    - "오"   # Oh
+    - "서"   # Seo
+    - "신"   # Shin
+    - "권"   # Kwon
+    - "황"   # Hwang
+    - "안"   # Ahn
+    - "송"   # Song
+    - "전"   # Jeon
+    - "홍"   # Hong
+    - "유"   # Yoo
+    - "고"   # Ko
+    - "문"   # Moon
+    - "양"   # Yang
+    - "손"   # Son
+    - "배"   # Bae
+    - "백"   # Baek
+    - "허"   # Heo
+    - "남"   # Nam
+    - "심"   # Sim
+    
+  # Two-character family names
+  compound_family_names:
+    - "남궁"  # Namgung
+    - "제갈"  # Jegal
+    - "독고"  # Dokgo
+    - "사공"  # Sagong
+    - "선우"  # Seonwoo
+    - "황보"  # Hwangbo
+
+  # Common given name elements
+  given_elements:
+    - "민"   # Min
+    - "수"   # Soo/Su
+    - "영"   # Young/Yeong
+    - "현"   # Hyun/Hyeon
+    - "지"   # Ji
+    - "준"   # Jun
+    - "성"   # Sung/Seong
+    - "진"   # Jin
+    - "우"   # Woo/U
+    - "호"   # Ho
+    - "혜"   # Hye
+    - "정"   # Jung/Jeong
+    - "은"   # Eun
+    - "선"   # Sun/Seon
+    - "미"   # Mi
+    - "경"   # Kyung/Gyeong
+    - "소"   # So
+    - "아"   # Ah
+    - "희"   # Hee/Hui
+    - "연"   # Yeon
+    - "재"   # Jae
+    - "석"   # Seok
+    - "철"   # Cheol
+    - "용"   # Yong
+    - "원"   # Won
+    - "근"   # Geun
+    - "대"   # Dae
+    - "훈"   # Hoon
+    - "규"   # Kyu
+    - "태"   # Tae
+
+processing:
+  # Name normalization rules
+  hyphen_normalization: true    # Min-su vs Min su vs Minsu
+  space_normalization: true     # Normalize whitespace
+  unicode_normalization: "NFC" # Canonical composition
+  
+  # Title removal
+  korean_titles:
+    - "선생님"  # Teacher (formal)
+    - "선생"    # Teacher
+    - "박사님"  # Doctor (formal)
+    - "교수님"  # Professor (formal)
+    - "님"      # Honorific suffix
+    - "씨"      # Mr./Ms.
+    - "군"      # Young man
+    - "양"      # Young woman
+    - "박사"    # Doctor
+    - "교수"    # Professor
+    
+  western_titles:
+    - "Mr"
+    - "Mr."
+    - "Ms"
+    - "Ms."
+    - "Mrs"
+    - "Mrs."
+    - "Dr"
+    - "Dr."
+    - "Prof"
+    - "Prof."
+    - "Professor"
+
+security:
+  # V7 security requirements
+  control_character_blocking: true
+  zero_width_character_blocking: true
+  dos_protection: true
+  max_length: 150
+  
+  # Allowed character validation
+  allow_hangul: true
+  allow_hanja: true
+  allow_latin: true
+  allow_numbers: true
+  allow_punctuation: [" ", ",", ".", "-", "'"]
+
+quality_gates:
+  # V7 compliance gates
+  idempotency_check: true
+  round_trip_validation: true
+  min_round_trip_accuracy: 0.97
+  graph_coherence_check: true
+  memory_limit_mb: 6144

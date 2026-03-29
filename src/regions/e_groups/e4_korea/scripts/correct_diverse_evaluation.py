@@ -3,23 +3,28 @@
 Correct evaluation of diverse dataset using CanonicalLatin field
 """
 import yaml, sys, os
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
-from converter import eng2kor, kor2eng
+# from converter import eng2kor, kor2eng
 import unicodedata
 
-def norm(s): 
-    s = s.replace(",", "").replace("-", " ")
-    return unicodedata.normalize("NFC", s.casefold().replace(" ",""))
 
-def dice(a,b):
-    a,b=set(zip(a,a[1:])),set(zip(b,b[1:]))
-    return 2*len(a&b)/(len(a)+len(b) or 1)
+def norm(s):
+    s = s.replace(",", "").replace("-", " ")
+    return unicodedata.normalize("NFC", s.casefold().replace(" ", ""))
+
+
+def dice(a, b):
+    a, b = set(zip(a, a[1:])), set(zip(b, b[1:]))
+    return 2 * len(a & b) / (len(a) + len(b) or 1)
+
 
 def find_hangul(variants):
     for v in variants:
-        if isinstance(v, str) and any('\uac00' <= c <= '\ud7af' for c in v):
+        if isinstance(v, str) and any("\uac00" <= c <= "\ud7af" for c in v):
             return v.replace(" ", "")
     return None
+
 
 print("=== CORRECT DIVERSE DATASET EVALUATION ===\n")
 
@@ -36,13 +41,13 @@ for key, info in diverse_data.items():
         # Use CanonicalLatin, not the key
         canonical = info.get("CanonicalLatin")
         expected_korean = find_hangul(info.get("AllCommonVariants", []))
-        
+
         if not canonical or not expected_korean:
             continue
-            
+
         diverse_tot += 1
         actual_korean = eng2kor(canonical)
-        
+
         if actual_korean == expected_korean:
             diverse_ok += 1
         else:
@@ -52,7 +57,9 @@ for key, info in diverse_data.items():
                 if roundtrip and dice(norm(canonical), norm(roundtrip)) >= 0.90:
                     diverse_ok += 1
                 else:
-                    diverse_failures.append((key, canonical, expected_korean, actual_korean, roundtrip))
+                    diverse_failures.append(
+                        (key, canonical, expected_korean, actual_korean, roundtrip)
+                    )
             else:
                 diverse_failures.append((key, canonical, expected_korean, None, None))
 

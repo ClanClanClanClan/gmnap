@@ -1,8 +1,7 @@
-import json, yaml, pathlib
+import yaml, pathlib
 import sys
 sys.path.append('src')
 from converter import eng2kor
-import unicodedata
 
 fail=[]
 data=yaml.safe_load(pathlib.Path("data/diverse.yaml").read_text())

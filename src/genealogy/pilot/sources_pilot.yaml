@@ -1,0 +1,56 @@
+# genealogy/pilot/sources_pilot.yaml
+# Updated 2025-11-01: Corrected FR OAI-PMH endpoint from research
+FR_THESIS:
+  enabled: true
+  type: oai_pmh
+  base_url: "https://staroai.theses.fr/OAIHandler"  # STAR OAI-PMH repository (verified working)
+  metadata_prefix: "oai_dc"
+  set: "ddc:510"  # Mathematics (Dewey Decimal Classification)
+  country: "FR"
+  language: "fr"
+  advisor_locale: "fr"
+  rate_limit_rps: 1.0
+
+ES_TESEO:
+  enabled: true
+  type: html
+  base_url: "https://www.educacion.gob.es/teseo/"
+  country: "ES"
+  language: "es"
+  advisor_locale: "es"
+  selectors:
+    listing: "table.resultados a"
+    advisor_block: "div#directores"
+  rate_limit_rps: 0.5
+
+DE_OPUS:
+  enabled: true
+  type: oai_pmh
+  base_url: "https://opus4.kobv.de/oai/request"
+  metadata_prefix: "oai_dc"
+  country: "DE"
+  language: "de"
+  advisor_locale: "de"
+  rate_limit_rps: 1.0
+
+BR_BDTD:
+  enabled: true
+  type: oai_pmh
+  base_url: "http://bdtd.ibict.br/oai/request"
+  metadata_prefix: "oai_dc"
+  country: "BR"
+  language: "pt"
+  advisor_locale: "pt"
+  rate_limit_rps: 1.0
+
+US_CROSSREF:
+  enabled: true
+  type: rest_json
+  base_url: "https://api.crossref.org/works"
+  params:
+    filter: "type:dissertation"
+    mailto: "you@example.org"
+  country: "US"
+  language: "en"
+  advisor_locale: "en"
+  rate_limit_rps: 2.0

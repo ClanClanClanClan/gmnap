@@ -1,0 +1,39 @@
+# E2 Traditional Chinese Region Configuration
+# Traditional Chinese: Taiwan, Hong Kong, Macau
+
+schema_version: "7.0"
+region_code: "E2"
+region_name: "Traditional Chinese"
+
+# Regional characteristics
+iso_territories: [TW, HK, MO]
+primary_scripts: ["Han", "Latin"]
+distinct_features: "Traditional Chinese characters; multiple romanization systems; bilingual naming; colonial influences"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["Wade-Giles", "Tongyong Pinyin", "Zhuyin", "Jyutping"]
+
+# Regional processing rules
+processing_rules:
+  traditional_chinese_handling: true
+  multiple_romanization_systems: true
+  bilingual_name_processing: true
+  colonial_influence_processing: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  traditional_chinese_validation: true
+  script_mixing_tolerance: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  han_script_detection_accuracy: 0.95
+  transliteration_accuracy: 0.90

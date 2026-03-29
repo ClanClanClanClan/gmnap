@@ -25,15 +25,13 @@ existing_mappings = {(row[0], row[1]) for row in rows if len(row) >= 2}
 # Based on the eng→kor failure analysis
 truly_missing = [
     # Surnames that return None
-    ("고", "goh", "0.0"),     # Goh_Beomseok → None
-    ("손", "sohn", "0.0"),    # Sohn_Yoonah → None
-    
+    ("고", "goh", "0.0"),  # Goh_Beomseok → None
+    ("손", "sohn", "0.0"),  # Sohn_Yoonah → None
     # Specific compound patterns for diverse dataset
-    ("수지", "suzy", "0.0"),    # Bae_SuZy → None (compound)
+    ("수지", "suzy", "0.0"),  # Bae_SuZy → None (compound)
     ("순신", "sunsin", "0.0"),  # Yi_SunSin → None (compound)
-    
-    # Missing given name patterns  
-    ("준이", "june", "0.0"),    # Huh_June → 허준 (should be 허준이)
+    # Missing given name patterns
+    ("준이", "june", "0.0"),  # Huh_June → 허준 (should be 허준이)
 ]
 
 print(f"Current rows: {len(rows)}")

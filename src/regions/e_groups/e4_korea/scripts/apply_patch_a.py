@@ -14,13 +14,13 @@ print(f"Backed up to: {backup_name}")
 # Patch A: Corpus-backed ambiguous syllable mappings
 patch_a_mappings = [
     # roman, hangul, weight, context
-    ("suk", "석", "0.490", "GN"),     # Given-name context, 61.3% corpus frequency  
-    ("suk", "숙", "1.183", "GN"),     # Given-name context, 30.6% corpus frequency
-    ("kyun", "균", "0.000", "GN"),    # Single spelling in corpus → weight 0
-    ("gwak", "곽", "0.283", "SN"),    # Surname context, 75.4% frequency
-    ("kwak", "곽", "1.940", "SN"),    # Surname context, 14.4% frequency  
-    ("yuk", "육", "0.000", "SN"),     # Single spelling in corpus → weight 0
-    ("eoh", "어", "0.000", "SN"),     # Single spelling in corpus → weight 0
+    ("suk", "석", "0.490", "GN"),  # Given-name context, 61.3% corpus frequency
+    ("suk", "숙", "1.183", "GN"),  # Given-name context, 30.6% corpus frequency
+    ("kyun", "균", "0.000", "GN"),  # Single spelling in corpus → weight 0
+    ("gwak", "곽", "0.283", "SN"),  # Surname context, 75.4% frequency
+    ("kwak", "곽", "1.940", "SN"),  # Surname context, 14.4% frequency
+    ("yuk", "육", "0.000", "SN"),  # Single spelling in corpus → weight 0
+    ("eoh", "어", "0.000", "SN"),  # Single spelling in corpus → weight 0
     ("cheong", "정", "0.715", "SN"),  # Surname context, 48.9% frequency
 ]
 

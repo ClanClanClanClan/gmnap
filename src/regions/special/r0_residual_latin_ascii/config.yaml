@@ -1,0 +1,49 @@
+# R0 Residual Latin-ASCII Region Configuration
+# Catch-all bucket for unmapped ISO codes or low detector confidence
+
+schema_version: "7.0"
+region_code: "R0"
+region_name: "Residual Latin-ASCII"
+
+# Region specifications from v7.0 specs
+iso_territories: ["ANY_UNMAPPED"] 
+primary_scripts: ["Latin ASCII"]
+distinct_features: "Minimal matching rules"
+
+# Processing configuration
+processing_config:
+  # Minimal processing for catch-all bucket
+  minimal_rules: true
+  basic_validation_only: true
+  simple_normalization: true
+  
+  # Accept wide variety of patterns since this is catch-all
+  permissive_validation: true
+  broad_script_acceptance: true
+  fallback_processing: true
+
+# Weight configurations for regional detection
+weights:
+  unmapped_iso_code: 0.5      # Strong indicator if ISO not mapped elsewhere
+  latin_ascii_only: 0.3       # Pure Latin ASCII with no diacritics
+  low_detector_confidence: 0.2 # Low confidence from other detectors
+  
+# Quality thresholds (lower for catch-all)
+quality_thresholds:
+  minimum_confidence: 0.2     # Very low threshold
+  script_detection_confidence: 0.3
+  regional_match_confidence: 0.1
+
+# Fallback configuration
+fallback_config:
+  accept_unknown_patterns: true
+  default_name_order: "family_given"
+  basic_particle_handling: false
+  minimal_variant_generation: true
+  
+# Error handling for residual cases
+error_handling:
+  unknown_pattern: "accept_with_minimal_processing"
+  script_mismatch: "coerce_to_latin_ascii"  
+  validation_failure: "pass_through"
+  processing_error: "log_and_continue"

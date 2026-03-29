@@ -2,4 +2,4 @@
 
 from .processor import B3GreekProcessor
 
-__all__ = ['B3GreekProcessor']
+__all__ = ["B3GreekProcessor"]

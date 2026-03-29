@@ -1,0 +1,39 @@
+# C7 Armenian Region Configuration
+# Armenian: AM, Global Armenian communities
+
+schema_version: "7.0"
+region_code: "C7"
+region_name: "Armenian"
+
+# Regional characteristics
+iso_territories: [AM]
+primary_scripts: ["Armenian", "Latin"]
+distinct_features: "Armenian script; diaspora communities; patronymic traditions"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["ALA-LC Armenian", "ISO 9985", "BGN-PCGN"]
+
+# Regional processing rules
+processing_rules:
+  armenian_script_handling: true
+  diaspora_community_processing: true
+  armenian_transliteration: true
+  patronymic_suffix_handling: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  armenian_script_validation: true
+  diaspora_pattern_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  armenian_script_detection_accuracy: 0.88
+  transliteration_accuracy: 0.85

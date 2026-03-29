@@ -3,22 +3,27 @@
 Final analysis: What's needed to reach 97%+ target
 """
 import yaml, unicodedata, sys, pathlib
+
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
-from converter import eng2kor, kor2eng
+# from converter import eng2kor, kor2eng
 
-def norm(s): 
+
+def norm(s):
     s = s.replace(",", "").replace("-", " ")
-    return unicodedata.normalize("NFC", s.casefold().replace(" ",""))
+    return unicodedata.normalize("NFC", s.casefold().replace(" ", ""))
 
-def dice(a,b):
-    a,b=set(zip(a,a[1:])),set(zip(b,b[1:]))
-    return 2*len(a&b)/(len(a)+len(b) or 1)
+
+def dice(a, b):
+    a, b = set(zip(a, a[1:])), set(zip(b, b[1:]))
+    return 2 * len(a & b) / (len(a) + len(b) or 1)
+
 
 def find_hangul(variants):
     for v in variants:
-        if any('\uac00' <= c <= '\ud7af' for c in v):
+        if any("\uac00" <= c <= "\ud7af" for c in v):
             return v.replace(" ", "")
     return None
+
 
 # Load test data
 data = yaml.safe_load(open("data/korean.yaml", encoding="utf8"))
@@ -34,35 +39,34 @@ total_cases = 0
 for k, v in data.items():
     rr = v.get("CanonicalLatin")
     ko_exp = find_hangul(v.get("AllCommonVariants", []))
-    if not rr or not ko_exp: 
+    if not rr or not ko_exp:
         continue
-    
+
     total_cases += 1
     ko = eng2kor(rr)
-    
+
     if ko != ko_exp:
-        eng_to_kor_failures.append({
-            'name': k,
-            'input': rr, 
-            'expected': ko_exp,
-            'got': ko
-        })
+        eng_to_kor_failures.append({"name": k, "input": rr, "expected": ko_exp, "got": ko})
         continue
-    
+
     # Check roundtrip
     rr2 = kor2eng(ko, rr) or ""
     if dice(norm(rr), norm(rr2)) < 0.97:
-        roundtrip_failures.append({
-            'name': k,
-            'input': rr,
-            'korean': ko,
-            'got_romanization': rr2,
-            'dice_score': dice(norm(rr), norm(rr2))
-        })
+        roundtrip_failures.append(
+            {
+                "name": k,
+                "input": rr,
+                "korean": ko,
+                "got_romanization": rr2,
+                "dice_score": dice(norm(rr), norm(rr2)),
+            }
+        )
 
 print(f"\n=== FAILURE BREAKDOWN ===")
 print(f"✅ Successes: {total_cases - len(eng_to_kor_failures) - len(roundtrip_failures)}/733")
-print(f"❌ Eng→Kor failures: {len(eng_to_kor_failures)} (-{len(eng_to_kor_failures)} direct losses)")
+print(
+    f"❌ Eng→Kor failures: {len(eng_to_kor_failures)} (-{len(eng_to_kor_failures)} direct losses)"
+)
 print(f"🔄 Roundtrip failures: {len(roundtrip_failures)} (-{len(roundtrip_failures)} dice losses)")
 print(f"📈 Total failures: {len(eng_to_kor_failures) + len(roundtrip_failures)}")
 
@@ -75,12 +79,14 @@ if needed_math <= len(roundtrip_failures):
 elif needed_math <= len(eng_to_kor_failures):
     print(f"🎯 ACHIEVABLE: Fix top {needed_math} eng→kor conversion failures")
 else:
-    print(f"🚀 CHALLENGING: Need to fix {len(eng_to_kor_failures)} eng→kor + {needed_math - len(eng_to_kor_failures)} roundtrip")
+    print(
+        f"🚀 CHALLENGING: Need to fix {len(eng_to_kor_failures)} eng→kor + {needed_math - len(eng_to_kor_failures)} roundtrip"
+    )
 
 print(f"\n=== QUICKEST WINS (Top 10 fixable) ===")
 
 # Find cases closest to passing roundtrip threshold
-near_miss_roundtrip = sorted(roundtrip_failures, key=lambda x: x['dice_score'], reverse=True)[:10]
+near_miss_roundtrip = sorted(roundtrip_failures, key=lambda x: x["dice_score"], reverse=True)[:10]
 
 for i, case in enumerate(near_miss_roundtrip):
     print(f"{i+1:2d}. {case['name']} (dice: {case['dice_score']:.3f}) - ALMOST PASSING")

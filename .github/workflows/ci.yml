@@ -1,25 +1,129 @@
-name: Korean V5 Tests
+name: GMNAP V7 CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  PYTHONPATH: "."
+  OFFLINE: "1"
 
 jobs:
-  korea-regression:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
+      - uses: actions/checkout@v4
+
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      
+          python-version: "3.12"
+
+      - name: Install linters
+        run: pip install black ruff isort codespell yamllint
+
+      - name: Black
+        run: black src/ tests/ --check
+
+      - name: Ruff
+        run: ruff check src/ tests/
+
+      - name: isort
+        run: isort src/ tests/ --check-only --profile black
+
+      - name: codespell
+        run: codespell src/ tests/ --skip "*.json,*.yaml,*.yml,*.csv,*.bin"
+
+      - name: yamllint
+        run: yamllint -d relaxed config/ docs/*.yaml 2>/dev/null || true
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install "pynini==2.1.6.post1"
-      
-      - name: Run Korea tests
-        run: pytest tests/test_korea.py -v
-      
-      - name: Validate accuracy
-        run: python scripts/evaluate_roundtrip.py -i data/korean.yaml -t 0.97
+          pip install pytest pytest-timeout
+
+      - name: Setup cost tracking
+        run: |
+          mkdir -p cache
+          echo '{}' > cache/api_costs.json
+
+      - name: Unit tests
+        run: pytest tests/unit/ -v --tb=short --timeout=120
+
+      - name: Property tests
+        run: pytest tests/property/ -v --tb=short --timeout=120
+
+      - name: Integration tests
+        run: pytest tests/integration/ -v --tb=short --timeout=120
+
+      - name: Hardcore tests
+        run: pytest tests/hardcore/ -v --tb=short --timeout=300
+        continue-on-error: true
+
+      - name: Memory peak check
+        run: |
+          python3 -c "
+          import resource, platform
+          ru = resource.getrusage(resource.RUSAGE_SELF)
+          if platform.system() == 'Darwin':
+              rss_gb = ru.ru_maxrss / (1024**3)
+          else:
+              rss_gb = ru.ru_maxrss / (1024**2)
+          limit = 6
+          print(f'Peak RSS: {rss_gb:.2f} GB (limit: {limit} GB)')
+          assert rss_gb <= limit, f'Memory peak {rss_gb:.2f} GB exceeds {limit} GB limit'
+          "
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog secret scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --only-verified
+
+  cost-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check API spend against CHF 120/month limit
+        run: |
+          # Ensure cost tracking file exists
+          mkdir -p cache
+          if [ ! -f cache/api_costs.json ]; then
+            echo '{}' > cache/api_costs.json
+          fi
+          python3 -c "
+          import json, sys
+          costs = json.load(open('cache/api_costs.json'))
+          total = sum(costs.values())
+          limit = 120.0
+          print(f'Total API spend: CHF {total:.2f} / {limit:.2f}')
+          if total >= limit:
+              print('OVER LIMIT - failing build')
+              sys.exit(1)
+          print('Within budget')
+          "

@@ -1,0 +1,188 @@
+# D2 South Asia Dravidian Region Processing Rules
+# Specialized rules for Dravidian language naming patterns
+
+schema_version: "7.0"
+region_code: "D2"
+region_name: "South Asia Dravidian"
+
+# Dravidian linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 45
+    name: "Dravidian Multi-Script Processing"
+    description: "Handle Tamil, Telugu, Kannada, Malayalam scripts with proper normalization"
+    implementation: "dravidian_script_processing"
+    
+  - id: 46
+    name: "Dravidian Morphological Patterns"
+    description: "Process Dravidian agglutinative naming patterns and suffixes"
+    implementation: "dravidian_morphology_processing"
+
+# Dravidian specific processing rules
+processing_rules:
+  multi_script_handling:
+    enabled: true
+    supported_scripts: ["Tamil", "Telugu", "Kannada", "Malayalam"]
+    script_detection: "context_based"
+    normalization_form: "NFKC"
+    handle_conjuncts: "script_specific"
+    
+  tamil_patterns:
+    enabled: true
+    territories: ["IN"]  # Tamil Nadu
+    script_type: "Tamil"
+    caste_surnames: ["अय्यर", "अय्यंगार", "मुदलियार", "चेट्टियार"]
+    patronymic_suffixes: ["अन", "आन", "स्वामी"]
+    place_surnames: ["चेन्नै", "मदुरै", "कोयम्बत्तूर"]
+    
+  telugu_patterns:
+    enabled: true
+    territories: ["IN"]  # Andhra Pradesh, Telangana
+    script_type: "Telugu"
+    caste_surnames: ["राव", "रेड्डी", "नायडू", "चौधरी"]
+    patronymic_suffixes: ["राव", "राजू", "बाबू"]
+    regional_variations: ["आंध्र", "तेलंगाना", "रायलसीमा"]
+    
+  kannada_patterns:
+    enabled: true
+    territories: ["IN"]  # Karnataka
+    script_type: "Kannada"
+    caste_surnames: ["गौडा", "शेट्टी", "नायर", "हेगडे"]
+    patronymic_suffixes: ["अप्पा", "अण्णा", "राज"]
+    regional_dialects: ["मैसूर", "धारवाड", "बेळगावी"]
+    
+  malayalam_patterns:
+    enabled: true
+    territories: ["IN"]  # Kerala
+    script_type: "Malayalam"
+    caste_surnames: ["नायर", "मेनन", "पिल्लै", "कुरुप"]
+    patronymic_systems: "minimal"  # Less common in Kerala
+    matrilineal_influences: true
+    
+  dravidian_morphology:
+    enabled: true
+    agglutinative_features: true
+    suffix_processing: "preserve_morphemes"
+    compound_analysis: true
+    root_identification: true
+    
+  caste_community_patterns:
+    enabled: true
+    brahmin_communities:
+      tamil: ["अय्यर", "अय्यंगार", "शर्मा"]
+      telugu: ["शर्मा", "शास्त्री", "भट्ट"]
+      kannada: ["शर्मा", "भट्ट", "देसाई"]
+      malayalam: ["नम्बूदिरि", "शर्मा"]
+      
+    kshatriya_communities:
+      tamil: ["तेवर", "नायडु"]
+      telugu: ["राव", "रेड्डी", "नायडू"]
+      kannada: ["गौडा", "हेगडे"]
+      malayalam: ["नायर", "मेनन"]
+      
+    merchant_communities:
+      tamil: ["चेट्टियार", "गुप्ता"]
+      telugu: ["कोम्मती", "अरोरा"]
+      kannada: ["शेट्टी", "जैन"]
+      malayalam: ["मप्पिळ्ळै"]
+      
+  patronymic_systems:
+    enabled: true
+    tamil_patronymics: ["अन", "आन", "स्वामी", "मूर्ति"]
+    telugu_patronymics: ["राव", "राजू", "बाबू", "गारू"]
+    kannada_patronymics: ["अप्पा", "अण्णा", "राज", "गौडा"]
+    malayalam_patronymics: "limited"  # Less formal patronymic system
+    
+  transliteration_systems:
+    tamil_transliteration:
+      primary_standard: "ALA-LC Tamil"
+      alternative_standards: ["ISO 15919", "Tamil99"]
+      preserve_retroflex: true
+      handle_aytam: true
+      
+    telugu_transliteration:
+      primary_standard: "ALA-LC Telugu"  
+      alternative_standards: ["ISO 15919"]
+      handle_vowel_length: true
+      preserve_aspirates: true
+      
+    kannada_transliteration:
+      primary_standard: "ALA-LC Kannada"
+      alternative_standards: ["ISO 15919"]
+      handle_gemination: true
+      preserve_retroflexes: true
+      
+    malayalam_transliteration:
+      primary_standard: "ALA-LC Malayalam"
+      alternative_standards: ["ISO 15919"]
+      handle_chillu_letters: true
+      preserve_conjuncts: true
+      
+  name_patterns:
+    canonical_order: "Family, Given"
+    dravidian_given_names: "preserve_original"
+    caste_markers: "preserve_social_context"
+    place_surnames: "preserve_geographic_origin"
+    occupational_surnames: "preserve_traditional_roles"
+    
+  script_validation:
+    script_requirement: "Dravidian_or_Latin"
+    validate_script_consistency: true
+    allow_original_scripts: true
+    allow_latin_transliterations: true
+    mixed_script_tolerance: "moderate"
+    
+  religious_elements:
+    enabled: true
+    hindu_naming_traditions: true
+    devotional_names: ["विष्णु", "शिव", "लक्ष्मी", "मुरुगन"]
+    temple_affiliations: true
+    religious_titles: ["स्वामी", "आचार्य", "दीक्षित"]
+    
+  linguistic_features:
+    enabled: true
+    dravidian_phonetics: true
+    agglutinative_morphology: true
+    compound_formation: "preserve_constituents"
+    sandhi_rules: "apply_contextually"
+    
+  geographic_markers:
+    enabled: true
+    preserve_origin_indicators: true
+    district_surnames: true
+    village_indicators: true
+    river_names: ["कावेरी", "गोदावरी", "पेरियार"]
+    
+  historical_patterns:
+    enabled: true
+    pre_colonial_patterns: true
+    colonial_adaptations: true
+    post_independence_changes: true
+    urbanization_effects: true
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    handle_script_numerals: true
+    classical_forms: "preserve_traditional"
+    modern_adaptations: "accepted"
+
+# Quality thresholds for D2
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  dravidian_script_detection_accuracy: 0.88
+  transliteration_accuracy: 0.85
+  morphological_analysis_accuracy: 0.80
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"
+  unknown_morphological_patterns: "accept_with_standard_processing"
+  script_conflicts: "prefer_native_script"

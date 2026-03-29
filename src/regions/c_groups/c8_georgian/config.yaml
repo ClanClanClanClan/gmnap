@@ -1,0 +1,39 @@
+# C8 Georgian Region Configuration
+# Georgian: GE, Georgian communities
+
+schema_version: "7.0"
+region_code: "C8"
+region_name: "Georgian"
+
+# Regional characteristics
+iso_territories: [GE]
+primary_scripts: ["Georgian", "Latin"]
+distinct_features: "Georgian script; unique alphabet; patronymic traditions"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["ALA-LC Georgian", "ISO 9984", "BGN-PCGN"]
+
+# Regional processing rules
+processing_rules:
+  georgian_script_handling: true
+  patronymic_suffix_processing: true
+  georgian_transliteration: true
+  regional_dialect_handling: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  georgian_script_validation: true
+  patronymic_pattern_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  georgian_script_detection_accuracy: 0.88
+  transliteration_accuracy: 0.85

@@ -1,0 +1,97 @@
+# C2 Persian-Tajik Region Processing Rules
+# Specialized rules for Persian and Tajik naming patterns
+
+schema_version: "7.0"
+region_code: "C2"
+region_name: "Persian-Tajik"
+
+# Persian-Tajik linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 31
+    name: "Persian Script Processing"
+    description: "Handle Persian/Farsi script with proper joining and contextual forms"
+    implementation: "persian_script_processing"
+    
+  - id: 32
+    name: "Tajik Cyrillic Variants"
+    description: "Process Tajik Cyrillic with specific character handling"
+    implementation: "tajik_cyrillic_processing"
+
+# Persian-Tajik specific processing rules
+processing_rules:
+  persian_script_handling:
+    enabled: true
+    territories: ["IR", "AF"]
+    script_type: "Persian"
+    joining_behavior: "contextual"
+    normalization_form: "NFKC"
+    handle_short_vowels: "optional"
+    
+  tajik_cyrillic_handling:
+    enabled: true
+    territories: ["TJ"]
+    script_type: "Cyrillic"
+    tajik_specific_chars: ["ӣ", "ӯ", "ҳ", "ҷ", "ғ", "қ"]
+    normalization_form: "NFC"
+    
+  persian_transliteration:
+    enabled: true
+    primary_standard: "ALA-LC Persian"
+    alternative_standards: ["BGN-PCGN", "ISO 233-3"]
+    preserve_original: true
+    create_variants: true
+    handle_ambiguous_chars: "context_aware"
+    
+  compound_surnames:
+    enabled: true
+    persian_patterns: ["زاده", "پور", "نژاد", "آبادی"]
+    compound_recognition: true
+    preserve_compound_structure: true
+    hyphenation_rules: "persian_specific"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    multiple_given_names: "preserve_all"
+    honorific_handling: "preserve_separately"
+    tribal_names: "handle_as_particles"
+    religious_titles: "preserve_in_extras"
+    
+  script_validation:
+    mixed_scripts: true
+    persian_validation: "right_to_left_aware"
+    tajik_cyrillic_validation: true
+    validate_joining_context: true
+    
+  transliteration_handling:
+    persian_to_latin: true
+    tajik_to_latin: true
+    bidirectional_support: true
+    preserve_diacritics: true
+    handle_consonant_clusters: true
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    normalization_form: "NFKC"
+    handle_persian_digits: true
+    arabic_persian_variants: "persian_preferred"
+
+# Quality thresholds for C2
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  script_detection_accuracy: 0.9
+  transliteration_accuracy: 0.88
+  compound_recognition_accuracy: 0.85
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  mixed_script_conflicts: "prefer_territory_script"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"

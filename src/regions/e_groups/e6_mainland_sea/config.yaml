@@ -1,0 +1,117 @@
+# E6 Mainland SEA Region Configuration
+# Schema version 7.0 configuration for Thai, Lao, Khmer, and Myanmar regions
+
+schema_version: "7.0"
+region_code: "E6"
+region_name: "Mainland Southeast Asia"
+
+# Core region metadata
+metadata:
+  territories: ["TH", "LA", "KH", "MM"]  # Thailand, Laos, Cambodia, Myanmar
+  languages: ["Thai", "Lao", "Khmer", "Burmese"]
+  scripts: ["Thai", "Lao", "Khmer", "Myanmar"]
+  population_coverage: "~200 million people"
+  primary_writing_systems: ["Thai script", "Lao script", "Khmer script", "Myanmar script"]
+  
+# Regional characteristics
+region_info:
+  cultural_area: "Mainland Southeast Asia"
+  linguistic_families: ["Tai-Kadai", "Austroasiatic", "Sino-Tibetan"]
+  historical_influences: ["Indian", "Chinese", "Buddhist", "Hindu"]
+  naming_traditions: ["Theravada Buddhist", "Royal titles", "Sanskrit influences"]
+  
+# Script specifications
+scripts:
+  thai:
+    unicode_range: [0x0E00, 0x0E7F]
+    direction: "ltr"
+    type: "abugida"
+    characteristics: ["no_spaces_between_words", "tone_marks", "vowel_signs"]
+    
+  lao:
+    unicode_range: [0x0E80, 0x0EFF]  
+    direction: "ltr"
+    type: "abugida"
+    characteristics: ["no_spaces_between_words", "tone_marks", "vowel_signs"]
+    
+  khmer:
+    unicode_range: [0x1780, 0x17FF, 0x19E0, 0x19FF]
+    direction: "ltr"  
+    type: "abugida"
+    characteristics: ["no_spaces_between_words", "subscript_consonants", "vowel_signs"]
+    
+  myanmar:
+    unicode_range: [0x1000, 0x109F, 0xAA60, 0xAA7F]
+    direction: "ltr"
+    type: "abugida" 
+    characteristics: ["circular_letters", "stacked_consonants", "tone_marks"]
+
+# Language-specific patterns
+languages:
+  thai:
+    family_name_patterns: ["monosyllabic", "compound_sanskrit"]
+    given_name_patterns: ["auspicious_meanings", "royal_elements", "natural_elements"]
+    romanization_standard: "RTGS"
+    
+  lao:
+    family_name_patterns: ["patronymic", "geographic_references"]
+    given_name_patterns: ["buddhist_elements", "auspicious_meanings"]
+    romanization_standard: "BGN/PCGN"
+    
+  khmer:
+    family_name_patterns: ["clan_names", "occupational", "sanskrit_derived"]
+    given_name_patterns: ["buddhist_concepts", "royal_titles", "natural_phenomena"]
+    romanization_standard: "ALA-LC"
+    
+  burmese:
+    family_name_patterns: ["patronymic_chain", "geographic_origin"]
+    given_name_patterns: ["day_of_week", "astrological", "buddhist_virtues"]
+    romanization_standard: "BGN/PCGN"
+
+# Processing configuration
+processing:
+  canonical_order: "Family Given"
+  mixed_scripts: true
+  romanization_required: true
+  script_detection: "unicode_ranges"
+  
+  # Mainland SEA specific processing
+  word_segmentation:
+    thai: "dictionary_based"
+    lao: "dictionary_based"  
+    khmer: "space_preservation"
+    myanmar: "syllable_breaking"
+    
+  tone_handling:
+    thai: "preserve_tone_marks"
+    lao: "preserve_tone_marks"
+    khmer: "no_tones"
+    myanmar: "no_tones"
+    
+  name_structure:
+    thai: "given_family_optional"
+    lao: "patronymic_system"
+    khmer: "family_given_structure"
+    myanmar: "personal_name_only"
+
+# Regional validation rules
+validation:
+  script_consistency: true
+  character_validation: "unicode_ranges"
+  romanization_accuracy: 0.85
+  name_length_max: 150
+  security_checks: "comprehensive"
+  
+# Quality assurance
+quality:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.90
+  script_detection_accuracy: 0.92
+  romanization_accuracy: 0.85
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  script_conflicts: "prefer_native"
+  romanization_failures: "preserve_original"
+  missing_components: "graceful_degradation"

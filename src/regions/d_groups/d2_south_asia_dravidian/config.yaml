@@ -1,0 +1,39 @@
+# D2 South Asia Dravidian Region Configuration
+# Dravidian: Southern India Tamil, Telugu, Kannada, Malayalam
+
+schema_version: "7.0"
+region_code: "D2"
+region_name: "South Asia Dravidian"
+
+# Regional characteristics
+iso_territories: [IN]
+primary_scripts: ["Tamil", "Telugu", "Kannada", "Malayalam", "Latin"]
+distinct_features: "Dravidian languages; distinct scripts; agglutinative morphology"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["ALA-LC Tamil", "ALA-LC Telugu", "ALA-LC Kannada", "ALA-LC Malayalam", "ISO 15919"]
+
+# Regional processing rules
+processing_rules:
+  dravidian_script_handling: true
+  multi_script_processing: true
+  dravidian_morphology_handling: true
+  south_indian_pattern_processing: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: true
+  dravidian_script_validation: true
+  morphological_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  dravidian_script_detection_accuracy: 0.88
+  transliteration_accuracy: 0.85

@@ -1,0 +1,39 @@
+# E5 Vietnam Region Configuration
+# Vietnam: Vietnamese tonal system with Latin script
+
+schema_version: "7.0"
+region_code: "E5"
+region_name: "Vietnam"
+
+# Regional characteristics
+iso_territories: [VN]
+primary_scripts: ["Latin"]
+distinct_features: "Vietnamese tonal system (6 tones); diacritical marks; Family-Given order; tone variants (full/ASCII/numeric); common titles removal"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: false
+romanisation_standards: ["Vietnamese orthography"]
+
+# Regional processing rules
+processing_rules:
+  vietnamese_tone_handling: true
+  vietnamese_name_order: true
+  title_normalization: true
+  ascii_variant_generation: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  vietnamese_tone_validation: true
+  script_consistency_check: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  tone_handling_accuracy: 0.92
+  ascii_conversion_accuracy: 0.95

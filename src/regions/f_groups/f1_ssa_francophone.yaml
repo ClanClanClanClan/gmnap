@@ -1,0 +1,100 @@
+# F1 - Sub-Saharan Africa Francophone Region Configuration
+# Countries: Senegal, Mali, Burkina Faso, Niger, Chad, Cameroon, 
+#           Côte d'Ivoire, Benin, Togo, Gabon, Congo, DRC, etc.
+
+region:
+  code: F1
+  name: "SSA Francophone"
+  description: "Sub-Saharan Africa with French colonial influence"
+  
+coverage:
+  countries:
+    - SN  # Senegal
+    - ML  # Mali
+    - BF  # Burkina Faso
+    - NE  # Niger
+    - TD  # Chad
+    - CM  # Cameroon
+    - CI  # Côte d'Ivoire
+    - BJ  # Benin
+    - TG  # Togo
+    - GA  # Gabon
+    - CG  # Congo
+    - CD  # Democratic Republic of Congo
+    - CF  # Central African Republic
+    - GN  # Guinea
+    - MG  # Madagascar
+    - BF  # Burkina Faso
+    - RW  # Rwanda
+    - BI  # Burundi
+    
+scripts:
+  primary:
+    - Latin
+  secondary:
+    - Arabic  # Used in Sahel regions
+    
+naming_patterns:
+  order: "Given Family"  # French influence
+  common_prefixes:
+    - "de"
+    - "du"
+    - "des"
+    - "le"
+    - "la"
+    
+  common_surnames:
+    # West African
+    - "Diallo"
+    - "Touré"
+    - "Traoré"
+    - "Coulibaly"
+    - "Sow"
+    - "Fall"
+    - "Ndiaye"
+    - "Diop"
+    - "Ba"
+    - "Sy"
+    # Central African
+    - "Nguema"
+    - "Obiang"
+    - "Mba"
+    - "Essono"
+    - "Ndong"
+    # French-influenced
+    - "Dubois"
+    - "Martin"
+    - "Bernard"
+    
+  titles:
+    - "M."
+    - "Mme"
+    - "Mlle"
+    - "Dr"
+    - "Prof"
+    - "Professeur"
+    
+cultural_features:
+  patronymic_patterns:
+    - "ibn"  # Arabic influence in Sahel
+    - "ben"  # Arabic influence
+    - "fils de"  # French pattern
+    
+  name_components:
+    - type: "given_name"
+      examples: ["Amadou", "Fatou", "Ibrahim", "Mariama", "Ousmane", "Aissatou"]
+    - type: "family_name"  
+      examples: ["Diallo", "Touré", "Sow", "Fall", "Coulibaly"]
+    - type: "french_given"
+      examples: ["Pierre", "Marie", "Jean", "François", "Claude"]
+      
+validation:
+  min_length: 2
+  max_length: 150
+  allowed_characters: "Latin letters, spaces, hyphens, apostrophes"
+  
+  # Security checks
+  forbidden_patterns:
+    - control_characters: true
+    - zero_width_characters: true
+    - excessive_length: 150

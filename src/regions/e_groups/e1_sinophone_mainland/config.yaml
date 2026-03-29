@@ -1,0 +1,39 @@
+# E1 Sinophone Mainland Region Configuration
+# Mainland Chinese: Simplified Chinese traditions
+
+schema_version: "7.0"
+region_code: "E1"
+region_name: "Sinophone Mainland"
+
+# Regional characteristics
+iso_territories: [CN]
+primary_scripts: ["Han", "Latin"]
+distinct_features: "Simplified Chinese; PRC naming conventions; socialist period adaptations"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["Pinyin", "Wade-Giles", "ALA-LC Chinese"]
+
+# Regional processing rules
+processing_rules:
+  simplified_chinese_handling: true
+  prc_naming_conventions: true
+  socialist_period_adaptations: true
+  mainland_dialect_processing: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  han_script_validation: true
+  pinyin_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  han_script_detection_accuracy: 0.95
+  transliteration_accuracy: 0.92

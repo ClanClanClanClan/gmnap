@@ -1,0 +1,192 @@
+# D5 Sinhala Region Processing Rules
+# Specialized rules for Sinhala naming patterns
+
+schema_version: "7.0"
+region_code: "D5"
+region_name: "Sinhala"
+
+# Sinhala linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 51
+    name: "Sinhala Script Processing"
+    description: "Handle Sinhala script with proper vowel signs, conjuncts, and classical forms"
+    implementation: "sinhala_script_processing"
+    
+  - id: 52
+    name: "Buddhist Naming Traditions"
+    description: "Process Buddhist naming conventions and religious elements"
+    implementation: "buddhist_naming_processing"
+    
+  - id: 53
+    name: "Sinhala Caste Patterns"
+    description: "Handle traditional caste-based surnames and social markers"
+    implementation: "sinhala_caste_processing"
+
+# Sinhala specific processing rules
+processing_rules:
+  sinhala_script_handling:
+    enabled: true
+    script_type: "Sinhala"
+    reading_direction: "left_to_right"
+    normalization_form: "NFKC"
+    handle_vowel_signs: "preserve_positioning"
+    handle_conjuncts: "preserve_traditional"
+    handle_repaya: "preserve_r_sound_marker"
+    handle_rakaransaya: "preserve_subjoined_r"
+    
+  sri_lankan_regional_patterns:
+    enabled: true
+    territories: ["LK"]
+    kandyan_patterns: true
+    low_country_patterns: true
+    sabaragamuwa_patterns: true
+    northern_central_patterns: true
+    
+  kandyan_patterns:
+    enabled: true
+    up_country_traditions: true
+    mountain_village_names: true
+    traditional_occupational_castes: true
+    feudal_titles: ["දිසාවනි", "රට රාල", "කොරාල"]
+    
+  low_country_patterns:
+    enabled: true
+    maritime_influences: true
+    colonial_adaptations: true
+    christian_influences: ["සිල්වා", "පෙරේරා", "ප්‍රනාන්දු"]
+    trading_community_names: true
+    
+  caste_system_patterns:
+    enabled: true
+    govigama_surnames: ["බණ්ඩාර", "ජයවර්ධන", "සේනානායක", "අබේවර්ධන"]
+    karawa_surnames: ["ද සිල්වා", "ද මෙල්", "අබේකෝන්"]
+    salagama_surnames: ["කරුණානන්ද", "කරුණාරත්න"]
+    durawa_surnames: ["අප්පුහාමි", "මුදියන්සේලාගේ"]
+    
+  buddhist_naming_traditions:
+    enabled: true
+    pali_names: "preserve_classical"
+    dhamma_names: ["ධර්මසේන", "ධම්මික", "සද්ධම්ම"]
+    triple_gem_references: ["බුද්ධ", "ධර්ම", "සංඝ"]
+    bodhisattva_names: ["අවලෝකිතේශ්වර", "මඤ්ජුශ්‍රී"]
+    
+  religious_titles:
+    enabled: true
+    monastic_titles: ["හිමි", "ස්වාමීන් වහන්සේ", "මහා නායක"]
+    lay_titles: ["උපාසක", "උපාසිකා", "දායක", "දායිකා"]
+    scholarly_titles: ["ත්‍රිපිටකාචාර්ය", "ධර්මාචාර්ය"]
+    
+  colonial_influences:
+    enabled: true
+    portuguese_period: ["ද සිල්වා", "පෙරේරා", "රොද්‍රිගු"]
+    dutch_period: ["ද මෙල්", "කොටේලාවල"]
+    british_period: ["ජයවර්ධන", "සේනානායක"]
+    christian_conversions: "preserve_historical_context"
+    
+  patronymic_systems:
+    enabled: true
+    traditional_patronymics: ["පුත්‍රයා", "දුව"]
+    colonial_adaptations: ["son", "ge"]
+    modern_naming: "family_name_plus_given"
+    
+  sinhala_transliteration:
+    enabled: true
+    primary_standard: "ALA-LC Sinhala"
+    alternative_standards: ["ISO 15919", "Wijesekera"]
+    preserve_original: true
+    create_variants: true
+    handle_aspirated_consonants: "distinguish"
+    handle_retroflex_sounds: "preserve_distinctions"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    sinhala_given_names: "preserve_original"
+    compound_surnames: "preserve_components"
+    village_surnames: "preserve_geographic_origin"
+    occupational_surnames: "preserve_traditional_roles"
+    
+  script_validation:
+    script_requirement: "Sinhala_or_Latin"
+    validate_sinhala_orthography: true
+    allow_sinhala_original: true
+    allow_latin_transliterations: true
+    mixed_script_tolerance: "moderate"
+    
+  occupational_surnames:
+    enabled: true
+    traditional_occupations:
+      farmers: ["ගොවි", "ගමරාල", "කන්කානම්"]
+      artisans: ["අච්චි", "හාමි", "කරු"]
+      merchants: ["සෙට්ටි", "මුදලාලි"]
+      scholars: ["ගුරු", "පණ්ඩිත", "ආචාර්ය"]
+      
+    administrative_titles: ["රාල", "මුහන්දිරම්", "මොහොත්තාල"]
+    feudal_titles: ["දිසාව", "කොරාල", "මහ මොඩලියාර්"]
+    
+  geographic_markers:
+    enabled: true
+    preserve_origin_indicators: true
+    village_surnames: true
+    district_markers: ["කොළඹ", "කන්ද්‍ය", "ගාල්ල", "මාතර"]
+    river_names: ["මහවැලි", "කැලණි", "නිල්වලා"]
+    mountain_names: ["ශ්‍රී පාද", "පිදුරුතලගල"]
+    
+  linguistic_features:
+    enabled: true
+    sinhala_phonetic_changes: true
+    pali_sanskrit_adaptations: "preserve_classical"
+    tamil_loanwords: "preserve_historical"
+    portuguese_dutch_loanwords: "document_colonial_period"
+    
+  buddhist_calendar_names:
+    enabled: true
+    poya_day_names: ["පුර්ණ පෝය", "අව පෝය"]
+    vesak_names: ["වෙසක්", "බුද්ධ"]
+    esala_names: ["එසල", "ධර්ම"]
+    
+  ayurvedic_traditional_names:
+    enabled: true
+    medicinal_plant_names: ["කොත්තමල්ලි", "ඉන්ගුරු", "කහ"]
+    healing_tradition_names: ["වෛද්‍ය", "අයුර්වේද"]
+    
+  literary_traditions:
+    enabled: true
+    classical_literature: ["සන්දේශකාව්‍ය", "ගුත්තිල කාව්‍ය"]
+    modern_writers: ["මහගම සේකර", "මාර්ටින් වික්‍රමසිංහ"]
+    poetic_names: ["කවි", "කවී", "ගී කරු"]
+    
+  historical_periods:
+    enabled: true
+    anuradhapura_period: "preserve_ancient_forms"
+    polonnaruwa_period: "preserve_medieval_forms"
+    kandyan_period: "preserve_highland_traditions"
+    colonial_period: "document_adaptations"
+    post_independence: "modern_standardizations"
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    handle_sinhala_numerals: true
+    archaic_forms: "preserve_with_modern_variants"
+    modern_standardizations: "preferred"
+
+# Quality thresholds for D5
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  sinhala_script_detection_accuracy: 0.90
+  transliteration_accuracy: 0.85
+  caste_pattern_recognition: 0.80
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"
+  unknown_caste_patterns: "accept_with_standard_processing"
+  script_conflicts: "prefer_sinhala_original"

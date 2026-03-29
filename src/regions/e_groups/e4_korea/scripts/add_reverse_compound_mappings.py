@@ -26,29 +26,25 @@ with open("resources/rr_syllable_map.csv", encoding="utf8") as f:
 reverse_compound_mappings = [
     # Compound words from systematic coverage
     ("레어이니셜블록", "rareinitialsblock", "-1.0"),  # 레어이니셜블록 → "rareinitialsblock"
-    ("에이비씨", "abc", "-0.8"),                    # 에이비씨 → "abc" (alternative to a.b.c.)
-    ("엑스와이지", "xyz", "-0.8"),                  # 엑스와이지 → "xyz" (alternative to x.y.z.)
-    
+    ("에이비씨", "abc", "-0.8"),  # 에이비씨 → "abc" (alternative to a.b.c.)
+    ("엑스와이지", "xyz", "-0.8"),  # 엑스와이지 → "xyz" (alternative to x.y.z.)
     # Academic compound titles
-    ("박사", "phd", "-0.8"),                       # 박사 → "phd" (alternative to ph.d.)
-    ("박사", "md", "-0.8"),                        # 박사 → "md" (alternative to m.d.)
-    
+    ("박사", "phd", "-0.8"),  # 박사 → "phd" (alternative to ph.d.)
+    ("박사", "md", "-0.8"),  # 박사 → "md" (alternative to m.d.)
     # Multi-character sequences
-    ("레어", "rare", "-0.8"),                      # 레어 → "rare"
-    ("이니셜", "initial", "-0.8"),                 # 이니셜 → "initial"  
-    ("블록", "block", "-0.8"),                     # 블록 → "block"
-    ("테스트", "test", "-0.8"),                    # 테스트 → "test"
-    ("케이스", "case", "-0.8"),                    # 케이스 → "case"
-    
+    ("레어", "rare", "-0.8"),  # 레어 → "rare"
+    ("이니셜", "initial", "-0.8"),  # 이니셜 → "initial"
+    ("블록", "block", "-0.8"),  # 블록 → "block"
+    ("테스트", "test", "-0.8"),  # 테스트 → "test"
+    ("케이스", "case", "-0.8"),  # 케이스 → "case"
     # Common name compounds that might appear
-    ("마이클존슨", "michaeljohnson", "-0.8"),       # 마이클존슨 → "michaeljohnson"
-    ("데이비드스미스", "davidsmith", "-0.8"),       # 데이비드스미스 → "davidsmith"
-    ("제임스윌슨", "jameswilson", "-0.8"),         # 제임스윌슨 → "jameswilson"
-    
+    ("마이클존슨", "michaeljohnson", "-0.8"),  # 마이클존슨 → "michaeljohnson"
+    ("데이비드스미스", "davidsmith", "-0.8"),  # 데이비드스미스 → "davidsmith"
+    ("제임스윌슨", "jameswilson", "-0.8"),  # 제임스윌슨 → "jameswilson"
     # Suffix compounds
-    ("주니어", "jr", "-0.8"),                       # 주니어 → "jr"
-    ("시니어", "sr", "-0.8"),                       # 시니어 → "sr"  
-    ("삼세", "iii", "-0.8"),                        # 삼세 → "iii"
+    ("주니어", "jr", "-0.8"),  # 주니어 → "jr"
+    ("시니어", "sr", "-0.8"),  # 시니어 → "sr"
+    ("삼세", "iii", "-0.8"),  # 삼세 → "iii"
 ]
 
 print(f"Current rows: {len(rows)}")
@@ -76,7 +72,7 @@ for hangul, roman, weight in reverse_compound_mappings:
                 updated_count += 1
             found = True
             break
-    
+
     if not found:
         rows.append([hangul, roman, weight])
         print(f"  ADDED: {hangul} → {roman} (weight: {weight})")

@@ -1,0 +1,91 @@
+weights:
+  min: 0.0
+  max: 10.0
+  loanword_backoff_cost: 1.2
+  defaults:
+    academic_titles: -0.5
+    name_suffixes: -0.5
+    common_surnames: -0.8
+    multi_initials: -0.3
+    compound_names: -0.6
+validation:
+  thresholds:
+    math_dataset:
+      accuracy: 94.0
+      wilson_lower_bound: 93.5
+    diverse_dataset:
+      accuracy: 96.0
+      wilson_lower_bound: 95.0
+    independent_dataset:
+      accuracy: 92.0
+      wilson_lower_bound: 90.5
+  statistical:
+    confidence_level: 0.95
+    regression_tolerance: 0.5
+    dice_threshold: 0.9
+fst:
+  compile_options:
+    arc_sort: true
+    topsort: true
+  semiring: tropical
+  unknown_token: "\u25FB\uFE0E"
+  loanword:
+    normalize_case: true
+    nfc_normalize: true
+    determinize: true
+data:
+  csv:
+    encoding: utf-8-sig
+    read_only_permissions: true
+  backup:
+    auto_backup: true
+    retention_days: 90
+  audit:
+    log_directory: audit/improvements
+    schema_validation: true
+    timestamp_format: iso8601_zulu
+security:
+  pii_protection:
+    hash_names_in_logs: true
+    hash_algorithm: blake2b
+    salt_rotation: daily
+  file_permissions:
+    mapping_file: '444'
+    audit_logs: '644'
+    backups: '600'
+integration:
+  target_accuracy: 85.0
+  achieved_accuracy: 94.54
+  monitoring:
+    health_check_interval: 24h
+    alert_threshold: 1.0
+  ci_cd:
+    timeout_seconds: 300
+    matrix_os:
+    - ubuntu-latest
+    - windows-latest
+    python_versions:
+    - '3.9'
+    - '3.10'
+    - '3.11'
+documentation:
+  style:
+    dash_usage: ascii_minus_for_code_en_dash_for_ranges
+    capitalization: sentence_case_unless_heading
+    unicode_quotes: true
+  schema_validation: true
+  markdown_linting: true
+enhancements:
+  dvc:
+    enabled: false
+    remote: s3://korean-datasets
+  grafana:
+    enabled: false
+    metrics:
+    - accuracy
+    - dice_score
+    - ci_duration
+  canary_testing:
+    enabled: false
+    sample_size: 100
+    update_frequency: weekly

@@ -1,0 +1,75 @@
+# Z0 Quarantine Region Processing Rules
+# Safety-first rules for low-confidence entries requiring isolation
+
+schema_version: "7.0"
+region_code: "Z0"
+region_name: "Quarantine"
+
+# Quarantine linguistic rules (safety-focused)
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "safe_unicode_normalization"
+
+# Quarantine processing rules
+processing_rules:
+  quarantine_mode:
+    enabled: true
+    strict_validation: true
+    minimal_processing: true
+    safety_first: true
+    
+  name_patterns:
+    conservative_parsing: true
+    reject_suspicious_patterns: true
+    minimal_assumptions: true
+    strict_character_validation: true
+    
+  script_handling:
+    script_validation: "strict"
+    reject_mixed_scripts: true
+    security_character_filtering: true
+    normalize_to_safe_subset: true
+    
+  validation_rules:
+    security_scanning: true
+    malicious_pattern_detection: true
+    confidence_requirements:
+      minimum_detector_confidence: 0.0   # Accept even 0% for quarantine
+      maximum_detector_confidence: 0.49  # Must be < 50% to be here
+    length_limits:
+      min_length: 0
+      max_length: 100  # Stricter limit for safety
+      
+  normalization:
+    unicode_form: "NFC"
+    aggressive_sanitization: true
+    remove_dangerous_characters: true
+    whitespace_normalization: "single_space"
+    
+  security_rules:
+    scan_for_injections: true
+    check_encoding_attacks: true
+    validate_character_safety: true
+    rate_limit_processing: true
+
+# Quality thresholds for quarantine
+quality_thresholds:
+  confidence_ceiling: 0.49        # Can never exceed 49%
+  security_risk_tolerance: 0.0    # Zero tolerance
+  processing_safety_score: 0.95   # Must be very safe to process
+  
+# Quarantine-specific error handling
+error_handling:
+  security_violation: "immediate_permanent_quarantine"
+  processing_error: "extend_quarantine_period"
+  validation_failure: "flag_for_human_review"
+  confidence_increase: "consider_release_to_r0"
+  
+# Release criteria
+release_criteria:
+  minimum_confidence_for_release: 0.7
+  security_clearance_required: true
+  human_approval_required: false
+  processing_stability_required: true

@@ -1,0 +1,64 @@
+# A1 Anglo-Sphere Region Processing Rules
+# Specialized rules for Core Anglo-Sphere naming patterns
+
+schema_version: "7.0"
+region_code: "A1"
+region_name: "Core Anglo-Sphere"
+
+# Anglo-Sphere linguistic rules
+linguistic_rules:
+  - id: 18
+    name: "Anglo Middle-Initial Collapse"
+    description: "John C. clusters with John (hyphenated initials handled)"
+    implementation: "middle_initial_processing"
+    
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+
+# Anglo-Sphere specific processing rules
+processing_rules:
+  middle_initials:
+    enabled: true
+    collapse_single_letters: true
+    preserve_hyphenated: true
+    clustering_behavior: "aggregate_with_base_name"
+    
+  generational_suffixes:
+    enabled: true
+    recognized_suffixes: ["Jr", "Sr", "II", "III", "IV", "V", "2nd", "3rd"]
+    normalization: "standard_abbreviations"
+    sorting_behavior: "ignore_in_order_key"
+    
+  name_patterns:
+    comma_separation: "Family, Given Middle"
+    middle_name_handling: "preserve_all"
+    initial_processing: "normalize_periods"
+    hyphenated_names: "preserve_structure"
+    
+  script_validation:
+    script_requirement: "Latin_ASCII"
+    allow_basic_punctuation: true
+    allow_apostrophes: true
+    allow_hyphens: true
+    
+  validation_rules:
+    minimum_components: 2  # Family and Given required
+    maximum_components: 5  # Family, Given, Middle1, Middle2, Suffix
+    generational_suffix_validation: true
+    initial_format_validation: true
+
+# Quality thresholds for A1
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  middle_initial_accuracy: 0.9
+  generational_suffix_accuracy: 0.95
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_initials: "normalize_or_reject"  
+  unknown_suffixes: "preserve_as_middle_name"
+  parsing_ambiguity: "prefer_standard_format"

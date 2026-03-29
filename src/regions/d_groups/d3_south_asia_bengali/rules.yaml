@@ -1,0 +1,166 @@
+# D3 South Asia Bengali Region Processing Rules
+# Specialized rules for Bengali naming patterns
+
+schema_version: "7.0"
+region_code: "D3"
+region_name: "South Asia Bengali"
+
+# Bengali linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 47
+    name: "Bengali Script Processing"
+    description: "Handle Bengali script with proper conjuncts, matras, and historical forms"
+    implementation: "bengali_script_processing"
+    
+  - id: 48
+    name: "Bengali Cultural Patterns"
+    description: "Process Bengali naming traditions, intellectual heritage, and diaspora patterns"
+    implementation: "bengali_cultural_processing"
+
+# Bengali specific processing rules
+processing_rules:
+  bengali_script_handling:
+    enabled: true
+    script_type: "Bengali"
+    reading_direction: "left_to_right"
+    normalization_form: "NFKC"
+    handle_conjuncts: "preserve_traditional"
+    handle_matras: "preserve_positioning"
+    handle_hasant: "preserve_virama_usage"
+    
+  bengali_regional_patterns:
+    enabled: true
+    territories: ["IN", "BD"]
+    west_bengal_patterns: true
+    bangladesh_patterns: true
+    east_bengal_refugee_patterns: true
+    sylhet_patterns: true
+    chittagong_patterns: true
+    
+  west_bengal_patterns:
+    enabled: true
+    calcutta_intellectual_traditions: true
+    bhadralok_surnames: ["ব্যানার্জী", "চট্টোপাধ্যায়", "মুখোপাধ্যায়", "গঙ্গোপাধ্যায়"]
+    kayastha_surnames: ["ঘোষ", "মিত্র", "দত্ত", "গুপ্ত"]
+    vaidya_surnames: ["সেন", "দাশগুপ্ত", "বসু"]
+    
+  bangladesh_patterns:
+    enabled: true
+    muslim_bengali_names: true
+    hindu_bengali_names: true
+    tribal_names: ["চাকমা", "মার্মা", "ত্রিপুরা"]
+    regional_variations: ["ঢাকাইয়া", "চট্টগ্রামী", "সিলেটী"]
+    
+  caste_community_patterns:
+    enabled: true
+    brahmin_surnames: ["চট্টোপাধ্যায়", "মুখোপাধ্যায়", "ব্যানার্জী", "গঙ্গোপাধ্যায়"]
+    kayastha_surnames: ["ঘোষ", "মিত্র", "দত্ত", "বসু"]
+    vaidya_surnames: ["সেন", "দাশগুপ্ত", "গুহ"]
+    namasudra_surnames: ["দাস", "মল্লিক", "সরকার"]
+    
+  muslim_bengali_patterns:
+    enabled: true
+    ashraf_surnames: ["খান", "চৌধুরী", "মোল্লা", "মীর"]
+    atrap_surnames: ["শেখ", "পাঠান", "সৈয়দ"]
+    converted_surnames: ["মল্লিক", "সরকার", "মজুমদার"]
+    sufi_influences: true
+    
+  patronymic_systems:
+    enabled: true
+    bengali_patronymics: ["দাস", "নাথ", "কুমার"]
+    titles: ["বাবু", "সাহেব", "ঠাকুর"]
+    honorifics: ["শ্রী", "শ্রীমতী", "কুমারী"]
+    religious_titles: ["হাজী", "মৌলভী", "পন্ডিত"]
+    
+  bengali_transliteration:
+    enabled: true
+    primary_standard: "ALA-LC Bengali"
+    alternative_standards: ["ISO 15919", "National Library"]
+    preserve_original: true
+    create_variants: true
+    handle_inherent_vowel: "context_dependent"
+    handle_conjuncts: "decompose_when_ambiguous"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    bengali_given_names: "preserve_original"
+    compound_surnames: "preserve_components"
+    intellectual_titles: ["কবি", "সাহিত্যিক", "বিদ্বান"]
+    religious_names: "preserve_devotional_elements"
+    
+  script_validation:
+    script_requirement: "Bengali_or_Latin"
+    validate_bengali_orthography: true
+    allow_bengali_original: true
+    allow_latin_transliterations: true
+    mixed_script_tolerance: "moderate"
+    
+  religious_elements:
+    enabled: true
+    hindu_naming_traditions: true
+    islamic_naming_traditions: true
+    sanskrit_elements: "preserve_classical"
+    arabic_persian_elements: "preserve_traditional"
+    devotional_names: ["রাম", "কৃষ্ণ", "দুর্গা", "আল্লাহ", "রহমান"]
+    
+  intellectual_traditions:
+    enabled: true
+    bengali_renaissance_names: true
+    literary_surnames: ["কবি", "সাহিত্যিক"]
+    academic_titles: ["আচার্য", "পন্ডিত", "অধ্যাপক"]
+    cultural_markers: ["বাঙালি", "বাংলাদেশী"]
+    
+  occupational_surnames:
+    enabled: true
+    traditional_occupations: ["কুমার", "কামার", "তাঁতী", "জেলে"]
+    zamindar_titles: ["চৌধুরী", "জমিদার", "তালুকদার"]
+    administrative_titles: ["দেওয়ান", "কানুনগো"]
+    
+  geographic_markers:
+    enabled: true
+    preserve_origin_indicators: true
+    district_surnames: ["ঢাকাইয়া", "চট্টগ্রামী", "বরিশাইল্লা"]
+    river_names: ["গঙ্গা", "যমুনা", "পদ্মা", "মেঘনা"]
+    place_names: ["কলকাতা", "ঢাকা", "চট্টগ্রাম"]
+    
+  diaspora_patterns:
+    enabled: true
+    east_bengal_refugee_surnames: true
+    partition_affected_names: true
+    migration_patterns: ["কলকাতা_to_ঢাকা", "rural_to_urban"]
+    international_diaspora: ["UK", "US", "Middle_East"]
+    
+  linguistic_features:
+    enabled: true
+    bengali_phonetic_changes: true
+    sanskrit_tatsama_preservation: true
+    perso_arabic_adaptations: true
+    colloquial_forms: "preserve_alongside_formal"
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    handle_bengali_numerals: true
+    classical_forms: "preserve_with_modern_variants"
+    modern_standardizations: "preferred"
+
+# Quality thresholds for D3
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  bengali_script_detection_accuracy: 0.92
+  transliteration_accuracy: 0.88
+  cultural_pattern_recognition: 0.85
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"
+  unknown_cultural_patterns: "accept_with_standard_processing"
+  script_conflicts: "prefer_bengali_original"

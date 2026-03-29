@@ -29,30 +29,26 @@ with open("resources/rr_syllable_map.csv", encoding="utf8") as f:
 # BALANCED WEIGHT ADJUSTMENTS for final optimization
 balanced_fixes = [
     # BALANCE 이 CHARACTER (reduce rhee dominance)
-    ("이", "rhee", "-0.8"),     # Reduce from -1.5 to -0.8 (still strong for Rhee surnames)
-    ("이", "lee", "-0.9"),      # Boost lee to -0.9 (stronger than rhee for Lee surnames) 
-    ("이", "yi", "-0.7"),       # Add yi option for Yi surnames
-    
+    ("이", "rhee", "-0.8"),  # Reduce from -1.5 to -0.8 (still strong for Rhee surnames)
+    ("이", "lee", "-0.9"),  # Boost lee to -0.9 (stronger than rhee for Lee surnames)
+    ("이", "yi", "-0.7"),  # Add yi option for Yi surnames
     # GIVEN NAME OPTIMIZATIONS
-    ("철", "chul", "-1.0"),     # chul > chol for given names
-    ("준", "june", "-0.4"),     # june as alternative to jun
-    
+    ("철", "chul", "-1.0"),  # chul > chol for given names
+    ("준", "june", "-0.4"),  # june as alternative to jun
     # CHARACTER SEGMENTATION FIXES
-    ("이", "i", "0.8"),         # Make "i" much weaker so compounds work better
-    ("이", "ii", "1.0"),        # Make "ii" even weaker
-    ("이", "ee", "0.6"),        # Make "ee" weaker
-    
+    ("이", "i", "0.8"),  # Make "i" much weaker so compounds work better
+    ("이", "ii", "1.0"),  # Make "ii" even weaker
+    ("이", "ee", "0.6"),  # Make "ee" weaker
     # ADDITIONAL SURNAME BALANCE
-    ("허", "heo", "-0.5"),      # heo as alternative to huh
-    ("현", "hyun", "-0.8"),     # strengthen hyun for given names
-    ("영", "young", "-0.8"),    # strengthen young for given names
-    ("수", "soo", "-0.7"),      # strengthen soo for given names
-    
+    ("허", "heo", "-0.5"),  # heo as alternative to huh
+    ("현", "hyun", "-0.8"),  # strengthen hyun for given names
+    ("영", "young", "-0.8"),  # strengthen young for given names
+    ("수", "soo", "-0.7"),  # strengthen soo for given names
     # COMPOUND SUPPORT (even though char-by-char processing, helps in edge cases)
-    ("현정", "hyeonjeong", "-0.8"), # hyeonjeong → 현정
-    ("수영", "sooyoung", "-0.8"),   # sooyoung → 수영  
+    ("현정", "hyeonjeong", "-0.8"),  # hyeonjeong → 현정
+    ("수영", "sooyoung", "-0.8"),  # sooyoung → 수영
     ("영철", "youngchul", "-1.0"),  # youngchul → 영철 (strengthen)
-    ("준이", "junri", "-0.8"),      # Handle 준이 case (experimental)
+    ("준이", "junri", "-0.8"),  # Handle 준이 case (experimental)
 ]
 
 print(f"Current rows: {len(rows)}")
@@ -75,7 +71,7 @@ for hangul, roman, weight in balanced_fixes:
                 fixed_count += 1
             found = True
             break
-    
+
     if not found:
         rows.append([hangul, roman, weight])
         print(f"  ADDED: {hangul} → {roman} (weight: {weight})")

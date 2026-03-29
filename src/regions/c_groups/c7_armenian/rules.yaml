@@ -1,0 +1,156 @@
+# C7 Armenian Region Processing Rules
+# Specialized rules for Armenian naming patterns
+
+schema_version: "7.0"
+region_code: "C7"
+region_name: "Armenian"
+
+# Armenian linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 38
+    name: "Armenian Script Processing"
+    description: "Handle Armenian script with proper contextual forms and ligatures"
+    implementation: "armenian_script_processing"
+    
+  - id: 39
+    name: "Armenian Diaspora Patterns"
+    description: "Process Armenian diaspora naming patterns including Eastern and Western traditions"
+    implementation: "armenian_diaspora_processing"
+
+# Armenian specific processing rules
+processing_rules:
+  armenian_script_handling:
+    enabled: true
+    script_type: "Armenian"
+    reading_direction: "left_to_right"
+    normalization_form: "NFKC"
+    handle_ligatures: "preserve_contextual"
+    eastern_armenian: "primary"
+    western_armenian: "secondary"
+    
+  diaspora_patterns:
+    enabled: true
+    territories: ["AM"]
+    global_diaspora_support: true
+    eastern_armenian_regions: ["Armenia", "Iran", "Russia"]
+    western_armenian_regions: ["Turkey", "Lebanon", "Syria", "USA", "France"]
+    
+  armenian_patronymics:
+    enabled: true
+    eastern_suffixes: ["-յան", "-եան", "-ենց"]
+    western_suffixes: ["-յան", "-եան", "-ենց"]
+    transliterated_suffixes: ["-ian", "-yan", "-ents", "-ouni"]
+    preserve_suffix_variations: true
+    handle_double_suffixes: true
+    
+  regional_variations:
+    enabled: true
+    armenia_proper: 
+      territories: ["AM"]
+      eastern_armenian_primary: true
+      soviet_period_adaptations: true
+      
+    historical_armenia:
+      territories: ["TR"]  
+      western_armenian_patterns: true
+      ottoman_period_names: true
+      islamicized_armenian_names: true
+      
+    diaspora_communities:
+      lebanon_syria: 
+        territories: ["LB", "SY"]
+        arabic_influences: "limited"
+        preserve_armenian_forms: true
+        
+      iran_armenia:
+        territories: ["IR"]
+        persian_influences: "moderate"
+        julfa_community_patterns: true
+        
+      russia_armenia:
+        territories: ["RU"]
+        cyrillic_transliterations: true
+        russian_patronymic_adaptations: true
+        
+      usa_diaspora:
+        territories: ["US"]
+        anglicized_forms: "common"
+        preserve_original_forms: true
+        ellis_island_variations: true
+        
+      france_diaspora:
+        territories: ["FR"]
+        gallicized_forms: "moderate"
+        preserve_armenian_core: true
+        
+  armenian_transliteration:
+    enabled: true
+    primary_standard: "ALA-LC Armenian"
+    alternative_standards: ["ISO 9985", "BGN-PCGN"]
+    preserve_original: true
+    create_variants: true
+    eastern_armenian_rules: true
+    western_armenian_rules: true
+    handle_aspiration: "distinguish"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    armenian_given_names: "preserve_original"
+    patronymic_surnames: "preserve_with_suffix"
+    compound_surnames: "preserve_structure"
+    religious_names: "preserve_christian_forms"
+    
+  script_validation:
+    script_requirement: "Armenian_or_Latin"
+    validate_armenian_orthography: true
+    allow_armenian_original: true
+    allow_latin_transliterations: true
+    mixed_script_tolerance: "high"
+    
+  historical_patterns:
+    enabled: true
+    pre_genocide_patterns: true
+    soviet_armenian_patterns: true
+    diaspora_adaptations: true
+    americanization_patterns: true
+    
+  occupational_surnames:
+    enabled: true
+    traditional_crafts: ["Նակաշ", "Ոսկերիչ", "Դարբին"]  # Artist, Goldsmith, Blacksmith
+    merchant_families: true
+    clerical_surnames: true
+    
+  geographic_markers:
+    enabled: true
+    preserve_origin_indicators: true
+    armenian_cities: ["Երևանցի", "Վանեցի", "Կարսեցի"]  # From Yerevan, Van, Kars
+    historical_regions: ["Արցախցի", "Սիւնիքցի", "Տարոնցի"]
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    handle_armenian_numerals: true
+    classical_armenian: "preserve_references"
+    modern_armenian_forms: "preferred"
+    western_orthographic_variants: "preserve"
+
+# Quality thresholds for C7
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  armenian_script_detection_accuracy: 0.88
+  transliteration_accuracy: 0.85
+  diaspora_pattern_recognition: 0.80
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"
+  unknown_diaspora_patterns: "accept_with_armenian_processing"
+  eastern_western_conflicts: "prefer_eastern_armenian"

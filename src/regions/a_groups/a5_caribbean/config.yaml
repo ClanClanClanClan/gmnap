@@ -1,0 +1,38 @@
+# A5 Dutch/French Caribbean Region Configuration
+# Caribbean: CW, SX, BQ, MQ, GF, GP, RE, YT, PM
+
+schema_version: "7.0"
+region_code: "A5"
+region_name: "Dutch/French Caribbean"
+
+# Regional characteristics
+iso_territories: [CW, SX, BQ, MQ, GF, GP, RE, YT, PM]
+primary_scripts: ["Latin"]
+distinct_features: "Apostrophes; Creole particles"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: false
+romanisation_standards: []
+
+# Regional processing rules
+processing_rules:
+  creole_particle_handling: true
+  french_caribbean_patterns: true
+  dutch_caribbean_conventions: true
+  apostrophe_normalization: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  apostrophe_validation: true
+  creole_pattern_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  particle_detection_accuracy: 0.9

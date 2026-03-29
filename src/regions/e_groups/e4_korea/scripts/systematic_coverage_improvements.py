@@ -25,39 +25,34 @@ with open("resources/rr_syllable_map.csv", encoding="utf8") as f:
 # These are general patterns, not specific cases
 systematic_mappings = [
     # ACADEMIC TITLES/DEGREES (systematic pattern)
-    ("박사", "phd", "-0.5"),      # Ph.D. → 박사
-    ("박사", "md", "-0.5"),       # M.D. → 박사  
-    ("박사", "phd.", "-0.5"),     # Ph.D. with period
-    ("박사", "m.d.", "-0.5"),     # M.D. with period
-    
+    ("박사", "phd", "-0.5"),  # Ph.D. → 박사
+    ("박사", "md", "-0.5"),  # M.D. → 박사
+    ("박사", "phd.", "-0.5"),  # Ph.D. with period
+    ("박사", "m.d.", "-0.5"),  # M.D. with period
     # SUFFIX PATTERNS (systematic pattern)
-    ("주니어", "jr", "-0.5"),      # Jr. → 주니어
-    ("주니어", "jr.", "-0.5"),     # Jr. with period
-    ("시니어", "sr", "-0.5"),      # Sr. → 시니어  
-    ("시니어", "sr.", "-0.5"),     # Sr. with period
-    ("삼세", "iii", "-0.5"),       # III → 삼세
-    
+    ("주니어", "jr", "-0.5"),  # Jr. → 주니어
+    ("주니어", "jr.", "-0.5"),  # Jr. with period
+    ("시니어", "sr", "-0.5"),  # Sr. → 시니어
+    ("시니어", "sr.", "-0.5"),  # Sr. with period
+    ("삼세", "iii", "-0.5"),  # III → 삼세
     # MULTI-INITIAL PATTERNS (systematic approach)
-    ("에이비", "a.b", "-0.3"),     # A.B. → 에이비
-    ("에이비씨", "a.b.c", "-0.3"), # A.B.C. → 에이비씨
-    ("엑스와이", "x.y", "-0.3"),   # X.Y. → 엑스와이
-    ("엑스와이지", "x.y.z", "-0.3"), # X.Y.Z. → 엑스와이지
-    
+    ("에이비", "a.b", "-0.3"),  # A.B. → 에이비
+    ("에이비씨", "a.b.c", "-0.3"),  # A.B.C. → 에이비씨
+    ("엑스와이", "x.y", "-0.3"),  # X.Y. → 엑스와이
+    ("엑스와이지", "x.y.z", "-0.3"),  # X.Y.Z. → 엑스와이지
     # COMMON INITIALS (systematic pattern)
-    ("제이", "j.j", "-0.3"),      # J.J. → 제이제이 (but compound maps to 제이)
-    ("에이", "a.a", "-0.3"),      # A.A. → 에이에이
-    ("비", "b.b", "-0.3"),        # B.B. → 비비
-    
+    ("제이", "j.j", "-0.3"),  # J.J. → 제이제이 (but compound maps to 제이)
+    ("에이", "a.a", "-0.3"),  # A.A. → 에이에이
+    ("비", "b.b", "-0.3"),  # B.B. → 비비
     # HANDLE COMPOUND WORDS/TOKENS
-    ("블록", "block", "-0.4"),    # block → 블록 (for test cases)
-    ("이니셜", "initial", "-0.4"), # initial → 이니셜
-    ("이니셜", "initials", "-0.4"), # initials → 이니셜
-    ("레어", "rare", "-0.4"),     # rare → 레어
-    
+    ("블록", "block", "-0.4"),  # block → 블록 (for test cases)
+    ("이니셜", "initial", "-0.4"),  # initial → 이니셜
+    ("이니셜", "initials", "-0.4"),  # initials → 이니셜
+    ("레어", "rare", "-0.4"),  # rare → 레어
     # SYSTEMATIC FALLBACK FOR UNKNOWN WORDS
-    ("언노운", "unknown", "-0.2"), # unknown → 언노운 (fallback)
-    ("테스트", "test", "-0.3"),   # test → 테스트
-    ("케이스", "case", "-0.3"),   # case → 케이스
+    ("언노운", "unknown", "-0.2"),  # unknown → 언노운 (fallback)
+    ("테스트", "test", "-0.3"),  # test → 테스트
+    ("케이스", "case", "-0.3"),  # case → 케이스
 ]
 
 print(f"Current rows: {len(rows)}")
@@ -85,7 +80,7 @@ for hangul, roman, weight in systematic_mappings:
                 updated_count += 1
             found = True
             break
-    
+
     if not found:
         rows.append([hangul, roman, weight])
         print(f"  ADDED: {roman} → {hangul} (weight: {weight})")
@@ -105,7 +100,7 @@ with open("resources/rr_syllable_map.csv", "w", encoding="utf8", newline="") as 
 print("\n✅ Systematic FST coverage improvements applied!")
 print("\n=== SYSTEMATIC PATTERNS ADDED ===")
 print("1. Academic titles: Ph.D./M.D. → 박사")
-print("2. Name suffixes: Jr./Sr./III → 주니어/시니어/삼세")  
+print("2. Name suffixes: Jr./Sr./III → 주니어/시니어/삼세")
 print("3. Multi-initials: A.B.C./X.Y.Z. → systematic Korean")
 print("4. Compound words: block/initial/rare → Korean equivalents")
 print("5. Test fallbacks: unknown/test/case → Korean")

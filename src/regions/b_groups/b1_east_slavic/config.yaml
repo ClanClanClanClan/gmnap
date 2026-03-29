@@ -1,0 +1,39 @@
+# B1 East-Slavic Region Configuration
+# East-Slavic: RU, UA, BY
+
+schema_version: "7.0"
+region_code: "B1"
+region_name: "East-Slavic"
+
+# Regional characteristics
+iso_territories: [RU, UA, BY]
+primary_scripts: ["Cyrillic"]
+distinct_features: "Patronymic endings; gender suffixes"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: false
+romanisation_standards: ["GOST 7.79-2000 (A)", "BGN-PCGN 1947"]
+
+# Regional processing rules
+processing_rules:
+  east_slavic_patronymic_handling: true
+  gender_suffix_processing: true
+  cyrillic_transliteration: true
+  russian_name_patterns: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  cyrillic_validation: true
+  patronymic_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  patronymic_detection_accuracy: 0.92
+  transliteration_accuracy: 0.9

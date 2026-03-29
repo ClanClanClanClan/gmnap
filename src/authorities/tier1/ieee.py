@@ -10,7 +10,6 @@ License: Requires API key
 Daily Quota: 200 calls/day (free tier), 10,000/day (paid)
 """
 
-import asyncio
 import aiohttp
 import logging
 import yaml
@@ -19,8 +18,11 @@ from datetime import datetime
 from pathlib import Path
 
 from src.authorities.base import (
-    AuthorityFetcher, FetchStatus, AuthorityData,
-    FetchResult, AuthorityTier
+    AuthorityFetcher,
+    FetchStatus,
+    AuthorityData,
+    FetchResult,
+    AuthorityTier,
 )
 
 logger = logging.getLogger(__name__)
@@ -50,20 +52,20 @@ class IEEEFetcher(AuthorityFetcher):
     def _load_api_key(self, config: Optional[Dict[str, Any]]) -> str:
         """Load IEEE API key from config or file."""
         # Try config first
-        if config and 'api_key' in config:
-            return config['api_key']
+        if config and "api_key" in config:
+            return config["api_key"]
 
         # Try loading from YAML file
         try:
-            keys_file = Path('config/authority_api_keys.yaml')
+            keys_file = Path("config/authority_api_keys.yaml")
             if keys_file.exists():
                 with open(keys_file) as f:
                     keys_config = yaml.safe_load(f)
-                    return keys_config.get('ieee', {}).get('api_key', '')
+                    return keys_config.get("ieee", {}).get("api_key", "")
         except Exception as e:
             logger.warning(f"Could not load IEEE API key from file: {e}")
 
-        return ''
+        return ""
 
     async def fetch(self, identifier: str) -> FetchResult:
         """
@@ -80,7 +82,7 @@ class IEEEFetcher(AuthorityFetcher):
                 status=FetchStatus.AUTH_FAILED,
                 source=self.service,
                 query=identifier,
-                error="IEEE API key not configured"
+                error="IEEE API key not configured",
             )
 
         try:
@@ -89,9 +91,7 @@ class IEEEFetcher(AuthorityFetcher):
 
             if not results or len(results) == 0:
                 return FetchResult(
-                    status=FetchStatus.NOT_FOUND,
-                    source=self.service,
-                    query=identifier
+                    status=FetchStatus.NOT_FOUND, source=self.service, query=identifier
                 )
 
             # Parse results to extract author information
@@ -99,25 +99,17 @@ class IEEEFetcher(AuthorityFetcher):
 
             if not author_data:
                 return FetchResult(
-                    status=FetchStatus.NOT_FOUND,
-                    source=self.service,
-                    query=identifier
+                    status=FetchStatus.NOT_FOUND, source=self.service, query=identifier
                 )
 
             return FetchResult(
-                status=FetchStatus.SUCCESS,
-                source=self.service,
-                query=identifier,
-                data=author_data
+                status=FetchStatus.SUCCESS, source=self.service, query=identifier, data=author_data
             )
 
         except Exception as e:
             logger.error(f"IEEE fetch error: {e}")
             return FetchResult(
-                status=FetchStatus.ERROR,
-                source=self.service,
-                query=identifier,
-                error=str(e)
+                status=FetchStatus.ERROR, source=self.service, query=identifier, error=str(e)
             )
 
     async def _search_author(self, author_name: str, max_results: int = 10) -> List[Dict[str, Any]]:
@@ -136,10 +128,10 @@ class IEEEFetcher(AuthorityFetcher):
 
         # IEEE Xplore API parameters
         params = {
-            'apikey': self.api_key,
-            'author': author_name,
-            'max_records': max_results,
-            'format': 'json'
+            "apikey": self.api_key,
+            "author": author_name,
+            "max_records": max_results,
+            "format": "json",
         }
 
         try:
@@ -147,7 +139,7 @@ class IEEEFetcher(AuthorityFetcher):
             async with self._session.get(url, params=params) as response:
                 if response.status == 200:
                     data = await response.json()
-                    articles = data.get('articles', [])
+                    articles = data.get("articles", [])
                     logger.info(f"IEEE: Found {len(articles)} articles for '{author_name}'")
                     return articles
                 elif response.status == 401:
@@ -163,7 +155,9 @@ class IEEEFetcher(AuthorityFetcher):
             logger.error(f"IEEE search error: {e}")
             return []
 
-    def _parse_author_data(self, query_name: str, articles: List[Dict[str, Any]]) -> Optional[AuthorityData]:
+    def _parse_author_data(
+        self, query_name: str, articles: List[Dict[str, Any]]
+    ) -> Optional[AuthorityData]:
         """
         Parse IEEE articles to extract author information.
 
@@ -186,28 +180,28 @@ class IEEEFetcher(AuthorityFetcher):
         # Process each article
         for article in articles:
             # Extract authors and affiliations
-            authors = article.get('authors', {}).get('authors', [])
+            authors = article.get("authors", {}).get("authors", [])
             for author in authors:
-                if 'affiliation' in author and author['affiliation']:
-                    affiliations.add(author['affiliation'])
-                if 'id' in author:
-                    author_ids.add(str(author['id']))
+                if "affiliation" in author and author["affiliation"]:
+                    affiliations.add(author["affiliation"])
+                if "id" in author:
+                    author_ids.add(str(author["id"]))
 
             # Extract subjects/keywords
-            if 'index_terms' in article:
-                terms = article['index_terms']
-                if 'ieee_terms' in terms:
-                    for term in terms['ieee_terms'].get('terms', []):
+            if "index_terms" in article:
+                terms = article["index_terms"]
+                if "ieee_terms" in terms:
+                    for term in terms["ieee_terms"].get("terms", []):
                         subjects.add(term)
 
             # Extract publication info
             pub = {
-                'title': article.get('title', ''),
-                'doi': article.get('doi', ''),
-                'year': article.get('publication_year', ''),
-                'type': article.get('content_type', ''),
-                'citations': article.get('citing_paper_count', 0),
-                'abstract': article.get('abstract', '')[:200]  # First 200 chars
+                "title": article.get("title", ""),
+                "doi": article.get("doi", ""),
+                "year": article.get("publication_year", ""),
+                "type": article.get("content_type", ""),
+                "citations": article.get("citing_paper_count", 0),
+                "abstract": article.get("abstract", "")[:200],  # First 200 chars
             }
             publications.append(pub)
 
@@ -218,21 +212,18 @@ class IEEEFetcher(AuthorityFetcher):
             canonical_name=query_name,
             name_variants=[],
             affiliations=[
-                {'institution': aff}
-                for aff in list(affiliations)[:5]  # Top 5 affiliations
+                {"institution": aff} for aff in list(affiliations)[:5]  # Top 5 affiliations
             ],
-            identifiers={
-                'IEEE_Author_ID': list(author_ids)[0] if author_ids else None
-            },
+            identifiers={"IEEE_Author_ID": list(author_ids)[0] if author_ids else None},
             msc_codes=[],  # IEEE doesn't use MSC codes
             metadata={
-                'publications': publications[:10],  # Top 10 publications
-                'subjects': list(subjects)[:20],  # Top 20 subjects
-                'article_count': len(articles)
+                "publications": publications[:10],  # Top 10 publications
+                "subjects": list(subjects)[:20],  # Top 20 subjects
+                "article_count": len(articles),
             },
             confidence_score=self._calculate_confidence(articles, affiliations),
             fetch_timestamp=datetime.now(),
-            personal_data_scrubbed=True
+            personal_data_scrubbed=True,
         )
 
         return authority_data
@@ -267,7 +258,7 @@ class IEEEFetcher(AuthorityFetcher):
 
         # Check for highly cited papers
         for article in articles:
-            citations = article.get('citing_paper_count', 0)
+            citations = article.get("citing_paper_count", 0)
             if citations > 50:
                 confidence += 0.05
                 break
@@ -284,17 +275,17 @@ class IEEEFetcher(AuthorityFetcher):
         Returns:
             AuthorityData object
         """
-        articles = response.get('articles', [])
+        articles = response.get("articles", [])
 
         if not articles:
             return None
 
         # Use query name or first author
         canonical_name = "Unknown"
-        if articles and 'authors' in articles[0]:
-            authors = articles[0]['authors'].get('authors', [])
+        if articles and "authors" in articles[0]:
+            authors = articles[0]["authors"].get("authors", [])
             if authors:
-                canonical_name = authors[0].get('full_name', 'Unknown')
+                canonical_name = authors[0].get("full_name", "Unknown")
 
         return self._parse_author_data(canonical_name, articles)
 
