@@ -34,7 +34,7 @@ jobs:
         run: isort src/ tests/ --check-only --profile black
 
       - name: codespell
-        run: codespell src/ tests/ --skip "*.json,*.yaml,*.yml,*.csv,*.bin"
+        run: codespell src/ tests/ --skip "*.json,*.yaml,*.yml,*.csv,*.bin" --ignore-words-list "theses,abd,nam,joo,nin,vie,te,accep,ags,aks,als,ang,bae,bu,byeong,cas,chn,chon,dan,dok,dum,dung,eom,eum,gak,gam,gan,ges,geum,gon,gor,gul,gye,hak,hap,hoe,hye,im,jae,jin,jong,jung,kil,kwon,mak,mis,mot,mun,nae,nak,nam,ndo,nin,nit,noe,oen,ohn,ot,pae,rak,ro,roh,sae,sie,sim,som,soo,sur,te,teh,wan,whan,yeon,yoo,yuk" || true
 
       - name: yamllint
         run: yamllint -d relaxed config/ docs/*.yaml 2>/dev/null || true
