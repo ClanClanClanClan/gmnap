@@ -13,6 +13,7 @@ from neo4j import GraphDatabase
 BASE_URL = "http://localhost:8080"
 DB_URI = "bolt://localhost:7688"
 
+
 class TestGenealogyAPI:
     """Comprehensive test suite for genealogy API"""
 
@@ -24,7 +25,8 @@ class TestGenealogyAPI:
 
         # Get sample IDs from database
         with cls.driver.session() as s:
-            result = s.run("""
+            result = s.run(
+                """
                 MATCH (student:Person)-[:DOCTORAL_ADVISOR]->(advisor:Person)
                 RETURN
                     student.global_id as student_id,
@@ -32,7 +34,8 @@ class TestGenealogyAPI:
                     advisor.global_id as advisor_id,
                     advisor.canonical_name as advisor_name
                 LIMIT 5
-            """)
+            """
+            )
             cls.sample_data = list(result)
 
     @classmethod
@@ -114,9 +117,7 @@ class TestGenealogyAPI:
             pytest.skip("No sample data available")
 
         student_id = self.sample_data[0]["student_id"]
-        response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}"
-        )
+        response = requests.get(f"{self.base_url}/genealogy/lineage/{student_id}")
 
         assert response.status_code == 200
         data = response.json()
@@ -131,8 +132,7 @@ class TestGenealogyAPI:
 
         student_id = self.sample_data[0]["student_id"]
         response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}",
-            params={"max_depth": 3}
+            f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": 3}
         )
 
         assert response.status_code == 200
@@ -147,7 +147,7 @@ class TestGenealogyAPI:
         student_id = self.sample_data[0]["student_id"]
         response = requests.get(
             f"{self.base_url}/genealogy/lineage/{student_id}",
-            params={"max_depth": 100}  # Request 100
+            params={"max_depth": 100},  # Request 100
         )
 
         assert response.status_code == 200
@@ -161,8 +161,7 @@ class TestGenealogyAPI:
 
         student_id = self.sample_data[0]["student_id"]
         response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}",
-            params={"max_depth": 0}  # Request 0
+            f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": 0}  # Request 0
         )
 
         assert response.status_code == 200
@@ -171,9 +170,7 @@ class TestGenealogyAPI:
 
     def test_lineage_invalid_id(self):
         """Test lineage with non-existent ID"""
-        response = requests.get(
-            f"{self.base_url}/genealogy/lineage/INVALIDXXXXXXXXXXXXXX"
-        )
+        response = requests.get(f"{self.base_url}/genealogy/lineage/INVALIDXXXXXXXXXXXXXX")
 
         assert response.status_code == 200
         data = response.json()
@@ -183,9 +180,7 @@ class TestGenealogyAPI:
 
     def test_lineage_malformed_id(self):
         """Test lineage with malformed ID"""
-        response = requests.get(
-            f"{self.base_url}/genealogy/lineage/SHORT"
-        )
+        response = requests.get(f"{self.base_url}/genealogy/lineage/SHORT")
 
         # Should handle gracefully (either 400 or return empty)
         assert response.status_code in [200, 400]
@@ -200,9 +195,7 @@ class TestGenealogyAPI:
             pytest.skip("No sample data available")
 
         advisor_id = self.sample_data[0]["advisor_id"]
-        response = requests.get(
-            f"{self.base_url}/genealogy/descendants/{advisor_id}"
-        )
+        response = requests.get(f"{self.base_url}/genealogy/descendants/{advisor_id}")
 
         assert response.status_code == 200
         data = response.json()
@@ -216,8 +209,7 @@ class TestGenealogyAPI:
 
         advisor_id = self.sample_data[0]["advisor_id"]
         response = requests.get(
-            f"{self.base_url}/genealogy/descendants/{advisor_id}",
-            params={"max_depth": 2}
+            f"{self.base_url}/genealogy/descendants/{advisor_id}", params={"max_depth": 2}
         )
 
         assert response.status_code == 200
@@ -226,9 +218,7 @@ class TestGenealogyAPI:
 
     def test_descendants_invalid_id(self):
         """Test descendants with non-existent ID"""
-        response = requests.get(
-            f"{self.base_url}/genealogy/descendants/INVALIDXXXXXXXXXXXXXX"
-        )
+        response = requests.get(f"{self.base_url}/genealogy/descendants/INVALIDXXXXXXXXXXXXXX")
 
         assert response.status_code == 200
         data = response.json()
@@ -248,14 +238,12 @@ class TestGenealogyAPI:
 
         # Get lineage from student
         lineage = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}",
-            params={"max_depth": 1}
+            f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": 1}
         ).json()
 
         # Get descendants from advisor
         descendants = requests.get(
-            f"{self.base_url}/genealogy/descendants/{advisor_id}",
-            params={"max_depth": 1}
+            f"{self.base_url}/genealogy/descendants/{advisor_id}", params={"max_depth": 1}
         ).json()
 
         # Student should appear in advisor's descendants
@@ -275,9 +263,7 @@ class TestGenealogyAPI:
             pytest.skip("No sample data available")
 
         student_id = self.sample_data[0]["student_id"]
-        response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}"
-        )
+        response = requests.get(f"{self.base_url}/genealogy/lineage/{student_id}")
 
         data = response.json()
         if len(data["paths"]) > 0:
@@ -293,9 +279,7 @@ class TestGenealogyAPI:
             pytest.skip("No sample data available")
 
         student_id = self.sample_data[0]["student_id"]
-        response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}"
-        )
+        response = requests.get(f"{self.base_url}/genealogy/lineage/{student_id}")
 
         data = response.json()
         for path in data["paths"]:
@@ -348,8 +332,7 @@ class TestGenealogyAPI:
 
         start = time.time()
         response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}",
-            params={"max_depth": 20}
+            f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": 20}
         )
         elapsed = time.time() - start
 
@@ -367,9 +350,7 @@ class TestGenealogyAPI:
             pytest.skip("No sample data available")
 
         student_id = self.sample_data[0]["student_id"]
-        response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}"
-        )
+        response = requests.get(f"{self.base_url}/genealogy/lineage/{student_id}")
 
         assert response.status_code == 200
         data = response.json()
@@ -383,8 +364,7 @@ class TestGenealogyAPI:
 
         student_id = self.sample_data[0]["student_id"]
         response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}",
-            params={"max_depth": -5}
+            f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": -5}
         )
 
         assert response.status_code == 200
@@ -399,8 +379,7 @@ class TestGenealogyAPI:
 
         student_id = self.sample_data[0]["student_id"]
         response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}",
-            params={"max_depth": "abc"}
+            f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": "abc"}
         )
 
         # Should either use default or return error
@@ -414,19 +393,19 @@ class TestGenealogyAPI:
         """Test person with no known advisors"""
         # Find a person with no advisors
         with self.driver.session() as s:
-            result = s.run("""
+            result = s.run(
+                """
                 MATCH (p:Person)
                 WHERE NOT (p)-[:DOCTORAL_ADVISOR]->()
                 RETURN p.global_id as id
                 LIMIT 1
-            """)
+            """
+            )
             record = result.single()
 
             if record:
                 person_id = record["id"]
-                response = requests.get(
-                    f"{self.base_url}/genealogy/lineage/{person_id}"
-                )
+                response = requests.get(f"{self.base_url}/genealogy/lineage/{person_id}")
 
                 assert response.status_code == 200
                 data = response.json()
@@ -437,19 +416,19 @@ class TestGenealogyAPI:
         """Test person with no known students"""
         # Find a person with no students
         with self.driver.session() as s:
-            result = s.run("""
+            result = s.run(
+                """
                 MATCH (p:Person)
                 WHERE NOT (p)<-[:DOCTORAL_ADVISOR]-()
                 RETURN p.global_id as id
                 LIMIT 1
-            """)
+            """
+            )
             record = result.single()
 
             if record:
                 person_id = record["id"]
-                response = requests.get(
-                    f"{self.base_url}/genealogy/descendants/{person_id}"
-                )
+                response = requests.get(f"{self.base_url}/genealogy/descendants/{person_id}")
 
                 assert response.status_code == 200
                 data = response.json()
@@ -459,20 +438,21 @@ class TestGenealogyAPI:
         """Test person with multiple advisors"""
         # Find someone with 2+ advisors
         with self.driver.session() as s:
-            result = s.run("""
+            result = s.run(
+                """
                 MATCH (student:Person)-[:DOCTORAL_ADVISOR]->(advisor:Person)
                 WITH student, count(advisor) as advisor_count
                 WHERE advisor_count >= 2
                 RETURN student.global_id as id
                 LIMIT 1
-            """)
+            """
+            )
             record = result.single()
 
             if record:
                 student_id = record["id"]
                 response = requests.get(
-                    f"{self.base_url}/genealogy/lineage/{student_id}",
-                    params={"max_depth": 1}
+                    f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": 1}
                 )
 
                 assert response.status_code == 200
@@ -493,17 +473,19 @@ class TestGenealogyAPI:
 
         # Get from API
         api_response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}",
-            params={"max_depth": 1}
+            f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": 1}
         ).json()
 
         # Get from database
         with self.driver.session() as s:
-            db_result = s.run("""
+            db_result = s.run(
+                """
                 MATCH (s:Person {global_id: $id})
                 MATCH path = (s)-[:DOCTORAL_ADVISOR*1..1]->(advisor)
                 RETURN length(path) as len, [n IN nodes(path) | n.global_id] as ids
-            """, id=student_id)
+            """,
+                id=student_id,
+            )
             db_paths = list(db_result)
 
         # Should have same number of direct advisors
