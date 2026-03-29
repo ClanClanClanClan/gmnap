@@ -70,7 +70,9 @@ class SpringerFetcher(AuthorityFetcher):
                     with open(keys_file) as f:
                         keys_config = yaml.safe_load(f)
                         springer_config = keys_config.get("springer", {})
-                        open_access = open_access or springer_config.get("open_access_key", "")
+                        open_access = open_access or springer_config.get(
+                            "open_access_key", ""
+                        )
                         meta_api = meta_api or springer_config.get("meta_api_key", "")
             except Exception as e:
                 logger.warning(f"Could not load Springer API keys from file: {e}")
@@ -119,13 +121,19 @@ class SpringerFetcher(AuthorityFetcher):
                 )
 
             return FetchResult(
-                status=FetchStatus.SUCCESS, source=self.service, query=identifier, data=author_data
+                status=FetchStatus.SUCCESS,
+                source=self.service,
+                query=identifier,
+                data=author_data,
             )
 
         except Exception as e:
             logger.error(f"Springer fetch error: {e}")
             return FetchResult(
-                status=FetchStatus.ERROR, source=self.service, query=identifier, error=str(e)
+                status=FetchStatus.ERROR,
+                source=self.service,
+                query=identifier,
+                error=str(e),
             )
 
     async def _search_open_access(
@@ -157,7 +165,9 @@ class SpringerFetcher(AuthorityFetcher):
                 if response.status == 200:
                     data = await response.json()
                     records = data.get("records", [])
-                    logger.info(f"Springer OA: Found {len(records)} documents for '{author_name}'")
+                    logger.info(
+                        f"Springer OA: Found {len(records)} documents for '{author_name}'"
+                    )
                     return records
                 elif response.status == 401:
                     logger.error("Springer OA: Authentication failed")
@@ -166,7 +176,9 @@ class SpringerFetcher(AuthorityFetcher):
                     logger.warning("Springer OA: Rate limit exceeded")
                     return []
                 else:
-                    logger.warning(f"Springer OA search failed with status {response.status}")
+                    logger.warning(
+                        f"Springer OA search failed with status {response.status}"
+                    )
                     return []
         except Exception as e:
             logger.error(f"Springer OA search error: {e}")
@@ -212,7 +224,9 @@ class SpringerFetcher(AuthorityFetcher):
                     logger.warning("Springer Meta: Rate limit exceeded")
                     return []
                 else:
-                    logger.warning(f"Springer Meta search failed with status {response.status}")
+                    logger.warning(
+                        f"Springer Meta search failed with status {response.status}"
+                    )
                     return []
         except Exception as e:
             logger.error(f"Springer Meta search error: {e}")
@@ -271,11 +285,14 @@ class SpringerFetcher(AuthorityFetcher):
         # Build AuthorityData
         authority_data = AuthorityData(
             source=self.service,
-            source_id=list(dois)[0] if dois else f"springer_{query_name.replace(' ', '_')}",
+            source_id=(
+                list(dois)[0] if dois else f"springer_{query_name.replace(' ', '_')}"
+            ),
             canonical_name=query_name,
             name_variants=[],
             affiliations=[
-                {"institution": aff} for aff in list(affiliations)[:5]  # Top 5 affiliations
+                {"institution": aff}
+                for aff in list(affiliations)[:5]  # Top 5 affiliations
             ],
             identifiers={"DOI": list(dois)[0] if dois else None},
             msc_codes=[],  # Springer doesn't use MSC codes directly
@@ -291,7 +308,9 @@ class SpringerFetcher(AuthorityFetcher):
 
         return authority_data
 
-    def _calculate_confidence(self, records: List[Dict], affiliations: set, dois: set) -> float:
+    def _calculate_confidence(
+        self, records: List[Dict], affiliations: set, dois: set
+    ) -> float:
         """
         Calculate confidence score for Springer data.
 

@@ -3,7 +3,9 @@ from pathlib import Path
 
 
 def canonical(obj):
-    return json.dumps(obj, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode()
+    return json.dumps(
+        obj, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    ).encode()
 
 
 if __name__ == "__main__":

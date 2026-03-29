@@ -57,7 +57,11 @@ class StageMetrics:
 
     @property
     def average_execution_time(self) -> float:
-        return statistics.mean([m.execution_time_ms for m in self.metrics]) if self.metrics else 0.0
+        return (
+            statistics.mean([m.execution_time_ms for m in self.metrics])
+            if self.metrics
+            else 0.0
+        )
 
     @property
     def p95_execution_time(self) -> float:
@@ -66,7 +70,11 @@ class StageMetrics:
 
     @property
     def average_memory_usage(self) -> float:
-        return statistics.mean([m.memory_usage_mb for m in self.metrics]) if self.metrics else 0.0
+        return (
+            statistics.mean([m.memory_usage_mb for m in self.metrics])
+            if self.metrics
+            else 0.0
+        )
 
 
 class V7PipelineBenchmark:
@@ -173,7 +181,11 @@ class V7PipelineBenchmark:
             memory_usage_mb = current_memory - start_memory
             peak_memory_mb = peak / (1024**2)  # Convert to MB
             cpu_percent = process.cpu_percent()
-            throughput = len(test_data) / (execution_time_ms / 1000) if execution_time_ms > 0 else 0
+            throughput = (
+                len(test_data) / (execution_time_ms / 1000)
+                if execution_time_ms > 0
+                else 0
+            )
             success_rate = success_count / len(test_data) if test_data else 1.0
 
             metrics = PerformanceMetrics(
@@ -342,7 +354,10 @@ class V7PipelineBenchmark:
 
         stage_key = str(current_metrics.stage_number)
         if stage_key not in self.baseline_metrics["stage_metrics"]:
-            return {"regression_detected": False, "reason": "No baseline for this stage"}
+            return {
+                "regression_detected": False,
+                "reason": "No baseline for this stage",
+            }
 
         baseline = self.baseline_metrics["stage_metrics"][stage_key]
         current_avg = current_metrics.average_execution_time
@@ -364,7 +379,9 @@ class V7PipelineBenchmark:
             "regression_detected": False,
             "current_avg_ms": current_avg,
             "baseline_avg_ms": baseline_avg,
-            "improvement_factor": baseline_avg / current_avg if current_avg > 0 else 1.0,
+            "improvement_factor": (
+                baseline_avg / current_avg if current_avg > 0 else 1.0
+            ),
         }
 
 
@@ -382,7 +399,9 @@ class TestV7PipelineBenchmarks:
     async def test_stage_1_region_detection_performance(self, benchmark):
         """Benchmark Stage 1: Region Detection"""
         test_data = benchmark.generate_test_data(50)
-        metrics = await benchmark.benchmark_stage(1, "RegionDetection", test_data, iterations=5)
+        metrics = await benchmark.benchmark_stage(
+            1, "RegionDetection", test_data, iterations=5
+        )
 
         # Assert performance thresholds
         assert (
@@ -390,7 +409,8 @@ class TestV7PipelineBenchmarks:
             < benchmark.performance_thresholds["max_execution_time_ms"]
         )
         assert (
-            metrics.average_memory_usage < benchmark.performance_thresholds["max_memory_usage_mb"]
+            metrics.average_memory_usage
+            < benchmark.performance_thresholds["max_memory_usage_mb"]
         )
 
         # Check for regression
@@ -402,7 +422,9 @@ class TestV7PipelineBenchmarks:
     async def test_stage_2_cleaning_performance(self, benchmark):
         """Benchmark Stage 2: Data Cleaning"""
         test_data = benchmark.generate_test_data(50)
-        metrics = await benchmark.benchmark_stage(2, "DataCleaning", test_data, iterations=5)
+        metrics = await benchmark.benchmark_stage(
+            2, "DataCleaning", test_data, iterations=5
+        )
 
         assert (
             metrics.average_execution_time
@@ -417,21 +439,26 @@ class TestV7PipelineBenchmarks:
     async def test_stage_3_augmentation_performance(self, benchmark):
         """Benchmark Stage 3: Data Augmentation"""
         test_data = benchmark.generate_test_data(50)
-        metrics = await benchmark.benchmark_stage(3, "DataAugmentation", test_data, iterations=5)
+        metrics = await benchmark.benchmark_stage(
+            3, "DataAugmentation", test_data, iterations=5
+        )
 
         assert (
             metrics.average_execution_time
             < benchmark.performance_thresholds["max_execution_time_ms"]
         )
         assert (
-            metrics.average_memory_usage < benchmark.performance_thresholds["max_memory_usage_mb"]
+            metrics.average_memory_usage
+            < benchmark.performance_thresholds["max_memory_usage_mb"]
         )
 
     @pytest.mark.asyncio
     async def test_stage_4_validation_performance(self, benchmark):
         """Benchmark Stage 4: Data Validation"""
         test_data = benchmark.generate_test_data(50)
-        metrics = await benchmark.benchmark_stage(4, "DataValidation", test_data, iterations=5)
+        metrics = await benchmark.benchmark_stage(
+            4, "DataValidation", test_data, iterations=5
+        )
 
         assert (
             metrics.average_execution_time
@@ -446,7 +473,9 @@ class TestV7PipelineBenchmarks:
     async def test_stage_5_graph_coherence_performance(self, benchmark):
         """Benchmark Stage 5: Graph Coherence Scoring"""
         test_data = benchmark.generate_test_data(30)  # Fewer entries due to complexity
-        metrics = await benchmark.benchmark_stage(5, "GraphCoherence", test_data, iterations=3)
+        metrics = await benchmark.benchmark_stage(
+            5, "GraphCoherence", test_data, iterations=3
+        )
 
         # Graph coherence may take longer
         assert (
@@ -454,14 +483,19 @@ class TestV7PipelineBenchmarks:
             < benchmark.performance_thresholds["max_execution_time_ms"] * 2
         )
         assert (
-            metrics.average_memory_usage < benchmark.performance_thresholds["max_memory_usage_mb"]
+            metrics.average_memory_usage
+            < benchmark.performance_thresholds["max_memory_usage_mb"]
         )
 
     @pytest.mark.asyncio
     async def test_stage_6_authority_lookup_performance(self, benchmark):
         """Benchmark Stage 6: Authority Source Lookup"""
-        test_data = benchmark.generate_test_data(20)  # Fewer entries due to network simulation
-        metrics = await benchmark.benchmark_stage(6, "AuthorityLookup", test_data, iterations=3)
+        test_data = benchmark.generate_test_data(
+            20
+        )  # Fewer entries due to network simulation
+        metrics = await benchmark.benchmark_stage(
+            6, "AuthorityLookup", test_data, iterations=3
+        )
 
         # Authority lookup involves network calls, allow more time
         assert (
@@ -469,14 +503,17 @@ class TestV7PipelineBenchmarks:
             < benchmark.performance_thresholds["max_execution_time_ms"] * 5
         )
         assert (
-            metrics.average_memory_usage < benchmark.performance_thresholds["max_memory_usage_mb"]
+            metrics.average_memory_usage
+            < benchmark.performance_thresholds["max_memory_usage_mb"]
         )
 
     @pytest.mark.asyncio
     async def test_stage_7_quality_gates_performance(self, benchmark):
         """Benchmark Stage 7: Quality Gates"""
         test_data = benchmark.generate_test_data(50)
-        metrics = await benchmark.benchmark_stage(7, "QualityGates", test_data, iterations=5)
+        metrics = await benchmark.benchmark_stage(
+            7, "QualityGates", test_data, iterations=5
+        )
 
         assert (
             metrics.average_execution_time
@@ -491,14 +528,17 @@ class TestV7PipelineBenchmarks:
     async def test_stage_11_idempotency_performance(self, benchmark):
         """Benchmark Stage 11: Idempotency Check"""
         test_data = benchmark.generate_test_data(50)
-        metrics = await benchmark.benchmark_stage(11, "IdempotencyCheck", test_data, iterations=5)
+        metrics = await benchmark.benchmark_stage(
+            11, "IdempotencyCheck", test_data, iterations=5
+        )
 
         assert (
             metrics.average_execution_time
             < benchmark.performance_thresholds["max_execution_time_ms"]
         )
         assert (
-            metrics.average_memory_usage < benchmark.performance_thresholds["max_memory_usage_mb"]
+            metrics.average_memory_usage
+            < benchmark.performance_thresholds["max_memory_usage_mb"]
         )
 
         # Idempotency should have high success rate
@@ -540,7 +580,9 @@ class TestV7PipelineBenchmarks:
         start_time = time.perf_counter()
 
         # Process all entries through a representative stage
-        metrics = await benchmark.benchmark_stage(2, "DataCleaning", test_data, iterations=1)
+        metrics = await benchmark.benchmark_stage(
+            2, "DataCleaning", test_data, iterations=1
+        )
 
         end_time = time.perf_counter()
         total_time = end_time - start_time
@@ -555,7 +597,9 @@ class TestV7PipelineBenchmarks:
         # Test with larger dataset to check memory scaling
         test_data = benchmark.generate_test_data(200)
 
-        metrics = await benchmark.benchmark_stage(3, "DataAugmentation", test_data, iterations=2)
+        metrics = await benchmark.benchmark_stage(
+            3, "DataAugmentation", test_data, iterations=2
+        )
 
         # Memory usage should scale reasonably
         max_memory = max(m.peak_memory_mb for m in metrics.metrics)
@@ -567,7 +611,9 @@ class TestV7PipelineBenchmarks:
         test_data = benchmark.generate_test_data(30)
 
         # Run benchmark and establish baseline
-        metrics = await benchmark.benchmark_stage(4, "DataValidation", test_data, iterations=5)
+        metrics = await benchmark.benchmark_stage(
+            4, "DataValidation", test_data, iterations=5
+        )
 
         # Check regression detection works
         regression = benchmark.check_regression(metrics)
@@ -607,7 +653,11 @@ async def test_generate_performance_report():
         "test_data_size": len(test_data),
         "stages_tested": len(stages_to_test),
         "stage_performance": {},
-        "overall_metrics": {"total_avg_time": 0, "total_memory_usage": 0, "performance_grade": "A"},
+        "overall_metrics": {
+            "total_avg_time": 0,
+            "total_memory_usage": 0,
+            "performance_grade": "A",
+        },
     }
 
     total_time = 0
@@ -623,10 +673,16 @@ async def test_generate_performance_report():
         }
 
         # Check against thresholds
-        if stage.average_execution_time > benchmark.performance_thresholds["max_execution_time_ms"]:
+        if (
+            stage.average_execution_time
+            > benchmark.performance_thresholds["max_execution_time_ms"]
+        ):
             stage_report["warning"] = "Execution time exceeds threshold"
 
-        if stage.average_memory_usage > benchmark.performance_thresholds["max_memory_usage_mb"]:
+        if (
+            stage.average_memory_usage
+            > benchmark.performance_thresholds["max_memory_usage_mb"]
+        ):
             stage_report["warning"] = "Memory usage exceeds threshold"
 
         report["stage_performance"][f"stage_{stage_num}"] = stage_report

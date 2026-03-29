@@ -16,7 +16,9 @@ class AuthorityEnricher:
             allow_scrape=os.getenv("ALLOW_MATHGEN_SCRAPE") == "explicit-yes",
         )
 
-    async def enrich_entry(self, entry: Dict[str, Any], offline: bool = False) -> Dict[str, Any]:
+    async def enrich_entry(
+        self, entry: Dict[str, Any], offline: bool = False
+    ) -> Dict[str, Any]:
         name = entry.get("CanonicalLatin") or entry.get("CanonicalNative")
         byr = entry.get("BirthYear")
         cache_key = f"genealogy:{name}:{byr}"

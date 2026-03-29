@@ -42,7 +42,9 @@ def backup_artifacts():
 
     # Backup CSV
     csv_path = Path("resources/rr_syllable_map.csv")
-    csv_backup = csv_path.parent / f"{csv_path.stem}_backup_{timestamp}{csv_path.suffix}"
+    csv_backup = (
+        csv_path.parent / f"{csv_path.stem}_backup_{timestamp}{csv_path.suffix}"
+    )
     shutil.copy2(csv_path, csv_backup)
     backups["csv"] = csv_backup
 
@@ -105,7 +107,9 @@ def add_weight_to_csv(weight_line):
 
     key = (hangul, roman, pos)
     if key in existing:
-        raise ProductionError(f"Duplicate mapping already exists: {hangul},{roman} (pos={pos})")
+        raise ProductionError(
+            f"Duplicate mapping already exists: {hangul},{roman} (pos={pos})"
+        )
 
     # Add new row
     rows.append([hangul, roman, str(weight), context, pos])
@@ -136,7 +140,9 @@ def rebuild_fsts():
 def run_regression_check():
     """Run regression validation."""
     result = subprocess.run(
-        [sys.executable, "scripts/validate_regression.py"], capture_output=True, text=True
+        [sys.executable, "scripts/validate_regression.py"],
+        capture_output=True,
+        text=True,
     )
     if result.returncode != 0:
         return False, result.stdout + result.stderr
@@ -176,7 +182,9 @@ def main():
 
         # Create backups
         backups = backup_artifacts()
-        print(f"✓ Created backups: CSV={backups['csv'].name}, FST={backups['fst'].name}")
+        print(
+            f"✓ Created backups: CSV={backups['csv'].name}, FST={backups['fst'].name}"
+        )
 
         # Add weight
         add_weight_to_csv(weight_line)

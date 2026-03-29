@@ -284,7 +284,9 @@ class E5Vietnam(RegionSpec):
         if components.get("family_name") and components.get("given_name"):
             given_family = f"{components['given_name']} {components['family_name']}"
             if given_family != canonical:
-                entry["Variants"]["Synthesised"].append({"str": given_family, "type": "order-swap"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": given_family, "type": "order-swap"}
+                )
 
     def _generate_vietnamese_tone_variants(self, name: str) -> List[Dict[str, str]]:
         """
@@ -312,7 +314,11 @@ class E5Vietnam(RegionSpec):
 
             # Generate numeric tone variant
             numeric_variant = self._generate_numeric_tone_variant(name)
-            if numeric_variant and numeric_variant != name and numeric_variant != ascii_variant:
+            if (
+                numeric_variant
+                and numeric_variant != name
+                and numeric_variant != ascii_variant
+            ):
                 variants.append({"str": numeric_variant, "type": "tone-number"})
         else:
             # If ASCII input, try to generate toned variant if we can identify it

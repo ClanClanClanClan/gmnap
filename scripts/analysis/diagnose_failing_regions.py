@@ -36,8 +36,14 @@ class RegionDiagnostic:
         ]
 
         self.edge_cases = [
-            {"name": "Single char A", "test": {"CanonicalLatin": "A", "GlobalID": "edge-1"}},
-            {"name": "Single char X", "test": {"CanonicalLatin": "X", "GlobalID": "edge-2"}},
+            {
+                "name": "Single char A",
+                "test": {"CanonicalLatin": "A", "GlobalID": "edge-1"},
+            },
+            {
+                "name": "Single char X",
+                "test": {"CanonicalLatin": "X", "GlobalID": "edge-2"},
+            },
             {
                 "name": "Empty Latin field",
                 "test": {
@@ -105,7 +111,10 @@ class RegionDiagnostic:
         # Test security compliance
         print("\n🛡️  Testing security attacks...")
         for attack in self.security_attacks:
-            attack_entry = {"CanonicalLatin": attack["input"], "GlobalID": "security-test"}
+            attack_entry = {
+                "CanonicalLatin": attack["input"],
+                "GlobalID": "security-test",
+            }
 
             try:
                 # Test all methods
@@ -116,7 +125,11 @@ class RegionDiagnostic:
 
                 # If we reach here, attack was not blocked
                 results["security_failures"].append(
-                    {"attack": attack["name"], "input": repr(attack["input"]), "status": "BYPASSED"}
+                    {
+                        "attack": attack["name"],
+                        "input": repr(attack["input"]),
+                        "status": "BYPASSED",
+                    }
                 )
                 print(f"  ❌ {attack['name']}: BYPASSED")
 
@@ -161,7 +174,9 @@ class RegionDiagnostic:
         print(
             f"  Security: {security_blocks}/{len(self.security_attacks)} blocked ({security_rate:.1f}%)"
         )
-        print(f"  Edge cases: {edge_passes}/{len(self.edge_cases)} passed ({edge_rate:.1f}%)")
+        print(
+            f"  Edge cases: {edge_passes}/{len(self.edge_cases)} passed ({edge_rate:.1f}%)"
+        )
         print(f"  Method errors: {len(results['method_errors'])}/4 methods broken")
 
         results.update(
@@ -204,14 +219,19 @@ class RegionDiagnostic:
         fixable_regions = []
 
         for region_code, result in all_results.items():
-            if result.get("status") == "CRITICAL" or result.get("methods_broken", 0) > 0:
+            if (
+                result.get("status") == "CRITICAL"
+                or result.get("methods_broken", 0) > 0
+            ):
                 critical_regions.append(region_code)
                 print(
                     f"🚨 CRITICAL: {region_code} - {result.get('error', 'Method failures detected')}"
                 )
             else:
                 fixable_regions.append(region_code)
-                print(f"🔧 FIXABLE: {region_code} - Minor security/edge case improvements needed")
+                print(
+                    f"🔧 FIXABLE: {region_code} - Minor security/edge case improvements needed"
+                )
 
         print(f"\n📊 PRIORITY ASSESSMENT:")
         print(

@@ -61,7 +61,9 @@ class TestA4Oceania:
 
         # Check for no-macron variant
         no_macron_variants = [
-            v["str"] for v in entry["Variants"]["Synthesised"] if v["type"] == "no-macron"
+            v["str"]
+            for v in entry["Variants"]["Synthesised"]
+            if v["type"] == "no-macron"
         ]
         assert "Tumatauenga, Piripi" in no_macron_variants
 
@@ -255,7 +257,9 @@ class TestA4Oceania:
         processor.augment(entry)
 
         ascii_variants = [
-            v["str"] for v in entry["Variants"]["Synthesised"] if v["type"] == "ascii-lossy"
+            v["str"]
+            for v in entry["Variants"]["Synthesised"]
+            if v["type"] == "ascii-lossy"
         ]
         assert any("Ka'eo" in v for v in ascii_variants)
 
@@ -288,7 +292,10 @@ class TestA4Oceania:
     @pytest.mark.timeout(15)
     def test_mononym_comma_validation(self, processor):
         """Test that mononyms with commas are rejected."""
-        entry = {"CanonicalLatin": "Tuilaepa,", "RegionalExtras": {"name_type": "mononym"}}
+        entry = {
+            "CanonicalLatin": "Tuilaepa,",
+            "RegionalExtras": {"name_type": "mononym"},
+        }
 
         with pytest.raises(RegionRuleError, match="Mononym should not contain comma"):
             processor.validate(entry)
@@ -296,7 +303,10 @@ class TestA4Oceania:
     @pytest.mark.timeout(15)
     def test_empty_component_validation(self, processor):
         """Test validation of empty name components."""
-        entry = {"CanonicalLatin": "Smith, ", "RegionalExtras": {"name_type": "colonial"}}
+        entry = {
+            "CanonicalLatin": "Smith, ",
+            "RegionalExtras": {"name_type": "colonial"},
+        }
 
         with pytest.raises(RegionRuleError, match="Empty name component"):
             processor.validate(entry)

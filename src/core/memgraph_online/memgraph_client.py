@@ -8,15 +8,22 @@ class MemgraphClient:
     """
 
     def __init__(
-        self, uri: str | None = None, user: str | None = None, password: str | None = None
+        self,
+        uri: str | None = None,
+        user: str | None = None,
+        password: str | None = None,
     ):
         self.uri = uri or os.getenv("MG_URI", "bolt://localhost:7687")
         self.user = user if user is not None else os.getenv("MG_USER", "")
-        self.password = password if password is not None else os.getenv("MG_PASSWORD", "")
+        self.password = (
+            password if password is not None else os.getenv("MG_PASSWORD", "")
+        )
         try:
             from neo4j import GraphDatabase  # type: ignore
 
-            self._driver = GraphDatabase.driver(self.uri, auth=(self.user, self.password))
+            self._driver = GraphDatabase.driver(
+                self.uri, auth=(self.user, self.password)
+            )
         except Exception:
             self._driver = None
 

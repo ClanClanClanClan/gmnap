@@ -20,7 +20,9 @@ def provenance_hash(edge: Dict[str, Any]) -> str:
     h = hashlib.sha1()
     h.update(str(sorted(edge.get("sources", []))).encode("utf-8"))
     h.update(
-        (edge.get("student_global_id", "") + edge.get("advisor_global_id", "")).encode("utf-8")
+        (edge.get("student_global_id", "") + edge.get("advisor_global_id", "")).encode(
+            "utf-8"
+        )
     )
     return h.hexdigest().upper()
 
@@ -44,7 +46,9 @@ def score_edge(candidates: List[Dict[str, Any]]) -> Dict[str, Any]:
         best = candidates[0]
         base = 0.1  # Minimal score for unscored sources
 
-    bonus = min(0.06, SCORING["bonuses"]["multi_source_agreement"] * max(0, len(srcs) - 1))
+    bonus = min(
+        0.06, SCORING["bonuses"]["multi_source_agreement"] * max(0, len(srcs) - 1)
+    )
     conf = max(0.0, min(0.99, base + bonus))
     best = dict(best)
     best["confidence"] = conf

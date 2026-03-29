@@ -12,8 +12,16 @@ def _dice(a, b):
     # Normalize like validation does - remove punctuation and normalize
     a = "" if not a else a.replace(",", "").replace("-", " ")
     b = "" if not b else b.replace(",", "").replace("-", " ")
-    a = b"" if not a else unicodedata.normalize("NFC", a.casefold().replace(" ", "")).encode()
-    b = b"" if not b else unicodedata.normalize("NFC", b.casefold().replace(" ", "")).encode()
+    a = (
+        b""
+        if not a
+        else unicodedata.normalize("NFC", a.casefold().replace(" ", "")).encode()
+    )
+    b = (
+        b""
+        if not b
+        else unicodedata.normalize("NFC", b.casefold().replace(" ", "")).encode()
+    )
     bigr = lambda s: {s[i : i + 2] for i in range(len(s) - 1)}
     x, y = bigr(a), bigr(b)
     return (2 * len(x & y)) / (len(x) + len(y) or 1)

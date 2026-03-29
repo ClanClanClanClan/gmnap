@@ -202,7 +202,11 @@ def test_concurrent_processing():
             except Exception as e:
                 with results_lock:
                     results["failed"].append(
-                        {"thread": thread_id, "entry": entry["CanonicalLatin"], "error": str(e)}
+                        {
+                            "thread": thread_id,
+                            "entry": entry["CanonicalLatin"],
+                            "error": str(e),
+                        }
                     )
                 thread_failed += 1
 
@@ -235,7 +239,9 @@ def test_concurrent_processing():
 
     # Analyze results
     print(f"\n=== Results ===")
-    print(f"Total processed: {len(results['success'])} success, {len(results['failed'])} failed")
+    print(
+        f"Total processed: {len(results['success'])} success, {len(results['failed'])} failed"
+    )
     print(f"Processing time: {elapsed:.2f}s")
     print(f"Throughput: {len(results['success']) / elapsed:.1f} entries/sec")
 
@@ -276,7 +282,9 @@ def test_concurrent_processing():
     if results["failed"]:
         print(f"\nSample failures (first 5):")
         for failure in results["failed"][:5]:
-            print(f"  Thread {failure['thread']}: {failure['entry']} -> {failure['error']}")
+            print(
+                f"  Thread {failure['thread']}: {failure['entry']} -> {failure['error']}"
+            )
 
     # Test thread safety of stats
     print(f"\nPipeline statistics (thread-safe):")
@@ -290,7 +298,9 @@ def test_concurrent_processing():
     if os.path.exists(db_path):
         os.remove(db_path)
 
-    return len(unique_ids) == len(global_ids) and stats["total_entries"] == len(results["success"])
+    return len(unique_ids) == len(global_ids) and stats["total_entries"] == len(
+        results["success"]
+    )
 
 
 @pytest.mark.timeout(15)
@@ -347,7 +357,9 @@ def test_stress_concurrent():
     if stats["total_entries"] == success_count:
         print("PASS Stress test: PASSED")
     else:
-        print(f"FAIL Stress test: FAILED (expected {success_count}, got {stats['total_entries']})")
+        print(
+            f"FAIL Stress test: FAILED (expected {success_count}, got {stats['total_entries']})"
+        )
 
     # Clean up
     if os.path.exists(db_path):
@@ -363,7 +375,9 @@ if __name__ == "__main__":
     print("\n=== Summary ===")
     if basic_passed:
         print("PASS Concurrent safety test: PASSED")
-        print("The pipeline handles concurrent operations correctly with proper locking.")
+        print(
+            "The pipeline handles concurrent operations correctly with proper locking."
+        )
     else:
         print("FAIL Concurrent safety test: FAILED")
         print("Issues detected in concurrent processing.")

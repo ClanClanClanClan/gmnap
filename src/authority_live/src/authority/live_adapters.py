@@ -12,7 +12,9 @@ OFFLINE = os.getenv("OFFLINE", "1") == "1"
 def http_json(url: str, **params):
     if requests is None:
         raise RuntimeError("requests not available")
-    r = requests.get(url, params=params, headers={"User-Agent": "gmnap-omega-bayes"}, timeout=20)
+    r = requests.get(
+        url, params=params, headers={"User-Agent": "gmnap-omega-bayes"}, timeout=20
+    )
     r.raise_for_status()
     if "application/json" in r.headers.get("Content-Type", ""):
         return r.json()
@@ -49,7 +51,8 @@ class Wikidata_P184:
             "data": requests.get(
                 "https://query.wikidata.org/sparql",
                 params={
-                    "query": "SELECT ?p WHERE { ?p wdt:P106 wd:Q170790 . } LIMIT %d" % limit,
+                    "query": "SELECT ?p WHERE { ?p wdt:P106 wd:Q170790 . } LIMIT %d"
+                    % limit,
                     "format": "json",
                 },
                 headers={"User-Agent": "gmnap-omega-bayes"},
@@ -85,7 +88,9 @@ class HAL:
         return {
             "ok": True,
             "source": self.name,
-            "data": http_json("https://api.archives-ouvertes.fr/search/", q=q, rows=1, fl="docid"),
+            "data": http_json(
+                "https://api.archives-ouvertes.fr/search/", q=q, rows=1, fl="docid"
+            ),
         }
 
 

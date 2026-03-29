@@ -69,7 +69,10 @@ def monitor_validation():
 
     try:
         result = subprocess.run(
-            ["python3", "scripts/validate.py"], capture_output=True, text=True, timeout=300
+            ["python3", "scripts/validate.py"],
+            capture_output=True,
+            text=True,
+            timeout=300,
         )
 
         runtime = time.time() - start_time

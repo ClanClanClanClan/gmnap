@@ -99,7 +99,9 @@ class TestV7SecurityFramework:
             except Exception as e:
                 print(f"Warning: Failed to load region {code}: {e}")
 
-        print(f"Successfully loaded {len(cls.regions)} regions: {list(cls.regions.keys())}")
+        print(
+            f"Successfully loaded {len(cls.regions)} regions: {list(cls.regions.keys())}"
+        )
 
     # SQL Injection Tests
 
@@ -210,7 +212,9 @@ class TestV7SecurityFramework:
                     blocked_count += 1
 
         block_rate = blocked_count / total_tests
-        assert block_rate == 1.0, f"DoS protection failed: {block_rate:.1%} blocked, expected 100%"
+        assert (
+            block_rate == 1.0
+        ), f"DoS protection failed: {block_rate:.1%} blocked, expected 100%"
 
     @pytest.mark.timeout(15)
     def test_template_injection_prevention(self):
@@ -228,7 +232,9 @@ class TestV7SecurityFramework:
             "Thomas${T(java.lang.System).exit(1)}",
         ]
 
-        results = self._test_attacks_across_regions(template_attacks, "template injection")
+        results = self._test_attacks_across_regions(
+            template_attacks, "template injection"
+        )
 
         # Should block all template injection attempts
         assert (
@@ -398,9 +404,13 @@ class TestV7SecurityFramework:
                     # Expected for some edge cases
                     pass
                 except Exception as e:
-                    pytest.fail(f"Region {region_code} crashed on edge case '{repr(case)}': {e}")
+                    pytest.fail(
+                        f"Region {region_code} crashed on edge case '{repr(case)}': {e}"
+                    )
 
-    def _test_attacks_across_regions(self, attacks: List[str], attack_type: str) -> Dict[str, Any]:
+    def _test_attacks_across_regions(
+        self, attacks: List[str], attack_type: str
+    ) -> Dict[str, Any]:
         """Helper to test attack vectors across all regions"""
         blocked_count = 0
         total_tests = len(attacks) * len(self.regions)

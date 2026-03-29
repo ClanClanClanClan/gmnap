@@ -23,7 +23,9 @@ async def verify_100_percent():
 
     print("=== 100% VALIDATION VERIFICATION ===")
     print(f"Total entries: {len(results)}")
-    print(f"Valid entries: {sum(1 for e in results if e.get('ValidationStatus') == 'VALID')}")
+    print(
+        f"Valid entries: {sum(1 for e in results if e.get('ValidationStatus') == 'VALID')}"
+    )
     print()
 
     # Check specific entries that were failing before
@@ -36,7 +38,9 @@ async def verify_100_percent():
     print("=== PREVIOUSLY FAILING ENTRIES ===")
     for label, native_text in critical_entries:
         # Find the entry
-        entry = next((e for e in results if e.get("CanonicalNative") == native_text), None)
+        entry = next(
+            (e for e in results if e.get("CanonicalNative") == native_text), None
+        )
         if entry:
             status = entry.get("ValidationStatus", "UNKNOWN")
             roundtrip_score = entry.get("RoundtripScore", 0.0)
@@ -47,7 +51,9 @@ async def verify_100_percent():
             print(f"  Latin: {entry.get('CanonicalLatin', 'N/A')}")
             print(f"  Status: {status} {'PASS' if status == 'VALID' else 'FAIL'}")
             print(f"  Roundtrip Score: {roundtrip_score:.3f}")
-            print(f"  Schema: {'✓' if validation_results.get('schema_valid', False) else '✗'}")
+            print(
+                f"  Schema: {'✓' if validation_results.get('schema_valid', False) else '✗'}"
+            )
             print(
                 f"  Roundtrip: {'✓' if validation_results.get('roundtrip_valid', False) else '✗'}"
             )

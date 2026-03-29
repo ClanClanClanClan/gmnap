@@ -25,6 +25,6 @@ def _scrub(obj: Any) -> Any:
 def to_canonical_bytes(obj: Any) -> bytes:
     """Deterministically serialise any JSON‑like object to bytes."""
     scrubbed = _scrub(obj)
-    return json.dumps(scrubbed, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode(
-        "utf-8"
-    )
+    return json.dumps(
+        scrubbed, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")

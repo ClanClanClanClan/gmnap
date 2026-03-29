@@ -205,7 +205,9 @@ class AuthorizationManager:
             return permission in user_perms
         return False
 
-    def remove_resource_permissions(self, resource_id: str, user_id: str = None) -> None:
+    def remove_resource_permissions(
+        self, resource_id: str, user_id: str = None
+    ) -> None:
         """
         Remove resource permissions
 
@@ -243,7 +245,9 @@ def require_permission(permission: Permission):
                 user = kwargs["user"]
             elif len(args) > 0:
                 # Check if this is a method (first arg might be self)
-                if hasattr(args[0], "__class__") and hasattr(args[0].__class__, func.__name__):
+                if hasattr(args[0], "__class__") and hasattr(
+                    args[0].__class__, func.__name__
+                ):
                     # This is a method, user should be second argument
                     user = args[1] if len(args) > 1 else None
                 else:
@@ -281,7 +285,9 @@ def require_any_permission(*permissions: Permission):
                 user = kwargs["user"]
             elif len(args) > 0:
                 # Check if this is a method (first arg might be self)
-                if hasattr(args[0], "__class__") and hasattr(args[0].__class__, func.__name__):
+                if hasattr(args[0], "__class__") and hasattr(
+                    args[0].__class__, func.__name__
+                ):
                     # This is a method, user should be second argument
                     user = args[1] if len(args) > 1 else None
                 else:

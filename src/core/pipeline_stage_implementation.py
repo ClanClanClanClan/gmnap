@@ -55,7 +55,9 @@ class PipelineStageImplementor:
         Enriches entries with data from authority sources
         """
 
-        self.logger.info(f"Stage_4_AuthorityEnrich: Processing {entry.get('GlobalID', 'unknown')}")
+        self.logger.info(
+            f"Stage_4_AuthorityEnrich: Processing {entry.get('GlobalID', 'unknown')}"
+        )
 
         # Create enriched copy
         enriched_entry = entry.copy()
@@ -84,11 +86,15 @@ class PipelineStageImplementor:
                         "confidence": result.data.confidence_score,
                         "identifiers": result.data.identifiers,
                         "affiliations": (
-                            result.data.affiliations[:3] if result.data.affiliations else []
+                            result.data.affiliations[:3]
+                            if result.data.affiliations
+                            else []
                         ),
                         "metadata": {
                             "works_count": result.data.metadata.get("works_count", 0),
-                            "cited_by_count": result.data.metadata.get("cited_by_count", 0),
+                            "cited_by_count": result.data.metadata.get(
+                                "cited_by_count", 0
+                            ),
                         },
                     }
                     enrichment_sources.append(source_name)
@@ -97,10 +103,15 @@ class PipelineStageImplementor:
                     if result.data.identifiers:
                         if "AuthorityIdentifiers" not in enriched_entry:
                             enriched_entry["AuthorityIdentifiers"] = {}
-                        enriched_entry["AuthorityIdentifiers"].update(result.data.identifiers)
+                        enriched_entry["AuthorityIdentifiers"].update(
+                            result.data.identifiers
+                        )
 
                     # Add affiliations if not present
-                    if result.data.affiliations and "Affiliations" not in enriched_entry:
+                    if (
+                        result.data.affiliations
+                        and "Affiliations" not in enriched_entry
+                    ):
                         enriched_entry["Affiliations"] = result.data.affiliations[:3]
 
                     # Stop after first successful enrichment (can be changed)
@@ -114,7 +125,9 @@ class PipelineStageImplementor:
         # Add enrichment metadata
         enriched_entry["Stage_4_AuthorityData"] = authority_data
         enriched_entry["Stage_4_EnrichmentSources"] = enrichment_sources
-        enriched_entry["Stage_4_Status"] = "ENRICHED" if enrichment_sources else "NO_ENRICHMENT"
+        enriched_entry["Stage_4_Status"] = (
+            "ENRICHED" if enrichment_sources else "NO_ENRICHMENT"
+        )
 
         return enriched_entry
 
@@ -124,7 +137,9 @@ class PipelineStageImplementor:
         Generates abbreviated forms of names for efficient lookup
         """
 
-        self.logger.info(f"Stage_6_GenShortForm: Processing {entry.get('GlobalID', 'unknown')}")
+        self.logger.info(
+            f"Stage_6_GenShortForm: Processing {entry.get('GlobalID', 'unknown')}"
+        )
 
         # Create processed copy
         processed_entry = entry.copy()
@@ -224,7 +239,9 @@ class PipelineStageImplementor:
         Validates entry against global consistency rules
         """
 
-        self.logger.info(f"Stage_8_GlobalValidate: Processing {entry.get('GlobalID', 'unknown')}")
+        self.logger.info(
+            f"Stage_8_GlobalValidate: Processing {entry.get('GlobalID', 'unknown')}"
+        )
 
         # Create validated copy
         validated_entry = entry.copy()
@@ -306,7 +323,13 @@ class PipelineStageImplementor:
         """Check if region and country are consistent"""
         # Simple mapping - can be expanded
         region_country_map = {
-            "A1": ["United States", "United Kingdom", "Canada", "Australia", "New Zealand"],
+            "A1": [
+                "United States",
+                "United Kingdom",
+                "Canada",
+                "Australia",
+                "New Zealand",
+            ],
             "E4": ["Korea", "South Korea", "North Korea"],
             "C1": ["Turkey", "Azerbaijan", "Kazakhstan", "Uzbekistan"],
             "D1": ["India", "Pakistan", "Bangladesh"],
@@ -316,7 +339,9 @@ class PipelineStageImplementor:
         expected_countries = region_country_map.get(region, [])
         return country in expected_countries or len(expected_countries) == 0
 
-    def _validate_script_consistency(self, latin: str, native: str, region: str) -> bool:
+    def _validate_script_consistency(
+        self, latin: str, native: str, region: str
+    ) -> bool:
         """Validate script consistency between Latin and Native names"""
         # Basic check - presence of expected scripts
         if region == "E4":  # Korean
@@ -392,7 +417,11 @@ class PipelineStageImplementor:
                 )
             except Exception as e:
                 stage_4_results.append(
-                    {"entry": entry["CanonicalLatin"], "success": False, "error": str(e)}
+                    {
+                        "entry": entry["CanonicalLatin"],
+                        "success": False,
+                        "error": str(e),
+                    }
                 )
 
         stage_results["Stage_4_AuthorityEnrich"] = {
@@ -419,7 +448,11 @@ class PipelineStageImplementor:
                 )
             except Exception as e:
                 stage_6_results.append(
-                    {"entry": entry["CanonicalLatin"], "success": False, "error": str(e)}
+                    {
+                        "entry": entry["CanonicalLatin"],
+                        "success": False,
+                        "error": str(e),
+                    }
                 )
 
         stage_results["Stage_6_GenShortForm"] = {
@@ -448,7 +481,11 @@ class PipelineStageImplementor:
                 )
             except Exception as e:
                 stage_8_results.append(
-                    {"entry": entry["CanonicalLatin"], "success": False, "error": str(e)}
+                    {
+                        "entry": entry["CanonicalLatin"],
+                        "success": False,
+                        "error": str(e),
+                    }
                 )
 
         stage_results["Stage_8_GlobalValidate"] = {
@@ -457,7 +494,9 @@ class PipelineStageImplementor:
         }
 
         # Count working stages
-        new_working_stages = [name for name, result in stage_results.items() if result["working"]]
+        new_working_stages = [
+            name for name, result in stage_results.items() if result["working"]
+        ]
 
         # Previous working stages
         previous_working_stages = [

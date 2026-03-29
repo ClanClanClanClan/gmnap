@@ -70,7 +70,9 @@ class GraphCoherenceScorer:
 
         logger.info("Graph coherence scorer initialized with V7 thresholds")
 
-    def score_graph_coherence(self, graph: nx.Graph, mode: str = "quick") -> GraphCoherenceResult:
+    def score_graph_coherence(
+        self, graph: nx.Graph, mode: str = "quick"
+    ) -> GraphCoherenceResult:
         """
         Calculate comprehensive graph coherence score
 
@@ -82,7 +84,9 @@ class GraphCoherenceScorer:
             GraphCoherenceResult with detailed analysis
         """
         if mode not in self.v7_thresholds:
-            raise ValueError(f"Invalid mode: {mode}. Must be: {list(self.v7_thresholds.keys())}")
+            raise ValueError(
+                f"Invalid mode: {mode}. Must be: {list(self.v7_thresholds.keys())}"
+            )
 
         logger.info(f"Calculating graph coherence for mode: {mode}")
 
@@ -117,7 +121,8 @@ class GraphCoherenceScorer:
                 "confidence": 0.25,
                 "betweenness": 0.20,
             },
-            "analysis_duration_ms": (datetime.now() - start_time).total_seconds() * 1000,
+            "analysis_duration_ms": (datetime.now() - start_time).total_seconds()
+            * 1000,
         }
 
         result = GraphCoherenceResult(
@@ -133,7 +138,9 @@ class GraphCoherenceScorer:
         self._log_coherence_result(result)
         return result
 
-    def create_genealogy_graph_from_entries(self, entries: List[Dict[str, Any]]) -> nx.Graph:
+    def create_genealogy_graph_from_entries(
+        self, entries: List[Dict[str, Any]]
+    ) -> nx.Graph:
         """
         Create genealogy graph from processing entries
 
@@ -151,7 +158,9 @@ class GraphCoherenceScorer:
             canonical_name = entry.get("CanonicalLatin", "Unknown")
 
             graph.add_node(
-                person_id, canonical_name=canonical_name, confidence=entry.get("Confidence", 50.0)
+                person_id,
+                canonical_name=canonical_name,
+                confidence=entry.get("Confidence", 50.0),
             )
 
             # Add relationships if available
@@ -198,7 +207,9 @@ class GraphCoherenceScorer:
         # Component analysis
         components = list(nx.connected_components(graph))
         connected_components = len(components)
-        largest_component_size = max(len(comp) for comp in components) if components else 0
+        largest_component_size = (
+            max(len(comp) for comp in components) if components else 0
+        )
 
         # Cycle detection
         try:
@@ -222,7 +233,9 @@ class GraphCoherenceScorer:
         avg_betweenness = (
             statistics.mean(betweenness_scores.values()) if betweenness_scores else 0.0
         )
-        avg_confidence = statistics.mean(confidence_scores.values()) if confidence_scores else 0.0
+        avg_confidence = (
+            statistics.mean(confidence_scores.values()) if confidence_scores else 0.0
+        )
 
         # Density and clustering
         density = nx.density(graph)
@@ -304,11 +317,15 @@ class GraphCoherenceScorer:
         clustering_score = metrics.clustering_coefficient
 
         # Combine consistency factors
-        consistency_score = 0.4 * cycle_score + 0.4 * violation_score + 0.2 * clustering_score
+        consistency_score = (
+            0.4 * cycle_score + 0.4 * violation_score + 0.2 * clustering_score
+        )
 
         return max(0.0, min(1.0, consistency_score))
 
-    def _calculate_confidence_score(self, graph: nx.Graph, metrics: GraphCoherenceMetrics) -> float:
+    def _calculate_confidence_score(
+        self, graph: nx.Graph, metrics: GraphCoherenceMetrics
+    ) -> float:
         """Calculate confidence-based coherence score (0.0 to 1.0)"""
         if not metrics.confidence_scores:
             return 0.5  # Neutral score for no confidence data
@@ -318,7 +335,9 @@ class GraphCoherenceScorer:
 
         # Confidence distribution (prefer consistent high confidence)
         confidence_values = list(metrics.confidence_scores.values())
-        confidence_std = statistics.stdev(confidence_values) if len(confidence_values) > 1 else 0.0
+        confidence_std = (
+            statistics.stdev(confidence_values) if len(confidence_values) > 1 else 0.0
+        )
 
         # Lower standard deviation = more consistent confidence
         consistency_bonus = max(0.0, 1.0 - confidence_std)
@@ -358,7 +377,11 @@ class GraphCoherenceScorer:
         return max(0.0, min(1.0, betweenness_score))
 
     def _combine_coherence_scores(
-        self, structural: float, consistency: float, confidence: float, betweenness: float
+        self,
+        structural: float,
+        consistency: float,
+        confidence: float,
+        betweenness: float,
     ) -> float:
         """Combine component scores using V7 methodology"""
         # V7-inspired weighting (can be tuned based on requirements)
@@ -401,7 +424,9 @@ class GraphCoherenceScorer:
             # Check for cycles in advisor relationships
             mutual_advisors = advisors & advisees
             if mutual_advisors:
-                violations.append(f"Mutual advisor relationship: {node} <-> {mutual_advisors}")
+                violations.append(
+                    f"Mutual advisor relationship: {node} <-> {mutual_advisors}"
+                )
 
         # Check for impossible temporal relationships (placeholder)
         # In a real implementation, this would check degree dates, birth years, etc.
@@ -429,7 +454,9 @@ class GraphCoherenceScorer:
                     other_name = other_data.get("canonical_name", "")
                     if "," in other_name:
                         other_surname = other_name.split(",")[0].strip()
-                        if surname == other_surname and not graph.has_edge(person_id, other_node):
+                        if surname == other_surname and not graph.has_edge(
+                            person_id, other_node
+                        ):
                             # Add potential family relationship with low confidence
                             graph.add_edge(
                                 person_id,
@@ -443,9 +470,13 @@ class GraphCoherenceScorer:
         status = "PASS" if result.v7_compliant else "FAIL"
 
         logger.info(f"Graph coherence analysis: {status}")
-        logger.info(f"  Score: {result.coherence_score:.3f} (threshold: {result.v7_threshold:.3f})")
+        logger.info(
+            f"  Score: {result.coherence_score:.3f} (threshold: {result.v7_threshold:.3f})"
+        )
         logger.info(f"  Mode: {result.mode}")
-        logger.info(f"  Nodes: {result.metrics.total_nodes}, Edges: {result.metrics.total_edges}")
+        logger.info(
+            f"  Nodes: {result.metrics.total_nodes}, Edges: {result.metrics.total_edges}"
+        )
         logger.info(f"  Components: {result.metrics.connected_components}")
         logger.info(f"  Avg confidence: {result.metrics.avg_confidence:.3f}")
 
@@ -454,7 +485,9 @@ class GraphCoherenceScorer:
                 f"  Consistency violations: {len(result.metrics.consistency_violations)}"
             )
 
-    def generate_coherence_report(self, results: List[GraphCoherenceResult]) -> Dict[str, Any]:
+    def generate_coherence_report(
+        self, results: List[GraphCoherenceResult]
+    ) -> Dict[str, Any]:
         """Generate comprehensive coherence analysis report"""
         if not results:
             return {"error": "No results to analyze"}
@@ -472,7 +505,9 @@ class GraphCoherenceScorer:
                 "avg_coherence_score": statistics.mean(scores),
                 "min_coherence_score": min(scores),
                 "max_coherence_score": max(scores),
-                "std_coherence_score": statistics.stdev(scores) if len(scores) > 1 else 0.0,
+                "std_coherence_score": (
+                    statistics.stdev(scores) if len(scores) > 1 else 0.0
+                ),
             },
             "by_mode": {},
             "detailed_results": [],
@@ -522,7 +557,9 @@ if __name__ == "__main__":
     sample_graph = nx.Graph()
     sample_graph.add_node("person1", canonical_name="Smith, John", confidence=80.0)
     sample_graph.add_node("person2", canonical_name="Smith, Jane", confidence=75.0)
-    sample_graph.add_edge("person1", "person2", relation_type="advisor", confidence=85.0)
+    sample_graph.add_edge(
+        "person1", "person2", relation_type="advisor", confidence=85.0
+    )
 
     result = scorer.score_graph_coherence(sample_graph, mode="quick")
     print(f"Graph coherence score: {result.coherence_score:.3f}")

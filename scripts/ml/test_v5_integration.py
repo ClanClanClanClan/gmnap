@@ -201,7 +201,9 @@ def test_provenance_contract():
     # Check provenance structure
     assert "model_file" in result["provenance"], "Missing provenance.model_file"
     assert "train_date" in result["provenance"], "Missing provenance.train_date"
-    assert "prediction_timestamp" in result["provenance"], "Missing provenance.prediction_timestamp"
+    assert (
+        "prediction_timestamp" in result["provenance"]
+    ), "Missing provenance.prediction_timestamp"
     print(f"  ✅ Provenance: {result['provenance']}")
 
     # Check topk structure

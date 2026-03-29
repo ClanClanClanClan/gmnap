@@ -65,7 +65,9 @@ def main():
     except:
         auto_fix_report = None
 
-    print(f"\nTesting {len(PROPOSED_FIXES)} proposed fixes on {len(math_data)} mathematician names")
+    print(
+        f"\nTesting {len(PROPOSED_FIXES)} proposed fixes on {len(math_data)} mathematician names"
+    )
     print("\nProposed fixes:")
     for rom, han in PROPOSED_FIXES.items():
         print(f"  {rom} -> {han}")
@@ -125,7 +127,9 @@ def main():
     print("=" * 80)
 
     print(f"\nCurrent mathematician dataset status:")
-    print(f"  Working correctly: {currently_working} ({currently_working/len(math_data)*100:.1f}%)")
+    print(
+        f"  Working correctly: {currently_working} ({currently_working/len(math_data)*100:.1f}%)"
+    )
     print(f"  Broken: {currently_broken} ({currently_broken/len(math_data)*100:.1f}%)")
 
     print(f"\nImpact of proposed fixes:")
@@ -139,7 +143,9 @@ def main():
             print(f"\n{i+1}. {conflict['name']}")
             print(f"   Currently: {conflict['current']} ✓")
             print(f"   Would become: {conflict['would_become']} ✗")
-            print(f"   Due to: {conflict['surname']} -> {PROPOSED_FIXES[conflict['surname']]}")
+            print(
+                f"   Due to: {conflict['surname']} -> {PROPOSED_FIXES[conflict['surname']]}"
+            )
 
         if len(conflicts) > 10:
             print(f"\n... and {len(conflicts) - 10} more conflicts")
@@ -234,7 +240,12 @@ def main():
             for c in conflicts[:20]  # Save first 20 conflicts
         ],
         "fixes": [
-            {"name": f["name"], "current": f["current"], "expected": f["expected"], "fix": f["fix"]}
+            {
+                "name": f["name"],
+                "current": f["current"],
+                "expected": f["expected"],
+                "fix": f["fix"],
+            }
             for f in would_fix[:20]  # Save first 20 fixes
         ],
         "risk_reward": {

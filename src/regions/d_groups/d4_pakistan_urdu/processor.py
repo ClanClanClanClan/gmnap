@@ -373,14 +373,37 @@ class D4_PakistanUrdu(RegionSpec):
                     "Sandhu",
                     "سندھو",
                 ],
-                "patterns": [r"\b\w+deep\b", r"\b\w+jit\b", r"\b\w+pal\b", r"\b\w+want\b"],
+                "patterns": [
+                    r"\b\w+deep\b",
+                    r"\b\w+jit\b",
+                    r"\b\w+pal\b",
+                    r"\b\w+want\b",
+                ],
             },
             "sindhi": {
-                "common_surnames": ["Lal", "لال", "Das", "داس", "Ani", "انی", "Wani", "وانی"],
+                "common_surnames": [
+                    "Lal",
+                    "لال",
+                    "Das",
+                    "داس",
+                    "Ani",
+                    "انی",
+                    "Wani",
+                    "وانی",
+                ],
                 "patterns": [r"\b\w+ani\b", r"\b\w+wani\b", r"\b\w+chandani\b"],
             },
             "balochi": {
-                "suffixes": ["-zai", "زئی", "-ani", "انی", "-zada", "زادہ", "-shah", "شاہ"],
+                "suffixes": [
+                    "-zai",
+                    "زئی",
+                    "-ani",
+                    "انی",
+                    "-zada",
+                    "زادہ",
+                    "-shah",
+                    "شاہ",
+                ],
                 "patterns": [r"\b\w+zai\b", r"\b\w+ani\b", r"\b\w+zada\b"],
             },
             "pashto": {
@@ -455,7 +478,9 @@ class D4_PakistanUrdu(RegionSpec):
                     if char_code == 127:  # DEL
                         raise RegionRuleError(f"DELETE character in {field}")
                     if char_code in [0x200B, 0x200C, 0x200D, 0xFEFF]:  # Zero-width
-                        raise RegionRuleError(f"Zero-width character in {field}: U+{char_code:04X}")
+                        raise RegionRuleError(
+                            f"Zero-width character in {field}: U+{char_code:04X}"
+                        )
 
         # Apply security validation first
 
@@ -764,7 +789,9 @@ class D4_PakistanUrdu(RegionSpec):
                 break
 
         # Check for Muhammad variants
-        muhammad_variants = {name.lower() for name in self.islamic_names["muhammad_variants"]}
+        muhammad_variants = {
+            name.lower() for name in self.islamic_names["muhammad_variants"]
+        }
         for word in words:
             if word.lower() in muhammad_variants:
                 result["has_muhammad_name"] = True
@@ -772,7 +799,9 @@ class D4_PakistanUrdu(RegionSpec):
                 break
 
         # Check for common Islamic names
-        islamic_names = {name.lower() for names in self.islamic_names.values() for name in names}
+        islamic_names = {
+            name.lower() for names in self.islamic_names.values() for name in names
+        }
         islamic_count = sum(1 for word in words if word.lower() in islamic_names)
 
         if islamic_count > 0:
@@ -791,7 +820,9 @@ class D4_PakistanUrdu(RegionSpec):
                 if word in tribes:
                     if "tribal_affiliations" not in result:
                         result["tribal_affiliations"] = []
-                    result["tribal_affiliations"].append({"category": category, "name": word})
+                    result["tribal_affiliations"].append(
+                        {"category": category, "name": word}
+                    )
 
         # Check occupational surnames
         for word in words:
@@ -962,7 +993,9 @@ class D4_PakistanUrdu(RegionSpec):
 
         # SECURITY: Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         canonical_latin = entry.get("CanonicalLatin", "").strip()
         canonical_native = entry.get("CanonicalNative", "").strip()
@@ -993,7 +1026,9 @@ class D4_PakistanUrdu(RegionSpec):
 
         # Check for valid Unicode categories
         if not self._has_valid_unicode_categories(name_to_validate):
-            raise RegionRuleError(f"Name contains invalid characters: {name_to_validate}")
+            raise RegionRuleError(
+                f"Name contains invalid characters: {name_to_validate}"
+            )
 
     def _has_valid_unicode_categories(self, text: str) -> bool:
         """Check if text contains only valid Unicode categories."""
@@ -1058,9 +1093,13 @@ class D4_PakistanUrdu(RegionSpec):
         if len(words) == 1:
             word_lower = words[0].lower()
             # Check against known Islamic names and common surnames
-            all_islamic = {n.lower() for names in self.islamic_names.values() for n in names}
+            all_islamic = {
+                n.lower() for names in self.islamic_names.values() for n in names
+            }
             all_surnames = {
-                s.lower() for surnames in self.tribal_clan_names.values() for s in surnames
+                s.lower()
+                for surnames in self.tribal_clan_names.values()
+                for s in surnames
             }
             all_surnames.update({s.lower() for s in self.occupational_surnames})
 
@@ -1122,7 +1161,9 @@ class D4_PakistanUrdu(RegionSpec):
         if sort_middle:
             key_parts.append(sort_middle)
 
-        key = " ".join(key_parts) if key_parts else normalize_for_sort(canonical.upper())
+        key = (
+            " ".join(key_parts) if key_parts else normalize_for_sort(canonical.upper())
+        )
 
         # Ensure determinism and clean formatting
         key = " ".join(key.split())

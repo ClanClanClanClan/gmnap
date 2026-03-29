@@ -63,7 +63,11 @@ def idempotency_check(
     When strict (default from env GMNAP_IDEMPOTENCY_STRICT=1) and diff_bytes>gate_max (default 0), raises RuntimeError.
     Returns (batch, metrics_dict)
     """
-    strict = (os.getenv("GMNAP_IDEMPOTENCY_STRICT", "1") == "1") if strict is None else bool(strict)
+    strict = (
+        (os.getenv("GMNAP_IDEMPOTENCY_STRICT", "1") == "1")
+        if strict is None
+        else bool(strict)
+    )
     if gate_max is None:
         try:
             gate_max = int(os.getenv("GMNAP_IDEMPOTENT_DIFF_BYTES_MAX", "0"))
@@ -97,7 +101,11 @@ def idempotency_check(
         canon_b = to_canonical_bytes(batch)
 
     # Write canonical bytes for inspection
-    sdir = pathlib.Path(snapshot_dir) if snapshot_dir else pathlib.Path(out_base) / "latest"
+    sdir = (
+        pathlib.Path(snapshot_dir)
+        if snapshot_dir
+        else pathlib.Path(out_base) / "latest"
+    )
     sdir.mkdir(parents=True, exist_ok=True)
     (sdir / _CANON_BIN).write_bytes(canon_a)
 

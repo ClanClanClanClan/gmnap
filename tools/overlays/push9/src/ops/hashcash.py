@@ -45,12 +45,21 @@ def parse_stamp(s: str) -> Optional[HashcashStamp]:
     except Exception:
         return None
     return HashcashStamp(
-        version=ver, bits=bits_i, date=date, resource=resource, ext=ext, rand=rand, counter=counter
+        version=ver,
+        bits=bits_i,
+        date=date,
+        resource=resource,
+        ext=ext,
+        rand=rand,
+        counter=counter,
     )
 
 
 def verify_hashcash(
-    stamp_str: str, min_bits: int, resource: Optional[str] = None, max_age_seconds: int = 3600
+    stamp_str: str,
+    min_bits: int,
+    resource: Optional[str] = None,
+    max_age_seconds: int = 3600,
 ) -> Tuple[bool, str]:
     """
     Verify a classic Hashcash v1 stamp. Returns (ok, reason).

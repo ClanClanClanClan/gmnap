@@ -145,14 +145,18 @@ def test_instantiation():
         from src.core.memgraph_integration import MemgraphClient, GraphNode
 
         client = MemgraphClient()
-        node = GraphNode(global_id="test-001", canonical_latin="Test, User", region_code="A1")
+        node = GraphNode(
+            global_id="test-001", canonical_latin="Test, User", region_code="A1"
+        )
         print(f"✓ MemgraphClient + GraphNode")
         results["success"] += 1
     except Exception as e:
         print(f"✗ Memgraph: {e}")
         results["failed"] += 1
 
-    print(f"\nInstantiation Results: {results['success']} success, {results['failed']} failed")
+    print(
+        f"\nInstantiation Results: {results['success']} success, {results['failed']} failed"
+    )
     return results
 
 
@@ -208,7 +212,9 @@ def test_basic_functionality():
         print(f"✗ Region Loading: {e}")
         results["failed"] += 1
 
-    print(f"\nFunctionality Results: {results['success']} success, {results['failed']} failed")
+    print(
+        f"\nFunctionality Results: {results['success']} success, {results['failed']} failed"
+    )
     return results
 
 

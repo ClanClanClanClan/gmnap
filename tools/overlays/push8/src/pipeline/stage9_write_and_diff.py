@@ -49,7 +49,9 @@ def _order_entry(e: Dict) -> Dict:
     # Sort nested structures deterministically
     def sort_list(xs):
         try:
-            return sorted(xs, key=lambda x: json.dumps(x, sort_keys=True, ensure_ascii=True))
+            return sorted(
+                xs, key=lambda x: json.dumps(x, sort_keys=True, ensure_ascii=True)
+            )
         except Exception:
             return xs
 
@@ -110,7 +112,9 @@ def _diff_texts(a: str, b: str, fromdesc: str, todesc: str) -> str:
     return d.make_file(a.splitlines(), b.splitlines(), fromdesc=fromdesc, todesc=todesc)
 
 
-def diff_snapshots(prev_dir: str, curr_dir: str, out_dir: str | None = None) -> Dict[str, int]:
+def diff_snapshots(
+    prev_dir: str, curr_dir: str, out_dir: str | None = None
+) -> Dict[str, int]:
     """
     Diffs two snapshot directories and writes an HTML report with per-file diffs.
     Returns counts dict: {"added": X, "removed": Y, "modified": Z}.
@@ -139,7 +143,9 @@ def diff_snapshots(prev_dir: str, curr_dir: str, out_dir: str | None = None) -> 
             (out_dir / f"{name}.html").write_text(html, encoding="utf-8")
 
     # Index report
-    index = ["<html><head><meta charset='utf-8'><title>Write&Diff Report</title></head><body>"]
+    index = [
+        "<html><head><meta charset='utf-8'><title>Write&Diff Report</title></head><body>"
+    ]
     index.append(f"<h1>Write&amp;Diff Report</h1>")
     index.append(f"<p><b>Prev:</b> {prev}</p><p><b>Curr:</b> {curr}</p>")
     index.append("<h2>Summary</h2>")
@@ -152,9 +158,13 @@ def diff_snapshots(prev_dir: str, curr_dir: str, out_dir: str | None = None) -> 
             index.append(f"<li><a href='{n}.html'>{n}</a></li>")
         index.append("</ul>")
     if added:
-        index.append("<h2>Added</h2><ul>" + "".join(f"<li>{n}</li>" for n in added) + "</ul>")
+        index.append(
+            "<h2>Added</h2><ul>" + "".join(f"<li>{n}</li>" for n in added) + "</ul>"
+        )
     if removed:
-        index.append("<h2>Removed</h2><ul>" + "".join(f"<li>{n}</li>" for n in removed) + "</ul>")
+        index.append(
+            "<h2>Removed</h2><ul>" + "".join(f"<li>{n}</li>" for n in removed) + "</ul>"
+        )
     index.append("</body></html>")
     (out_dir / "index.html").write_text("\n".join(index), encoding="utf-8")
 
@@ -223,7 +233,9 @@ def generate_sql_changelog(
         b = _load_yaml(curr / name)
         if a != b:
             gid = name[:-5]
-            details = json.dumps({"from": a, "to": b}, ensure_ascii=False).replace("'", "''")
+            details = json.dumps({"from": a, "to": b}, ensure_ascii=False).replace(
+                "'", "''"
+            )
             sql_lines.append(
                 f"INSERT INTO gmnap_changelog(ts,op,global_id,details) VALUES('{utc}','UPDATE','{gid}','{details}');"
             )

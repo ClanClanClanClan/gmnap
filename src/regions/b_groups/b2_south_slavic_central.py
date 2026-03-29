@@ -61,23 +61,44 @@ class B2_SouthSlavicCentral(RegionSpec):
                 "chars": self.polish_chars,
                 "suffixes": ["ski", "ska", "cki", "cka", "icz", "owicz", "ewicz"],
             },
-            "CZ": {"chars": self.czech_slovak_chars, "suffixes": ["ová", "ý", "á", "ek", "ík"]},
+            "CZ": {
+                "chars": self.czech_slovak_chars,
+                "suffixes": ["ová", "ý", "á", "ek", "ík"],
+            },
             "SK": {
                 "chars": self.czech_slovak_chars,
                 "suffixes": ["ová", "ý", "á", "ek", "ík", "iak"],
             },
             "HU": {"chars": set("áéíóöőúüűÁÉÍÓÖŐÚÜŰ"), "name_order": "Family Given"},
-            "RO": {"chars": self.romanian_chars, "suffixes": ["escu", "eanu", "aru", "an"]},
-            "HR": {"chars": self.south_slavic_latin, "suffixes": ["ić", "ović", "ević"]},
+            "RO": {
+                "chars": self.romanian_chars,
+                "suffixes": ["escu", "eanu", "aru", "an"],
+            },
+            "HR": {
+                "chars": self.south_slavic_latin,
+                "suffixes": ["ić", "ović", "ević"],
+            },
             "SI": {"chars": self.south_slavic_latin, "suffixes": ["ič", "nik", "ar"]},
             "RS": {
                 "scripts": ["Cyrillic", "Latin"],
                 "suffixes": ["ић", "овић", "евић", "ić", "ović", "ević"],
             },
-            "BG": {"scripts": ["Cyrillic"], "suffixes": ["ов", "ова", "ев", "ева", "ски", "ска"]},
-            "MK": {"scripts": ["Cyrillic"], "suffixes": ["ски", "ска", "ов", "ова", "ев", "ева"]},
-            "BA": {"scripts": ["Latin", "Cyrillic"], "suffixes": ["ić", "ović", "begović"]},
-            "ME": {"scripts": ["Latin", "Cyrillic"], "suffixes": ["ić", "ović", "ević"]},
+            "BG": {
+                "scripts": ["Cyrillic"],
+                "suffixes": ["ов", "ова", "ев", "ева", "ски", "ска"],
+            },
+            "MK": {
+                "scripts": ["Cyrillic"],
+                "suffixes": ["ски", "ска", "ов", "ова", "ев", "ева"],
+            },
+            "BA": {
+                "scripts": ["Latin", "Cyrillic"],
+                "suffixes": ["ić", "ović", "begović"],
+            },
+            "ME": {
+                "scripts": ["Latin", "Cyrillic"],
+                "suffixes": ["ić", "ović", "ević"],
+            },
             "AL": {"chars": set("ëçËÇ"), "suffixes": ["i", "u", "aj", "llari"]},
             "XK": {
                 "scripts": ["Latin"],
@@ -87,7 +108,13 @@ class B2_SouthSlavicCentral(RegionSpec):
 
         # Hungarian name order detection patterns
         self.hungarian_patterns = {
-            "family_suffixes": ["fi", "fy", "i", "y", "né"],  # Common Hungarian family name endings
+            "family_suffixes": [
+                "fi",
+                "fy",
+                "i",
+                "y",
+                "né",
+            ],  # Common Hungarian family name endings
             "common_families": [
                 "Nagy",
                 "Kovács",
@@ -133,7 +160,9 @@ class B2_SouthSlavicCentral(RegionSpec):
         cleaned = titles_pattern.sub("", canonical)
 
         # Remove nobility titles (still sometimes seen)
-        nobility_pattern = re.compile(r"\b(von|de|gróf|báró|herceg|князь|граф)\s+", re.IGNORECASE)
+        nobility_pattern = re.compile(
+            r"\b(von|de|gróf|báró|herceg|князь|граф)\s+", re.IGNORECASE
+        )
         cleaned = nobility_pattern.sub("", cleaned)
 
         # Normalize Unicode
@@ -184,7 +213,9 @@ class B2_SouthSlavicCentral(RegionSpec):
             if script == "Latin":
                 cyrillic_variant = self._latin_to_cyrillic_serbian(canonical)
                 if cyrillic_variant and cyrillic_variant != canonical:
-                    variants.append({"str": cyrillic_variant, "type": "romanisation-alt"})
+                    variants.append(
+                        {"str": cyrillic_variant, "type": "romanisation-alt"}
+                    )
             elif script == "Cyrillic":
                 latin_variant = self._cyrillic_to_latin_serbian(canonical)
                 if latin_variant and latin_variant != canonical:
@@ -263,7 +294,9 @@ class B2_SouthSlavicCentral(RegionSpec):
 
         # Check basic structure
         if not (", " in canonical or " " in canonical):
-            raise RegionRuleError("Invalid name format: must contain family and given names")
+            raise RegionRuleError(
+                "Invalid name format: must contain family and given names"
+            )
 
         # Check length
         if len(canonical) > 80:
@@ -369,7 +402,8 @@ class B2_SouthSlavicCentral(RegionSpec):
 
         # Check for typical Hungarian endings
         if any(
-            first_word.endswith(suffix) for suffix in self.hungarian_patterns["family_suffixes"]
+            first_word.endswith(suffix)
+            for suffix in self.hungarian_patterns["family_suffixes"]
         ):
             return True
 
@@ -418,7 +452,9 @@ class B2_SouthSlavicCentral(RegionSpec):
             return "RS"  # Serbian Latin
 
         # Albanian
-        if any(c in name for c in "ëË") or any(name.endswith(suffix) for suffix in ["aj", "llari"]):
+        if any(c in name for c in "ëË") or any(
+            name.endswith(suffix) for suffix in ["aj", "llari"]
+        ):
             return "AL"
 
         return None
@@ -429,7 +465,9 @@ class B2_SouthSlavicCentral(RegionSpec):
             return True
         if country == "PL" and name.endswith("ska"):
             return True
-        if country == "BG" and any(name.endswith(suffix) for suffix in ["ова", "ева", "ска"]):
+        if country == "BG" and any(
+            name.endswith(suffix) for suffix in ["ова", "ева", "ска"]
+        ):
             return True
         return False
 
@@ -448,7 +486,9 @@ class B2_SouthSlavicCentral(RegionSpec):
                 elif not male_family.endswith(("ý", "í")):
                     male_family += "ý"
 
-                variants.append({"str": f"{male_family}, {given}", "type": "gender-variant"})
+                variants.append(
+                    {"str": f"{male_family}, {given}", "type": "gender-variant"}
+                )
 
         return variants
 
@@ -485,11 +525,15 @@ class B2_SouthSlavicCentral(RegionSpec):
 
                 # Generate canonical format (Family, Given)
                 canonical_format = f"{family}, {given}"
-                variants.append({"str": canonical_format, "type": "hungarian-canonical"})
+                variants.append(
+                    {"str": canonical_format, "type": "hungarian-canonical"}
+                )
 
                 # Generate Western order (Given Family)
                 western_order = f"{given} {family}"
-                variants.append({"str": western_order, "type": "hungarian-western-order"})
+                variants.append(
+                    {"str": western_order, "type": "hungarian-western-order"}
+                )
 
         return variants
 

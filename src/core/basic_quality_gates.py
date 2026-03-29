@@ -138,7 +138,9 @@ class BasicQualityGates:
             # Check 2: Reasonable length (1-150 characters)
             total_checks += 1
             if len(canonical_latin) > 150:
-                errors.append(f"CanonicalLatin too long: {len(canonical_latin)} characters")
+                errors.append(
+                    f"CanonicalLatin too long: {len(canonical_latin)} characters"
+                )
             elif len(canonical_latin) < 1:
                 errors.append("CanonicalLatin is empty")
             else:
@@ -204,7 +206,9 @@ class BasicQualityGates:
         for field, value in entry.items():
             if field == "BirthYear" and value is not None:
                 if not isinstance(value, int):
-                    errors.append(f"BirthYear should be integer, got {type(value).__name__}")
+                    errors.append(
+                        f"BirthYear should be integer, got {type(value).__name__}"
+                    )
                     consistency_score -= 0.3
 
         details["consistency_score"] = max(0.0, consistency_score)
@@ -225,7 +229,10 @@ class BasicQualityGates:
         for entry in entries:
             result = await self.validate_entry(entry)
             results.append(
-                {"entry_identifier": entry.get("CanonicalLatin", "unknown"), "validation": result}
+                {
+                    "entry_identifier": entry.get("CanonicalLatin", "unknown"),
+                    "validation": result,
+                }
             )
 
         # Calculate batch statistics
@@ -250,7 +257,11 @@ class BasicQualityGates:
             },
             "gate_details": {
                 "total_gates": 3,
-                "gate_names": ["required_fields", "format_validation", "basic_consistency"],
+                "gate_names": [
+                    "required_fields",
+                    "format_validation",
+                    "basic_consistency",
+                ],
                 "implementation": "basic_step_1_2",
             },
         }

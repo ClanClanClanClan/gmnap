@@ -49,9 +49,13 @@ def fix_korean_boost_placement():
 
         # Insert the Korean boost after the pattern detection
         insertion_point = korean_pattern_match.end()
-        content = content[:insertion_point] + korean_boost_correct + content[insertion_point:]
+        content = (
+            content[:insertion_point] + korean_boost_correct + content[insertion_point:]
+        )
 
-        print("   ✅ Moved Korean boost to correct location (after scores initialization)")
+        print(
+            "   ✅ Moved Korean boost to correct location (after scores initialization)"
+        )
 
     # Write the fixed pipeline
     with open(pipeline_path, "w") as f:

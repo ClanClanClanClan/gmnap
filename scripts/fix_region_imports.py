@@ -22,7 +22,9 @@ def fix_region_file(file_path: Path):
     )
 
     # Fix the class inheritance
-    content = re.sub(r"class (\w+)\(BaseRegionHandler\):", r"class \1(RegionSpec):", content)
+    content = re.sub(
+        r"class (\w+)\(BaseRegionHandler\):", r"class \1(RegionSpec):", content
+    )
 
     # Fix territories parameter (not used in RegionSpec)
     content = re.sub(r",\s*territories=\[.*?\]", "", content, flags=re.DOTALL)

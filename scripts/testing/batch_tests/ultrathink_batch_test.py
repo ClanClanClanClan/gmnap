@@ -77,7 +77,9 @@ class UltrathinkBatchTester:
             duration = end_time - start_time
             entries_per_second = batch_size / duration if duration > 0 else 0
             time_for_1m_minutes = (
-                (1_000_000 / entries_per_second / 60) if entries_per_second > 0 else float("inf")
+                (1_000_000 / entries_per_second / 60)
+                if entries_per_second > 0
+                else float("inf")
             )
 
             # Extract actual data from pipeline result
@@ -98,7 +100,9 @@ class UltrathinkBatchTester:
                         elif status in ["failed", "error"]:
                             failed_count += 1
 
-                success_rate = (successful_count / batch_size * 100) if batch_size > 0 else 0
+                success_rate = (
+                    (successful_count / batch_size * 100) if batch_size > 0 else 0
+                )
 
                 result = {
                     "batch_size": batch_size,
@@ -217,7 +221,9 @@ class UltrathinkBatchTester:
         end_time = datetime.now()
 
         print(f"\n✅ Test completed at: {end_time}")
-        print(f"Total duration: {(end_time - self.start_time).total_seconds():.0f} seconds")
+        print(
+            f"Total duration: {(end_time - self.start_time).total_seconds():.0f} seconds"
+        )
 
         # Generate comprehensive report
         self.generate_report()
@@ -238,11 +244,15 @@ class UltrathinkBatchTester:
         if failed_tests:
             print(f"\n❌ Failed Tests:")
             for test in failed_tests:
-                print(f"   Batch size {test['batch_size']:,}: {test.get('error', 'Unknown error')}")
+                print(
+                    f"   Batch size {test['batch_size']:,}: {test.get('error', 'Unknown error')}"
+                )
 
         if successful_tests:
             # Find best performance
-            best_test = max(successful_tests, key=lambda x: x.get("entries_per_second", 0))
+            best_test = max(
+                successful_tests, key=lambda x: x.get("entries_per_second", 0)
+            )
 
             print(f"\n🏆 Best Performance:")
             print(f"   Batch Size: {best_test['batch_size']:,} entries")
@@ -251,10 +261,18 @@ class UltrathinkBatchTester:
             print(f"   Success Rate: {best_test['success_rate_percent']:.1f}%")
 
             # Performance categories
-            excellent = [t for t in successful_tests if t.get("entries_per_second", 0) >= 500]
-            good = [t for t in successful_tests if 200 <= t.get("entries_per_second", 0) < 500]
+            excellent = [
+                t for t in successful_tests if t.get("entries_per_second", 0) >= 500
+            ]
+            good = [
+                t
+                for t in successful_tests
+                if 200 <= t.get("entries_per_second", 0) < 500
+            ]
             acceptable = [
-                t for t in successful_tests if 100 <= t.get("entries_per_second", 0) < 200
+                t
+                for t in successful_tests
+                if 100 <= t.get("entries_per_second", 0) < 200
             ]
             poor = [t for t in successful_tests if t.get("entries_per_second", 0) < 100]
 
@@ -266,7 +284,9 @@ class UltrathinkBatchTester:
 
             # Detailed results table
             print(f"\n📋 Detailed Results (Successful Tests Only):")
-            print("Batch Size | Speed (e/s) | 1M Time (min) | Success Rate | Quality Gates")
+            print(
+                "Batch Size | Speed (e/s) | 1M Time (min) | Success Rate | Quality Gates"
+            )
             print("-" * 75)
 
             for test in successful_tests:
@@ -292,7 +312,9 @@ class UltrathinkBatchTester:
                 "test_id": self.test_id,
                 "start_time": self.start_time.isoformat(),
                 "end_time": datetime.now().isoformat(),
-                "total_duration_seconds": (datetime.now() - self.start_time).total_seconds(),
+                "total_duration_seconds": (
+                    datetime.now() - self.start_time
+                ).total_seconds(),
                 "framework": "UltrathinkBatchTester",
                 "version": "1.0",
                 "note": "All results are actual measured values, no fabrication",
@@ -302,7 +324,9 @@ class UltrathinkBatchTester:
                 "successful_tests": len(
                     [r for r in self.results if r.get("status") == "completed"]
                 ),
-                "failed_tests": len([r for r in self.results if r.get("status") != "completed"]),
+                "failed_tests": len(
+                    [r for r in self.results if r.get("status") != "completed"]
+                ),
             },
             "detailed_results": self.results,
         }

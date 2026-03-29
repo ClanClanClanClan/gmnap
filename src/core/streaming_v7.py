@@ -162,8 +162,13 @@ class V7StreamingPipeline:
                         ) / time_diff
 
                         # Update peak throughput
-                        if self.metrics.current_throughput > self.metrics.peak_throughput:
-                            self.metrics.peak_throughput = self.metrics.current_throughput
+                        if (
+                            self.metrics.current_throughput
+                            > self.metrics.peak_throughput
+                        ):
+                            self.metrics.peak_throughput = (
+                                self.metrics.current_throughput
+                            )
 
                 # Store sample
                 self._throughput_samples.append((now, current_processed))
@@ -348,7 +353,9 @@ class V7StreamingPipeline:
 
 
 # Helper generators for data sources
-async def test_data_generator(count: int = 1000) -> AsyncGenerator[Dict[str, Any], None]:
+async def test_data_generator(
+    count: int = 1000,
+) -> AsyncGenerator[Dict[str, Any], None]:
     """Generate test mathematician data for streaming."""
     import uuid
 
@@ -361,7 +368,13 @@ async def test_data_generator(count: int = 1000) -> AsyncGenerator[Dict[str, Any
             "BirthYear": 1900 + (i % 100),
             "DeathYear": 1950 + (i % 80) if i % 3 == 0 else None,
             "Field": "Mathematics",
-            "Subfield": ["Algebra", "Analysis", "Geometry", "Topology", "Number Theory"][i % 5],
+            "Subfield": [
+                "Algebra",
+                "Analysis",
+                "Geometry",
+                "Topology",
+                "Number Theory",
+            ][i % 5],
             "Institution": f"University {i % 20}",
             "Country": ["US", "GB", "CA", "AU", "DE", "FR", "JP", "CN"][i % 8],
             "Source": "V7_Streaming_Test",
@@ -410,7 +423,8 @@ def create_streaming_config(
 
 
 async def run_streaming_pipeline(
-    data_source: AsyncGenerator[Dict[str, Any], None], config: Optional[StreamingConfig] = None
+    data_source: AsyncGenerator[Dict[str, Any], None],
+    config: Optional[StreamingConfig] = None,
 ) -> StreamingMetrics:
     """
     Run the complete V7 streaming pipeline.
@@ -496,7 +510,10 @@ async def benchmark_streaming_performance(
                 )
                 else (
                     "B+"
-                    if (wall_clock_throughput * 3600 >= 5000 and metrics.success_rate >= 95.0)
+                    if (
+                        wall_clock_throughput * 3600 >= 5000
+                        and metrics.success_rate >= 95.0
+                    )
                     else "C"
                 )
             ),

@@ -152,7 +152,8 @@ class E4_Korea(RegionSpec):
         if not text:
             return False
         return any(
-            any(start <= ord(char) <= end for start, end in self.hangul_ranges) for char in text
+            any(start <= ord(char) <= end for start, end in self.hangul_ranges)
+            for char in text
         )
 
     def _is_romanized_korean(self, text: str) -> bool:
@@ -251,7 +252,9 @@ class E4_Korea(RegionSpec):
                     variants = [variants]
                 variants.append(standardized)
                 entry["LatinVariants"] = list(set(variants))
-                self.logger.debug(f"Added standardized variant: {canonical} → {standardized}")
+                self.logger.debug(
+                    f"Added standardized variant: {canonical} → {standardized}"
+                )
 
         self.logger.debug(f"Basic Korean augmentation completed for {canonical}")
 
@@ -261,7 +264,13 @@ class E4_Korea(RegionSpec):
             return text
 
         # Common romanization standardizations
-        standardizations = {"Jung": "Jeong", "Yun": "Yoon", "Rim": "Lim", "Yi": "I", "Yon": "Yeon"}
+        standardizations = {
+            "Jung": "Jeong",
+            "Yun": "Yoon",
+            "Rim": "Lim",
+            "Yi": "I",
+            "Yon": "Yeon",
+        }
 
         result = text
         for old, new in standardizations.items():
@@ -290,11 +299,15 @@ class E4_Korea(RegionSpec):
             critical_errors = [r for r in validation_results if r.level == "ERROR"]
             if critical_errors:
                 error_messages = [r.message for r in critical_errors]
-                raise RegionRuleError(f"Korean validation failed: {'; '.join(error_messages)}")
+                raise RegionRuleError(
+                    f"Korean validation failed: {'; '.join(error_messages)}"
+                )
 
         except Exception as e:
             # Fallback validation if regional validator fails
-            self.logger.warning(f"Regional validation failed, using basic validation: {e}")
+            self.logger.warning(
+                f"Regional validation failed, using basic validation: {e}"
+            )
 
             # Basic Korean validation
             if not canonical:

@@ -153,16 +153,20 @@ def validate_data_counts():
     p2 = GraphDatabase.driver("bolt://localhost:7688", auth=None)
 
     with v7.session() as s:
-        v7_nodes = s.run("MATCH (n:Mathematician) RETURN count(n) as count").single()["count"]
-        v7_rels = s.run("MATCH ()-[r:DOCTORAL_ADVISOR]->() RETURN count(r) as count").single()[
+        v7_nodes = s.run("MATCH (n:Mathematician) RETURN count(n) as count").single()[
             "count"
         ]
+        v7_rels = s.run(
+            "MATCH ()-[r:DOCTORAL_ADVISOR]->() RETURN count(r) as count"
+        ).single()["count"]
 
     with p2.session() as s:
-        p2_nodes = s.run("MATCH (n:Mathematician) RETURN count(n) as count").single()["count"]
-        p2_rels = s.run("MATCH ()-[r:DOCTORAL_ADVISOR]->() RETURN count(r) as count").single()[
+        p2_nodes = s.run("MATCH (n:Mathematician) RETURN count(n) as count").single()[
             "count"
         ]
+        p2_rels = s.run(
+            "MATCH ()-[r:DOCTORAL_ADVISOR]->() RETURN count(r) as count"
+        ).single()["count"]
 
     v7.close()
     p2.close()
@@ -185,7 +189,9 @@ def validate_data_counts():
     if p2_rels == v7_rels:
         print(f"✅ PASSED: Relationship counts match ({v7_rels} == {p2_rels})")
     else:
-        print(f"ℹ️ INFO: Relationship counts differ (V7: {v7_rels}, Phase 2: {p2_rels})")
+        print(
+            f"ℹ️ INFO: Relationship counts differ (V7: {v7_rels}, Phase 2: {p2_rels})"
+        )
 
     print()
     return True

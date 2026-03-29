@@ -71,7 +71,9 @@ def single_thread_test(names, iterations=3):
 
 def multi_thread_test(names, num_threads=4, iterations=3):
     """Test multi-threaded performance"""
-    print(f"Testing {len(names)} names x {iterations} iterations ({num_threads} threads)")
+    print(
+        f"Testing {len(names)} names x {iterations} iterations ({num_threads} threads)"
+    )
 
     def worker(name_batch):
         results = []
@@ -187,7 +189,9 @@ def run_performance_tests(yaml_path):
     # Single-threaded results
     st = results["single_thread"]
     print(f"\nSingle-threaded:")
-    print(f"  P95 Latency: {st['p95_latency_ms']:.1f}ms (target: <{targets['p95_latency_ms']}ms)")
+    print(
+        f"  P95 Latency: {st['p95_latency_ms']:.1f}ms (target: <{targets['p95_latency_ms']}ms)"
+    )
     print(f"  Avg Latency: {st['avg_latency_ms']:.1f}ms")
     print(
         f"  Throughput: {st['throughput_per_sec']:.0f}/sec (target: >{targets['throughput_per_sec']}/sec)"
@@ -196,7 +200,9 @@ def run_performance_tests(yaml_path):
     # Multi-threaded results
     mt = results["multi_thread"]
     print(f"\nMulti-threaded ({mt['num_threads']} threads):")
-    print(f"  P95 Latency: {mt['p95_latency_ms']:.1f}ms (target: <{targets['p95_latency_ms']}ms)")
+    print(
+        f"  P95 Latency: {mt['p95_latency_ms']:.1f}ms (target: <{targets['p95_latency_ms']}ms)"
+    )
     print(
         f"  Throughput: {mt['throughput_per_sec']:.0f}/sec (target: >{targets['throughput_per_sec']}/sec)"
     )
@@ -204,7 +210,9 @@ def run_performance_tests(yaml_path):
     # Memory results
     mem = results["memory"]
     print(f"\nMemory Usage:")
-    print(f"  RSS Memory: {mem['memory_rss_mb']:.1f}MB (target: <{targets['memory_mb']}MB)")
+    print(
+        f"  RSS Memory: {mem['memory_rss_mb']:.1f}MB (target: <{targets['memory_mb']}MB)"
+    )
 
     # Cache results
     cache = results["cache"]
@@ -232,7 +240,10 @@ def run_performance_tests(yaml_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Korean V5 performance tests")
     parser.add_argument(
-        "-i", "--input", default="data/korean.yaml", help="Input YAML file with test data"
+        "-i",
+        "--input",
+        default="data/korean.yaml",
+        help="Input YAML file with test data",
     )
     args = parser.parse_args()
 

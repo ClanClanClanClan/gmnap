@@ -171,7 +171,11 @@ def run_all_tests_brutally():
                     skipped_files.append(str(test_file))
 
                 status = ", ".join(status_parts) if status_parts else "No tests found"
-                icon = "✅" if failed == 0 and errors == 0 else "❌" if failed > 0 else "⚠️"
+                icon = (
+                    "✅"
+                    if failed == 0 and errors == 0
+                    else "❌" if failed > 0 else "⚠️"
+                )
                 print(f"  {icon} {test_file.name}: {status}")
 
             except subprocess.TimeoutExpired:
@@ -229,7 +233,9 @@ def run_all_tests_brutally():
         if total > 0:
             cat_pass_rate = results["passed"] / total * 100
             print(f"  {category}:")
-            print(f"    Files: {results['files']}, Tests: {total}, Pass Rate: {cat_pass_rate:.1f}%")
+            print(
+                f"    Files: {results['files']}, Tests: {total}, Pass Rate: {cat_pass_rate:.1f}%"
+            )
             print(
                 f"    Breakdown: {results['passed']} passed, {results['failed']} failed, {results['errors']} errors, {results['skipped']} skipped"
             )

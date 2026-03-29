@@ -27,7 +27,12 @@ class UltraRegionTester:
 
     def __init__(self):
         self.manager = RegionManager()
-        self.results = {"summary": {}, "details": {}, "errors": [], "edge_case_results": {}}
+        self.results = {
+            "summary": {},
+            "details": {},
+            "errors": [],
+            "edge_case_results": {},
+        }
 
     def test_all_regions(self) -> Dict[str, Any]:
         """Test all 37 regions comprehensively."""
@@ -58,7 +63,9 @@ class UltraRegionTester:
         bandaid_results = self._test_for_bandaids(loaded_regions)
 
         # Compile results
-        self._compile_results(loaded_regions, processing_results, edge_results, bandaid_results)
+        self._compile_results(
+            loaded_regions, processing_results, edge_results, bandaid_results
+        )
 
         return self.results
 
@@ -97,10 +104,16 @@ class UltraRegionTester:
         # Test entries for different scripts
         test_entries = {
             "Latin": {"CanonicalLatin": "John Smith", "CanonicalNative": ""},
-            "Cyrillic": {"CanonicalLatin": "Ivan Petrov", "CanonicalNative": "Иван Петров"},
+            "Cyrillic": {
+                "CanonicalLatin": "Ivan Petrov",
+                "CanonicalNative": "Иван Петров",
+            },
             "Arabic": {"CanonicalLatin": "Ahmed Hassan", "CanonicalNative": "أحمد حسن"},
             "CJK": {"CanonicalLatin": "Wang Wei", "CanonicalNative": "王伟"},
-            "Devanagari": {"CanonicalLatin": "Raj Kumar", "CanonicalNative": "राज कुमार"},
+            "Devanagari": {
+                "CanonicalLatin": "Raj Kumar",
+                "CanonicalNative": "राज कुमार",
+            },
             "Greek": {
                 "CanonicalLatin": "Nikos Papadopoulos",
                 "CanonicalNative": "Νίκος Παπαδόπουλος",
@@ -159,7 +172,10 @@ class UltraRegionTester:
             ("both_empty", {"CanonicalLatin": "", "CanonicalNative": ""}),
             ("single_char", {"CanonicalLatin": "X", "CanonicalNative": ""}),
             ("whitespace_only", {"CanonicalLatin": "   ", "CanonicalNative": ""}),
-            ("special_chars", {"CanonicalLatin": "O'Brien-Smith", "CanonicalNative": ""}),
+            (
+                "special_chars",
+                {"CanonicalLatin": "O'Brien-Smith", "CanonicalNative": ""},
+            ),
             ("unicode_mix", {"CanonicalLatin": "José María", "CanonicalNative": ""}),
             ("very_long", {"CanonicalLatin": "A" * 200, "CanonicalNative": ""}),
         ]
@@ -180,7 +196,9 @@ class UltraRegionTester:
                     # Check for band-aids
                     if "Unknown Person" in str(entry.get("CanonicalLatin", "")):
                         region_results[case_name] = False
-                        print(f"WARN {region_code}: {case_name} - Contains 'Unknown Person'")
+                        print(
+                            f"WARN {region_code}: {case_name} - Contains 'Unknown Person'"
+                        )
                     else:
                         region_results[case_name] = True
 
@@ -233,7 +251,9 @@ class UltraRegionTester:
 
         return results
 
-    def _compile_results(self, loaded: Dict, processing: Dict, edge_cases: Dict, bandaids: Dict):
+    def _compile_results(
+        self, loaded: Dict, processing: Dict, edge_cases: Dict, bandaids: Dict
+    ):
         """Compile all test results."""
         total_regions = len(self.manager.IMPLEMENTED_REGIONS)
 
@@ -244,7 +264,9 @@ class UltraRegionTester:
             "processing_success": sum(processing.values()),
             "no_bandaids": sum(bandaids.values()),
             "all_edge_cases_pass": sum(
-                1 for region_results in edge_cases.values() if all(region_results.values())
+                1
+                for region_results in edge_cases.values()
+                if all(region_results.values())
             ),
             "perfect_regions": sum(
                 1
@@ -315,7 +337,9 @@ def main():
     if summary["perfect_regions"] == summary["total_regions"]:
         print("🎉 ALL 37 REGIONS ARE PERFECT! 100% TRUE COVERAGE ACHIEVED!")
     else:
-        print(f"🔧 {summary['total_regions'] - summary['perfect_regions']} regions still need work")
+        print(
+            f"🔧 {summary['total_regions'] - summary['perfect_regions']} regions still need work"
+        )
 
     return results
 

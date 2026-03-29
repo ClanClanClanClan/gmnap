@@ -111,7 +111,9 @@ class V7PipelineIntegration:
         print("\n[Stage 6] Graph Consistency")
         batch, graph_metrics = self.stage6_graph_consistency(batch, config["mode"])
         all_metrics["graph"] = graph_metrics
-        print(f"  ✓ Graph coherence score: {graph_metrics.get('coherence_score', 'N/A')}")
+        print(
+            f"  ✓ Graph coherence score: {graph_metrics.get('coherence_score', 'N/A')}"
+        )
 
         # Stage 7: Tag Short Forms
         print("\n[Stage 7] Tag Short Forms")
@@ -151,7 +153,11 @@ class V7PipelineIntegration:
         return {
             "mode": "Quick",
             "tier": 0,
-            "runtime_profile": {"apis": "tier-0", "cpu_workers": 4, "runtime_per_1M": "35 min"},
+            "runtime_profile": {
+                "apis": "tier-0",
+                "cpu_workers": 4,
+                "runtime_per_1M": "35 min",
+            },
         }
 
     def stage1_ingest(self, batch: List[Dict]) -> List[Dict]:
@@ -199,7 +205,9 @@ class V7PipelineIntegration:
             ids_seen.add(gid)
         return batch
 
-    def stage6_graph_consistency(self, batch: List[Dict], mode: str) -> Tuple[List[Dict], Dict]:
+    def stage6_graph_consistency(
+        self, batch: List[Dict], mode: str
+    ) -> Tuple[List[Dict], Dict]:
         """Stage 6: Graph consistency check"""
         from src.pipeline.stage6_graph_consistency import enforce_graph_coherence_gate
 
@@ -212,10 +220,15 @@ class V7PipelineIntegration:
             name = entry.get("CanonicalLatin", "")
             if "," in name:
                 family, given = name.split(",", 1)
-                entry["ShortForms"] = [f"{family}, {given[0]}." if given else family, family]
+                entry["ShortForms"] = [
+                    f"{family}, {given[0]}." if given else family,
+                    family,
+                ]
         return batch
 
-    def stage8_global_validate(self, batch: List[Dict], mode: str) -> Tuple[List[Dict], Dict]:
+    def stage8_global_validate(
+        self, batch: List[Dict], mode: str
+    ) -> Tuple[List[Dict], Dict]:
         """Stage 8: Global validation"""
         from src.pipeline.stage8_global_validate import global_validate
 
@@ -256,7 +269,9 @@ Idempotency: {metrics.get('idempotency', {}).get('idempotency_diff_bytes', 'N/A'
         for entry in batch:
             print(f"\n{entry.get('CanonicalLatin', 'Unknown')}:")
             print(f"  GlobalID: {entry.get('GlobalID')}")
-            print(f"  Region: {entry.get('DetectedRegion')} ({entry.get('DetectedScript')})")
+            print(
+                f"  Region: {entry.get('DetectedRegion')} ({entry.get('DetectedScript')})"
+            )
 
             # Show Crossref enrichment
             if "AuthoritySources" in entry:
@@ -306,7 +321,10 @@ async def main():
         # Check success criteria
         success_criteria = [
             ("Entries processed", len(processed_batch) == len(TEST_MATHEMATICIANS)),
-            ("Authority enrichment", metrics.get("authority", {}).get("entries_enriched", 0) > 0),
+            (
+                "Authority enrichment",
+                metrics.get("authority", {}).get("entries_enriched", 0) > 0,
+            ),
             (
                 "Idempotency achieved",
                 metrics.get("idempotency", {}).get("idempotency_diff_bytes") == 0,

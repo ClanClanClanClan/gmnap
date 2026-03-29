@@ -122,14 +122,20 @@ def print_results(results, baseline_acc=80.72):
     print("RESULTS - PHASE 3 FIXES VALIDATION (WITH REGIONMANAGER)")
     print(f"{'='*80}\n")
 
-    print(f"Overall Accuracy: {results['correct']}/{results['total']} = {results['accuracy']:.2f}%")
+    print(
+        f"Overall Accuracy: {results['correct']}/{results['total']} = {results['accuracy']:.2f}%"
+    )
 
     if results["accuracy"] > baseline_acc:
         improvement = results["accuracy"] - baseline_acc
-        print(f"🎯 IMPROVEMENT: +{improvement:.2f}pp over Phase 2 baseline ({baseline_acc}%)")
+        print(
+            f"🎯 IMPROVEMENT: +{improvement:.2f}pp over Phase 2 baseline ({baseline_acc}%)"
+        )
     else:
         regression = baseline_acc - results["accuracy"]
-        print(f"⚠️  REGRESSION: -{regression:.2f}pp vs Phase 2 baseline ({baseline_acc}%)")
+        print(
+            f"⚠️  REGRESSION: -{regression:.2f}pp vs Phase 2 baseline ({baseline_acc}%)"
+        )
 
     print()
 
@@ -158,7 +164,9 @@ def print_results(results, baseline_acc=80.72):
         elif source == "spanish_latam_affiliation":
             marker = " 🔧 FIX 2: G1 tie-break"
 
-        print(f"  {status} {source}: {stats['correct']}/{stats['total']} = {acc:.1f}%{marker}")
+        print(
+            f"  {status} {source}: {stats['correct']}/{stats['total']} = {acc:.1f}%{marker}"
+        )
 
     # Failures
     if results["failures"]:
@@ -168,7 +176,9 @@ def print_results(results, baseline_acc=80.72):
             print(f"\n  {i}. {failure['name']}")
             if failure.get("native"):
                 print(f"     Native: {failure['native']}")
-            print(f"     Expected: {failure['expected_origin']}, Got: {failure['detected_origin']}")
+            print(
+                f"     Expected: {failure['expected_origin']}, Got: {failure['detected_origin']}"
+            )
             print(f"     Confidence: {failure['pred_confidence']:.3f}")
             print(f"     Method: {failure['detection_method']}")
             print(f"     Source: {failure['source']}")

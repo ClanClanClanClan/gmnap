@@ -61,7 +61,11 @@ def detect_region_no_security_no_fasttext(self, entry, internal=False):
             region_code="Z0",
             confidence=0.0,
             detection_method="invalid-input",
-            metadata={"error": "Invalid input", "no_security": True, "no_fasttext": True},
+            metadata={
+                "error": "Invalid input",
+                "no_security": True,
+                "no_fasttext": True,
+            },
         )
 
     name = entry.get("name")
@@ -72,7 +76,11 @@ def detect_region_no_security_no_fasttext(self, entry, internal=False):
             region_code="Z0",
             confidence=0.0,
             detection_method="missing-name",
-            metadata={"error": "Missing name", "no_security": True, "no_fasttext": True},
+            metadata={
+                "error": "Missing name",
+                "no_security": True,
+                "no_fasttext": True,
+            },
         )
 
     # Convert to string if needed
@@ -214,7 +222,9 @@ if memory_points:
     # Final cache analysis
     final_cache = manager.get_cache_stats()
     print(f"\n📈 FINAL CACHE STATE:")
-    print(f"   Cache size: {final_cache['cache_size']:,}/{final_cache['cache_max_size']:,}")
+    print(
+        f"   Cache size: {final_cache['cache_size']:,}/{final_cache['cache_max_size']:,}"
+    )
     print(f"   Cache hits: {final_cache['cache_hits']:,}")
     print(f"   Cache misses: {final_cache['cache_misses']:,}")
     print(f"   Hit rate: {final_cache['hit_rate']:.1%}")

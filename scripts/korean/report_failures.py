@@ -19,7 +19,9 @@ for rec in data.values():
     # Find Korean Hangul in variants (starts with Korean character)
     k_exp = None
     for variant in rec.get("AllCommonVariants", []):
-        if variant and any("\uac00" <= c <= "\ud7af" for c in variant):  # Korean Hangul range
+        if variant and any(
+            "\uac00" <= c <= "\ud7af" for c in variant
+        ):  # Korean Hangul range
             k_exp = variant.replace(" ", "")  # Remove spaces
             break
 
@@ -28,7 +30,9 @@ for rec in data.values():
 
     k = eng2kor(e)
     if k != k_exp:
-        miss_rr.update([re.sub(r"[^A-Za-z]", "", e.split()[0]).lower()])  # bucket by surname token
+        miss_rr.update(
+            [re.sub(r"[^A-Za-z]", "", e.split()[0]).lower()]
+        )  # bucket by surname token
         continue
     e2 = kor2eng(k, e) or ""
     if _dice(norm(e), norm(e2)) < 0.97:

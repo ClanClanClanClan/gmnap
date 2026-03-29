@@ -47,7 +47,9 @@ def analyze_failures():
         else:  # low_dice_score
             print("  These have partial matches that could be improved:")
             for c in cases[:10]:  # Show first 10
-                print(f"    {c['name']}: {c['expected']} → {c['actual']} (dice: {c['dice']:.3f})")
+                print(
+                    f"    {c['name']}: {c['expected']} → {c['actual']} (dice: {c['dice']:.3f})"
+                )
 
     # Analyze specific patterns
     print("\n=== PATTERN ANALYSIS ===")
@@ -96,7 +98,9 @@ def analyze_failures():
     print("   - 'yeon' → 연 (various contexts)")
     print("   - 'cheong' → 청 (not 정)")
 
-    print(f"\n3. With {len(all_failures)} failures, fixing 10+ would achieve 94%+ accuracy")
+    print(
+        f"\n3. With {len(all_failures)} failures, fixing 10+ would achieve 94%+ accuracy"
+    )
 
 
 if __name__ == "__main__":

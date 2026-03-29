@@ -106,10 +106,13 @@ class FrHarvester:
                 # Progress indicator
                 if count % 100 == 0:
                     elapsed = (
-                        datetime.now() - datetime.fromisoformat(self.stats["start_time"])
+                        datetime.now()
+                        - datetime.fromisoformat(self.stats["start_time"])
                     ).total_seconds()
                     rate = count / elapsed if elapsed > 0 else 0
-                    eta_seconds = (self.target_records - count) / rate if rate > 0 else 0
+                    eta_seconds = (
+                        (self.target_records - count) / rate if rate > 0 else 0
+                    )
                     eta_minutes = eta_seconds / 60
                     print(
                         f"  [{count:,}/{self.target_records:,}] "
@@ -220,7 +223,9 @@ class FrHarvester:
 
         # Also save compact version (without raw XML)
         compact_file = self.output_dir / "fr_harvest_compact.json"
-        compact_records = [{k: v for k, v in r.items() if k != "_raw_dc"} for r in records]
+        compact_records = [
+            {k: v for k, v in r.items() if k != "_raw_dc"} for r in records
+        ]
         with open(compact_file, "w", encoding="utf-8") as f:
             json.dump(
                 {"metadata": self.stats, "records": compact_records},
@@ -286,7 +291,10 @@ async def main():
 
     parser = argparse.ArgumentParser(description="Harvest French mathematics theses")
     parser.add_argument(
-        "--target", type=int, default=10000, help="Number of records to harvest (default: 10000)"
+        "--target",
+        type=int,
+        default=10000,
+        help="Number of records to harvest (default: 10000)",
     )
     parser.add_argument(
         "--output",
@@ -295,7 +303,10 @@ async def main():
         help="Output directory (default: data/genealogy/fr_harvest)",
     )
     parser.add_argument(
-        "--rate-limit", type=float, default=1.0, help="Requests per second (default: 1.0)"
+        "--rate-limit",
+        type=float,
+        default=1.0,
+        help="Requests per second (default: 1.0)",
     )
     parser.add_argument(
         "--resume", type=int, default=0, help="Resume from checkpoint (record number)"

@@ -19,7 +19,11 @@ class ProductionValidator:
     """Validate production readiness of GMNAP v7."""
 
     def __init__(self):
-        self.results = {"timestamp": datetime.now().isoformat(), "tests": {}, "summary": {}}
+        self.results = {
+            "timestamp": datetime.now().isoformat(),
+            "tests": {},
+            "summary": {},
+        }
 
     async def validate_all(self) -> Dict[str, Any]:
         """Run all production validation tests."""
@@ -72,7 +76,9 @@ class ProductionValidator:
                 "success_rate": result["metrics"]["success_rate"],
             }
 
-            print(f"  ✅ Pipeline: {result['metrics']['stages_executed']} stages executed")
+            print(
+                f"  ✅ Pipeline: {result['metrics']['stages_executed']} stages executed"
+            )
             print(f"  ✅ Processed: {result['metrics']['processed_entries']} entries")
 
         except Exception as e:
@@ -248,7 +254,10 @@ class ProductionValidator:
                 {"CanonicalNative": "", "GlobalID": "EMPTY-001"},  # Empty name
                 {"CanonicalNative": "Missing ID"},  # Missing GlobalID
                 {"GlobalID": "NO-NAME-001"},  # Missing name
-                {"CanonicalNative": "A" * 1000, "GlobalID": "LONG-001"},  # Very long name
+                {
+                    "CanonicalNative": "A" * 1000,
+                    "GlobalID": "LONG-001",
+                },  # Very long name
             ]
 
             result = await pipeline.process_batch(entries)
@@ -280,7 +289,9 @@ class ProductionValidator:
 
         # Count test results
         passed = sum(1 for t in self.results["tests"].values() if t["status"] == "PASS")
-        partial = sum(1 for t in self.results["tests"].values() if t["status"] == "PARTIAL")
+        partial = sum(
+            1 for t in self.results["tests"].values() if t["status"] == "PARTIAL"
+        )
         failed = sum(1 for t in self.results["tests"].values() if t["status"] == "FAIL")
         total = len(self.results["tests"])
 
@@ -295,7 +306,9 @@ class ProductionValidator:
 
         # Print summary
         for test_name, result in self.results["tests"].items():
-            status_icon = {"PASS": "✅", "PARTIAL": "⚠️", "FAIL": "❌"}.get(result["status"], "❓")
+            status_icon = {"PASS": "✅", "PARTIAL": "⚠️", "FAIL": "❌"}.get(
+                result["status"], "❓"
+            )
 
             print(f"{status_icon} {test_name}: {result['status']}")
 

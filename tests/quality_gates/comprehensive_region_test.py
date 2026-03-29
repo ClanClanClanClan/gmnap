@@ -59,7 +59,9 @@ def test_instantiation(imported_classes):
 
     instances = {}
     region_classes = {
-        k: v for k, v in imported_classes.items() if k not in ["RegionSpec", "RegionRuleError"]
+        k: v
+        for k, v in imported_classes.items()
+        if k not in ["RegionSpec", "RegionRuleError"]
     }
 
     for class_name, cls in region_classes.items():
@@ -208,7 +210,9 @@ def test_basic_functionality(instances):
         if case_result.get("success")
     )
 
-    print(f"\n✓ Basic functionality: {successful_cases}/{total_cases} test cases passed")
+    print(
+        f"\n✓ Basic functionality: {successful_cases}/{total_cases} test cases passed"
+    )
 
     if successful_cases != total_cases:
         print("⚠️  Some test cases failed - see details above")
@@ -287,7 +291,9 @@ def test_performance(instances):
         print(f"  ✓ Average: {avg_time:.2f}ms per entry")
 
         if avg_time > 10:  # More than 10ms per entry is concerning
-            print(f"  ⚠️  Performance concern: {avg_time:.2f}ms per entry is quite slow")
+            print(
+                f"  ⚠️  Performance concern: {avg_time:.2f}ms per entry is quite slow"
+            )
 
     print("✓ Performance testing completed\n")
     return True

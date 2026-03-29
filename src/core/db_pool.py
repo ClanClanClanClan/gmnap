@@ -90,7 +90,10 @@ class _DriverStub:
 
 class DBPool:
     def __init__(
-        self, uri: str | None = None, auth: tuple[str, str] | None = None, pool_size: int = 10
+        self,
+        uri: str | None = None,
+        auth: tuple[str, str] | None = None,
+        pool_size: int = 10,
     ):
         self.uri = uri or os.getenv("MG_URI", "bolt://localhost:7687")
         self.auth = auth or (os.getenv("MG_USER") or "", os.getenv("MG_PASSWORD") or "")
@@ -148,7 +151,12 @@ class DBPool:
             ok = True
         except Exception:
             ok = False
-        return {"ok": ok, "uri": self.uri, "pool_size": self.pool_size, "is_stub": self._is_stub}
+        return {
+            "ok": ok,
+            "uri": self.uri,
+            "pool_size": self.pool_size,
+            "is_stub": self._is_stub,
+        }
 
     @property
     def is_stub(self) -> bool:

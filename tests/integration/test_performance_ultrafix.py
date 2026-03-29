@@ -107,7 +107,9 @@ print(f"   Current: {names_per_minute:.0f} names/minute")
 print(f"   Performance ratio: {current_performance_ratio:.2f}x target")
 
 if current_performance_ratio >= 1.0:
-    print(f"   PASS PERFORMANCE TARGET MET! ({current_performance_ratio:.1f}x faster than needed)")
+    print(
+        f"   PASS PERFORMANCE TARGET MET! ({current_performance_ratio:.1f}x faster than needed)"
+    )
 elif current_performance_ratio >= 0.8:
     print(
         f"   🟡 CLOSE TO TARGET ({current_performance_ratio:.1f}x, need {1/current_performance_ratio:.1f}x improvement)"

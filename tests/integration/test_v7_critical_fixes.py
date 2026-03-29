@@ -42,7 +42,9 @@ def test_korean_converter_integration():
             print(f"  FAIL {name} -> {result.region_code} (expected E4)")
 
     success_rate = correct_detections / len(korean_names)
-    print(f"\n📊 Korean Detection: {correct_detections}/{len(korean_names)} ({success_rate:.0%})")
+    print(
+        f"\n📊 Korean Detection: {correct_detections}/{len(korean_names)} ({success_rate:.0%})"
+    )
 
     return success_rate
 
@@ -93,11 +95,15 @@ def test_enhanced_pattern_detection():
                 conf = result.confidence
                 print(f"  PASS {name} -> {expected_region} ({method}, {conf:.2f})")
             else:
-                print(f"  FAIL {name} -> {result.region_code} (expected {expected_region})")
+                print(
+                    f"  FAIL {name} -> {result.region_code} (expected {expected_region})"
+                )
 
         success_rate = correct / len(names)
         region_results[expected_region] = success_rate
-        print(f"  📊 {expected_region} Success: {correct}/{len(names)} ({success_rate:.0%})")
+        print(
+            f"  📊 {expected_region} Success: {correct}/{len(names)} ({success_rate:.0%})"
+        )
 
     return region_results
 

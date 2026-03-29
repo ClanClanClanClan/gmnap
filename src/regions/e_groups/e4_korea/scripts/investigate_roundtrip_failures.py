@@ -38,10 +38,16 @@ for full_name, expected_romanization in test_cases:
                 # Compare
                 if roundtrip_result:
                     roundtrip_clean = (
-                        roundtrip_result.lower().replace(",", "").replace(".", "").strip()
+                        roundtrip_result.lower()
+                        .replace(",", "")
+                        .replace(".", "")
+                        .strip()
                     )
                     expected_clean = (
-                        expected_romanization.lower().replace(",", "").replace(".", "").strip()
+                        expected_romanization.lower()
+                        .replace(",", "")
+                        .replace(".", "")
+                        .strip()
                     )
 
                     if roundtrip_clean == expected_clean:
@@ -54,7 +60,9 @@ for full_name, expected_romanization in test_cases:
                         # Analyze differences
                         expected_parts = expected_clean.split()
                         actual_parts = roundtrip_clean.split()
-                        for i, (exp, act) in enumerate(zip(expected_parts, actual_parts)):
+                        for i, (exp, act) in enumerate(
+                            zip(expected_parts, actual_parts)
+                        ):
                             if exp != act:
                                 print(f"   Diff[{i}]: '{exp}' ≠ '{act}'")
                 else:

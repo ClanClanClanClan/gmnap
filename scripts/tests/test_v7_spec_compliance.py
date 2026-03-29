@@ -186,7 +186,11 @@ def test_global_id_generation():
     # V7 spec: 128-bit truncated SHA-256 of {CanonicalNative, BirthYear?, DeathYear?}
     # Encoded as 22-character Base32
 
-    test_data = {"CanonicalNative": "Einstein, Albert", "BirthYear": 1879, "DeathYear": 1955}
+    test_data = {
+        "CanonicalNative": "Einstein, Albert",
+        "BirthYear": 1879,
+        "DeathYear": 1955,
+    }
 
     # V7 GlobalID calculation
     id_string = f"{test_data['CanonicalNative']}|{test_data.get('BirthYear', '')}|{test_data.get('DeathYear', '')}"

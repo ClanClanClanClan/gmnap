@@ -64,14 +64,18 @@ for key, info in diverse_data.items():
             else:
                 diverse_failures.append((key, canonical, expected_korean, None, None))
 
-print(f"DIVERSE DATASET: {diverse_ok}/{diverse_tot} = {diverse_ok/diverse_tot*100:.2f}%")
+print(
+    f"DIVERSE DATASET: {diverse_ok}/{diverse_tot} = {diverse_ok/diverse_tot*100:.2f}%"
+)
 print(f"Previous (wrong): 75/200 = 37.50%")
 print(f"Improvement: +{diverse_ok-75} cases\n")
 
 if diverse_failures:
     print(f"Remaining failures: {len(diverse_failures)}")
     print("\nFirst 10 failures:")
-    for i, (key, canonical, expected, actual, roundtrip) in enumerate(diverse_failures[:10]):
+    for i, (key, canonical, expected, actual, roundtrip) in enumerate(
+        diverse_failures[:10]
+    ):
         print(f"\n{i+1}. {key}:")
         print(f"   Canonical: {canonical}")
         print(f"   Expected: {expected}")

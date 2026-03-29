@@ -64,7 +64,9 @@ def download_fresh_corpus():
                 )
             else:
                 ds = load_dataset(
-                    dataset_config["name"], split=dataset_config["split"], cache_dir=corpus_dir
+                    dataset_config["name"],
+                    split=dataset_config["split"],
+                    cache_dir=corpus_dir,
                 )
 
             # Save to text file
@@ -122,7 +124,14 @@ def validate_rebuilt_system():
 
     # Run accuracy check
     result = subprocess.run(
-        ["python", "scripts/evaluate_roundtrip.py", "-i", "data/korean.yaml", "-t", "0.97"],
+        [
+            "python",
+            "scripts/evaluate_roundtrip.py",
+            "-i",
+            "data/korean.yaml",
+            "-t",
+            "0.97",
+        ],
         capture_output=True,
         text=True,
     )
@@ -149,7 +158,9 @@ def rotate_test_set(current_yaml_path, rotation_pct=0.1):
     total_entries = len(data)
     n_rotate = int(total_entries * rotation_pct)
 
-    print(f"Rotating {n_rotate} out of {total_entries} test entries ({rotation_pct:.1%})")
+    print(
+        f"Rotating {n_rotate} out of {total_entries} test entries ({rotation_pct:.1%})"
+    )
 
     # Select entries to rotate (stratified by name length)
     entries_by_length = {}
@@ -230,14 +241,18 @@ def run_corpus_refresh():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Refresh Korean corpus for anti-overfitting")
+    parser = argparse.ArgumentParser(
+        description="Refresh Korean corpus for anti-overfitting"
+    )
     parser.add_argument(
         "--rotation-pct",
         type=float,
         default=0.1,
         help="Percentage of test set to rotate (default: 0.1)",
     )
-    parser.add_argument("--validate", action="store_true", help="Run validation after refresh")
+    parser.add_argument(
+        "--validate", action="store_true", help="Run validation after refresh"
+    )
 
     args = parser.parse_args()
 

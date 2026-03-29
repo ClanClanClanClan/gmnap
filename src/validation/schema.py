@@ -63,7 +63,9 @@ class SchemaValidator:
         except Exception as e:
             return False, [f"Validation error: {str(e)}"]
 
-    def validate_file_structure(self, file_data: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    def validate_file_structure(
+        self, file_data: Dict[str, Any]
+    ) -> Tuple[bool, List[str]]:
         """
         Validate a full YAML file structure.
 
@@ -129,7 +131,9 @@ class SchemaValidator:
                 death_num = self._extract_year_number(death_year)
                 if birth_num is not None and death_num is not None:
                     if death_num < birth_num:
-                        errors.append(f"DeathYear ({death_year}) before BirthYear ({birth_year})")
+                        errors.append(
+                            f"DeathYear ({death_year}) before BirthYear ({birth_year})"
+                        )
 
             # Validate MSC codes
             msc_codes = entry.get("PrimaryMSC", [])
@@ -153,7 +157,9 @@ class SchemaValidator:
                     if isinstance(value, dict) and "license" not in value:
                         errors.append(f"{source} missing required license field")
                     elif isinstance(value, str):
-                        errors.append(f"{source} must be object with id and license fields")
+                        errors.append(
+                            f"{source} must be object with id and license fields"
+                        )
 
             # Validate country codes
             country_codes = entry.get("CountryCodes", [])
@@ -177,7 +183,9 @@ class SchemaValidator:
             # Validate name events chronology
             name_events = entry.get("NameEvents", [])
             if len(name_events) > 1:
-                years = [event.get("year") for event in name_events if event.get("year")]
+                years = [
+                    event.get("year") for event in name_events if event.get("year")
+                ]
                 if years != sorted(years):
                     errors.append("NameEvents not in chronological order")
 
@@ -200,7 +208,9 @@ class SchemaValidator:
             }
             for variant in synthesised:
                 if variant.get("type") not in valid_types:
-                    errors.append(f"Invalid synthesised variant type: {variant.get('type')}")
+                    errors.append(
+                        f"Invalid synthesised variant type: {variant.get('type')}"
+                    )
 
             # Validate affiliation timeline
             timeline = entry.get("AffiliationTimeline", [])
@@ -417,7 +427,9 @@ def validate_entry(
     return validator.validate_entry(entry_data)
 
 
-def validate_yaml_file(file_path: str, schema_path: Optional[str] = None) -> Tuple[bool, List[str]]:
+def validate_yaml_file(
+    file_path: str, schema_path: Optional[str] = None
+) -> Tuple[bool, List[str]]:
     """
     Convenience function to validate a YAML file.
 

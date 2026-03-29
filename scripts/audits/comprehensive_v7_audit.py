@@ -318,7 +318,9 @@ class V7ComprehensiveAuditor:
         print("TEST 14: STAGE 12 DEPLOYMENT ARTIFACTS")
         print("=" * 70)
 
-        pipeline = create_v7_pipeline(mode="quick", enable_live=False, enable_deployment=True)
+        pipeline = create_v7_pipeline(
+            mode="quick", enable_live=False, enable_deployment=True
+        )
 
         test_entries = [
             {

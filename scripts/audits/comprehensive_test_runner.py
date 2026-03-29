@@ -46,7 +46,9 @@ class ComprehensiveTestRunner:
 
             # Categorize by directory
             relative_path = test_file.relative_to(self.test_root)
-            category = relative_path.parts[0] if len(relative_path.parts) > 1 else "root"
+            category = (
+                relative_path.parts[0] if len(relative_path.parts) > 1 else "root"
+            )
             test_files[category].append(test_file)
 
         return test_files
@@ -69,7 +71,9 @@ class ComprehensiveTestRunner:
             env = os.environ.copy()
             env["PYTHONPATH"] = str(self.project_root)
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, env=env)
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=30, env=env
+            )
 
             # Parse output
             output = result.stdout + result.stderr
@@ -110,7 +114,13 @@ class ComprehensiveTestRunner:
             print(f"🔥 RUNNING {category.upper()} TESTS ({len(files)} files)")
             print("-" * 50)
 
-            category_results = {"files": [], "passed": 0, "failed": 0, "errors": 0, "timeout": 0}
+            category_results = {
+                "files": [],
+                "passed": 0,
+                "failed": 0,
+                "errors": 0,
+                "timeout": 0,
+            }
 
             for test_file in files:
                 file_name = test_file.name
@@ -184,7 +194,9 @@ class ComprehensiveTestRunner:
             failed_cat = results.get("failed", 0)
             errors_cat = results.get("error", 0)
 
-            status = "✅" if passed_cat == total_cat else "⚠️" if errors_cat > 0 else "❌"
+            status = (
+                "✅" if passed_cat == total_cat else "⚠️" if errors_cat > 0 else "❌"
+            )
 
             print(f"  {status} {category}: {passed_cat}/{total_cat} passed")
 
@@ -218,7 +230,9 @@ class ComprehensiveTestRunner:
         if integration_tests:
             integration_passed = integration_tests.get("passed", 0)
             integration_total = len(integration_tests.get("files", []))
-            print(f"  Integration Suite: {integration_passed}/{integration_total} passed")
+            print(
+                f"  Integration Suite: {integration_passed}/{integration_total} passed"
+            )
         else:
             print("  Integration Suite: NOT FOUND ⚠️")
 

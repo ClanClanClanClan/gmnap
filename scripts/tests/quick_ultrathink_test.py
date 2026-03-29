@@ -22,7 +22,9 @@ def quick_analysis():
         if "__pycache__" not in str(test_file):
             name_to_paths[test_file.name].append(test_file)
 
-    duplicates = {name: paths for name, paths in name_to_paths.items() if len(paths) > 1}
+    duplicates = {
+        name: paths for name, paths in name_to_paths.items() if len(paths) > 1
+    }
 
     print(f"\n📊 DUPLICATE TEST FILES ({len(duplicates)} found):")
     for name, paths in list(duplicates.items())[:5]:
@@ -39,7 +41,9 @@ def quick_analysis():
             parent = test_file.parent.name
             category_counts[parent] += 1
 
-    for category, count in sorted(category_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
+    for category, count in sorted(
+        category_counts.items(), key=lambda x: x[1], reverse=True
+    )[:10]:
         print(f"  {category:20} : {count:3} files")
 
     # Quick test execution
@@ -68,7 +72,11 @@ def quick_analysis():
                 env={"PYTHONPATH": str(Path.cwd())},
             )
 
-            if result.returncode == 0 or "Success" in result.stdout or "✅" in result.stdout:
+            if (
+                result.returncode == 0
+                or "Success" in result.stdout
+                or "✅" in result.stdout
+            ):
                 print(f"  ✅ {test_file.name}")
             else:
                 print(f"  ❌ {test_file.name}")

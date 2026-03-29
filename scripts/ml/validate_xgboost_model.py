@@ -115,8 +115,15 @@ def extract_features(name, phase1_classifier, phase2_model, feature_names):
     features["phase1_method"] = phase1_result.detection_method
 
     # Encode phase1_method as numeric
-    method_encoding = {"unicode_script": 1, "systematic_rules": 2, "fallback": 3, "default": 4}
-    features["phase1_method_encoded"] = method_encoding.get(phase1_result.detection_method, 0)
+    method_encoding = {
+        "unicode_script": 1,
+        "systematic_rules": 2,
+        "fallback": 3,
+        "default": 4,
+    }
+    features["phase1_method_encoded"] = method_encoding.get(
+        phase1_result.detection_method, 0
+    )
 
     # Phase 2 (ML) top-3 predictions
     phase2_pred = phase2_model.predict(name, k=3)
@@ -143,7 +150,8 @@ def extract_features(name, phase1_classifier, phase2_model, feature_names):
 
     # Agreement features
     features["phase1_phase2_agree"] = (
-        phase1_result.region_code.split("_")[0] == features["phase2_top1_region"].split("_")[0]
+        phase1_result.region_code.split("_")[0]
+        == features["phase2_top1_region"].split("_")[0]
     )
 
     # Convert to numpy array in correct order
@@ -175,7 +183,9 @@ def validate_xgboost(model, label_encoder, feature_names, phase1, phase2, profil
         expected_region = profile["region"]
 
         # Extract features
-        feature_vec, phase2_prediction = extract_features(name, phase1, phase2, feature_names)
+        feature_vec, phase2_prediction = extract_features(
+            name, phase1, phase2, feature_names
+        )
 
         # XGBoost prediction
         dtest = xgb.DMatrix(feature_vec.reshape(1, -1))
@@ -228,7 +238,9 @@ def print_results(results):
     print("XGBOOST VALIDATION RESULTS")
     print(f"{'='*80}\n")
 
-    print(f"XGBoost accuracy: {results['correct']}/{results['total']} = {results['accuracy']:.2f}%")
+    print(
+        f"XGBoost accuracy: {results['correct']}/{results['total']} = {results['accuracy']:.2f}%"
+    )
     print(
         f"Phase 2 alone: {results['phase2_correct']}/{results['total']} = {results['phase2_accuracy']:.2f}%"
     )
@@ -276,7 +288,9 @@ def main():
     print(f"✅ Loaded XGBoost + Phase 1 + Phase 2\n")
 
     # Validate
-    results = validate_xgboost(xgb_model, label_encoder, feature_names, phase1, phase2, profiles)
+    results = validate_xgboost(
+        xgb_model, label_encoder, feature_names, phase1, phase2, profiles
+    )
 
     # Print results
     print_results(results)

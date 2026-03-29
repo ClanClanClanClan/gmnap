@@ -21,6 +21,7 @@ if __name__ == "__main__":
     snapshot = tracemalloc.take_snapshot()
     stats = snapshot.statistics("lineno")[: a.top]
     out = [
-        {"trace": str(s.traceback[0]), "size_kb": s.size / 1024, "count": s.count} for s in stats
+        {"trace": str(s.traceback[0]), "size_kb": s.size / 1024, "count": s.count}
+        for s in stats
     ]
     print(json.dumps({"seconds": dt, "top": out}, indent=2))

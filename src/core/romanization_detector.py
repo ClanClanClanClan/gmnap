@@ -217,8 +217,22 @@ class RomanizationDetector:
         # Arabic romanization patterns
         self.arabic_patterns = {
             # Common Arabic name elements (romanized)
-            "prefixes": {"al", "el", "ibn", "abu", "abdul", "abd"},  # Articles and connectors
-            "suffixes": {"allah", "rahman", "rahim", "malik", "din", "deen"},  # Religious suffixes
+            "prefixes": {
+                "al",
+                "el",
+                "ibn",
+                "abu",
+                "abdul",
+                "abd",
+            },  # Articles and connectors
+            "suffixes": {
+                "allah",
+                "rahman",
+                "rahim",
+                "malik",
+                "din",
+                "deen",
+            },  # Religious suffixes
             "common_names": {
                 "ahmad",
                 "mohammed",
@@ -478,13 +492,15 @@ class RomanizationDetector:
 
         # Check for Arabic prefixes (both with hyphens and spaces)
         if any(
-            name_lower.startswith(prefix) for prefix in ["al-", "el-", "ibn-", "abu-", "abdul-"]
+            name_lower.startswith(prefix)
+            for prefix in ["al-", "el-", "ibn-", "abu-", "abdul-"]
         ):
             return True
 
         # Check for Arabic prefixes with spaces
         if any(
-            name_lower.startswith(prefix + " ") for prefix in ["al", "el", "ibn", "abu", "abdul"]
+            name_lower.startswith(prefix + " ")
+            for prefix in ["al", "el", "ibn", "abu", "abdul"]
         ):
             return True
 

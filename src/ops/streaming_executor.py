@@ -16,7 +16,9 @@ class StreamConfig:
 
 
 class StreamingExecutor:
-    def __init__(self, fn: Callable[[List[dict]], Any], cfg: StreamConfig | None = None):
+    def __init__(
+        self, fn: Callable[[List[dict]], Any], cfg: StreamConfig | None = None
+    ):
         self.fn = fn
         self.cfg = cfg or StreamConfig()
 
@@ -27,7 +29,11 @@ class StreamingExecutor:
                 res = await asyncio.wait_for(res, timeout=self.cfg.soft_timeout_s)
         except Exception as ex:
             return [
-                {"GlobalID": e.get("GlobalID"), "status": "processing_error", "error": str(ex)}
+                {
+                    "GlobalID": e.get("GlobalID"),
+                    "status": "processing_error",
+                    "error": str(ex),
+                }
                 for e in chunk
             ]
         rows, _ = normalize_result(res)
@@ -40,7 +46,9 @@ class StreamingExecutor:
         fails = [e for e in out if e.get("status") == "processing_error"]
         if not fails:
             return out
-        await asyncio.sleep(self.cfg.retry_base_s + random.random() * self.cfg.retry_jitter_s)
+        await asyncio.sleep(
+            self.cfg.retry_base_s + random.random() * self.cfg.retry_jitter_s
+        )
         retry_out = await self._call_once(fails)
         ridx = 0
         merged = []

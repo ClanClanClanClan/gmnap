@@ -68,7 +68,11 @@ def quick_check():
                         if "ModuleNotFoundError" in line:
                             print(f"     {line[:80]}")
                             break
-                elif result.returncode == 0 or "Success" in output or "passed" in output.lower():
+                elif (
+                    result.returncode == 0
+                    or "Success" in output
+                    or "passed" in output.lower()
+                ):
                     results["passed"].append(f"{category}/{test_name}")
                     print(f"  ✅ {test_name} - PASSED")
                 else:

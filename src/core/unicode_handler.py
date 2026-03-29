@@ -290,7 +290,9 @@ class UnicodeNormalizer:
             True if normalization is valid
         """
         # Check that critical characters are preserved
-        critical_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+        critical_chars = set(
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        )
 
         orig_critical = set(char for char in original if char in critical_chars)
         norm_critical = set(char for char in normalized if char in critical_chars)
@@ -314,7 +316,9 @@ def normalize_name(name: str, config: Optional[UnicodeConfig] = None) -> str:
     return normalizer.normalize(name)
 
 
-def generate_name_variants(name: str, config: Optional[UnicodeConfig] = None) -> List[str]:
+def generate_name_variants(
+    name: str, config: Optional[UnicodeConfig] = None
+) -> List[str]:
     """
     Convenience function to generate name variants.
 

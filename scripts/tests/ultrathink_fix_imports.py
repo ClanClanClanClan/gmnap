@@ -40,7 +40,11 @@ def add_missing_imports():
                 print(f"    Adding {import_name} to {filepath}")
 
                 # Determine what type of import it is
-                if import_name.isupper() or "_" in import_name and import_name.isupper():
+                if (
+                    import_name.isupper()
+                    or "_" in import_name
+                    and import_name.isupper()
+                ):
                     # It's a constant
                     content += f"\n# Added for tests\n{import_name} = 0\n"
                 elif import_name.startswith("stage"):

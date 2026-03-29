@@ -170,7 +170,9 @@ class DataQualityValidator:
 
         return result
 
-    def _check_completeness(self, entry: Dict[str, Any], result: Dict[str, Any]) -> None:
+    def _check_completeness(
+        self, entry: Dict[str, Any], result: Dict[str, Any]
+    ) -> None:
         """Check data completeness."""
         # Required fields
         missing_required = []
@@ -189,7 +191,9 @@ class DataQualityValidator:
             result["warnings"].append(
                 f"Missing recommended fields: {', '.join(missing_recommended)}"
             )
-            result["suggestions"].append("Consider adding: " + ", ".join(missing_recommended))
+            result["suggestions"].append(
+                "Consider adding: " + ", ".join(missing_recommended)
+            )
 
         # Calculate completeness score
         total_fields = len(self.required_fields) + len(self.highly_recommended_fields)
@@ -233,7 +237,9 @@ class DataQualityValidator:
                 "E4",
             ]
             if region in native_regions and not entry.get("CanonicalNative"):
-                result["warnings"].append(f"Region {region} should have CanonicalNative")
+                result["warnings"].append(
+                    f"Region {region} should have CanonicalNative"
+                )
 
         # Check variant consistency
         variants = entry.get("Variants", {})
@@ -247,7 +253,9 @@ class DataQualityValidator:
             variant_counts = Counter(all_variants)
             duplicates = [v for v, count in variant_counts.items() if count > 1]
             if duplicates:
-                result["warnings"].append(f"Duplicate variants detected: {', '.join(duplicates)}")
+                result["warnings"].append(
+                    f"Duplicate variants detected: {', '.join(duplicates)}"
+                )
 
         # Check confidence score consistency
         confidence = entry.get("Confidence", 0)
@@ -256,7 +264,9 @@ class DataQualityValidator:
         # High confidence should have authority IDs
         if confidence >= 80 and not auth_ids:
             result["warnings"].append("High confidence (≥80) but no authority IDs")
-            result["suggestions"].append("Consider adding authority IDs or reducing confidence")
+            result["suggestions"].append(
+                "Consider adding authority IDs or reducing confidence"
+            )
 
         # Low confidence with many authority IDs is suspicious
         if confidence < 50 and len(auth_ids) > 3:
@@ -280,11 +290,15 @@ class DataQualityValidator:
 
         # Check for reasonable number of languages
         if len(languages) > 10:
-            result["warnings"].append(f"Unusually high number of languages: {len(languages)}")
+            result["warnings"].append(
+                f"Unusually high number of languages: {len(languages)}"
+            )
 
         # Check email format if present
         email = entry.get("Email")
-        if email and not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
+        if email and not re.match(
+            r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email
+        ):
             result["errors"].append(f"Invalid email format: {email}")
 
         # Check URL format if present
@@ -292,7 +306,9 @@ class DataQualityValidator:
         if homepage and not re.match(r"^https?://[^\s]+$", homepage):
             result["warnings"].append(f"Invalid or non-HTTPS URL: {homepage}")
 
-    def _check_temporal_validity(self, entry: Dict[str, Any], result: Dict[str, Any]) -> None:
+    def _check_temporal_validity(
+        self, entry: Dict[str, Any], result: Dict[str, Any]
+    ) -> None:
         """Check temporal data validity."""
         birth_year = entry.get("BirthYear")
         death_year = entry.get("DeathYear")
@@ -319,11 +335,15 @@ class DataQualityValidator:
             if birth_num is not None:
                 lifespan = death_num - birth_num
                 if lifespan < 0:
-                    result["errors"].append(f"Death before birth: {birth_year} - {death_year}")
+                    result["errors"].append(
+                        f"Death before birth: {birth_year} - {death_year}"
+                    )
                 elif lifespan < 20:
                     result["warnings"].append(f"Very short lifespan: {lifespan} years")
                 elif lifespan > 110:
-                    result["warnings"].append(f"Unusually long lifespan: {lifespan} years")
+                    result["warnings"].append(
+                        f"Unusually long lifespan: {lifespan} years"
+                    )
 
         # Check affiliation timeline
         timeline = entry.get("AffiliationTimeline", [])
@@ -340,7 +360,9 @@ class DataQualityValidator:
 
                 if prev_year is not None and from_year is not None:
                     if from_year < prev_year:
-                        result["warnings"].append("Affiliation timeline not in chronological order")
+                        result["warnings"].append(
+                            "Affiliation timeline not in chronological order"
+                        )
 
                 if to_year is not None:
                     prev_year = to_year
@@ -354,26 +376,36 @@ class DataQualityValidator:
             if years != sorted(years):
                 result["errors"].append("NameEvents not in chronological order")
 
-    def _check_suspicious_patterns(self, entry: Dict[str, Any], result: Dict[str, Any]) -> None:
+    def _check_suspicious_patterns(
+        self, entry: Dict[str, Any], result: Dict[str, Any]
+    ) -> None:
         """Check for suspicious or test data patterns."""
         canonical = entry.get("CanonicalLatin", "").lower()
 
         for pattern in self.suspicious_patterns:
             if re.match(pattern, canonical):
-                result["warnings"].append(f"Suspicious name pattern: matches '{pattern}'")
+                result["warnings"].append(
+                    f"Suspicious name pattern: matches '{pattern}'"
+                )
                 result["suggestions"].append("Verify this is not test/placeholder data")
 
         # Check for keyboard mashing
         if re.search(r"([a-z])\1{4,}", canonical):
-            result["warnings"].append("Repeated characters detected (possible keyboard mashing)")
+            result["warnings"].append(
+                "Repeated characters detected (possible keyboard mashing)"
+            )
 
         # Check for very generic names
         generic_names = ["smith", "jones", "wang", "li", "zhang", "chen"]
         name_parts = canonical.split()
         if len(name_parts) == 1 and name_parts[0] in generic_names:
-            result["warnings"].append("Single generic name - may need more identification")
+            result["warnings"].append(
+                "Single generic name - may need more identification"
+            )
 
-    def _check_authority_ids(self, entry: Dict[str, Any], result: Dict[str, Any]) -> None:
+    def _check_authority_ids(
+        self, entry: Dict[str, Any], result: Dict[str, Any]
+    ) -> None:
         """Check authority ID quality."""
         auth_ids = entry.get("AuthorityIDs", {})
 
@@ -385,7 +417,9 @@ class DataQualityValidator:
             if isinstance(value, str):
                 # Check for placeholder IDs
                 if value in ["0", "000", "test", "temp", "unknown"]:
-                    result["warnings"].append(f"{service} ID looks like placeholder: {value}")
+                    result["warnings"].append(
+                        f"{service} ID looks like placeholder: {value}"
+                    )
 
                 # Service-specific checks
                 if service == "ORCID":
@@ -401,7 +435,9 @@ class DataQualityValidator:
                 # Check for license on proprietary sources
                 if service in ["Scopus", "WoS", "Dimensions"]:
                     if "license" not in value:
-                        result["errors"].append(f"{service} missing required license field")
+                        result["errors"].append(
+                            f"{service} missing required license field"
+                        )
 
     def _check_msc_codes(self, entry: Dict[str, Any], result: Dict[str, Any]) -> None:
         """Check MSC code validity."""
@@ -438,10 +474,14 @@ class DataQualityValidator:
 
         # Check for too many codes
         if len(msc_codes) > 10:
-            result["warnings"].append(f"Unusually high number of MSC codes: {len(msc_codes)}")
+            result["warnings"].append(
+                f"Unusually high number of MSC codes: {len(msc_codes)}"
+            )
             result["suggestions"].append("Consider keeping only primary research areas")
 
-    def _check_affiliations(self, entry: Dict[str, Any], result: Dict[str, Any]) -> None:
+    def _check_affiliations(
+        self, entry: Dict[str, Any], result: Dict[str, Any]
+    ) -> None:
         """Check affiliation data quality."""
         timeline = entry.get("AffiliationTimeline", [])
 
@@ -450,7 +490,9 @@ class DataQualityValidator:
             if entry.get("BirthYear"):
                 birth_num = self._parse_year(entry["BirthYear"])
                 if birth_num and birth_num < self.current_year - 25:
-                    result["suggestions"].append("Consider adding affiliation information")
+                    result["suggestions"].append(
+                        "Consider adding affiliation information"
+                    )
             return
 
         # Check for gaps in timeline
@@ -466,13 +508,17 @@ class DataQualityValidator:
             if current_to and next_from:
                 gap = next_from - current_to
                 if gap > 5:
-                    result["warnings"].append(f"Large gap in affiliation timeline: {gap} years")
+                    result["warnings"].append(
+                        f"Large gap in affiliation timeline: {gap} years"
+                    )
 
         # Check institution names
         for i, aff in enumerate(timeline):
             inst = aff.get("institution", "")
             if inst and len(inst) < 3:
-                result["errors"].append(f"Institution name too short in affiliation {i}")
+                result["errors"].append(
+                    f"Institution name too short in affiliation {i}"
+                )
 
             # Check for test institutions
             if re.search(r"test|temp|example", inst, re.I):
@@ -497,7 +543,9 @@ class DataQualityValidator:
 
         return None
 
-    def check_duplicate_potential(self, entry1: Dict[str, Any], entry2: Dict[str, Any]) -> float:
+    def check_duplicate_potential(
+        self, entry1: Dict[str, Any], entry2: Dict[str, Any]
+    ) -> float:
         """
         Check if two entries might be duplicates.
 
@@ -602,7 +650,9 @@ class DataQualityValidator:
 
         # Calculate statistics
         if completeness_scores:
-            report["average_completeness"] = sum(completeness_scores) / len(completeness_scores)
+            report["average_completeness"] = sum(completeness_scores) / len(
+                completeness_scores
+            )
 
         # Field coverage analysis
         all_fields = set()

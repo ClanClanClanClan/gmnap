@@ -88,7 +88,13 @@ for name, pattern, input_text, exp, act in problem_cases[:10]:
 print("\n=== SPECIFIC CONFLICT ANALYSIS ===")
 
 # Test specific cases that might have regressed
-test_cases = ["Kim, Hee-Sun", "Kim, Sun-Young", "Jung, Min-Ho", "Park, Jong-Gun", "Lee, Duk-Soo"]
+test_cases = [
+    "Kim, Hee-Sun",
+    "Kim, Sun-Young",
+    "Jung, Min-Ho",
+    "Park, Jong-Gun",
+    "Lee, Duk-Soo",
+]
 
 for case in test_cases:
     result = eng2kor(case)

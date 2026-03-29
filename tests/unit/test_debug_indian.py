@@ -31,12 +31,17 @@ def test_indian_detection():
     for name in test_names:
         print(f"\n=== Testing {name} ===")
 
-        test_entry = {"GlobalID": f"test_{name.replace(', ', '_')}", "CanonicalLatin": name}
+        test_entry = {
+            "GlobalID": f"test_{name.replace(', ', '_')}",
+            "CanonicalLatin": name,
+        }
 
         # Test surname detection
         result = manager._detect_by_surname(test_entry)
         if result:
-            print(f"Surname detection: {result.region_code} (confidence: {result.confidence})")
+            print(
+                f"Surname detection: {result.region_code} (confidence: {result.confidence})"
+            )
             print(f"Method: {result.detection_method}")
             print(f"Metadata: {result.metadata}")
         else:
@@ -44,7 +49,9 @@ def test_indian_detection():
 
         # Test full detection
         full_result = manager.detect_region(test_entry)
-        print(f"Final result: {full_result.region_code} (confidence: {full_result.confidence})")
+        print(
+            f"Final result: {full_result.region_code} (confidence: {full_result.confidence})"
+        )
         print(f"Method: {full_result.detection_method}")
         print(f"Metadata: {full_result.metadata}")
 

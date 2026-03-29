@@ -53,9 +53,13 @@ class UltrathinkVerifier:
                     content = f.read()
                     # Check for imports from deleted files
                     if "from src.gmnap" in content:
-                        broken_imports.append(f"{file}: Contains imports from deleted src.gmnap")
+                        broken_imports.append(
+                            f"{file}: Contains imports from deleted src.gmnap"
+                        )
                     if "from src." in content:
-                        broken_imports.append(f"{file}: Contains imports from deleted gmnap")
+                        broken_imports.append(
+                            f"{file}: Contains imports from deleted gmnap"
+                        )
             except Exception as e:
                 self.issues_found.append(f"Cannot read {file}: {e}")
 
@@ -146,10 +150,14 @@ class UltrathinkVerifier:
                 # Check if performance is reasonable
                 if projected_1m <= 600:  # 10 hours max
                     print("PASS Performance is within acceptable range")
-                    self.successes.append(f"Performance verified: {projected_1m:.1f} min/1M")
+                    self.successes.append(
+                        f"Performance verified: {projected_1m:.1f} min/1M"
+                    )
                 else:
                     print(f"FAIL Performance too slow: {projected_1m:.1f} min/1M")
-                    self.issues_found.append(f"Performance regression: {projected_1m:.1f} min/1M")
+                    self.issues_found.append(
+                        f"Performance regression: {projected_1m:.1f} min/1M"
+                    )
 
         except Exception as e:
             print(f"FAIL Performance test failed: {e}")
@@ -194,13 +202,19 @@ class UltrathinkVerifier:
             for name, expected, description in critical_tests:
                 try:
                     result = manager.detect_region({"CanonicalLatin": name})
-                    actual = result.region_code if hasattr(result, "region_code") else str(result)
+                    actual = (
+                        result.region_code
+                        if hasattr(result, "region_code")
+                        else str(result)
+                    )
 
                     if actual == expected:
                         print(f"PASS {name} -> {actual} ({description})")
                         successes += 1
                     else:
-                        print(f"FAIL {name} -> {actual} (expected {expected}) - {description}")
+                        print(
+                            f"FAIL {name} -> {actual} (expected {expected}) - {description}"
+                        )
                         failures += 1
                         self.issues_found.append(
                             f"Classification failed: {name} -> {actual} (expected {expected})"
@@ -217,13 +231,19 @@ class UltrathinkVerifier:
             )
 
             if accuracy >= 0.8:
-                self.successes.append(f"Regional classification working: {accuracy:.1%}")
+                self.successes.append(
+                    f"Regional classification working: {accuracy:.1%}"
+                )
             else:
-                self.issues_found.append(f"Regional classification broken: {accuracy:.1%}")
+                self.issues_found.append(
+                    f"Regional classification broken: {accuracy:.1%}"
+                )
 
         except Exception as e:
             print(f"FAIL Regional classification test failed: {e}")
-            self.issues_found.append(f"Regional classification verification failed: {e}")
+            self.issues_found.append(
+                f"Regional classification verification failed: {e}"
+            )
 
         return True
 
@@ -248,12 +268,18 @@ class UltrathinkVerifier:
             for name, expected, description in korean_tests:
                 try:
                     result = manager.detect_region({"CanonicalLatin": name})
-                    actual = result.region_code if hasattr(result, "region_code") else str(result)
+                    actual = (
+                        result.region_code
+                        if hasattr(result, "region_code")
+                        else str(result)
+                    )
 
                     if actual == expected:
                         print(f"PASS {name} -> {actual} ({description})")
                     else:
-                        print(f"FAIL {name} -> {actual} (expected {expected}) - {description}")
+                        print(
+                            f"FAIL {name} -> {actual} (expected {expected}) - {description}"
+                        )
                         self.issues_found.append(f"Korean detection failed: {name}")
 
                 except Exception as e:
@@ -423,7 +449,9 @@ class UltrathinkVerifier:
             compliance = (
                 len(self.successes) / (len(self.successes) + len(self.issues_found))
             ) * 100
-            print(f"  WARN SYSTEM IS {compliance:.1f}% COMPLIANT - ISSUES NEED ATTENTION")
+            print(
+                f"  WARN SYSTEM IS {compliance:.1f}% COMPLIANT - ISSUES NEED ATTENTION"
+            )
 
         return compliance
 

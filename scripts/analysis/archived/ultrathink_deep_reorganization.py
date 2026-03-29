@@ -57,10 +57,17 @@ class DeepReorganizer:
                     for path, _ in locations:
                         print(f"      - {path.relative_to(self.root)}")
                     self.actions.append(
-                        ("consolidate_duplicate", name, locations[0][0], consolidation_target)
+                        (
+                            "consolidate_duplicate",
+                            name,
+                            locations[0][0],
+                            consolidation_target,
+                        )
                     )
                 else:
-                    print(f"\n  ⚠️  CONFLICT: {name} has {len(unique_hashes)} different versions")
+                    print(
+                        f"\n  ⚠️  CONFLICT: {name} has {len(unique_hashes)} different versions"
+                    )
                     for path, hash_val in locations:
                         print(f"      - {path.relative_to(self.root)} [{hash_val[:8]}]")
 
@@ -93,7 +100,9 @@ class DeepReorganizer:
         for pattern, target_dir in scattered_tests.items():
             matches = list(self.root.glob(pattern))
             if matches:
-                print(f"\n  Move {len(matches)} files matching {pattern} to {target_dir}")
+                print(
+                    f"\n  Move {len(matches)} files matching {pattern} to {target_dir}"
+                )
                 for match in matches[:3]:  # Show first 3
                     print(f"    • {match.name}")
                 if len(matches) > 3:
@@ -117,10 +126,21 @@ class DeepReorganizer:
             if files:
                 print(f"\n  {category}: {len(files)} files")
                 # Check for old/outdated files
-                old_keywords = ["2025-07", "2025-08", "BACKUP", "OLD", "ARCHIVE", "HANDOFF"]
-                old_files = [f for f in files if any(k in str(f).upper() for k in old_keywords)]
+                old_keywords = [
+                    "2025-07",
+                    "2025-08",
+                    "BACKUP",
+                    "OLD",
+                    "ARCHIVE",
+                    "HANDOFF",
+                ]
+                old_files = [
+                    f for f in files if any(k in str(f).upper() for k in old_keywords)
+                ]
                 if old_files:
-                    print(f"    • {len(old_files)} appear outdated (contain date/backup keywords)")
+                    print(
+                        f"    • {len(old_files)} appear outdated (contain date/backup keywords)"
+                    )
                     for old_file in old_files[:3]:
                         print(f"      - {old_file.name}")
                     if len(old_files) > 3:
@@ -151,7 +171,9 @@ class DeepReorganizer:
                 print(f"\n  Move to config/{category}/:")
                 for file in files:
                     print(f"    • {file.name}")
-                    self.actions.append(("move", file, Path("config") / category / file.name))
+                    self.actions.append(
+                        ("move", file, Path("config") / category / file.name)
+                    )
 
     def find_truly_unused_files(self):
         """Find files that are truly unused"""
@@ -191,7 +213,9 @@ class DeepReorganizer:
             if ".venv" not in root and ".git" not in root:
                 path = Path(root)
                 # Count non-init files
-                real_files = [f for f in files if f != "__init__.py" and not f.startswith(".")]
+                real_files = [
+                    f for f in files if f != "__init__.py" and not f.startswith(".")
+                ]
 
                 if not dirs and not real_files:
                     empty_dirs.append(path)

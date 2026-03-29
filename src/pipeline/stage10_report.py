@@ -66,7 +66,9 @@ def generate_report(
     with open(rdir / "report.json", "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
-    env = Environment(loader=FileSystemLoader(templates_dir), autoescape=select_autoescape())
+    env = Environment(
+        loader=FileSystemLoader(templates_dir), autoescape=select_autoescape()
+    )
     md = env.get_template("report.md.j2").render(payload=payload)
     with open(rdir / "report.md", "w", encoding="utf-8") as f:
         f.write(md)

@@ -75,7 +75,9 @@ async def test_authority_apis():
         from src.authorities.crossref import CrossrefAPI
 
         async with CrossrefAPI() as api:
-            results = await asyncio.wait_for(api.search_author("T. Tao"), timeout=5.0)
+            results = await asyncio.wait_for(
+                api.search_author("T. Tao"), timeout=5.0
+            )
             print(f"✓ Crossref: Found {len(results)} results for T. Tao")
     except asyncio.TimeoutError:
         print(f"✗ Crossref: Timeout after 5 seconds")
@@ -149,7 +151,9 @@ def test_memgraph_integration():
 
         # Create test node
         node = GraphNode(
-            global_id="test-math-001", canonical_latin="Test, Mathematician", region_code="A1"
+            global_id="test-math-001",
+            canonical_latin="Test, Mathematician",
+            region_code="A1",
         )
         print(f"✓ GraphNode created: {node.global_id}")
 

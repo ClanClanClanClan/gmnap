@@ -27,7 +27,10 @@ def compute_betweenness_scores(entries: List[Dict[str, Any]]) -> Dict[str, float
         if gid:
             G.add_node(
                 gid,
-                **{"Field": e.get("Field", "Unknown"), "Name": e.get("CanonicalLatin", "Unknown")},
+                **{
+                    "Field": e.get("Field", "Unknown"),
+                    "Name": e.get("CanonicalLatin", "Unknown"),
+                },
             )
 
     # Add edges from advisor relationships
@@ -47,7 +50,9 @@ def compute_betweenness_scores(entries: List[Dict[str, Any]]) -> Dict[str, float
                 G.add_edge(sid, student, relation="advisor")
                 edges_added += 1
 
-    logger.info(f"Graph built with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
+    logger.info(
+        f"Graph built with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges"
+    )
 
     # Calculate betweenness centrality if we have edges
     if edges_added > 0 and G.number_of_nodes() > 1:
@@ -58,7 +63,9 @@ def compute_betweenness_scores(entries: List[Dict[str, Any]]) -> Dict[str, float
             # Scale scores to reasonable range (0.3 to 0.9)
             max_bc = max(bc.values()) if bc.values() else 1.0
             if max_bc > 0:
-                scores = {gid: 0.3 + (score / max_bc * 0.6) for gid, score in bc.items()}
+                scores = {
+                    gid: 0.3 + (score / max_bc * 0.6) for gid, score in bc.items()
+                }
             else:
                 scores = {gid: 0.5 for gid in bc.keys()}
 

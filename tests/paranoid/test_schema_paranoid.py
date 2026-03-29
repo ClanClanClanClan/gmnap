@@ -2,7 +2,14 @@ import pytest
 import itertools, pytest
 from hypothesis import given, strategies as st
 
-REQUIRED = ["GlobalID", "CanonicalLatin", "Field", "Source", "LastUpdated", "ValidationStatus"]
+REQUIRED = [
+    "GlobalID",
+    "CanonicalLatin",
+    "Field",
+    "Source",
+    "LastUpdated",
+    "ValidationStatus",
+]
 
 
 def validate_schema_local(entry: dict):
@@ -33,7 +40,13 @@ def validate_schema_local(entry: dict):
             # Check for XSS patterns
             if any(
                 pattern in value.lower()
-                for pattern in ["<script", "</script>", "javascript:", "onerror=", "onclick="]
+                for pattern in [
+                    "<script",
+                    "</script>",
+                    "javascript:",
+                    "onerror=",
+                    "onclick=",
+                ]
             ):
                 errors.append(f"Potential XSS attack in {field}")
             # Check for excessive length
@@ -59,7 +72,9 @@ def test_every_combination_of_missing_required_fields():
     global_id=st.text(min_size=1, max_size=64),
     canonical_latin=st.text(min_size=1, max_size=200),
     birth_year=st.integers(min_value=-2000, max_value=2100),
-    extra=st.dictionaries(st.text(min_size=1, max_size=10), st.text(max_size=50), max_size=5),
+    extra=st.dictionaries(
+        st.text(min_size=1, max_size=10), st.text(max_size=50), max_size=5
+    ),
 )
 @pytest.mark.timeout(15)
 def test_fuzz_field_combinations(global_id, canonical_latin, birth_year, extra):

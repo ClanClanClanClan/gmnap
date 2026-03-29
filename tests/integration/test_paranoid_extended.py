@@ -21,7 +21,9 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 
 # Add src to path
-sys.path.insert(0, "/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/src")
+sys.path.insert(
+    0, "/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/src"
+)
 
 from src.core.pipeline import GMNAPPipeline
 
@@ -97,20 +99,50 @@ class ExtendedParanoidTester:
         # Homograph attacks that should be BLOCKED
         homograph_attacks = [
             # Mixed script attacks (should be blocked)
-            ("Jоhn Smith", "Suspected homograph attack with mixed scripts"),  # Cyrillic o
-            ("Јohn Smith", "Suspected homograph attack with mixed scripts"),  # Cyrillic Je
-            ("John Ѕmith", "Suspected homograph attack with mixed scripts"),  # Cyrillic Dze
-            ("Jοhn Smith", "Suspected homograph attack with mixed scripts"),  # Greek omicron
+            (
+                "Jоhn Smith",
+                "Suspected homograph attack with mixed scripts",
+            ),  # Cyrillic o
+            (
+                "Јohn Smith",
+                "Suspected homograph attack with mixed scripts",
+            ),  # Cyrillic Je
+            (
+                "John Ѕmith",
+                "Suspected homograph attack with mixed scripts",
+            ),  # Cyrillic Dze
+            (
+                "Jοhn Smith",
+                "Suspected homograph attack with mixed scripts",
+            ),  # Greek omicron
             ("John Sμith", "Suspected homograph attack with mixed scripts"),  # Greek mu
-            ("Jσhn Smith", "Suspected homograph attack with mixed scripts"),  # Greek sigma
-            ("Αdam Smith", "Suspected homograph attack with mixed scripts"),  # Greek Alpha
-            ("Adam Ѕmith", "Suspected homograph attack with mixed scripts"),  # Cyrillic Dze
-            ("Аdam Smith", "Suspected homograph attack with mixed scripts"),  # Cyrillic A
+            (
+                "Jσhn Smith",
+                "Suspected homograph attack with mixed scripts",
+            ),  # Greek sigma
+            (
+                "Αdam Smith",
+                "Suspected homograph attack with mixed scripts",
+            ),  # Greek Alpha
+            (
+                "Adam Ѕmith",
+                "Suspected homograph attack with mixed scripts",
+            ),  # Cyrillic Dze
+            (
+                "Аdam Smith",
+                "Suspected homograph attack with mixed scripts",
+            ),  # Cyrillic A
             # Mathematical symbols (should be blocked)
             ("𝐉𝐨𝐡𝐧 𝐒𝐦𝐢𝐭𝐡", "Mathematical symbols not allowed"),  # Mathematical bold
-            ("𝕁𝕠𝕙𝕟 𝕊𝕞𝕚𝕥𝕙", "Mathematical symbols not allowed"),  # Mathematical double-struck
+            (
+                "𝕁𝕠𝕙𝕟 𝕊𝕞𝕚𝕥𝕙",
+                "Mathematical symbols not allowed",
+            ),  # Mathematical double-struck
             # Fullwidth attacks (should be blocked)
-            ("Ｊｏｈｎ Ｓｍｉｔｈ", "Fullwidth/halfwidth forms not allowed"),  # Fullwidth Latin
+            (
+                "Ｊｏｈｎ Ｓｍｉｔｈ",
+                "Fullwidth/halfwidth forms not allowed",
+            ),  # Fullwidth Latin
             # Zero-width character attacks (should be blocked)
             ("John​Smith", "Zero-width characters not allowed"),  # Zero-width space
             ("Jo‌hn Sm‍ith", "Zero-width characters not allowed"),  # ZWNJ and ZWJ
@@ -126,7 +158,9 @@ class ExtendedParanoidTester:
 
         # Test that attacks are properly blocked
         for attack, expected_error_pattern in homograph_attacks:
-            self._test_rejection_case(attack, expected_error_pattern, "Homograph Attack")
+            self._test_rejection_case(
+                attack, expected_error_pattern, "Homograph Attack"
+            )
 
         # Test that legitimate cases work
         for legitimate, expected in legitimate_cases:
@@ -155,7 +189,10 @@ class ExtendedParanoidTester:
             ("İ", "İ"),  # Turkish capital I with dot - remains unchanged in NFKC
             ("ı", "ı"),  # Turkish lowercase dotless i - remains unchanged in NFKC
             # Modifier letters - NFKC does NOT normalize modifier letters to apostrophes
-            ("Oʻahu", "Oʻahu"),  # Modifier letter turned comma - remains unchanged in NFKC
+            (
+                "Oʻahu",
+                "Oʻahu",
+            ),  # Modifier letter turned comma - remains unchanged in NFKC
             ("ʻOkina", "ʻOkina"),  # Hawaiian okina - remains unchanged in NFKC
             # Superscript/subscript
             ("x²", "x2"),  # Superscript 2
@@ -356,12 +393,16 @@ class ExtendedParanoidTester:
             # Variant explosion
             {
                 "CanonicalLatin": "Test, Name",
-                "Variants": {"Observed": [{"str": f"Variant{i}"} for i in range(10000)]},
+                "Variants": {
+                    "Observed": [{"str": f"Variant{i}"} for i in range(10000)]
+                },
             },
             # Deep nesting
             {
                 "CanonicalLatin": "Test, Name",
-                "Extra": {"level1": {"level2": {"level3": {"level4": {"level5": "deep"}}}}},
+                "Extra": {
+                    "level1": {"level2": {"level3": {"level4": {"level5": "deep"}}}}
+                },
             },
             # Unicode codepoint limits
             {"CanonicalLatin": chr(0x10FFFF) * 10},  # Max Unicode codepoint
@@ -436,7 +477,11 @@ class ExtendedParanoidTester:
 
         # Locale tests that should be REJECTED (non-Latin scripts)
         rejected_locale_tests = [
-            ("محمد", "ar_SA", "Arabic script found in CanonicalLatin field"),  # RTL Arabic
+            (
+                "محمد",
+                "ar_SA",
+                "Arabic script found in CanonicalLatin field",
+            ),  # RTL Arabic
             (
                 "東京",
                 "ja_JP",
@@ -556,11 +601,16 @@ class ExtendedParanoidTester:
             },
             # Compression bombs (if applicable)
             {"CanonicalLatin": "A" * 1000000},  # Highly compressible
-            {"CanonicalLatin": "".join(chr(i) for i in range(1000, 2000))},  # High entropy
+            {
+                "CanonicalLatin": "".join(chr(i) for i in range(1000, 2000))
+            },  # High entropy
             # Algorithmic complexity
             {"CanonicalLatin": "Test" + str(i) for i in range(10000)},  # Generator
             # Reference bombs (if references allowed)
-            {"CanonicalLatin": "Test", "ref1": {"ref2": {"ref3": {"ref1": "circular"}}}},
+            {
+                "CanonicalLatin": "Test",
+                "ref1": {"ref2": {"ref3": {"ref1": "circular"}}},
+            },
             # Unicode expansion bombs
             {"CanonicalLatin": "ﬃ" * 10000},  # Ligature that expands to 3 chars
             {"CanonicalLatin": "㎡" * 10000},  # Square meter expands
@@ -573,7 +623,9 @@ class ExtendedParanoidTester:
                 "CanonicalLatin": "Test",
                 "Variants": {
                     "Synthesised": [
-                        {"str": f"V{i}", "type": f"T{j}"} for i in range(100) for j in range(100)
+                        {"str": f"V{i}", "type": f"T{j}"}
+                        for i in range(100)
+                        for j in range(100)
                     ]
                 },
             },
@@ -607,7 +659,9 @@ class ExtendedParanoidTester:
             self.results["failed"] += 1
             self.record_error("Normalization", str(e))
 
-    def _test_rejection_case(self, test_input: str, expected_error_pattern: str, context: str):
+    def _test_rejection_case(
+        self, test_input: str, expected_error_pattern: str, context: str
+    ):
         """Test that certain inputs are properly rejected with expected error."""
         self.results["total_tests"] += 1
 
@@ -618,7 +672,8 @@ class ExtendedParanoidTester:
             # If we get here, the input was NOT rejected as expected
             self.results["failed"] += 1
             self.record_error(
-                context, f"Expected rejection but got result: {result.get('CanonicalLatin')}"
+                context,
+                f"Expected rejection but got result: {result.get('CanonicalLatin')}",
             )
         except Exception as e:
             # Check if the error matches what we expected
@@ -647,13 +702,21 @@ class ExtendedParanoidTester:
                 result = self.pipeline.process_entry(entry)
 
                 # Check if bidi characters are handled safely
-                if any(c in text for c in "\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069"):
+                if any(
+                    c in text
+                    for c in "\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069"
+                ):
                     if field == "CanonicalLatin":
                         # Latin field should reject bidi overrides
                         self.results["failed"] += 1
-                        print(f"FAIL BIDI FAILURE: '{text}' accepted bidi chars in Latin field")
+                        print(
+                            f"FAIL BIDI FAILURE: '{text}' accepted bidi chars in Latin field"
+                        )
                         self.results["bidi_attacks"].append(
-                            {"text": text, "issue": "Bidi control chars accepted in Latin field"}
+                            {
+                                "text": text,
+                                "issue": "Bidi control chars accepted in Latin field",
+                            }
                         )
                     else:
                         self.results["passed"] += 1
@@ -675,7 +738,9 @@ class ExtendedParanoidTester:
             zw_chars = "\u200b\u200c\u200d\u200e\u200f\ufeff\u180e\u2060"
             if any(c in result.get("CanonicalLatin", "") for c in zw_chars):
                 self._record_test_result(False)
-                print(f"FAIL ZERO-WIDTH FAILURE: '{text}' - zero-width chars not stripped")
+                print(
+                    f"FAIL ZERO-WIDTH FAILURE: '{text}' - zero-width chars not stripped"
+                )
                 self.results["zero_width_attacks"].append(
                     {
                         "input": repr(text),
@@ -745,7 +810,10 @@ class ExtendedParanoidTester:
                     self.results["failed"] += 1
                     print(f"FAIL OVERFLOW FAILURE: Accepted extreme year {year}")
                     self.results["overflow_attempts"].append(
-                        {"entry": str(entry)[:100], "issue": f"Accepted extreme year: {year}"}
+                        {
+                            "entry": str(entry)[:100],
+                            "issue": f"Accepted extreme year: {year}",
+                        }
                     )
                 else:
                     self.results["passed"] += 1
@@ -769,7 +837,10 @@ class ExtendedParanoidTester:
                     f"FAIL SERIALIZATION FAILURE: Control characters not sanitized in '{canonical}'"
                 )
                 self.results["serialization_issues"].append(
-                    {"entry": repr(entry)[:100], "issue": "Control characters not sanitized"}
+                    {
+                        "entry": repr(entry)[:100],
+                        "issue": "Control characters not sanitized",
+                    }
                 )
             else:
                 self.results["passed"] += 1
@@ -807,15 +878,21 @@ class ExtendedParanoidTester:
 
             if elapsed > 1.0:  # More than 1 second is concerning
                 self.results["failed"] += 1
-                print(f"FAIL REDOS FAILURE: Pattern took {elapsed:.2f}s: {pattern[:50]}")
-                self.record_error("ReDoS", f"Pattern took {elapsed:.2f}s: {pattern[:50]}")
+                print(
+                    f"FAIL REDOS FAILURE: Pattern took {elapsed:.2f}s: {pattern[:50]}"
+                )
+                self.record_error(
+                    "ReDoS", f"Pattern took {elapsed:.2f}s: {pattern[:50]}"
+                )
             else:
                 self.results["passed"] += 1
         except Exception as e:
             elapsed = time.time() - start_time
             if elapsed > 1.0:
                 self.results["failed"] += 1
-                print(f"FAIL REDOS TIMEOUT FAILURE: Pattern caused timeout: {pattern[:50]}")
+                print(
+                    f"FAIL REDOS TIMEOUT FAILURE: Pattern caused timeout: {pattern[:50]}"
+                )
                 self.record_error("ReDoS", f"Pattern caused timeout: {pattern[:50]}")
             else:
                 self.results["passed"] += 1
@@ -831,8 +908,12 @@ class ExtendedParanoidTester:
 
             # These should all be rejected or sanitized
             self.results["failed"] += 1
-            print(f"FAIL POLYGLOT FAILURE: Accepted dangerous polyglot: {polyglot[:50]}")
-            self.record_error("Polyglot", f"Accepted dangerous polyglot: {polyglot[:50]}")
+            print(
+                f"FAIL POLYGLOT FAILURE: Accepted dangerous polyglot: {polyglot[:50]}"
+            )
+            self.record_error(
+                "Polyglot", f"Accepted dangerous polyglot: {polyglot[:50]}"
+            )
         except Exception as e:
             self.results["passed"] += 1  # Good if rejected
 
@@ -885,7 +966,9 @@ class ExtendedParanoidTester:
                 print(f"  - {repr(attack['text'])[:50]}")
 
         if self.results["zero_width_attacks"]:
-            print(f"\n👻 ZERO-WIDTH ATTACKS ({len(self.results['zero_width_attacks'])}):")
+            print(
+                f"\n👻 ZERO-WIDTH ATTACKS ({len(self.results['zero_width_attacks'])}):"
+            )
             for attack in self.results["zero_width_attacks"][:3]:
                 print(f"  - {attack['issue']}")
 

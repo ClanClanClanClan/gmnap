@@ -9,7 +9,9 @@ import shutil
 from datetime import datetime
 
 # Backup the current file
-backup_name = f"resources/rr_syllable_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+backup_name = (
+    f"resources/rr_syllable_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+)
 shutil.copy("resources/rr_syllable_map.csv", backup_name)
 print(f"Backed up to: {backup_name}")
 
@@ -26,7 +28,11 @@ with open("resources/rr_syllable_map.csv", encoding="utf8") as f:
 # REVERSE COMPOUND MAPPINGS for proper roundtrip
 reverse_compound_mappings = [
     # Compound words from systematic coverage
-    ("레어이니셜블록", "rareinitialsblock", "-1.0"),  # 레어이니셜블록 → "rareinitialsblock"
+    (
+        "레어이니셜블록",
+        "rareinitialsblock",
+        "-1.0",
+    ),  # 레어이니셜블록 → "rareinitialsblock"
     ("에이비씨", "abc", "-0.8"),  # 에이비씨 → "abc" (alternative to a.b.c.)
     ("엑스와이지", "xyz", "-0.8"),  # 엑스와이지 → "xyz" (alternative to x.y.z.)
     # Academic compound titles
@@ -63,10 +69,14 @@ for hangul, roman, weight in reverse_compound_mappings:
                 # Only update if new weight is stronger
                 if float(weight) < float(old_weight):
                     rows[i] = [hangul, roman, weight]
-                    print(f"  UPDATED: {hangul} → {roman} (weight: {old_weight} → {weight})")
+                    print(
+                        f"  UPDATED: {hangul} → {roman} (weight: {old_weight} → {weight})"
+                    )
                     updated_count += 1
                 else:
-                    print(f"  KEPT: {hangul} → {roman} (existing {old_weight} >= new {weight})")
+                    print(
+                        f"  KEPT: {hangul} → {roman} (existing {old_weight} >= new {weight})"
+                    )
             else:
                 rows[i] = [hangul, roman, weight]
                 print(f"  UPDATED: {hangul} → {roman} (added weight: {weight})")

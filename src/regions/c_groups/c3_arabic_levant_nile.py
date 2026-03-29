@@ -119,10 +119,40 @@ class C3_ArabicLevantNile(RegionSpec):
 
         # Rule 2: Arabic al- Article – sun letters for assimilation
         # Sun letters: These letters cause assimilation of the 'l' in 'al-'
-        self.sun_letters = {"ت", "ث", "د", "ذ", "ر", "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ل", "ن"}
+        self.sun_letters = {
+            "ت",
+            "ث",
+            "د",
+            "ذ",
+            "ر",
+            "ز",
+            "س",
+            "ش",
+            "ص",
+            "ض",
+            "ط",
+            "ظ",
+            "ل",
+            "ن",
+        }
 
         # Moon letters: These letters do not cause assimilation
-        self.moon_letters = {"ا", "ب", "ج", "ح", "خ", "ع", "غ", "ف", "ق", "ك", "م", "ه", "و", "ي"}
+        self.moon_letters = {
+            "ا",
+            "ب",
+            "ج",
+            "ح",
+            "خ",
+            "ع",
+            "غ",
+            "ف",
+            "ق",
+            "ك",
+            "م",
+            "ه",
+            "و",
+            "ي",
+        }
 
         # Definite article patterns
         self.definite_articles = {
@@ -223,11 +253,15 @@ class C3_ArabicLevantNile(RegionSpec):
             if romanized != canonical:
                 # Update CanonicalLatin to be romanized
                 entry["CanonicalLatin"] = romanized
-                entry["Variants"]["Synthesised"].append({"str": romanized, "type": "romanization"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": romanized, "type": "romanization"}
+                )
 
         # Add variant without patronymic
         if components.get("patronymic"):
-            without_patronymic = self._generate_no_patronymic_variant(canonical, components)
+            without_patronymic = self._generate_no_patronymic_variant(
+                canonical, components
+            )
             if without_patronymic and without_patronymic != canonical:
                 entry["Variants"]["Synthesised"].append(
                     {"str": without_patronymic, "type": "no-patronymic"}
@@ -253,7 +287,10 @@ class C3_ArabicLevantNile(RegionSpec):
                 and article_info["assimilated_form"] != canonical
             ):
                 entry["Variants"]["Synthesised"].append(
-                    {"str": article_info["assimilated_form"], "type": "sun-letter-assimilation"}
+                    {
+                        "str": article_info["assimilated_form"],
+                        "type": "sun-letter-assimilation",
+                    }
                 )
 
         # Rule 32: Ibn/Abu/Um Prefixes – dropped when next token length ≥ 3
@@ -309,7 +346,10 @@ class C3_ArabicLevantNile(RegionSpec):
         """
         for i, word in enumerate(words):
             word_lower = word.lower()
-            if word_lower in self.patronymic_patterns or word in self.patronymic_patterns:
+            if (
+                word_lower in self.patronymic_patterns
+                or word in self.patronymic_patterns
+            ):
                 # Check if this is specifically bin/bint (Rule 3)
                 is_bin_bint = word_lower in ["bin", "ibn", "bint", "بن", "ابن", "بنت"]
 
@@ -351,7 +391,9 @@ class C3_ArabicLevantNile(RegionSpec):
                         following_letter = name[article_idx + len(article)]
 
                         # Determine if sun or moon letter
-                        letter_type = "sun" if following_letter in self.sun_letters else "moon"
+                        letter_type = (
+                            "sun" if following_letter in self.sun_letters else "moon"
+                        )
 
                         # Extract root (without article)
                         root = name[:article_idx] + name[article_idx + len(article) :]
@@ -364,7 +406,11 @@ class C3_ArabicLevantNile(RegionSpec):
                             # e.g., al-shams → ash-shams
                             pass  # Already handled in the original
 
-                        return {"type": letter_type, "root": root, "assimilated_form": assimilated}
+                        return {
+                            "type": letter_type,
+                            "root": root,
+                            "assimilated_form": assimilated,
+                        }
 
         # Check for romanized forms
         romanized_patterns = [
@@ -382,7 +428,9 @@ class C3_ArabicLevantNile(RegionSpec):
                 root = " ".join(root.split())
 
                 # Determine type based on pattern
-                letter_type = "sun" if "sh-" in pattern or "[tdrzsnl]-" in pattern else "moon"
+                letter_type = (
+                    "sun" if "sh-" in pattern or "[tdrzsnl]-" in pattern else "moon"
+                )
 
                 return {"type": letter_type, "root": root, "assimilated_form": name}
 
@@ -440,7 +488,9 @@ class C3_ArabicLevantNile(RegionSpec):
                         variant_words = words[:i] + words[i + 1 :]
                         if variant_words:  # Ensure we don't create empty names
                             variant_name = " ".join(variant_words)
-                            variants.append({"str": variant_name, "type": "prefix-drop"})
+                            variants.append(
+                                {"str": variant_name, "type": "prefix-drop"}
+                            )
 
         return variants
 
@@ -558,7 +608,12 @@ class C3_ArabicLevantNile(RegionSpec):
                     if char in romanization_map:
                         mapped = romanization_map[char]
                         # Add vowels for better readability
-                        if i > 0 and mapped and result and result[-1] in "bcdfghjklmnpqrstvwxyz":
+                        if (
+                            i > 0
+                            and mapped
+                            and result
+                            and result[-1] in "bcdfghjklmnpqrstvwxyz"
+                        ):
                             # Check if we need to add a vowel between consonants
                             if char in "محد" and i < len(part) - 1:
                                 if part[i + 1] not in "اويىَُِ":
@@ -612,19 +667,25 @@ class C3_ArabicLevantNile(RegionSpec):
         # If CanonicalNative exists, it should be Arabic
         if canonical_native:
             if not self._is_arabic(canonical_native):
-                raise RegionRuleError(f"CanonicalNative should be Arabic: {canonical_native}")
+                raise RegionRuleError(
+                    f"CanonicalNative should be Arabic: {canonical_native}"
+                )
 
         # If CanonicalLatin exists, it should be romanized
         if canonical_latin:
             if self._is_arabic(canonical_latin):
-                raise RegionRuleError(f"CanonicalLatin should be romanized: {canonical_latin}")
+                raise RegionRuleError(
+                    f"CanonicalLatin should be romanized: {canonical_latin}"
+                )
 
         # Check name structure
         for canonical in [canonical_native, canonical_latin]:
             if canonical:
                 words = canonical.split()
                 if len(words) < 2:
-                    raise RegionRuleError(f"Name should have at least 2 words: {canonical}")
+                    raise RegionRuleError(
+                        f"Name should have at least 2 words: {canonical}"
+                    )
 
                 # Check for invalid characters
                 if not self._has_valid_characters(canonical):
@@ -653,7 +714,9 @@ class C3_ArabicLevantNile(RegionSpec):
             canonical = components["root_form"]
         else:
             # Fallback to canonical form
-            canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
+            canonical = entry.get("CanonicalLatin", "") or entry.get(
+                "CanonicalNative", ""
+            )
 
         # Extract family and given names
         family = components.get("family_name", "")

@@ -14,7 +14,9 @@ def create_virtual_environment():
     print("Creating Python 3.12 virtual environment...")
 
     # Create virtual environment
-    result = subprocess.run(["python3.12", "-m", "venv", ".venv"], capture_output=True, text=True)
+    result = subprocess.run(
+        ["python3.12", "-m", "venv", ".venv"], capture_output=True, text=True
+    )
 
     if result.returncode != 0:
         print(f"Error creating virtual environment: {result.stderr}")
@@ -97,7 +99,9 @@ def install_system_dependencies():
         # From blueprint line 47-48
         packages = ["gcc", "automake", "libtool"]
         for package in packages:
-            result = subprocess.run(["brew", "install", package], capture_output=True, text=True)
+            result = subprocess.run(
+                ["brew", "install", package], capture_output=True, text=True
+            )
             if result.returncode != 0:
                 print(f"Warning: Could not install {package} via brew")
 

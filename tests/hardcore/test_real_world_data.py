@@ -39,7 +39,12 @@ class TestRealWorldMathematicianNames:
                 "name": "الخوارزمي، محمد بن موسى",
                 "latin": "al-Khwārizmī, Muḥammad ibn Mūsā",
                 "birth": "c780",
-                "issues": ["mixed_scripts", "diacritics", "ibn_particle", "historical_dating"],
+                "issues": [
+                    "mixed_scripts",
+                    "diacritics",
+                    "ibn_particle",
+                    "historical_dating",
+                ],
             },
             {
                 "name": "أبو عبد الله محمد بن جابر بن سنان البتاني",
@@ -74,8 +79,12 @@ class TestRealWorldMathematicianNames:
         for mathematician in arabic_mathematicians:
             try:
                 # Test Unicode normalization
-                normalized_native = self.unicode_handler.normalize(mathematician["name"])
-                normalized_latin = self.unicode_handler.normalize(mathematician["latin"])
+                normalized_native = self.unicode_handler.normalize(
+                    mathematician["name"]
+                )
+                normalized_latin = self.unicode_handler.normalize(
+                    mathematician["latin"]
+                )
 
                 # Check for normalization issues
                 if not normalized_native or not normalized_latin:
@@ -115,11 +124,17 @@ class TestRealWorldMathematicianNames:
 
         # Report failures
         if processing_failures:
-            pytest.fail(f"Processing failures on real Arabic names: {processing_failures}")
+            pytest.fail(
+                f"Processing failures on real Arabic names: {processing_failures}"
+            )
         if normalization_failures:
-            pytest.fail(f"Normalization failures on real Arabic names: {normalization_failures}")
+            pytest.fail(
+                f"Normalization failures on real Arabic names: {normalization_failures}"
+            )
         if validation_failures:
-            pytest.fail(f"Validation failures on real Arabic names: {validation_failures}")
+            pytest.fail(
+                f"Validation failures on real Arabic names: {validation_failures}"
+            )
 
     def test_complex_russian_mathematicians(self):
         """Test complex Russian mathematician names with patronymics."""
@@ -171,16 +186,24 @@ class TestRealWorldMathematicianNames:
                     global_id = self.generator.generate(entry)
 
                     # Verify processing succeeded
-                    assert global_id is not None, f"Failed to generate GlobalID for {name_form}"
-                    assert len(global_id) >= 22, f"Invalid GlobalID length for {name_form}"
+                    assert (
+                        global_id is not None
+                    ), f"Failed to generate GlobalID for {name_form}"
+                    assert (
+                        len(global_id) >= 22
+                    ), f"Invalid GlobalID length for {name_form}"
 
                     # Test deterministic generation (clear state first)
                     self.generator.clear()
                     global_id2 = self.generator.generate(entry)
-                    assert global_id == global_id2, f"Non-deterministic GlobalID for {name_form}"
+                    assert (
+                        global_id == global_id2
+                    ), f"Non-deterministic GlobalID for {name_form}"
 
                 except Exception as e:
-                    pytest.fail(f"Failed processing Russian mathematician {name_form}: {str(e)}")
+                    pytest.fail(
+                        f"Failed processing Russian mathematician {name_form}: {str(e)}"
+                    )
 
     def test_chinese_mathematician_names(self):
         """Test Chinese mathematician names with various complexities."""
@@ -220,15 +243,21 @@ class TestRealWorldMathematicianNames:
         for mathematician in chinese_mathematicians:
             # Test CJK processing
             try:
-                normalized_native = self.unicode_handler.normalize(mathematician["name"])
-                normalized_latin = self.unicode_handler.normalize(mathematician["latin"])
+                normalized_native = self.unicode_handler.normalize(
+                    mathematician["name"]
+                )
+                normalized_latin = self.unicode_handler.normalize(
+                    mathematician["latin"]
+                )
 
                 # Verify both forms are preserved
                 assert normalized_native, f"Lost Chinese name: {mathematician['name']}"
                 assert normalized_latin, f"Lost Latin name: {mathematician['latin']}"
 
                 # Test script detection
-                detected_script = self.unicode_handler.detect_primary_script(normalized_native)
+                detected_script = self.unicode_handler.detect_primary_script(
+                    normalized_native
+                )
                 assert (
                     detected_script == "CJK"
                 ), f"Wrong script detected for {mathematician['name']}: {detected_script}"
@@ -241,7 +270,9 @@ class TestRealWorldMathematicianNames:
                 }
 
                 global_id = self.generator.generate(entry)
-                assert global_id, f"Failed to generate GlobalID for {mathematician['name']}"
+                assert (
+                    global_id
+                ), f"Failed to generate GlobalID for {mathematician['name']}"
 
                 # Test region detection
                 region_result = self.region_manager.detect_region(
@@ -355,7 +386,9 @@ class TestRealWorldMathematicianNames:
                 # Test GlobalID generation
                 entry = {"CanonicalNative": normalized}
                 global_id = self.generator.generate(entry)
-                assert global_id, f"Failed to generate GlobalID for mixed script name: {name}"
+                assert (
+                    global_id
+                ), f"Failed to generate GlobalID for mixed script name: {name}"
 
                 # Test region detection (should likely go to Z0 for mixed scripts)
                 region_result = self.region_manager.detect_region(
@@ -377,14 +410,26 @@ class TestRealWorldMathematicianNames:
                 "name": "d'Alembert, Jean le Rond",
                 "issues": ["apostrophe_in_surname", "article_prefix"],
             },
-            {"name": "O'Sullivan, Denis", "issues": ["irish_apostrophe", "ambiguous_parsing"]},
+            {
+                "name": "O'Sullivan, Denis",
+                "issues": ["irish_apostrophe", "ambiguous_parsing"],
+            },
             {
                 "name": "van 't Hoff, Jacobus",
                 "issues": ["dutch_contraction", "particle_with_apostrophe"],
             },
-            {"name": "Łukasiewicz, Jan", "issues": ["polish_l_stroke", "pronunciation_variants"]},
-            {"name": "Erdős, Paul", "issues": ["hungarian_double_acute", "umlaut_variants"]},
-            {"name": "Pólya, George", "issues": ["hungarian_acute", "name_anglicization"]},
+            {
+                "name": "Łukasiewicz, Jan",
+                "issues": ["polish_l_stroke", "pronunciation_variants"],
+            },
+            {
+                "name": "Erdős, Paul",
+                "issues": ["hungarian_double_acute", "umlaut_variants"],
+            },
+            {
+                "name": "Pólya, George",
+                "issues": ["hungarian_acute", "name_anglicization"],
+            },
         ]
 
         for case in punctuation_cases:
@@ -411,7 +456,9 @@ class TestRealWorldMathematicianNames:
                 # Clear generator to test true determinism
                 self.generator.clear()
                 global_id2 = self.generator.generate(entry)
-                assert global_id == global_id2, f"Non-deterministic GlobalID for: {name}"
+                assert (
+                    global_id == global_id2
+                ), f"Non-deterministic GlobalID for: {name}"
 
             except Exception as e:
                 pytest.fail(f"Failed processing punctuation case {name}: {str(e)}")
@@ -425,8 +472,14 @@ class TestRealWorldMathematicianNames:
             },
             {"name": "𝕊𝕞𝕚𝕥𝕙, 𝕁𝕠𝕙𝕟", "description": "Mathematical alphanumeric symbols"},
             {"name": "Ｓｍｉｔｈ，Ｊｏｈｎ", "description": "Full-width characters"},
-            {"name": "Smith\u200b, \u200cJohn\u200d", "description": "Zero-width characters"},
-            {"name": "Smith\ufeff, John\u061c", "description": "Invisible formatting characters"},
+            {
+                "name": "Smith\u200b, \u200cJohn\u200d",
+                "description": "Zero-width characters",
+            },
+            {
+                "name": "Smith\ufeff, John\u061c",
+                "description": "Invisible formatting characters",
+            },
         ]
 
         for case in extreme_cases:
@@ -482,7 +535,9 @@ class TestRealWorldMathematicianNames:
                     # Should be able to process safely
                     entry = {"CanonicalNative": normalized}
                     global_id = self.generator.generate(entry)
-                    assert global_id, f"Failed to generate GlobalID after cleaning: {issue}"
+                    assert (
+                        global_id
+                    ), f"Failed to generate GlobalID after cleaning: {issue}"
 
             except Exception as e:
                 # Should handle gracefully, not crash

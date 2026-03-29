@@ -127,7 +127,9 @@ class BatchProcessor:
         start_time = time.time()
 
         # Split into chunks for parallel processing
-        chunks = [entries[i : i + chunk_size] for i in range(0, len(entries), chunk_size)]
+        chunks = [
+            entries[i : i + chunk_size] for i in range(0, len(entries), chunk_size)
+        ]
 
         # Process chunks in parallel using thread pool
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
@@ -135,7 +137,8 @@ class BatchProcessor:
 
             # Submit all chunks for processing
             futures = [
-                loop.run_in_executor(executor, self._process_chunk, chunk) for chunk in chunks
+                loop.run_in_executor(executor, self._process_chunk, chunk)
+                for chunk in chunks
             ]
 
             # Wait for all chunks to complete
@@ -159,7 +162,9 @@ class BatchProcessor:
             successful=len(results),
             failed=len(errors),
             processing_time=processing_time,
-            entries_per_second=len(entries) / processing_time if processing_time > 0 else 0,
+            entries_per_second=(
+                len(entries) / processing_time if processing_time > 0 else 0
+            ),
             results=results,
             errors=errors,
         )
@@ -180,7 +185,9 @@ class BatchProcessor:
         start_time = time.time()
 
         # Split into chunks for multiprocessing
-        chunks = [entries[i : i + chunk_size] for i in range(0, len(entries), chunk_size)]
+        chunks = [
+            entries[i : i + chunk_size] for i in range(0, len(entries), chunk_size)
+        ]
 
         # Process chunks in parallel using process pool
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
@@ -204,7 +211,9 @@ class BatchProcessor:
             successful=len(results),
             failed=len(errors),
             processing_time=processing_time,
-            entries_per_second=len(entries) / processing_time if processing_time > 0 else 0,
+            entries_per_second=(
+                len(entries) / processing_time if processing_time > 0 else 0
+            ),
             results=results,
             errors=errors,
         )
@@ -245,7 +254,9 @@ async def benchmark_batch_processing():
 
     # Generate test data
     test_sizes = [100, 1000, 5000]
-    test_entries = [{"name": f"Test User {i}", "year": 2024} for i in range(max(test_sizes))]
+    test_entries = [
+        {"name": f"Test User {i}", "year": 2024} for i in range(max(test_sizes))
+    ]
 
     processor = BatchProcessor(max_workers=4)
 
@@ -265,7 +276,9 @@ async def benchmark_batch_processing():
         result_async = await processor.process_batch_async(entries, chunk_size=100)
         print(f"  Time: {result_async.processing_time:.2f}s")
         print(f"  Speed: {result_async.entries_per_second:.0f} entries/second")
-        print(f"  Speedup: {result_sync.processing_time / result_async.processing_time:.1f}x")
+        print(
+            f"  Speedup: {result_sync.processing_time / result_async.processing_time:.1f}x"
+        )
 
         # Multiprocess (only for larger batches)
         if size >= 1000:
@@ -273,7 +286,9 @@ async def benchmark_batch_processing():
             result_mp = processor.process_batch_multiprocess(entries, chunk_size=250)
             print(f"  Time: {result_mp.processing_time:.2f}s")
             print(f"  Speed: {result_mp.entries_per_second:.0f} entries/second")
-            print(f"  Speedup: {result_sync.processing_time / result_mp.processing_time:.1f}x")
+            print(
+                f"  Speedup: {result_sync.processing_time / result_mp.processing_time:.1f}x"
+            )
 
 
 def main():
@@ -287,7 +302,9 @@ def main():
     print("```python")
     print("processor = BatchProcessor(max_workers=4)")
     print("result = processor.process_batch_sync(entries)")
-    print("print(f'Processed {result.successful} entries in {result.processing_time:.1f}s')")
+    print(
+        "print(f'Processed {result.successful} entries in {result.processing_time:.1f}s')"
+    )
     print("```")
 
 

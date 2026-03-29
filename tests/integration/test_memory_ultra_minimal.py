@@ -126,7 +126,9 @@ if memory_points:
     if current_leak < 0.01:
         print(f"\n📈 CONFIRMED LEAK SOURCE:")
         print(f"   -> RegionDetectionResult dataclass or its metadata dictionary")
-        print(f"   -> Need to investigate dataclass field retention or circular references")
+        print(
+            f"   -> Need to investigate dataclass field retention or circular references"
+        )
         print(f"   -> Potential fix: Use slots, or avoid default_factory=dict")
     elif current_leak < 0.02:
         print(f"\n📈 LIKELY LEAK SOURCES:")

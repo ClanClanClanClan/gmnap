@@ -240,7 +240,9 @@ if __name__ == "__main__":
 
     # Create cached classifier
     print("\nInitializing cached classifier...")
-    cached = CachedRegionalClassifier(cache_size=1000, ttl_seconds=3600, normalize_names=True)
+    cached = CachedRegionalClassifier(
+        cache_size=1000, ttl_seconds=3600, normalize_names=True
+    )
 
     # Test names (some repeated)
     test_names = [
@@ -300,7 +302,9 @@ if __name__ == "__main__":
     uncached_time = time.time() - start
 
     print(f"  Time: {uncached_time:.3f}s")
-    print(f"  Throughput: {len(benchmark_names) / uncached_time:.1f} predictions/second")
+    print(
+        f"  Throughput: {len(benchmark_names) / uncached_time:.1f} predictions/second"
+    )
 
     # Cached
     print("\nCached (1000 predictions, 999 hits):")
@@ -340,7 +344,9 @@ if __name__ == "__main__":
         status = "HIT" if stats["hits"] > 0 else "MISS"
         print(f"  '{variant}' → {status}")
 
-    print(f"\n  Cache entries: {stats['cache_size']} (should be 1 due to normalization)")
+    print(
+        f"\n  Cache entries: {stats['cache_size']} (should be 1 due to normalization)"
+    )
     print(f"  Hit rate: {stats['hit_rate']:.1%}")
 
     print("\n" + "=" * 80)

@@ -86,5 +86,7 @@ for cp in range(BASE, BASE + 11172):
     t = off % T
     w.writerow([chr(cp), LEADS[l] + VOW[v] + TAIL[t]])
 # critical long‑tail syllables
-w.writerows([["안", "ahn"], ["철", "cheol"], ["환", "hwan"], ["김", "kim"], ["영", "young"]])
+w.writerows(
+    [["안", "ahn"], ["철", "cheol"], ["환", "hwan"], ["김", "kim"], ["영", "young"]]
+)
 print("✓ resources/rr_syllable_map.csv lines:", sum(1 for _ in open(path)))

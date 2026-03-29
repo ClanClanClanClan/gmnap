@@ -21,9 +21,7 @@ def fix_czech_slovak_accents():
         content = f.read()
 
     # Find the current Slavic surname matching logic
-    slavic_match_pattern = (
-        r"has_slavic_surname = any\(surname in name_lower for surname in slavic_surnames\)"
-    )
+    slavic_match_pattern = r"has_slavic_surname = any\(surname in name_lower for surname in slavic_surnames\)"
 
     if re.search(slavic_match_pattern, content):
         # Replace with accent-normalized matching (same as Hungarian)
@@ -42,7 +40,9 @@ def fix_czech_slovak_accents():
             scores['G1'] = max(0, scores['G1'] - 6)  # Stronger Spanish score reduction"""
 
             content = re.sub(slavic_scoring_pattern, new_slavic_scoring, content)
-            print("   ✅ Increased Slavic surname boost to override Spanish accent detection")
+            print(
+                "   ✅ Increased Slavic surname boost to override Spanish accent detection"
+            )
 
     # Write fixed pipeline
     with open(pipeline_path, "w") as f:

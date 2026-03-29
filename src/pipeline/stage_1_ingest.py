@@ -159,7 +159,9 @@ class IngestStage:
         except Exception as e:
             raise IngestionError(f"Error reading YAML file {path}: {str(e)}")
 
-    def _validate_ingested_data(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _validate_ingested_data(
+        self, data: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Validate ingested data for security and schema compliance"""
         validated_data = []
 

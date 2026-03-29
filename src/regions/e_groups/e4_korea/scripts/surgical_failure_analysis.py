@@ -34,7 +34,13 @@ for k, v in data.items():
     ko = eng2kor(rr)
     if ko != ko_exp:
         failures.append(
-            {"name": k, "input": rr, "expected": ko_exp, "got": ko, "tokens": list(tokenise(rr))}
+            {
+                "name": k,
+                "input": rr,
+                "expected": ko_exp,
+                "got": ko,
+                "tokens": list(tokenise(rr)),
+            }
         )
 
 print(f"Analyzing {len(failures)} eng→kor failures")
@@ -93,11 +99,15 @@ for f in categories["systematic"]:
             break
 
 print("Most common single-character patterns:")
-sorted_patterns = sorted(systematic_patterns.items(), key=lambda x: len(x[1]), reverse=True)
+sorted_patterns = sorted(
+    systematic_patterns.items(), key=lambda x: len(x[1]), reverse=True
+)
 for pattern, cases in sorted_patterns[:10]:
     print(f"  {pattern}: {len(cases)} cases")
     for case in cases[:2]:  # Show first 2 examples
-        print(f"    {case['name']}: {case['input']} → got:{case['got']} exp:{case['expected']}")
+        print(
+            f"    {case['name']}: {case['input']} → got:{case['got']} exp:{case['expected']}"
+        )
 
 print(f"\n=== NONE RESULT FAILURES (Complete conversion failures) ===")
 none_patterns = {}

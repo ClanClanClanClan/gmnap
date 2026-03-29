@@ -246,7 +246,9 @@ class TestV7ScriptValidation:
 
         # Latin regions should handle Latin scripts well
         success_rate = results["success_count"] / results["total_tests"]
-        assert success_rate >= 0.8, f"Latin script handling failed: {success_rate:.1%} success rate"
+        assert (
+            success_rate >= 0.8
+        ), f"Latin script handling failed: {success_rate:.1%} success rate"
 
     @pytest.mark.timeout(15)
     def test_cyrillic_script_regions(self):
@@ -329,9 +331,17 @@ class TestV7ScriptValidation:
                 "name": "Smith, José",
                 "expected_scripts": ["Latin ASCII", "Latin with diacritics"],
             },
-            {"region": "E1", "name": "Li, Michael", "expected_scripts": ["Han", "Latin ASCII"]},
+            {
+                "region": "E1",
+                "name": "Li, Michael",
+                "expected_scripts": ["Han", "Latin ASCII"],
+            },
             {"region": "E4", "name": "Kim, James", "expected_scripts": ["Latin ASCII"]},
-            {"region": "D4", "name": "Khan, محمد", "expected_scripts": ["Latin ASCII", "Arabic"]},
+            {
+                "region": "D4",
+                "name": "Khan, محمد",
+                "expected_scripts": ["Latin ASCII", "Arabic"],
+            },
         ]
 
         successful_cases = 0
@@ -349,18 +359,25 @@ class TestV7ScriptValidation:
                 region.clean(entry.copy())
                 successful_cases += 1
             except Exception as e:
-                print(f"Mixed script handling failed for {region_code}: {case['name']} - {e}")
+                print(
+                    f"Mixed script handling failed for {region_code}: {case['name']} - {e}"
+                )
 
         # Should handle most mixed script cases gracefully
         success_rate = successful_cases / len(mixed_script_cases)
-        assert success_rate >= 0.7, f"Mixed script handling failed: {success_rate:.1%} success rate"
+        assert (
+            success_rate >= 0.7
+        ), f"Mixed script handling failed: {success_rate:.1%} success rate"
 
     @pytest.mark.timeout(15)
     def test_unicode_normalization_compliance(self):
         """Test Unicode normalization compliance across regions"""
         # Test various Unicode normalization forms
         test_cases = [
-            {"name": "José", "variants": ["José", "Jose\u0301"]},  # Precomposed vs decomposed
+            {
+                "name": "José",
+                "variants": ["José", "Jose\u0301"],
+            },  # Precomposed vs decomposed
             {"name": "naïve", "variants": ["naïve", "nai\u0308ve"]},
             {"name": "résumé", "variants": ["résumé", "re\u0301sume\u0301"]},
         ]
@@ -380,7 +397,10 @@ class TestV7ScriptValidation:
 
                 results = []
                 for variant in variants:
-                    entry = {"CanonicalLatin": f"{variant}, Test", "GlobalID": "test_unicode"}
+                    entry = {
+                        "CanonicalLatin": f"{variant}, Test",
+                        "GlobalID": "test_unicode",
+                    }
                     try:
                         # Process and see if normalization is consistent
                         processed_entry = entry.copy()
@@ -394,7 +414,9 @@ class TestV7ScriptValidation:
                 if len(valid_results) >= 2:
                     total_comparisons += 1
                     # Normalize for comparison
-                    normalized_results = [unicodedata.normalize("NFC", r) for r in valid_results]
+                    normalized_results = [
+                        unicodedata.normalize("NFC", r) for r in valid_results
+                    ]
                     if len(set(normalized_results)) == 1:
                         normalization_consistent += 1
 
@@ -414,9 +436,21 @@ class TestV7ScriptValidation:
                 "name": "محمد، أحمد",
                 "script": "Arabic",
             },  # Arabic in Latin-only region
-            {"region": "C3", "name": "Smith, John", "script": "Latin"},  # Latin in Arabic region
-            {"region": "B1", "name": "李明", "script": "Chinese"},  # Chinese in Cyrillic region
-            {"region": "E1", "name": "Иванов", "script": "Cyrillic"},  # Cyrillic in Chinese region
+            {
+                "region": "C3",
+                "name": "Smith, John",
+                "script": "Latin",
+            },  # Latin in Arabic region
+            {
+                "region": "B1",
+                "name": "李明",
+                "script": "Chinese",
+            },  # Chinese in Cyrillic region
+            {
+                "region": "E1",
+                "name": "Иванов",
+                "script": "Cyrillic",
+            },  # Cyrillic in Chinese region
         ]
 
         graceful_handling = 0
@@ -450,7 +484,10 @@ class TestV7ScriptValidation:
         """Test script detection accuracy for known samples"""
         test_samples = [
             {"text": "Hello World", "expected": {"Latin ASCII"}},
-            {"text": "José García", "expected": {"Latin ASCII", "Latin with diacritics"}},
+            {
+                "text": "José García",
+                "expected": {"Latin ASCII", "Latin with diacritics"},
+            },
             {"text": "Иван Петров", "expected": {"Cyrillic"}},
             {"text": "محمد أحمد", "expected": {"Arabic"}},
             {"text": "李明王", "expected": {"Han"}},
@@ -489,7 +526,10 @@ class TestV7ScriptValidation:
             region = self.regions[region_code]
 
             for case in test_cases:
-                entry = {"CanonicalLatin": case["name"], "GlobalID": f"test_{region_code}"}
+                entry = {
+                    "CanonicalLatin": case["name"],
+                    "GlobalID": f"test_{region_code}",
+                }
                 total_tests += 1
 
                 try:
@@ -502,7 +542,9 @@ class TestV7ScriptValidation:
                         success_count += 1
 
                 except Exception as e:
-                    print(f"Script handling failed for {region_code}: {case['name']} - {e}")
+                    print(
+                        f"Script handling failed for {region_code}: {case['name']} - {e}"
+                    )
 
         return {
             "success_count": success_count,
@@ -549,7 +591,9 @@ class TestV7ScriptValidation:
         print("=" * 80)
 
         # List any regions with missing script support
-        unavailable_regions = set(self.v7_primary_scripts.keys()) - set(self.regions.keys())
+        unavailable_regions = set(self.v7_primary_scripts.keys()) - set(
+            self.regions.keys()
+        )
         if unavailable_regions:
             print(
                 f"Note: Regions unavailable for testing: {', '.join(sorted(unavailable_regions))}"

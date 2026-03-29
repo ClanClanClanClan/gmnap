@@ -50,7 +50,9 @@ class MetricsCollector:
         self._counters: Dict[str, float] = defaultdict(float)
         self._lock = threading.Lock()
 
-    def gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+    def gauge(
+        self, name: str, value: float, tags: Optional[Dict[str, str]] = None
+    ) -> None:
         """Record a gauge metric (point-in-time value)."""
         metric = Metric(
             name=f"{self.namespace}.{name}",
@@ -63,7 +65,9 @@ class MetricsCollector:
         with self._lock:
             self._metrics[metric.name].append(metric)
 
-    def counter(self, name: str, value: float = 1.0, tags: Optional[Dict[str, str]] = None) -> None:
+    def counter(
+        self, name: str, value: float = 1.0, tags: Optional[Dict[str, str]] = None
+    ) -> None:
         """Increment a counter metric."""
         full_name = f"{self.namespace}.{name}"
 
@@ -79,7 +83,9 @@ class MetricsCollector:
             )
             self._metrics[full_name].append(metric)
 
-    def histogram(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+    def histogram(
+        self, name: str, value: float, tags: Optional[Dict[str, str]] = None
+    ) -> None:
         """Record a histogram metric (for distributions)."""
         metric = Metric(
             name=f"{self.namespace}.{name}",
@@ -107,7 +113,9 @@ class MetricsCollector:
         with self._lock:
             if name:
                 full_name = (
-                    f"{self.namespace}.{name}" if not name.startswith(self.namespace) else name
+                    f"{self.namespace}.{name}"
+                    if not name.startswith(self.namespace)
+                    else name
                 )
                 return list(self._metrics.get(full_name, []))
             else:
@@ -171,7 +179,9 @@ class HealthMonitor:
 
         for name, check_func in self._checks.items():
             try:
-                result = await asyncio.get_event_loop().run_in_executor(None, check_func)
+                result = await asyncio.get_event_loop().run_in_executor(
+                    None, check_func
+                )
                 results[name] = result
             except Exception as e:
                 results[name] = HealthCheck(
@@ -280,7 +290,9 @@ class PerformanceMonitor:
         # Process metrics
         process = psutil.Process()
         self.metrics.gauge("process.cpu.percent", process.cpu_percent())
-        self.metrics.gauge("process.memory.rss_mb", process.memory_info().rss / 1024 / 1024)
+        self.metrics.gauge(
+            "process.memory.rss_mb", process.memory_info().rss / 1024 / 1024
+        )
         self.metrics.gauge("process.threads", process.num_threads())
 
 
@@ -317,7 +329,9 @@ class LoggerAdapter(logging.LoggerAdapter):
 def setup_logging(config: Dict[str, Any]) -> None:
     """Setup application logging."""
     log_level = getattr(logging, config.get("log_level", "INFO"))
-    log_format = config.get("log_format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    log_format = config.get(
+        "log_format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
 
     # Configure root logger
     logging.basicConfig(level=log_level, format=log_format)

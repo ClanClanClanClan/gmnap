@@ -41,7 +41,9 @@ async def test_crossref_wrapper():
                 if "display_name" in first:
                     print(f"   Sample: {first['display_name']}")
                 if "affiliations" in first:
-                    print(f"   Affiliations: {len(first.get('affiliations', []))} found")
+                    print(
+                        f"   Affiliations: {len(first.get('affiliations', []))} found"
+                    )
                 return True
             else:
                 print("⚠️ Crossref wrapper returned no results")
@@ -206,7 +208,9 @@ async def test_enricher():
 
         # Check if any authority data was added
         authority_keys = [
-            k for k in enriched.keys() if "Authority" in k or "ORCID" in k or "CrossRef" in k
+            k
+            for k in enriched.keys()
+            if "Authority" in k or "ORCID" in k or "CrossRef" in k
         ]
 
         if authority_keys:
@@ -236,11 +240,15 @@ async def main():
 
     # Check environment
     print("\n=== Environment Check ===")
-    print(f"ORCID_CLIENT_ID: {'✅ Set' if os.environ.get('ORCID_CLIENT_ID') else '❌ Not set'}")
+    print(
+        f"ORCID_CLIENT_ID: {'✅ Set' if os.environ.get('ORCID_CLIENT_ID') else '❌ Not set'}"
+    )
     print(
         f"ORCID_CLIENT_SECRET: {'✅ Set' if os.environ.get('ORCID_CLIENT_SECRET') else '❌ Not set'}"
     )
-    print(f"PUBMED_API_KEY: {'✅ Set' if os.environ.get('PUBMED_API_KEY') else '❌ Not set'}")
+    print(
+        f"PUBMED_API_KEY: {'✅ Set' if os.environ.get('PUBMED_API_KEY') else '❌ Not set'}"
+    )
 
     # Run tests
     results = {
@@ -268,7 +276,9 @@ async def main():
             print(f"❌ {api}: FAILED")
 
     print(f"\n📊 Statistics:")
-    print(f"   Working: {len(working)}/{len(results)} ({100*len(working)/len(results):.1f}%)")
+    print(
+        f"   Working: {len(working)}/{len(results)} ({100*len(working)/len(results):.1f}%)"
+    )
     print(f"   Failed: {len(failed)}/{len(results)}")
 
     # Save results

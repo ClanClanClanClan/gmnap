@@ -9,7 +9,12 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.regions.base import REGION_CODES, RegionRuleError, RegionSpec, get_region_for_territory
+from src.regions.base import (
+    REGION_CODES,
+    RegionRuleError,
+    RegionSpec,
+    get_region_for_territory,
+)
 
 
 # Test fixtures
@@ -17,8 +22,18 @@ from src.regions.base import REGION_CODES, RegionRuleError, RegionSpec, get_regi
 def sample_entries():
     """Sample entries for testing."""
     return [
-        {"id": "1", "canonical_name": "John Smith", "region": "A1", "confidence_score": 0.9},
-        {"id": "2", "canonical_name": "王小明", "region": "E1", "confidence_score": 0.85},
+        {
+            "id": "1",
+            "canonical_name": "John Smith",
+            "region": "A1",
+            "confidence_score": 0.9,
+        },
+        {
+            "id": "2",
+            "canonical_name": "王小明",
+            "region": "E1",
+            "confidence_score": 0.85,
+        },
         {
             "id": "3",
             "canonical_name": "Marie-Claire Dubois",

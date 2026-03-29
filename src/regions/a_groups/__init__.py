@@ -7,4 +7,10 @@ from .a3_nordic_baltic import A3NordicBalticProcessor as A3_NordicBaltic
 from .a4_oceania import A4OceaniaProcessor as A4_Oceania
 from .a5_caribbean import A5CaribbeanProcessor as A5_Caribbean
 
-__all__ = ["A5_Caribbean", "A2_WesternEurope", "A1_AngloSphere", "A4_Oceania", "A3_NordicBaltic"]
+__all__ = [
+    "A5_Caribbean",
+    "A2_WesternEurope",
+    "A1_AngloSphere",
+    "A4_Oceania",
+    "A3_NordicBaltic",
+]

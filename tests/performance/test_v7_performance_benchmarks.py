@@ -113,7 +113,9 @@ class TestV7PerformanceBenchmarks:
         print(f"Baseline memory usage: {baseline_memory:.2f}GB")
 
         # V7 requirement: Should be reasonable baseline
-        assert baseline_memory < 1.0, f"Baseline memory too high: {baseline_memory:.2f}GB"
+        assert (
+            baseline_memory < 1.0
+        ), f"Baseline memory too high: {baseline_memory:.2f}GB"
 
         self.performance_results["baseline_memory_gb"] = baseline_memory
 
@@ -157,7 +159,9 @@ class TestV7PerformanceBenchmarks:
         if region_times:
             avg_processing_time = sum(region_times.values()) / len(region_times)
 
-            print(f"Average single entry processing time: {avg_processing_time*1000:.2f}ms")
+            print(
+                f"Average single entry processing time: {avg_processing_time*1000:.2f}ms"
+            )
 
             # Should be very fast for single entries
             assert (
@@ -215,7 +219,9 @@ class TestV7PerformanceBenchmarks:
 
         # Verify reasonable throughput scaling
         if batch_results:
-            max_throughput = max(result["throughput"] for result in batch_results.values())
+            max_throughput = max(
+                result["throughput"] for result in batch_results.values()
+            )
             assert (
                 max_throughput > 50
             ), f"Batch throughput too low: {max_throughput:.1f} entries/sec"
@@ -257,10 +263,14 @@ class TestV7PerformanceBenchmarks:
 
         memory_increase = max_memory - baseline_memory
 
-        print(f"Memory under load: {max_memory:.2f}GB (increase: {memory_increase:.2f}GB)")
+        print(
+            f"Memory under load: {max_memory:.2f}GB (increase: {memory_increase:.2f}GB)"
+        )
 
         # V7 requirement: <=6GB RSS
-        assert max_memory <= 6.0, f"Memory usage exceeds V7 limit: {max_memory:.2f}GB > 6GB"
+        assert (
+            max_memory <= 6.0
+        ), f"Memory usage exceeds V7 limit: {max_memory:.2f}GB > 6GB"
 
         self.performance_results["max_memory_under_load_gb"] = max_memory
         self.performance_results["memory_increase_gb"] = memory_increase
@@ -325,7 +335,9 @@ class TestV7PerformanceBenchmarks:
             # Estimate time for 1M entries (in minutes)
             estimated_1m_minutes = (time_per_entry * 1_000_000) / 60
 
-            print(f"\nEstimated 1M entries processing time: {estimated_1m_minutes:.1f} minutes")
+            print(
+                f"\nEstimated 1M entries processing time: {estimated_1m_minutes:.1f} minutes"
+            )
 
             self.performance_results["estimated_1m_minutes"] = estimated_1m_minutes
             self.performance_results["scalability_results"] = scalability_results
@@ -337,7 +349,9 @@ class TestV7PerformanceBenchmarks:
             elif estimated_1m_minutes <= 70:
                 print("✓ Estimated Full mode compliance (<=70 min)")
             else:
-                print(f"⚠ Estimated time exceeds V7 limits: {estimated_1m_minutes:.1f} min")
+                print(
+                    f"⚠ Estimated time exceeds V7 limits: {estimated_1m_minutes:.1f} min"
+                )
 
     @pytest.mark.timeout(15)
     def test_concurrent_region_processing(self):
@@ -394,7 +408,9 @@ class TestV7PerformanceBenchmarks:
         total_processed = sum(r["processed"] for r in results.values())
         overall_throughput = total_processed / overall_elapsed
 
-        print(f"Concurrent processing: {total_processed} entries in {overall_elapsed:.2f}s")
+        print(
+            f"Concurrent processing: {total_processed} entries in {overall_elapsed:.2f}s"
+        )
         print(f"Overall throughput: {overall_throughput:.1f} entries/sec")
 
         self.performance_results["concurrent_results"] = results
@@ -494,7 +510,9 @@ class TestV7PerformanceBenchmarks:
         print(f"Total memory: {psutil.virtual_memory().total / (1024**3):.1f}GB")
 
         if "baseline_memory_gb" in self.performance_results:
-            print(f"Baseline memory: {self.performance_results['baseline_memory_gb']:.2f}GB")
+            print(
+                f"Baseline memory: {self.performance_results['baseline_memory_gb']:.2f}GB"
+            )
 
         if "single_entry_avg_ms" in self.performance_results:
             print(
@@ -535,19 +553,25 @@ class TestV7PerformanceBenchmarks:
         if "max_memory_under_load_gb" in self.performance_results:
             memory_usage = self.performance_results["max_memory_under_load_gb"]
             if memory_usage > 6.0:
-                compliance_issues.append(f"Memory usage {memory_usage:.2f}GB > 6GB limit")
+                compliance_issues.append(
+                    f"Memory usage {memory_usage:.2f}GB > 6GB limit"
+                )
 
         # Check estimated performance compliance
         if "estimated_1m_minutes" in self.performance_results:
             est_time = self.performance_results["estimated_1m_minutes"]
             if est_time > 70:
-                compliance_issues.append(f"Estimated 1M time {est_time:.1f}min > 70min limit")
+                compliance_issues.append(
+                    f"Estimated 1M time {est_time:.1f}min > 70min limit"
+                )
 
         # Check CPU efficiency
         if "cpu_max_percent" in self.performance_results:
             max_cpu = self.performance_results["cpu_max_percent"]
             if max_cpu > 95:
-                compliance_issues.append(f"CPU utilization {max_cpu:.1f}% indicates inefficiency")
+                compliance_issues.append(
+                    f"CPU utilization {max_cpu:.1f}% indicates inefficiency"
+                )
 
         # Print compliance status
         if compliance_issues:

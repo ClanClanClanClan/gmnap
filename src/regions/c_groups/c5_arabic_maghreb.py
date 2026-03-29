@@ -13,7 +13,9 @@ class C5ArabicMaghreb(RegionSpec):
 
     def __init__(self):
         super().__init__(
-            code="C5", yaml_files=[], scripts=["Arabic", "Latin"]  # TODO: Add actual YAML files
+            code="C5",
+            yaml_files=[],
+            scripts=["Arabic", "Latin"],  # TODO: Add actual YAML files
         )
 
     def clean(self, name: str) -> str:

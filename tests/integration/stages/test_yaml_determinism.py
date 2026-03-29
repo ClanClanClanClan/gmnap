@@ -13,8 +13,18 @@ from src.ops.yaml_deterministic import (
 
 @pytest.mark.timeout(15)
 def test_yaml_is_deterministic():
-    e1 = {"GlobalID": "B", "Source": "X", "CanonicalLatin": "Noether, Emmy", "Advisors": ["A", "C"]}
-    e2 = {"Source": "X", "Advisors": ["C", "A"], "CanonicalLatin": "Noether, Emmy", "GlobalID": "B"}
+    e1 = {
+        "GlobalID": "B",
+        "Source": "X",
+        "CanonicalLatin": "Noether, Emmy",
+        "Advisors": ["A", "C"],
+    }
+    e2 = {
+        "Source": "X",
+        "Advisors": ["C", "A"],
+        "CanonicalLatin": "Noether, Emmy",
+        "GlobalID": "B",
+    }
     # Canonical forms must be identical
     c1 = canonicalise_entry(e1)
     c2 = canonicalise_entry(e2)

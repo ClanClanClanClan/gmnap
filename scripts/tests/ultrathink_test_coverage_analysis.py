@@ -51,7 +51,9 @@ def analyze_existing_tests():
                 tree = ast.parse(content)
 
                 for node in ast.walk(tree):
-                    if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+                    if isinstance(node, ast.FunctionDef) and node.name.startswith(
+                        "test_"
+                    ):
                         tests[category].append(
                             {
                                 "file": test_file.name,
@@ -124,8 +126,16 @@ def identify_critical_components():
                 "Canonical JSON",
                 "Idempotency",
             ],
-            "Stage 10: Quality Gates": ["Threshold checks", "Quality metrics", "Gate failures"],
-            "Stage 11: Idempotency Check": ["Hash consistency", "0-byte diffs", "Determinism"],
+            "Stage 10: Quality Gates": [
+                "Threshold checks",
+                "Quality metrics",
+                "Gate failures",
+            ],
+            "Stage 11: Idempotency Check": [
+                "Hash consistency",
+                "0-byte diffs",
+                "Determinism",
+            ],
         },
         "Security": {
             "Input Validation": [
@@ -140,9 +150,23 @@ def identify_critical_components():
                 "Control characters",
                 "BiDi attacks",
             ],
-            "Encoding Attacks": ["Base64", "URL encoding", "HTML entities", "Unicode escapes"],
-            "DoS Protection": ["Length limits", "Rate limiting", "ReDoS", "Memory limits"],
-            "Output Sanitization": ["Script removal", "Safe rendering", "Content escaping"],
+            "Encoding Attacks": [
+                "Base64",
+                "URL encoding",
+                "HTML entities",
+                "Unicode escapes",
+            ],
+            "DoS Protection": [
+                "Length limits",
+                "Rate limiting",
+                "ReDoS",
+                "Memory limits",
+            ],
+            "Output Sanitization": [
+                "Script removal",
+                "Safe rendering",
+                "Content escaping",
+            ],
         },
         "Regional Processors": {
             "A-Group": ["A1", "A2", "A3", "A4", "A5"],
@@ -172,7 +196,12 @@ def identify_critical_components():
                 "Concurrent processing",
                 "Batch operations",
             ],
-            "Optimization": ["Caching", "Lazy loading", "Parallel processing", "Resource pooling"],
+            "Optimization": [
+                "Caching",
+                "Lazy loading",
+                "Parallel processing",
+                "Resource pooling",
+            ],
         },
         "Integration": {
             "External Services": ["DuckDB", "NetworkX", "FastText", "Memgraph"],
@@ -182,7 +211,12 @@ def identify_critical_components():
         "Data Quality": {
             "CJK Round-trip": ["Korean", "Chinese", "Japanese", "Vietnamese"],
             "Script Validation": ["Latin", "Cyrillic", "Arabic", "Devanagari", "CJK"],
-            "Name Formats": ["Given Family", "Family Given", "Single name", "Complex names"],
+            "Name Formats": [
+                "Given Family",
+                "Family Given",
+                "Single name",
+                "Complex names",
+            ],
         },
     }
 
@@ -260,7 +294,13 @@ def generate_report(existing_tests, critical_components, gaps):
 
         # Priority gaps (most critical)
         priority_gaps = {
-            "Pipeline Stages": ["Stage 3:", "Stage 7:", "Stage 8:", "Stage 10:", "Stage 11:"],
+            "Pipeline Stages": [
+                "Stage 3:",
+                "Stage 7:",
+                "Stage 8:",
+                "Stage 10:",
+                "Stage 11:",
+            ],
             "Security": ["Rate limiting", "Memory limits"],
             "Edge Cases": ["150-char DoS", "Complex hyphenated"],
             "Performance": ["Processing speed", "Memory usage", "Concurrent"],

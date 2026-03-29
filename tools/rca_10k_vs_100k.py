@@ -8,7 +8,11 @@ from src.quality.gates_streaming import StreamingGates
 
 def mk(n: int) -> List[Dict[str, Any]]:
     return [
-        {"GlobalID": f"rca{i:08d}", "CanonicalNative": "John Smith", "Region": "a1_anglo_sphere"}
+        {
+            "GlobalID": f"rca{i:08d}",
+            "CanonicalNative": "John Smith",
+            "Region": "a1_anglo_sphere",
+        }
         for i in range(n)
     ]
 

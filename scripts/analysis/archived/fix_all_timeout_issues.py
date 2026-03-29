@@ -2,7 +2,9 @@ import re
 from pathlib import Path
 
 # Pattern to match duplicate @pytest.mark.timeout decorators
-pattern = re.compile(r"(\s*)@pytest\.mark\.timeout\((\d+)\)\n\1@pytest\.mark\.timeout\(\d+\)\n")
+pattern = re.compile(
+    r"(\s*)@pytest\.mark\.timeout\((\d+)\)\n\1@pytest\.mark\.timeout\(\d+\)\n"
+)
 
 # Get all python test files
 test_files = list(Path("tests").rglob("test_*.py"))

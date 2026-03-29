@@ -23,7 +23,9 @@ def dict_diff(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
     return {"added": added, "removed": removed, "changed": changed}
 
 
-def compute_entry_diffs(prev_entries: List[Dict[str, Any]], new_entries: List[Dict[str, Any]]):
+def compute_entry_diffs(
+    prev_entries: List[Dict[str, Any]], new_entries: List[Dict[str, Any]]
+):
     idx_prev = index_by_global_id(prev_entries)
     idx_new = index_by_global_id(new_entries)
     prev_ids = set(idx_prev.keys())

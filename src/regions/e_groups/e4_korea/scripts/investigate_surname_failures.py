@@ -35,8 +35,12 @@ for full_name, expected_romanization in surname_cases:
         print(f"Korean → English: {korean_result} → {roundtrip_result}")
 
         if roundtrip_result:
-            roundtrip_clean = roundtrip_result.lower().replace(",", "").replace(".", "").strip()
-            expected_clean = expected_romanization.lower().replace(",", "").replace(".", "").strip()
+            roundtrip_clean = (
+                roundtrip_result.lower().replace(",", "").replace(".", "").strip()
+            )
+            expected_clean = (
+                expected_romanization.lower().replace(",", "").replace(".", "").strip()
+            )
 
             if roundtrip_clean == expected_clean:
                 print("✅ ROUNDTRIP SUCCESS")

@@ -182,7 +182,9 @@ class GlobalDeploymentManager:
                 }
                 self.logger.info(f"Initialized AWS clients for {region.value}")
             except Exception as e:
-                self.logger.error(f"Failed to initialize AWS clients for {region.value}: {e}")
+                self.logger.error(
+                    f"Failed to initialize AWS clients for {region.value}: {e}"
+                )
 
     def _initialize_k8s_clients(self):
         """Initialize Kubernetes clients"""
@@ -204,7 +206,9 @@ class GlobalDeploymentManager:
 
     async def deploy_global_infrastructure(self) -> Dict[str, Any]:
         """Deploy infrastructure across all configured regions"""
-        self.logger.info(f"Starting global deployment across {len(self.config.regions)} regions")
+        self.logger.info(
+            f"Starting global deployment across {len(self.config.regions)} regions"
+        )
 
         deployment_results = {}
 
@@ -241,7 +245,9 @@ class GlobalDeploymentManager:
             "deployment_id": str(uuid.uuid4()),
             "regions": deployment_results,
             "total_regions": len(self.config.regions),
-            "successful_regions": sum(1 for r in deployment_results.values() if r.get("success")),
+            "successful_regions": sum(
+                1 for r in deployment_results.values() if r.get("success")
+            ),
             "global_status": self._calculate_global_status(),
             "deployed_at": datetime.utcnow().isoformat(),
         }
@@ -281,7 +287,9 @@ class GlobalDeploymentManager:
 
         return region_result
 
-    async def _deploy_compute_instances(self, region: DeploymentRegion) -> List[ServiceInstance]:
+    async def _deploy_compute_instances(
+        self, region: DeploymentRegion
+    ) -> List[ServiceInstance]:
         """Deploy compute instances in a region"""
         instances = []
 
@@ -334,8 +342,12 @@ class GlobalDeploymentManager:
                                         limits={"cpu": "2000m", "memory": "4Gi"},
                                     ),
                                     env=[
-                                        client.V1EnvVar(name="REGION", value=region.value),
-                                        client.V1EnvVar(name="DEPLOYMENT_MODE", value="production"),
+                                        client.V1EnvVar(
+                                            name="REGION", value=region.value
+                                        ),
+                                        client.V1EnvVar(
+                                            name="DEPLOYMENT_MODE", value="production"
+                                        ),
                                     ],
                                 )
                             ]
@@ -482,7 +494,9 @@ class GlobalDeploymentManager:
             self.logger.error(f"Failed to create Docker instance: {e}")
             return None
 
-    async def _deploy_load_balancer(self, region: DeploymentRegion) -> Optional[Dict[str, Any]]:
+    async def _deploy_load_balancer(
+        self, region: DeploymentRegion
+    ) -> Optional[Dict[str, Any]]:
         """Deploy regional load balancer"""
         try:
             if AWS_AVAILABLE and region.value in self.aws_clients:
@@ -490,10 +504,14 @@ class GlobalDeploymentManager:
             else:
                 return await self._deploy_nginx_load_balancer(region)
         except Exception as e:
-            self.logger.error(f"Load balancer deployment failed for {region.value}: {e}")
+            self.logger.error(
+                f"Load balancer deployment failed for {region.value}: {e}"
+            )
             return None
 
-    async def _deploy_aws_load_balancer(self, region: DeploymentRegion) -> Dict[str, Any]:
+    async def _deploy_aws_load_balancer(
+        self, region: DeploymentRegion
+    ) -> Dict[str, Any]:
         """Deploy AWS Application Load Balancer"""
         elb_client = self.aws_clients[region.value]["elb"]
 
@@ -514,7 +532,9 @@ class GlobalDeploymentManager:
             "dns_name": response["LoadBalancers"][0]["DNSName"],
         }
 
-    async def _deploy_nginx_load_balancer(self, region: DeploymentRegion) -> Dict[str, Any]:
+    async def _deploy_nginx_load_balancer(
+        self, region: DeploymentRegion
+    ) -> Dict[str, Any]:
         """Deploy NGINX load balancer (fallback)"""
         # This would create an NGINX configuration and container
         # For brevity, returning mock configuration
@@ -528,7 +548,9 @@ class GlobalDeploymentManager:
             ],
         }
 
-    async def _deploy_database(self, region: DeploymentRegion) -> Optional[Dict[str, Any]]:
+    async def _deploy_database(
+        self, region: DeploymentRegion
+    ) -> Optional[Dict[str, Any]]:
         """Deploy regional database"""
         try:
             if AWS_AVAILABLE and region.value in self.aws_clients:
@@ -567,7 +589,9 @@ class GlobalDeploymentManager:
             "endpoint": response["DBInstance"]["Endpoint"]["Address"],
         }
 
-    async def _deploy_postgres_database(self, region: DeploymentRegion) -> Dict[str, Any]:
+    async def _deploy_postgres_database(
+        self, region: DeploymentRegion
+    ) -> Dict[str, Any]:
         """Deploy PostgreSQL database (fallback)"""
         # This would deploy a PostgreSQL container or instance
         return {
@@ -577,7 +601,9 @@ class GlobalDeploymentManager:
             "database": "gmnap",
         }
 
-    async def _deploy_monitoring(self, region: DeploymentRegion) -> Optional[Dict[str, Any]]:
+    async def _deploy_monitoring(
+        self, region: DeploymentRegion
+    ) -> Optional[Dict[str, Any]]:
         """Deploy monitoring infrastructure"""
         try:
             return {
@@ -695,7 +721,9 @@ class GlobalDeploymentManager:
     def _calculate_global_status(self) -> ServiceStatus:
         """Calculate overall global system status"""
         healthy_regions = sum(
-            1 for status in self.regions_status.values() if status == ServiceStatus.HEALTHY
+            1
+            for status in self.regions_status.values()
+            if status == ServiceStatus.HEALTHY
         )
         total_regions = len(self.regions_status)
 
@@ -706,12 +734,16 @@ class GlobalDeploymentManager:
         else:
             return ServiceStatus.UNHEALTHY
 
-    async def scale_region(self, region: DeploymentRegion, target_instances: int) -> Dict[str, Any]:
+    async def scale_region(
+        self, region: DeploymentRegion, target_instances: int
+    ) -> Dict[str, Any]:
         """Scale instances in a specific region"""
         current_instances = [i for i in self.instances.values() if i.region == region]
         current_count = len(current_instances)
 
-        self.logger.info(f"Scaling {region.value}: {current_count} -> {target_instances}")
+        self.logger.info(
+            f"Scaling {region.value}: {current_count} -> {target_instances}"
+        )
 
         if target_instances > current_count:
             # Scale up
@@ -768,7 +800,9 @@ class GlobalDeploymentManager:
             self.logger.info(f"Terminated instance: {instance.instance_id}")
 
         except Exception as e:
-            self.logger.error(f"Failed to terminate instance {instance.instance_id}: {e}")
+            self.logger.error(
+                f"Failed to terminate instance {instance.instance_id}: {e}"
+            )
 
     async def get_global_metrics(self) -> Dict[str, Any]:
         """Get comprehensive global metrics"""
@@ -779,19 +813,23 @@ class GlobalDeploymentManager:
 
         regional_metrics = {}
         for region in self.config.regions:
-            region_instances = [i for i in self.instances.values() if i.region == region]
+            region_instances = [
+                i for i in self.instances.values() if i.region == region
+            ]
             regional_metrics[region.value] = {
                 "instance_count": len(region_instances),
                 "healthy_instances": sum(
                     1 for i in region_instances if i.status == ServiceStatus.HEALTHY
                 ),
                 "avg_cpu": (
-                    sum(i.cpu_utilization for i in region_instances) / len(region_instances)
+                    sum(i.cpu_utilization for i in region_instances)
+                    / len(region_instances)
                     if region_instances
                     else 0
                 ),
                 "avg_memory": (
-                    sum(i.memory_utilization for i in region_instances) / len(region_instances)
+                    sum(i.memory_utilization for i in region_instances)
+                    / len(region_instances)
                     if region_instances
                     else 0
                 ),
@@ -844,7 +882,9 @@ class AutoScalingManager:
         self.scaling_rules[region].append(rule)
         self.logger.info(f"Added scaling rule for {region.value}: {rule}")
 
-    async def evaluate_scaling(self, region: DeploymentRegion) -> Optional[Dict[str, Any]]:
+    async def evaluate_scaling(
+        self, region: DeploymentRegion
+    ) -> Optional[Dict[str, Any]]:
         """Evaluate if scaling is needed for a region"""
         if region not in self.scaling_rules:
             return None
@@ -872,19 +912,25 @@ class AutoScalingManager:
 
     async def _get_region_metrics(self, region: DeploymentRegion) -> Dict[str, float]:
         """Get current metrics for a region"""
-        instances = [i for i in self.deployment_manager.instances.values() if i.region == region]
+        instances = [
+            i for i in self.deployment_manager.instances.values() if i.region == region
+        ]
 
         if not instances:
             return {}
 
         return {
-            "cpu_utilization": sum(i.cpu_utilization for i in instances) / len(instances),
-            "memory_utilization": sum(i.memory_utilization for i in instances) / len(instances),
+            "cpu_utilization": sum(i.cpu_utilization for i in instances)
+            / len(instances),
+            "memory_utilization": sum(i.memory_utilization for i in instances)
+            / len(instances),
             "request_rate": sum(i.request_count for i in instances) / len(instances),
             "response_time": sum(i.response_time for i in instances) / len(instances),
         }
 
-    def _evaluate_rule(self, rule: Dict[str, Any], metrics: Dict[str, float]) -> Optional[str]:
+    def _evaluate_rule(
+        self, rule: Dict[str, Any], metrics: Dict[str, float]
+    ) -> Optional[str]:
         """Evaluate a single scaling rule"""
         trigger = rule["trigger"]
         threshold = rule["threshold"]
@@ -903,13 +949,21 @@ class AutoScalingManager:
     ) -> Dict[str, Any]:
         """Execute a scaling action"""
         current_instances = len(
-            [i for i in self.deployment_manager.instances.values() if i.region == region]
+            [
+                i
+                for i in self.deployment_manager.instances.values()
+                if i.region == region
+            ]
         )
 
         if action == "scale_up":
-            new_count = min(current_instances + 1, self.deployment_manager.config.max_instances)
+            new_count = min(
+                current_instances + 1, self.deployment_manager.config.max_instances
+            )
         else:  # scale_down
-            new_count = max(current_instances - 1, self.deployment_manager.config.min_instances)
+            new_count = max(
+                current_instances - 1, self.deployment_manager.config.min_instances
+            )
 
         if new_count == current_instances:
             return {"action": "no_change", "reason": "limits_reached"}

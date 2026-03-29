@@ -135,7 +135,9 @@ def generate_batch_global_ids(entries: list[Dict[str, Any]]) -> list[str]:
 
     # Batch collision detection and resolution
     for i, base_id in enumerate(base_ids):
-        if cache_contains(base_id) or base_id in [bid for j, bid in enumerate(base_ids) if j < i]:
+        if cache_contains(base_id) or base_id in [
+            bid for j, bid in enumerate(base_ids) if j < i
+        ]:
             # This is a duplicate - need to suffix it
             _duplicate_count += 1
             suffix_counters[base_id] += 1

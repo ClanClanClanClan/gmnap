@@ -61,7 +61,9 @@ for name, rom, expected, actual in eng_kor_failures:
 # Show most common position-sensitive patterns
 print("Most frequent position-sensitive substitutions:")
 for pattern, positions in sorted(
-    position_patterns.items(), key=lambda x: len(x[1]["surname"]) + len(x[1]["given"]), reverse=True
+    position_patterns.items(),
+    key=lambda x: len(x[1]["surname"]) + len(x[1]["given"]),
+    reverse=True,
 )[:10]:
     surname_count = len(positions["surname"])
     given_count = len(positions["given"])
@@ -100,7 +102,9 @@ for name, rom, expected, actual in eng_kor_failures:
                 ambiguous_patterns[syllable].append((name, rom, expected, actual))
 
 print("Ambiguous syllable patterns in failures:")
-for syllable, cases in sorted(ambiguous_patterns.items(), key=lambda x: len(x[1]), reverse=True):
+for syllable, cases in sorted(
+    ambiguous_patterns.items(), key=lambda x: len(x[1]), reverse=True
+):
     if cases:
         print(f"\n  '{syllable}' appears in {len(cases)} failures:")
         for name, rom, exp, act in cases[:3]:  # Show first 3
@@ -112,7 +116,9 @@ segmentation_issues = []
 
 for name, rom, expected, actual in eng_kor_failures:
     if actual and len(actual) != len(expected):
-        segmentation_issues.append((name, rom, expected, actual, len(expected), len(actual)))
+        segmentation_issues.append(
+            (name, rom, expected, actual, len(expected), len(actual))
+        )
 
 print(f"Cases with length mismatches: {len(segmentation_issues)}")
 for name, rom, exp, act, exp_len, act_len in segmentation_issues[:5]:

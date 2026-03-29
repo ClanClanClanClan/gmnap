@@ -307,7 +307,11 @@ class TestFuzzingHell:
                             valid_results += 1
                         else:
                             invalid_regions.append(
-                                (random_input[:50], result.region_code, result.confidence)
+                                (
+                                    random_input[:50],
+                                    result.region_code,
+                                    result.confidence,
+                                )
                             )
                     else:
                         invalid_regions.append(
@@ -350,7 +354,9 @@ class TestFuzzingHell:
 
         # Should handle most random input without crashing
         assert crash_rate < 0.1, f"High crash rate on random input: {crash_rate:.2%}"
-        assert timeout_rate < 0.05, f"High timeout rate on random input: {timeout_rate:.2%}"
+        assert (
+            timeout_rate < 0.05
+        ), f"High timeout rate on random input: {timeout_rate:.2%}"
 
         # Should not produce too many invalid results
         if invalid_regions:
@@ -400,14 +406,19 @@ class TestFuzzingHell:
                         "B3",
                     }
 
-                    if result.region_code in valid_regions and 0.0 <= result.confidence <= 1.0:
+                    if (
+                        result.region_code in valid_regions
+                        and 0.0 <= result.confidence <= 1.0
+                    ):
                         results["valid"] += 1
                     else:
                         results["invalid"].append(
                             (name_like[:50], result.region_code, result.confidence)
                         )
                 else:
-                    results["invalid"].append((name_like[:50], "malformed", str(result)[:50]))
+                    results["invalid"].append(
+                        (name_like[:50], "malformed", str(result)[:50])
+                    )
 
             except Exception as e:
                 processing_time = time.perf_counter() - start_time
@@ -429,8 +440,12 @@ class TestFuzzingHell:
         )
 
         # Name-like inputs should be handled better than random inputs
-        assert crash_rate < 0.05, f"High crash rate on name-like input: {crash_rate:.2%}"
-        assert timeout_rate < 0.02, f"High timeout rate on name-like input: {timeout_rate:.2%}"
+        assert (
+            crash_rate < 0.05
+        ), f"High crash rate on name-like input: {crash_rate:.2%}"
+        assert (
+            timeout_rate < 0.02
+        ), f"High timeout rate on name-like input: {timeout_rate:.2%}"
         assert valid_rate > 0.8, f"Low valid rate on name-like input: {valid_rate:.2%}"
 
     # ========== PROPERTY-BASED TESTING ==========
@@ -505,8 +520,12 @@ class TestFuzzingHell:
             result = region_manager.detect_region(entry)
 
             # Should produce valid result
-            assert hasattr(result, "region_code"), f"Missing region_code for: {ascii_name}"
-            assert hasattr(result, "confidence"), f"Missing confidence for: {ascii_name}"
+            assert hasattr(
+                result, "region_code"
+            ), f"Missing region_code for: {ascii_name}"
+            assert hasattr(
+                result, "confidence"
+            ), f"Missing confidence for: {ascii_name}"
 
             valid_regions = {
                 "A1",
@@ -560,7 +579,12 @@ class TestFuzzingHell:
             "Singh, Raj",
         ]
 
-        mutation_results = {"crashes": 0, "timeouts": 0, "valid": 0, "changed_region": 0}
+        mutation_results = {
+            "crashes": 0,
+            "timeouts": 0,
+            "valid": 0,
+            "changed_region": 0,
+        }
 
         for base_name in base_names:
             # Get baseline result
@@ -606,7 +630,10 @@ class TestFuzzingHell:
                             "B3",
                         }
 
-                        if result.region_code in valid_regions and 0.0 <= result.confidence <= 1.0:
+                        if (
+                            result.region_code in valid_regions
+                            and 0.0 <= result.confidence <= 1.0
+                        ):
                             mutation_results["valid"] += 1
 
                             # Track region changes
@@ -628,7 +655,8 @@ class TestFuzzingHell:
                         # Check if acceptable error
                         error_msg = str(e).lower()
                         if any(
-                            term in error_msg for term in ["memory", "recursion", "size", "length"]
+                            term in error_msg
+                            for term in ["memory", "recursion", "size", "length"]
                         ):
                             mutation_results["valid"] += 1  # Acceptable failure
                         else:
@@ -645,8 +673,12 @@ class TestFuzzingHell:
         )
 
         # Mutations should generally be handled gracefully
-        assert crash_rate < 0.1, f"High crash rate in mutation fuzzing: {crash_rate:.2%}"
-        assert timeout_rate < 0.05, f"High timeout rate in mutation fuzzing: {timeout_rate:.2%}"
+        assert (
+            crash_rate < 0.1
+        ), f"High crash rate in mutation fuzzing: {crash_rate:.2%}"
+        assert (
+            timeout_rate < 0.05
+        ), f"High timeout rate in mutation fuzzing: {timeout_rate:.2%}"
         assert valid_rate > 0.7, f"Low valid rate in mutation fuzzing: {valid_rate:.2%}"
 
     def mutate_string(self, s: str) -> str:
@@ -783,7 +815,8 @@ class TestFuzzingHell:
                 lambda: input_generator.random_unicode_string(1, 50),
                 lambda: input_generator.random_name_like_string(),
                 lambda: "".join(
-                    chr(random.randint(0, 0x10FFFF)) for _ in range(random.randint(1, 20))
+                    chr(random.randint(0, 0x10FFFF))
+                    for _ in range(random.randint(1, 20))
                 ),
                 lambda: chr(0x0000) * random.randint(1, 100),  # Null bytes
                 lambda: "A" * random.randint(1000, 10000),  # Very long
@@ -854,8 +887,12 @@ class TestFuzzingHell:
         assert (
             ops_per_second > 10
         ), f"Performance degraded during sustained fuzzing: {ops_per_second:.1f} ops/sec"
-        assert crash_rate < 0.1, f"High crash rate during sustained fuzzing: {crash_rate:.2%}"
-        assert timeout_rate < 0.2, f"High timeout rate during sustained fuzzing: {timeout_rate:.2%}"
+        assert (
+            crash_rate < 0.1
+        ), f"High crash rate during sustained fuzzing: {crash_rate:.2%}"
+        assert (
+            timeout_rate < 0.2
+        ), f"High timeout rate during sustained fuzzing: {timeout_rate:.2%}"
 
         if stats["errors"]:
             print(f"Sample errors: {stats['errors'][:5]}")
@@ -916,7 +953,9 @@ class TestPropertyInvariants:
         for length in [1, 5, 10, 50, 100]:
             test_inputs.append("A" * length)
             test_inputs.append("김" * length)
-            test_inputs.append("García" + "x" * (length - 6) if length >= 6 else "García")
+            test_inputs.append(
+                "García" + "x" * (length - 6) if length >= 6 else "García"
+            )
 
         # Add random inputs
         for _ in range(100):
@@ -938,7 +977,9 @@ class TestPropertyInvariants:
 
                 if hasattr(result, "confidence"):
                     if not (0.0 <= result.confidence <= 1.0):
-                        confidence_violations.append((test_input[:30], result.confidence))
+                        confidence_violations.append(
+                            (test_input[:30], result.confidence)
+                        )
 
             except Exception:
                 # Exceptions are acceptable, confidence violations are not

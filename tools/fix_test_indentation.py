@@ -13,7 +13,8 @@ def fix_test_file(filepath):
     # Fix pattern: @pytest.mark.timeout(15) followed by empty lines and badly indented def
     # Pattern 1: Class method decorators with wrong indentation
     pattern1 = re.compile(
-        r'^(\s*)"""[^"]*"""\s*\n(@pytest\.mark\.timeout\(\d+\))\s*\n\s*\n\s*def\s', re.MULTILINE
+        r'^(\s*)"""[^"]*"""\s*\n(@pytest\.mark\.timeout\(\d+\))\s*\n\s*\n\s*def\s',
+        re.MULTILINE,
     )
 
     # Pattern 2: Decorator at wrong indentation level for class methods

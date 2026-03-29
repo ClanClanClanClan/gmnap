@@ -115,7 +115,10 @@ class RateLimiter:
             hour_count = len(client_data["hour"])
             if hour_count >= self.config.requests_per_hour:
                 self._cooldowns[client_id] = current_time + self.config.cooldown_seconds
-                return False, f"Hour limit exceeded: {hour_count}/{self.config.requests_per_hour}"
+                return (
+                    False,
+                    f"Hour limit exceeded: {hour_count}/{self.config.requests_per_hour}",
+                )
 
             # Request allowed - update tracking
             client_data["tokens"] -= 1
@@ -161,7 +164,8 @@ class RateLimiter:
             # ULTRAFIX: Mark inactive clients for removal
             # Client is inactive if no requests in last 24 hours
             last_activity = max(
-                client_data["last_refill"], client_data["hour"][-1] if client_data["hour"] else 0
+                client_data["last_refill"],
+                client_data["hour"][-1] if client_data["hour"] else 0,
             )
 
             if last_activity < client_cleanup_cutoff:
@@ -210,7 +214,9 @@ class RateLimiter:
                 "minute_requests": len(client_data["minute"]),
                 "hour_requests": len(client_data["hour"]),
                 "cooldown_active": client_id in self._cooldowns,
-                "cooldown_remaining": max(0, self._cooldowns.get(client_id, 0) - current_time),
+                "cooldown_remaining": max(
+                    0, self._cooldowns.get(client_id, 0) - current_time
+                ),
             }
 
     def force_cleanup(self) -> Dict[str, int]:
@@ -239,8 +245,12 @@ class RateLimiter:
     def get_memory_stats(self) -> Dict[str, int]:
         """ULTRAFIX: Get memory usage statistics for debugging."""
         with self._lock:
-            total_minute_entries = sum(len(data["minute"]) for data in self._client_data.values())
-            total_hour_entries = sum(len(data["hour"]) for data in self._client_data.values())
+            total_minute_entries = sum(
+                len(data["minute"]) for data in self._client_data.values()
+            )
+            total_hour_entries = sum(
+                len(data["hour"]) for data in self._client_data.values()
+            )
 
             return {
                 "total_clients": len(self._client_data),

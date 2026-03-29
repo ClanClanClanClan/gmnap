@@ -88,7 +88,10 @@ class TestA1AngloSphere:
         test_cases = [
             ("Smith, John C.", {"first_name": "John", "middle_initials": ["C."]}),
             ("Smith, J. C.", {"first_name": "J.", "middle_initials": ["C."]}),
-            ("Smith, John Charles", {"first_name": "John", "middle_names": ["Charles"]}),
+            (
+                "Smith, John Charles",
+                {"first_name": "John", "middle_names": ["Charles"]},
+            ),
             ("Smith, J. C. D.", {"first_name": "J.", "middle_initials": ["C.", "D."]}),
         ]
 
@@ -103,7 +106,10 @@ class TestA1AngloSphere:
     def test_particle_detection(self):
         """Test particle detection in family names."""
         test_cases = [
-            ("van der Berg, Johannes", {"particles": ["van", "der"], "main_surname": "Berg"}),
+            (
+                "van der Berg, Johannes",
+                {"particles": ["van", "der"], "main_surname": "Berg"},
+            ),
             ("de la Cruz, Maria", {"particles": ["de", "la"], "main_surname": "Cruz"}),
             ("O'Connor, Patrick", {}),  # Apostrophe not a particle
             ("MacDonald, Andrew", {}),  # Prefix not a particle

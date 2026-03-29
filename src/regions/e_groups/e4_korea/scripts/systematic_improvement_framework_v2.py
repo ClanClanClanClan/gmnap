@@ -52,7 +52,9 @@ class SystematicImprovementFrameworkV2:
     def _validate_weight(self, weight_str):
         """Strict weight validation (§1.4, §4.2)"""
         # Strip Unicode whitespace categories
-        weight_clean = "".join(c for c in weight_str if unicodedata.category(c)[0] != "Z")
+        weight_clean = "".join(
+            c for c in weight_str if unicodedata.category(c)[0] != "Z"
+        )
 
         if not self.WEIGHT_REGEX.match(weight_clean):
             raise ValueError(
@@ -122,9 +124,7 @@ class SystematicImprovementFrameworkV2:
         # Create cryptographic backup (§1.1)
         baseline_backup_dir = Path("baselines")
         baseline_backup_dir.mkdir(exist_ok=True)
-        backup_filename = (
-            f"rr_syllable_map_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.csv"
-        )
+        backup_filename = f"rr_syllable_map_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.csv"
         baseline["mapping_file_backup"] = str(baseline_backup_dir / backup_filename)
         shutil.copy(self.mapping_file, baseline["mapping_file_backup"])
 
@@ -146,7 +146,9 @@ class SystematicImprovementFrameworkV2:
                 )
 
                 if result.returncode != 0:
-                    print(f"  ERROR: {dataset_name} test failed with code {result.returncode}")
+                    print(
+                        f"  ERROR: {dataset_name} test failed with code {result.returncode}"
+                    )
                     baseline["performance"][dataset_name] = {
                         "error": f"Exit code {result.returncode}"
                     }
@@ -196,7 +198,9 @@ class SystematicImprovementFrameworkV2:
     def add_systematic_mappings(self, category, mappings, rationale=""):
         """Add mappings with comprehensive validation and rollback safety"""
         if not self.is_interactive and not rationale:
-            raise RuntimeError("Non-interactive environment requires rationale parameter (§3.4)")
+            raise RuntimeError(
+                "Non-interactive environment requires rationale parameter (§3.4)"
+            )
 
         print(f"=== ADDING SYSTEMATIC MAPPINGS V2: {category} ===")
         print(f"Rationale: {rationale}")
@@ -274,7 +278,9 @@ class SystematicImprovementFrameworkV2:
 
         try:
             rows = []
-            with open(self.mapping_file, "r", encoding="utf-8-sig") as f:  # §4.4 - BOM handling
+            with open(
+                self.mapping_file, "r", encoding="utf-8-sig"
+            ) as f:  # §4.4 - BOM handling
                 rows = list(csv.reader(f))
 
             # Build existing mappings index for duplicate detection (§1.3)
@@ -284,7 +290,9 @@ class SystematicImprovementFrameworkV2:
                     existing_mappings.add((row[0], row[1]))
 
             # Add new mappings with duplicate prevention
-            category_comment = f"# {category} - {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
+            category_comment = (
+                f"# {category} - {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
+            )
             rows.append([category_comment])
 
             for hangul, roman, weight in mappings:
@@ -323,7 +331,10 @@ class SystematicImprovementFrameworkV2:
         for dataset_name, test_script in datasets.items():
             try:
                 result = subprocess.run(
-                    ["python3", test_script], capture_output=True, text=True, timeout=300
+                    ["python3", test_script],
+                    capture_output=True,
+                    text=True,
+                    timeout=300,
                 )
 
                 performance = self._parse_performance_v2(result.stdout, dataset_name)
@@ -340,7 +351,9 @@ class SystematicImprovementFrameworkV2:
                     }
 
                     # Check Wilson score lower bound (§2.1)
-                    required_wilson_lb = self.performance_thresholds[dataset_name]["wilson_lb"]
+                    required_wilson_lb = self.performance_thresholds[dataset_name][
+                        "wilson_lb"
+                    ]
                     if wilson_lb < required_wilson_lb:
                         validation_result["passed"] = False
                         validation_result["threshold_violations"].append(
@@ -372,7 +385,9 @@ class SystematicImprovementFrameworkV2:
                     dataset_name in baseline["performance"]
                     and "accuracy" in baseline["performance"][dataset_name]
                 ):
-                    baseline_accuracy = baseline["performance"][dataset_name]["accuracy"]
+                    baseline_accuracy = baseline["performance"][dataset_name][
+                        "accuracy"
+                    ]
                     regression = baseline_accuracy - performance["accuracy"]
 
                     # Use standard error instead of fixed 1% threshold (§2.2)
@@ -442,7 +457,9 @@ class SystematicImprovementFrameworkV2:
             "debug_output": output[:500] + "..." if len(output) > 500 else output,
         }
 
-    def _log_improvement_v2(self, category, mappings, rationale, baseline, validation_result):
+    def _log_improvement_v2(
+        self, category, mappings, rationale, baseline, validation_result
+    ):
         """Enhanced logging with cryptographic auditability"""
         git_commit, mapping_sha256 = self._get_git_info()
 
@@ -459,7 +476,9 @@ class SystematicImprovementFrameworkV2:
             "baseline_performance": baseline["performance"],
             "final_performance": validation_result["results"],
             "statistical_analysis": validation_result.get("statistical_analysis", {}),
-            "improvement_summary": self._calculate_improvements_v2(baseline, validation_result),
+            "improvement_summary": self._calculate_improvements_v2(
+                baseline, validation_result
+            ),
         }
 
         log_file = (
@@ -513,7 +532,9 @@ def main():
     """Enhanced CLI with safety checks"""
     if len(sys.argv) < 2:
         print("Systematic Improvement Framework v2.0")
-        print("Usage: python3 systematic_improvement_framework_v2.py [command] [args...]")
+        print(
+            "Usage: python3 systematic_improvement_framework_v2.py [command] [args...]"
+        )
         print("\nCommands:")
         print("  baseline    - Capture cryptographically reproducible baseline")
         print("  add         - Add systematic mappings with validation")

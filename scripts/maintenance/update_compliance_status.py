@@ -74,7 +74,9 @@ def update_claude_md(audit_results):
     # Update the date
     date_str = datetime.now().strftime("%Y-%m-%d")
     content = re.sub(
-        r"\*Last Updated: .*\*", f"*Last Updated: {date_str} (AUTO-GENERATED FROM AUDIT)*", content
+        r"\*Last Updated: .*\*",
+        f"*Last Updated: {date_str} (AUTO-GENERATED FROM AUDIT)*",
+        content,
     )
 
     # Update compliance percentage
@@ -90,7 +92,9 @@ def update_claude_md(audit_results):
         state = f"Development - {100-compliance:.0f} points from 100%"
 
     content = re.sub(
-        r"## 🎯 \*\*CURRENT ACHIEVEMENT:.*\*\*", f"## 🎯 **CURRENT ACHIEVEMENT: {status}**", content
+        r"## 🎯 \*\*CURRENT ACHIEVEMENT:.*\*\*",
+        f"## 🎯 **CURRENT ACHIEVEMENT: {status}**",
+        content,
     )
 
     content = re.sub(r"\*\*System State\*\*: .*", f"**System State**: {state}", content)
@@ -146,7 +150,9 @@ def update_claude_md(audit_results):
             table_rows.append(f"| {comp_name} | {score}/{total} | {status} | {notes} |")
 
     # Replace the table
-    table_header = "| Component | Score | Status | Notes |\n|-----------|-------|--------|-------|"
+    table_header = (
+        "| Component | Score | Status | Notes |\n|-----------|-------|--------|-------|"
+    )
     new_table = table_header + "\n" + "\n".join(table_rows)
 
     # Find and replace the compliance breakdown table

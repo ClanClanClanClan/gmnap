@@ -174,7 +174,9 @@ def test_low_confidence_has_warning():
 
 
 # Run silent failure tests
-run_test("silent_failures", "Unimplemented region warning", test_unimplemented_region_warning)
+run_test(
+    "silent_failures", "Unimplemented region warning", test_unimplemented_region_warning
+)
 run_test("silent_failures", "Vietnamese warning", test_vietnamese_warning)
 run_test("silent_failures", "Low confidence warning", test_low_confidence_has_warning)
 

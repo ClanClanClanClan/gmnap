@@ -35,7 +35,9 @@ class UltrathinkTestConsolidator:
             if "__pycache__" not in str(test_file):
                 name_to_paths[test_file.name].append(test_file)
 
-        duplicates = {name: paths for name, paths in name_to_paths.items() if len(paths) > 1}
+        duplicates = {
+            name: paths for name, paths in name_to_paths.items() if len(paths) > 1
+        }
 
         print(f"\n📊 Found {len(duplicates)} test files with duplicates:")
         for name, paths in duplicates.items():
@@ -65,7 +67,9 @@ class UltrathinkTestConsolidator:
                         test_classes.append(node.name)
                         # Get test methods in class
                         for item in node.body:
-                            if isinstance(item, ast.FunctionDef) and item.name.startswith("test_"):
+                            if isinstance(
+                                item, ast.FunctionDef
+                            ) and item.name.startswith("test_"):
                                 test_functions.append(f"{node.name}.{item.name}")
 
             return {
@@ -111,14 +115,18 @@ class UltrathinkTestConsolidator:
             missing_functions = all_functions - best_functions
 
             if missing_functions:
-                print(f"  ⚠️ Found {len(missing_functions)} unique tests in other copies")
+                print(
+                    f"  ⚠️ Found {len(missing_functions)} unique tests in other copies"
+                )
                 print(f"     Missing tests: {list(missing_functions)[:5]}...")
                 # TODO: Actually merge the missing tests into the best file
                 self.merged_tests.append(
                     {
                         "file": test_name,
                         "kept": best["path"],
-                        "merged_from": [a["path"] for a in analyses if a["path"] != best["path"]],
+                        "merged_from": [
+                            a["path"] for a in analyses if a["path"] != best["path"]
+                        ],
                         "missing_tests": list(missing_functions),
                     }
                 )
@@ -126,7 +134,9 @@ class UltrathinkTestConsolidator:
             # Remove duplicates (keep best)
             for analysis in analyses:
                 if analysis["path"] != best["path"]:
-                    print(f"  🗑️ Removing: {analysis['path'].relative_to(self.project_root)}")
+                    print(
+                        f"  🗑️ Removing: {analysis['path'].relative_to(self.project_root)}"
+                    )
                     # analysis['path'].unlink()  # Uncomment to actually delete
 
     def refactor_test_organization(self):
@@ -162,7 +172,9 @@ class UltrathinkTestConsolidator:
                 current_dist[parent] += 1
 
         print("\n📊 Current test distribution:")
-        for category, count in sorted(current_dist.items(), key=lambda x: x[1], reverse=True):
+        for category, count in sorted(
+            current_dist.items(), key=lambda x: x[1], reverse=True
+        ):
             print(f"  {category:20} : {count:3} files")
 
         # Suggest reorganization
@@ -184,7 +196,10 @@ class UltrathinkTestConsolidator:
                 suggested_category = "integration"
             elif "e2e" in name or "end_to_end" in name:
                 suggested_category = "e2e"
-            elif any(name.startswith(f"test_{x}") for x in ["a", "b", "c", "d", "e", "f", "g"]):
+            elif any(
+                name.startswith(f"test_{x}")
+                for x in ["a", "b", "c", "d", "e", "f", "g"]
+            ):
                 suggested_category = "regions"
             elif "unit" in name or "basic" in name:
                 suggested_category = "unit"
@@ -277,7 +292,9 @@ class UltrathinkTestConsolidator:
 
         print("\n📝 DUPLICATE ANALYSIS:")
         print(f"  Files with duplicates: {len(self.duplicates_found)}")
-        total_duplicates = sum(len(paths) - 1 for paths in self.duplicates_found.values())
+        total_duplicates = sum(
+            len(paths) - 1 for paths in self.duplicates_found.values()
+        )
         print(f"  Total redundant files: {total_duplicates}")
 
         if self.merged_tests:
@@ -298,7 +315,9 @@ class UltrathinkTestConsolidator:
             total_errors += results["errors"]
 
             pass_rate = (
-                (results["passed"] / results["tested"] * 100) if results["tested"] > 0 else 0
+                (results["passed"] / results["tested"] * 100)
+                if results["tested"] > 0
+                else 0
             )
             print(f"\n  {category}:")
             print(f"    Total files: {results['total']}")
@@ -310,7 +329,9 @@ class UltrathinkTestConsolidator:
 
         print(f"\n📈 OVERALL SUMMARY:")
         total_tested = total_passed + total_failed + total_errors
-        overall_pass_rate = (total_passed / total_tested * 100) if total_tested > 0 else 0
+        overall_pass_rate = (
+            (total_passed / total_tested * 100) if total_tested > 0 else 0
+        )
         print(f"  Tests run: {total_tested}")
         print(f"  ✅ Passed: {total_passed}")
         print(f"  ❌ Failed: {total_failed}")
@@ -320,7 +341,8 @@ class UltrathinkTestConsolidator:
         # Save detailed report
         report = {
             "duplicates": {
-                name: [str(p) for p in paths] for name, paths in self.duplicates_found.items()
+                name: [str(p) for p in paths]
+                for name, paths in self.duplicates_found.items()
             },
             "merges": self.merged_tests,
             "test_results": self.test_results,

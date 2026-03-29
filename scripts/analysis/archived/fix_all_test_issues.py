@@ -43,7 +43,9 @@ class TestFixer:
             except Exception as e:
                 self.errors.append(f"Failed to remove {pyc}: {e}")
 
-        print(f"  ✅ Removed {pycache_count} __pycache__ dirs and {pyc_count} .pyc files")
+        print(
+            f"  ✅ Removed {pycache_count} __pycache__ dirs and {pyc_count} .pyc files"
+        )
         return pycache_count + pyc_count
 
     def fix_unterminated_strings(self) -> int:
@@ -238,11 +240,16 @@ class TestFixer:
                             # Find the end of __init__
                             indent = len(line) - len(line.lstrip())
                             for j in range(i + 1, len(lines)):
-                                if lines[j].strip() and not lines[j].startswith(" " * (indent + 4)):
+                                if lines[j].strip() and not lines[j].startswith(
+                                    " " * (indent + 4)
+                                ):
                                     # Insert before the next method
-                                    lines.insert(j, " " * (indent + 8) + "self._cache_hits = 0")
                                     lines.insert(
-                                        j + 1, " " * (indent + 8) + "self._cache_misses = 0"
+                                        j, " " * (indent + 8) + "self._cache_hits = 0"
+                                    )
+                                    lines.insert(
+                                        j + 1,
+                                        " " * (indent + 8) + "self._cache_misses = 0",
                                     )
                                     break
                             break
@@ -365,7 +372,8 @@ class TestFixer:
         # Check syntax
         try:
             result = subprocess.run(
-                ["python3", "-m", "py_compile"] + [str(f) for f in self.tests_path.rglob("*.py")],
+                ["python3", "-m", "py_compile"]
+                + [str(f) for f in self.tests_path.rglob("*.py")],
                 capture_output=True,
                 text=True,
             )
@@ -406,15 +414,26 @@ class TestFixer:
                     if total_match:
                         failed = int(total_match.group(1))
                         total = passed + failed
-                        results["unit_test_pass_rate"] = (passed / total * 100) if total > 0 else 0
-                        print(f"  Unit test pass rate: {results['unit_test_pass_rate']:.1f}%")
+                        results["unit_test_pass_rate"] = (
+                            (passed / total * 100) if total > 0 else 0
+                        )
+                        print(
+                            f"  Unit test pass rate: {results['unit_test_pass_rate']:.1f}%"
+                        )
         except Exception as e:
             print(f"  ⚠️ Could not check unit tests: {e}")
 
         # Check if integration tests can run
         try:
             result = subprocess.run(
-                ["python3", "-m", "pytest", "tests/integration/", "--collect-only", "-q"],
+                [
+                    "python3",
+                    "-m",
+                    "pytest",
+                    "tests/integration/",
+                    "--collect-only",
+                    "-q",
+                ],
                 capture_output=True,
                 text=True,
                 timeout=30,

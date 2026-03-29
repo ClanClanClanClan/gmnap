@@ -103,7 +103,9 @@ class HellLevelValidator:
                 stage0_results.append(
                     {
                         "input": (
-                            test["name"][:50] + "..." if len(test["name"]) > 50 else test["name"]
+                            test["name"][:50] + "..."
+                            if len(test["name"]) > 50
+                            else test["name"]
                         ),
                         "passed": True,
                         "sanitized": result[0]["CanonicalLatin"] if result else None,
@@ -129,7 +131,10 @@ class HellLevelValidator:
         print("  Stage 1: Name Parsing")
         parsing_tests = [
             # Extreme length
-            {"name": "Jean-Baptiste " + "de " * 100 + "La Fontaine", "type": "long_name"},
+            {
+                "name": "Jean-Baptiste " + "de " * 100 + "La Fontaine",
+                "type": "long_name",
+            },
             # Mixed scripts
             {"name": "李明 (Li Ming) العربي", "type": "mixed_scripts"},
             # RTL/LTR mixing
@@ -147,11 +152,15 @@ class HellLevelValidator:
                     {
                         "type": test["type"],
                         "passed": bool(result and result[0].get("parsed_components")),
-                        "components": result[0].get("parsed_components", {}) if result else None,
+                        "components": (
+                            result[0].get("parsed_components", {}) if result else None
+                        ),
                     }
                 )
             except Exception as e:
-                stage1_results.append({"type": test["type"], "passed": False, "error": str(e)})
+                stage1_results.append(
+                    {"type": test["type"], "passed": False, "error": str(e)}
+                )
 
         self.test_results["pipeline_stages"]["stage_1"] = {
             "status": "PASS" if all(r["passed"] for r in stage1_results) else "FAIL",
@@ -259,7 +268,9 @@ class HellLevelValidator:
             for test in tests:
                 try:
                     # Process through regional processor
-                    entries = [{"CanonicalLatin": test["name"], "region_code": region_code}]
+                    entries = [
+                        {"CanonicalLatin": test["name"], "region_code": region_code}
+                    ]
 
                     # Simulate regional processing
                     processor = self.pipeline.region_manager.get_processor(region_code)
@@ -294,7 +305,9 @@ class HellLevelValidator:
                     )
 
             self.test_results["regional_tests"][region_code] = {
-                "status": "PASS" if all(r["passed"] for r in region_results) else "FAIL",
+                "status": (
+                    "PASS" if all(r["passed"] for r in region_results) else "FAIL"
+                ),
                 "tests": region_results,
             }
 
@@ -303,7 +316,12 @@ class HellLevelValidator:
         print("\n🏛️ Testing Authority Sources...")
 
         # Mock test for each authority
-        test_names = ["Albert Einstein", "Marie Curie", "Srinivasa Ramanujan", "Emmy Noether"]
+        test_names = [
+            "Albert Einstein",
+            "Marie Curie",
+            "Srinivasa Ramanujan",
+            "Emmy Noether",
+        ]
 
         authority_results = {}
 
@@ -339,7 +357,9 @@ class HellLevelValidator:
                     }
                     source_results.append(result)
                 except Exception as e:
-                    source_results.append({"source": source, "name": name, "error": str(e)})
+                    source_results.append(
+                        {"source": source, "name": name, "error": str(e)}
+                    )
 
             authority_results[source] = {"status": "PASS", "tests": source_results}
 
@@ -392,7 +412,9 @@ class HellLevelValidator:
                     entries = [
                         {
                             "CanonicalLatin": (
-                                payload if isinstance(payload, str) else json.dumps(payload)
+                                payload
+                                if isinstance(payload, str)
+                                else json.dumps(payload)
                             )
                         }
                     ]
@@ -436,7 +458,9 @@ class HellLevelValidator:
         print("  Testing throughput...")
         test_entries = []
         for i in range(1000):
-            test_entries.append({"CanonicalLatin": f"Test User {i}", "GlobalID": f"TEST{i:06d}"})
+            test_entries.append(
+                {"CanonicalLatin": f"Test User {i}", "GlobalID": f"TEST{i:06d}"}
+            )
 
         start_time = time.time()
         try:
@@ -448,7 +472,8 @@ class HellLevelValidator:
                 "entries": len(test_entries),
                 "time_seconds": elapsed,
                 "entries_per_second": len(test_entries) / elapsed,
-                "projected_million_minutes": (1000000 / (len(test_entries) / elapsed)) / 60,
+                "projected_million_minutes": (1000000 / (len(test_entries) / elapsed))
+                / 60,
                 "passed": True,
             }
         except Exception as e:
@@ -464,7 +489,9 @@ class HellLevelValidator:
 
         # Process batches
         for batch in range(5):
-            batch_entries = [{"CanonicalLatin": f"Batch {batch} User {i}"} for i in range(200)]
+            batch_entries = [
+                {"CanonicalLatin": f"Batch {batch} User {i}"} for i in range(200)
+            ]
             await self.pipeline.process(batch_entries)
 
         final_memory = process.memory_info().rss / 1024 / 1024  # MB
@@ -481,7 +508,9 @@ class HellLevelValidator:
         print("  Testing concurrent processing...")
         concurrent_tasks = []
         for i in range(10):
-            task_entries = [{"CanonicalLatin": f"Concurrent {i} User {j}"} for j in range(100)]
+            task_entries = [
+                {"CanonicalLatin": f"Concurrent {i} User {j}"} for j in range(100)
+            ]
             concurrent_tasks.append(self.pipeline.process(task_entries))
 
         try:
@@ -535,7 +564,8 @@ class HellLevelValidator:
                             ),
                             "authority_enriched": bool(entry.get("authority_data")),
                             "validated": entry.get("validation_status") == "valid",
-                            "passed": entry.get("region_code") == mathematician["region"],
+                            "passed": entry.get("region_code")
+                            == mathematician["region"],
                         }
                     )
                 else:
@@ -548,11 +578,17 @@ class HellLevelValidator:
                     )
             except Exception as e:
                 integration_results.append(
-                    {"name": mathematician["CanonicalLatin"], "passed": False, "error": str(e)}
+                    {
+                        "name": mathematician["CanonicalLatin"],
+                        "passed": False,
+                        "error": str(e),
+                    }
                 )
 
         self.test_results["integration_tests"] = {
-            "status": "PASS" if all(r["passed"] for r in integration_results) else "FAIL",
+            "status": (
+                "PASS" if all(r["passed"] for r in integration_results) else "FAIL"
+            ),
             "tests": integration_results,
         }
 
@@ -569,7 +605,9 @@ class HellLevelValidator:
                     tests = results["tests"]
                     if isinstance(tests, list):
                         total_tests += len(tests)
-                        passed_tests += len([t for t in tests if t.get("passed", False)])
+                        passed_tests += len(
+                            [t for t in tests if t.get("passed", False)]
+                        )
                 else:
                     # Count subcategories
                     for subcat, subresults in results.items():
@@ -577,21 +615,27 @@ class HellLevelValidator:
                             tests = subresults["tests"]
                             if isinstance(tests, list):
                                 total_tests += len(tests)
-                                passed_tests += len([t for t in tests if t.get("passed", False)])
+                                passed_tests += len(
+                                    [t for t in tests if t.get("passed", False)]
+                                )
 
         report = {
             "summary": {
                 "total_tests": total_tests,
                 "passed_tests": passed_tests,
                 "failed_tests": total_tests - passed_tests,
-                "pass_rate": (passed_tests / total_tests * 100) if total_tests > 0 else 0,
+                "pass_rate": (
+                    (passed_tests / total_tests * 100) if total_tests > 0 else 0
+                ),
                 "status": "PASS" if passed_tests == total_tests else "FAIL",
             },
             "categories": self.test_results,
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             "compliance_certification": {
                 "pipeline_stages": self._check_category_compliance("pipeline_stages"),
-                "regional_processors": self._check_category_compliance("regional_tests"),
+                "regional_processors": self._check_category_compliance(
+                    "regional_tests"
+                ),
                 "authority_sources": self._check_category_compliance("authority_tests"),
                 "security": self._check_category_compliance("security_tests"),
                 "performance": self._check_category_compliance("performance_tests"),
@@ -615,7 +659,10 @@ class HellLevelValidator:
                 # Check all subcategories
                 all_pass = True
                 for subcat, subresults in results.items():
-                    if isinstance(subresults, dict) and subresults.get("status") != "PASS":
+                    if (
+                        isinstance(subresults, dict)
+                        and subresults.get("status") != "PASS"
+                    ):
                         all_pass = False
                         break
                 return "COMPLIANT" if all_pass else "NON_COMPLIANT"

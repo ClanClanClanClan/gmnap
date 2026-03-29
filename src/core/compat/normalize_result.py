@@ -11,7 +11,12 @@ def _as_list(x: Any) -> List[dict]:
             else:
                 out.append({"status": "processing_error", "error": str(itm)})
         return out
-    return [{"status": "processing_error", "error": f"Unexpected result type: {type(x).__name__}"}]
+    return [
+        {
+            "status": "processing_error",
+            "error": f"Unexpected result type: {type(x).__name__}",
+        }
+    ]
 
 
 def normalize_result(res: Any) -> Tuple[List[dict], dict]:
@@ -24,7 +29,9 @@ def normalize_result(res: Any) -> Tuple[List[dict], dict]:
                 return _as_list(res[key]), metrics
         if any(k in res for k in ("GlobalID", "status", "CanonicalNative")):
             return [res], metrics
-        return [{"status": "processing_error", "error": "Malformed result dict"}], metrics
+        return [
+            {"status": "processing_error", "error": "Malformed result dict"}
+        ], metrics
     if isinstance(res, list):
         return _as_list(res), {}
     return [{"status": "processing_error", "error": str(res)}], {}

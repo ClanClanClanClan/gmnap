@@ -15,12 +15,16 @@ class OpenAlex:
         self.session.headers.update({"User-Agent": f"GMNAP/1.0 (mailto:{email})"})
         self.delay = 1.0 / max_per_sec
 
-    def get(self, path: str, params: Optional[Dict[str, Any]] = None) -> requests.Response:
+    def get(
+        self, path: str, params: Optional[Dict[str, Any]] = None
+    ) -> requests.Response:
         params = dict(params or {})
         # Add `mailto` per documentation
         params.setdefault("mailto", self.email)
         time.sleep(self.delay)
-        r = self.session.get(f"https://api.openalex.org{path}", params=params, timeout=30)
+        r = self.session.get(
+            f"https://api.openalex.org{path}", params=params, timeout=30
+        )
         if r.status_code == 429:
             # Backoff on rate limit
             retry = int(r.headers.get("Retry-After", "2"))

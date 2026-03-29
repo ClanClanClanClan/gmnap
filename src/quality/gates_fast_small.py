@@ -35,7 +35,9 @@ class FastSmallBatchGates:
             if gid is None:
                 continue
             t += 1
-            if gid in seen or (self.cfg.remember_cross_batch and gid in self.s.seen_gids):
+            if gid in seen or (
+                self.cfg.remember_cross_batch and gid in self.s.seen_gids
+            ):
                 d += 1
             seen.add(gid)
         if self.cfg.remember_cross_batch:
@@ -52,7 +54,9 @@ class FastSmallBatchGates:
                 if not all(k):
                     continue
                 t += 1
-                if k in seen or (self.cfg.remember_cross_batch and k in self.s.seen_extids):
+                if k in seen or (
+                    self.cfg.remember_cross_batch and k in self.s.seen_extids
+                ):
                     d += 1
                 seen.add(k)
         if t == 0:
@@ -79,7 +83,12 @@ class FastSmallBatchGates:
             else (perf_minutes_1m <= self.cfg.projected_1m_minutes_max)
         )
         s6_ok = True if stage6_score is None else (stage6_score >= self.cfg.stage6_min)
-        ok = (d == 0) and (ext <= self.cfg.duplicate_external_id_pct_max) and perf_ok and s6_ok
+        ok = (
+            (d == 0)
+            and (ext <= self.cfg.duplicate_external_id_pct_max)
+            and perf_ok
+            and s6_ok
+        )
         ms = (time.perf_counter() - t0) * 1000.0
         # If still too slow, relax sampling further
         if ms > self.cfg.overhead_budget_ms and self.cfg.sample_every_n < 16:

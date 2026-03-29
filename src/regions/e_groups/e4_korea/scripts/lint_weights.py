@@ -66,7 +66,9 @@ class WeightLinter:
         # Check for conflicting mappings
         if hangul in self.existing_mappings:
             conflicts = []
-            for existing_roman, existing_weight, existing_pos in self.existing_mappings[hangul]:
+            for existing_roman, existing_weight, existing_pos in self.existing_mappings[
+                hangul
+            ]:
                 # Same hangul, different roman = potential conflict
                 if existing_roman != roman:
                     # Tier 1 override: Allow position-specific mappings with negative weights
@@ -126,7 +128,9 @@ class WeightLinter:
                     suggestions.append(f"Try position-specific: {hangul},{roman},,G")
 
         # Suggest weight adjustment for existing mapping
-        for existing_roman, existing_weight, existing_pos in self.existing_mappings.get(hangul, []):
+        for existing_roman, existing_weight, existing_pos in self.existing_mappings.get(
+            hangul, []
+        ):
             if existing_roman == roman and existing_pos == pos:
                 suggestions.append(
                     f"Mapping exists with weight={existing_weight}. Consider adjusting weight instead."
@@ -149,7 +153,9 @@ class WeightLinter:
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python3 lint_weights.py 'hangul,roman,weight,context,pos' [--suggest]")
+        print(
+            "Usage: python3 lint_weights.py 'hangul,roman,weight,context,pos' [--suggest]"
+        )
         sys.exit(1)
 
     weight_line = sys.argv[1]
@@ -181,7 +187,9 @@ def main():
         parts = weight_line.strip().split(",")
         hangul, roman, weight, context, pos = parts
         pos_desc = {"S": "surname", "G": "given name", "SG": "both", "": "general"}[pos]
-        print(f"  Ready to add: {roman} → {hangul} (weight={weight}, position={pos_desc})")
+        print(
+            f"  Ready to add: {roman} → {hangul} (weight={weight}, position={pos_desc})"
+        )
         sys.exit(0)
 
 

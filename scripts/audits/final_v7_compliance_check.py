@@ -16,7 +16,10 @@ logger = logging.getLogger(__name__)
 
 async def test_performance_improvement():
     """Test if small batch performance is fixed."""
-    from src.core.pipeline_v7_complete_final import V7PipelineCompleteFinal, PipelineMode
+    from src.core.pipeline_v7_complete_final import (
+        V7PipelineCompleteFinal,
+        PipelineMode,
+    )
 
     print("\nTesting small batch performance...")
     pipeline = V7PipelineCompleteFinal(mode=PipelineMode.QUICK)
@@ -174,7 +177,9 @@ async def test_regional_processing():
         except:
             pass
 
-    print(f"  Regions working: {working}/{len(v7_regions)} ({working/len(v7_regions)*100:.1f}%)")
+    print(
+        f"  Regions working: {working}/{len(v7_regions)} ({working/len(v7_regions)*100:.1f}%)"
+    )
     return working / len(v7_regions)
 
 

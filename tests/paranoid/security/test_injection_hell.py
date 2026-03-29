@@ -94,10 +94,18 @@ class TestInjectionHell:
             try:
                 result = region_manager.detect_region(entry)
                 # Verify the payload was sanitized
-                assert payload not in str(result), f"SQL payload leaked through: {payload}"
-                assert "DROP" not in str(result).upper(), f"SQL command in result: {payload}"
-                assert "DELETE" not in str(result).upper(), f"SQL command in result: {payload}"
-                assert "UNION" not in str(result).upper(), f"SQL command in result: {payload}"
+                assert payload not in str(
+                    result
+                ), f"SQL payload leaked through: {payload}"
+                assert (
+                    "DROP" not in str(result).upper()
+                ), f"SQL command in result: {payload}"
+                assert (
+                    "DELETE" not in str(result).upper()
+                ), f"SQL command in result: {payload}"
+                assert (
+                    "UNION" not in str(result).upper()
+                ), f"SQL command in result: {payload}"
             except Exception as e:
                 # Should fail gracefully, not with SQL errors
                 assert "sql" not in str(e).lower(), f"SQL error leaked: {e}"
@@ -131,9 +139,18 @@ class TestInjectionHell:
             try:
                 result = region_manager.detect_region(entry)
                 # Verify NoSQL commands don't appear in output
-                dangerous_keywords = ["MATCH", "DELETE", "FLUSHALL", "$where", "$regex", "emit"]
+                dangerous_keywords = [
+                    "MATCH",
+                    "DELETE",
+                    "FLUSHALL",
+                    "$where",
+                    "$regex",
+                    "emit",
+                ]
                 for keyword in dangerous_keywords:
-                    assert keyword not in str(result), f"NoSQL command leaked: {keyword}"
+                    assert keyword not in str(
+                        result
+                    ), f"NoSQL command leaked: {keyword}"
             except Exception as e:
                 assert "mongodb" not in str(e).lower(), f"MongoDB error: {e}"
                 assert "redis" not in str(e).lower(), f"Redis error: {e}"
@@ -185,13 +202,21 @@ class TestInjectionHell:
                 result_str = str(result)
 
                 # Check for script tags and dangerous content
-                assert "<script" not in result_str.lower(), f"Script tag leaked: {payload}"
+                assert (
+                    "<script" not in result_str.lower()
+                ), f"Script tag leaked: {payload}"
                 assert (
                     "javascript:" not in result_str.lower()
                 ), f"JavaScript protocol leaked: {payload}"
-                assert "onerror=" not in result_str.lower(), f"Event handler leaked: {payload}"
-                assert "onload=" not in result_str.lower(), f"Event handler leaked: {payload}"
-                assert "alert(" not in result_str.lower(), f"Alert function leaked: {payload}"
+                assert (
+                    "onerror=" not in result_str.lower()
+                ), f"Event handler leaked: {payload}"
+                assert (
+                    "onload=" not in result_str.lower()
+                ), f"Event handler leaked: {payload}"
+                assert (
+                    "alert(" not in result_str.lower()
+                ), f"Alert function leaked: {payload}"
 
             except Exception as e:
                 # Should handle gracefully
@@ -440,7 +465,9 @@ class TestInjectionHell:
                 # Check that format strings weren't executed
                 assert "__class__" not in result_str, f"Class access leaked: {payload}"
                 assert "__bases__" not in result_str, f"Base access leaked: {payload}"
-                assert "__subclasses__" not in result_str, f"Subclass access leaked: {payload}"
+                assert (
+                    "__subclasses__" not in result_str
+                ), f"Subclass access leaked: {payload}"
                 assert "import" not in result_str.lower(), f"Import leaked: {payload}"
                 assert "eval" not in result_str.lower(), f"Eval leaked: {payload}"
                 assert "system" not in result_str.lower(), f"System leaked: {payload}"
@@ -487,7 +514,9 @@ class TestInjectionHell:
 
                 # Check for LDAP injection indicators
                 assert "${jndi:" not in result_str, f"JNDI injection leaked: {payload}"
-                assert "objectClass" not in result_str, f"LDAP attribute leaked: {payload}"
+                assert (
+                    "objectClass" not in result_str
+                ), f"LDAP attribute leaked: {payload}"
                 assert "ldap://" not in result_str, f"LDAP URL leaked: {payload}"
 
             except Exception as e:
@@ -522,13 +551,17 @@ class TestInjectionHell:
                 result_str = str(result)
 
                 # Check for deserialization indicators
-                assert "python/object" not in result_str, f"Python object leaked: {payload}"
+                assert (
+                    "python/object" not in result_str
+                ), f"Python object leaked: {payload}"
                 assert "__proto__" not in result_str, f"Prototype pollution: {payload}"
                 assert "constructor" not in result_str, f"Constructor access: {payload}"
 
             except Exception as e:
                 assert "pickle" not in str(e).lower(), f"Pickle error: {e}"
-                assert "deserialize" not in str(e).lower(), f"Deserialization error: {e}"
+                assert (
+                    "deserialize" not in str(e).lower()
+                ), f"Deserialization error: {e}"
 
     # ========== RESOURCE EXHAUSTION ATTACKS ==========
 
@@ -564,7 +597,8 @@ class TestInjectionHell:
 
         # ReDoS (Regular Expression Denial of Service)
         redos_patterns = [
-            "a" * 10000 + "X",  # If regex is like (a+)+, this causes catastrophic backtracking
+            "a" * 10000
+            + "X",  # If regex is like (a+)+, this causes catastrophic backtracking
             "(" * 10000 + "a" + ")" * 10000,  # Nested groups
         ]
 
@@ -622,7 +656,9 @@ class TestInjectionHell:
         assert len(results) == 1000, f"Expected 1000 results, got {len(results)}"
 
         # Check for data corruption
-        region_codes = [r[2].region_code for r in results if hasattr(r[2], "region_code")]
+        region_codes = [
+            r[2].region_code for r in results if hasattr(r[2], "region_code")
+        ]
         valid_regions = {
             "A1",
             "A2",
@@ -641,7 +677,9 @@ class TestInjectionHell:
         }
 
         for code in region_codes:
-            assert code in valid_regions, f"Invalid region code from race condition: {code}"
+            assert (
+                code in valid_regions
+            ), f"Invalid region code from race condition: {code}"
 
     # ========== TIMING ATTACK HELL ==========
 
@@ -769,13 +807,19 @@ class TestAdvancedSecurityScenarios:
 
                 # Should not contain memory addresses or internal data
                 assert "0x" not in result_str, f"Memory address disclosed: {result_str}"
-                assert "<built-in" not in result_str, f"Internal object disclosed: {result_str}"
-                assert "object at" not in result_str, f"Object reference disclosed: {result_str}"
+                assert (
+                    "<built-in" not in result_str
+                ), f"Internal object disclosed: {result_str}"
+                assert (
+                    "object at" not in result_str
+                ), f"Object reference disclosed: {result_str}"
 
             except Exception as e:
                 error_str = str(e)
                 assert "0x" not in error_str, f"Memory address in error: {error_str}"
-                assert "<built-in" not in error_str, f"Internal object in error: {error_str}"
+                assert (
+                    "<built-in" not in error_str
+                ), f"Internal object in error: {error_str}"
 
 
 if __name__ == "__main__":

@@ -117,7 +117,9 @@ class BatchTestRunner:
                     "timestamp": datetime.now().isoformat(),
                 }
 
-                print(f"✅ {eps:>6.0f} e/s ({time_1m:>5.1f}min/1M) {success_rate:>4.0f}% success")
+                print(
+                    f"✅ {eps:>6.0f} e/s ({time_1m:>5.1f}min/1M) {success_rate:>4.0f}% success"
+                )
 
                 # Cleanup
                 del pipeline
@@ -212,10 +214,14 @@ class BatchTestRunner:
 
         print(f"\n📊 TEST COMPLETE")
         print("=" * 60)
-        print(f"Total Duration: {total_duration:.1f} seconds ({total_duration/60:.1f} minutes)")
+        print(
+            f"Total Duration: {total_duration:.1f} seconds ({total_duration/60:.1f} minutes)"
+        )
         print(f"Successful Tests: {successful_tests}")
         print(f"Failed Tests: {failed_tests}")
-        print(f"Success Rate: {(successful_tests/(successful_tests+failed_tests)*100):.1f}%")
+        print(
+            f"Success Rate: {(successful_tests/(successful_tests+failed_tests)*100):.1f}%"
+        )
 
         return self.analyze_results()
 
@@ -229,7 +235,9 @@ class BatchTestRunner:
         # Performance categories
         excellent = [r for r in successful_results if r["entries_per_sec"] >= 500]
         good = [r for r in successful_results if 200 <= r["entries_per_sec"] < 500]
-        acceptable = [r for r in successful_results if 100 <= r["entries_per_sec"] < 200]
+        acceptable = [
+            r for r in successful_results if 100 <= r["entries_per_sec"] < 200
+        ]
         poor = [r for r in successful_results if r["entries_per_sec"] < 100]
 
         # Find best performers
@@ -280,7 +288,9 @@ class BatchTestRunner:
         # Memory efficiency
         memory_efficient = [r for r in successful_results if r["memory_delta_mb"] < 100]
         if memory_efficient:
-            avg_size = sum(r["batch_size"] for r in memory_efficient) / len(memory_efficient)
+            avg_size = sum(r["batch_size"] for r in memory_efficient) / len(
+                memory_efficient
+            )
             recommendations.append(
                 f"For memory efficiency, consider batches around {int(avg_size):,}"
             )
@@ -293,7 +303,9 @@ class BatchTestRunner:
         ]
         if production_ready:
             sizes = sorted([r["batch_size"] for r in production_ready])
-            recommendations.append(f"Production-ready range: {sizes[0]:,} to {sizes[-1]:,} entries")
+            recommendations.append(
+                f"Production-ready range: {sizes[0]:,} to {sizes[-1]:,} entries"
+            )
 
         return recommendations
 
@@ -307,7 +319,9 @@ class BatchTestRunner:
                 "test_name": "BULLETPROOF_BATCH_TEST",
                 "start_time": self.start_time.isoformat(),
                 "end_time": datetime.now().isoformat(),
-                "total_duration_sec": (datetime.now() - self.start_time).total_seconds(),
+                "total_duration_sec": (
+                    datetime.now() - self.start_time
+                ).total_seconds(),
                 "batch_sizes_tested": len(self.results),
                 "timeout_per_batch_sec": self.timeout_seconds,
             },
@@ -328,7 +342,9 @@ class BatchTestRunner:
         if successful_results:
             print(f"\n📋 DETAILED PERFORMANCE TABLE")
             print("=" * 80)
-            print("Batch Size |  Speed (e/s) | 1M Time (min) | Success Rate | Memory (MB)")
+            print(
+                "Batch Size |  Speed (e/s) | 1M Time (min) | Success Rate | Memory (MB)"
+            )
             print("-" * 80)
 
             for result in successful_results:
@@ -348,7 +364,9 @@ class BatchTestRunner:
             print(f"\n❌ FAILED TESTS ({len(failed_results)})")
             print("-" * 50)
             for result in failed_results:
-                print(f"  {result['batch_size']:>8,}: {result.get('error', 'Unknown error')[:60]}")
+                print(
+                    f"  {result['batch_size']:>8,}: {result.get('error', 'Unknown error')[:60]}"
+                )
 
 
 async def main():

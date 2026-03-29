@@ -86,7 +86,9 @@ class SystemAlert:
 class CircuitBreaker:
     """Circuit breaker for component protection."""
 
-    def __init__(self, name: str, failure_threshold: int = 5, recovery_timeout: float = 60.0):
+    def __init__(
+        self, name: str, failure_threshold: int = 5, recovery_timeout: float = 60.0
+    ):
         self.name = name
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
@@ -187,7 +189,10 @@ class ProductionMonitor:
             "monitoring_interval": 1.0,  # seconds
             "metrics_retention_hours": 24,
             "alert_cooldown_seconds": 300,
-            "circuit_breaker_defaults": {"failure_threshold": 5, "recovery_timeout": 60.0},
+            "circuit_breaker_defaults": {
+                "failure_threshold": 5,
+                "recovery_timeout": 60.0,
+            },
             "thresholds": {
                 "cpu_usage": {"warning": 80.0, "critical": 95.0},
                 "memory_usage": {"warning": 85.0, "critical": 95.0},
@@ -425,7 +430,11 @@ class ProductionMonitor:
         # Record uptime
         uptime_seconds = current_time - self.uptime_start
         uptime_metric = HealthMetric(
-            name="uptime", value=uptime_seconds, threshold_warning=0, threshold_critical=0, unit="s"
+            name="uptime",
+            value=uptime_seconds,
+            threshold_warning=0,
+            threshold_critical=0,
+            unit="s",
         )
         self._record_metric(uptime_metric)
 
@@ -456,7 +465,9 @@ class ProductionMonitor:
             return
 
         critical_count = sum(
-            1 for m in self.current_metrics.values() if m.status == HealthStatus.CRITICAL
+            1
+            for m in self.current_metrics.values()
+            if m.status == HealthStatus.CRITICAL
         )
         warning_count = sum(
             1 for m in self.current_metrics.values() if m.status == HealthStatus.WARNING
@@ -486,7 +497,9 @@ class ProductionMonitor:
                     f"System status changed to WARNING ({warning_count} warning metrics)",
                 )
             else:
-                self._emit_alert(AlertLevel.INFO, "system", "System status returned to HEALTHY")
+                self._emit_alert(
+                    AlertLevel.INFO, "system", "System status returned to HEALTHY"
+                )
 
     def _emit_alert(self, level: AlertLevel, component: str, message: str):
         """Emit a system alert."""
@@ -534,7 +547,9 @@ class ProductionMonitor:
             else:
                 self.circuit_breakers[component].record_failure()
 
-    def execute_with_circuit_breaker(self, component: str, func: Callable, *args, **kwargs):
+    def execute_with_circuit_breaker(
+        self, component: str, func: Callable, *args, **kwargs
+    ):
         """Execute function with circuit breaker protection."""
         if component not in self.circuit_breakers:
             # Create circuit breaker on demand
@@ -548,7 +563,9 @@ class ProductionMonitor:
         breaker = self.circuit_breakers[component]
 
         if not breaker.can_execute():
-            raise RuntimeError(f"Circuit breaker {component} is OPEN - operation blocked")
+            raise RuntimeError(
+                f"Circuit breaker {component} is OPEN - operation blocked"
+            )
 
         try:
             result = func(*args, **kwargs)
@@ -556,7 +573,9 @@ class ProductionMonitor:
             return result
         except Exception as e:
             breaker.record_failure()
-            self._emit_alert(AlertLevel.WARNING, component, f"Circuit breaker failure: {e}")
+            self._emit_alert(
+                AlertLevel.WARNING, component, f"Circuit breaker failure: {e}"
+            )
             raise
 
     def register_alert_callback(self, callback: Callable[[SystemAlert], None]):
@@ -581,7 +600,8 @@ class ProductionMonitor:
                 for name, metric in self.current_metrics.items()
             },
             "circuit_breakers": {
-                name: breaker.get_status() for name, breaker in self.circuit_breakers.items()
+                name: breaker.get_status()
+                for name, breaker in self.circuit_breakers.items()
             },
             "recent_alerts": [alert.to_dict() for alert in list(self.alerts)[-10:]],
         }

@@ -28,7 +28,9 @@ class TestDatabaseStressTests:
     def test_large_batch_insert_stress(self, temp_db_path):
         """Test inserting large batches of entries."""
         config = DatabaseConfig(
-            db_path=str(temp_db_path), memory_threshold_gb=0.1, use_duckdb=False  # Force SQLite
+            db_path=str(temp_db_path),
+            memory_threshold_gb=0.1,
+            use_duckdb=False,  # Force SQLite
         )
 
         # Generate large dataset
@@ -109,7 +111,9 @@ class TestDatabaseStressTests:
         entries_per_thread = 100
 
         for i in range(num_threads):
-            thread = threading.Thread(target=worker_thread, args=(i, entries_per_thread))
+            thread = threading.Thread(
+                target=worker_thread, args=(i, entries_per_thread)
+            )
             threads.append(thread)
             thread.start()
 
@@ -168,7 +172,9 @@ class TestDatabaseStressTests:
         # Mock DuckDB as unavailable
         with patch("src.utils.database.DUCKDB_AVAILABLE", False):
             with DatabaseManager(config) as db:
-                assert db.db_type == "sqlite", "Should fall back to SQLite when DuckDB unavailable"
+                assert (
+                    db.db_type == "sqlite"
+                ), "Should fall back to SQLite when DuckDB unavailable"
 
                 # Should work normally
                 entry = {
@@ -376,7 +382,9 @@ class TestDatabaseStressTests:
 
             # Detect collisions
             collisions = db.detect_collisions(threshold=10)
-            assert len(collisions) > 0, "Should detect collisions with 1000 similar names"
+            assert (
+                len(collisions) > 0
+            ), "Should detect collisions with 1000 similar names"
 
             # Verify collision data
             for collision in collisions:
@@ -497,7 +505,9 @@ class TestDatabaseFailoverScenarios:
         }
 
         # Scenario 1: DuckDB fails, fall back to SQLite
-        with patch("src.utils.database.duckdb.connect", side_effect=Exception("DuckDB failed")):
+        with patch(
+            "src.utils.database.duckdb.connect", side_effect=Exception("DuckDB failed")
+        ):
             with DatabaseManager(config) as db:
                 assert db.db_type == "sqlite"
                 inserted = db.insert_initial_stats([test_entry])
@@ -506,14 +516,19 @@ class TestDatabaseFailoverScenarios:
         # Scenario 2: Both DuckDB and SQLite file access fail
         config.db_path = "/invalid/path/that/cannot/exist/test.db"
 
-        with patch("src.utils.database.duckdb.connect", side_effect=Exception("DuckDB failed")):
+        with patch(
+            "src.utils.database.duckdb.connect", side_effect=Exception("DuckDB failed")
+        ):
             try:
                 with DatabaseManager(config) as db:
                     # Should fail gracefully
                     pass
             except Exception as e:
                 # Expected to fail when no valid database path
-                assert "No such file or directory" in str(e) or "cannot open" in str(e).lower()
+                assert (
+                    "No such file or directory" in str(e)
+                    or "cannot open" in str(e).lower()
+                )
 
     def test_database_recovery_after_corruption(self, temp_db_path):
         """Test recovery after database corruption."""
@@ -560,7 +575,9 @@ class TestDatabaseFailoverScenarios:
         restricted_path = temp_dir / "restricted"
         restricted_path.mkdir(mode=0o000)  # No permissions
 
-        config = DatabaseConfig(db_path=str(restricted_path / "test.db"), use_duckdb=False)
+        config = DatabaseConfig(
+            db_path=str(restricted_path / "test.db"), use_duckdb=False
+        )
 
         try:
             with DatabaseManager(config) as db:
@@ -624,7 +641,8 @@ class TestDatabaseIntegrationStress:
     def test_end_to_end_large_dataset_processing(self, temp_db_path):
         """Test end-to-end processing of large dataset."""
         config = DatabaseConfig(
-            db_path=str(temp_db_path), use_duckdb=False  # Use SQLite for predictable behavior
+            db_path=str(temp_db_path),
+            use_duckdb=False,  # Use SQLite for predictable behavior
         )
 
         # Generate large realistic dataset
@@ -662,7 +680,9 @@ class TestDatabaseIntegrationStress:
 
             entry = {
                 f"{surname}, {given}": {
-                    "GlobalID": f"{surname[:4].upper()}{given[:4].upper()}{i:010d}"[:22],
+                    "GlobalID": f"{surname[:4].upper()}{given[:4].upper()}{i:010d}"[
+                        :22
+                    ],
                     "CanonicalLatin": f"{surname}, {given}",
                     "CanonicalNative": f"{surname}, {given}",
                     "LanguageOfPublication": ["en"],
@@ -792,7 +812,9 @@ class TestDatabaseIntegrationStress:
 
         # Check results
         assert len(results["errors"]) == 0, f"Worker errors: {results['errors']}"
-        assert results["inserts"] == 30, f"Expected 30 inserts, got {results['inserts']}"
+        assert (
+            results["inserts"] == 30
+        ), f"Expected 30 inserts, got {results['inserts']}"
         assert results["reads"] > 0, f"Expected reads > 0, got {results['reads']}"
 
         # Final verification

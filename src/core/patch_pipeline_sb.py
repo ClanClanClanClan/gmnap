@@ -16,7 +16,9 @@ def build_small_batch_service(
         pipeline_ctor,
         BoosterConfig(
             agg=AggConfig(
-                min_size=min_size, target_size=target_size, max_latency_ms=max_latency_ms
+                min_size=min_size,
+                target_size=target_size,
+                max_latency_ms=max_latency_ms,
             ),
             warmup_min_entries=warmup_min_entries,
             enable_region_fastpath=enable_region_fastpath,
@@ -25,5 +27,7 @@ def build_small_batch_service(
     return svc
 
 
-async def process_with_booster(service: PipelineService, entries: List[Dict]) -> List[Dict]:
+async def process_with_booster(
+    service: PipelineService, entries: List[Dict]
+) -> List[Dict]:
     return await service.process(entries)

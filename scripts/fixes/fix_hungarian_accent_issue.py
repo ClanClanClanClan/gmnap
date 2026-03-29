@@ -13,7 +13,9 @@ from pathlib import Path
 def normalize_for_matching(text):
     """Remove accents for surname matching"""
     return "".join(
-        c for c in unicodedata.normalize("NFD", text.lower()) if unicodedata.category(c) != "Mn"
+        c
+        for c in unicodedata.normalize("NFD", text.lower())
+        if unicodedata.category(c) != "Mn"
     )
 
 
@@ -29,9 +31,7 @@ def fix_hungarian_accent_disambiguation():
         content = f.read()
 
     # Find the Hungarian surname matching logic
-    hungarian_match_pattern = (
-        r"has_hungarian_surname = any\(surname in name_lower for surname in hungarian_surnames\)"
-    )
+    hungarian_match_pattern = r"has_hungarian_surname = any\(surname in name_lower for surname in hungarian_surnames\)"
 
     if re.search(hungarian_match_pattern, content):
         # Replace with accent-normalized matching
@@ -45,7 +45,9 @@ def fix_hungarian_accent_disambiguation():
         # Add unicodedata import at the top if not present
         if "import unicodedata" not in content:
             import_pattern = r"(import re\n)"
-            content = re.sub(import_pattern, r"import re\nimport unicodedata\n", content, count=1)
+            content = re.sub(
+                import_pattern, r"import re\nimport unicodedata\n", content, count=1
+            )
             print("   ✅ Added unicodedata import")
 
     # Write fixed pipeline

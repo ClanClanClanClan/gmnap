@@ -50,7 +50,9 @@ def analyze_romanization_duplicates():
 
     print(f"📊 Analysis Results:")
     print(f"  • True duplicates (identical): {len(true_duplicates)}")
-    print(f"  • Variant duplicates (different weights/context): {len(variant_duplicates)}")
+    print(
+        f"  • Variant duplicates (different weights/context): {len(variant_duplicates)}"
+    )
 
     # Show true duplicates (safe to remove)
     if true_duplicates:
@@ -78,7 +80,9 @@ def analyze_romanization_duplicates():
     print(
         f"  • Keep all {len(variant_duplicates)} variant duplicates (they serve different purposes)"
     )
-    print(f"  • This will reduce false 'duplicate' warnings while preserving functionality")
+    print(
+        f"  • This will reduce false 'duplicate' warnings while preserving functionality"
+    )
 
     return true_duplicates
 

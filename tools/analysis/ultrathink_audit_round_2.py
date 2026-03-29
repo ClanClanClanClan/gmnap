@@ -145,7 +145,9 @@ class UltrathinkAuditor:
                 region = self.manager.get_region(region_code)
 
                 # Check for enhanced methods
-                has_comprehensive_filter = hasattr(region, "comprehensive_unicode_filter")
+                has_comprehensive_filter = hasattr(
+                    region, "comprehensive_unicode_filter"
+                )
                 has_enhanced_security = hasattr(region, "enhanced_security_check")
                 has_ensure_idempotency = hasattr(region, "ensure_idempotency")
 
@@ -158,7 +160,9 @@ class UltrathinkAuditor:
                 pass
 
         if using_enhanced == 10:
-            self.audit_results["claims_verified"].append("✅ Regions use enhanced base class")
+            self.audit_results["claims_verified"].append(
+                "✅ Regions use enhanced base class"
+            )
         else:
             self.audit_results["issues_found"].append(
                 f"⚠️ {len(not_using)} regions might not use enhanced base"
@@ -216,7 +220,9 @@ class UltrathinkAuditor:
         self.audit_results["stats"]["idempotency_rate"] = idempotent / len(test_cases)
 
         if idempotent == len(test_cases):
-            self.audit_results["claims_verified"].append("✅ Processing is 100% idempotent")
+            self.audit_results["claims_verified"].append(
+                "✅ Processing is 100% idempotent"
+            )
         else:
             self.audit_results["claims_false"].append(
                 f"❌ Idempotency only {idempotent}/{len(test_cases)}"
@@ -267,7 +273,9 @@ class UltrathinkAuditor:
             except:
                 blocked += 1  # Exception means it was rejected
 
-        self.audit_results["stats"]["unicode_security_rate"] = blocked / len(dangerous_chars)
+        self.audit_results["stats"]["unicode_security_rate"] = blocked / len(
+            dangerous_chars
+        )
 
         if blocked == len(dangerous_chars):
             self.audit_results["claims_verified"].append(
@@ -320,7 +328,9 @@ class UltrathinkAuditor:
                     handled_correctly += 1
 
         if handled_correctly == len(collision_tests):
-            self.audit_results["claims_verified"].append("✅ Collision suffixes handled correctly")
+            self.audit_results["claims_verified"].append(
+                "✅ Collision suffixes handled correctly"
+            )
         else:
             self.audit_results["issues_found"].append(
                 f"⚠️ Collision handling issues: {len(issues)}"
@@ -328,7 +338,9 @@ class UltrathinkAuditor:
             for issue in issues:
                 self.audit_results["issues_found"].append(f"Collision: {issue}")
 
-        print(f"  Collision handling: {handled_correctly}/{len(collision_tests)} correct")
+        print(
+            f"  Collision handling: {handled_correctly}/{len(collision_tests)} correct"
+        )
 
     def audit_performance(self):
         """Verify performance claims."""
@@ -496,7 +508,10 @@ class UltrathinkAuditor:
             except Exception as e:
                 if "too long" in str(e) and description == "151 chars (over limit)":
                     handled += 1
-                elif "dangerous" in str(e) and description in ["Null byte", "Escape char"]:
+                elif "dangerous" in str(e) and description in [
+                    "Null byte",
+                    "Escape char",
+                ]:
                     handled += 1
                 else:
                     issues.append(f"{description}: Unexpected error - {str(e)[:30]}")
@@ -508,7 +523,9 @@ class UltrathinkAuditor:
                 f"✅ Edge cases: {handled}/{len(edge_cases)} handled"
             )
         else:
-            self.audit_results["issues_found"].append(f"⚠️ Edge case issues: {len(issues)}")
+            self.audit_results["issues_found"].append(
+                f"⚠️ Edge case issues: {len(issues)}"
+            )
 
         print(f"  Edge cases: {handled}/{len(edge_cases)} handled correctly")
 
@@ -548,7 +565,9 @@ class UltrathinkAuditor:
         self.audit_results["stats"]["attack_block_rate"] = blocked / len(attacks)
 
         if blocked == len(attacks):
-            self.audit_results["claims_verified"].append("✅ All attack vectors blocked")
+            self.audit_results["claims_verified"].append(
+                "✅ All attack vectors blocked"
+            )
         else:
             self.audit_results["warnings"].append(
                 f"⚠️ {len(not_blocked)} attacks not blocked: {not_blocked}"
@@ -602,21 +621,33 @@ class UltrathinkAuditor:
 
         checks = {
             "regions_work": self.audit_results["stats"].get("regions_loaded", 0) >= 33,
-            "idempotent": self.audit_results["stats"].get("idempotency_rate", 0) >= 0.95,
-            "secure": self.audit_results["stats"].get("unicode_security_rate", 0) >= 0.95,
-            "performant": self.audit_results["stats"].get("performance_speed", 0) >= 1000,
-            "no_memory_leaks": self.audit_results["stats"].get("memory_increase_mb", 100) < 50,
-            "attacks_blocked": self.audit_results["stats"].get("attack_block_rate", 0) >= 0.9,
-            "edge_cases_handled": self.audit_results["stats"].get("edge_case_rate", 0) >= 0.8,
+            "idempotent": self.audit_results["stats"].get("idempotency_rate", 0)
+            >= 0.95,
+            "secure": self.audit_results["stats"].get("unicode_security_rate", 0)
+            >= 0.95,
+            "performant": self.audit_results["stats"].get("performance_speed", 0)
+            >= 1000,
+            "no_memory_leaks": self.audit_results["stats"].get(
+                "memory_increase_mb", 100
+            )
+            < 50,
+            "attacks_blocked": self.audit_results["stats"].get("attack_block_rate", 0)
+            >= 0.9,
+            "edge_cases_handled": self.audit_results["stats"].get("edge_case_rate", 0)
+            >= 0.8,
         }
 
         ready = all(checks.values())
 
         if ready:
-            self.audit_results["claims_verified"].append("✅ System is production ready")
+            self.audit_results["claims_verified"].append(
+                "✅ System is production ready"
+            )
         else:
             failed_checks = [k for k, v in checks.items() if not v]
-            self.audit_results["claims_false"].append(f"❌ NOT production ready: {failed_checks}")
+            self.audit_results["claims_false"].append(
+                f"❌ NOT production ready: {failed_checks}"
+            )
 
         print(f"  Production ready: {'YES' if ready else 'NO'}")
 

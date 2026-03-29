@@ -102,7 +102,9 @@ class TestRegionalDetectionHell:
 
         for test_name, possible_regions in sanitized_cases:
             # Filter to implemented regions only
-            implemented_possible = [r for r in possible_regions if r in IMPLEMENTED_REGIONS]
+            implemented_possible = [
+                r for r in possible_regions if r in IMPLEMENTED_REGIONS
+            ]
             if not implemented_possible:
                 continue
 
@@ -135,7 +137,9 @@ class TestRegionalDetectionHell:
 
         for test_name, possible_regions in ambiguous_cases:
             # Filter to implemented regions only
-            implemented_possible = [r for r in possible_regions if r in IMPLEMENTED_REGIONS]
+            implemented_possible = [
+                r for r in possible_regions if r in IMPLEMENTED_REGIONS
+            ]
             if not implemented_possible:
                 continue
 
@@ -199,8 +203,12 @@ class TestRegionalDetectionHell:
 
             # Homographs should be detected and normalized
             # The system should not be fooled by look-alike characters
-            original_results = [(tc, rc, conf) for tc, rc, conf in results if original in tc]
-            homograph_results = [(tc, rc, conf) for tc, rc, conf in results if homograph in tc]
+            original_results = [
+                (tc, rc, conf) for tc, rc, conf in results if original in tc
+            ]
+            homograph_results = [
+                (tc, rc, conf) for tc, rc, conf in results if homograph in tc
+            ]
 
             # Results should be consistent or homographs should be flagged
             for (orig_tc, orig_rc, orig_conf), (homo_tc, homo_rc, homo_conf) in zip(
@@ -291,8 +299,12 @@ class TestRegionalDetectionHell:
 
             except Exception as e:
                 # Should handle gracefully, not crash
-                assert "encoding" not in str(e).lower(), f"Encoding error on mixed script: {e}"
-                assert "unicode" not in str(e).lower(), f"Unicode error on mixed script: {e}"
+                assert (
+                    "encoding" not in str(e).lower()
+                ), f"Encoding error on mixed script: {e}"
+                assert (
+                    "unicode" not in str(e).lower()
+                ), f"Unicode error on mixed script: {e}"
 
     # ========== EDGE CASE HELL ==========
 
@@ -418,13 +430,25 @@ class TestRegionalDetectionHell:
         consistency_groups = [
             # Korean variants
             (
-                ["Kim, Jong-un", "Kim Jong-un", "Kim Jong un", "Kim Jongun", "Kim, Jongun"],
+                [
+                    "Kim, Jong-un",
+                    "Kim Jong-un",
+                    "Kim Jong un",
+                    "Kim Jongun",
+                    "Kim, Jongun",
+                ],
                 "E4",
                 "Korean name variants should be consistent",
             ),
             # Anglo variants
             (
-                ["Smith, John", "Smith John", "SMITH, JOHN", "smith, john", "Smith,John"],
+                [
+                    "Smith, John",
+                    "Smith John",
+                    "SMITH, JOHN",
+                    "smith, john",
+                    "Smith,John",
+                ],
                 "A1",
                 "Anglo name variants should be consistent",
             ),
@@ -436,7 +460,12 @@ class TestRegionalDetectionHell:
             ),
             # Arabic variants
             (
-                ["Al-Ahmad, Mohammed", "Ahmad, Mohammed", "Al-Ahmed, Muhammad", "Ahmed, Mohammad"],
+                [
+                    "Al-Ahmad, Mohammed",
+                    "Ahmad, Mohammed",
+                    "Al-Ahmed, Muhammad",
+                    "Ahmed, Mohammad",
+                ],
                 "C3",
                 "Arabic name variants should be consistent",
             ),
@@ -466,7 +495,9 @@ class TestRegionalDetectionHell:
             detected_regions = [r[1] for r in results]
             unique_regions = set(detected_regions)
 
-            assert len(unique_regions) == 1, f"Inconsistent detection for {description}: {results}"
+            assert (
+                len(unique_regions) == 1
+            ), f"Inconsistent detection for {description}: {results}"
 
             # Should detect the expected region
             assert (
@@ -576,7 +607,9 @@ class TestRegionalDetectionHell:
 
                         try:
                             result = region_manager.detect_region(entry)
-                            results[f"{surname_region}+{given_region}"][result.region_code] += 1
+                            results[f"{surname_region}+{given_region}"][
+                                result.region_code
+                            ] += 1
                         except Exception:
                             pass  # Skip problematic combinations
 
@@ -698,10 +731,18 @@ class TestRegionalEdgeIntegration:
         region_tests = {
             "A1": ["Smith, John", "Johnson, Mary", "Williams, David"],  # 3/3 working
             "A2": ["Müller, Hans", "Rossi, Mario"],  # Use only working names
-            "B1": ["Ivanov, Vladimir", "Petrov, Sergei", "Volkov, Dmitri"],  # 3/3 working
+            "B1": [
+                "Ivanov, Vladimir",
+                "Petrov, Sergei",
+                "Volkov, Dmitri",
+            ],  # 3/3 working
             "B2": ["Novák, Petr", "Kowalski, Jan", "Horváth, János"],  # 3/3 working
             "C2": ["Ahmadi, Mohammad"],  # Use only working name
-            "C3": ["Al-Ahmad, Mohammed", "Al-Hassan, Omar", "Khalil, Ahmad"],  # 3/3 working
+            "C3": [
+                "Al-Ahmad, Mohammed",
+                "Al-Hassan, Omar",
+                "Khalil, Ahmad",
+            ],  # 3/3 working
             # Skip C4 for now - region detection challenge between Arabic regions
             "D1": ["Sharma, Ram", "Patel, Vijay", "Singh, Raj"],  # 3/3 working
             "E1": ["Wang, Wei", "Li, Ming", "Zhang, Jun"],  # 3/3 working
@@ -714,13 +755,24 @@ class TestRegionalEdgeIntegration:
         problematic_regions = {
             # C4 (Arabic Gulf) - hard to distinguish from C3, may detect as A1 or C3
             "C4": {
-                "test_names": ["Al-Maktoum, Rashid", "Al-Thani, Hamad", "Al-Sabah, Jaber"],
-                "acceptable_detections": ["A1", "C3", "C4"],  # Allow reasonable alternatives
+                "test_names": [
+                    "Al-Maktoum, Rashid",
+                    "Al-Thani, Hamad",
+                    "Al-Sabah, Jaber",
+                ],
+                "acceptable_detections": [
+                    "A1",
+                    "C3",
+                    "C4",
+                ],  # Allow reasonable alternatives
             },
             # A2 mixed cases - some French names may detect as A1
             "A2_mixed": {
                 "test_names": ["Dupont, Jean"],
-                "acceptable_detections": ["A1", "A2"],  # French can be detected as Anglo
+                "acceptable_detections": [
+                    "A1",
+                    "A2",
+                ],  # French can be detected as Anglo
             },
             # C2 mixed cases - Persian names may detect as C3
             "C2_mixed": {
@@ -771,7 +823,9 @@ class TestRegionalEdgeIntegration:
             if not region_working:
                 failed_regions.append(region_id)
 
-        assert len(failed_regions) == 0, f"Non-functional regions detected: {failed_regions}"
+        assert (
+            len(failed_regions) == 0
+        ), f"Non-functional regions detected: {failed_regions}"
 
     @pytest.mark.paranoid
     @pytest.mark.timeout(15)
@@ -799,7 +853,9 @@ class TestRegionalEdgeIntegration:
                 result = manager.detect_region(entry)
 
                 if result.region_code != expected_region:
-                    contamination_errors.append((name, result.region_code, expected_region))
+                    contamination_errors.append(
+                        (name, result.region_code, expected_region)
+                    )
 
             except Exception as e:
                 contamination_errors.append((name, f"ERROR: {e}", expected_region))

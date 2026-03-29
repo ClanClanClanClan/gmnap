@@ -83,7 +83,9 @@ def test_audit_findings():
     print("5. Testing systematic improvement framework...")
     results["tests_run"] += 1
     try:
-        from scripts.systematic_improvement_framework_v2 import SystematicImprovementFrameworkV2
+        from scripts.systematic_improvement_framework_v2 import (
+            SystematicImprovementFrameworkV2,
+        )
 
         framework = SystematicImprovementFrameworkV2()
         print("   ✓ Framework v2 loads and initializes")
@@ -146,7 +148,10 @@ def test_audit_findings():
     try:
         # Run quick validation
         result = subprocess.run(
-            ["python3", "scripts/validate.py"], capture_output=True, text=True, timeout=60
+            ["python3", "scripts/validate.py"],
+            capture_output=True,
+            text=True,
+            timeout=60,
         )
         if "691/733" in result.stdout:
             print("   ✓ Performance validation working")

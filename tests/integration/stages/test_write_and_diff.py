@@ -22,7 +22,9 @@ def test_write_and_diff_generates_yaml_json_and_diff(tmp_path):
             "ValidationStatus": "verified",
         }
     ]
-    out1, m1, dir1 = write_and_diff(batch1, out_base=str(base), templates_dir="templates")
+    out1, m1, dir1 = write_and_diff(
+        batch1, out_base=str(base), templates_dir="templates"
+    )
     assert os.path.isdir(dir1)
     assert os.path.exists(os.path.join(dir1, "entries.yaml"))
     assert os.path.exists(os.path.join(dir1, "entries.json"))
@@ -30,6 +32,8 @@ def test_write_and_diff_generates_yaml_json_and_diff(tmp_path):
     assert os.path.exists(os.path.join(dir1, "changelog.cypher"))
     # run again with a change
     batch2 = [dict(batch1[0], CanonicalLatin="Euler, L.")]
-    out2, m2, dir2 = write_and_diff(batch2, out_base=str(base), templates_dir="templates")
+    out2, m2, dir2 = write_and_diff(
+        batch2, out_base=str(base), templates_dir="templates"
+    )
     assert m2["changed_entries"] >= 1
     assert dir1 != dir2

@@ -318,7 +318,12 @@ expanded_test_cases = [
         "source": "Goguryeo general",
     },
     # LITERARY FIGURES (Poets, novelists, writers)
-    {"name": "Ko, Un", "expected_korean": "고은", "category": "literary", "source": "Poet"},
+    {
+        "name": "Ko, Un",
+        "expected_korean": "고은",
+        "category": "literary",
+        "source": "Poet",
+    },
     {
         "name": "Park, Kyung-Ni",
         "expected_korean": "박경리",
@@ -337,8 +342,18 @@ expanded_test_cases = [
         "category": "literary",
         "source": "Novelist",
     },
-    {"name": "Kim, So-Wol", "expected_korean": "김소월", "category": "literary", "source": "Poet"},
-    {"name": "Yun, Dong-Ju", "expected_korean": "윤동주", "category": "literary", "source": "Poet"},
+    {
+        "name": "Kim, So-Wol",
+        "expected_korean": "김소월",
+        "category": "literary",
+        "source": "Poet",
+    },
+    {
+        "name": "Yun, Dong-Ju",
+        "expected_korean": "윤동주",
+        "category": "literary",
+        "source": "Poet",
+    },
     {
         "name": "Yi, Sang",
         "expected_korean": "이상",
@@ -460,7 +475,12 @@ expanded_test_cases = [
         "category": "culture",
         "source": "Actress",
     },
-    {"name": "Ha, Jung-Woo", "expected_korean": "하정우", "category": "culture", "source": "Actor"},
+    {
+        "name": "Ha, Jung-Woo",
+        "expected_korean": "하정우",
+        "category": "culture",
+        "source": "Actor",
+    },
     {
         "name": "Lee, Byung-Hun",
         "expected_korean": "이병헌",
@@ -473,7 +493,12 @@ expanded_test_cases = [
         "category": "culture",
         "source": "Actor",
     },
-    {"name": "Park, Hae-Il", "expected_korean": "박해일", "category": "culture", "source": "Actor"},
+    {
+        "name": "Park, Hae-Il",
+        "expected_korean": "박해일",
+        "category": "culture",
+        "source": "Actor",
+    },
     {
         "name": "Kim, Hye-Soo",
         "expected_korean": "김혜수",
@@ -516,18 +541,48 @@ expanded_test_cases = [
         "category": "culture",
         "source": "Actress",
     },
-    {"name": "Cha, In-Pyo", "expected_korean": "차인표", "category": "culture", "source": "Actor"},
-    {"name": "Gong, Yoo", "expected_korean": "공유", "category": "culture", "source": "Actor"},
-    {"name": "Won, Bin", "expected_korean": "원빈", "category": "culture", "source": "Actor"},
-    {"name": "Lee, Min-Ho", "expected_korean": "이민호", "category": "culture", "source": "Actor"},
+    {
+        "name": "Cha, In-Pyo",
+        "expected_korean": "차인표",
+        "category": "culture",
+        "source": "Actor",
+    },
+    {
+        "name": "Gong, Yoo",
+        "expected_korean": "공유",
+        "category": "culture",
+        "source": "Actor",
+    },
+    {
+        "name": "Won, Bin",
+        "expected_korean": "원빈",
+        "category": "culture",
+        "source": "Actor",
+    },
+    {
+        "name": "Lee, Min-Ho",
+        "expected_korean": "이민호",
+        "category": "culture",
+        "source": "Actor",
+    },
     {
         "name": "Kim, Soo-Hyun",
         "expected_korean": "김수현",
         "category": "culture",
         "source": "Actor",
     },
-    {"name": "Park, Bo-Gum", "expected_korean": "박보검", "category": "culture", "source": "Actor"},
-    {"name": "IU", "expected_korean": "아이유", "category": "culture", "source": "Singer-actress"},
+    {
+        "name": "Park, Bo-Gum",
+        "expected_korean": "박보검",
+        "category": "culture",
+        "source": "Actor",
+    },
+    {
+        "name": "IU",
+        "expected_korean": "아이유",
+        "category": "culture",
+        "source": "Singer-actress",
+    },
     {
         "name": "Psy",
         "expected_korean": "싸이",
@@ -535,7 +590,12 @@ expanded_test_cases = [
         "source": "Singer (Gangnam Style)",
     },
     # SPORTS FIGURES (Athletes, coaches)
-    {"name": "Park, In-Bee", "expected_korean": "박인비", "category": "sports", "source": "Golfer"},
+    {
+        "name": "Park, In-Bee",
+        "expected_korean": "박인비",
+        "category": "sports",
+        "source": "Golfer",
+    },
     {
         "name": "Kim, Yu-Na",
         "expected_korean": "김연아",
@@ -578,7 +638,12 @@ expanded_test_cases = [
         "category": "sports",
         "source": "Volleyball player",
     },
-    {"name": "Pak, Se-Ri", "expected_korean": "박세리", "category": "sports", "source": "Golfer"},
+    {
+        "name": "Pak, Se-Ri",
+        "expected_korean": "박세리",
+        "category": "sports",
+        "source": "Golfer",
+    },
     {
         "name": "Park, Chan-Ho",
         "expected_korean": "박찬호",
@@ -591,7 +656,12 @@ expanded_test_cases = [
         "category": "sports",
         "source": "Baseball player",
     },
-    {"name": "Kim, Hyo-Joo", "expected_korean": "김효주", "category": "sports", "source": "Golfer"},
+    {
+        "name": "Kim, Hyo-Joo",
+        "expected_korean": "김효주",
+        "category": "sports",
+        "source": "Golfer",
+    },
     {
         "name": "Lee, Sang-Hwa",
         "expected_korean": "이상화",
@@ -689,7 +759,12 @@ expanded_test_cases = [
         "category": "academic",
         "source": "Economist",
     },
-    {"name": "Shin, Kak", "expected_korean": "신각", "category": "academic", "source": "Scientist"},
+    {
+        "name": "Shin, Kak",
+        "expected_korean": "신각",
+        "category": "academic",
+        "source": "Scientist",
+    },
     {
         "name": "Park, Nam-Gyu",
         "expected_korean": "박남규",
@@ -751,7 +826,12 @@ expanded_test_cases = [
         "category": "media",
         "source": "Comedian",
     },
-    {"name": "Kim, Gura", "expected_korean": "김구라", "category": "media", "source": "Comedian"},
+    {
+        "name": "Kim, Gura",
+        "expected_korean": "김구라",
+        "category": "media",
+        "source": "Comedian",
+    },
     {
         "name": "Park, Myung-Soo",
         "expected_korean": "박명수",
@@ -863,10 +943,30 @@ expanded_test_cases = [
         "category": "culture",
         "source": "Actor",
     },
-    {"name": "Hyun, Bin", "expected_korean": "현빈", "category": "culture", "source": "Actor"},
-    {"name": "So, Ji-Sub", "expected_korean": "소지섭", "category": "culture", "source": "Actor"},
-    {"name": "Jo, In-Sung", "expected_korean": "조인성", "category": "culture", "source": "Actor"},
-    {"name": "Ryu, Si-Won", "expected_korean": "류시원", "category": "culture", "source": "Actor"},
+    {
+        "name": "Hyun, Bin",
+        "expected_korean": "현빈",
+        "category": "culture",
+        "source": "Actor",
+    },
+    {
+        "name": "So, Ji-Sub",
+        "expected_korean": "소지섭",
+        "category": "culture",
+        "source": "Actor",
+    },
+    {
+        "name": "Jo, In-Sung",
+        "expected_korean": "조인성",
+        "category": "culture",
+        "source": "Actor",
+    },
+    {
+        "name": "Ryu, Si-Won",
+        "expected_korean": "류시원",
+        "category": "culture",
+        "source": "Actor",
+    },
     # RARE SURNAMES TESTING
     {
         "name": "Pyo, Chang-Won",
@@ -955,7 +1055,9 @@ for case in expanded_test_cases:
 # Save dataset
 dataset = {"info": dataset_info, "test_cases": expanded_test_cases}
 
-with open("data/expanded_independent_validation_dataset.json", "w", encoding="utf8") as f:
+with open(
+    "data/expanded_independent_validation_dataset.json", "w", encoding="utf8"
+) as f:
     json.dump(dataset, f, indent=2, ensure_ascii=False)
 
 print("✅ Expanded independent validation dataset created!")
@@ -969,4 +1071,6 @@ print("=== QUALITY FEATURES ===")
 for feature in dataset_info["quality_criteria"]:
     print(f"✓ {feature}")
 print()
-print(f"Ready to test system performance on {len(expanded_test_cases)} independent cases!")
+print(
+    f"Ready to test system performance on {len(expanded_test_cases)} independent cases!"
+)

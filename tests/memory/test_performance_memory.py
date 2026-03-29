@@ -18,7 +18,11 @@ from unittest.mock import patch
 import psutil
 import pytest
 
-from src.core.unicode_handler import UnicodeNormalizer, generate_name_variants, normalize_name
+from src.core.unicode_handler import (
+    UnicodeNormalizer,
+    generate_name_variants,
+    normalize_name,
+)
 from src.utils.database import DatabaseConfig, DatabaseManager
 from src.validation.schema import SchemaValidator, validate_entry
 
@@ -138,7 +142,12 @@ class TestUnicodeNormalizationPerformance:
         """Test variant generation performance."""
         normalizer = UnicodeNormalizer()
 
-        test_texts = ["Weiß, Hans", "Cæsar, Julius", "García, José María", "Smith-Jones, Mary-Anne"]
+        test_texts = [
+            "Weiß, Hans",
+            "Cæsar, Julius",
+            "García, José María",
+            "Smith-Jones, Mary-Anne",
+        ]
 
         with profiler.measure("variant_generation"):
             for _ in range(500):
@@ -147,7 +156,9 @@ class TestUnicodeNormalizationPerformance:
                     assert isinstance(variants, list)
                     assert len(variants) > 0
 
-        profiler.assert_performance("variant_generation", max_time=2.0, max_memory_mb=20)
+        profiler.assert_performance(
+            "variant_generation", max_time=2.0, max_memory_mb=20
+        )
 
     def test_large_text_normalization(self, profiler):
         """Test normalization of very large texts."""
@@ -155,14 +166,19 @@ class TestUnicodeNormalizationPerformance:
 
         # Create 1MB text with mixed Unicode
         large_text = (
-            "García, José María " + "Παπαδόπουλος, Γιάννης " + "الخوارزمي, محمد " + "田中, 太郎 "
+            "García, José María "
+            + "Παπαδόπουλος, Γιάννης "
+            + "الخوارزمي, محمد "
+            + "田中, 太郎 "
         ) * 10000
 
         with profiler.measure("large_text_normalization"):
             normalized = normalizer.normalize(large_text)
             assert isinstance(normalized, str)
 
-        profiler.assert_performance("large_text_normalization", max_time=5.0, max_memory_mb=50)
+        profiler.assert_performance(
+            "large_text_normalization", max_time=5.0, max_memory_mb=50
+        )
 
     def test_memory_leak_normalization(self, profiler):
         """Test for memory leaks in normalization."""
@@ -192,7 +208,9 @@ class TestUnicodeNormalizationPerformance:
         object_growth = final_objects - initial_objects
 
         # Should not create excessive objects
-        assert object_growth < 1000, f"Potential memory leak: {object_growth} objects created"
+        assert (
+            object_growth < 1000
+        ), f"Potential memory leak: {object_growth} objects created"
 
         # Memory delta should be reasonable
         profiler.assert_performance("memory_leak_test", max_memory_mb=20)
@@ -212,7 +230,9 @@ class TestSchemaValidationPerformance:
                 assert isinstance(is_valid, bool)
                 assert isinstance(errors, list)
 
-        profiler.assert_performance("schema_validation_speed", max_time=2.0, max_memory_mb=20)
+        profiler.assert_performance(
+            "schema_validation_speed", max_time=2.0, max_memory_mb=20
+        )
 
     def test_large_entry_validation(self, profiler):
         """Test validation of large entries."""
@@ -254,7 +274,8 @@ class TestSchemaValidationPerformance:
                         for i in range(100)
                     ],
                     "Synthesised": [
-                        {"str": f"Garcia{i} Juan Carlos", "type": "ascii-lossy"} for i in range(100)
+                        {"str": f"Garcia{i} Juan Carlos", "type": "ascii-lossy"}
+                        for i in range(100)
                     ],
                 },
                 "FamilyNameType": "surname",
@@ -264,7 +285,12 @@ class TestSchemaValidationPerformance:
                 "BirthYear": 1975,
                 "DeathYear": None,
                 "CountryCodes": ["ES"],
-                "DiasporaCodes": ["US:2005-2010", "GB:2010-2015", "FR:2015-2020", "DE:2020-"],
+                "DiasporaCodes": [
+                    "US:2005-2010",
+                    "GB:2010-2015",
+                    "FR:2015-2020",
+                    "DE:2020-",
+                ],
                 "PrimaryMSC": [
                     {"code": f"{i:02d}A{j:02d}", "source": "zbMATH"}
                     for i in range(10, 20)
@@ -315,7 +341,9 @@ class TestSchemaValidationPerformance:
             assert isinstance(is_valid, bool)
             assert isinstance(errors, list)
 
-        profiler.assert_performance("large_entry_validation", max_time=1.0, max_memory_mb=30)
+        profiler.assert_performance(
+            "large_entry_validation", max_time=1.0, max_memory_mb=30
+        )
 
     def test_batch_validation_performance(self, profiler):
         """Test batch validation performance."""
@@ -377,7 +405,9 @@ class TestSchemaValidationPerformance:
         with profiler.measure("schema_validation_memory_leak"):
             for i in range(1000):
                 # Modify entry to prevent caching
-                test_entry[f"Test{i}, User{i}"] = test_entry.pop(list(test_entry.keys())[0])
+                test_entry[f"Test{i}, User{i}"] = test_entry.pop(
+                    list(test_entry.keys())[0]
+                )
                 entry_data = test_entry[f"Test{i}, User{i}"]
                 entry_data["CanonicalLatin"] = f"Test{i}, User{i}"
 
@@ -392,7 +422,9 @@ class TestSchemaValidationPerformance:
         final_objects = len(gc.get_objects())
         object_growth = final_objects - initial_objects
 
-        assert object_growth < 1000, f"Potential memory leak: {object_growth} objects created"
+        assert (
+            object_growth < 1000
+        ), f"Potential memory leak: {object_growth} objects created"
         profiler.assert_performance("schema_validation_memory_leak", max_memory_mb=30)
 
 
@@ -431,7 +463,9 @@ class TestDatabasePerformance:
                 assert inserted == len(entries)
 
         # Should insert 1000 entries in reasonable time
-        profiler.assert_performance("database_insert_1000", max_time=10.0, max_memory_mb=100)
+        profiler.assert_performance(
+            "database_insert_1000", max_time=10.0, max_memory_mb=100
+        )
 
     def test_surname_stats_performance(self, profiler, temp_db_path):
         """Test surname statistics building performance."""
@@ -466,7 +500,9 @@ class TestDatabasePerformance:
                 stats = db.build_surname_stats()
                 assert stats["unique_surnames"] > 0
 
-        profiler.assert_performance("surname_stats_building", max_time=5.0, max_memory_mb=50)
+        profiler.assert_performance(
+            "surname_stats_building", max_time=5.0, max_memory_mb=50
+        )
 
     def test_collision_detection_performance(self, profiler, temp_db_path):
         """Test collision detection performance."""
@@ -502,7 +538,9 @@ class TestDatabasePerformance:
                 collisions = db.detect_collisions(threshold=10)
                 assert len(collisions) > 0
 
-        profiler.assert_performance("collision_detection", max_time=10.0, max_memory_mb=100)
+        profiler.assert_performance(
+            "collision_detection", max_time=10.0, max_memory_mb=100
+        )
 
     def test_database_memory_usage_scaling(self, profiler, temp_db_path):
         """Test database memory usage scaling."""
@@ -542,7 +580,9 @@ class TestDatabasePerformance:
 
             # Memory usage should scale reasonably
             max_memory = min(50 + (size / 100) * 10, 200)  # Max 200MB
-            profiler.assert_performance(f"database_scaling_{size}", max_memory_mb=max_memory)
+            profiler.assert_performance(
+                f"database_scaling_{size}", max_memory_mb=max_memory
+            )
 
 
 @pytest.mark.memory
@@ -579,7 +619,9 @@ class TestConcurrentPerformance:
             iterations_per_worker = 250
 
             for i in range(num_workers):
-                thread = threading.Thread(target=worker, args=(i, iterations_per_worker))
+                thread = threading.Thread(
+                    target=worker, args=(i, iterations_per_worker)
+                )
                 threads.append(thread)
                 thread.start()
 
@@ -589,7 +631,9 @@ class TestConcurrentPerformance:
         assert len(results["errors"]) == 0, f"Worker errors: {results['errors']}"
         assert results["processed"] == num_workers * iterations_per_worker
 
-        profiler.assert_performance("concurrent_normalization", max_time=5.0, max_memory_mb=100)
+        profiler.assert_performance(
+            "concurrent_normalization", max_time=5.0, max_memory_mb=100
+        )
 
     def test_concurrent_validation_performance(self, profiler, temp_schema_path):
         """Test schema validation under concurrent load."""
@@ -634,7 +678,9 @@ class TestConcurrentPerformance:
             iterations_per_worker = 100
 
             for i in range(num_workers):
-                thread = threading.Thread(target=worker, args=(i, iterations_per_worker))
+                thread = threading.Thread(
+                    target=worker, args=(i, iterations_per_worker)
+                )
                 threads.append(thread)
                 thread.start()
 
@@ -644,7 +690,9 @@ class TestConcurrentPerformance:
         assert len(results["errors"]) == 0, f"Worker errors: {results['errors']}"
         assert results["validated"] == num_workers * iterations_per_worker
 
-        profiler.assert_performance("concurrent_validation", max_time=10.0, max_memory_mb=150)
+        profiler.assert_performance(
+            "concurrent_validation", max_time=10.0, max_memory_mb=150
+        )
 
 
 @pytest.mark.memory

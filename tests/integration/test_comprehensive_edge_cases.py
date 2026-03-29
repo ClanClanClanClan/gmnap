@@ -38,80 +38,168 @@ class ComprehensiveEdgeCaseTester:
 
         return [
             # ===== A1 ANGLO-SPHERE (30 cases) =====
-            {"name": "Newton, Isaac", "expected_region": "A1", "category": "A1_Historical"},
-            {"name": "Turing, Alan", "expected_region": "A1", "category": "A1_Historical"},
+            {
+                "name": "Newton, Isaac",
+                "expected_region": "A1",
+                "category": "A1_Historical",
+            },
+            {
+                "name": "Turing, Alan",
+                "expected_region": "A1",
+                "category": "A1_Historical",
+            },
             {
                 "name": "Hardy, Godfrey Harold",
                 "expected_region": "A1",
                 "category": "A1_Multiple_Names",
             },
-            {"name": "Babbage, Charles", "expected_region": "A1", "category": "A1_Historical"},
-            {"name": "Boole, George", "expected_region": "A1", "category": "A1_Historical"},
+            {
+                "name": "Babbage, Charles",
+                "expected_region": "A1",
+                "category": "A1_Historical",
+            },
+            {
+                "name": "Boole, George",
+                "expected_region": "A1",
+                "category": "A1_Historical",
+            },
             {
                 "name": "Hamilton, William Rowan",
                 "expected_region": "A1",
                 "category": "A1_Historical",
             },
-            {"name": "Cayley, Arthur", "expected_region": "A1", "category": "A1_Historical"},
+            {
+                "name": "Cayley, Arthur",
+                "expected_region": "A1",
+                "category": "A1_Historical",
+            },
             {
                 "name": "Sylvester, James Joseph",
                 "expected_region": "A1",
                 "category": "A1_Multiple_Names",
             },
-            {"name": "De Morgan, Augustus", "expected_region": "A1", "category": "A1_Particle"},
-            {"name": "O'Brien, Matthew", "expected_region": "A1", "category": "A1_Apostrophe"},
-            {"name": "MacLaurin, Colin", "expected_region": "A1", "category": "A1_Scottish_Mac"},
+            {
+                "name": "De Morgan, Augustus",
+                "expected_region": "A1",
+                "category": "A1_Particle",
+            },
+            {
+                "name": "O'Brien, Matthew",
+                "expected_region": "A1",
+                "category": "A1_Apostrophe",
+            },
+            {
+                "name": "MacLaurin, Colin",
+                "expected_region": "A1",
+                "category": "A1_Scottish_Mac",
+            },
             {
                 "name": "MacDonald, Ian Grant",
                 "expected_region": "A1",
                 "category": "A1_Scottish_Mac",
             },
-            {"name": "McShane, Edward James", "expected_region": "A1", "category": "A1_Irish_Mc"},
-            {"name": "O'Connor, John Joseph", "expected_region": "A1", "category": "A1_Irish_O"},
+            {
+                "name": "McShane, Edward James",
+                "expected_region": "A1",
+                "category": "A1_Irish_Mc",
+            },
+            {
+                "name": "O'Connor, John Joseph",
+                "expected_region": "A1",
+                "category": "A1_Irish_O",
+            },
             {
                 "name": "FitzGerald, George Francis",
                 "expected_region": "A1",
                 "category": "A1_Compound",
             },
-            {"name": "Smith-Volterra, John", "expected_region": "A1", "category": "A1_Hyphenated"},
-            {"name": "Brown, Jr., Robert", "expected_region": "A1", "category": "A1_Suffix"},
-            {"name": "White, Sr., William", "expected_region": "A1", "category": "A1_Suffix"},
-            {"name": "Johnson III, Charles", "expected_region": "A1", "category": "A1_Numeral"},
+            {
+                "name": "Smith-Volterra, John",
+                "expected_region": "A1",
+                "category": "A1_Hyphenated",
+            },
+            {
+                "name": "Brown, Jr., Robert",
+                "expected_region": "A1",
+                "category": "A1_Suffix",
+            },
+            {
+                "name": "White, Sr., William",
+                "expected_region": "A1",
+                "category": "A1_Suffix",
+            },
+            {
+                "name": "Johnson III, Charles",
+                "expected_region": "A1",
+                "category": "A1_Numeral",
+            },
             {
                 "name": "Davis-Green, Mary",
                 "expected_region": "A1",
                 "category": "A1_Hyphenated_Female",
             },
             {"name": "SMITH, JOHN", "expected_region": "A1", "category": "A1_All_Caps"},
-            {"name": "jones, william", "expected_region": "A1", "category": "A1_Lowercase"},
+            {
+                "name": "jones, william",
+                "expected_region": "A1",
+                "category": "A1_Lowercase",
+            },
             {
                 "name": "Thompson, Mary-Jane",
                 "expected_region": "A1",
                 "category": "A1_Hyphenated_Given",
             },
-            {"name": "Williams, Jean-Paul", "expected_region": "A1", "category": "A1_French_Given"},
+            {
+                "name": "Williams, Jean-Paul",
+                "expected_region": "A1",
+                "category": "A1_French_Given",
+            },
             {
                 "name": "Anderson, D'Arcy",
                 "expected_region": "A1",
                 "category": "A1_Apostrophe_Given",
             },
-            {"name": "Taylor, St. John", "expected_region": "A1", "category": "A1_Saint"},
+            {
+                "name": "Taylor, St. John",
+                "expected_region": "A1",
+                "category": "A1_Saint",
+            },
             {
                 "name": "Wilson, de la Mare",
                 "expected_region": "A1",
                 "category": "A1_Particle_Given",
             },
-            {"name": "Miller, van der Berg", "expected_region": "A1", "category": "A1_Dutch_Given"},
-            {"name": "Roberts, O'Malley", "expected_region": "A1", "category": "A1_Irish_Given"},
-            {"name": "Lee, MacPherson", "expected_region": "A1", "category": "A1_Scottish_Given"},
+            {
+                "name": "Miller, van der Berg",
+                "expected_region": "A1",
+                "category": "A1_Dutch_Given",
+            },
+            {
+                "name": "Roberts, O'Malley",
+                "expected_region": "A1",
+                "category": "A1_Irish_Given",
+            },
+            {
+                "name": "Lee, MacPherson",
+                "expected_region": "A1",
+                "category": "A1_Scottish_Given",
+            },
             # ===== A2 WESTERN EUROPE (25 cases) =====
             {
                 "name": "Gauss, Carl Friedrich",
                 "expected_region": "A2",
                 "category": "A2_German_Historical",
             },
-            {"name": "Euler, Leonhard", "expected_region": "A2", "category": "A2_Swiss_Historical"},
-            {"name": "Klein, Felix", "expected_region": "A2", "category": "A2_German_Historical"},
+            {
+                "name": "Euler, Leonhard",
+                "expected_region": "A2",
+                "category": "A2_Swiss_Historical",
+            },
+            {
+                "name": "Klein, Felix",
+                "expected_region": "A2",
+                "category": "A2_German_Historical",
+            },
             {
                 "name": "Riemann, Bernhard",
                 "expected_region": "A2",
@@ -132,47 +220,159 @@ class ComprehensiveEdgeCaseTester:
                 "expected_region": "A2",
                 "category": "A2_German_Historical",
             },
-            {"name": "Cantor, Georg", "expected_region": "A2", "category": "A2_German_Historical"},
-            {"name": "Hilbert, David", "expected_region": "A2", "category": "A2_German_Historical"},
-            {"name": "Noether, Emmy", "expected_region": "A2", "category": "A2_German_Female"},
-            {"name": "Müller, Johannes", "expected_region": "A2", "category": "A2_German_Umlaut"},
-            {"name": "Schröder, Ernst", "expected_region": "A2", "category": "A2_German_Umlaut"},
+            {
+                "name": "Cantor, Georg",
+                "expected_region": "A2",
+                "category": "A2_German_Historical",
+            },
+            {
+                "name": "Hilbert, David",
+                "expected_region": "A2",
+                "category": "A2_German_Historical",
+            },
+            {
+                "name": "Noether, Emmy",
+                "expected_region": "A2",
+                "category": "A2_German_Female",
+            },
+            {
+                "name": "Müller, Johannes",
+                "expected_region": "A2",
+                "category": "A2_German_Umlaut",
+            },
+            {
+                "name": "Schröder, Ernst",
+                "expected_region": "A2",
+                "category": "A2_German_Umlaut",
+            },
             {
                 "name": "Möbius, August Ferdinand",
                 "expected_region": "A2",
                 "category": "A2_German_Umlaut",
             },
-            {"name": "Weißmann, Karl", "expected_region": "A2", "category": "A2_German_Eszett"},
-            {"name": "von Neumann, John", "expected_region": "A2", "category": "A2_German_Von"},
-            {"name": "von Mises, Richard", "expected_region": "A2", "category": "A2_German_Von"},
+            {
+                "name": "Weißmann, Karl",
+                "expected_region": "A2",
+                "category": "A2_German_Eszett",
+            },
+            {
+                "name": "von Neumann, John",
+                "expected_region": "A2",
+                "category": "A2_German_Von",
+            },
+            {
+                "name": "von Mises, Richard",
+                "expected_region": "A2",
+                "category": "A2_German_Von",
+            },
             {
                 "name": "van der Waerden, Bartel",
                 "expected_region": "A2",
                 "category": "A2_Dutch_Van",
             },
-            {"name": "de Bruijn, Nicolaas", "expected_region": "A2", "category": "A2_Dutch_De"},
-            {"name": "ter Haar, Dirk", "expected_region": "A2", "category": "A2_Dutch_Ter"},
-            {"name": "Øystein, Øre", "expected_region": "A2", "category": "A2_Norwegian"},
+            {
+                "name": "de Bruijn, Nicolaas",
+                "expected_region": "A2",
+                "category": "A2_Dutch_De",
+            },
+            {
+                "name": "ter Haar, Dirk",
+                "expected_region": "A2",
+                "category": "A2_Dutch_Ter",
+            },
+            {
+                "name": "Øystein, Øre",
+                "expected_region": "A2",
+                "category": "A2_Norwegian",
+            },
             {"name": "Åhlfor, Lars", "expected_region": "A2", "category": "A2_Swedish"},
-            {"name": "Ljunggren, Wilhelm", "expected_region": "A2", "category": "A2_Norwegian"},
+            {
+                "name": "Ljunggren, Wilhelm",
+                "expected_region": "A2",
+                "category": "A2_Norwegian",
+            },
             {"name": "Erdős, Pál", "expected_region": "A2", "category": "A2_Hungarian"},
-            {"name": "Rényi, Alfréd", "expected_region": "A2", "category": "A2_Hungarian"},
-            {"name": "König, Dénes", "expected_region": "A2", "category": "A2_Hungarian"},
+            {
+                "name": "Rényi, Alfréd",
+                "expected_region": "A2",
+                "category": "A2_Hungarian",
+            },
+            {
+                "name": "König, Dénes",
+                "expected_region": "A2",
+                "category": "A2_Hungarian",
+            },
             # ===== G1 LATIN AMERICA / IBERIAN (25 cases) =====
-            {"name": "García, José", "expected_region": "G1", "category": "G1_Spanish_Common"},
-            {"name": "González, María", "expected_region": "G1", "category": "G1_Spanish_Common"},
-            {"name": "Rodríguez, Carlos", "expected_region": "G1", "category": "G1_Spanish_Accent"},
-            {"name": "Martínez, Ana", "expected_region": "G1", "category": "G1_Spanish_Accent"},
-            {"name": "López, Fernando", "expected_region": "G1", "category": "G1_Spanish_Common"},
-            {"name": "Hernández, Luis", "expected_region": "G1", "category": "G1_Spanish_Common"},
-            {"name": "Jiménez, Rosa", "expected_region": "G1", "category": "G1_Spanish_Accent"},
-            {"name": "Ruíz, Diego", "expected_region": "G1", "category": "G1_Spanish_Accent"},
-            {"name": "Díaz, Carmen", "expected_region": "G1", "category": "G1_Spanish_Accent"},
-            {"name": "Moreno, Pablo", "expected_region": "G1", "category": "G1_Spanish_Common"},
-            {"name": "Muñoz, Isabel", "expected_region": "G1", "category": "G1_Spanish_Enie"},
-            {"name": "Álvarez, Miguel", "expected_region": "G1", "category": "G1_Spanish_Accent"},
-            {"name": "Vázquez, Elena", "expected_region": "G1", "category": "G1_Spanish_Accent"},
-            {"name": "Sánchez, Antonio", "expected_region": "G1", "category": "G1_Spanish_Accent"},
+            {
+                "name": "García, José",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Common",
+            },
+            {
+                "name": "González, María",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Common",
+            },
+            {
+                "name": "Rodríguez, Carlos",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Accent",
+            },
+            {
+                "name": "Martínez, Ana",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Accent",
+            },
+            {
+                "name": "López, Fernando",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Common",
+            },
+            {
+                "name": "Hernández, Luis",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Common",
+            },
+            {
+                "name": "Jiménez, Rosa",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Accent",
+            },
+            {
+                "name": "Ruíz, Diego",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Accent",
+            },
+            {
+                "name": "Díaz, Carmen",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Accent",
+            },
+            {
+                "name": "Moreno, Pablo",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Common",
+            },
+            {
+                "name": "Muñoz, Isabel",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Enie",
+            },
+            {
+                "name": "Álvarez, Miguel",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Accent",
+            },
+            {
+                "name": "Vázquez, Elena",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Accent",
+            },
+            {
+                "name": "Sánchez, Antonio",
+                "expected_region": "G1",
+                "category": "G1_Spanish_Accent",
+            },
             {
                 "name": "de la Cruz, Javier",
                 "expected_region": "G1",
@@ -193,13 +393,41 @@ class ComprehensiveEdgeCaseTester:
                 "expected_region": "G1",
                 "category": "G1_Spanish_Compound",
             },
-            {"name": "Silva, João", "expected_region": "G1", "category": "G1_Portuguese"},
-            {"name": "Santos, Maria", "expected_region": "G1", "category": "G1_Portuguese"},
-            {"name": "Oliveira, Pedro", "expected_region": "G1", "category": "G1_Portuguese"},
-            {"name": "Costa, Ana", "expected_region": "G1", "category": "G1_Portuguese"},
-            {"name": "Pereira, Carlos", "expected_region": "G1", "category": "G1_Portuguese"},
-            {"name": "Ferreira, Luís", "expected_region": "G1", "category": "G1_Portuguese_Accent"},
-            {"name": "Almeida, José", "expected_region": "G1", "category": "G1_Portuguese"},
+            {
+                "name": "Silva, João",
+                "expected_region": "G1",
+                "category": "G1_Portuguese",
+            },
+            {
+                "name": "Santos, Maria",
+                "expected_region": "G1",
+                "category": "G1_Portuguese",
+            },
+            {
+                "name": "Oliveira, Pedro",
+                "expected_region": "G1",
+                "category": "G1_Portuguese",
+            },
+            {
+                "name": "Costa, Ana",
+                "expected_region": "G1",
+                "category": "G1_Portuguese",
+            },
+            {
+                "name": "Pereira, Carlos",
+                "expected_region": "G1",
+                "category": "G1_Portuguese",
+            },
+            {
+                "name": "Ferreira, Luís",
+                "expected_region": "G1",
+                "category": "G1_Portuguese_Accent",
+            },
+            {
+                "name": "Almeida, José",
+                "expected_region": "G1",
+                "category": "G1_Portuguese",
+            },
             # ===== B1 EAST SLAVIC (20 cases) =====
             {
                 "name": "Chebyshev, Pafnuty",
@@ -236,25 +464,77 @@ class ComprehensiveEdgeCaseTester:
                 "expected_region": "B1",
                 "category": "B1_Russian_Historical",
             },
-            {"name": "Volkov, Sergei", "expected_region": "B1", "category": "B1_Russian_Pattern"},
-            {"name": "Petrov, Vladimir", "expected_region": "B1", "category": "B1_Russian_Pattern"},
-            {"name": "Smirnov, Dmitri", "expected_region": "B1", "category": "B1_Russian_Pattern"},
+            {
+                "name": "Volkov, Sergei",
+                "expected_region": "B1",
+                "category": "B1_Russian_Pattern",
+            },
+            {
+                "name": "Petrov, Vladimir",
+                "expected_region": "B1",
+                "category": "B1_Russian_Pattern",
+            },
+            {
+                "name": "Smirnov, Dmitri",
+                "expected_region": "B1",
+                "category": "B1_Russian_Pattern",
+            },
             {
                 "name": "Kuznetsov, Alexander",
                 "expected_region": "B1",
                 "category": "B1_Russian_Pattern",
             },
-            {"name": "Popov, Nikolai", "expected_region": "B1", "category": "B1_Russian_Pattern"},
-            {"name": "Sergeev, Mikhail", "expected_region": "B1", "category": "B1_Russian_Pattern"},
-            {"name": "Ivanova, Elena", "expected_region": "B1", "category": "B1_Russian_Female"},
-            {"name": "Petrova, Maria", "expected_region": "B1", "category": "B1_Russian_Female"},
-            {"name": "Volková, Anna", "expected_region": "B1", "category": "B1_Russian_Female"},
-            {"name": "Shevchenko, Taras", "expected_region": "B1", "category": "B1_Ukrainian"},
-            {"name": "Kovalenko, Ivan", "expected_region": "B1", "category": "B1_Ukrainian"},
-            {"name": "Tkachenko, Olga", "expected_region": "B1", "category": "B1_Ukrainian"},
-            {"name": "Lysenko, Viktor", "expected_region": "B1", "category": "B1_Ukrainian"},
+            {
+                "name": "Popov, Nikolai",
+                "expected_region": "B1",
+                "category": "B1_Russian_Pattern",
+            },
+            {
+                "name": "Sergeev, Mikhail",
+                "expected_region": "B1",
+                "category": "B1_Russian_Pattern",
+            },
+            {
+                "name": "Ivanova, Elena",
+                "expected_region": "B1",
+                "category": "B1_Russian_Female",
+            },
+            {
+                "name": "Petrova, Maria",
+                "expected_region": "B1",
+                "category": "B1_Russian_Female",
+            },
+            {
+                "name": "Volková, Anna",
+                "expected_region": "B1",
+                "category": "B1_Russian_Female",
+            },
+            {
+                "name": "Shevchenko, Taras",
+                "expected_region": "B1",
+                "category": "B1_Ukrainian",
+            },
+            {
+                "name": "Kovalenko, Ivan",
+                "expected_region": "B1",
+                "category": "B1_Ukrainian",
+            },
+            {
+                "name": "Tkachenko, Olga",
+                "expected_region": "B1",
+                "category": "B1_Ukrainian",
+            },
+            {
+                "name": "Lysenko, Viktor",
+                "expected_region": "B1",
+                "category": "B1_Ukrainian",
+            },
             # ===== B2 SOUTH/CENTRAL SLAVIC (20 cases) =====
-            {"name": "Čížek, Pavel", "expected_region": "B2", "category": "B2_Czech_Historical"},
+            {
+                "name": "Čížek, Pavel",
+                "expected_region": "B2",
+                "category": "B2_Czech_Historical",
+            },
             {
                 "name": "Dvořák, František",
                 "expected_region": "B2",
@@ -265,107 +545,407 @@ class ComprehensiveEdgeCaseTester:
             {"name": "Svoboda, Milan", "expected_region": "B2", "category": "B2_Czech"},
             {"name": "Černý, Jiří", "expected_region": "B2", "category": "B2_Czech"},
             {"name": "Kříž, Igor", "expected_region": "B2", "category": "B2_Czech"},
-            {"name": "Kowalski, Janusz", "expected_region": "B2", "category": "B2_Polish"},
+            {
+                "name": "Kowalski, Janusz",
+                "expected_region": "B2",
+                "category": "B2_Polish",
+            },
             {"name": "Nowak, Tomasz", "expected_region": "B2", "category": "B2_Polish"},
-            {"name": "Wiśniewski, Piotr", "expected_region": "B2", "category": "B2_Polish"},
+            {
+                "name": "Wiśniewski, Piotr",
+                "expected_region": "B2",
+                "category": "B2_Polish",
+            },
             {"name": "Wójcik, Anna", "expected_region": "B2", "category": "B2_Polish"},
-            {"name": "Kowalczyk, Marek", "expected_region": "B2", "category": "B2_Polish"},
-            {"name": "Lewandowski, Krzysztof", "expected_region": "B2", "category": "B2_Polish"},
-            {"name": "Zieliński, Michał", "expected_region": "B2", "category": "B2_Polish"},
-            {"name": "Horvát, János", "expected_region": "B2", "category": "B2_Hungarian_Slavic"},
+            {
+                "name": "Kowalczyk, Marek",
+                "expected_region": "B2",
+                "category": "B2_Polish",
+            },
+            {
+                "name": "Lewandowski, Krzysztof",
+                "expected_region": "B2",
+                "category": "B2_Polish",
+            },
+            {
+                "name": "Zieliński, Michał",
+                "expected_region": "B2",
+                "category": "B2_Polish",
+            },
+            {
+                "name": "Horvát, János",
+                "expected_region": "B2",
+                "category": "B2_Hungarian_Slavic",
+            },
             {"name": "Novák, Ján", "expected_region": "B2", "category": "B2_Slovak"},
             {"name": "Hodák, Martin", "expected_region": "B2", "category": "B2_Slovak"},
-            {"name": "Jurčo, Branislav", "expected_region": "B2", "category": "B2_Slovak"},
+            {
+                "name": "Jurčo, Branislav",
+                "expected_region": "B2",
+                "category": "B2_Slovak",
+            },
             {"name": "Marić, Petar", "expected_region": "B2", "category": "B2_Serbian"},
-            {"name": "Nikolić, Milan", "expected_region": "B2", "category": "B2_Serbian"},
+            {
+                "name": "Nikolić, Milan",
+                "expected_region": "B2",
+                "category": "B2_Serbian",
+            },
             # ===== E1 CHINESE (15 cases) =====
-            {"name": "Wang, Ming", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Li, Wei", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Zhang, Ping", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Liu, Jing", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Chen, Hong", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Yang, Lei", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Huang, Fang", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Zhao, Gang", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Wu, Jun", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Zhou, Hui", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Xu, Qiang", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Sun, Mei", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Ma, Long", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Zhu, Yan", "expected_region": "E1", "category": "E1_Chinese_Common"},
-            {"name": "Guo, Tao", "expected_region": "E1", "category": "E1_Chinese_Common"},
+            {
+                "name": "Wang, Ming",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Li, Wei",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Zhang, Ping",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Liu, Jing",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Chen, Hong",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Yang, Lei",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Huang, Fang",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Zhao, Gang",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Wu, Jun",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Zhou, Hui",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Xu, Qiang",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Sun, Mei",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Ma, Long",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Zhu, Yan",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
+            {
+                "name": "Guo, Tao",
+                "expected_region": "E1",
+                "category": "E1_Chinese_Common",
+            },
             # ===== E3 JAPANESE (15 cases) =====
-            {"name": "Tanaka, Hiroshi", "expected_region": "E3", "category": "E3_Japanese_Common"},
-            {"name": "Suzuki, Yuki", "expected_region": "E3", "category": "E3_Japanese_Common"},
-            {"name": "Takahashi, Kenji", "expected_region": "E3", "category": "E3_Japanese_Common"},
-            {"name": "Yamamoto, Akira", "expected_region": "E3", "category": "E3_Japanese_Common"},
+            {
+                "name": "Tanaka, Hiroshi",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
+            {
+                "name": "Suzuki, Yuki",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
+            {
+                "name": "Takahashi, Kenji",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
+            {
+                "name": "Yamamoto, Akira",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
             {
                 "name": "Watanabe, Satoshi",
                 "expected_region": "E3",
                 "category": "E3_Japanese_Common",
             },
-            {"name": "Kobayashi, Yoko", "expected_region": "E3", "category": "E3_Japanese_Common"},
+            {
+                "name": "Kobayashi, Yoko",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
             {
                 "name": "Nakamura, Takeshi",
                 "expected_region": "E3",
                 "category": "E3_Japanese_Common",
             },
-            {"name": "Kato, Masako", "expected_region": "E3", "category": "E3_Japanese_Common"},
-            {"name": "Sasaki, Naoki", "expected_region": "E3", "category": "E3_Japanese_Common"},
-            {"name": "Shimizu, Ryoko", "expected_region": "E3", "category": "E3_Japanese_Common"},
-            {"name": "Ito, Makoto", "expected_region": "E3", "category": "E3_Japanese_Common"},
-            {"name": "Yoshida, Haruto", "expected_region": "E3", "category": "E3_Japanese_Common"},
-            {"name": "Yamada, Sakura", "expected_region": "E3", "category": "E3_Japanese_Common"},
-            {"name": "Matsumoto, Ren", "expected_region": "E3", "category": "E3_Japanese_Common"},
-            {"name": "Inoue, Aoi", "expected_region": "E3", "category": "E3_Japanese_Common"},
+            {
+                "name": "Kato, Masako",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
+            {
+                "name": "Sasaki, Naoki",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
+            {
+                "name": "Shimizu, Ryoko",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
+            {
+                "name": "Ito, Makoto",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
+            {
+                "name": "Yoshida, Haruto",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
+            {
+                "name": "Yamada, Sakura",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
+            {
+                "name": "Matsumoto, Ren",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
+            {
+                "name": "Inoue, Aoi",
+                "expected_region": "E3",
+                "category": "E3_Japanese_Common",
+            },
             # ===== E4 KOREAN (15 cases) =====
-            {"name": "Kim, Jong-Un", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Lee, Min-Ho", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Park, Soo-Jin", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Choi, Young-Soo", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Jung, Hye-Rim", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Kang, Dong-Hyun", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Cho, Mi-Young", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Han, Seung-Ho", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Jeong, Eun-Ji", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Lim, Kyung-Soo", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Yoon, Ji-Hoon", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Jang, So-Young", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Shin, Woo-Jin", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Oh, Hee-Jung", "expected_region": "E4", "category": "E4_Korean_Common"},
-            {"name": "Baek, Tae-Hyun", "expected_region": "E4", "category": "E4_Korean_Common"},
+            {
+                "name": "Kim, Jong-Un",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Lee, Min-Ho",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Park, Soo-Jin",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Choi, Young-Soo",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Jung, Hye-Rim",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Kang, Dong-Hyun",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Cho, Mi-Young",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Han, Seung-Ho",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Jeong, Eun-Ji",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Lim, Kyung-Soo",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Yoon, Ji-Hoon",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Jang, So-Young",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Shin, Woo-Jin",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Oh, Hee-Jung",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
+            {
+                "name": "Baek, Tae-Hyun",
+                "expected_region": "E4",
+                "category": "E4_Korean_Common",
+            },
             # ===== C3 LEVANT/NILE ARABIC (15 cases) =====
-            {"name": "Al-Hassan, Mohammed", "expected_region": "C3", "category": "C3_Arabic_Al"},
-            {"name": "Al-Ahmad, Ahmed", "expected_region": "C3", "category": "C3_Arabic_Al"},
-            {"name": "Al-Mahmoud, Omar", "expected_region": "C3", "category": "C3_Arabic_Al"},
-            {"name": "Ibn Sina, Abdullah", "expected_region": "C3", "category": "C3_Arabic_Ibn"},
-            {"name": "Ibn Rushd, Averroes", "expected_region": "C3", "category": "C3_Arabic_Ibn"},
-            {"name": "Abu Bakr, Khalid", "expected_region": "C3", "category": "C3_Arabic_Abu"},
-            {"name": "Abu Nasr, Farabi", "expected_region": "C3", "category": "C3_Arabic_Abu"},
-            {"name": "Abd Rahman, Ali", "expected_region": "C3", "category": "C3_Arabic_Abd"},
-            {"name": "Abd Allah, Hassan", "expected_region": "C3", "category": "C3_Arabic_Abd"},
-            {"name": "Bin Laden, Osama", "expected_region": "C3", "category": "C3_Arabic_Bin"},
-            {"name": "Bin Rashid, Mohammed", "expected_region": "C3", "category": "C3_Arabic_Bin"},
-            {"name": "El-Sayed, Mahmoud", "expected_region": "C3", "category": "C3_Arabic_El"},
-            {"name": "El-Masri, Youssef", "expected_region": "C3", "category": "C3_Arabic_El"},
-            {"name": "Nasir, Ahmed", "expected_region": "C3", "category": "C3_Arabic_Simple"},
-            {"name": "Khalil, Sara", "expected_region": "C3", "category": "C3_Arabic_Simple"},
+            {
+                "name": "Al-Hassan, Mohammed",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Al",
+            },
+            {
+                "name": "Al-Ahmad, Ahmed",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Al",
+            },
+            {
+                "name": "Al-Mahmoud, Omar",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Al",
+            },
+            {
+                "name": "Ibn Sina, Abdullah",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Ibn",
+            },
+            {
+                "name": "Ibn Rushd, Averroes",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Ibn",
+            },
+            {
+                "name": "Abu Bakr, Khalid",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Abu",
+            },
+            {
+                "name": "Abu Nasr, Farabi",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Abu",
+            },
+            {
+                "name": "Abd Rahman, Ali",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Abd",
+            },
+            {
+                "name": "Abd Allah, Hassan",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Abd",
+            },
+            {
+                "name": "Bin Laden, Osama",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Bin",
+            },
+            {
+                "name": "Bin Rashid, Mohammed",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Bin",
+            },
+            {
+                "name": "El-Sayed, Mahmoud",
+                "expected_region": "C3",
+                "category": "C3_Arabic_El",
+            },
+            {
+                "name": "El-Masri, Youssef",
+                "expected_region": "C3",
+                "category": "C3_Arabic_El",
+            },
+            {
+                "name": "Nasir, Ahmed",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Simple",
+            },
+            {
+                "name": "Khalil, Sara",
+                "expected_region": "C3",
+                "category": "C3_Arabic_Simple",
+            },
             # ===== D1 SOUTH ASIA (15 cases) =====
-            {"name": "Sharma, Rajesh", "expected_region": "D1", "category": "D1_Hindi_Common"},
-            {"name": "Patel, Priya", "expected_region": "D1", "category": "D1_Gujarati"},
+            {
+                "name": "Sharma, Rajesh",
+                "expected_region": "D1",
+                "category": "D1_Hindi_Common",
+            },
+            {
+                "name": "Patel, Priya",
+                "expected_region": "D1",
+                "category": "D1_Gujarati",
+            },
             {"name": "Singh, Amrit", "expected_region": "D1", "category": "D1_Sikh"},
-            {"name": "Kumar, Anand", "expected_region": "D1", "category": "D1_Hindi_Common"},
-            {"name": "Gupta, Ravi", "expected_region": "D1", "category": "D1_Hindi_Common"},
-            {"name": "Agarwal, Sneha", "expected_region": "D1", "category": "D1_Hindi_Common"},
+            {
+                "name": "Kumar, Anand",
+                "expected_region": "D1",
+                "category": "D1_Hindi_Common",
+            },
+            {
+                "name": "Gupta, Ravi",
+                "expected_region": "D1",
+                "category": "D1_Hindi_Common",
+            },
+            {
+                "name": "Agarwal, Sneha",
+                "expected_region": "D1",
+                "category": "D1_Hindi_Common",
+            },
             {"name": "Jain, Vikash", "expected_region": "D1", "category": "D1_Jain"},
-            {"name": "Reddy, Srinivas", "expected_region": "D1", "category": "D1_Telugu"},
+            {
+                "name": "Reddy, Srinivas",
+                "expected_region": "D1",
+                "category": "D1_Telugu",
+            },
             {"name": "Rao, Venkata", "expected_region": "D1", "category": "D1_Telugu"},
             {"name": "Iyer, Ramesh", "expected_region": "D1", "category": "D1_Tamil"},
-            {"name": "Nair, Lakshmi", "expected_region": "D1", "category": "D1_Malayalam"},
+            {
+                "name": "Nair, Lakshmi",
+                "expected_region": "D1",
+                "category": "D1_Malayalam",
+            },
             {"name": "Das, Subhash", "expected_region": "D1", "category": "D1_Bengali"},
             {"name": "Ghosh, Tapan", "expected_region": "D1", "category": "D1_Bengali"},
-            {"name": "Mukherjee, Indira", "expected_region": "D1", "category": "D1_Bengali"},
-            {"name": "Chatterjee, Anirban", "expected_region": "D1", "category": "D1_Bengali"},
+            {
+                "name": "Mukherjee, Indira",
+                "expected_region": "D1",
+                "category": "D1_Bengali",
+            },
+            {
+                "name": "Chatterjee, Anirban",
+                "expected_region": "D1",
+                "category": "D1_Bengali",
+            },
             # ===== EDGE CASES & STRESS TESTS (35 cases) =====
             # Length extremes
             {"name": "Li, A", "expected_region": "E1", "category": "Edge_Short_Name"},
@@ -397,7 +977,11 @@ class ComprehensiveEdgeCaseTester:
                 "category": "Edge_Multiple_Dutch_Particles",
             },
             # Mixed case and formatting
-            {"name": "mCdOnAlD, rOnAlD", "expected_region": "A1", "category": "Edge_Mixed_Case"},
+            {
+                "name": "mCdOnAlD, rOnAlD",
+                "expected_region": "A1",
+                "category": "Edge_Mixed_Case",
+            },
             {
                 "name": "O'CONNOR, PATRICK",
                 "expected_region": "A1",
@@ -420,13 +1004,21 @@ class ComprehensiveEdgeCaseTester:
                 "category": "Edge_Multiple_Hyphens",
             },
             # Roman numerals and suffixes
-            {"name": "Smith IV, John", "expected_region": "A1", "category": "Edge_Roman_Numeral"},
+            {
+                "name": "Smith IV, John",
+                "expected_region": "A1",
+                "category": "Edge_Roman_Numeral",
+            },
             {
                 "name": "Brown VIII, William",
                 "expected_region": "A1",
                 "category": "Edge_Roman_Numeral",
             },
-            {"name": "Johnson, Jr., Robert", "expected_region": "A1", "category": "Edge_Jr_Comma"},
+            {
+                "name": "Johnson, Jr., Robert",
+                "expected_region": "A1",
+                "category": "Edge_Jr_Comma",
+            },
             # Titles and honorifics (should be handled or rejected)
             {
                 "name": "Dr. Smith, John",
@@ -434,7 +1026,11 @@ class ComprehensiveEdgeCaseTester:
                 "category": "Edge_Title_Prefix",
                 "should_fail": True,
             },
-            {"name": "Smith, Dr. John", "expected_region": "A1", "category": "Edge_Title_Given"},
+            {
+                "name": "Smith, Dr. John",
+                "expected_region": "A1",
+                "category": "Edge_Title_Given",
+            },
             {
                 "name": "Prof. García, José",
                 "expected_region": "G1",
@@ -491,7 +1087,11 @@ class ComprehensiveEdgeCaseTester:
                 "expected_region": "A2",
                 "category": "Edge_Multiple_Diacritics",
             },
-            {"name": "Żółć, Jaśń", "expected_region": "B2", "category": "Edge_Polish_Special"},
+            {
+                "name": "Żółć, Jaśń",
+                "expected_region": "B2",
+                "category": "Edge_Polish_Special",
+            },
             {
                 "name": "Dvořák-Černý, Václav",
                 "expected_region": "B2",
@@ -566,7 +1166,11 @@ class ComprehensiveEdgeCaseTester:
 
             # Track by category
             if category not in self.results["by_category"]:
-                self.results["by_category"][category] = {"passed": 0, "failed": 0, "total": 0}
+                self.results["by_category"][category] = {
+                    "passed": 0,
+                    "failed": 0,
+                    "total": 0,
+                }
 
             self.results["by_category"][category]["total"] += 1
 
@@ -665,7 +1269,9 @@ class ComprehensiveEdgeCaseTester:
         if self.results["failures"]:
             print(f"\nFAIL FAILURES ({len(self.results['failures'])}):")
             print("-" * 60)
-            for i, failure in enumerate(self.results["failures"][:20], 1):  # Show first 20
+            for i, failure in enumerate(
+                self.results["failures"][:20], 1
+            ):  # Show first 20
                 print(f"{i:2d}. {failure['name'][:40]}")
                 print(
                     f"    {failure['category']}: Expected {failure['expected']}, got {failure['actual']}"

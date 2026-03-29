@@ -37,9 +37,15 @@ def fix_sys_exits():
             lines = content.split("\n")
             new_lines = []
             for i, line in enumerate(lines):
-                if "sys.exit" in line and not line.startswith("    ") and not line.startswith("\t"):
+                if (
+                    "sys.exit" in line
+                    and not line.startswith("    ")
+                    and not line.startswith("\t")
+                ):
                     # This is module-level sys.exit - wrap it
-                    new_lines.append("# " + line + "  # DISABLED: Breaks pytest collection")
+                    new_lines.append(
+                        "# " + line + "  # DISABLED: Breaks pytest collection"
+                    )
                 else:
                     new_lines.append(line)
             content = "\n".join(new_lines)
@@ -50,8 +56,12 @@ def fix_sys_exits():
             lines = content.split("\n")
             new_lines = []
             for line in lines:
-                if "sys.exit(0 if overall_percentage" in line and not line.startswith(" "):
-                    new_lines.append("# " + line + "  # DISABLED: Breaks pytest collection")
+                if "sys.exit(0 if overall_percentage" in line and not line.startswith(
+                    " "
+                ):
+                    new_lines.append(
+                        "# " + line + "  # DISABLED: Breaks pytest collection"
+                    )
                 else:
                     new_lines.append(line)
             content = "\n".join(new_lines)
@@ -94,7 +104,9 @@ def fix_sys_exits():
                 and not in_main
                 and not line.strip().startswith("#")
             ):
-                new_lines.append("    # " + line.strip() + "  # MOVED: Was at module level")
+                new_lines.append(
+                    "    # " + line.strip() + "  # MOVED: Was at module level"
+                )
                 fixed_count += 1
                 print(f"  Fixed: {test_file.relative_to(test_dir)}")
             else:
@@ -147,7 +159,9 @@ def fix_sys_exits():
                     # Add path setup before first src import
                     new_lines.append("import sys")
                     new_lines.append("from pathlib import Path")
-                    new_lines.append("sys.path.insert(0, str(Path(__file__).parent.parent.parent))")
+                    new_lines.append(
+                        "sys.path.insert(0, str(Path(__file__).parent.parent.parent))"
+                    )
                     new_lines.append("")
                     import_added = True
                 new_lines.append(line)
@@ -157,7 +171,12 @@ def fix_sys_exits():
         # Fix any module-level code that runs tests immediately
         if "if __name__" not in content:
             # Check if there's test execution at module level
-            test_patterns = [r"^test_\w+\(\)", r"^main\(\)", r"^run_tests\(\)", r"^success = "]
+            test_patterns = [
+                r"^test_\w+\(\)",
+                r"^main\(\)",
+                r"^run_tests\(\)",
+                r"^success = ",
+            ]
 
             lines = content.split("\n")
             new_lines = []
@@ -166,7 +185,9 @@ def fix_sys_exits():
                 skip = False
                 for pattern in test_patterns:
                     if re.match(pattern, line.strip()):
-                        new_lines.append("# " + line + "  # DISABLED: Module-level execution")
+                        new_lines.append(
+                            "# " + line + "  # DISABLED: Module-level execution"
+                        )
                         skip = True
                         break
 

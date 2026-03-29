@@ -251,7 +251,9 @@ def create_leakage_safe_splits(
 
     # Split by clusters
     print(f"\n[4/6] Splitting by surname clusters...")
-    print(f"  Target ratios: train={train_ratio:.0%}, val={val_ratio:.0%}, test={test_ratio:.0%}")
+    print(
+        f"  Target ratios: train={train_ratio:.0%}, val={val_ratio:.0%}, test={test_ratio:.0%}"
+    )
     train, val, test = split_by_surname_clusters(
         clusters, deduplicated, train_ratio, val_ratio, test_ratio, seed
     )
@@ -289,7 +291,9 @@ def create_leakage_safe_splits(
         "cluster_stats": {
             "total_clusters": len(clusters),
             "avg_cluster_size": len(deduplicated) / len(clusters),
-            "largest_clusters": [{"cluster": c, "size": len(indices)} for c, indices in largest],
+            "largest_clusters": [
+                {"cluster": c, "size": len(indices)} for c, indices in largest
+            ],
         },
         "split_stats": stats,
         "leakage_safety": {
@@ -323,7 +327,9 @@ def create_leakage_safe_splits(
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python create_leakage_safe_splits.py <input.json> [output_dir] [--seed SEED]")
+        print(
+            "Usage: python create_leakage_safe_splits.py <input.json> [output_dir] [--seed SEED]"
+        )
         print("\nExample:")
         print("  python create_leakage_safe_splits.py \\")
         print("    data/ml_training/all_profiles.json \\")
@@ -332,7 +338,9 @@ if __name__ == "__main__":
 
     input_path = Path(sys.argv[1])
     output_dir = (
-        Path(sys.argv[2]) if len(sys.argv) > 2 else input_path.parent / "splits_leakage_safe"
+        Path(sys.argv[2])
+        if len(sys.argv) > 2
+        else input_path.parent / "splits_leakage_safe"
     )
 
     seed = 42

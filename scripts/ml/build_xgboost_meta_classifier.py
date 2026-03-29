@@ -95,8 +95,15 @@ def extract_features(name, phase1_classifier, phase2_model):
     features["phase1_method"] = phase1_result.detection_method
 
     # Encode phase1_method as numeric
-    method_encoding = {"unicode_script": 1, "systematic_rules": 2, "fallback": 3, "default": 4}
-    features["phase1_method_encoded"] = method_encoding.get(phase1_result.detection_method, 0)
+    method_encoding = {
+        "unicode_script": 1,
+        "systematic_rules": 2,
+        "fallback": 3,
+        "default": 4,
+    }
+    features["phase1_method_encoded"] = method_encoding.get(
+        phase1_result.detection_method, 0
+    )
 
     # Phase 2 (ML) top-3 predictions
     phase2_pred = phase2_model.predict(name, k=3)
@@ -123,7 +130,8 @@ def extract_features(name, phase1_classifier, phase2_model):
 
     # Agreement features
     features["phase1_phase2_agree"] = (
-        phase1_result.region_code.split("_")[0] == features["phase2_top1_region"].split("_")[0]
+        phase1_result.region_code.split("_")[0]
+        == features["phase2_top1_region"].split("_")[0]
     )
 
     return features
@@ -237,7 +245,12 @@ def train_xgboost(X_train, y_train, X_val, y_val):
     # Train
     evals = [(dtrain, "train"), (dval, "val")]
     bst = xgb.train(
-        params, dtrain, num_boost_round=100, evals=evals, early_stopping_rounds=10, verbose_eval=10
+        params,
+        dtrain,
+        num_boost_round=100,
+        evals=evals,
+        early_stopping_rounds=10,
+        verbose_eval=10,
     )
 
     print()

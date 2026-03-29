@@ -174,7 +174,9 @@ class E4KoreanProcessor(RegionSpec):
         # Check for Korean surnames in romanization
         name_lower = name.lower()
         for surname in self.korean_surnames:
-            if name_lower.startswith(surname + " ") or name_lower.startswith(surname + ","):
+            if name_lower.startswith(surname + " ") or name_lower.startswith(
+                surname + ","
+            ):
                 return True
 
         return False
@@ -224,7 +226,9 @@ class E4KoreanProcessor(RegionSpec):
             if canonical:
                 words = canonical.split()
                 if len(words) < 1:
-                    raise RegionRuleError(f"Name should have at least 1 word: {canonical}")
+                    raise RegionRuleError(
+                        f"Name should have at least 1 word: {canonical}"
+                    )
 
     def order_key(self, entry: Dict[str, Any]) -> str:
         """Generate deterministic sort key."""
@@ -240,7 +244,9 @@ class E4KoreanProcessor(RegionSpec):
             sort_key = family
         else:
             # Fallback to canonical form
-            canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
+            canonical = entry.get("CanonicalLatin", "") or entry.get(
+                "CanonicalNative", ""
+            )
             sort_key = canonical
 
         # Rule 13: Korean Hyphen/Space - collapse in order_key

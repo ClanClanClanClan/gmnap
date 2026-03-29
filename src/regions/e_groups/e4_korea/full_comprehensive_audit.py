@@ -43,10 +43,14 @@ class FullComprehensiveAudit:
             git_result = subprocess.run(
                 ["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True
             )
-            git_commit = git_result.stdout.strip() if git_result.returncode == 0 else "unknown"
+            git_commit = (
+                git_result.stdout.strip() if git_result.returncode == 0 else "unknown"
+            )
 
             # Test framework can capture both
-            from scripts.systematic_improvement_framework_v2 import SystematicImprovementFrameworkV2
+            from scripts.systematic_improvement_framework_v2 import (
+                SystematicImprovementFrameworkV2,
+            )
 
             framework = SystematicImprovementFrameworkV2()
             fw_commit, fw_hash = framework._get_git_info()
@@ -76,11 +80,15 @@ class FullComprehensiveAudit:
                     with open("resources/rr_syllable_map.csv", "a") as f:
                         f.write("test")
                     print("   ✗ File is writable when it should be read-only")
-                    section_results["details"].append("File permission enforcement failed")
+                    section_results["details"].append(
+                        "File permission enforcement failed"
+                    )
                 except PermissionError:
                     print(f"   ✓ File permissions: {perms} (properly read-only)")
                     section_results["passed"] += 1
-                    section_results["details"].append("File permissions properly enforced")
+                    section_results["details"].append(
+                        "File permissions properly enforced"
+                    )
             else:
                 print(f"   ✗ Wrong permissions: {perms} (should be 444)")
                 section_results["details"].append(f"Wrong permissions: {perms}")
@@ -158,9 +166,13 @@ class FullComprehensiveAudit:
                 schema_file = audit_dir / "schema.json"
 
                 if schema_file.exists() and len(json_files) > 1:
-                    print(f"   ✓ Audit trail: {len(json_files)} files in audit/improvements/")
+                    print(
+                        f"   ✓ Audit trail: {len(json_files)} files in audit/improvements/"
+                    )
                     section_results["passed"] += 1
-                    section_results["details"].append(f"Audit trail with {len(json_files)} files")
+                    section_results["details"].append(
+                        f"Audit trail with {len(json_files)} files"
+                    )
                 else:
                     print("   ✗ Incomplete audit trail structure")
                     section_results["details"].append("Incomplete audit trail")
@@ -244,7 +256,9 @@ class FullComprehensiveAudit:
                 section_results["passed"] += 1
                 section_results["details"].append("Wilson score calculation accurate")
             else:
-                print(f"   ✗ Wilson score calculation unreasonable: [{lb:.2f}%, {ub:.2f}%]")
+                print(
+                    f"   ✗ Wilson score calculation unreasonable: [{lb:.2f}%, {ub:.2f}%]"
+                )
                 section_results["details"].append("Wilson score calculation failed")
         except Exception as e:
             print(f"   ✗ Wilson score test failed: {e}")
@@ -294,7 +308,9 @@ class FullComprehensiveAudit:
                 has_windows = "windows-latest" in ci_content
 
                 if has_matrix and has_caching and has_windows:
-                    print("   ✓ CI/CD pipeline: matrix builds, caching, Windows support")
+                    print(
+                        "   ✓ CI/CD pipeline: matrix builds, caching, Windows support"
+                    )
                     section_results["passed"] += 1
                     section_results["details"].append("CI/CD pipeline fully configured")
                 else:
@@ -346,7 +362,9 @@ class FullComprehensiveAudit:
                 if "windows-latest" in ci_content and "shell: bash" in ci_content:
                     print("   ✓ Windows support configured with bash shell")
                     section_results["passed"] += 1
-                    section_results["details"].append("Windows compatibility configured")
+                    section_results["details"].append(
+                        "Windows compatibility configured"
+                    )
                 else:
                     print("   ✗ Windows support incomplete")
                     section_results["details"].append("Windows compatibility missing")
@@ -495,10 +513,14 @@ class FullComprehensiveAudit:
             if "hash_names_in_logs" in pii_config and "hash_algorithm" in pii_config:
                 print("   ✓ PII protection configured")
                 section_results["passed"] += 1
-                section_results["details"].append("PII protection configuration present")
+                section_results["details"].append(
+                    "PII protection configuration present"
+                )
             else:
                 print("   ✗ PII protection configuration missing")
-                section_results["details"].append("PII protection configuration missing")
+                section_results["details"].append(
+                    "PII protection configuration missing"
+                )
         except Exception as e:
             print(f"   ✗ PII protection test failed: {e}")
             section_results["details"].append(f"PII protection error: {e}")
@@ -512,7 +534,10 @@ class FullComprehensiveAudit:
                 with open(ci_file) as f:
                     ci_content = f.read()
 
-                if "Privacy-Safe" in ci_content and "No sensitive data logged" in ci_content:
+                if (
+                    "Privacy-Safe" in ci_content
+                    and "No sensitive data logged" in ci_content
+                ):
                     print("   ✓ Privacy-conscious CI logging configured")
                     section_results["passed"] += 1
                     section_results["details"].append("Privacy-conscious CI configured")
@@ -582,7 +607,9 @@ class FullComprehensiveAudit:
             self.audit_results["passed_checks"] += section["passed"]
 
         # Calculate failed checks
-        failed_count = self.audit_results["total_checks"] - self.audit_results["passed_checks"]
+        failed_count = (
+            self.audit_results["total_checks"] - self.audit_results["passed_checks"]
+        )
 
         # Generate summary
         print("\\n" + "=" * 70)

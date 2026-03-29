@@ -244,7 +244,9 @@ class V7StageValidator:
             elapsed = time.time() - start_time
 
             # Validate Unicode normalization
-            normalized_count = sum(1 for entry in results if "CanonicalLatinNormalized" in entry)
+            normalized_count = sum(
+                1 for entry in results if "CanonicalLatinNormalized" in entry
+            )
             unicode_test_entry = next(
                 (e for e in results if "café" in e.get("CanonicalLatin", "")), None
             )
@@ -263,7 +265,9 @@ class V7StageValidator:
                 ),
             }
 
-            print(f"  PASS Processed: {len(results)}, Unicode normalized: {normalized_count}")
+            print(
+                f"  PASS Processed: {len(results)}, Unicode normalized: {normalized_count}"
+            )
             return result
 
         except Exception as e:
@@ -279,7 +283,9 @@ class V7StageValidator:
 
         start_time = time.time()
         try:
-            results = await self.pipeline._stage_2_detect_region(self.test_entries.copy())
+            results = await self.pipeline._stage_2_detect_region(
+                self.test_entries.copy()
+            )
             elapsed = time.time() - start_time
 
             # Validate region detection
@@ -290,7 +296,9 @@ class V7StageValidator:
                 if "DetectionConfidence" in entry
             ]
             avg_confidence = (
-                sum(confidence_scores) / len(confidence_scores) if confidence_scores else 0
+                sum(confidence_scores) / len(confidence_scores)
+                if confidence_scores
+                else 0
             )
 
             # Check specific region detections
@@ -353,7 +361,9 @@ class V7StageValidator:
             )
 
             result = {
-                "status": "PASS" if processed and regional_processing_applied > 0 else "FAIL",
+                "status": (
+                    "PASS" if processed and regional_processing_applied > 0 else "FAIL"
+                ),
                 "elapsed_ms": elapsed * 1000,
                 "entries_processed": len(results),
                 "regional_processing_applied": regional_processing_applied,
@@ -385,14 +395,18 @@ class V7StageValidator:
 
         start_time = time.time()
         try:
-            results = await self.pipeline._stage_4_authority_enrich(self.test_entries.copy())
+            results = await self.pipeline._stage_4_authority_enrich(
+                self.test_entries.copy()
+            )
             elapsed = time.time() - start_time
 
             # Check enrichment implementation
             processed = len(results) == len(self.test_entries)
             enriched_count = sum(1 for entry in results if "AuthorityData" in entry)
             identifiers_added = sum(1 for entry in results if "Identifiers" in entry)
-            affiliations_added = sum(1 for entry in results if "AuthorityAffiliations" in entry)
+            affiliations_added = sum(
+                1 for entry in results if "AuthorityAffiliations" in entry
+            )
 
             # Stage 4 is now implemented if it processes without throwing TODO errors
             # and attempts to fetch authority data (even if no results due to quotas/network)
@@ -474,7 +488,9 @@ class V7StageValidator:
             elapsed = time.time() - start_time
 
             # Check graph analysis
-            betweenness_scores = sum(1 for entry in results if "BetweennessScore" in entry)
+            betweenness_scores = sum(
+                1 for entry in results if "BetweennessScore" in entry
+            )
             graph_gates = sum(1 for entry in results if "GraphQualityGates" in entry)
 
             result = {
@@ -505,17 +521,23 @@ class V7StageValidator:
 
         start_time = time.time()
         try:
-            results = await self.pipeline._stage_7_tag_short_forms(self.test_entries.copy())
+            results = await self.pipeline._stage_7_tag_short_forms(
+                self.test_entries.copy()
+            )
             elapsed = time.time() - start_time
 
             # Check short form implementation
             processed = len(results) == len(self.test_entries)
             short_forms_found = sum(1 for entry in results if "ShortForms" in entry)
-            clusters_created = sum(1 for entry in results if "ShortFormClusters" in entry)
+            clusters_created = sum(
+                1 for entry in results if "ShortFormClusters" in entry
+            )
 
             # Check if pipeline has short_form_clusters attribute
             has_global_clusters = hasattr(self.pipeline, "short_form_clusters")
-            global_cluster_count = len(getattr(self.pipeline, "short_form_clusters", {}))
+            global_cluster_count = len(
+                getattr(self.pipeline, "short_form_clusters", {})
+            )
 
             result = {
                 "status": "PASS" if processed and short_forms_found > 0 else "FAIL",
@@ -551,23 +573,35 @@ class V7StageValidator:
         start_time = time.time()
         try:
             # First run through earlier pipeline stages to get proper data
-            stage1_results = await self.pipeline._stage_1_ingest(self.test_entries.copy())
+            stage1_results = await self.pipeline._stage_1_ingest(
+                self.test_entries.copy()
+            )
             stage2_results = await self.pipeline._stage_2_detect_region(stage1_results)
             stage3_results = await self.pipeline._stage_3_region_hooks(stage2_results)
             # Skip Stage 4 (AuthorityEnrich) to avoid quota consumption in tests
-            stage5_results = await self.pipeline._stage_5_collision_analytics(stage3_results)
+            stage5_results = await self.pipeline._stage_5_collision_analytics(
+                stage3_results
+            )
             results = await self.pipeline._stage_8_global_validate(stage5_results)
             elapsed = time.time() - start_time
 
             # Check validation implementation
             processed = len(results) == len(self.test_entries)
-            validation_results_present = sum(1 for entry in results if "ValidationResults" in entry)
-            validation_status_present = sum(1 for entry in results if "ValidationStatus" in entry)
+            validation_results_present = sum(
+                1 for entry in results if "ValidationResults" in entry
+            )
+            validation_status_present = sum(
+                1 for entry in results if "ValidationStatus" in entry
+            )
             roundtrip_scores = sum(1 for entry in results if "RoundtripScore" in entry)
-            valid_entries = sum(1 for entry in results if entry.get("ValidationStatus") == "VALID")
+            valid_entries = sum(
+                1 for entry in results if entry.get("ValidationStatus") == "VALID"
+            )
 
             result = {
-                "status": "PASS" if processed and validation_results_present > 0 else "FAIL",
+                "status": (
+                    "PASS" if processed and validation_results_present > 0 else "FAIL"
+                ),
                 "elapsed_ms": elapsed * 1000,
                 "entries_processed": len(results),
                 "validation_results_present": validation_results_present,
@@ -606,7 +640,9 @@ class V7StageValidator:
             # Check if output file was created
             output_dir = Path("output")
             output_files = (
-                list(output_dir.glob("v7_pipeline_*.json")) if output_dir.exists() else []
+                list(output_dir.glob("v7_pipeline_*.json"))
+                if output_dir.exists()
+                else []
             )
 
             result = {
@@ -637,7 +673,9 @@ class V7StageValidator:
 
             # Check if report was created
             output_dir = Path("output")
-            report_files = list(output_dir.glob("v7_report_*.md")) if output_dir.exists() else []
+            report_files = (
+                list(output_dir.glob("v7_report_*.md")) if output_dir.exists() else []
+            )
 
             result = {
                 "status": "PASS" if report_files else "FAIL",
@@ -664,14 +702,24 @@ class V7StageValidator:
         try:
             # Run stages 1-8 first to have meaningful data for idempotency check (skip stage 4 authority)
             # Start with Stage 1 to save original input
-            stage1_results = await self.pipeline._stage_1_ingest(self.test_entries.copy())
+            stage1_results = await self.pipeline._stage_1_ingest(
+                self.test_entries.copy()
+            )
             stage2_results = await self.pipeline._stage_2_detect_region(stage1_results)
             stage3_results = await self.pipeline._stage_3_region_hooks(stage2_results)
             # Skip Stage 4 (AuthorityEnrich) to avoid quota consumption
-            stage5_results = await self.pipeline._stage_5_collision_analytics(stage3_results)
-            stage6_results = await self.pipeline._stage_6_graph_consistency(stage5_results)
-            stage7_results = await self.pipeline._stage_7_tag_short_forms(stage6_results)
-            stage8_results = await self.pipeline._stage_8_global_validate(stage7_results)
+            stage5_results = await self.pipeline._stage_5_collision_analytics(
+                stage3_results
+            )
+            stage6_results = await self.pipeline._stage_6_graph_consistency(
+                stage5_results
+            )
+            stage7_results = await self.pipeline._stage_7_tag_short_forms(
+                stage6_results
+            )
+            stage8_results = await self.pipeline._stage_8_global_validate(
+                stage7_results
+            )
 
             # Now run idempotency check
             results = await self.pipeline._stage_11_idempotency_check(stage8_results)
@@ -679,7 +727,9 @@ class V7StageValidator:
 
             # Check idempotency implementation
             processed = len(results) == len(self.test_entries)
-            idempotency_checks = sum(1 for entry in results if "IdempotencyCheck" in entry)
+            idempotency_checks = sum(
+                1 for entry in results if "IdempotencyCheck" in entry
+            )
 
             # Check for idempotency metrics
             has_metrics = hasattr(self.pipeline, "idempotency_metrics")
@@ -752,9 +802,12 @@ class V7StageValidator:
                 results[stage_name] = result
                 total_time += result.get("elapsed_ms", 0)
 
-                status_icon = {"PASS": "PASS", "FAIL": "FAIL", "TODO": "WARN", "ERROR": "💥"}.get(
-                    result["status"], "❓"
-                )
+                status_icon = {
+                    "PASS": "PASS",
+                    "FAIL": "FAIL",
+                    "TODO": "WARN",
+                    "ERROR": "💥",
+                }.get(result["status"], "❓")
 
                 print(f"{status_icon} {stage_name}: {result['status']}")
 
@@ -780,7 +833,9 @@ class V7StageValidator:
         print("📊 V7 PIPELINE STAGE SUMMARY")
         print("=" * 60)
         for status, count in status_counts.items():
-            icon = {"PASS": "PASS", "FAIL": "FAIL", "TODO": "WARN", "ERROR": "💥"}.get(status, "❓")
+            icon = {"PASS": "PASS", "FAIL": "FAIL", "TODO": "WARN", "ERROR": "💥"}.get(
+                status, "❓"
+            )
         print(f"{icon} {status}: {count} stages")
 
         print(f"\n⏱️  Total time: {total_time:.0f}ms")

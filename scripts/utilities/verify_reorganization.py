@@ -15,7 +15,9 @@ def analyze_directory_structure():
     duplicates = {
         "src/core vs src/gmnap/core": {
             "old": (
-                list(Path(root / "src/core").glob("*.py")) if (root / "src/core").exists() else []
+                list(Path(root / "src/core").glob("*.py"))
+                if (root / "src/core").exists()
+                else []
             ),
             "new": (
                 list(Path(root / "src/gmnap/core").glob("*.py"))
@@ -64,7 +66,13 @@ def analyze_directory_structure():
     misplaced = {}
 
     # Check if old src/ directories exist
-    old_dirs = ["src/core", "src/authorities", "src/linguistic", "src/utils", "src/validation"]
+    old_dirs = [
+        "src/core",
+        "src/authorities",
+        "src/linguistic",
+        "src/utils",
+        "src/validation",
+    ]
     for old_dir in old_dirs:
         if (root / old_dir).exists():
             files = list(Path(root / old_dir).glob("**/*.py"))
@@ -79,7 +87,13 @@ def analyze_directory_structure():
             else 0
         ),
         "korean tests": (
-            len(list(Path(root / "src/gmnap/regions/e_groups/e4_korea/tests").glob("*.py")))
+            len(
+                list(
+                    Path(root / "src/gmnap/regions/e_groups/e4_korea/tests").glob(
+                        "*.py"
+                    )
+                )
+            )
             if (root / "src/gmnap/regions/e_groups/e4_korea/tests").exists()
             else 0
         ),
@@ -110,7 +124,9 @@ def generate_move_commands(report):
             new_dir = old_dir.replace("src/", "src/gmnap/")
             commands.append(f"# Move {old_dir} to {new_dir}")
             commands.append(f"mkdir -p {root}/{new_dir}")
-            commands.append(f"mv {root}/{old_dir}/* {root}/{new_dir}/ 2>/dev/null || true")
+            commands.append(
+                f"mv {root}/{old_dir}/* {root}/{new_dir}/ 2>/dev/null || true"
+            )
             commands.append(f"rmdir {root}/{old_dir}")
             commands.append("")
 

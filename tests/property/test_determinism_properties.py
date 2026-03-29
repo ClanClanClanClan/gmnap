@@ -16,7 +16,11 @@ from src.authorities.merge_authority_data import merge_authority_fragments
 def test_merge_authority_is_deterministic():
     fragments = [
         {"_source": {"service": "OpenAlex"}, "BirthYear": 1900, "Institution": ["X"]},
-        {"_source": {"service": "CrossrefThesis"}, "BirthYear": 1901, "Institution": ["X", "Y"]},
+        {
+            "_source": {"service": "CrossrefThesis"},
+            "BirthYear": 1901,
+            "Institution": ["X", "Y"],
+        },
         {"_source": {"service": "ORCID_ETD"}, "BirthYear": 1899, "Institution": ["Y"]},
     ]
     p = ConflictPolicy.load()

@@ -28,7 +28,10 @@ def test_rule_27_thai_rtgs():
     processor = E6MainlandSEA()
 
     # Test case 1: Thai name
-    entry1 = {"CanonicalNative": "สมชาย", "RegionalExtras": {}}  # Somchai (common Thai name)
+    entry1 = {
+        "CanonicalNative": "สมชาย",
+        "RegionalExtras": {},
+    }  # Somchai (common Thai name)
 
     processor.augment(entry1)
 
@@ -84,7 +87,10 @@ def test_rule_27_khmer_ungegn():
     processor = E6MainlandSEA()
 
     # Test case 1: Khmer name
-    entry1 = {"CanonicalNative": "កុសល", "RegionalExtras": {}}  # Kosal (common Khmer name)
+    entry1 = {
+        "CanonicalNative": "កុសល",
+        "RegionalExtras": {},
+    }  # Kosal (common Khmer name)
 
     processor.augment(entry1)
 
@@ -94,7 +100,9 @@ def test_rule_27_khmer_ungegn():
 
     # Check for UNGEGN romanization variants
     synthesised = entry1.get("Variants", {}).get("Synthesised", [])
-    ungegn_variants = [v for v in synthesised if v["type"] == "khmer-ungegn-romanization"]
+    ungegn_variants = [
+        v for v in synthesised if v["type"] == "khmer-ungegn-romanization"
+    ]
     print(f"UNGEGN variants: {ungegn_variants}")
     print()
 
@@ -107,7 +115,10 @@ def test_rule_27_lao_moict():
     processor = E6MainlandSEA()
 
     # Test case 1: Lao name
-    entry1 = {"CanonicalNative": "ສົມຊາຍ", "RegionalExtras": {}}  # Somchai in Lao script
+    entry1 = {
+        "CanonicalNative": "ສົມຊາຍ",
+        "RegionalExtras": {},
+    }  # Somchai in Lao script
 
     processor.augment(entry1)
 
@@ -130,7 +141,10 @@ def test_rule_27_vietnamese():
     processor = E6MainlandSEA()
 
     # Test case 1: Vietnamese name with diacritics
-    entry1 = {"CanonicalLatin": "Nguyễn Văn Hùng", "RegionalExtras": {}}  # Common Vietnamese name
+    entry1 = {
+        "CanonicalLatin": "Nguyễn Văn Hùng",
+        "RegionalExtras": {},
+    }  # Common Vietnamese name
 
     processor.augment(entry1)
 

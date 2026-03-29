@@ -31,8 +31,12 @@ for full_name, expected_romanization in new_failure_patterns:
     if korean_result:
         roundtrip_result = kor2eng(korean_result, full_name)
         if roundtrip_result:
-            roundtrip_clean = roundtrip_result.lower().replace(",", "").replace(".", "").strip()
-            expected_clean = expected_romanization.lower().replace(",", "").replace(".", "").strip()
+            roundtrip_clean = (
+                roundtrip_result.lower().replace(",", "").replace(".", "").strip()
+            )
+            expected_clean = (
+                expected_romanization.lower().replace(",", "").replace(".", "").strip()
+            )
 
             print(f"Korean: {korean_result}")
             print(f"Expected: {expected_clean}")

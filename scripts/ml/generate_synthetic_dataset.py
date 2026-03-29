@@ -96,8 +96,12 @@ def generate_lexicon_based(region, n_samples):
         surname = random.choice(surnames)
 
         # Handle particles
-        particles = list(strong.get("particles", set()) | medium.get("particles", set()))
-        particle = random.choice(particles) if particles and random.random() < 0.2 else None
+        particles = list(
+            strong.get("particles", set()) | medium.get("particles", set())
+        )
+        particle = (
+            random.choice(particles) if particles and random.random() < 0.2 else None
+        )
 
         # Handle prefixes (Arabic al-, ben-, etc.)
         prefixes = list(strong.get("surname_prefix", set()))

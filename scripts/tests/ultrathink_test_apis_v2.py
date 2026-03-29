@@ -206,7 +206,9 @@ def test_orcid_direct():
             headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
             params = {"q": "family-name:Einstein AND given-names:Albert", "rows": 1}
 
-            search_response = requests.get(search_url, params=params, headers=headers, timeout=10)
+            search_response = requests.get(
+                search_url, params=params, headers=headers, timeout=10
+            )
 
             if search_response.status_code == 200:
                 data = search_response.json()
@@ -217,7 +219,9 @@ def test_orcid_direct():
                 print(f"❌ ORCID search returned status {search_response.status_code}")
                 return False
         else:
-            print(f"❌ ORCID token request failed with status {token_response.status_code}")
+            print(
+                f"❌ ORCID token request failed with status {token_response.status_code}"
+            )
             return False
 
     except Exception as e:
@@ -241,7 +245,9 @@ def test_openalex_direct():
         if response.status_code == 200:
             data = response.json()
             if data.get("results"):
-                print(f"✅ OpenAlex API (direct) working - Found {len(data['results'])} results")
+                print(
+                    f"✅ OpenAlex API (direct) working - Found {len(data['results'])} results"
+                )
                 first = data["results"][0]
                 print(f"   Sample: {first.get('display_name', 'Unknown')}")
                 return True
@@ -292,7 +298,12 @@ def test_pubmed_direct():
 
         # PubMed E-utilities search
         search_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
-        params = {"db": "pubmed", "term": "COVID-19 vaccine", "retmax": 1, "retmode": "json"}
+        params = {
+            "db": "pubmed",
+            "term": "COVID-19 vaccine",
+            "retmax": 1,
+            "retmode": "json",
+        }
 
         if api_key:
             params["api_key"] = api_key
@@ -389,7 +400,9 @@ def test_wikidata_direct():
                 if test_response.status_code == 200:
                     test_data = test_response.json()
                     if test_data.get("search"):
-                        print("✅ Wikidata API (direct) working - Got results via wbsearchentities")
+                        print(
+                            "✅ Wikidata API (direct) working - Got results via wbsearchentities"
+                        )
                         return True
                 print("⚠️ Wikidata API (direct) returned no results")
                 return False
@@ -411,11 +424,15 @@ def main():
 
     # Check environment
     print("\n=== Environment Check ===")
-    print(f"ORCID_CLIENT_ID: {'✅ Set' if os.environ.get('ORCID_CLIENT_ID') else '❌ Not set'}")
+    print(
+        f"ORCID_CLIENT_ID: {'✅ Set' if os.environ.get('ORCID_CLIENT_ID') else '❌ Not set'}"
+    )
     print(
         f"ORCID_CLIENT_SECRET: {'✅ Set' if os.environ.get('ORCID_CLIENT_SECRET') else '❌ Not set'}"
     )
-    print(f"PUBMED_API_KEY: {'✅ Set' if os.environ.get('PUBMED_API_KEY') else '❌ Not set'}")
+    print(
+        f"PUBMED_API_KEY: {'✅ Set' if os.environ.get('PUBMED_API_KEY') else '❌ Not set'}"
+    )
     print(
         f"CROSSREF_API_KEY: {'✅ Set' if os.environ.get('CROSSREF_API_KEY') else '⚠️ Not set (optional)'}"
     )
@@ -513,7 +530,9 @@ def main():
     print("KEY FINDINGS")
     print("=" * 60)
 
-    if sum(1 for v in direct_results.values() if v) > sum(1 for v in wrapper_results.values() if v):
+    if sum(1 for v in direct_results.values() if v) > sum(
+        1 for v in wrapper_results.values() if v
+    ):
         print("⚠️ APIs are accessible but wrapper classes are broken!")
         print("📌 Next step: Fix the wrapper class implementations")
     elif sum(1 for v in direct_results.values() if v) == 0:

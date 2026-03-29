@@ -195,9 +195,13 @@ patterns = {
 }
 
 for attack, desc, region, method in passed_attacks:
-    if any(proto in attack.lower() for proto in ["http:", "ftp:", "javascript:", "data:"]):
+    if any(
+        proto in attack.lower() for proto in ["http:", "ftp:", "javascript:", "data:"]
+    ):
         patterns["Protocol handlers"] += 1
-    if any(tag in attack.lower() for tag in ["<script", "<iframe", "<object", "<embed"]):
+    if any(
+        tag in attack.lower() for tag in ["<script", "<iframe", "<object", "<embed"]
+    ):
         patterns["Script tags"] += 1
     if any(path in attack for path in ["../", "..\\", "/etc/", "c:\\"]):
         patterns["Path traversal"] += 1

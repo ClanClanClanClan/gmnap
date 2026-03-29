@@ -17,31 +17,44 @@ def write_yaml(entries: List[Dict[str, Any]], path: str):
     Path(path).write_text(canonical(entries), encoding="utf-8")
 
 
-def write_duckdb_changelog(old: List[Dict[str, Any]], new: List[Dict[str, Any]], db_path: str):
+def write_duckdb_changelog(
+    old: List[Dict[str, Any]], new: List[Dict[str, Any]], db_path: str
+):
     if duckdb is None:
         Path(db_path + ".SKIPPED").write_text("duckdb not available", encoding="utf-8")
         return
     con = duckdb.connect(db_path)
-    con.execute("CREATE TABLE IF NOT EXISTS entries (GlobalID TEXT PRIMARY KEY, payload JSON)")
+    con.execute(
+        "CREATE TABLE IF NOT EXISTS entries (GlobalID TEXT PRIMARY KEY, payload JSON)"
+    )
     con.execute(
         "CREATE TABLE IF NOT EXISTS changes (ts TIMESTAMP DEFAULT current_timestamp, action TEXT, GlobalID TEXT)"
     )
     o = {e.get("GlobalID"): e for e in old if e.get("GlobalID")}
     n = {e.get("GlobalID"): e for e in new if e.get("GlobalID")}
     for gid in sorted(set(n) - set(o)):
-        con.execute("INSERT OR REPLACE INTO entries VALUES (?, ?)", [gid, canonical(n[gid])])
+        con.execute(
+            "INSERT OR REPLACE INTO entries VALUES (?, ?)", [gid, canonical(n[gid])]
+        )
         con.execute("INSERT INTO changes(action, GlobalID) VALUES ('INSERT', ?)", [gid])
     for gid in sorted(set(o) - set(n)):
         con.execute("DELETE FROM entries WHERE GlobalID=?", [gid])
         con.execute("INSERT INTO changes(action, GlobalID) VALUES ('DELETE', ?)", [gid])
     for gid in sorted(set(o) & set(n)):
         if canonical(o[gid]) != canonical(n[gid]):
-            con.execute("UPDATE entries SET payload=? WHERE GlobalID=?", [canonical(n[gid]), gid])
-            con.execute("INSERT INTO changes(action, GlobalID) VALUES ('UPDATE', ?)", [gid])
+            con.execute(
+                "UPDATE entries SET payload=? WHERE GlobalID=?",
+                [canonical(n[gid]), gid],
+            )
+            con.execute(
+                "INSERT INTO changes(action, GlobalID) VALUES ('UPDATE', ?)", [gid]
+            )
     con.close()
 
 
-def write_html_index(old: List[Dict[str, Any]], new: List[Dict[str, Any]], out_path: str):
+def write_html_index(
+    old: List[Dict[str, Any]], new: List[Dict[str, Any]], out_path: str
+):
     from html import escape
 
     o = {e.get("GlobalID"): e for e in old if e.get("GlobalID")}
@@ -82,7 +95,10 @@ class DuckDBWriter:
         write_duckdb_changelog(old_entries, new_entries, self.db_path)
 
     def write_html_diff(
-        self, old_entries: List[Dict[str, Any]], new_entries: List[Dict[str, Any]], output_path: str
+        self,
+        old_entries: List[Dict[str, Any]],
+        new_entries: List[Dict[str, Any]],
+        output_path: str,
     ) -> None:
         """Generate HTML diff report."""
         write_html_index(old_entries, new_entries, output_path)

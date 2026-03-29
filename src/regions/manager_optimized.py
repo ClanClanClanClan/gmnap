@@ -40,7 +40,9 @@ from src.core.cache.sized_lru import SizedLRU
 from .base import REGION_CODES, RegionSpec, get_region_for_territory
 
 # Token extraction and word-boundary utilities for systematic pattern matching
-_WORD = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?:-[A-Za-zÀ-ÖØ-öø-ÿ]+)?")  # token incl. hyphenated
+_WORD = re.compile(
+    r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?:-[A-Za-zÀ-ÖØ-öø-ÿ]+)?"
+)  # token incl. hyphenated
 
 
 def _latin_tokens(name: str) -> list[str]:
@@ -52,7 +54,9 @@ def _latin_tokens(name: str) -> list[str]:
 
 def _wb(pattern: str) -> re.Pattern:
     """Whole word or hyphen-bounded pattern (e.g. 'Jae-in', 'Min-soo')."""
-    return re.compile(rf"(?<![A-Za-zÀ-ÖØ-öø-ÿ]){re.escape(pattern)}(?![A-Za-zÀ-ÖØ-öø-ÿ])")
+    return re.compile(
+        rf"(?<![A-Za-zÀ-ÖØ-öø-ÿ]){re.escape(pattern)}(?![A-Za-zÀ-ÖØ-öø-ÿ])"
+    )
 
 
 # ---------- Priority lexicons (comprehensive coverage for all 37 regions) ----------
@@ -1564,7 +1568,17 @@ _STRONG = {
     },
     "E3": {  # Japanese
         "surname_suffix": {"moto", "kawa", "zaki", "hara", "mura", "yama", "da", "ta"},
-        "given_suffix": {"taro", "jiro", "ko", "hiko", "moto", "nori", "ki", "mi", "ya"},
+        "given_suffix": {
+            "taro",
+            "jiro",
+            "ko",
+            "hiko",
+            "moto",
+            "nori",
+            "ki",
+            "mi",
+            "ya",
+        },
         "surnames": {
             "sato",
             "suzuki",
@@ -2109,7 +2123,15 @@ _MEDIUM = {
     "E4": {"surnames": {"han", "oh", "ryu", "yoon", "ahn"}},
     "D1": {"surnames": {"singh", "kumar", "patel", "agrawal", "agarwal", "sreenadh"}},
     "A1": {
-        "surnames": {"grant", "ferguson", "wallace", "west", "cole", "hawkins", "oliver"},
+        "surnames": {
+            "grant",
+            "ferguson",
+            "wallace",
+            "west",
+            "cole",
+            "hawkins",
+            "oliver",
+        },
         # Hispanic surnames common in USA (diaspora) - lower weight than G1
         "hispanic_diaspora": {
             "garcia",
@@ -2132,9 +2154,21 @@ _MEDIUM = {
         "particles": {"de", "del", "van", "von", "da", "di", "du", "la", "le"},
         "surnames": {"haas", "hahn", "kurz", "lang", "moser", "pohl", "roth", "sauer"},
     },
-    "A3": {"surnames": {"berg", "lund", "dahl", "holmberg", "strand", "lindqvist", "holm"}},
+    "A3": {
+        "surnames": {"berg", "lund", "dahl", "holmberg", "strand", "lindqvist", "holm"}
+    },
     "B1": {"surnames": {"ivanov", "petrov", "sokolov"}},
-    "B2": {"surnames": {"król", "wieczorek", "dudek", "zając", "krejčí", "růžička", "beneš"}},
+    "B2": {
+        "surnames": {
+            "król",
+            "wieczorek",
+            "dudek",
+            "zając",
+            "krejčí",
+            "růžička",
+            "beneš",
+        }
+    },
 }
 
 # Diaspora down-weights (region, surname: multiplier in scoring)
@@ -2158,7 +2192,9 @@ _DIASPORA_DOWNWEIGHT = {
 }
 
 
-def _score_priority_rules(name: str, possible: list[str]) -> tuple[str | None, float, dict]:
+def _score_priority_rules(
+    name: str, possible: list[str]
+) -> tuple[str | None, float, dict]:
     """
     Returns (region, confidence, debug) using priority lexicons.
     Confidence is 0.60–0.90 depending on strength/co-occurrence.
@@ -2206,7 +2242,9 @@ def _score_priority_rules(name: str, possible: list[str]) -> tuple[str | None, f
             surname_candidates = tokens
     else:
         # 3+ tokens: check first (CJK) and last 2 (Western compound surnames), skip middle
-        surname_candidates = [tok for tok in ([tokens[0]] + tokens[-2:]) if not is_given_name(tok)]
+        surname_candidates = [
+            tok for tok in ([tokens[0]] + tokens[-2:]) if not is_given_name(tok)
+        ]
         if not surname_candidates:
             surname_candidates = [tokens[0]] + tokens[-2:]
 
@@ -2297,7 +2335,10 @@ def _score_priority_rules(name: str, possible: list[str]) -> tuple[str | None, f
             # FIXED: Check surname candidates (first/last), excluding known given names
             has_surname = (
                 any(tok in strong.get("surnames", set()) for tok in surname_candidates)
-                or any(_wb(tok).search(surname_tokens_str) for tok in medium.get("surnames", set()))
+                or any(
+                    _wb(tok).search(surname_tokens_str)
+                    for tok in medium.get("surnames", set())
+                )
                 or any(
                     _wb(tok).search(surname_tokens_str)
                     for tok in medium.get("hispanic_diaspora", set())
@@ -2306,7 +2347,8 @@ def _score_priority_rules(name: str, possible: list[str]) -> tuple[str | None, f
             # Check for given match, but exclude tokens that are exact surname matches
             has_given = any(
                 any(
-                    tok.startswith(g) and tok not in strong.get("surnames", set()) for tok in tokens
+                    tok.startswith(g) and tok not in strong.get("surnames", set())
+                    for tok in tokens
                 )
                 for g in strong.get("given_frag", set())
             )
@@ -2319,7 +2361,9 @@ def _score_priority_rules(name: str, possible: list[str]) -> tuple[str | None, f
         mx = max(scores.values())
         if mx <= 0:
             metadata = (
-                {"reason": "no_signal", "scores": scores} if verbose else {"reason": "no_signal"}
+                {"reason": "no_signal", "scores": scores}
+                if verbose
+                else {"reason": "no_signal"}
             )
             return (None, 0.0, metadata)
         # Winner and calibrated confidence
@@ -2533,7 +2577,9 @@ class RegionManager:
         Returns: (scores: dict[region_code->float], matched_signal_ids: list[str])
         """
         signals = self._load_signal_sets()
-        full = (entry.get("CanonicalLatin") or entry.get("CanonicalNative") or "").lower()
+        full = (
+            entry.get("CanonicalLatin") or entry.get("CanonicalNative") or ""
+        ).lower()
         given = (entry.get("Given") or "").lower()
         surname = (entry.get("Surname") or "").lower()
         scores = {}
@@ -2594,7 +2640,9 @@ class RegionManager:
             "metadata": {"matched_signals": matched, "scores": scores},
         }
 
-    def load_ml_models(self, fasttext_path: str | None = None, clf_path: str | None = None):
+    def load_ml_models(
+        self, fasttext_path: str | None = None, clf_path: str | None = None
+    ):
         """Phase 2: Load ML models for ensemble detection."""
         if not FASTTEXT_AVAILABLE:
             logger.warning(
@@ -2639,7 +2687,9 @@ class RegionManager:
             np.mean([len(t) for t in tokens]) if tokens else 0,  # avg_token_len
             max([len(t) for t in tokens]) if tokens else 0,  # max_token_len
             (
-                sum(1 for c in name_lower if c in "aeiou") / len(name_lower) if name_lower else 0
+                sum(1 for c in name_lower if c in "aeiou") / len(name_lower)
+                if name_lower
+                else 0
             ),  # vowel_ratio
             int(any(ord(c) > 127 for c in name)),  # has_diacritic
         ]
@@ -2655,7 +2705,9 @@ class RegionManager:
 
         return numeric_features, name_lower, categorical
 
-    def _detect_by_ml_ensemble(self, entry: Dict[str, Any]) -> Optional[RegionDetectionResult]:
+    def _detect_by_ml_ensemble(
+        self, entry: Dict[str, Any]
+    ) -> Optional[RegionDetectionResult]:
         """Phase 2: ML ensemble detection using trained models."""
         if not self._ml_models_loaded:
             return None
@@ -2680,7 +2732,9 @@ class RegionManager:
             cat_feats = self._cat_vectorizer.transform(cat_data)
 
             # Combine all features
-            X = np.hstack([np.array(numeric_feats).reshape(1, -1), tfidf_feats, cat_feats])
+            X = np.hstack(
+                [np.array(numeric_feats).reshape(1, -1), tfidf_feats, cat_feats]
+            )
 
             # Predict
             y_pred = self._clf.predict(X)[0]
@@ -2760,7 +2814,9 @@ class RegionManager:
 
         cache_entry = {"region": region, "conf": confidence, "source": source}
         self._authority_cache.put(global_id, cache_entry)
-        logger.debug(f"Added authority cache: {global_id} → {region} ({confidence:.2f}, {source})")
+        logger.debug(
+            f"Added authority cache: {global_id} → {region} ({confidence:.2f}, {source})"
+        )
 
     def load_authority_cache_from_file(self, filepath: str):
         """
@@ -2794,7 +2850,9 @@ class RegionManager:
                             self.add_authority_cache_entry(
                                 global_id=entry["id"],
                                 region=entry["region"],
-                                confidence=entry.get("conf", entry.get("confidence", 0.95)),
+                                confidence=entry.get(
+                                    "conf", entry.get("confidence", 0.95)
+                                ),
                                 source=entry.get("source", "file-import"),
                             )
                             count += 1
@@ -2810,7 +2868,9 @@ class RegionManager:
                                 self.add_authority_cache_entry(
                                     global_id=entry["id"],
                                     region=entry["region"],
-                                    confidence=entry.get("conf", entry.get("confidence", 0.95)),
+                                    confidence=entry.get(
+                                        "conf", entry.get("confidence", 0.95)
+                                    ),
                                     source=entry.get("source", "file-import"),
                                 )
                                 count += 1
@@ -2828,10 +2888,14 @@ class RegionManager:
         """Phase 3: Get statistics about the authority cache."""
         return {
             "entries": (
-                len(self._authority_cache._data) if hasattr(self._authority_cache, "_data") else 0
+                len(self._authority_cache._data)
+                if hasattr(self._authority_cache, "_data")
+                else 0
             ),
             "size_bytes": (
-                self._authority_cache._size if hasattr(self._authority_cache, "_size") else 0
+                self._authority_cache._size
+                if hasattr(self._authority_cache, "_size")
+                else 0
             ),
             "max_bytes": (
                 self._authority_cache.max_bytes
@@ -2877,7 +2941,9 @@ class RegionManager:
 
             with open(diaspora_path) as f:
                 self._diaspora_config = yaml.safe_load(f) or {}
-            logger.info(f"Loaded diaspora config with {len(self._diaspora_config)} entries")
+            logger.info(
+                f"Loaded diaspora config with {len(self._diaspora_config)} entries"
+            )
 
     def _load_doi_prefix_map(self):
         """Load DOI prefix to country mappings."""
@@ -2960,9 +3026,15 @@ class RegionManager:
                 ]
                 if r in self.IMPLEMENTED_REGIONS
             ],
-            "Cyrillic": [r for r in ["B1", "B2", "C1", "C9"] if r in self.IMPLEMENTED_REGIONS],
+            "Cyrillic": [
+                r for r in ["B1", "B2", "C1", "C9"] if r in self.IMPLEMENTED_REGIONS
+            ],
             "Greek": [r for r in ["B3"] if r in self.IMPLEMENTED_REGIONS],
-            "Arabic": [r for r in ["C1", "C2", "C3", "C4", "C5"] if r in self.IMPLEMENTED_REGIONS],
+            "Arabic": [
+                r
+                for r in ["C1", "C2", "C3", "C4", "C5"]
+                if r in self.IMPLEMENTED_REGIONS
+            ],
             "Hebrew": [r for r in ["C6"] if r in self.IMPLEMENTED_REGIONS],
             "Devanagari": [r for r in ["D1", "D2"] if r in self.IMPLEMENTED_REGIONS],
             "Bengali": [r for r in ["D3"] if r in self.IMPLEMENTED_REGIONS],
@@ -2993,7 +3065,9 @@ class RegionManager:
         # Only register if it's in the implemented list
         if region.code in self.IMPLEMENTED_REGIONS:
             self._regions[region.code] = region
-            logger.info(f"Registered region {region.code}: {REGION_CODES.get(region.code)}")
+            logger.info(
+                f"Registered region {region.code}: {REGION_CODES.get(region.code)}"
+            )
         else:
             logger.debug(f"Skipping unimplemented region {region.code}")
 
@@ -3059,7 +3133,9 @@ class RegionManager:
 
         return result
 
-    def _detect_region_uncached_sync(self, entry: Dict[str, Any]) -> RegionDetectionResult:
+    def _detect_region_uncached_sync(
+        self, entry: Dict[str, Any]
+    ) -> RegionDetectionResult:
         """
         Synchronous version of region detection.
         Used when called from async context to avoid nested event loops.
@@ -3082,7 +3158,10 @@ class RegionManager:
                         region_code=hit["region"],
                         confidence=hit["conf"],
                         detection_method=f"auth-{hit['source']}",
-                        metadata={"authority_source": hit.get("source"), "cached": True},
+                        metadata={
+                            "authority_source": hit.get("source"),
+                            "cached": True,
+                        },
                     )
                     if result.confidence >= 0.90:
                         return result
@@ -3154,7 +3233,9 @@ class RegionManager:
             region_code="R0", confidence=0.1, detection_method="fallback", metadata={}
         )
 
-    async def _detect_region_uncached_async(self, entry: Dict[str, Any]) -> RegionDetectionResult:
+    async def _detect_region_uncached_async(
+        self, entry: Dict[str, Any]
+    ) -> RegionDetectionResult:
         """
         Detect region for an entry using V7-compliant multi-stage detection.
 
@@ -3244,15 +3325,23 @@ class RegionManager:
         # Default fallback - but only if A1 is implemented
         if "A1" in self.IMPLEMENTED_REGIONS:
             return RegionDetectionResult(
-                region_code="A1", confidence=0.1, detection_method="default-fallback", metadata={}
+                region_code="A1",
+                confidence=0.1,
+                detection_method="default-fallback",
+                metadata={},
             )
         else:
             # No implemented regions available - should not happen
             return RegionDetectionResult(
-                region_code="Z0", confidence=0.0, detection_method="no-regions", metadata={}
+                region_code="Z0",
+                confidence=0.0,
+                detection_method="no-regions",
+                metadata={},
             )
 
-    def _detect_by_script(self, entry: Dict[str, Any]) -> Optional[RegionDetectionResult]:
+    def _detect_by_script(
+        self, entry: Dict[str, Any]
+    ) -> Optional[RegionDetectionResult]:
         """Detect region based on Unicode script analysis with priority rules + fallback."""
         name = entry.get("CanonicalLatin") or entry.get("CanonicalNative") or ""
         if not name:
@@ -3272,7 +3361,9 @@ class RegionManager:
             signal_conf = signal_result.get("confidence", 0.0)
             # Blend script dominance with signal confidence
             final_conf = min(0.95, 0.3 * dom_ratio + 0.7 * signal_conf)
-            final_conf = _nudge_by_doi_affiliation(entry, signal_result["region_code"], final_conf)
+            final_conf = _nudge_by_doi_affiliation(
+                entry, signal_result["region_code"], final_conf
+            )
             return RegionDetectionResult(
                 region_code=signal_result["region_code"],
                 confidence=final_conf,
@@ -3323,7 +3414,9 @@ class RegionManager:
         possible = self._script_to_regions.get(dominant, [])
         region, conf, dbg = _score_priority_rules(icu_name, possible)
         if region:
-            final_conf = min(0.90, 0.4 * (dom_count / total) + 0.6 * conf)  # ICU shouldn't auto-win
+            final_conf = min(
+                0.90, 0.4 * (dom_count / total) + 0.6 * conf
+            )  # ICU shouldn't auto-win
             final_conf = _nudge_by_doi_affiliation(entry, region, final_conf)
             return RegionDetectionResult(
                 region_code=region,
@@ -3343,7 +3436,10 @@ class RegionManager:
             country = country_codes[0]
             # Check if country directly maps to one of the possible regions
             expected_region = get_region_for_territory(country)
-            if expected_region in possible_regions and expected_region in self.IMPLEMENTED_REGIONS:
+            if (
+                expected_region in possible_regions
+                and expected_region in self.IMPLEMENTED_REGIONS
+            ):
                 return expected_region
 
         # Use surname pattern detection for Latin script regions
@@ -3400,7 +3496,15 @@ class RegionManager:
                     return "D1"
 
             # Korean romanized surnames (E4)
-            korean_surnames = ["kim ", "lee ", "park ", "choi ", "jung ", "jeon ", "kang "]
+            korean_surnames = [
+                "kim ",
+                "lee ",
+                "park ",
+                "choi ",
+                "jung ",
+                "jeon ",
+                "kang ",
+            ]
             if any(pattern in name_lower for pattern in korean_surnames):
                 if "E4" in possible_regions and "E4" in self.IMPLEMENTED_REGIONS:
                     return "E4"
@@ -3479,7 +3583,9 @@ class RegionManager:
 
         return None
 
-    def _detect_by_surname(self, entry: Dict[str, Any]) -> Optional[RegionDetectionResult]:
+    def _detect_by_surname(
+        self, entry: Dict[str, Any]
+    ) -> Optional[RegionDetectionResult]:
         """Detect region using direct surname pattern matching."""
         name = entry.get("CanonicalLatin", "")
         if not name:
@@ -3524,14 +3630,22 @@ class RegionManager:
                     if cleaned_candidate in surnames:
                         score = 10
                         # For ambiguous surnames like "Lee", check given name patterns
-                        if cleaned_candidate in ["lee", "li", "kim"] and len(parts) >= 2:
+                        if (
+                            cleaned_candidate in ["lee", "li", "kim"]
+                            and len(parts) >= 2
+                        ):
                             # Check for Western and Korean given name patterns
-                            given_parts = parts[1:] if candidate == parts[0].lower() else parts[:-1]
+                            given_parts = (
+                                parts[1:]
+                                if candidate == parts[0].lower()
+                                else parts[:-1]
+                            )
                             given_str = " ".join(given_parts).lower()
 
                             # Check if any given name part is clearly Western
                             has_western_given = any(
-                                self._is_western_given_name(part) for part in given_parts
+                                self._is_western_given_name(part)
+                                for part in given_parts
                             )
 
                             # Common Korean given name patterns and surnames used as given names
@@ -3559,12 +3673,12 @@ class RegionManager:
                                 "yoon",
                                 "jang",
                             ]
-                            has_korean_pattern = any(p in given_str for p in korean_patterns)
+                            has_korean_pattern = any(
+                                p in given_str for p in korean_patterns
+                            )
 
                             if has_western_given and region_code.startswith("A"):
-                                score = (
-                                    15  # Strong boost for Western given names with Western regions
-                                )
+                                score = 15  # Strong boost for Western given names with Western regions
                             elif has_korean_pattern and region_code == "E4":
                                 score = 12  # Boost Korean match
                             elif (
@@ -3583,13 +3697,16 @@ class RegionManager:
                                 continue
 
                             # Prefix matching (more reliable)
-                            if cleaned_candidate.startswith(surname) or surname.startswith(
-                                cleaned_candidate
-                            ):
+                            if cleaned_candidate.startswith(
+                                surname
+                            ) or surname.startswith(cleaned_candidate):
                                 score = max(score, 7)
                             # Substring matching (less reliable, require longer match)
                             elif len(surname) >= 4 and len(cleaned_candidate) >= 4:
-                                if surname in cleaned_candidate or cleaned_candidate in surname:
+                                if (
+                                    surname in cleaned_candidate
+                                    or cleaned_candidate in surname
+                                ):
                                     score = max(score, 5)
 
                     if score >= 10:
@@ -3663,7 +3780,9 @@ class RegionManager:
                         continue
 
                     # Prefix matching (more reliable)
-                    if family_name.startswith(surname) or surname.startswith(family_name):
+                    if family_name.startswith(surname) or surname.startswith(
+                        family_name
+                    ):
                         score = max(score, 7)
                     # Substring matching (less reliable, require longer match)
                     elif len(surname) >= 4 and len(family_name) >= 4:
@@ -3683,7 +3802,13 @@ class RegionManager:
                     best_match = best_matches[0]
                 else:
                     # Prefer E4 for ambiguous Asian surnames
-                    if "E4" in best_matches and family_name in ["lee", "li", "kim", "park", "choi"]:
+                    if "E4" in best_matches and family_name in [
+                        "lee",
+                        "li",
+                        "kim",
+                        "park",
+                        "choi",
+                    ]:
                         best_match = "E4"
                     else:
                         best_match = best_matches[0]
@@ -3697,7 +3822,9 @@ class RegionManager:
 
         return None
 
-    def _detect_by_language(self, entry: Dict[str, Any]) -> Optional[RegionDetectionResult]:
+    def _detect_by_language(
+        self, entry: Dict[str, Any]
+    ) -> Optional[RegionDetectionResult]:
         """Detect region based on language identification."""
         if not self.lang_detector:
             return None
@@ -3764,7 +3891,9 @@ class RegionManager:
 
         return None
 
-    def _detect_by_affiliation(self, entry: Dict[str, Any]) -> Optional[RegionDetectionResult]:
+    def _detect_by_affiliation(
+        self, entry: Dict[str, Any]
+    ) -> Optional[RegionDetectionResult]:
         """Detect region based on affiliation information."""
         affiliations = entry.get("Affiliations", [])
         if not affiliations:
@@ -3782,7 +3911,10 @@ class RegionManager:
                             region_code=region,
                             confidence=0.8,
                             detection_method="affiliation",
-                            metadata={"country": country, "affiliation": affiliation.get("name")},
+                            metadata={
+                                "country": country,
+                                "affiliation": affiliation.get("name"),
+                            },
                         )
 
         return None
@@ -3810,7 +3942,9 @@ class RegionManager:
 
         return None
 
-    def _detect_by_diaspora(self, entry: Dict[str, Any]) -> Optional[RegionDetectionResult]:
+    def _detect_by_diaspora(
+        self, entry: Dict[str, Any]
+    ) -> Optional[RegionDetectionResult]:
         """Detect region based on diaspora patterns."""
         # Simplified diaspora detection
         name = entry.get("CanonicalLatin", "")
@@ -3824,7 +3958,9 @@ class RegionManager:
 
         return None
 
-    def _detect_hybrid_name(self, entry: Dict[str, Any]) -> Optional[RegionDetectionResult]:
+    def _detect_hybrid_name(
+        self, entry: Dict[str, Any]
+    ) -> Optional[RegionDetectionResult]:
         """
         Detect hybrid names (Latin given + CJK surname).
 
@@ -5150,7 +5286,9 @@ class RegionManager:
                 "im",
             }
 
-    def _detect_by_surname_patterns(self, name: str, possible_regions: List[str]) -> Optional[str]:
+    def _detect_by_surname_patterns(
+        self, name: str, possible_regions: List[str]
+    ) -> Optional[str]:
         """Detect region using surname pattern matching."""
         if not hasattr(self, "surname_patterns"):
             return None
@@ -5186,7 +5324,9 @@ class RegionManager:
                     # Western format: "Given Family" - even if surname is Asian
                     # For Western given names, prioritize Western regions
                     western_regions = [
-                        r for r in possible_regions if r.startswith("A") or r.startswith("G")
+                        r
+                        for r in possible_regions
+                        if r.startswith("A") or r.startswith("G")
                     ]
                     if western_regions:
                         return western_regions[0]
@@ -5213,10 +5353,13 @@ class RegionManager:
                 else:
                     # Partial match scoring
                     for surname in surnames:
-                        if family_name.startswith(surname) or surname.startswith(family_name):
+                        if family_name.startswith(surname) or surname.startswith(
+                            family_name
+                        ):
                             region_scores[region] = max(region_scores.get(region, 0), 7)
                         elif len(surname) >= 3 and (
-                            _wb(surname).search(family_name) or _wb(family_name).search(surname)
+                            _wb(surname).search(family_name)
+                            or _wb(family_name).search(surname)
                         ):
                             region_scores[region] = max(region_scores.get(region, 0), 5)
 
@@ -5470,34 +5613,64 @@ class RegionManager:
             # A-groups (Anglo-sphere/Western)
             "A1": ("src.regions.a_groups.a1_anglo_sphere", "A1_AngloSphere"),
             "A2": ("src.regions.a_groups.a2_western_europe", "A2_WesternEurope"),
-            "A3": ("src.regions.a_groups.a3_nordic_baltic.processor", "A3NordicBalticProcessor"),
+            "A3": (
+                "src.regions.a_groups.a3_nordic_baltic.processor",
+                "A3NordicBalticProcessor",
+            ),
             "A4": ("src.regions.a_groups.a4_oceania.processor", "A4OceaniaProcessor"),
-            "A5": ("src.regions.a_groups.a5_caribbean.processor", "A5CaribbeanProcessor"),
+            "A5": (
+                "src.regions.a_groups.a5_caribbean.processor",
+                "A5CaribbeanProcessor",
+            ),
             # B-groups (Slavic)
             "B1": ("src.regions.b_groups.b1_east_slavic", "B1_EastSlavic"),
-            "B2": ("src.regions.b_groups.b2_south_slavic_central", "B2_SouthSlavicCentral"),
+            "B2": (
+                "src.regions.b_groups.b2_south_slavic_central",
+                "B2_SouthSlavicCentral",
+            ),
             "B3": ("src.regions.b_groups.b3_greek.processor", "B3GreekProcessor"),
             # C-groups (Middle East/Turkic)
             "C1": ("src.regions.c_groups.c1_turkic.processor", "C1TurkicProcessor"),
             "C2": ("src.regions.c_groups.c2_persian_tajik", "C2_PersianTajik"),
             "C3": ("src.regions.c_groups.c3_arabic_levant_nile", "C3_ArabicLevantNile"),
             "C4": ("src.regions.c_groups.c4_arabic_gulf", "C4_ArabicGulf"),
-            "C5": ("src.regions.c_groups.c5_arabic_maghreb.processor", "C5_ArabicMaghreb"),
-            "C6": ("src.regions.c_groups.c6_hebrew_diaspora.processor", "C6_HebrewDiaspora"),
+            "C5": (
+                "src.regions.c_groups.c5_arabic_maghreb.processor",
+                "C5_ArabicMaghreb",
+            ),
+            "C6": (
+                "src.regions.c_groups.c6_hebrew_diaspora.processor",
+                "C6_HebrewDiaspora",
+            ),
             "C7": ("src.regions.c_groups.c7_armenian.processor", "C7_Armenian"),
             "C8": ("src.regions.c_groups.c8_georgian.processor", "C8_Georgian"),
-            "C9": ("src.regions.c_groups.c9_caucasus_turkic.processor", "C9_CaucasusTurkic"),
+            "C9": (
+                "src.regions.c_groups.c9_caucasus_turkic.processor",
+                "C9_CaucasusTurkic",
+            ),
             # D-groups (South Asia)
-            "D1": ("src.regions.d_groups.d1_south_asia_hindi_belt", "D1_SouthAsiaHindiBelt"),
+            "D1": (
+                "src.regions.d_groups.d1_south_asia_hindi_belt",
+                "D1_SouthAsiaHindiBelt",
+            ),
             "D2": (
                 "src.regions.d_groups.d2_south_asia_dravidian.processor",
                 "D2_SouthAsiaDravidian",
             ),
-            "D3": ("src.regions.d_groups.d3_south_asia_bengali.processor", "D3_SouthAsiaBengali"),
-            "D4": ("src.regions.d_groups.d4_pakistan_urdu.processor", "D4_PakistanUrdu"),
+            "D3": (
+                "src.regions.d_groups.d3_south_asia_bengali.processor",
+                "D3_SouthAsiaBengali",
+            ),
+            "D4": (
+                "src.regions.d_groups.d4_pakistan_urdu.processor",
+                "D4_PakistanUrdu",
+            ),
             "D5": ("src.regions.d_groups.d5_sinhala.processor", "D5_Sinhala"),
             # E-groups (East Asia)
-            "E1": ("src.regions.e_groups.e1_sinophone_mainland", "E1_SinophoneMainland"),
+            "E1": (
+                "src.regions.e_groups.e1_sinophone_mainland",
+                "E1_SinophoneMainland",
+            ),
             "E2": (
                 "src.regions.e_groups.e2_traditional_chinese.processor",
                 "E2_TraditionalChinese",
@@ -5506,12 +5679,27 @@ class RegionManager:
             "E4": ("src.regions.e_groups.e4_korea.processor", "E4KoreanProcessor"),
             "E5": ("src.regions.e_groups.e5_vietnam.processor", "E5_Vietnam"),
             "E6": ("src.regions.e_groups.e6_mainland_sea.processor", "E6_MainlandSEA"),
-            "E7": ("src.regions.e_groups.e7_maritime_sea.processor", "E7MaritimeSEAProcessor"),
+            "E7": (
+                "src.regions.e_groups.e7_maritime_sea.processor",
+                "E7MaritimeSEAProcessor",
+            ),
             # F-groups (Africa)
-            "F1": ("src.regions.f_groups.f1_ssa_francophone.processor", "F1_SSAFrancophone"),
-            "F2": ("src.regions.f_groups.f2_ssa_anglophone.processor", "F2_SSAAnglophone"),
-            "F3": ("src.regions.f_groups.f3_horn_of_africa.processor", "F3_HornOfAfrica"),
-            "F4": ("src.regions.f_groups.f4_lusophone_africa.processor", "F4_LusophoneAfrica"),
+            "F1": (
+                "src.regions.f_groups.f1_ssa_francophone.processor",
+                "F1_SSAFrancophone",
+            ),
+            "F2": (
+                "src.regions.f_groups.f2_ssa_anglophone.processor",
+                "F2_SSAAnglophone",
+            ),
+            "F3": (
+                "src.regions.f_groups.f3_horn_of_africa.processor",
+                "F3_HornOfAfrica",
+            ),
+            "F4": (
+                "src.regions.f_groups.f4_lusophone_africa.processor",
+                "F4_LusophoneAfrica",
+            ),
             # G-groups (Latin America)
             "G1": ("src.regions.g_groups.g1_latin_america", "G1_LatinAmerica"),
             # Special groups
@@ -5543,6 +5731,8 @@ class RegionManager:
                     regions_loaded += 1
 
                 except Exception as e:
-                    logger.error(f"Could not load region {region_code} from {module_path}: {e}")
+                    logger.error(
+                        f"Could not load region {region_code} from {module_path}: {e}"
+                    )
 
         logger.info(f"Loaded {regions_loaded} implemented regions successfully")

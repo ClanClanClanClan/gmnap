@@ -122,7 +122,9 @@ def test_all_stages_run() -> bool:
                 f"  Stages that ran (time > 0): {[s for s in stage_timings if stage_timings[s] > 0]}"
             )
 
-        if stages_run >= 6:  # At least 6 stages should run (some may be skipped in QUICK mode)
+        if (
+            stages_run >= 6
+        ):  # At least 6 stages should run (some may be skipped in QUICK mode)
             print(f"  ✅ {stages_run} stages completed")
             return True
         else:

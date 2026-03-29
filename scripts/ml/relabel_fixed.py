@@ -217,7 +217,9 @@ def validate_relabeling_quality(
     change_rate = changes / total * 100 if total > 0 else 0
 
     if change_rate > 40:
-        warnings.append(f"⚠️  HIGH relabeling rate: {change_rate:.1f}% (>40% threshold)")
+        warnings.append(
+            f"⚠️  HIGH relabeling rate: {change_rate:.1f}% (>40% threshold)"
+        )
 
     # Check 2: A1 dominance
     a1_changes = sum(count for key, count in relabel_stats.items() if "→A1" in key)
@@ -301,11 +303,15 @@ def relabel_dataset_fast(input_path: Path, output_path: Path, dry_run: bool = Fa
 
     print(f"\n  Changed: {changes:,} ({changes / len(profiles) * 100:.1f}%)")
     print(f"  Unchanged: {unchanged:,} ({unchanged / len(profiles) * 100:.1f}%)")
-    print(f"  Uncertain (kept original): {uncertain:,} ({uncertain / len(profiles) * 100:.1f}%)")
+    print(
+        f"  Uncertain (kept original): {uncertain:,} ({uncertain / len(profiles) * 100:.1f}%)"
+    )
 
     # Stats
     print("\n[3/5] Top relabelings:")
-    for key, count in sorted(relabel_stats.items(), key=lambda x: x[1], reverse=True)[:15]:
+    for key, count in sorted(relabel_stats.items(), key=lambda x: x[1], reverse=True)[
+        :15
+    ]:
         print(f"    {key:10s} {count:5,} changes")
 
     # VALIDATION

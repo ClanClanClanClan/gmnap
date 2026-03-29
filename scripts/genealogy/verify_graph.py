@@ -29,7 +29,9 @@ with driver.session() as session:
     """)
     print("\n📋 Sample mathematician nodes:")
     for record in result:
-        print(f"  - {record['name']} (Region: {record['region']}, Born: {record['birth']})")
+        print(
+            f"  - {record['name']} (Region: {record['region']}, Born: {record['birth']})"
+        )
 
     # Check indexes
     result = session.run("SHOW INDEX INFO")

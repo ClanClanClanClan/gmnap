@@ -123,7 +123,9 @@ def generate_test_entries(count: int = 1000):
 
         # Add optional fields for some entries
         if random.random() < 0.5:
-            entry["Institution"] = [institutions[random.randint(0, len(institutions) - 1)]]
+            entry["Institution"] = [
+                institutions[random.randint(0, len(institutions) - 1)]
+            ]
 
         if random.random() < 0.3:
             entry["BirthYear"] = random.randint(1900, 2000)
@@ -174,7 +176,9 @@ async def test_1000_entries():
         or "Turing" in e["CanonicalLatin"]
     ]
     if notable:
-        print(f"  ✓ Notable entries include: {', '.join(e['CanonicalLatin'] for e in notable[:3])}")
+        print(
+            f"  ✓ Notable entries include: {', '.join(e['CanonicalLatin'] for e in notable[:3])}"
+        )
     print()
 
     # Create pipeline with authority enrichment enabled
@@ -229,7 +233,9 @@ async def test_1000_entries():
         print(
             f"  • Successful: {len(successful)}/{len(all_results)} ({100*len(successful)/len(all_results):.1f}%)"
         )
-        print(f"  • With errors: {len(with_errors)} ({100*len(with_errors)/len(all_results):.1f}%)")
+        print(
+            f"  • With errors: {len(with_errors)} ({100*len(with_errors)/len(all_results):.1f}%)"
+        )
         print(
             f"  • Authority enriched: {len(with_authority)} ({100*len(with_authority)/len(all_results):.1f}%)"
         )
@@ -266,7 +272,9 @@ async def test_1000_entries():
             print(f"  Name: {sample.get('CanonicalLatin')}")
             print(f"  Sources: {sample.get('AuthoritySources')}")
             if "CrossrefData" in sample:
-                print(f"  Crossref works: {sample['CrossrefData'].get('works_count', 0)}")
+                print(
+                    f"  Crossref works: {sample['CrossrefData'].get('works_count', 0)}"
+                )
 
         # Performance metrics by stage
         print("\nStage Performance:")
@@ -285,7 +293,10 @@ async def test_1000_entries():
         ]
         for stage in stages:
             stage_errors = sum(
-                1 for e in with_errors for err in e.get("PipelineErrors", []) if stage in err
+                1
+                for e in with_errors
+                for err in e.get("PipelineErrors", [])
+                if stage in err
             )
             success_rate = 100 * (1 - stage_errors / len(all_results))
             print(f"  • {stage}: {success_rate:.1f}% success rate")
@@ -294,7 +305,9 @@ async def test_1000_entries():
         output_file = "test_1000_results.json"
         with open(output_file, "w") as f:
             # Save a subset to avoid huge file
-            sample_results = all_results[:100] if len(all_results) > 100 else all_results
+            sample_results = (
+                all_results[:100] if len(all_results) > 100 else all_results
+            )
             json.dump(
                 {
                     "summary": {
@@ -320,7 +333,9 @@ async def test_1000_entries():
 
         if success_rate >= 90:
             print(
-                "✅ Goal 1: Process 1000 entries - ACHIEVED ({:.1f}% success)".format(success_rate)
+                "✅ Goal 1: Process 1000 entries - ACHIEVED ({:.1f}% success)".format(
+                    success_rate
+                )
             )
         else:
             print(
@@ -361,7 +376,9 @@ async def test_1000_entries():
         print("\n" + "=" * 70)
         if success_rate >= 90 and len(with_authority) > 0:
             print("🎉 WEEK 2 MILESTONE ACHIEVED!")
-            print("Pipeline successfully processes 1000 entries with authority enrichment")
+            print(
+                "Pipeline successfully processes 1000 entries with authority enrichment"
+            )
             print("Estimated V7 compliance: ~45-50%")
         elif success_rate >= 80:
             print("⚠️ GOOD PROGRESS")

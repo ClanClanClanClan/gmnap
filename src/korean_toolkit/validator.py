@@ -207,7 +207,9 @@ class KoreanValidator:
             "valid_count": len(valid_mappings),
             "total_count": len(mappings),
             "issues": issues[:20],
-            "validity_rate": (len(valid_mappings) / len(mappings) * 100) if mappings else 0,
+            "validity_rate": (
+                (len(valid_mappings) / len(mappings) * 100) if mappings else 0
+            ),
         }
 
     def _validate_format(self, data: Any) -> Dict[str, Any]:
@@ -239,7 +241,11 @@ class KoreanValidator:
         else:
             issues.append(f"Unexpected data type: {type(data).__name__}")
 
-        return {"valid": len(issues) == 0, "format_type": type(data).__name__, "issues": issues}
+        return {
+            "valid": len(issues) == 0,
+            "format_type": type(data).__name__,
+            "issues": issues,
+        }
 
     def _validate_completeness(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -269,7 +275,9 @@ class KoreanValidator:
                     coverage[component] = 0
 
         # Calculate overall completeness
-        completeness = (len(expected_components) - len(missing)) / len(expected_components) * 100
+        completeness = (
+            (len(expected_components) - len(missing)) / len(expected_components) * 100
+        )
 
         return {
             "valid": len(missing) == 0,

@@ -13,7 +13,9 @@ class C8Georgian(RegionSpec):
 
     def __init__(self):
         super().__init__(
-            code="C8", yaml_files=[], scripts=["Georgian", "Latin"]  # TODO: Add actual YAML files,
+            code="C8",
+            yaml_files=[],
+            scripts=["Georgian", "Latin"],  # TODO: Add actual YAML files,
         )
 
     def clean(self, name: str) -> str:

@@ -105,7 +105,9 @@ class SecurityConfig:
     max_request_size_mb: int = 10
     rate_limit_requests: int = 1000
     rate_limit_window_seconds: int = 60
-    allowed_file_extensions: list = field(default_factory=lambda: [".yaml", ".yml", ".json"])
+    allowed_file_extensions: list = field(
+        default_factory=lambda: [".yaml", ".yml", ".json"]
+    )
 
 
 @dataclass
@@ -171,7 +173,9 @@ class GMNAPConfig:
                 "enable_parallel",
                 "enable_caching",
             }
-            processing_data = {k: v for k, v in processing_data.items() if k in expected_fields}
+            processing_data = {
+                k: v for k, v in processing_data.items() if k in expected_fields
+            }
             data["processing"] = ProcessingConfig(**processing_data)
         if "unicode" in data and isinstance(data["unicode"], dict):
             unicode_data = data["unicode"].copy()
@@ -186,7 +190,9 @@ class GMNAPConfig:
                 "handle_greek_tonos",
                 "normalization_form",
             }
-            unicode_data = {k: v for k, v in unicode_data.items() if k in expected_fields}
+            unicode_data = {
+                k: v for k, v in unicode_data.items() if k in expected_fields
+            }
             data["unicode"] = UnicodeConfig(**unicode_data)
         if "validation" in data and isinstance(data["validation"], dict):
             validation_data = data["validation"].copy()
@@ -203,7 +209,9 @@ class GMNAPConfig:
                 "min_confidence_score",
                 "max_confidence_score",
             }
-            validation_data = {k: v for k, v in validation_data.items() if k in expected_fields}
+            validation_data = {
+                k: v for k, v in validation_data.items() if k in expected_fields
+            }
             data["validation"] = ValidationConfig(**validation_data)
         if "monitoring" in data and isinstance(data["monitoring"], dict):
             data["monitoring"] = MonitoringConfig(**data["monitoring"])
@@ -366,12 +374,18 @@ class ConfigurationManager:
         merged = self._deep_merge(base_dict, override)
         return GMNAPConfig.from_dict(merged)
 
-    def _deep_merge(self, base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    def _deep_merge(
+        self, base: Dict[str, Any], override: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Recursively merge dictionaries."""
         result = base.copy()
 
         for key, value in override.items():
-            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            if (
+                key in result
+                and isinstance(result[key], dict)
+                and isinstance(value, dict)
+            ):
                 result[key] = self._deep_merge(result[key], value)
             else:
                 result[key] = value
@@ -408,7 +422,10 @@ class ConfigurationManager:
         if not 0 <= config.validation.max_confidence_score <= 1:
             raise ValueError("Max confidence score must be between 0 and 1")
 
-        if config.validation.min_confidence_score > config.validation.max_confidence_score:
+        if (
+            config.validation.min_confidence_score
+            > config.validation.max_confidence_score
+        ):
             raise ValueError("Min confidence score cannot be greater than max")
 
     def get(self) -> GMNAPConfig:
@@ -430,12 +447,16 @@ class ConfigurationManager:
         config_dict = self._config.to_dict() if self._config else {}
 
         # Convert enums to strings
-        if "environment" in config_dict and isinstance(config_dict["environment"], Environment):
+        if "environment" in config_dict and isinstance(
+            config_dict["environment"], Environment
+        ):
             config_dict["environment"] = config_dict["environment"].value
 
         with open(save_path, "w") as f:
             if save_path.suffix in [".yaml", ".yml"]:
-                yaml.safe_dump(config_dict, f, default_flow_style=False, sort_keys=False)
+                yaml.safe_dump(
+                    config_dict, f, default_flow_style=False, sort_keys=False
+                )
             else:
                 json.dump(config_dict, f, indent=2)
 

@@ -39,7 +39,13 @@ def test_regional_processors():
             "B1",
             "Ivanov Ivan",
         ),
-        ("src.regions.e_groups.e3_japan.processor", "E3_Japan", "田中太郎", "E3", "Tanaka Taro"),
+        (
+            "src.regions.e_groups.e3_japan.processor",
+            "E3_Japan",
+            "田中太郎",
+            "E3",
+            "Tanaka Taro",
+        ),
         (
             "src.regions.c_groups.c3_arabic_levant_nile.processor",
             "C3_ArabicLevantNile",
@@ -52,7 +58,13 @@ def test_regional_processors():
     working_count = 0
     results = []
 
-    for module_path, class_name, test_name, region_id, expected_latin in regions_to_test:
+    for (
+        module_path,
+        class_name,
+        test_name,
+        region_id,
+        expected_latin,
+    ) in regions_to_test:
         try:
             module = __import__(module_path, fromlist=[class_name])
             RegionClass = getattr(module, class_name)

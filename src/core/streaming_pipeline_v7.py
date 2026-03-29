@@ -51,7 +51,9 @@ class V7StreamingPipeline:
         self.globalid_generator = GlobalIDGenerator()
         self.schema_validator = SchemaValidator()
 
-        logger.info(f"V7 Streaming Pipeline initialized with chunk_size={self.config.chunk_size}")
+        logger.info(
+            f"V7 Streaming Pipeline initialized with chunk_size={self.config.chunk_size}"
+        )
 
     def get_memory_usage_gb(self) -> float:
         """Get current memory usage in GB"""
@@ -124,14 +126,18 @@ class V7StreamingPipeline:
         for entry in chunk:
             try:
                 # Security validation
-                validated_entry = security_validator.validate_entry(entry, internal=True)
+                validated_entry = security_validator.validate_entry(
+                    entry, internal=True
+                )
 
                 # Region detection
                 region_result = manager.detect_region(validated_entry, internal=True)
 
                 # Generate GlobalID if needed
                 if "GlobalID" not in validated_entry:
-                    validated_entry["GlobalID"] = self.globalid_generator.generate(validated_entry)
+                    validated_entry["GlobalID"] = self.globalid_generator.generate(
+                        validated_entry
+                    )
 
                 # Combine results
                 output_entry = {
@@ -143,7 +149,9 @@ class V7StreamingPipeline:
                 }
 
                 # Schema validation
-                is_valid, validation_errors = self.schema_validator.validate_entry(output_entry)
+                is_valid, validation_errors = self.schema_validator.validate_entry(
+                    output_entry
+                )
                 if is_valid:
                     results.append(output_entry)
                 else:
@@ -202,7 +210,9 @@ class V7StreamingPipeline:
                         if hasattr(cache, "clear"):
                             cache.clear()
 
-    def process_dataset(self, input_path: Path, format: str = "jsonl") -> Dict[str, Any]:
+    def process_dataset(
+        self, input_path: Path, format: str = "jsonl"
+    ) -> Dict[str, Any]:
         """
         Process entire dataset in V7-compliant streaming fashion.
         Returns processing statistics.
@@ -302,15 +312,22 @@ def main():
     """Example usage of V7 streaming pipeline"""
     import argparse
 
-    parser = argparse.ArgumentParser(description="V7-compliant GMNAP streaming pipeline")
+    parser = argparse.ArgumentParser(
+        description="V7-compliant GMNAP streaming pipeline"
+    )
     parser.add_argument("input", type=Path, help="Input file (JSONL or CSV)")
     parser.add_argument(
-        "--output-dir", type=Path, default=Path("output/chunks"), help="Output directory for chunks"
+        "--output-dir",
+        type=Path,
+        default=Path("output/chunks"),
+        help="Output directory for chunks",
     )
     parser.add_argument(
         "--format", choices=["jsonl", "csv"], default="jsonl", help="Input file format"
     )
-    parser.add_argument("--merge", action="store_true", help="Merge chunks into single output file")
+    parser.add_argument(
+        "--merge", action="store_true", help="Merge chunks into single output file"
+    )
     parser.add_argument(
         "--merge-output",
         type=Path,
@@ -322,7 +339,8 @@ def main():
 
     # Configure logging
     logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
     # Create pipeline
@@ -342,7 +360,9 @@ def main():
     print(f"   Failed: {stats['failed_entries']:,}")
     print(f"   Peak memory: {stats['peak_memory_gb']:.2f}GB")
     print(f"   Time: {stats['processing_time_seconds']:.1f}s")
-    print(f"   Rate: {stats['total_entries']/stats['processing_time_seconds']:.0f} entries/s")
+    print(
+        f"   Rate: {stats['total_entries']/stats['processing_time_seconds']:.0f} entries/s"
+    )
 
 
 if __name__ == "__main__":

@@ -66,7 +66,9 @@ class ORCIDFetcher(AuthorityFetcher):
                 return await self._search_by_name(query)
 
         except asyncio.TimeoutError:
-            return FetchResult(status=FetchStatus.NETWORK_ERROR, error_message="Request timeout")
+            return FetchResult(
+                status=FetchStatus.NETWORK_ERROR, error_message="Request timeout"
+            )
 
         except Exception as e:
             self.logger.error(f"Fetch error: {e}")
@@ -104,7 +106,9 @@ class ORCIDFetcher(AuthorityFetcher):
                 )
 
             elif response.status == 404:
-                return FetchResult(status=FetchStatus.NOT_FOUND, error_message="ORCID ID not found")
+                return FetchResult(
+                    status=FetchStatus.NOT_FOUND, error_message="ORCID ID not found"
+                )
 
             elif response.status == 429:
                 retry_after = response.headers.get("Retry-After", 60)
@@ -140,7 +144,8 @@ class ORCIDFetcher(AuthorityFetcher):
                 # Parse search results
                 if "result" not in data or not data["result"]:
                     return FetchResult(
-                        status=FetchStatus.NOT_FOUND, error_message="No ORCID profiles found"
+                        status=FetchStatus.NOT_FOUND,
+                        error_message="No ORCID profiles found",
                     )
 
                 # Get best match
@@ -148,7 +153,8 @@ class ORCIDFetcher(AuthorityFetcher):
 
                 if not best_result:
                     return FetchResult(
-                        status=FetchStatus.NOT_FOUND, error_message="No suitable matches found"
+                        status=FetchStatus.NOT_FOUND,
+                        error_message="No suitable matches found",
                     )
 
                 # Fetch full profile for best match
@@ -284,9 +290,13 @@ class ORCIDFetcher(AuthorityFetcher):
 
                         # Extract years
                         if "start-date" in emp_detail and emp_detail["start-date"]:
-                            aff_data["from"] = emp_detail["start-date"].get("year", {}).get("value")
+                            aff_data["from"] = (
+                                emp_detail["start-date"].get("year", {}).get("value")
+                            )
                         if "end-date" in emp_detail and emp_detail["end-date"]:
-                            aff_data["to"] = emp_detail["end-date"].get("year", {}).get("value")
+                            aff_data["to"] = (
+                                emp_detail["end-date"].get("year", {}).get("value")
+                            )
 
                         affiliations.append(aff_data)
 
@@ -305,9 +315,13 @@ class ORCIDFetcher(AuthorityFetcher):
 
                         # Extract years
                         if "start-date" in edu_detail and edu_detail["start-date"]:
-                            aff_data["from"] = edu_detail["start-date"].get("year", {}).get("value")
+                            aff_data["from"] = (
+                                edu_detail["start-date"].get("year", {}).get("value")
+                            )
                         if "end-date" in edu_detail and edu_detail["end-date"]:
-                            aff_data["to"] = edu_detail["end-date"].get("year", {}).get("value")
+                            aff_data["to"] = (
+                                edu_detail["end-date"].get("year", {}).get("value")
+                            )
 
                         affiliations.append(aff_data)
 

@@ -15,7 +15,9 @@ def test_crossref_thesis_contract():
     )
     r.raise_for_status()
     j = r.json()
-    assert "message" in j and ("items" in j["message"] or "total-results" in j["message"])
+    assert "message" in j and (
+        "items" in j["message"] or "total-results" in j["message"]
+    )
 
 
 @pytest.mark.live
@@ -24,7 +26,10 @@ def test_crossref_thesis_contract():
 def test_wikidata_p184_contract():
     r = requests.get(
         "https://query.wikidata.org/sparql",
-        params={"query": "SELECT ?p WHERE { ?p wdt:P106 wd:Q170790 . } LIMIT 1", "format": "json"},
+        params={
+            "query": "SELECT ?p WHERE { ?p wdt:P106 wd:Q170790 . } LIMIT 1",
+            "format": "json",
+        },
         timeout=30,
         headers={"User-Agent": "gmnap-v7"},
     )
@@ -34,7 +39,9 @@ def test_wikidata_p184_contract():
 
 
 @pytest.mark.live
-@pytest.mark.skipif(not LIVE or os.getenv("OAI_BASE_URL") is None, reason="Need OAI_BASE_URL")
+@pytest.mark.skipif(
+    not LIVE or os.getenv("OAI_BASE_URL") is None, reason="Need OAI_BASE_URL"
+)
 @pytest.mark.timeout(15)
 def test_oai_identify_contract():
     base = os.getenv("OAI_BASE_URL")
@@ -58,7 +65,9 @@ def test_hal_contract():
 
 
 @pytest.mark.live
-@pytest.mark.skipif(not LIVE or os.getenv("GND_SRU_URL") is None, reason="Need GND_SRU_URL")
+@pytest.mark.skipif(
+    not LIVE or os.getenv("GND_SRU_URL") is None, reason="Need GND_SRU_URL"
+)
 @pytest.mark.timeout(15)
 def test_gnd_contract():
     base = os.getenv("GND_SRU_URL")
@@ -78,7 +87,9 @@ def test_gnd_contract():
 
 
 @pytest.mark.live
-@pytest.mark.skipif(not LIVE or os.getenv("ZBMATH_API_URL") is None, reason="Need ZBMATH_API_URL")
+@pytest.mark.skipif(
+    not LIVE or os.getenv("ZBMATH_API_URL") is None, reason="Need ZBMATH_API_URL"
+)
 @pytest.mark.timeout(15)
 def test_zbmath_contract():
     base = os.getenv("ZBMATH_API_URL")

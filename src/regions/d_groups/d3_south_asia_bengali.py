@@ -13,7 +13,9 @@ class D3SouthAsiaBengali(RegionSpec):
 
     def __init__(self):
         super().__init__(
-            code="D3", yaml_files=[], scripts=["Bengali", "Latin"]  # TODO: Add actual YAML files,
+            code="D3",
+            yaml_files=[],
+            scripts=["Bengali", "Latin"],  # TODO: Add actual YAML files,
         )
 
     def clean(self, name: str) -> str:

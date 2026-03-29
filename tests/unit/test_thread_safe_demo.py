@@ -145,7 +145,10 @@ def demonstrate_legacy_vs_thread_safe():
         worker_errors = []
 
         for i in range(50):
-            entry = {"GlobalID": f"safe-{worker_id}-{i}", "CanonicalLatin": f"Safe {worker_id} {i}"}
+            entry = {
+                "GlobalID": f"safe-{worker_id}-{i}",
+                "CanonicalLatin": f"Safe {worker_id} {i}",
+            }
             try:
                 region.clean(entry)
                 region.augment(entry)
@@ -186,7 +189,10 @@ def test_performance_impact():
     start_time = time.time()
     region = manager.get_region("A1")
     for i in range(100):
-        entry = {"GlobalID": f"perf-legacy-{i}", "CanonicalLatin": f"Performance Test {i}"}
+        entry = {
+            "GlobalID": f"perf-legacy-{i}",
+            "CanonicalLatin": f"Performance Test {i}",
+        }
         if region:
             region.clean(entry)
     legacy_time = time.time() - start_time
@@ -195,7 +201,10 @@ def test_performance_impact():
     start_time = time.time()
     for i in range(100):
         region = manager.get_region("A1")
-        entry = {"GlobalID": f"perf-safe-{i}", "CanonicalLatin": f"Performance Test {i}"}
+        entry = {
+            "GlobalID": f"perf-safe-{i}",
+            "CanonicalLatin": f"Performance Test {i}",
+        }
         if region:
             region.clean(entry)
     safe_time = time.time() - start_time

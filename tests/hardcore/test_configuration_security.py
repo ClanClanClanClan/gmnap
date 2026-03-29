@@ -237,7 +237,9 @@ class TestConfigurationSecurity:
         memory_growth = final_memory - initial_memory
 
         # Should not consume excessive memory
-        assert memory_growth < 200, f"Config loading used too much memory: {memory_growth}MB"
+        assert (
+            memory_growth < 200
+        ), f"Config loading used too much memory: {memory_growth}MB"
 
         # Should limit number of authorities
         assert len(config.authorities) <= 1000, "Too many authorities loaded"
@@ -295,7 +297,9 @@ class TestConfigurationSecurity:
 
         threads = []
         for i in range(num_workers):
-            thread = threading.Thread(target=config_worker, args=(i, operations_per_worker))
+            thread = threading.Thread(
+                target=config_worker, args=(i, operations_per_worker)
+            )
             threads.append(thread)
             thread.start()
 
@@ -326,7 +330,9 @@ class TestConfigurationSecurity:
 
         # Should handle concurrent access gracefully
         total_errors = sum(len(errors[1]) for errors in worker_errors)
-        assert total_errors < 20, f"Too many errors from concurrent access: {total_errors}"
+        assert (
+            total_errors < 20
+        ), f"Too many errors from concurrent access: {total_errors}"
 
     def test_config_validation_bypass(self):
         """Test attempts to bypass config validation."""
@@ -557,7 +563,9 @@ class TestConfigurationPerformance:
         config_data = {
             "database": {"url": "sqlite:///test.db"},
             "cache": {"directory": "/tmp/cache"},
-            "authorities": {f"auth_{i}": {"url": f"https://api{i}.com"} for i in range(100)},
+            "authorities": {
+                f"auth_{i}": {"url": f"https://api{i}.com"} for i in range(100)
+            },
         }
 
         with open(self.config_path, "w") as f:
@@ -585,7 +593,9 @@ class TestConfigurationPerformance:
 
         threads = []
         for i in range(num_workers):
-            thread = threading.Thread(target=performance_worker, args=(i, iterations_per_worker))
+            thread = threading.Thread(
+                target=performance_worker, args=(i, iterations_per_worker)
+            )
             threads.append(thread)
             thread.start()
 
@@ -602,13 +612,17 @@ class TestConfigurationPerformance:
                 break
 
         # Verify performance
-        assert len(worker_times) == num_workers, f"Not all workers completed: {len(worker_times)}"
+        assert (
+            len(worker_times) == num_workers
+        ), f"Not all workers completed: {len(worker_times)}"
 
         avg_times = [time for _, time in worker_times]
         overall_avg = sum(avg_times) / len(avg_times)
 
         # Should be reasonably fast
-        assert overall_avg < 0.1, f"Config loading too slow: {overall_avg:.3f}s per load"
+        assert (
+            overall_avg < 0.1
+        ), f"Config loading too slow: {overall_avg:.3f}s per load"
 
 
 if __name__ == "__main__":

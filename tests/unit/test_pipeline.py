@@ -203,7 +203,9 @@ class TestStageResult:
     def test_stage_result_duration(self):
         """Test duration calculation."""
         start = datetime.now()
-        result = StageResult(stage_name="test", status=StageStatus.COMPLETED, start_time=start)
+        result = StageResult(
+            stage_name="test", status=StageStatus.COMPLETED, start_time=start
+        )
 
         # No end time yet
         assert result.duration == 0.0
@@ -326,7 +328,9 @@ class TestPipelineIntegration:
         pipeline.add_stage(ValidationStage("validation", {}))
 
         # Mock validation to pass all
-        with patch("src.validation.schema.SchemaValidator.validate_entry", return_value=True):
+        with patch(
+            "src.validation.schema.SchemaValidator.validate_entry", return_value=True
+        ):
             result = await pipeline.execute()
 
         assert result["status"] == "completed"

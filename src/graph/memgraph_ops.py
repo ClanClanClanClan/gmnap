@@ -12,7 +12,9 @@ except Exception:  # offline-safe
 class MemgraphPool:
     """Async connection pool (stubbed if driver absent)."""
 
-    def __init__(self, uri: str, auth: tuple[str, str] | None = None, pool_size: int = 5):
+    def __init__(
+        self, uri: str, auth: tuple[str, str] | None = None, pool_size: int = 5
+    ):
         self.uri = uri
         self.auth = auth or ("", "")
         self.pool_size = pool_size

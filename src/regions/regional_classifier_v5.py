@@ -44,7 +44,10 @@ class RegionalClassifierV5:
     """
 
     def __init__(
-        self, model_path: str = None, temperature: float = 2.817, abstention_threshold: float = 0.55
+        self,
+        model_path: str = None,
+        temperature: float = 2.817,
+        abstention_threshold: float = 0.55,
     ):
         """
         Initialize classifier
@@ -79,7 +82,9 @@ class RegionalClassifierV5:
             if Path(path).exists():
                 return path
 
-        raise FileNotFoundError("Could not find v5_etymology model. Please specify model_path.")
+        raise FileNotFoundError(
+            "Could not find v5_etymology model. Please specify model_path."
+        )
 
     def _apply_temperature_scaling(self, probs: np.ndarray) -> np.ndarray:
         """
@@ -194,5 +199,7 @@ if __name__ == "__main__":
     for i, pred in enumerate(result["topk"][:3], 1):
         print(f"  {i}. {pred['region']:4s} {pred['p']:.1%}")
 
-    print(f"\nCalibration: {result['calibration']['method']} (T={result['calibration']['T']:.3f})")
+    print(
+        f"\nCalibration: {result['calibration']['method']} (T={result['calibration']['T']:.3f})"
+    )
     print(f"Model: {result['model_name']} v{result['model_version']}")

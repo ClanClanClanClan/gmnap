@@ -148,7 +148,9 @@ class ABTestingClassifier:
         """
         # Determine assignment
         use_treatment = self._assign_to_treatment(user_id)
-        variant = self.config.treatment_model if use_treatment else self.config.control_model
+        variant = (
+            self.config.treatment_model if use_treatment else self.config.control_model
+        )
 
         # Predict
         if use_treatment:
@@ -199,7 +201,9 @@ class ABTestingClassifier:
             )
 
         # Log to file
-        self._log_prediction(name, variant, prediction, confidence, ground_truth, user_id)
+        self._log_prediction(
+            name, variant, prediction, confidence, ground_truth, user_id
+        )
 
         # Check for auto-decision
         decision = self._check_auto_decision()
@@ -239,7 +243,9 @@ class ABTestingClassifier:
             Dict with control and treatment metrics
         """
         control_with_gt = [r for r in self.control_results if r["correct"] is not None]
-        treatment_with_gt = [r for r in self.treatment_results if r["correct"] is not None]
+        treatment_with_gt = [
+            r for r in self.treatment_results if r["correct"] is not None
+        ]
 
         control_accuracy = (
             sum(1 for r in control_with_gt if r["correct"]) / len(control_with_gt)
@@ -268,7 +274,9 @@ class ABTestingClassifier:
         )
 
         # Compute relative improvement
-        relative_accuracy = treatment_accuracy / control_accuracy if control_accuracy > 0 else 1.0
+        relative_accuracy = (
+            treatment_accuracy / control_accuracy if control_accuracy > 0 else 1.0
+        )
 
         return {
             "control": {
@@ -313,7 +321,8 @@ class ABTestingClassifier:
 
         # Need minimum samples
         if (
-            metrics["control"]["samples_with_ground_truth"] < self.config.min_samples_for_decision
+            metrics["control"]["samples_with_ground_truth"]
+            < self.config.min_samples_for_decision
             or metrics["treatment"]["samples_with_ground_truth"]
             < self.config.min_samples_for_decision
         ):

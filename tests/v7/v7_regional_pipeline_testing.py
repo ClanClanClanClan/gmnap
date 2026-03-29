@@ -117,7 +117,9 @@ class V7RegionalPipelineTester:
             except Exception:
                 pass
 
-        logger.info(f"Detected {len(working_regions)} working regions: {sorted(working_regions)}")
+        logger.info(
+            f"Detected {len(working_regions)} working regions: {sorted(working_regions)}"
+        )
         return working_regions
 
     def test_complete_pipeline_for_region(self, region_code: str) -> RegionalTestResult:
@@ -183,7 +185,9 @@ class V7RegionalPipelineTester:
                     processor.augment(entry)
                     pipeline_results["augment_success"] += 1
                 except Exception as e:
-                    pipeline_results["errors"].append(f"Augment failed on case {i}: {e}")
+                    pipeline_results["errors"].append(
+                        f"Augment failed on case {i}: {e}"
+                    )
                     continue
 
                 # Test Stage 3: validate()
@@ -191,7 +195,9 @@ class V7RegionalPipelineTester:
                     processor.validate(entry)
                     pipeline_results["validate_success"] += 1
                 except Exception as e:
-                    pipeline_results["errors"].append(f"Validate failed on case {i}: {e}")
+                    pipeline_results["errors"].append(
+                        f"Validate failed on case {i}: {e}"
+                    )
                     continue
 
                 # Test Stage 4: order_key()
@@ -204,7 +210,9 @@ class V7RegionalPipelineTester:
                             f"Invalid order_key on case {i}: {order_key}"
                         )
                 except Exception as e:
-                    pipeline_results["errors"].append(f"Order_key failed on case {i}: {e}")
+                    pipeline_results["errors"].append(
+                        f"Order_key failed on case {i}: {e}"
+                    )
                     continue
 
             except Exception as e:
@@ -329,7 +337,9 @@ class V7RegionalPipelineTester:
 
         return test_cases
 
-    def test_linguistic_rule(self, rule_id: int, region_code: str) -> LinguisticRuleTestResult:
+    def test_linguistic_rule(
+        self, rule_id: int, region_code: str
+    ) -> LinguisticRuleTestResult:
         """
         Test a specific linguistic rule for a region.
 
@@ -422,7 +432,9 @@ class V7RegionalPipelineTester:
                     order_key = processor.order_key(entry)
 
                     # Check if expected behavior occurred
-                    if self._validate_rule_behavior(rule_id, test_case, entry, order_key):
+                    if self._validate_rule_behavior(
+                        rule_id, test_case, entry, order_key
+                    ):
                         passed_cases += 1
 
                 except Exception as e:
@@ -474,7 +486,10 @@ class V7RegionalPipelineTester:
         # Rule 11: CJK Round-Trip
         if rule_id == 11 and region_code in ["E1", "E3", "E4"]:
             return [
-                {"input": {"CanonicalLatin": "Wang, Wei"}, "expected_behavior": "cjk_roundtrip"}
+                {
+                    "input": {"CanonicalLatin": "Wang, Wei"},
+                    "expected_behavior": "cjk_roundtrip",
+                }
             ]
 
         # Rule 13: Korean Hyphen/Space
@@ -633,7 +648,9 @@ class V7RegionalPipelineTester:
 
             error_message = None
             if not success:
-                error_message = f"CJK round-trip accuracy {avg_dice:.1%} < 97% requirement"
+                error_message = (
+                    f"CJK round-trip accuracy {avg_dice:.1%} < 97% requirement"
+                )
 
             return RegionalTestResult(
                 region_code=region_code,
@@ -748,7 +765,11 @@ class V7RegionalPipelineTester:
                     processor.validate(entry)
 
                     # Calculate roundtrip accuracy (simplified for now)
-                    score = 1.0 if entry.get("CanonicalLatin") == test_case["romanized"] else 0.0
+                    score = (
+                        1.0
+                        if entry.get("CanonicalLatin") == test_case["romanized"]
+                        else 0.0
+                    )
                     roundtrip_scores.append(score)
 
                 except Exception as e:
@@ -762,7 +783,9 @@ class V7RegionalPipelineTester:
 
             error_message = None
             if not success:
-                error_message = f"SEA roundtrip accuracy {avg_score:.1%} < 90% threshold"
+                error_message = (
+                    f"SEA roundtrip accuracy {avg_score:.1%} < 90% threshold"
+                )
 
             return RegionalTestResult(
                 region_code="E6",
@@ -806,7 +829,9 @@ class V7RegionalPipelineTester:
         }
 
         # Test complete pipeline for each implemented region
-        print(f"\n🔍 Testing complete pipeline for {len(self.implemented_regions)} regions...")
+        print(
+            f"\n🔍 Testing complete pipeline for {len(self.implemented_regions)} regions..."
+        )
         for region_code in sorted(self.implemented_regions):
             print(f"  -> {region_code}")
             pipeline_result = self.test_complete_pipeline_for_region(region_code)
@@ -864,7 +889,9 @@ class V7RegionalPipelineTester:
         total_duration = time.perf_counter() - start_time
 
         # Pipeline test summary
-        pipeline_passed = sum(1 for r in results["pipeline_tests"].values() if r.success)
+        pipeline_passed = sum(
+            1 for r in results["pipeline_tests"].values() if r.success
+        )
         pipeline_total = len(results["pipeline_tests"])
 
         # Linguistic rules summary
@@ -877,7 +904,9 @@ class V7RegionalPipelineTester:
         rule_total = len(rule_results)
 
         # CJK roundtrip summary
-        cjk_passed = sum(1 for r in results["cjk_roundtrip_tests"].values() if r.success)
+        cjk_passed = sum(
+            1 for r in results["cjk_roundtrip_tests"].values() if r.success
+        )
         cjk_total = len(results["cjk_roundtrip_tests"])
 
         # SEA roundtrip
@@ -902,7 +931,8 @@ class V7RegionalPipelineTester:
                 "total": total_tests,
                 "success_rate": overall_success_rate,
             },
-            "v7_compliant": overall_success_rate >= 0.85,  # 85% threshold for v7 compliance
+            "v7_compliant": overall_success_rate
+            >= 0.85,  # 85% threshold for v7 compliance
         }
 
         # Print final summary
@@ -918,7 +948,9 @@ class V7RegionalPipelineTester:
         print(f"Duration: {total_duration:.2f}s")
 
         v7_status = (
-            "PASS V7 COMPLIANT" if results["summary"]["v7_compliant"] else "FAIL NOT V7 COMPLIANT"
+            "PASS V7 COMPLIANT"
+            if results["summary"]["v7_compliant"]
+            else "FAIL NOT V7 COMPLIANT"
         )
         print(f"V7 Compliance: {v7_status}")
 
@@ -929,10 +961,16 @@ def main():
     """Main entry point for regional pipeline testing."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="V7 Regional Pipeline Testing Framework")
+    parser = argparse.ArgumentParser(
+        description="V7 Regional Pipeline Testing Framework"
+    )
     parser.add_argument("--region", help="Test specific region (e.g., A1, E4)")
-    parser.add_argument("--pipeline", action="store_true", help="Test complete pipeline only")
-    parser.add_argument("--rules", action="store_true", help="Test linguistic rules only")
+    parser.add_argument(
+        "--pipeline", action="store_true", help="Test complete pipeline only"
+    )
+    parser.add_argument(
+        "--rules", action="store_true", help="Test linguistic rules only"
+    )
     parser.add_argument("--cjk", action="store_true", help="Test CJK round-trip only")
     parser.add_argument("--sea", action="store_true", help="Test SEA round-trip only")
     parser.add_argument("--all", action="store_true", help="Run all regional tests")
@@ -941,7 +979,8 @@ def main():
 
     # Configure logging
     logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
     tester = V7RegionalPipelineTester()

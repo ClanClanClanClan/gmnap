@@ -59,7 +59,9 @@ class BrutalTestAuditor:
                 "--timeout=30",
             ]
 
-            process = subprocess.run(cmd, capture_output=True, text=True, timeout=60, env=env)
+            process = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=60, env=env
+            )
 
             # Parse output
             output = process.stdout + process.stderr
@@ -190,7 +192,9 @@ class BrutalTestAuditor:
         for category, path in test_categories.items():
             if path.exists():
                 print(f"\n📁 Auditing {category} tests...")
-                self.results["categories"][category] = self.audit_category(category, path)
+                self.results["categories"][category] = self.audit_category(
+                    category, path
+                )
             else:
                 print(f"\n⚠️  Category {category} not found at {path}")
 
@@ -223,8 +227,12 @@ class BrutalTestAuditor:
             "total_tests": total_tests,
             "passed_tests": total_passed_tests,
             "failed_tests": total_failed_tests,
-            "file_success_rate": (total_passed_files / total_files * 100) if total_files > 0 else 0,
-            "test_success_rate": (total_passed_tests / total_tests * 100) if total_tests > 0 else 0,
+            "file_success_rate": (
+                (total_passed_files / total_files * 100) if total_files > 0 else 0
+            ),
+            "test_success_rate": (
+                (total_passed_tests / total_tests * 100) if total_tests > 0 else 0
+            ),
         }
 
         # Identify critical findings
@@ -258,7 +266,9 @@ class BrutalTestAuditor:
         # Find consistently failing categories
         for category, data in self.results["categories"].items():
             if data["total_files"] > 0:
-                failure_rate = (data["failed_files"] + data["error_files"]) / data["total_files"]
+                failure_rate = (data["failed_files"] + data["error_files"]) / data[
+                    "total_files"
+                ]
                 if failure_rate > 0.5:
                     self.results["critical_findings"].append(
                         {

@@ -43,7 +43,9 @@ def build_positional(direction: str):
 
     for hangul, roman, weight, context, pos in read_rows_with_pos():
         if direction == "rom2han":
-            arc = pn.accep(roman.lower(), weight=weight) @ pn.cross(roman.lower(), hangul)
+            arc = pn.accep(roman.lower(), weight=weight) @ pn.cross(
+                roman.lower(), hangul
+            )
         else:
             arc = pn.accep(hangul, weight=weight) @ pn.cross(hangul, roman.lower())
 

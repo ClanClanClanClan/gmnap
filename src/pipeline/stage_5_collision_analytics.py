@@ -43,7 +43,9 @@ class CollisionAnalyticsStage:
             # Initialize collision analytics
             collision_config = config.get("collision_analytics", {})
             collision_threshold = collision_config.get("similarity_threshold", 0.8)
-            enable_cross_region = collision_config.get("enable_cross_region_analysis", True)
+            enable_cross_region = collision_config.get(
+                "enable_cross_region_analysis", True
+            )
 
             # Perform collision detection and analytics
             collision_results = self._analyze_collisions(
@@ -67,7 +69,9 @@ class CollisionAnalyticsStage:
             return context
 
         except Exception as e:
-            raise CollisionAnalyticsError(f"Stage 5 collision analytics failed: {str(e)}")
+            raise CollisionAnalyticsError(
+                f"Stage 5 collision analytics failed: {str(e)}"
+            )
 
     def _analyze_collisions(
         self, data: List[Dict[str, Any]], threshold: float, cross_region: bool
@@ -85,7 +89,9 @@ class CollisionAnalyticsStage:
         # Cross-region collision analysis
         cross_region_collisions = {}
         if cross_region:
-            cross_region_collisions = self._analyze_cross_region_collisions(data, threshold)
+            cross_region_collisions = self._analyze_cross_region_collisions(
+                data, threshold
+            )
 
         # Authority source collision analysis
         authority_collisions = self._analyze_authority_collisions(data)
@@ -159,8 +165,12 @@ class CollisionAnalyticsStage:
                             "record1_id": record1.get("GlobalID", f"record_{i}"),
                             "record2_id": record2.get("GlobalID", f"record_{j}"),
                             "similarity_score": similarity,
-                            "collision_type": self._classify_collision_type(record1, record2),
-                            "collision_fields": self._identify_collision_fields(record1, record2),
+                            "collision_type": self._classify_collision_type(
+                                record1, record2
+                            ),
+                            "collision_fields": self._identify_collision_fields(
+                                record1, record2
+                            ),
                             "collision_severity": self._assess_collision_severity(
                                 record1, record2, similarity
                             ),
@@ -234,7 +244,9 @@ class CollisionAnalyticsStage:
         jaccard_similarity = len(intersection) / len(union)
 
         # Edit distance similarity
-        edit_distance_similarity = self._calculate_edit_distance_similarity(name1, name2)
+        edit_distance_similarity = self._calculate_edit_distance_similarity(
+            name1, name2
+        )
 
         # Return the maximum of the two measures
         return max(jaccard_similarity, edit_distance_similarity)
@@ -293,7 +305,13 @@ class CollisionAnalyticsStage:
     ) -> float:
         """Calculate overlap in authority source identifiers"""
 
-        authority_fields = ["ORCID", "ScopusID", "ResearcherID", "ArXivID", "MathSciNetID"]
+        authority_fields = [
+            "ORCID",
+            "ScopusID",
+            "ResearcherID",
+            "ArXivID",
+            "MathSciNetID",
+        ]
 
         overlapping_ids = 0
         total_ids = 0
@@ -309,7 +327,9 @@ class CollisionAnalyticsStage:
 
         return overlapping_ids / total_ids if total_ids > 0 else 0.0
 
-    def _classify_collision_type(self, record1: Dict[str, Any], record2: Dict[str, Any]) -> str:
+    def _classify_collision_type(
+        self, record1: Dict[str, Any], record2: Dict[str, Any]
+    ) -> str:
         """Classify the type of collision"""
 
         # Check if same person (high authority overlap)
@@ -319,7 +339,8 @@ class CollisionAnalyticsStage:
 
         # Check if different people with similar names
         name_similarity = self._calculate_name_similarity(
-            record1.get("CanonicalLatin", "").lower(), record2.get("CanonicalLatin", "").lower()
+            record1.get("CanonicalLatin", "").lower(),
+            record2.get("CanonicalLatin", "").lower(),
         )
         context_similarity = self._calculate_context_similarity(record1, record2)
 
@@ -340,7 +361,8 @@ class CollisionAnalyticsStage:
         # Check name fields
         if (
             self._calculate_name_similarity(
-                record1.get("CanonicalLatin", "").lower(), record2.get("CanonicalLatin", "").lower()
+                record1.get("CanonicalLatin", "").lower(),
+                record2.get("CanonicalLatin", "").lower(),
             )
             > 0.7
         ):
@@ -351,7 +373,11 @@ class CollisionAnalyticsStage:
         for field in context_fields:
             value1 = record1.get(field, "").lower()
             value2 = record2.get(field, "").lower()
-            if value1 and value2 and (value1 == value2 or value1 in value2 or value2 in value1):
+            if (
+                value1
+                and value2
+                and (value1 == value2 or value1 in value2 or value2 in value1)
+            ):
                 collision_fields.append(field)
 
         return collision_fields
@@ -417,7 +443,9 @@ class CollisionAnalyticsStage:
                                 "record1_id": record1.get("GlobalID", "unknown"),
                                 "record2_id": record2.get("GlobalID", "unknown"),
                                 "similarity_score": similarity,
-                                "collision_type": self._classify_collision_type(record1, record2),
+                                "collision_type": self._classify_collision_type(
+                                    record1, record2
+                                ),
                             }
                             cross_region_collisions.append(collision)
 
@@ -427,11 +455,19 @@ class CollisionAnalyticsStage:
             "regions_involved": len(regions),
         }
 
-    def _analyze_authority_collisions(self, data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_authority_collisions(
+        self, data: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """Analyze collisions in authority source data"""
 
         authority_collisions = {}
-        authority_fields = ["ORCID", "ScopusID", "ResearcherID", "ArXivID", "MathSciNetID"]
+        authority_fields = [
+            "ORCID",
+            "ScopusID",
+            "ResearcherID",
+            "ArXivID",
+            "MathSciNetID",
+        ]
 
         for field in authority_fields:
             # Group by authority ID
@@ -450,7 +486,9 @@ class CollisionAnalyticsStage:
                         "authority_id": authority_id,
                         "record_count": len(records),
                         "record_ids": [r.get("GlobalID", "unknown") for r in records],
-                        "collision_severity": "critical" if len(records) > 3 else "medium",
+                        "collision_severity": (
+                            "critical" if len(records) > 3 else "medium"
+                        ),
                     }
                     field_collisions.append(collision)
 
@@ -464,9 +502,13 @@ class CollisionAnalyticsStage:
     ) -> Dict[str, Any]:
         """Calculate comprehensive collision statistics"""
 
-        total_collisions = sum(len(group_collisions) for group_collisions in collisions.values())
+        total_collisions = sum(
+            len(group_collisions) for group_collisions in collisions.values()
+        )
         cross_region_count = cross_region.get("total_cross_region_collisions", 0)
-        authority_count = sum(len(field_collisions) for field_collisions in authority.values())
+        authority_count = sum(
+            len(field_collisions) for field_collisions in authority.values()
+        )
 
         # Collision severity distribution
         severity_counts = Counter()
@@ -481,14 +523,21 @@ class CollisionAnalyticsStage:
             "total_within_region_collisions": total_collisions,
             "total_cross_region_collisions": cross_region_count,
             "total_authority_collisions": authority_count,
-            "total_all_collisions": total_collisions + cross_region_count + authority_count,
+            "total_all_collisions": total_collisions
+            + cross_region_count
+            + authority_count,
             "severity_distribution": dict(severity_counts),
             "collision_type_distribution": dict(collision_types),
-            "collision_rate": total_collisions / max(1, len(collisions)) if collisions else 0,
+            "collision_rate": (
+                total_collisions / max(1, len(collisions)) if collisions else 0
+            ),
         }
 
     def _resolve_collisions(
-        self, data: List[Dict[str, Any]], collision_results: Dict[str, Any], config: Dict[str, Any]
+        self,
+        data: List[Dict[str, Any]],
+        collision_results: Dict[str, Any],
+        config: Dict[str, Any],
     ) -> List[Dict[str, Any]]:
         """Apply collision resolution strategies to the data"""
 
@@ -498,7 +547,10 @@ class CollisionAnalyticsStage:
         # Collect all collision record IDs that need special handling
         for group_collisions in collision_results["within_region_collisions"].values():
             for collision in group_collisions:
-                if collision["resolution_strategy"] in ["merge_records", "manual_review"]:
+                if collision["resolution_strategy"] in [
+                    "merge_records",
+                    "manual_review",
+                ]:
                     collision_flags.add(collision["record1_id"])
                     collision_flags.add(collision["record2_id"])
 
@@ -524,7 +576,9 @@ class CollisionAnalyticsStage:
 
         return resolved_data
 
-    def _generate_collision_analytics(self, collision_results: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_collision_analytics(
+        self, collision_results: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Generate comprehensive collision analytics"""
 
         analytics = {
@@ -540,15 +594,17 @@ class CollisionAnalyticsStage:
                     "total_groups_with_collisions": len(
                         collision_results["within_region_collisions"]
                     ),
-                    "collision_groups": list(collision_results["within_region_collisions"].keys()),
+                    "collision_groups": list(
+                        collision_results["within_region_collisions"].keys()
+                    ),
                 },
                 "cross_region": {
-                    "total_collisions": collision_results["cross_region_collisions"].get(
-                        "total_cross_region_collisions", 0
-                    ),
-                    "regions_involved": collision_results["cross_region_collisions"].get(
-                        "regions_involved", 0
-                    ),
+                    "total_collisions": collision_results[
+                        "cross_region_collisions"
+                    ].get("total_cross_region_collisions", 0),
+                    "regions_involved": collision_results[
+                        "cross_region_collisions"
+                    ].get("regions_involved", 0),
                 },
                 "authority_sources": {
                     "fields_with_collisions": list(
@@ -556,7 +612,9 @@ class CollisionAnalyticsStage:
                     ),
                     "total_authority_collisions": sum(
                         len(field_collisions)
-                        for field_collisions in collision_results["authority_collisions"].values()
+                        for field_collisions in collision_results[
+                            "authority_collisions"
+                        ].values()
                     ),
                 },
             },
@@ -575,7 +633,9 @@ class CollisionAnalyticsStage:
         recommendations = []
 
         # High-priority recommendations for critical collisions
-        for group_key, group_collisions in collision_results["within_region_collisions"].items():
+        for group_key, group_collisions in collision_results[
+            "within_region_collisions"
+        ].items():
             critical_collisions = [
                 c for c in group_collisions if c["collision_severity"] == "critical"
             ]
@@ -592,14 +652,18 @@ class CollisionAnalyticsStage:
                 )
 
         # Authority source collision recommendations
-        for field, field_collisions in collision_results["authority_collisions"].items():
+        for field, field_collisions in collision_results[
+            "authority_collisions"
+        ].items():
             if field_collisions:
                 recommendations.append(
                     {
                         "priority": "high",
                         "field": field,
                         "recommendation": f"Resolve {len(field_collisions)} authority ID collisions in {field}",
-                        "affected_records": sum(c["record_count"] for c in field_collisions),
+                        "affected_records": sum(
+                            c["record_count"] for c in field_collisions
+                        ),
                         "suggested_action": "verify_authority_data",
                     }
                 )

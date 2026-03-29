@@ -43,9 +43,13 @@ def compile_for_pos(rows, want_pos, direction):
             final_weight = weight + (1.0 if pos == "" else 0.0)
 
             if direction == "rom2han":
-                arc = pn.accep(roman.lower(), weight=final_weight) @ pn.cross(roman.lower(), hangul)
+                arc = pn.accep(roman.lower(), weight=final_weight) @ pn.cross(
+                    roman.lower(), hangul
+                )
             else:
-                arc = pn.accep(hangul, weight=final_weight) @ pn.cross(hangul, roman.lower())
+                arc = pn.accep(hangul, weight=final_weight) @ pn.cross(
+                    hangul, roman.lower()
+                )
 
             fst |= arc
 
@@ -70,7 +74,9 @@ def build_tier2_fsts(direction="rom2han"):
     for hangul, roman, weight, context, pos in all_rows:
         if pos == "":  # Only general mappings
             if direction == "rom2han":
-                arc = pn.accep(roman.lower(), weight=weight) @ pn.cross(roman.lower(), hangul)
+                arc = pn.accep(roman.lower(), weight=weight) @ pn.cross(
+                    roman.lower(), hangul
+                )
             else:
                 arc = pn.accep(hangul, weight=weight) @ pn.cross(hangul, roman.lower())
             fst_general |= arc

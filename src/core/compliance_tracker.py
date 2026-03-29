@@ -113,7 +113,10 @@ class V7ComplianceTracker:
                         "name": "Config",
                         "description": "Load specs; verify licenses; DOI credentials",
                     },
-                    "1": {"name": "Ingest", "description": "Read YAML; Unicode NFC→NFKD→fold→NFC"},
+                    "1": {
+                        "name": "Ingest",
+                        "description": "Read YAML; Unicode NFC→NFKD→fold→NFC",
+                    },
                     "1b": {
                         "name": "LLMExtract_ETD",
                         "description": "Parse thesis PDFs with GPT-4o-mini",
@@ -122,17 +125,26 @@ class V7ComplianceTracker:
                         "name": "DetectRegion",
                         "description": "Script, ICU, fastText, affiliation, DOI prefix",
                     },
-                    "3": {"name": "RegionHooks", "description": "clean→augment→validate→order_key"},
+                    "3": {
+                        "name": "RegionHooks",
+                        "description": "clean→augment→validate→order_key",
+                    },
                     "4": {
                         "name": "AuthorityEnrich",
                         "description": "Fetch ORCID_ETD, Crossref_Thesis, etc.",
                     },
-                    "5": {"name": "CollisionAnalytics", "description": "DuckDB; suffix duplicates"},
+                    "5": {
+                        "name": "CollisionAnalytics",
+                        "description": "DuckDB; suffix duplicates",
+                    },
                     "6": {
                         "name": "GraphConsistency",
                         "description": "Betweenness; Bayesian confidence",
                     },
-                    "7": {"name": "TagShortForms", "description": "Populate ShortFormClusters"},
+                    "7": {
+                        "name": "TagShortForms",
+                        "description": "Populate ShortFormClusters",
+                    },
                     "8": {
                         "name": "GlobalValidate",
                         "description": "JSON-Schema; roundtrip; coherence gate",
@@ -200,7 +212,13 @@ class V7ComplianceTracker:
                 "total_required": 15,
                 "tiers": {
                     "tier_0": ["OpenAlex", "Crossref", "ORCID_ETD", "Crossref_Thesis"],
-                    "tier_1": ["Wikidata_P184", "OAI_University", "HAL", "GND", "zbMATH Open"],
+                    "tier_1": [
+                        "Wikidata_P184",
+                        "OAI_University",
+                        "HAL",
+                        "GND",
+                        "zbMATH Open",
+                    ],
                     "tier_2": ["MathSciNet_HTML", "Scopus", "Dimensions"],
                     "tier_3": ["ProQuest_ETD", "Google Scholar"],
                 },
@@ -230,8 +248,16 @@ class V7ComplianceTracker:
             "performance_requirements": {
                 "modes": {
                     "QUICK": {"runtime_per_1M": 35, "cpu_workers": 4, "apis": "tier-0"},
-                    "FULL": {"runtime_per_1M": 70, "cpu_workers": 8, "apis": "tier-0+1"},
-                    "EXTREME": {"runtime_per_1M": "no_sla", "cpu_workers": 12, "apis": "all_tiers"},
+                    "FULL": {
+                        "runtime_per_1M": 70,
+                        "cpu_workers": 8,
+                        "apis": "tier-0+1",
+                    },
+                    "EXTREME": {
+                        "runtime_per_1M": "no_sla",
+                        "cpu_workers": 12,
+                        "apis": "all_tiers",
+                    },
                 },
                 "memory_limit": 6.0,  # GB RSS on 2M entries
                 "streaming_chunk_size": 8000,
@@ -336,12 +362,15 @@ class V7ComplianceTracker:
         compliance_metrics.extend(regional_compliance["metrics"])
 
         # Verify linguistic rules compliance
-        linguistic_compliance = await self._verify_linguistic_compliance(pipeline_results)
+        linguistic_compliance = await self._verify_linguistic_compliance(
+            pipeline_results
+        )
         compliance_metrics.extend(linguistic_compliance["metrics"])
 
         # Calculate overall compliance
         overall_score = (
-            sum(m.compliance_score for m in compliance_metrics) / len(compliance_metrics)
+            sum(m.compliance_score for m in compliance_metrics)
+            / len(compliance_metrics)
             if compliance_metrics
             else 0.0
         )
@@ -370,7 +399,9 @@ class V7ComplianceTracker:
 
         return compliance_results
 
-    async def _verify_pipeline_compliance(self, pipeline_results: Dict[str, Any]) -> Dict[str, Any]:
+    async def _verify_pipeline_compliance(
+        self, pipeline_results: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Verify pipeline stage compliance."""
         metrics = []
         required_stages = self.v7_requirements["pipeline_stages"]["stages"]
@@ -425,8 +456,12 @@ class V7ComplianceTracker:
 
             if is_evaluated:
                 gate_result = gate_details[gate_name]
-                is_passing = gate_result.passed if hasattr(gate_result, "passed") else False
-                compliance_score = 1.0 if is_passing else 0.5  # Partial credit for evaluation
+                is_passing = (
+                    gate_result.passed if hasattr(gate_result, "passed") else False
+                )
+                compliance_score = (
+                    1.0 if is_passing else 0.5
+                )  # Partial credit for evaluation
             else:
                 compliance_score = 0.0
 
@@ -487,7 +522,9 @@ class V7ComplianceTracker:
         # Calculate authority compliance score
         functional_sources = sum(1 for m in metrics if m.compliance_score > 0)
         total_sources = len(metrics)
-        compliance_score = functional_sources / total_sources if total_sources > 0 else 0.0
+        compliance_score = (
+            functional_sources / total_sources if total_sources > 0 else 0.0
+        )
 
         return {
             "compliance_score": compliance_score,
@@ -497,7 +534,9 @@ class V7ComplianceTracker:
             "metrics": metrics,
         }
 
-    async def _verify_regional_compliance(self, pipeline_results: Dict[str, Any]) -> Dict[str, Any]:
+    async def _verify_regional_compliance(
+        self, pipeline_results: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Verify regional specification compliance."""
         metrics = []
         regional_specs = self.v7_requirements["regional_specifications"]["regions"]
@@ -528,7 +567,9 @@ class V7ComplianceTracker:
         # Calculate regional compliance score
         available_regions = sum(1 for m in metrics if m.compliance_score > 0)
         total_regions = len(metrics)
-        compliance_score = available_regions / total_regions if total_regions > 0 else 0.0
+        compliance_score = (
+            available_regions / total_regions if total_regions > 0 else 0.0
+        )
 
         return {
             "compliance_score": compliance_score,
@@ -620,7 +661,9 @@ class V7ComplianceTracker:
 
         if non_compliant["quality_gates"]:
             failing_gates = [m.component for m in non_compliant["quality_gates"]]
-            recommendations.append(f"Fix failing quality gates: {', '.join(failing_gates)}")
+            recommendations.append(
+                f"Fix failing quality gates: {', '.join(failing_gates)}"
+            )
 
         if non_compliant["authority_sources"]:
             broken_sources = [m.component for m in non_compliant["authority_sources"]]
@@ -629,7 +672,9 @@ class V7ComplianceTracker:
             )
 
         if non_compliant["regional_specifications"]:
-            missing_regions = [m.component for m in non_compliant["regional_specifications"]]
+            missing_regions = [
+                m.component for m in non_compliant["regional_specifications"]
+            ]
             recommendations.append(
                 f"Implement missing regional processors: {', '.join(missing_regions)}"
             )
@@ -668,7 +713,11 @@ class V7ComplianceTracker:
     async def get_current_status(self) -> Dict[str, Any]:
         """Get current compliance status."""
         if not self.compliance_history:
-            return {"status": "NO_DATA", "last_run": None, "historical_trend": "UNKNOWN"}
+            return {
+                "status": "NO_DATA",
+                "last_run": None,
+                "historical_trend": "UNKNOWN",
+            }
 
         latest = self.compliance_history[-1]
 
@@ -703,11 +752,17 @@ class V7ComplianceTracker:
             audit_results["categories"][category] = category_audit
 
         # Calculate overall audit score
-        category_scores = [cat["compliance_score"] for cat in audit_results["categories"].values()]
-        overall_score = sum(category_scores) / len(category_scores) if category_scores else 0.0
+        category_scores = [
+            cat["compliance_score"] for cat in audit_results["categories"].values()
+        ]
+        overall_score = (
+            sum(category_scores) / len(category_scores) if category_scores else 0.0
+        )
 
         audit_results["overall_score"] = overall_score
-        audit_results["overall_status"] = self._determine_compliance_level(overall_score).value
+        audit_results["overall_status"] = self._determine_compliance_level(
+            overall_score
+        ).value
 
         logger.info(f"Comprehensive compliance audit complete: {overall_score:.1%}")
 

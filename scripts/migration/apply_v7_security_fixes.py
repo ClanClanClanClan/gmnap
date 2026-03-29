@@ -42,11 +42,13 @@ def add_security_method(content: str) -> str:
     # Find a good place to insert the method - before get_canonical_name or at the end of class
     if "def get_canonical_name" in content:
         return content.replace(
-            "    def get_canonical_name", security_method + "\n    def get_canonical_name"
+            "    def get_canonical_name",
+            security_method + "\n    def get_canonical_name",
         )
     elif "    def order_key(self, entry):" in content:
         return content.replace(
-            "    def order_key(self, entry):", security_method + "\n    def order_key(self, entry):"
+            "    def order_key(self, entry):",
+            security_method + "\n    def order_key(self, entry):",
         )
     else:
         # Insert before the last method or at class end
@@ -94,9 +96,11 @@ def update_clean_method(content: str) -> str:
 '''
 
         # Remove old method body and replace with security check + simplified version
-        new_method_body = security_check + """        # Apply region-specific cleaning rules here
+        new_method_body = (
+            security_check + """        # Apply region-specific cleaning rules here
         # This is a stub implementation - region-specific logic should be added
         pass"""
+        )
 
         return method_def + new_method_body + method_end
 
@@ -128,7 +132,9 @@ def update_clean_method(content: str) -> str:
 
         # Add before order_key method
         if "    def order_key(" in updated:
-            updated = updated.replace("    def order_key(", clean_method + "\n    def order_key(")
+            updated = updated.replace(
+                "    def order_key(", clean_method + "\n    def order_key("
+            )
         else:
             # Add at end of class
             updated = updated.rstrip() + clean_method
@@ -140,7 +146,9 @@ def update_validate_method(content: str) -> str:
     """Update validate method to include security validation and DoS protection."""
 
     # Pattern to find validate method
-    validate_pattern = r"(    def validate\(self, entry.*?\n)(.*?)((?=\n    def |\n\n|\Z))"
+    validate_pattern = (
+        r"(    def validate\(self, entry.*?\n)(.*?)((?=\n    def |\n\n|\Z))"
+    )
 
     def replace_validate(match):
         method_def = match.group(1)
@@ -222,11 +230,13 @@ def ensure_imports(content: str) -> str:
     """Ensure RegionRuleError is imported."""
     if "from src.regions.base import" in content and "RegionRuleError" not in content:
         content = content.replace(
-            "from src.regions.base import", "from src.regions.base import RegionRuleError,"
+            "from src.regions.base import",
+            "from src.regions.base import RegionRuleError,",
         )
     elif "from src.regions.base import" in content and "RegionRuleError" not in content:
         content = content.replace(
-            "from src.regions.base import", "from src.regions.base import RegionRuleError,"
+            "from src.regions.base import",
+            "from src.regions.base import RegionRuleError,",
         )
     return content
 

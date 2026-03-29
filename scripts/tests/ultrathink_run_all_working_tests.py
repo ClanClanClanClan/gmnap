@@ -97,7 +97,9 @@ def run_all_working_tests():
                     "-q",
                 ]
 
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=15, env=env)
+                result = subprocess.run(
+                    cmd, capture_output=True, text=True, timeout=15, env=env
+                )
 
                 output = result.stdout + result.stderr
 
@@ -171,7 +173,9 @@ def run_all_working_tests():
     for category, results in category_results.items():
         if results["total"] > 0:
             cat_pass_rate = results["passed"] / results["total"] * 100
-            print(f"  {category}: {results['passed']}/{results['total']} ({cat_pass_rate:.1f}%)")
+            print(
+                f"  {category}: {results['passed']}/{results['total']} ({cat_pass_rate:.1f}%)"
+            )
 
     # Determine status
     print("\n" + "=" * 80)

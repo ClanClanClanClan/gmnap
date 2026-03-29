@@ -52,7 +52,11 @@ class CrossrefV7Fetcher(AuthorityFetcher):
 
     def _get_headers(self) -> Dict[str, str]:
         """Get request headers with User-Agent and optional email."""
-        headers = {"User-Agent": f"GMNAP/7.0 (mailto:{self.email})" if self.email else "GMNAP/7.0"}
+        headers = {
+            "User-Agent": (
+                f"GMNAP/7.0 (mailto:{self.email})" if self.email else "GMNAP/7.0"
+            )
+        }
         return headers
 
     async def _ensure_session(self):
@@ -108,7 +112,9 @@ class CrossrefV7Fetcher(AuthorityFetcher):
 
                     # Cache results
                     try:
-                        cache.put("Crossref", f"author:{name}:{limit}", {"items": items})
+                        cache.put(
+                            "Crossref", f"author:{name}:{limit}", {"items": items}
+                        )
                     except:
                         # Fallback to memory cache
                         self._cache[f"author:{name}:{limit}"] = items
@@ -209,7 +215,9 @@ class CrossrefV7Fetcher(AuthorityFetcher):
                     {
                         "doi": w.get("DOI"),
                         "title": w.get("title", [""])[0] if w.get("title") else "",
-                        "year": w.get("published-print", {}).get("date-parts", [[None]])[0][0],
+                        "year": w.get("published-print", {}).get(
+                            "date-parts", [[None]]
+                        )[0][0],
                     }
                     for w in works[:3]  # Include top 3 works
                 ],
@@ -274,7 +282,8 @@ class CrossrefV7Fetcher(AuthorityFetcher):
 
             if not works:
                 return FetchResult(
-                    status=FetchStatus.NOT_FOUND, error_message=f"No works found for {query}"
+                    status=FetchStatus.NOT_FOUND,
+                    error_message=f"No works found for {query}",
                 )
 
             # Parse the first work to get author data
@@ -282,7 +291,9 @@ class CrossrefV7Fetcher(AuthorityFetcher):
             authority_data = self.parse_response({"works": works, "query": query})
 
             return FetchResult(
-                status=FetchStatus.SUCCESS, data=authority_data, raw_response={"works": works}
+                status=FetchStatus.SUCCESS,
+                data=authority_data,
+                raw_response={"works": works},
             )
 
         except Exception as e:
@@ -329,7 +340,9 @@ class CrossrefV7Fetcher(AuthorityFetcher):
             canonical_name=f"{matched_author.get('given', '')} {matched_author.get('family', '')}".strip(),
             affiliations=self._extract_affiliations(matched_author),
             identifiers=(
-                {"orcid": matched_author.get("ORCID")} if matched_author.get("ORCID") else {}
+                {"orcid": matched_author.get("ORCID")}
+                if matched_author.get("ORCID")
+                else {}
             ),
             metadata={
                 "works_count": len(works),
@@ -337,7 +350,9 @@ class CrossrefV7Fetcher(AuthorityFetcher):
                     {
                         "doi": w.get("DOI"),
                         "title": w.get("title", [""])[0] if w.get("title") else "",
-                        "year": w.get("published-print", {}).get("date-parts", [[None]])[0][0],
+                        "year": w.get("published-print", {}).get(
+                            "date-parts", [[None]]
+                        )[0][0],
                     }
                     for w in works[:3]
                 ],
@@ -373,12 +388,16 @@ async def test_crossref():
             doi = results[0].get("DOI")
             if doi:
                 work = await fetcher.fetch_by_doi(doi)
-                print(f"Fetched work: {work.get('title', ['Unknown'])[0] if work else 'Failed'}")
+                print(
+                    f"Fetched work: {work.get('title', ['Unknown'])[0] if work else 'Failed'}"
+                )
 
         # Test enrichment
         entry = {"CanonicalLatin": "Albert Einstein"}
         data = await fetcher.enrich_entry(entry)
-        print(f"Enriched: {data.canonical_name} with {len(data.metadata.get('works', []))} works")
+        print(
+            f"Enriched: {data.canonical_name} with {len(data.metadata.get('works', []))} works"
+        )
 
         return data
 

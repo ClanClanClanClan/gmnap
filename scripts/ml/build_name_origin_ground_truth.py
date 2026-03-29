@@ -145,7 +145,9 @@ def build_ground_truth():
             }
         )
 
-    print(f"  Added {len([t for t in truth if t['confidence'] == 1.0])} native script examples")
+    print(
+        f"  Added {len([t for t in truth if t['confidence'] == 1.0])} native script examples"
+    )
 
     # =================================================================
     # PHASE 2: Clear Latin-Script Patterns (85-95% confidence)

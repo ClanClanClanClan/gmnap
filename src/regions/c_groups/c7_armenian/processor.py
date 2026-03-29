@@ -31,15 +31,43 @@ class C7_Armenian(RegionSpec):
         # Armenian patronymic suffixes with cultural variations
         self.patronymic_suffixes = {
             # Eastern Armenian (standard)
-            "-yan": {"meaning": "son/descendant of", "region": "Eastern", "frequency": "high"},
-            "-ian": {"meaning": "son/descendant of", "region": "Diaspora", "frequency": "high"},
+            "-yan": {
+                "meaning": "son/descendant of",
+                "region": "Eastern",
+                "frequency": "high",
+            },
+            "-ian": {
+                "meaning": "son/descendant of",
+                "region": "Diaspora",
+                "frequency": "high",
+            },
             # Western Armenian variations
-            "-ean": {"meaning": "son/descendant of", "region": "Western", "frequency": "medium"},
-            "-yan": {"meaning": "son/descendant of", "region": "Eastern", "frequency": "high"},
+            "-ean": {
+                "meaning": "son/descendant of",
+                "region": "Western",
+                "frequency": "medium",
+            },
+            "-yan": {
+                "meaning": "son/descendant of",
+                "region": "Eastern",
+                "frequency": "high",
+            },
             # Regional variations
-            "-jyan": {"meaning": "son/descendant of", "region": "Regional", "frequency": "low"},
-            "-cian": {"meaning": "son/descendant of", "region": "Diaspora", "frequency": "low"},
-            "-sian": {"meaning": "son/descendant of", "region": "Diaspora", "frequency": "low"},
+            "-jyan": {
+                "meaning": "son/descendant of",
+                "region": "Regional",
+                "frequency": "low",
+            },
+            "-cian": {
+                "meaning": "son/descendant of",
+                "region": "Diaspora",
+                "frequency": "low",
+            },
+            "-sian": {
+                "meaning": "son/descendant of",
+                "region": "Diaspora",
+                "frequency": "low",
+            },
         }
 
         # Common Armenian given names for detection
@@ -255,7 +283,9 @@ class C7_Armenian(RegionSpec):
 
         # Detect Armenian script usage
         if "CanonicalNative" in entry and entry["CanonicalNative"]:
-            armenian_script_detected = self._detect_armenian_script(entry["CanonicalNative"])
+            armenian_script_detected = self._detect_armenian_script(
+                entry["CanonicalNative"]
+            )
             components["armenian_script_detected"] = armenian_script_detected
 
         # Armenian patronymic analysis
@@ -290,7 +320,9 @@ class C7_Armenian(RegionSpec):
 
         # Generate patronymic variants
         if patronymic_info:
-            variants = self._generate_armenian_patronymic_variants(canonical, patronymic_info)
+            variants = self._generate_armenian_patronymic_variants(
+                canonical, patronymic_info
+            )
             for variant in variants:
                 if variant != canonical:
                     entry["Variants"]["Synthesised"].append(
@@ -301,7 +333,9 @@ class C7_Armenian(RegionSpec):
         if components.get("family_name") and components.get("given_name"):
             family_given = f"{components['family_name']}, {components['given_name']}"
             if family_given != canonical:
-                entry["Variants"]["Synthesised"].append({"str": family_given, "type": "order-swap"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": family_given, "type": "order-swap"}
+                )
 
     def _detect_armenian_script(self, text: str) -> bool:
         """Detect if text contains Armenian script characters."""
@@ -355,13 +389,16 @@ class C7_Armenian(RegionSpec):
         given_lower = given_part.lower()
 
         if given_lower in self.armenian_given_names:
-            return {"armenian_given_name": given_part, "armenian_given_name_verified": True}
+            return {
+                "armenian_given_name": given_part,
+                "armenian_given_name_verified": True,
+            }
 
         # Check for partial matches (nicknames, shortened forms)
         for armenian_name in self.armenian_given_names:
-            if (given_lower.startswith(armenian_name[:3]) and len(given_lower) >= 3) or (
-                armenian_name.startswith(given_lower) and len(given_lower) >= 3
-            ):
+            if (
+                given_lower.startswith(armenian_name[:3]) and len(given_lower) >= 3
+            ) or (armenian_name.startswith(given_lower) and len(given_lower) >= 3):
                 return {
                     "armenian_given_name": given_part,
                     "armenian_given_name_verified": False,

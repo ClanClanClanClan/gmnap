@@ -11,7 +11,9 @@ from src.quality.gates_rolling import RollingGates, GateLimits
 class GateThresholds:
     stage6_min: float = float(os.getenv("GATE_STAGE6_MIN", "0.85"))
     projected_1m_minutes_max: float = float(os.getenv("GATE_PERF_MINUTES_MAX", "35.0"))
-    duplicate_external_id_pct_max: float = float(os.getenv("GATE_DUP_EXTID_PCT_MAX", "0.0"))
+    duplicate_external_id_pct_max: float = float(
+        os.getenv("GATE_DUP_EXTID_PCT_MAX", "0.0")
+    )
     sample_every_n: int = int(os.getenv("GATE_SAMPLE_EVERY_N", "1"))
     overhead_budget_ms: float = float(os.getenv("GATE_OVERHEAD_MS", "10.0"))
     remember_cross_batch: bool = os.getenv("GATE_REMEMBER_CROSS_BATCH", "1") == "1"
@@ -41,7 +43,9 @@ class QualityGates:
                 if gid is None:
                     continue
                 tot += 1
-                if gid in seen or (self.t.remember_cross_batch and gid in self.s.seen_gids):
+                if gid in seen or (
+                    self.t.remember_cross_batch and gid in self.s.seen_gids
+                ):
                     d += 1
                 seen.add(gid)
             if self.t.remember_cross_batch:
@@ -61,7 +65,9 @@ class QualityGates:
         )
         s6_ok = True if stage6_score is None else (stage6_score >= self.t.stage6_min)
         if self._trace:
-            print(f"[GATES] perf: proj={perf_minutes_1m} s6={stage6_score} -> {perf_ok and s6_ok}")
+            print(
+                f"[GATES] perf: proj={perf_minutes_1m} s6={stage6_score} -> {perf_ok and s6_ok}"
+            )
         return bool(perf_ok and s6_ok)
 
     def check_batch(

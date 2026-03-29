@@ -109,7 +109,9 @@ class CacheManager:
 
         return normalized
 
-    def _generate_cache_key(self, service: str, query: str, date: Optional[str] = None) -> str:
+    def _generate_cache_key(
+        self, service: str, query: str, date: Optional[str] = None
+    ) -> str:
         """
         Generate cache key from service, query, and date.
 
@@ -380,7 +382,9 @@ class CacheManager:
             results[key] = self.get(key)
         return results
 
-    def get_metadata(self, key: str, service: str = "default") -> Optional[Dict[str, Any]]:
+    def get_metadata(
+        self, key: str, service: str = "default"
+    ) -> Optional[Dict[str, Any]]:
         """
         Get metadata for cached entry.
 
@@ -423,7 +427,9 @@ class CacheManager:
 
             return {
                 "created_at": datetime.fromtimestamp(stat.st_ctime).isoformat(),
-                "expires_at": (datetime.fromtimestamp(stat.st_mtime) + self.max_age).isoformat(),
+                "expires_at": (
+                    datetime.fromtimestamp(stat.st_mtime) + self.max_age
+                ).isoformat(),
                 "size_bytes": compressed_size,
                 "compression_ratio": compression_ratio,
             }

@@ -94,7 +94,9 @@ if lookup_insertion > 0:
         "",
     ]
 
-    new_lines = new_lines[:lookup_insertion] + high_impact_lookup + new_lines[lookup_insertion:]
+    new_lines = (
+        new_lines[:lookup_insertion] + high_impact_lookup + new_lines[lookup_insertion:]
+    )
 
 # Write enhanced file
 with open("src/context_lookup.py", "w", encoding="utf8") as f:

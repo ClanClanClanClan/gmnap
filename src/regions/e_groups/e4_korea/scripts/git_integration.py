@@ -28,10 +28,15 @@ def create_green_tag():
     # Get current performance
     try:
         math_result = subprocess.run(
-            ["python3", "scripts/validate.py"], capture_output=True, text=True, timeout=60
+            ["python3", "scripts/validate.py"],
+            capture_output=True,
+            text=True,
+            timeout=60,
         )
 
-        math_line = math_result.stdout.split("\n")[0] if math_result.stdout else "Unknown"
+        math_line = (
+            math_result.stdout.split("\n")[0] if math_result.stdout else "Unknown"
+        )
 
         # Get git info
         commit = run_command("git rev-parse --short HEAD").stdout.strip()

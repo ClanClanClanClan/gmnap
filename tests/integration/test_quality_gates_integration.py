@@ -70,7 +70,9 @@ class QualityGatesIntegrationTester:
                     "GDPR_DATA": False,
                     "RegionalExtras": {"region_confidence": 0.95},
                     "GraphQualityGates": {"graph_coherence_score": 0.92},
-                    "Variants": {"Observed": [{"str": "J. Smith"}, {"str": "John W. Smith"}]},
+                    "Variants": {
+                        "Observed": [{"str": "J. Smith"}, {"str": "John W. Smith"}]
+                    },
                     "authority_data": {
                         "ORCID": {
                             "confidence": 0.95,
@@ -96,7 +98,9 @@ class QualityGatesIntegrationTester:
                     "Confidence": 0.92,
                     "RegionalExtras": {"transliteration": "Li Ming"},
                     "GraphQualityGates": {"graph_coherence_score": 0.88},
-                    "Variants": {"Synthesised": [{"str": "Ming Li", "type": "roundtrip"}]},
+                    "Variants": {
+                        "Synthesised": [{"str": "Ming Li", "type": "roundtrip"}]
+                    },
                 },
                 "expected_gates_passed": 7,
                 "expected_overall_pass": True,
@@ -115,7 +119,9 @@ class QualityGatesIntegrationTester:
                     "Confidence": 0.94,
                     "RegionalExtras": {"romanization_method": "revised"},
                     "GraphQualityGates": {"graph_coherence_score": 0.90},
-                    "Variants": {"Synthesised": [{"str": "Kim Jong-un", "type": "roundtrip"}]},
+                    "Variants": {
+                        "Synthesised": [{"str": "Kim Jong-un", "type": "roundtrip"}]
+                    },
                 },
                 "expected_gates_passed": 7,
                 "expected_overall_pass": True,
@@ -127,7 +133,9 @@ class QualityGatesIntegrationTester:
                     "CanonicalLatin": "Invalid Entry",
                     "GlobalID": "invalid-format",  # Invalid format
                     "DetectedRegion": "INVALID",
-                    "UpdatedAt": (base_time + timedelta(days=1)).isoformat(),  # Future date
+                    "UpdatedAt": (
+                        base_time + timedelta(days=1)
+                    ).isoformat(),  # Future date
                     "Confidence": 1.5,  # Out of range
                     "LanguageOfPublication": "invalid_format",  # Should be array
                 },
@@ -145,7 +153,9 @@ class QualityGatesIntegrationTester:
                     "LanguageOfPublication": ["eng"],  # Should be jpn
                     "CountryCodes": ["US"],  # Should be JP
                     "Confidence": 0.95,
-                    "GraphQualityGates": {"graph_coherence_score": 0.45},  # Low graph score
+                    "GraphQualityGates": {
+                        "graph_coherence_score": 0.45
+                    },  # Low graph score
                 },
                 "expected_gates_passed": 5,  # Schema + others pass, coherence fails
                 "expected_overall_pass": True,  # Still passes overall but with warnings
@@ -213,7 +223,9 @@ class TestQualityGatesIntegration:
             assert "gates" in result
             assert "summary" in result
             assert isinstance(result["gates"], list)
-            assert len(result["gates"]) == 8, f"Expected 8 gates, got {len(result['gates'])}"
+            assert (
+                len(result["gates"]) == 8
+            ), f"Expected 8 gates, got {len(result['gates'])}"
 
     @pytest.mark.asyncio
     async def test_batch_validation_consistency(self, integration_tester):
@@ -297,7 +309,9 @@ class TestQualityGatesIntegration:
         total_time = end_time - start_time
 
         # Performance assertions
-        assert total_time < 10.0, f"Validation took too long: {total_time:.2f}s for 20 entries"
+        assert (
+            total_time < 10.0
+        ), f"Validation took too long: {total_time:.2f}s for 20 entries"
         assert len(results) == 20, "Not all validations completed"
 
         # Verify all results have proper structure
@@ -323,7 +337,11 @@ class TestQualityGatesIntegration:
                 "Confidence": "should_be_number",
             },
             # Entry with extremely long values (DoS test)
-            {"CanonicalLatin": "A" * 10000, "GlobalID": "B" * 1000, "DetectedRegion": "C" * 100},
+            {
+                "CanonicalLatin": "A" * 10000,
+                "GlobalID": "B" * 1000,
+                "DetectedRegion": "C" * 100,
+            },
         ]
 
         for i, entry in enumerate(problematic_entries):
@@ -386,9 +404,12 @@ class TestQualityGatesIntegration:
 
             # Coherence validation should be happy with matching region/language/country
             coherence_gate = next(
-                (g for g in result["gates"] if g["gate_name"] == "CoherenceValidator"), None
+                (g for g in result["gates"] if g["gate_name"] == "CoherenceValidator"),
+                None,
             )
-            assert coherence_gate is not None, f"Region {region_code}: Missing coherence gate"
+            assert (
+                coherence_gate is not None
+            ), f"Region {region_code}: Missing coherence gate"
             assert (
                 coherence_gate["passed"] is True
             ), f"Region {region_code}: Coherence validation should pass"
@@ -449,11 +470,14 @@ class TestQualityGatesIntegration:
             True,
             False,
         ], "Quality gates should return boolean result"
-        assert isinstance(quality_result["score"], (int, float)), "Score should be numeric"
+        assert isinstance(
+            quality_result["score"], (int, float)
+        ), "Score should be numeric"
 
         # Test that quality gates enhance rather than replace pipeline validation
         schema_gate = next(
-            (g for g in quality_result["gates"] if g["gate_name"] == "SchemaValidator"), None
+            (g for g in quality_result["gates"] if g["gate_name"] == "SchemaValidator"),
+            None,
         )
         assert schema_gate is not None, "Schema validation should be present"
         assert (

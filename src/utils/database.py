@@ -73,7 +73,9 @@ class DatabaseManager:
                     self._initialize_duckdb()
                     logger.info("Initialized DuckDB database")
                 except Exception as e:
-                    logger.warning(f"Failed to initialize DuckDB: {e}, falling back to SQLite")
+                    logger.warning(
+                        f"Failed to initialize DuckDB: {e}, falling back to SQLite"
+                    )
                     self._initialize_sqlite()
             else:
                 self._initialize_sqlite()
@@ -91,7 +93,9 @@ class DatabaseManager:
         self.db_type = "duckdb"
 
         # Configure DuckDB
-        self.connection.execute(f"PRAGMA memory_limit='{self.config.memory_threshold_gb}GB'")
+        self.connection.execute(
+            f"PRAGMA memory_limit='{self.config.memory_threshold_gb}GB'"
+        )
         self.connection.execute("PRAGMA threads=4")
 
         self._create_duckdb_tables()
@@ -379,7 +383,9 @@ class DatabaseManager:
 
             # Parse country codes
             try:
-                country_codes = json.loads(country_codes_json) if country_codes_json else []
+                country_codes = (
+                    json.loads(country_codes_json) if country_codes_json else []
+                )
             except json.JSONDecodeError:
                 country_codes = []
 
@@ -393,9 +399,23 @@ class DatabaseManager:
 
         # Insert into database
         values = []
-        for (surname, birth_decade, country_code, region_code), count in surname_counts.items():
+        for (
+            surname,
+            birth_decade,
+            country_code,
+            region_code,
+        ), count in surname_counts.items():
             surname_prefix = surname[:3] if surname else ""
-            values.append((surname, surname_prefix, birth_decade, country_code, region_code, count))
+            values.append(
+                (
+                    surname,
+                    surname_prefix,
+                    birth_decade,
+                    country_code,
+                    region_code,
+                    count,
+                )
+            )
 
         self.connection.executemany(
             """
@@ -472,7 +492,9 @@ class DatabaseManager:
             surname, birth_decade, country_code, count, regions = row
 
             # Get specific entries for this collision
-            global_ids = self._get_global_ids_for_surname(surname, birth_decade, country_code)
+            global_ids = self._get_global_ids_for_surname(
+                surname, birth_decade, country_code
+            )
 
             severity = self._determine_collision_severity(count)
 

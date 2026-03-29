@@ -113,7 +113,9 @@ def audit_labels(train_path: Path, val_path: Path, test_path: Path, output_dir: 
     # Diagnosis
     print("\n[4/4] Diagnosis...")
 
-    pct_single_region = len(countries_with_single_region) / len(country_to_regions) * 100
+    pct_single_region = (
+        len(countries_with_single_region) / len(country_to_regions) * 100
+    )
 
     # Heuristic: If >80% of countries have exactly one region, likely affiliation-based
     likely_affiliation = pct_single_region > 80.0
@@ -149,7 +151,9 @@ def audit_labels(train_path: Path, val_path: Path, test_path: Path, output_dir: 
             "countries_with_1_region": len(countries_with_single_region),
             "countries_with_multiple_regions": len(countries_with_multiple_regions),
             "examples_1_to_1": countries_with_single_region[:20],
-            "examples_1_to_many": [(c, list(r)) for c, r in countries_with_multiple_regions[:10]],
+            "examples_1_to_many": [
+                (c, list(r)) for c, r in countries_with_multiple_regions[:10]
+            ],
         },
         "name_statistics": {
             "total_names": len(names),
@@ -177,7 +181,9 @@ def audit_labels(train_path: Path, val_path: Path, test_path: Path, output_dir: 
         "recommendation": {
             "track": "A" if likely_affiliation else "none",
             "description": (
-                "Etymology relabeling" if likely_affiliation else "Current labels correct"
+                "Etymology relabeling"
+                if likely_affiliation
+                else "Current labels correct"
             ),
             "expected_improvement": "+17-22pp" if likely_affiliation else "n/a",
         },
@@ -194,7 +200,9 @@ def audit_labels(train_path: Path, val_path: Path, test_path: Path, output_dir: 
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
-        print("Usage: python audit_labels.py <train.json> <val.json> <test.json> <output_dir>")
+        print(
+            "Usage: python audit_labels.py <train.json> <val.json> <test.json> <output_dir>"
+        )
         sys.exit(1)
 
     train_path = Path(sys.argv[1])

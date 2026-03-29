@@ -14,7 +14,14 @@ import uuid
 
 # FastAPI imports (graceful fallback)
 try:
-    from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Request, Response
+    from fastapi import (
+        FastAPI,
+        HTTPException,
+        Depends,
+        BackgroundTasks,
+        Request,
+        Response,
+    )
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.responses import JSONResponse
@@ -196,14 +203,16 @@ class EnterpriseAPI:
 
                 # Send webhook notification
                 await self._send_webhook_event(
-                    EventType.PROCESSING_COMPLETED, {"request_id": request_id, "result": result}
+                    EventType.PROCESSING_COMPLETED,
+                    {"request_id": request_id, "result": result},
                 )
 
                 return {"request_id": request_id, "result": result}
 
             except Exception as e:
                 await self._send_webhook_event(
-                    EventType.PROCESSING_FAILED, {"request_id": request_id, "error": str(e)}
+                    EventType.PROCESSING_FAILED,
+                    {"request_id": request_id, "error": str(e)},
                 )
                 raise HTTPException(status_code=400, detail=str(e))
 
@@ -226,7 +235,8 @@ class EnterpriseAPI:
 
         @self.app.get("/api/v1/requests/{request_id}/status", tags=["batch"])
         async def get_request_status(
-            request_id: str, credentials: HTTPAuthorizationCredentials = Depends(self.security)
+            request_id: str,
+            credentials: HTTPAuthorizationCredentials = Depends(self.security),
         ):
             """Get status of a processing request"""
             await self._validate_credentials(credentials)
@@ -235,7 +245,11 @@ class EnterpriseAPI:
                 raise HTTPException(status_code=404, detail="Request not found")
 
             request = self.active_requests[request_id]
-            return {"request_id": request_id, "status": "processing", "request": asdict(request)}
+            return {
+                "request_id": request_id,
+                "status": "processing",
+                "request": asdict(request),
+            }
 
         # Authority endpoints
         @self.app.get("/api/v1/authorities", tags=["authorities"])
@@ -277,15 +291,22 @@ class EnterpriseAPI:
             return {"endpoint_id": webhook.endpoint_id, "status": "created"}
 
         @self.app.get("/api/v1/webhooks", tags=["webhooks"])
-        async def list_webhooks(credentials: HTTPAuthorizationCredentials = Depends(self.security)):
+        async def list_webhooks(
+            credentials: HTTPAuthorizationCredentials = Depends(self.security),
+        ):
             """List all webhook endpoints"""
             await self._validate_credentials(credentials)
 
-            return {"webhooks": [asdict(webhook) for webhook in self.webhook_endpoints.values()]}
+            return {
+                "webhooks": [
+                    asdict(webhook) for webhook in self.webhook_endpoints.values()
+                ]
+            }
 
         @self.app.delete("/api/v1/webhooks/{endpoint_id}", tags=["webhooks"])
         async def delete_webhook(
-            endpoint_id: str, credentials: HTTPAuthorizationCredentials = Depends(self.security)
+            endpoint_id: str,
+            credentials: HTTPAuthorizationCredentials = Depends(self.security),
         ):
             """Delete a webhook endpoint"""
             await self._validate_credentials(credentials)
@@ -298,7 +319,9 @@ class EnterpriseAPI:
 
         # Analytics endpoints
         @self.app.get("/api/v1/analytics/metrics", tags=["analytics"])
-        async def get_metrics(credentials: HTTPAuthorizationCredentials = Depends(self.security)):
+        async def get_metrics(
+            credentials: HTTPAuthorizationCredentials = Depends(self.security),
+        ):
             """Get processing metrics and analytics"""
             await self._validate_credentials(credentials)
 
@@ -369,7 +392,9 @@ class EnterpriseAPI:
 
         # Clean old requests
         self.rate_limits[api_key.key_id] = [
-            req_time for req_time in self.rate_limits[api_key.key_id] if now - req_time < window
+            req_time
+            for req_time in self.rate_limits[api_key.key_id]
+            if now - req_time < window
         ]
 
         # Check limit
@@ -410,12 +435,14 @@ class EnterpriseAPI:
             # Send to callback URL if specified
             if request.callback_url:
                 await self._send_callback(
-                    request.callback_url, {"request_id": request.request_id, "results": results}
+                    request.callback_url,
+                    {"request_id": request.request_id, "results": results},
                 )
 
         except Exception as e:
             await self._send_webhook_event(
-                EventType.PROCESSING_FAILED, {"request_id": request.request_id, "error": str(e)}
+                EventType.PROCESSING_FAILED,
+                {"request_id": request.request_id, "error": str(e)},
             )
 
     async def _send_webhook_event(self, event_type: EventType, data: Dict[str, Any]):
@@ -447,7 +474,9 @@ class EnterpriseAPI:
 
         headers = {
             "Content-Type": "application/json",
-            "X-GMNAP-Signature": self._generate_webhook_signature(payload, endpoint.secret),
+            "X-GMNAP-Signature": self._generate_webhook_signature(
+                payload, endpoint.secret
+            ),
         }
 
         async with self.webhook_session.post(
@@ -465,7 +494,9 @@ class EnterpriseAPI:
         import hashlib
 
         payload_str = json.dumps(payload, sort_keys=True)
-        signature = hmac.new(secret.encode(), payload_str.encode(), hashlib.sha256).hexdigest()
+        signature = hmac.new(
+            secret.encode(), payload_str.encode(), hashlib.sha256
+        ).hexdigest()
 
         return f"sha256={signature}"
 
@@ -494,11 +525,18 @@ class EnterpriseAPI:
         ]
         return authorities
 
-    async def _query_authority(self, authority_id: str, query: Dict[str, Any]) -> Dict[str, Any]:
+    async def _query_authority(
+        self, authority_id: str, query: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Query specific authority source"""
         # This would integrate with the authority system
         # For now, return mock data
-        return {"authority": authority_id, "query": query, "results": [], "status": "success"}
+        return {
+            "authority": authority_id,
+            "query": query,
+            "results": [],
+            "status": "success",
+        }
 
     async def _get_processing_metrics(self) -> Dict[str, Any]:
         """Get processing metrics"""
@@ -519,7 +557,9 @@ class EnterpriseAPI:
             "response_times": {"p50": 0.8, "p95": 2.1, "p99": 3.5},
         }
 
-    async def broadcast_websocket_event(self, event_type: EventType, data: Dict[str, Any]):
+    async def broadcast_websocket_event(
+        self, event_type: EventType, data: Dict[str, Any]
+    ):
         """Broadcast event to all WebSocket connections"""
         if not WEBSOCKET_AVAILABLE or not self.ws_connections:
             return

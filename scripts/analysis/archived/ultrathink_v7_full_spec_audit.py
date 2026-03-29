@@ -91,7 +91,9 @@ class V7SpecificationAuditor:
                     for issue in category_result["issues"][:3]:  # Show first 3 issues
                         print(f"    • {issue}")
                     if len(category_result["issues"]) > 3:
-                        print(f"    ... and {len(category_result['issues'])-3} more issues")
+                        print(
+                            f"    ... and {len(category_result['issues'])-3} more issues"
+                        )
 
         # Calculate overall compliance
         self.calculate_compliance()
@@ -133,7 +135,9 @@ class V7SpecificationAuditor:
                 result["tests"]["GlobalID"] = "✅ Correct format"
             else:
                 result["tests"]["GlobalID"] = f"❌ Wrong length: {len(test_id)}"
-                result["issues"].append(f"GlobalID wrong length: {len(test_id)} (expected 22)")
+                result["issues"].append(
+                    f"GlobalID wrong length: {len(test_id)} (expected 22)"
+                )
         except:
             result["tests"]["GlobalID"] = "❌ Not implemented"
             result["issues"].append("GlobalID generation not found")
@@ -220,7 +224,9 @@ class V7SpecificationAuditor:
 
             # Count implemented regions
             implemented = sum(1 for v in result["tests"].values() if "✅" in v)
-            result["summary"] = f"{implemented}/{len(expected_regions)} regions implemented"
+            result["summary"] = (
+                f"{implemented}/{len(expected_regions)} regions implemented"
+            )
 
         except Exception as e:
             result["issues"].append(f"RegionManager error: {e}")
@@ -256,7 +262,9 @@ class V7SpecificationAuditor:
         total_rules = 34
         tested_rules = len(rules_to_test)
         result["summary"] = f"{tested_rules}/{total_rules} rules tested"
-        result["warnings"].append(f"Only {tested_rules} of {total_rules} rules have explicit tests")
+        result["warnings"].append(
+            f"Only {tested_rules} of {total_rules} rules have explicit tests"
+        )
 
         result["passed"] = len(result["issues"]) == 0
         return result
@@ -264,7 +272,9 @@ class V7SpecificationAuditor:
     def test_arabic_article(self) -> bool:
         """Test Arabic al- article handling."""
         try:
-            from src.regions.c_groups.c3_arabic_levant_nile import C3ArabicLevantNileProcessor
+            from src.regions.c_groups.c3_arabic_levant_nile import (
+                C3ArabicLevantNileProcessor,
+            )
 
             processor = C3ArabicLevantNileProcessor()
             # Test al- assimilation
@@ -381,21 +391,28 @@ class V7SpecificationAuditor:
 
             # Check for stage methods
             for stage_num, stage_name in expected_stages:
-                method_name = (
-                    f"stage_{stage_num}_{stage_name.lower().replace('&', '_').replace(' ', '_')}"
-                )
+                method_name = f"stage_{stage_num}_{stage_name.lower().replace('&', '_').replace(' ', '_')}"
                 if hasattr(pipeline, method_name):
-                    result["tests"][f"Stage {stage_num}: {stage_name}"] = "✅ Implemented"
+                    result["tests"][
+                        f"Stage {stage_num}: {stage_name}"
+                    ] = "✅ Implemented"
                 else:
                     # Try alternate names
                     found = False
                     for attr in dir(pipeline):
-                        if f"stage_{stage_num}" in attr or stage_name.lower() in attr.lower():
-                            result["tests"][f"Stage {stage_num}: {stage_name}"] = "✅ Found"
+                        if (
+                            f"stage_{stage_num}" in attr
+                            or stage_name.lower() in attr.lower()
+                        ):
+                            result["tests"][
+                                f"Stage {stage_num}: {stage_name}"
+                            ] = "✅ Found"
                             found = True
                             break
                     if not found:
-                        result["tests"][f"Stage {stage_num}: {stage_name}"] = "❌ Missing"
+                        result["tests"][
+                            f"Stage {stage_num}: {stage_name}"
+                        ] = "❌ Missing"
                         result["issues"].append(
                             f"Pipeline stage {stage_num} ({stage_name}) not implemented"
                         )
@@ -432,7 +449,9 @@ class V7SpecificationAuditor:
                 # Check runtime targets
                 if specs["runtime_per_1M"]:
                     target = specs["runtime_per_1M"]
-                    result["tests"][f"{profile_name} runtime target"] = f"Target: ≤{target} min/1M"
+                    result["tests"][
+                        f"{profile_name} runtime target"
+                    ] = f"Target: ≤{target} min/1M"
 
         except Exception as e:
             result["issues"].append(f"Runtime profile error: {e}")
@@ -446,9 +465,17 @@ class V7SpecificationAuditor:
 
         gates = {
             "duplicate_global_id": {"quick": 0, "full": 0, "extreme": 0},
-            "duplicate_external_id_pct": {"quick_max": 0.10, "full_max": 0.05, "extreme_max": 0},
+            "duplicate_external_id_pct": {
+                "quick_max": 0.10,
+                "full_max": 0.05,
+                "extreme_max": 0,
+            },
             "roundtrip_script_rate_min": 0.97,
-            "genealogy_edge_conflict_pct": {"quick_max": 2.0, "full_max": 1.0, "extreme_max": 0.0},
+            "genealogy_edge_conflict_pct": {
+                "quick_max": 2.0,
+                "full_max": 1.0,
+                "extreme_max": 0.0,
+            },
             "graph_coherence_score_min": {"quick": 0.85, "full": 0.92, "extreme": 0.97},
             "peak_rss_gb_on_2M": 6,
             "warm_cache_runtime_per_1M_min": {"quick": 35, "full": 70},
@@ -521,7 +548,9 @@ class V7SpecificationAuditor:
                 result["tests"][f"Tier 0: {source_name}"] = "✅ Available"
             except:
                 result["tests"][f"Tier 0: {source_name}"] = "❌ Missing"
-                result["issues"].append(f"Required Tier 0 source {source_name} not available")
+                result["issues"].append(
+                    f"Required Tier 0 source {source_name} not available"
+                )
 
         for source_name, module_path in tier1_sources:
             try:
@@ -544,7 +573,11 @@ class V7SpecificationAuditor:
             sv = SecurityValidator()
 
             # Test GDPR compliance
-            test_entry = {"CanonicalLatin": "Test, Name", "BirthYear": 1990, "GDPR_DATA": True}
+            test_entry = {
+                "CanonicalLatin": "Test, Name",
+                "BirthYear": 1990,
+                "GDPR_DATA": True,
+            }
 
             # Check if GDPR fields are handled
             result["tests"]["GDPR Support"] = "✅ Implemented"
@@ -612,7 +645,9 @@ class V7SpecificationAuditor:
                     test_count = int(match.group(1))
                     result["tests"]["Total Tests"] = f"✅ {test_count} tests collected"
                     if test_count < 100:
-                        result["warnings"].append(f"Only {test_count} tests found (expected >100)")
+                        result["warnings"].append(
+                            f"Only {test_count} tests found (expected >100)"
+                        )
         except:
             pass
 
@@ -687,8 +722,12 @@ class V7SpecificationAuditor:
                         result["tests"][korean] = f"✅ → {romanized}"
                         passed += 1
                     else:
-                        result["tests"][korean] = f"❌ → {romanized} (expected: {expected})"
-                        result["issues"].append(f"{korean} → {romanized} (expected: {expected})")
+                        result["tests"][
+                            korean
+                        ] = f"❌ → {romanized} (expected: {expected})"
+                        result["issues"].append(
+                            f"{korean} → {romanized} (expected: {expected})"
+                        )
                         failed += 1
                 except Exception as e:
                     result["tests"][korean] = f"❌ Error: {e}"
@@ -762,8 +801,12 @@ class V7SpecificationAuditor:
                 if "--1" in global_ids[1] or "--2" in global_ids[1]:
                     result["tests"]["Duplicate Suffixing"] = "✅ Working"
                 else:
-                    result["tests"]["Duplicate Suffixing"] = "❌ Not suffixing duplicates"
-                    result["issues"].append("Duplicates not being suffixed with --1, --2")
+                    result["tests"][
+                        "Duplicate Suffixing"
+                    ] = "❌ Not suffixing duplicates"
+                    result["issues"].append(
+                        "Duplicates not being suffixed with --1, --2"
+                    )
 
             except AttributeError:
                 result["tests"]["Batch Processing"] = "❌ process_batch not found"
@@ -794,7 +837,9 @@ class V7SpecificationAuditor:
         # Check for performance test results
         perf_files = list(Path(".").glob("*performance*.json"))
         if perf_files:
-            result["tests"]["Performance Tests"] = f"✅ {len(perf_files)} test results found"
+            result["tests"][
+                "Performance Tests"
+            ] = f"✅ {len(perf_files)} test results found"
             # Could parse and validate results here
         else:
             result["warnings"].append("No performance test results found")
@@ -863,7 +908,14 @@ class V7SpecificationAuditor:
         result = {"tests": {}, "issues": [], "warnings": []}
 
         expected_structure = {
-            "src/": ["core", "regions", "authorities", "quality", "validation", "analytics"],
+            "src/": [
+                "core",
+                "regions",
+                "authorities",
+                "quality",
+                "validation",
+                "analytics",
+            ],
             "tests/": ["unit", "integration", "property", "security", "memory"],
             "config/": ["weights.yaml", "authorities.yaml", "pipeline.yaml"],
             "docs/": ["specs", "guides", "schemas"],
@@ -881,7 +933,9 @@ class V7SpecificationAuditor:
                         result["tests"][f"  {parent}{subdir}"] = "✅"
                     else:
                         result["tests"][f"  {parent}{subdir}"] = "⚠️ Missing"
-                        result["warnings"].append(f"Expected directory {parent}{subdir} not found")
+                        result["warnings"].append(
+                            f"Expected directory {parent}{subdir} not found"
+                        )
             else:
                 result["tests"][parent] = "❌ Missing"
                 result["issues"].append(f"Required directory {parent} not found")
@@ -889,9 +943,13 @@ class V7SpecificationAuditor:
         # Check for cleanup
         pycache_dirs = list(Path(".").rglob("__pycache__"))
         if pycache_dirs:
-            result["warnings"].append(f"Found {len(pycache_dirs)} __pycache__ directories")
+            result["warnings"].append(
+                f"Found {len(pycache_dirs)} __pycache__ directories"
+            )
 
-        backup_files = list(Path(".").rglob("*.bak")) + list(Path(".").rglob("*.backup"))
+        backup_files = list(Path(".").rglob("*.bak")) + list(
+            Path(".").rglob("*.backup")
+        )
         if backup_files:
             result["warnings"].append(f"Found {len(backup_files)} backup files")
 
@@ -987,8 +1045,12 @@ class V7SpecificationAuditor:
             if self.results["categories"].get(cat_name, {}).get("passed", False)
         )
 
-        self.results["spec_compliance"]["total_score"] = f"{passed_categories}/{total_categories}"
-        self.results["spec_compliance"]["percentage"] = (passed_categories / total_categories) * 100
+        self.results["spec_compliance"][
+            "total_score"
+        ] = f"{passed_categories}/{total_categories}"
+        self.results["spec_compliance"]["percentage"] = (
+            passed_categories / total_categories
+        ) * 100
         self.results["spec_compliance"][
             "critical_score"
         ] = f"{critical_passed}/{len(critical_categories)}"
@@ -1018,7 +1080,9 @@ class V7SpecificationAuditor:
         print(
             f"\n📊 V7 Specification Compliance: {self.results['spec_compliance']['percentage']:.1f}%"
         )
-        print(f"   Total: {self.results['spec_compliance']['total_score']} categories passing")
+        print(
+            f"   Total: {self.results['spec_compliance']['total_score']} categories passing"
+        )
         print(
             f"   Critical: {self.results['spec_compliance']['critical_score']} critical categories"
         )
@@ -1073,7 +1137,11 @@ class V7SpecificationAuditor:
                 "Korean Processor (E4)",
                 "Duplicate Detection",
             ]:
-                if not self.results["categories"].get(cat_name, {}).get("passed", False):
+                if (
+                    not self.results["categories"]
+                    .get(cat_name, {})
+                    .get("passed", False)
+                ):
                     print(f"   • {cat_name}")
 
         if self.results["spec_compliance"]["percentage"] >= 95:

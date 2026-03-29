@@ -130,7 +130,9 @@ class ScaleGuardService:
     tiny inputs, fast-paths uniform-region batches, and streams very large inputs.
     """
 
-    def __init__(self, pipeline_ctor: Callable[[], Any], cfg: ScaleConfig | None = None):
+    def __init__(
+        self, pipeline_ctor: Callable[[], Any], cfg: ScaleConfig | None = None
+    ):
         self.cfg = cfg or ScaleConfig()
         self.pipeline = pipeline_ctor()
         self.agg = AsyncBatchAggregator(self._process_impl, self.cfg.micro)
@@ -171,7 +173,9 @@ class ScaleGuardService:
         await asyncio.gather(*tasks)
         return out
 
-    async def _process_impl(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _process_impl(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         # uniform-region fast path
         if (
             self.cfg.uniform_region_fastpath
@@ -196,7 +200,11 @@ class ScaleGuardService:
             return await self.pipeline.process_batch(entries)
         except Exception as ex:
             return [
-                {"GlobalID": e.get("GlobalID"), "status": "processing_error", "error": str(ex)}
+                {
+                    "GlobalID": e.get("GlobalID"),
+                    "status": "processing_error",
+                    "error": str(ex),
+                }
                 for e in entries
             ]
 

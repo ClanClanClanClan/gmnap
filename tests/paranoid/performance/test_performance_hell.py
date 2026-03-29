@@ -118,7 +118,9 @@ class TestPerformanceHell:
                 memory_growth = current_memory - initial_memory
                 memory_samples.append((iteration, current_memory, memory_growth))
 
-                print(f"Iteration {iteration}: {current_memory:.2f} MB (+{memory_growth:.2f} MB)")
+                print(
+                    f"Iteration {iteration}: {current_memory:.2f} MB (+{memory_growth:.2f} MB)"
+                )
 
         # Analyze memory growth
         final_memory = memory_monitor.get_memory_mb()
@@ -143,7 +145,9 @@ class TestPerformanceHell:
 
             # Growth rate should stabilize or decrease
             if len(growth_rates) >= 2:
-                avg_early = sum(growth_rates[: len(growth_rates) // 2]) / (len(growth_rates) // 2)
+                avg_early = sum(growth_rates[: len(growth_rates) // 2]) / (
+                    len(growth_rates) // 2
+                )
                 avg_late = sum(growth_rates[len(growth_rates) // 2 :]) / (
                     len(growth_rates) - len(growth_rates) // 2
                 )
@@ -183,7 +187,9 @@ class TestPerformanceHell:
         object_growth = final_objects - initial_objects
 
         # Should not create excessive objects
-        assert object_growth < 1000, f"Excessive object creation: {object_growth} new objects"
+        assert (
+            object_growth < 1000
+        ), f"Excessive object creation: {object_growth} new objects"
 
         # Check weak references - some should have been released
         live_refs = sum(1 for ref in weak_refs if ref() is not None)
@@ -232,7 +238,9 @@ class TestPerformanceHell:
             return worker_results
 
         # Launch many concurrent workers
-        num_workers = min(20, multiprocessing.cpu_count() * 2)  # Don't overwhelm the system
+        num_workers = min(
+            20, multiprocessing.cpu_count() * 2
+        )  # Don't overwhelm the system
         iterations_per_worker = 50
 
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
@@ -251,7 +259,9 @@ class TestPerformanceHell:
                     errors.append(("executor", -1, str(e)))
 
         # Analyze results
-        total_expected = num_workers * iterations_per_worker * 4  # 4 names per iteration
+        total_expected = (
+            num_workers * iterations_per_worker * 4
+        )  # 4 names per iteration
         total_actual = len(results)
 
         assert (
@@ -343,7 +353,9 @@ class TestPerformanceHell:
 
         # Verify results
         expected_total = num_threads * 100
-        assert len(results) == expected_total, f"Missing results: {len(results)}/{expected_total}"
+        assert (
+            len(results) == expected_total
+        ), f"Missing results: {len(results)}/{expected_total}"
         assert (
             shared_counter["value"] == expected_total
         ), f"Counter race condition: {shared_counter['value']}/{expected_total}"
@@ -355,7 +367,9 @@ class TestPerformanceHell:
         assert (
             len(unique_sequences) == expected_total
         ), f"Sequence race condition: {len(unique_sequences)}/{expected_total}"
-        assert min(sequence_numbers) == 1, f"Missing early sequences: min={min(sequence_numbers)}"
+        assert (
+            min(sequence_numbers) == 1
+        ), f"Missing early sequences: min={min(sequence_numbers)}"
         assert (
             max(sequence_numbers) == expected_total
         ), f"Missing late sequences: max={max(sequence_numbers)}"
@@ -364,7 +378,9 @@ class TestPerformanceHell:
         total_time = end_time - start_time
         ops_per_second = expected_total / total_time
 
-        print(f"Thread safety test: {ops_per_second:.2f} ops/sec, {total_time:.2f}s total")
+        print(
+            f"Thread safety test: {ops_per_second:.2f} ops/sec, {total_time:.2f}s total"
+        )
 
         # Should maintain reasonable performance under concurrency
         assert (
@@ -426,7 +442,9 @@ class TestPerformanceHell:
 
                 # Should be a reasonable error, not a crash
                 assert (
-                    "memory" in error_msg or "size" in error_msg or "length" in error_msg
+                    "memory" in error_msg
+                    or "size" in error_msg
+                    or "length" in error_msg
                 ), f"Unexpected error for massive input: {e}"
 
     @pytest.mark.paranoid
@@ -485,7 +503,9 @@ class TestPerformanceHell:
             # Force garbage collection between batches
             gc.collect()
 
-            print(f"Batch {len(batch)}: {ops_per_second:.2f} ops/sec, {memory_used:.2f} MB")
+            print(
+                f"Batch {len(batch)}: {ops_per_second:.2f} ops/sec, {memory_used:.2f} MB"
+            )
 
         # Analyze scalability
         # Performance should not degrade dramatically with larger batches
@@ -611,7 +631,9 @@ class TestPerformanceHell:
             first_sample = performance_samples[0]
             last_sample = performance_samples[-1]
 
-            performance_degradation = first_sample["ops_per_second"] / last_sample["ops_per_second"]
+            performance_degradation = (
+                first_sample["ops_per_second"] / last_sample["ops_per_second"]
+            )
 
             assert (
                 performance_degradation < 2.0
@@ -686,7 +708,9 @@ class TestPerformanceHell:
 
                 # Should handle pathological input quickly
                 if processing_time > 1.0:
-                    slow_operations.append((i, processing_time, len(pathological_input)))
+                    slow_operations.append(
+                        (i, processing_time, len(pathological_input))
+                    )
 
                 # Should not use excessive memory
                 if memory_used > 100:
@@ -695,7 +719,9 @@ class TestPerformanceHell:
                 # Result should be reasonable
                 result_str = str(result)
                 if len(result_str) > 1000:
-                    errors.append(f"Input {i}: Result too large {len(result_str)} chars")
+                    errors.append(
+                        f"Input {i}: Result too large {len(result_str)} chars"
+                    )
 
             except Exception as e:
                 end_time = time.perf_counter()
@@ -703,7 +729,9 @@ class TestPerformanceHell:
 
                 # Should fail quickly
                 if processing_time > 1.0:
-                    slow_operations.append((i, processing_time, len(pathological_input)))
+                    slow_operations.append(
+                        (i, processing_time, len(pathological_input))
+                    )
 
                 # Should be a reasonable error
                 error_msg = str(e).lower()
@@ -806,7 +834,9 @@ class TestResourceLimits:
             # Should fail gracefully if resource limits hit
             error_msg = str(e).lower()
             assert (
-                "file" in error_msg or "descriptor" in error_msg or "resource" in error_msg
+                "file" in error_msg
+                or "descriptor" in error_msg
+                or "resource" in error_msg
             ), f"Unexpected error when hitting resource limits: {e}"
 
         finally:

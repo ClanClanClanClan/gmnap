@@ -91,7 +91,9 @@ class PerformanceBenchmark:
             # Calculate metrics
             entries_per_sec = batch_size / duration if duration > 0 else 0
             time_for_1m = (
-                (1_000_000 / entries_per_sec / 60) if entries_per_sec > 0 else float("inf")
+                (1_000_000 / entries_per_sec / 60)
+                if entries_per_sec > 0
+                else float("inf")
             )
 
             metrics = result.get("metrics", {})
@@ -177,7 +179,9 @@ class PerformanceBenchmark:
                 )
 
         # Analysis
-        passing = [b for b in self.results["benchmarks"] if b.get("status") == "✅ PASS"]
+        passing = [
+            b for b in self.results["benchmarks"] if b.get("status") == "✅ PASS"
+        ]
         failing = [b for b in self.results["benchmarks"] if "❌" in b.get("status", "")]
 
         print(f"\n✅ Passing: {len(passing)}/{len(self.results['benchmarks'])}")
@@ -193,7 +197,9 @@ class PerformanceBenchmark:
             )
 
         # Save results
-        output_file = f"benchmark_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        output_file = (
+            f"benchmark_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
         with open(output_file, "w") as f:
             json.dump(self.results, f, indent=2)
         print(f"\n📄 Full results saved to: {output_file}")
@@ -207,7 +213,9 @@ async def main():
     results = await benchmark.run_comprehensive_benchmark()
 
     # Return status code based on results
-    passing_count = len([b for b in results["benchmarks"] if b.get("status") == "✅ PASS"])
+    passing_count = len(
+        [b for b in results["benchmarks"] if b.get("status") == "✅ PASS"]
+    )
     return 0 if passing_count >= 5 else 1  # Need at least 5 passing sizes
 
 

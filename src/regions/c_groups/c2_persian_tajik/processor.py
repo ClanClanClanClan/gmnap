@@ -120,7 +120,8 @@ class C2_PersianTajik(RegionSpec):
                     entry[field] = raw_input
                 # Check remaining dangerous chars
                 if any(
-                    ord(c) < 32 and c not in (" ", "\t", "\n") or ord(c) == 127 for c in raw_input
+                    ord(c) < 32 and c not in (" ", "\t", "\n") or ord(c) == 127
+                    for c in raw_input
                 ):
                     raise RegionRuleError(
                         f"Name contains dangerous characters: {raw_input[:50]}..."
@@ -221,7 +222,9 @@ class C2_PersianTajik(RegionSpec):
         if self._is_persian_or_tajik(canonical):
             romanized = self._romanize_name(canonical)
             if romanized != canonical:
-                entry["Variants"]["Synthesised"].append({"str": romanized, "type": "romanization"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": romanized, "type": "romanization"}
+                )
 
         # Rule 7: Persian Ezafe – identify and generate variants
         ezafe_info = self._analyze_persian_ezafe(canonical)
@@ -247,7 +250,9 @@ class C2_PersianTajik(RegionSpec):
 
         # Add variant without patronymic
         if components.get("patronymic"):
-            without_patronymic = self._generate_no_patronymic_variant(canonical, components)
+            without_patronymic = self._generate_no_patronymic_variant(
+                canonical, components
+            )
             if without_patronymic and without_patronymic != canonical:
                 entry["Variants"]["Synthesised"].append(
                     {"str": without_patronymic, "type": "no-patronymic"}
@@ -500,7 +505,10 @@ class C2_PersianTajik(RegionSpec):
             (r"(\w+)ِ\s+(\w+)", "kasre_marked"),  # With visible kasre
             (r"(\w+)\u0650\s+(\w+)", "kasre_unicode"),  # Unicode kasre (U+0650)
             # Common Persian ezafe constructions (implicit)
-            (r"\b(\w+)\s+(شیرازی|اصفهانی|تهرانی|کاشانی|یزدی|کرمانی|فارسی)", "geographic_implicit"),
+            (
+                r"\b(\w+)\s+(شیرازی|اصفهانی|تهرانی|کاشانی|یزدی|کرمانی|فارسی)",
+                "geographic_implicit",
+            ),
             (r"\b(\w+)\s+(کبیر|صغیر|اکبر|اصغر|بزرگ|کوچک)", "descriptive_implicit"),
         ]
 
@@ -538,7 +546,13 @@ class C2_PersianTajik(RegionSpec):
             second = str(second)  # Ensure string type
 
             # Common patterns that suggest implicit ezafe
-            geographic_endings = ["ی", "ي", "انی", "i", "ani"]  # Persian/Arabic geographic suffixes
+            geographic_endings = [
+                "ی",
+                "ي",
+                "انی",
+                "i",
+                "ani",
+            ]  # Persian/Arabic geographic suffixes
             descriptive_list = [
                 "کبیر",
                 "صغیر",
@@ -554,12 +568,16 @@ class C2_PersianTajik(RegionSpec):
 
             # Safe checks with proper error handling
             try:
-                is_geographic = any(second.endswith(ending) for ending in geographic_endings)
+                is_geographic = any(
+                    second.endswith(ending) for ending in geographic_endings
+                )
             except:
                 is_geographic = False
 
             try:
-                is_descriptive = any(second.lower() in [word.lower() for word in descriptive_list])
+                is_descriptive = any(
+                    second.lower() in [word.lower() for word in descriptive_list]
+                )
             except:
                 is_descriptive = False
 
@@ -571,7 +589,9 @@ class C2_PersianTajik(RegionSpec):
                         "ezafe_base": first,
                         "ezafe_complement": second,
                         "ezafe_full_match": name,
-                        "ezafe_relationship": "geographic" if is_geographic else "descriptive",
+                        "ezafe_relationship": (
+                            "geographic" if is_geographic else "descriptive"
+                        ),
                     }
                 )
                 return ezafe_info
@@ -777,8 +797,12 @@ class C2_PersianTajik(RegionSpec):
 
         # Add variants for different suffix spellings
         for suffix_type, variant_name in suffix_variants.items():
-            if suffix_type != current_suffix.replace("زاده", "zadeh").replace("زاد", "zade"):
-                variants.append({"str": variant_name, "type": f"zadeh-suffix-{suffix_type}"})
+            if suffix_type != current_suffix.replace("زاده", "zadeh").replace(
+                "زاد", "zade"
+            ):
+                variants.append(
+                    {"str": variant_name, "type": f"zadeh-suffix-{suffix_type}"}
+                )
 
         # Generate root name variant (without suffix)
         if len(root) >= 3:  # Only for substantial root names
@@ -818,7 +842,9 @@ class C2_PersianTajik(RegionSpec):
             if variant["str"].islower():
                 capitalized = variant["str"].title()
                 if capitalized != variant["str"]:
-                    variants.append({"str": capitalized, "type": variant["type"] + "-capitalized"})
+                    variants.append(
+                        {"str": capitalized, "type": variant["type"] + "-capitalized"}
+                    )
 
         return variants
 
@@ -842,11 +868,15 @@ class C2_PersianTajik(RegionSpec):
         canonical = self.get_canonical_name(entry)
         if canonical:
             if self._has_security_risks(canonical):
-                raise RegionRuleError(f"Name contains dangerous characters: {canonical[:50]}...")
+                raise RegionRuleError(
+                    f"Name contains dangerous characters: {canonical[:50]}..."
+                )
 
             # Check for reasonable length (prevent DoS attacks)
             if len(canonical) > 150:
-                raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+                raise RegionRuleError(
+                    f"Name too long: {len(canonical)} characters (max 150)"
+                )
 
         # Use graceful degradation for missing canonical fields
         if not canonical:

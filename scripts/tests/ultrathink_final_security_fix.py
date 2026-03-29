@@ -38,7 +38,10 @@ def fix_security_validator():
         )
 
     # Fix 4: Fix validate_yaml_keys to accept context
-    if "def validate_yaml_keys(self, data: Dict[str, Any], context: str = " not in content:
+    if (
+        "def validate_yaml_keys(self, data: Dict[str, Any], context: str = "
+        not in content
+    ):
         content = content.replace(
             "def validate_yaml_keys(self, data: Dict[str, Any]) -> Dict[str, Any]:",
             "def validate_yaml_keys(self, data: Dict[str, Any], context: str = 'yaml') -> Dict[str, Any]:",
@@ -159,7 +162,11 @@ def main():
     import sys
 
     print("\n🧪 Testing fix...")
-    env = {"PYTHONPATH": str(Path.cwd()), "GMNAP_TEST_MODE": "true", "GMNAP_OFFLINE": "1"}
+    env = {
+        "PYTHONPATH": str(Path.cwd()),
+        "GMNAP_TEST_MODE": "true",
+        "GMNAP_OFFLINE": "1",
+    }
 
     cmd = [
         sys.executable,

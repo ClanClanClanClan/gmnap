@@ -94,7 +94,13 @@ class E6_MainlandSEA(RegionSpec):
             },
             "myanmar": {
                 "script_range": self.MYANMAR_RANGE,
-                "common_elements": ["မင်း", "ကျော်", "အောင်", "သူ", "မြင့်"],  # Win, famous, etc.
+                "common_elements": [
+                    "မင်း",
+                    "ကျော်",
+                    "အောင်",
+                    "သူ",
+                    "မြင့်",
+                ],  # Win, famous, etc.
                 "patronymic_patterns": True,
                 "buddhist_influence": "strong",
                 "direction": "left_to_right",
@@ -114,7 +120,13 @@ class E6_MainlandSEA(RegionSpec):
             },
             "lao": {
                 "script_range": self.LAO_RANGE,
-                "common_elements": ["ສຸກ", "ບຸນ", "ທອງ", "ຄຳ", "ດວງ"],  # Happy, merit, gold, etc.
+                "common_elements": [
+                    "ສຸກ",
+                    "ບຸນ",
+                    "ທອງ",
+                    "ຄຳ",
+                    "ດວງ",
+                ],  # Happy, merit, gold, etc.
                 "buddhist_elements": ["ພຣະ", "ວັດ", "ທຳ", "ສົງ"],
                 "close_to_thai": True,
                 "direction": "left_to_right",
@@ -548,7 +560,9 @@ class E6_MainlandSEA(RegionSpec):
             indicators.append(f"places:{place_score:.2f}")
 
         if confidence > 0:
-            self.logger.debug(f"E6 detection: {confidence:.3f} [{', '.join(indicators)}]")
+            self.logger.debug(
+                f"E6 detection: {confidence:.3f} [{', '.join(indicators)}]"
+            )
 
         return min(confidence, 1.0)
 
@@ -666,7 +680,9 @@ class E6_MainlandSEA(RegionSpec):
 
     def _detect_country_script(self, name: str, entry: Dict[str, Any]) -> str:
         """Detect country and script type."""
-        full_text = f"{name} {entry.get('email', '')} {entry.get('affiliation', '')}".lower()
+        full_text = (
+            f"{name} {entry.get('email', '')} {entry.get('affiliation', '')}".lower()
+        )
 
         script_scores = {}
 
@@ -739,7 +755,11 @@ class E6_MainlandSEA(RegionSpec):
             return {}
 
         parts = name.split()
-        components = {"full_name": name, "name_parts": parts, "country_script": country_script}
+        components = {
+            "full_name": name,
+            "name_parts": parts,
+            "country_script": country_script,
+        }
 
         # Country-specific component extraction
         if country_script == "thai":
@@ -979,11 +999,15 @@ class E6_MainlandSEA(RegionSpec):
 
         # SECURITY: Check for dangerous characters first
         if self._has_security_risks(canonical):
-            raise RegionRuleError(f"Name contains dangerous characters: {canonical[:50]}...")
+            raise RegionRuleError(
+                f"Name contains dangerous characters: {canonical[:50]}..."
+            )
 
         # Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         # THEN handle legitimate edge cases
         if len(canonical.strip()) == 1:

@@ -17,7 +17,11 @@ def test_stage10_writes_report_and_doi(tmp_path):
     (snap / "entries.json").write_text(json.dumps(batch), encoding="utf-8")
     rep_dir, payload = generate_report(
         batch,
-        metrics={"coherence": 0.9, "roundtrip_script_rate": 0.98, "idempotent_diff_bytes": 0},
+        metrics={
+            "coherence": 0.9,
+            "roundtrip_script_rate": 0.98,
+            "idempotent_diff_bytes": 0,
+        },
         snapshot_dir=str(snap),
         shortform_clusters={"L. Euler": 3},
     )

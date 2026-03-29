@@ -204,7 +204,9 @@ async def main():
         # Performance categories
         excellent = [r for r in successful_tests if r["time_for_1m_minutes"] <= 35]
         good = [r for r in successful_tests if 35 < r["time_for_1m_minutes"] <= 60]
-        acceptable = [r for r in successful_tests if 60 < r["time_for_1m_minutes"] <= 120]
+        acceptable = [
+            r for r in successful_tests if 60 < r["time_for_1m_minutes"] <= 120
+        ]
         poor = [r for r in successful_tests if r["time_for_1m_minutes"] > 120]
 
         print(f"\n📈 PERFORMANCE CATEGORIES:")
@@ -276,8 +278,12 @@ async def main():
             optimal = max(production_ready, key=lambda x: x["entries_per_second"])
             print(f"\n🎯 PRODUCTION RECOMMENDATION:")
             print(f"   Optimal Batch Size: {optimal['batch_size']:,} entries")
-            print(f"   Expected Performance: {optimal['entries_per_second']:,.0f} entries/sec")
-            print(f"   1M Processing Time: {optimal['time_for_1m_minutes']:.1f} minutes")
+            print(
+                f"   Expected Performance: {optimal['entries_per_second']:,.0f} entries/sec"
+            )
+            print(
+                f"   1M Processing Time: {optimal['time_for_1m_minutes']:.1f} minutes"
+            )
             print(f"   ✅ READY FOR PRODUCTION")
         else:
             print(

@@ -190,7 +190,9 @@ def relabel_dataset_fast(input_path: Path, output_path: Path, dry_run: bool = Fa
 
     # Stats
     print("\n[3/4] Top relabelings:")
-    for key, count in sorted(relabel_stats.items(), key=lambda x: x[1], reverse=True)[:15]:
+    for key, count in sorted(relabel_stats.items(), key=lambda x: x[1], reverse=True)[
+        :15
+    ]:
         print(f"    {key:10s} {count:5,} changes")
 
     # Save

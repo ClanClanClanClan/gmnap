@@ -63,12 +63,15 @@ class TestInputFuzzing:
                 # Should not contain dangerous characters
                 dangerous_chars = ["\x00", "\x01", "\x02", "\x03", "\x04", "\x05"]
                 for char in dangerous_chars:
-                    assert char not in result, f"Dangerous character preserved: {repr(char)}"
+                    assert (
+                        char not in result
+                    ), f"Dangerous character preserved: {repr(char)}"
 
         except Exception as e:
             # Should handle all exceptions gracefully
             assert any(
-                word in str(e).lower() for word in ["invalid", "malformed", "unsupported"]
+                word in str(e).lower()
+                for word in ["invalid", "malformed", "unsupported"]
             ), f"Unexpected exception type: {str(e)}"
 
     @given(
@@ -94,7 +97,9 @@ class TestInputFuzzing:
 
             # If it generates an ID, it should be valid
             if global_id is not None:
-                assert validate_global_id(global_id), f"Invalid GlobalID generated: {global_id}"
+                assert validate_global_id(
+                    global_id
+                ), f"Invalid GlobalID generated: {global_id}"
 
                 # Should be deterministic
                 global_id2 = self.generator.generate(malformed_entry)
@@ -232,7 +237,9 @@ class TestInputFuzzing:
                 # Should either validate properly or reject cleanly
                 if is_valid:
                     # If valid, should be safe
-                    assert isinstance(parsed.get("name"), str), "Name field should be string"
+                    assert isinstance(
+                        parsed.get("name"), str
+                    ), "Name field should be string"
                 else:
                     # If invalid, should be rejected cleanly
                     assert True, "Clean rejection of JSON attack"
@@ -264,7 +271,9 @@ class TestInputFuzzing:
             result = cache.get("zip_bomb_test")
 
             if result:
-                assert result["data"] == repetitive_data, "Data corruption in compression"
+                assert (
+                    result["data"] == repetitive_data
+                ), "Data corruption in compression"
 
         except Exception as e:
             # Should handle compression issues gracefully
@@ -304,7 +313,9 @@ class TestInputFuzzing:
 
                 # If normalized, should be safe
                 if normalized:
-                    assert len(normalized) < len(attack_pattern) * 2, "Excessive expansion"
+                    assert (
+                        len(normalized) < len(attack_pattern) * 2
+                    ), "Excessive expansion"
 
             except Exception as e:
                 # Should handle gracefully
@@ -440,7 +451,9 @@ class TestInputFuzzing:
 
                     # Should handle large strings gracefully
                     if normalized:
-                        assert len(normalized) <= len(attack_data) * 2, "Excessive expansion"
+                        assert (
+                            len(normalized) <= len(attack_data) * 2
+                        ), "Excessive expansion"
 
                         # Test GlobalID generation
                         entry = {"CanonicalNative": normalized}
@@ -506,7 +519,9 @@ class TestInputFuzzing:
                     global_id = self.generator.generate(entry)
 
                     if global_id:
-                        assert validate_global_id(global_id), "Invalid GlobalID from format attack"
+                        assert validate_global_id(
+                            global_id
+                        ), "Invalid GlobalID from format attack"
 
             except Exception as e:
                 # Should handle gracefully
@@ -528,7 +543,13 @@ class TestPropertyBasedAttacks:
             alphabet=st.characters(
                 min_codepoint=0x0000,
                 max_codepoint=0x10FFFF,
-                categories=["Cc", "Cf", "Cn", "Co", "Cs"],  # Control and special characters
+                categories=[
+                    "Cc",
+                    "Cf",
+                    "Cn",
+                    "Co",
+                    "Cs",
+                ],  # Control and special characters
             ),
             min_size=1,
             max_size=100,
@@ -559,9 +580,15 @@ class TestPropertyBasedAttacks:
 
     @given(
         attack_dict=dictionaries(
-            text(alphabet=st.characters(categories=["Cc", "Cf"]), min_size=1, max_size=50),
+            text(
+                alphabet=st.characters(categories=["Cc", "Cf"]), min_size=1, max_size=50
+            ),
             st.one_of(
-                text(alphabet=st.characters(categories=["Cc", "Cf"]), min_size=1, max_size=50),
+                text(
+                    alphabet=st.characters(categories=["Cc", "Cf"]),
+                    min_size=1,
+                    max_size=50,
+                ),
                 integers(min_value=-(2**31), max_value=2**31 - 1),
                 floats(allow_nan=True, allow_infinity=True),
             ),
@@ -578,11 +605,19 @@ class TestPropertyBasedAttacks:
 
             # If generated, should be valid
             if global_id:
-                assert validate_global_id(global_id), "Invalid GlobalID from malformed dict"
+                assert validate_global_id(
+                    global_id
+                ), "Invalid GlobalID from malformed dict"
 
         except Exception as e:
             # Should handle gracefully
-            expected_errors = ["missing", "invalid", "malformed", "required", "must have"]
+            expected_errors = [
+                "missing",
+                "invalid",
+                "malformed",
+                "required",
+                "must have",
+            ]
             assert any(
                 word in str(e).lower() for word in expected_errors
             ), f"Unexpected malformed dict error: {str(e)}"

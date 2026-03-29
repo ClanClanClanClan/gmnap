@@ -80,7 +80,9 @@ class ArchitectureAwareAnalyzer:
             self.segment_cache[text] = segment(text.lower())
         return self.segment_cache[text]
 
-    def classify_fix(self, pattern: str, hangul: str, context: str) -> Tuple[FixType, bool]:
+    def classify_fix(
+        self, pattern: str, hangul: str, context: str
+    ) -> Tuple[FixType, bool]:
         """Classify fix type and determine if viable with current architecture"""
         # Test segmentation
         segments = self.test_segmentation(pattern)
@@ -169,7 +171,9 @@ class EnhancedFixGenerator:
                 expected = failure.get("expected")
                 actual = failure.get("actual")
 
-                print(f"  Processing: {name} -> expected '{expected}', actual '{actual}'")
+                print(
+                    f"  Processing: {name} -> expected '{expected}', actual '{actual}'"
+                )
 
                 if not expected:
                     print(f"    Skipping {name}: no expected value")
@@ -205,9 +209,13 @@ class EnhancedFixGenerator:
 
                     # Analyze given name failures
                     if actual and len(expected) > 1 and len(actual) > 1:
-                        for i, (exp_char, act_char) in enumerate(zip(expected[1:], actual[1:]), 1):
+                        for i, (exp_char, act_char) in enumerate(
+                            zip(expected[1:], actual[1:]), 1
+                        ):
                             if exp_char != act_char:
-                                print(f"    Given name issue: char {i+1} {exp_char} != {act_char}")
+                                print(
+                                    f"    Given name issue: char {i+1} {exp_char} != {act_char}"
+                                )
                                 # Try to find the romanization that caused this
                                 name_part = given_parts
                                 fix = self.analyzer.analyze_failure(
@@ -230,7 +238,9 @@ class EnhancedFixGenerator:
                 fixes.append(fix)
 
         # Sort by viability and impact
-        fixes.sort(key=lambda f: (f.viable, f.expected_impact, f.confidence), reverse=True)
+        fixes.sort(
+            key=lambda f: (f.viable, f.expected_impact, f.confidence), reverse=True
+        )
 
         return fixes
 
@@ -299,7 +309,9 @@ def main():
         f"1. Apply {viable_count} viable fixes immediately (est. +{viable_count * 0.5}% accuracy)"
     )
     print(f"2. {blocked_count} fixes need architecture changes for full benefit")
-    print("3. Consider adding pre-segmentation variant checking for multi-syllable patterns")
+    print(
+        "3. Consider adding pre-segmentation variant checking for multi-syllable patterns"
+    )
     print("4. Track blocked patterns for future converter improvements")
 
 

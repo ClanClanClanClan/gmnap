@@ -46,7 +46,9 @@ def _write_yaml_and_json(dir_path: pathlib.Path, batch: List[Dict]) -> Tuple[str
     yaml_path = dir_path / "entries.yaml"
     yaml_path.write_text(yaml_text, encoding="utf-8")
     json_path = dir_path / "entries.json"
-    json_path.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
+    json_path.write_text(
+        json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     # Return file paths
     return str(yaml_path), str(json_path)
 
@@ -62,9 +64,14 @@ def _load_entries_if_exists(path: str) -> List[Dict]:
 
 
 def _render_html_diff(
-    template_dir: str, out_dir: pathlib.Path, diff_payload: Dict[str, Any], run_hash: str
+    template_dir: str,
+    out_dir: pathlib.Path,
+    diff_payload: Dict[str, Any],
+    run_hash: str,
 ) -> str:
-    env = Environment(loader=FileSystemLoader(template_dir), autoescape=select_autoescape())
+    env = Environment(
+        loader=FileSystemLoader(template_dir), autoescape=select_autoescape()
+    )
     html = env.get_template("diff.html.j2").render(
         diff=diff_payload,
         run_hash=run_hash,
@@ -123,7 +130,9 @@ def _generate_sql_changelog(
 
     # Removed (left commented out by default)
     for gid in diff["removed_ids"]:
-        lines.append(f'// MATCH (m:Mathematician {{global_id: "{gid}"}}) DETACH DELETE m;')
+        lines.append(
+            f'// MATCH (m:Mathematician {{global_id: "{gid}"}}) DETACH DELETE m;'
+        )
 
     lines.append("COMMIT;")
     sql_path = out_dir / "changelog.cypher"

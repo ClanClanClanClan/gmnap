@@ -94,7 +94,9 @@ class LLMExtractETDStage:
         except Exception as e:
             raise ExtractionError(f"Stage 1b LLM extraction failed: {str(e)}")
 
-    def _identify_etd_documents(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _identify_etd_documents(
+        self, data: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Identify documents that are likely ETDs (theses/dissertations)"""
         etd_documents = []
 
@@ -120,7 +122,9 @@ class LLMExtractETDStage:
             text_lower = text_content.lower()
 
             # Count ETD keyword matches
-            keyword_matches = sum(1 for keyword in etd_keywords if keyword in text_lower)
+            keyword_matches = sum(
+                1 for keyword in etd_keywords if keyword in text_lower
+            )
 
             # Consider it an ETD if multiple keywords are present
             if keyword_matches >= 2:
@@ -187,7 +191,9 @@ class LLMExtractETDStage:
         # Or if we have very little information
         return missing_critical or len(extracted) < 2
 
-    def _llm_based_extraction(self, text: str, initial_extracted: Dict[str, Any]) -> Dict[str, Any]:
+    def _llm_based_extraction(
+        self, text: str, initial_extracted: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Use LLM to extract structured data from text"""
         try:
             # Prepare prompt for LLM
@@ -206,10 +212,14 @@ class LLMExtractETDStage:
             return merged
 
         except Exception as e:
-            logger.warning(f"LLM extraction failed, using pattern-based results: {str(e)}")
+            logger.warning(
+                f"LLM extraction failed, using pattern-based results: {str(e)}"
+            )
             return initial_extracted
 
-    def _create_extraction_prompt(self, text: str, initial_extracted: Dict[str, Any]) -> str:
+    def _create_extraction_prompt(
+        self, text: str, initial_extracted: Dict[str, Any]
+    ) -> str:
         """Create a prompt for LLM extraction"""
         prompt = f"""
 Extract structured information from this academic document text:

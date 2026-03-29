@@ -33,7 +33,9 @@ def fix_validation_tests():
                 new_lines.append(line)
             elif in_length_test and line.strip() and not line.strip().startswith("#"):
                 # Count indentation to know when method ends
-                if line[0] != " " or (len(line) - len(line.lstrip()) <= 4 and "def " in line):
+                if line[0] != " " or (
+                    len(line) - len(line.lstrip()) <= 4 and "def " in line
+                ):
                     in_length_test = False
                     new_lines.append(line)
                 else:

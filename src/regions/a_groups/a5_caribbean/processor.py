@@ -315,12 +315,16 @@ class A5CaribbeanProcessor(RegionSpec):
         # Add no-apostrophe variant (common in databases)
         no_apostrophe = self._remove_apostrophes(canonical)
         if no_apostrophe != canonical:
-            entry["Variants"]["Synthesised"].append({"str": no_apostrophe, "type": "no-apostrophe"})
+            entry["Variants"]["Synthesised"].append(
+                {"str": no_apostrophe, "type": "no-apostrophe"}
+            )
 
         # Add ASCII variant
         ascii_variant = self._generate_ascii_variant(canonical)
         if ascii_variant != canonical:
-            entry["Variants"]["Synthesised"].append({"str": ascii_variant, "type": "ascii-lossy"})
+            entry["Variants"]["Synthesised"].append(
+                {"str": ascii_variant, "type": "ascii-lossy"}
+            )
 
         # Add hyphenated initials variant (Rule #23)
         if components.get("has_hyphenated_given"):
@@ -404,7 +408,10 @@ class A5CaribbeanProcessor(RegionSpec):
             # Check for multi-word particles
             if i < len(family_words) - 1:
                 two_word = f"{word_lower} {family_words[i+1].lower()}"
-                if two_word in self.french_particles or two_word in self.dutch_particles:
+                if (
+                    two_word in self.french_particles
+                    or two_word in self.dutch_particles
+                ):
                     particles_found.append(f"{word} {family_words[i+1]}")
                     i += 2
                     continue
@@ -425,7 +432,10 @@ class A5CaribbeanProcessor(RegionSpec):
             components["main_surname"] = " ".join(main_surname)
 
         # Check for Saint- compounds (common in Caribbean)
-        if any(part.startswith("Saint-") or part.startswith("Sainte-") for part in family_words):
+        if any(
+            part.startswith("Saint-") or part.startswith("Sainte-")
+            for part in family_words
+        ):
             components["has_saint_compound"] = True
 
         # Check for African-influenced patterns
@@ -553,7 +563,9 @@ class A5CaribbeanProcessor(RegionSpec):
 
         return result
 
-    def _generate_initials_variant(self, name: str, components: Dict[str, Any]) -> Optional[str]:
+    def _generate_initials_variant(
+        self, name: str, components: Dict[str, Any]
+    ) -> Optional[str]:
         """Generate variant with hyphenated names as initials (Rule #23)."""
         if not components.get("has_hyphenated_given"):
             return None
@@ -619,7 +631,9 @@ class A5CaribbeanProcessor(RegionSpec):
     def _is_valid_caribbean_name(self, name: str) -> bool:
         """Check if name contains valid Caribbean characters."""
         # Allow basic Latin, Caribbean special characters, and common punctuation
-        allowed = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'")
+        allowed = set(
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'"
+        )
         allowed.update(self.allowed_chars)
 
         return all(c in allowed for c in name)

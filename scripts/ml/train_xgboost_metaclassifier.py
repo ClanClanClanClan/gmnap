@@ -97,7 +97,9 @@ class MetaClassifierFeatureExtractor:
 
         self.re = re
 
-    def extract_features(self, entry: Dict, phase1_result, phase2_results) -> np.ndarray:
+    def extract_features(
+        self, entry: Dict, phase1_result, phase2_results
+    ) -> np.ndarray:
         """
         Extract 86 features for meta-classification.
 
@@ -133,9 +135,13 @@ class MetaClassifierFeatureExtractor:
         phase1_region = phase1_result.region_code
         phase2_region = phase2_results[0].region_code if phase2_results else None
 
-        features.append(1.0 if phase1_region == phase2_region else 0.0)  # 7: exact agreement
         features.append(
-            1.0 if phase1_region and phase2_region and phase1_region[0] == phase2_region[0] else 0.0
+            1.0 if phase1_region == phase2_region else 0.0
+        )  # 7: exact agreement
+        features.append(
+            1.0
+            if phase1_region and phase2_region and phase1_region[0] == phase2_region[0]
+            else 0.0
         )  # 8: group agreement (A1/A2 etc)
 
         # Features 9-28: Script detection (20 features)
@@ -152,13 +158,19 @@ class MetaClassifierFeatureExtractor:
         parts = name.split()
         features.append(len(parts))  # 45: number of name parts
         features.append(len(name))  # 46: total character count
-        features.append(len(name.replace(" ", "")))  # 47: character count without spaces
+        features.append(
+            len(name.replace(" ", ""))
+        )  # 47: character count without spaces
         features.append(1.0 if len(parts) >= 3 else 0.0)  # 48: has 3+ parts
-        features.append(1.0 if any(len(p) == 1 for p in parts) else 0.0)  # 49: has initial
+        features.append(
+            1.0 if any(len(p) == 1 for p in parts) else 0.0
+        )  # 49: has initial
         features.append(1.0 if "," in name else 0.0)  # 50: has comma
         features.append(1.0 if "-" in name else 0.0)  # 51: has hyphen
         features.append(1.0 if "'" in name else 0.0)  # 52: has apostrophe
-        features.append(1.0 if any(c.isupper() for c in name[1:]) else 0.0)  # 53: has internal caps
+        features.append(
+            1.0 if any(c.isupper() for c in name[1:]) else 0.0
+        )  # 53: has internal caps
         features.append(sum(1 for c in name if c.isupper()))  # 54: uppercase count
         features.append(sum(1 for c in name if c.islower()))  # 55: lowercase count
         features.append(sum(1 for c in name if c.isdigit()))  # 56: digit count
@@ -189,14 +201,18 @@ class MetaClassifierFeatureExtractor:
 
         features.append(vowel_count)  # 61
         features.append(consonant_count)  # 62
-        features.append(vowel_count / len(name) if len(name) > 0 else 0)  # 63: vowel ratio
+        features.append(
+            vowel_count / len(name) if len(name) > 0 else 0
+        )  # 63: vowel ratio
 
         # Diacritic detection
         diacritics = "áéíóúàèìòùâêîôûäëïöüãõñçåøæœ"
         features.append(
             1.0 if any(c.lower() in diacritics for c in name) else 0.0
         )  # 64: has diacritics
-        features.append(sum(1 for c in name if c.lower() in diacritics))  # 65: diacritic count
+        features.append(
+            sum(1 for c in name if c.lower() in diacritics)
+        )  # 65: diacritic count
 
         # Character diversity
         unique_chars = len(set(name.lower()))
@@ -211,7 +227,8 @@ class MetaClassifierFeatureExtractor:
 
         # Word boundaries (camelCase detection)
         has_camel_case = any(
-            i > 0 and name[i].isupper() and name[i - 1].islower() for i in range(len(name))
+            i > 0 and name[i].isupper() and name[i - 1].islower()
+            for i in range(len(name))
         )
         features.append(1.0 if has_camel_case else 0.0)  # 69
 
@@ -244,7 +261,8 @@ class MetaClassifierFeatureExtractor:
 
         # Confidence gap between Phase 1 and Phase 2
         conf_gap = abs(
-            phase1_result.confidence - (phase2_results[0].confidence if phase2_results else 0)
+            phase1_result.confidence
+            - (phase2_results[0].confidence if phase2_results else 0)
         )
         features.append(conf_gap)  # 77
 
@@ -386,7 +404,9 @@ def main():
                     pass
 
         # Extract features
-        features = feature_extractor.extract_features(entry, phase1_result, phase2_results)
+        features = feature_extractor.extract_features(
+            entry, phase1_result, phase2_results
+        )
         X.append(features)
 
         # Label
@@ -434,7 +454,12 @@ def main():
     # Train with early stopping
     evals = [(dtrain, "train"), (dtest, "test")]
     bst = xgb.train(
-        params, dtrain, num_boost_round=200, evals=evals, early_stopping_rounds=20, verbose_eval=20
+        params,
+        dtrain,
+        num_boost_round=200,
+        evals=evals,
+        early_stopping_rounds=20,
+        verbose_eval=20,
     )
 
     print()
@@ -457,7 +482,10 @@ def main():
 
     # Save model
     model_file = (
-        Path(__file__).parent.parent.parent / "data" / "ml_training" / "xgboost_metaclassifier.json"
+        Path(__file__).parent.parent.parent
+        / "data"
+        / "ml_training"
+        / "xgboost_metaclassifier.json"
     )
     bst.save_model(str(model_file))
 

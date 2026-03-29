@@ -97,7 +97,12 @@ class V7RealityAuditor:
                 "김민수",
                 "Kim Min-su",
             ),
-            ("src.regions.b_groups.b1_east_slavic", "B1_EastSlavic", "Иванов", "Ivanov"),
+            (
+                "src.regions.b_groups.b1_east_slavic",
+                "B1_EastSlavic",
+                "Иванов",
+                "Ivanov",
+            ),
             ("src.regions.e_groups.e3_japan.processor", "E3_Japan", "田中", "Tanaka"),
             (
                 "src.regions.c_groups.c3_arabic_levant_nile.processor",
@@ -124,7 +129,9 @@ class V7RealityAuditor:
                 pass
 
         score = int(max_score * working / len(regions_to_test))
-        print(f"  📊 {working}/{len(regions_to_test)} regions working ({score}/{max_score})")
+        print(
+            f"  📊 {working}/{len(regions_to_test)} regions working ({score}/{max_score})"
+        )
 
         self.results["tests"]["regional"] = working == len(regions_to_test)
         self.results["scores"]["regional"] = {"score": score, "max": max_score}
@@ -265,7 +272,8 @@ class V7RealityAuditor:
 
             # Create test batch
             test_data = [
-                {"CanonicalNative": f"Test{i}", "GlobalID": f"TEST-{i:04d}"} for i in range(100)
+                {"CanonicalNative": f"Test{i}", "GlobalID": f"TEST-{i:04d}"}
+                for i in range(100)
             ]
 
             start = time.time()
@@ -275,7 +283,9 @@ class V7RealityAuditor:
             if result:
                 metrics = result.get("metrics", {})
                 rate = metrics.get("entries_per_second", 0)
-                projected = metrics.get("projected_time_per_million_minutes", float("inf"))
+                projected = metrics.get(
+                    "projected_time_per_million_minutes", float("inf")
+                )
 
                 # Score based on performance
                 if rate > 0:
@@ -284,7 +294,9 @@ class V7RealityAuditor:
 
                 if projected < 35:  # Under 35 min target
                     score += 10
-                    print(f"  ✅ Meets performance target: {projected:.1f} min/1M (10/10)")
+                    print(
+                        f"  ✅ Meets performance target: {projected:.1f} min/1M (10/10)"
+                    )
                 elif projected < 70:  # Under 70 min
                     score += 5
                     print(f"  ⚠️ Slow but acceptable: {projected:.1f} min/1M (5/10)")
@@ -560,7 +572,9 @@ class V7RealityAuditor:
 
         self.results["total_score"] = total_score
         self.results["max_score"] = max_score
-        self.results["compliance_percent"] = (total_score / max_score * 100) if max_score > 0 else 0
+        self.results["compliance_percent"] = (
+            (total_score / max_score * 100) if max_score > 0 else 0
+        )
 
         # Print summary
         print("\n" + "=" * 80)
@@ -568,7 +582,9 @@ class V7RealityAuditor:
         print("=" * 80)
 
         for component, scores in self.results["scores"].items():
-            percent = (scores["score"] / scores["max"] * 100) if scores["max"] > 0 else 0
+            percent = (
+                (scores["score"] / scores["max"] * 100) if scores["max"] > 0 else 0
+            )
             status = "✅" if percent == 100 else "⚠️" if percent >= 50 else "❌"
             print(
                 f"{status} {component.ljust(20)}: {scores['score']}/{scores['max']} ({percent:.1f}%)"
@@ -601,7 +617,9 @@ class V7RealityAuditor:
                     print(f"  - {component}: need {missing} more points")
 
         # Save results
-        output_file = f"v7_reality_audit_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        output_file = (
+            f"v7_reality_audit_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
         with open(output_file, "w") as f:
             json.dump(self.results, f, indent=2)
         print(f"\n📄 Detailed results saved to: {output_file}")

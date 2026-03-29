@@ -65,7 +65,9 @@ def check_pipeline_modes():
         try:
             pipeline = V7Pipeline(mode=mode)
             # Test a small batch
-            test_entries = [{"CanonicalNative": "Test Name", "GlobalID": f"TEST-{mode.value}"}]
+            test_entries = [
+                {"CanonicalNative": "Test Name", "GlobalID": f"TEST-{mode.value}"}
+            ]
             result = asyncio.run(pipeline.process_batch(test_entries))
 
             if result and "entries" in result:
@@ -83,7 +85,12 @@ def check_pipeline_modes():
 
 def check_code_quality():
     """Check for code quality issues."""
-    results = {"print_statements": 0, "long_lines": 0, "syntax_errors": 0, "files_checked": 0}
+    results = {
+        "print_statements": 0,
+        "long_lines": 0,
+        "syntax_errors": 0,
+        "files_checked": 0,
+    }
 
     # Check for print statements in src/
     print_files = []
@@ -110,7 +117,9 @@ def check_code_quality():
                                 print_files.append(file_path)
 
                         # Check for long lines (>100 chars, excluding comments)
-                        if len(line.rstrip()) > 100 and not line.strip().startswith("#"):
+                        if len(line.rstrip()) > 100 and not line.strip().startswith(
+                            "#"
+                        ):
                             results["long_lines"] += 1
                             if file_path not in long_line_files:
                                 long_line_files.append(file_path)
@@ -129,7 +138,9 @@ def check_code_quality():
         print(f"  ✅ No print statements found")
 
     if results["long_lines"] > 0:
-        print(f"  ⚠️  Found {results['long_lines']} long lines in {len(long_line_files)} files")
+        print(
+            f"  ⚠️  Found {results['long_lines']} long lines in {len(long_line_files)} files"
+        )
         for file in long_line_files[:3]:  # Show first 3
             print(f"      - {file}")
     else:
@@ -281,7 +292,9 @@ def main():
             print(f"   - {issue}")
 
     # Save results
-    results_file = f"final_check_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    results_file = (
+        f"final_check_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
     with open(results_file, "w") as f:
         json.dump(all_results, f, indent=2)
     print(f"\n📄 Full results saved to: {results_file}")

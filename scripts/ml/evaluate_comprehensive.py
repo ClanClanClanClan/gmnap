@@ -93,7 +93,9 @@ def evaluate_comprehensive(
         "by_script": defaultdict(
             lambda: {"total": 0, "correct_top1": 0, "correct_top3": 0, "abstained": 0}
         ),
-        "by_region": defaultdict(lambda: {"total": 0, "correct_top1": 0, "correct_top3": 0}),
+        "by_region": defaultdict(
+            lambda: {"total": 0, "correct_top1": 0, "correct_top3": 0}
+        ),
         "predictions": [],
     }
 
@@ -164,13 +166,21 @@ def evaluate_comprehensive(
 
     non_abstained = results["total"] - results["abstained"]
 
-    overall_top1 = results["correct_top1"] / non_abstained * 100 if non_abstained > 0 else 0
-    overall_top3 = results["correct_top3"] / non_abstained * 100 if non_abstained > 0 else 0
+    overall_top1 = (
+        results["correct_top1"] / non_abstained * 100 if non_abstained > 0 else 0
+    )
+    overall_top3 = (
+        results["correct_top3"] / non_abstained * 100 if non_abstained > 0 else 0
+    )
     abstention_rate = results["abstained"] / results["total"] * 100
 
     print(f"\n  Overall (excluding abstentions):")
-    print(f"    Top-1 accuracy: {overall_top1:.2f}% ({results['correct_top1']}/{non_abstained})")
-    print(f"    Top-3 accuracy: {overall_top3:.2f}% ({results['correct_top3']}/{non_abstained})")
+    print(
+        f"    Top-1 accuracy: {overall_top1:.2f}% ({results['correct_top1']}/{non_abstained})"
+    )
+    print(
+        f"    Top-3 accuracy: {overall_top3:.2f}% ({results['correct_top3']}/{non_abstained})"
+    )
     print(
         f"    Abstention rate: {abstention_rate:.1f}% ({results['abstained']}/{results['total']})"
     )
@@ -212,9 +222,16 @@ def evaluate_comprehensive(
 
     latin_top1 = (
         results["by_script"]["Latin"]["correct_top1"]
-        / (results["by_script"]["Latin"]["total"] - results["by_script"]["Latin"]["abstained"])
+        / (
+            results["by_script"]["Latin"]["total"]
+            - results["by_script"]["Latin"]["abstained"]
+        )
         * 100
-        if (results["by_script"]["Latin"]["total"] - results["by_script"]["Latin"]["abstained"]) > 0
+        if (
+            results["by_script"]["Latin"]["total"]
+            - results["by_script"]["Latin"]["abstained"]
+        )
+        > 0
         else 0
     )
     print(

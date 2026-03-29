@@ -122,7 +122,9 @@ def test_english_names():
 def test_accuracy():
     """Get current accuracy numbers."""
     # Test mathematician
-    result = subprocess.run(["python3", "scripts/validate.py"], capture_output=True, text=True)
+    result = subprocess.run(
+        ["python3", "scripts/validate.py"], capture_output=True, text=True
+    )
     math_pass = int(result.stdout.split()[0].split("/")[0])
 
     # Test diverse
@@ -154,11 +156,15 @@ def main():
     if add_english_syllables():
         # Update lexicon
         print("\nUpdating syllable lexicon...")
-        subprocess.run(["python3", "src/syllable_lexicon_fixed.py"], capture_output=True, text=True)
+        subprocess.run(
+            ["python3", "src/syllable_lexicon_fixed.py"], capture_output=True, text=True
+        )
 
         # Rebuild FSTs
         print("Rebuilding FSTs...")
-        subprocess.run(["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True)
+        subprocess.run(
+            ["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True
+        )
 
         # Test specific cases
         test_english_names()
@@ -172,7 +178,9 @@ def main():
         # Report results
         print("\n" + "=" * 50)
         print("Results:")
-        print(f"  Mathematician: {math_before} → {math_after} ({math_after - math_before:+d})")
+        print(
+            f"  Mathematician: {math_before} → {math_after} ({math_after - math_before:+d})"
+        )
         print(f"  Diverse: {div_before} → {div_after} ({div_after - div_before:+d})")
 
         if math_after >= math_before:

@@ -46,9 +46,7 @@ def fix_augment_method(file_path: Path) -> bool:
     pattern = r'(def augment\(self, entry: Dict\[str, Any\]\) -> None:\s*\n\s*"""[^"]*"""\s*\n)'
 
     # Replacement adds RegionCode as first line after docstring
-    replacement = (
-        r'\1        # Add region code\n        entry["RegionCode"] = self.code\n        \n'
-    )
+    replacement = r'\1        # Add region code\n        entry["RegionCode"] = self.code\n        \n'
 
     new_content = re.sub(pattern, replacement, content)
 

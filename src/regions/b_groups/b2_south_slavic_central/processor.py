@@ -61,23 +61,44 @@ class B2_SouthSlavicCentral(RegionSpec):
                 "chars": self.polish_chars,
                 "suffixes": ["ski", "ska", "cki", "cka", "icz", "owicz", "ewicz"],
             },
-            "CZ": {"chars": self.czech_slovak_chars, "suffixes": ["ová", "ý", "á", "ek", "ík"]},
+            "CZ": {
+                "chars": self.czech_slovak_chars,
+                "suffixes": ["ová", "ý", "á", "ek", "ík"],
+            },
             "SK": {
                 "chars": self.czech_slovak_chars,
                 "suffixes": ["ová", "ý", "á", "ek", "ík", "iak"],
             },
             "HU": {"chars": set("áéíóöőúüűÁÉÍÓÖŐÚÜŰ"), "name_order": "Family Given"},
-            "RO": {"chars": self.romanian_chars, "suffixes": ["escu", "eanu", "aru", "an"]},
-            "HR": {"chars": self.south_slavic_latin, "suffixes": ["ić", "ović", "ević"]},
+            "RO": {
+                "chars": self.romanian_chars,
+                "suffixes": ["escu", "eanu", "aru", "an"],
+            },
+            "HR": {
+                "chars": self.south_slavic_latin,
+                "suffixes": ["ić", "ović", "ević"],
+            },
             "SI": {"chars": self.south_slavic_latin, "suffixes": ["ič", "nik", "ar"]},
             "RS": {
                 "scripts": ["Cyrillic", "Latin"],
                 "suffixes": ["ић", "овић", "евић", "ić", "ović", "ević"],
             },
-            "BG": {"scripts": ["Cyrillic"], "suffixes": ["ов", "ова", "ев", "ева", "ски", "ска"]},
-            "MK": {"scripts": ["Cyrillic"], "suffixes": ["ски", "ска", "ов", "ова", "ев", "ева"]},
-            "BA": {"scripts": ["Latin", "Cyrillic"], "suffixes": ["ić", "ović", "begović"]},
-            "ME": {"scripts": ["Latin", "Cyrillic"], "suffixes": ["ić", "ović", "ević"]},
+            "BG": {
+                "scripts": ["Cyrillic"],
+                "suffixes": ["ов", "ова", "ев", "ева", "ски", "ска"],
+            },
+            "MK": {
+                "scripts": ["Cyrillic"],
+                "suffixes": ["ски", "ска", "ов", "ова", "ев", "ева"],
+            },
+            "BA": {
+                "scripts": ["Latin", "Cyrillic"],
+                "suffixes": ["ić", "ović", "begović"],
+            },
+            "ME": {
+                "scripts": ["Latin", "Cyrillic"],
+                "suffixes": ["ić", "ović", "ević"],
+            },
             "AL": {"chars": set("ëçËÇ"), "suffixes": ["i", "u", "aj", "llari"]},
             "XK": {
                 "scripts": ["Latin"],
@@ -87,7 +108,13 @@ class B2_SouthSlavicCentral(RegionSpec):
 
         # Hungarian name order detection patterns
         self.hungarian_patterns = {
-            "family_suffixes": ["fi", "fy", "i", "y", "né"],  # Common Hungarian family name endings
+            "family_suffixes": [
+                "fi",
+                "fy",
+                "i",
+                "y",
+                "né",
+            ],  # Common Hungarian family name endings
             "common_families": [
                 "Nagy",
                 "Kovács",
@@ -152,7 +179,9 @@ class B2_SouthSlavicCentral(RegionSpec):
                     if char_code == 127:  # DEL
                         raise RegionRuleError(f"DELETE character in {field}")
                     if char_code in [0x200B, 0x200C, 0x200D, 0xFEFF]:  # Zero-width
-                        raise RegionRuleError(f"Zero-width character in {field}: U+{char_code:04X}")
+                        raise RegionRuleError(
+                            f"Zero-width character in {field}: U+{char_code:04X}"
+                        )
 
         # More flexible: try to get any available name
         canonical = self.get_canonical_name(entry)
@@ -168,7 +197,9 @@ class B2_SouthSlavicCentral(RegionSpec):
         cleaned = titles_pattern.sub("", canonical)
 
         # Remove nobility titles (still sometimes seen)
-        nobility_pattern = re.compile(r"\b(von|de|gróf|báró|herceg|князь|граф)\s+", re.IGNORECASE)
+        nobility_pattern = re.compile(
+            r"\b(von|de|gróf|báró|herceg|князь|граф)\s+", re.IGNORECASE
+        )
         cleaned = nobility_pattern.sub("", cleaned)
 
         # Normalize Unicode
@@ -231,7 +262,9 @@ class B2_SouthSlavicCentral(RegionSpec):
             if script == "Latin":
                 cyrillic_variant = self._latin_to_cyrillic_serbian(canonical)
                 if cyrillic_variant and cyrillic_variant != canonical:
-                    variants.append({"str": cyrillic_variant, "type": "romanisation-alt"})
+                    variants.append(
+                        {"str": cyrillic_variant, "type": "romanisation-alt"}
+                    )
             elif script == "Cyrillic":
                 latin_variant = self._cyrillic_to_latin_serbian(canonical)
                 if latin_variant and latin_variant != canonical:
@@ -304,7 +337,9 @@ class B2_SouthSlavicCentral(RegionSpec):
         # Validate character set based on script (secure but supports Slavic chars)
         if not self._has_valid_slavic_characters_secure(canonical):
             invalid_chars = self._get_invalid_characters_secure(canonical)
-            raise RegionRuleError(f"Invalid characters for B2 region: {', '.join(invalid_chars)}")
+            raise RegionRuleError(
+                f"Invalid characters for B2 region: {', '.join(invalid_chars)}"
+            )
 
         # Warn about potential issues
         if script == "Mixed":
@@ -406,7 +441,8 @@ class B2_SouthSlavicCentral(RegionSpec):
 
         # Check for typical Hungarian endings
         if any(
-            first_word.endswith(suffix) for suffix in self.hungarian_patterns["family_suffixes"]
+            first_word.endswith(suffix)
+            for suffix in self.hungarian_patterns["family_suffixes"]
         ):
             return True
 
@@ -455,7 +491,9 @@ class B2_SouthSlavicCentral(RegionSpec):
             return "RS"  # Serbian Latin
 
         # Albanian
-        if any(c in name for c in "ëË") or any(name.endswith(suffix) for suffix in ["aj", "llari"]):
+        if any(c in name for c in "ëË") or any(
+            name.endswith(suffix) for suffix in ["aj", "llari"]
+        ):
             return "AL"
 
         return None
@@ -466,7 +504,9 @@ class B2_SouthSlavicCentral(RegionSpec):
             return True
         if country == "PL" and name.endswith("ska"):
             return True
-        if country == "BG" and any(name.endswith(suffix) for suffix in ["ова", "ева", "ска"]):
+        if country == "BG" and any(
+            name.endswith(suffix) for suffix in ["ова", "ева", "ска"]
+        ):
             return True
         return False
 
@@ -485,7 +525,9 @@ class B2_SouthSlavicCentral(RegionSpec):
                 elif not male_family.endswith(("ý", "í")):
                     male_family += "ý"
 
-                variants.append({"str": f"{male_family}, {given}", "type": "gender-variant"})
+                variants.append(
+                    {"str": f"{male_family}, {given}", "type": "gender-variant"}
+                )
 
         return variants
 
@@ -522,11 +564,15 @@ class B2_SouthSlavicCentral(RegionSpec):
 
                 # Generate canonical format (Family, Given)
                 canonical_format = f"{family}, {given}"
-                variants.append({"str": canonical_format, "type": "hungarian-canonical"})
+                variants.append(
+                    {"str": canonical_format, "type": "hungarian-canonical"}
+                )
 
                 # Generate Western order (Given Family)
                 western_order = f"{given} {family}"
-                variants.append({"str": western_order, "type": "hungarian-western-order"})
+                variants.append(
+                    {"str": western_order, "type": "hungarian-western-order"}
+                )
 
         return variants
 
@@ -746,7 +792,9 @@ class B2_SouthSlavicCentral(RegionSpec):
     def _has_valid_slavic_characters_secure(self, name: str) -> bool:
         """Check if name contains valid characters for B2 region (secure but supports Slavic)."""
         # Define allowed character sets specifically for B2 region
-        basic_latin = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ,-'.")
+        basic_latin = set(
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ,-'."
+        )
 
         # Add B2-specific extended Latin characters
         extended_chars = (
@@ -759,7 +807,9 @@ class B2_SouthSlavicCentral(RegionSpec):
 
     def _get_invalid_characters_secure(self, name: str) -> Set[str]:
         """Get characters that are not valid for B2 region."""
-        basic_latin = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ,-'.")
+        basic_latin = set(
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ,-'."
+        )
         extended_chars = self.latin_extended | self.cyrillic_chars
         allowed_chars = basic_latin | extended_chars
 

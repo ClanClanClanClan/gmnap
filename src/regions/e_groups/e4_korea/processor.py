@@ -20,7 +20,9 @@ RES_BASE = Path(__file__).parent / "resources"
 
 # Load name overrides
 try:
-    _NAME_OVERRIDES = json.loads((RES_BASE / "name_overrides.json").read_text(encoding="utf-8"))
+    _NAME_OVERRIDES = json.loads(
+        (RES_BASE / "name_overrides.json").read_text(encoding="utf-8")
+    )
 except FileNotFoundError:
     _NAME_OVERRIDES = {}
 
@@ -111,7 +113,9 @@ class E4KoreanProcessor:
         native = data.get("CanonicalNative", "")
         if native:
             # Remove dangerous characters and normalize
-            cleaned = "".join(c for c in native if c.isprintable() and ord(c) < 0x110000)
+            cleaned = "".join(
+                c for c in native if c.isprintable() and ord(c) < 0x110000
+            )
             # Basic length limit
             if len(cleaned) > 100:
                 cleaned = cleaned[:100]
@@ -125,7 +129,9 @@ class E4KoreanProcessor:
             # Normalize whitespace: collapse multiple spaces to single space, trim ends
             cleaned = re.sub(r"\s+", " ", latin.strip())
             # Remove dangerous characters but preserve basic punctuation for names
-            cleaned = "".join(c for c in cleaned if c.isprintable() and ord(c) < 0x110000)
+            cleaned = "".join(
+                c for c in cleaned if c.isprintable() and ord(c) < 0x110000
+            )
             # Apply Korean name formatting rules
             cleaned = self._format_korean_latin_name(cleaned)
             # Basic length limit
@@ -145,7 +151,10 @@ class E4KoreanProcessor:
         # Remove dangerous/malicious content first
         name = re.sub(r"<[^>]*>", "", name)  # Remove HTML/XML tags
         name = re.sub(
-            r'[\'";].*(?:DROP|DELETE|INSERT|UPDATE|SELECT).*[\'";]?', "", name, flags=re.IGNORECASE
+            r'[\'";].*(?:DROP|DELETE|INSERT|UPDATE|SELECT).*[\'";]?',
+            "",
+            name,
+            flags=re.IGNORECASE,
         )  # Remove SQL injection attempts
         name = re.sub(r"\.\./", "", name)  # Remove path traversal attempts
         name = re.sub(r'[<>"\']', "", name)  # Remove remaining dangerous characters
@@ -153,10 +162,17 @@ class E4KoreanProcessor:
         # Handle parenthetical content (remove Hangul in parentheses, Hanja in brackets, etc)
         name = re.sub(r"\s*\([^)]*\)\s*", "", name)  # Remove (content)
         name = re.sub(r"\s*\[[^\]]*\]\s*", "", name)  # Remove [content]
-        name = re.sub(r"\s*aka\s+.*$", "", name, flags=re.IGNORECASE)  # Remove "aka aliases"
+        name = re.sub(
+            r"\s*aka\s+.*$", "", name, flags=re.IGNORECASE
+        )  # Remove "aka aliases"
 
         # Remove titles
-        name = re.sub(r"^(Dr\.|Mr\.|Mrs\.|Ms\.|Prof\.|Professor)\s+", "", name, flags=re.IGNORECASE)
+        name = re.sub(
+            r"^(Dr\.|Mr\.|Mrs\.|Ms\.|Prof\.|Professor)\s+",
+            "",
+            name,
+            flags=re.IGNORECASE,
+        )
 
         # Apply smart title case to each word while preserving correct formatting
         words = name.split()
@@ -334,12 +350,16 @@ class E4KoreanProcessor:
             if surname in alt_mappings:
                 for alt_surname in alt_mappings[surname]:
                     alt_name = f"{alt_surname} {given_name}"
-                    alternatives.append({"str": alt_name, "type": "romanization-alternate"})
+                    alternatives.append(
+                        {"str": alt_name, "type": "romanization-alternate"}
+                    )
 
             # Generate historical romanizations (mainly for Lee -> Rhee)
             if surname == "Lee":
                 historical_name = f"Rhee {given_name}"
-                alternatives.append({"str": historical_name, "type": "romanization-historical"})
+                alternatives.append(
+                    {"str": historical_name, "type": "romanization-historical"}
+                )
 
             # Generate given name syllable alternatives for all surname variants
             all_surnames = [surname]
@@ -380,7 +400,9 @@ class E4KoreanProcessor:
                                     if surname_variant == "Rhee"
                                     else "romanization-alternate"
                                 )
-                                alternatives.append({"str": alt_name, "type": variant_type})
+                                alternatives.append(
+                                    {"str": alt_name, "type": variant_type}
+                                )
 
         return alternatives
 
@@ -406,8 +428,12 @@ class E4KoreanProcessor:
             structure = self.parser.parse(native)
             metadata.update(
                 {
-                    "surname_syllables": len(structure.surname_ko) if structure.surname_ko else 0,
-                    "given_syllables": len(structure.given_ko) if structure.given_ko else 0,
+                    "surname_syllables": (
+                        len(structure.surname_ko) if structure.surname_ko else 0
+                    ),
+                    "given_syllables": (
+                        len(structure.given_ko) if structure.given_ko else 0
+                    ),
                     "has_compound_surname": (
                         len(structure.surname_ko) > 1 if structure.surname_ko else False
                     ),
@@ -425,24 +451,33 @@ class E4KoreanProcessor:
                 variants.append({"str": latin, "type": "romanization-standard"})
 
                 # Generate alternative romanizations for common patterns
-                alternative_romanizations = self._generate_alternative_romanizations(latin)
+                alternative_romanizations = self._generate_alternative_romanizations(
+                    latin
+                )
                 variants.extend(alternative_romanizations)
 
                 # Space variant (hyphen to space)
                 if "-" in latin:
-                    variants.append({"str": latin.replace("-", " "), "type": "romanization-space"})
+                    variants.append(
+                        {"str": latin.replace("-", " "), "type": "romanization-space"}
+                    )
                 # Concatenated variant (remove hyphens)
                 if "-" in latin:
-                    variants.append({"str": latin.replace("-", ""), "type": "romanization-concat"})
+                    variants.append(
+                        {"str": latin.replace("-", ""), "type": "romanization-concat"}
+                    )
 
                 # Generate concatenated variants for key alternative romanizations
                 for alt in alternative_romanizations:
                     if (
-                        alt["type"] in ["romanization-alternate", "romanization-historical"]
+                        alt["type"]
+                        in ["romanization-alternate", "romanization-historical"]
                         and "-" in alt["str"]
                     ):
                         concat_variant = alt["str"].replace("-", "")
-                        variants.append({"str": concat_variant, "type": "romanization-concat"})
+                        variants.append(
+                            {"str": concat_variant, "type": "romanization-concat"}
+                        )
                 # Comma format
                 if "," not in latin:
                     parts = latin.split()
@@ -457,8 +492,12 @@ class E4KoreanProcessor:
             # Handle romanized Korean names
             variants.append({"str": latin, "type": "romanization-standard"})
             if "-" in latin:
-                variants.append({"str": latin.replace("-", " "), "type": "romanization-space"})
-                variants.append({"str": latin.replace("-", ""), "type": "romanization-concat"})
+                variants.append(
+                    {"str": latin.replace("-", " "), "type": "romanization-space"}
+                )
+                variants.append(
+                    {"str": latin.replace("-", ""), "type": "romanization-concat"}
+                )
             if "," not in latin:
                 # Add comma format
                 parts = latin.split()

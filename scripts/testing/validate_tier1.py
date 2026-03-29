@@ -18,7 +18,9 @@ from datetime import datetime
 from src.regions.manager_optimized import RegionManager
 
 
-def wilson_score_interval(successes: int, trials: int, confidence: float = 0.95) -> tuple:
+def wilson_score_interval(
+    successes: int, trials: int, confidence: float = 0.95
+) -> tuple:
     """
     Calculate Wilson score confidence interval for binomial proportion.
 
@@ -44,7 +46,9 @@ def wilson_score_interval(successes: int, trials: int, confidence: float = 0.95)
 
     denominator = 1 + z**2 / trials
     center = (p + z**2 / (2 * trials)) / denominator
-    margin = z * math.sqrt((p * (1 - p) / trials + z**2 / (4 * trials**2))) / denominator
+    margin = (
+        z * math.sqrt((p * (1 - p) / trials + z**2 / (4 * trials**2))) / denominator
+    )
 
     lower = center - margin
     upper = center + margin
@@ -99,7 +103,9 @@ def validate_tier1(verbose: bool = False, save_failures: bool = False):
         # Detect region
         detection = manager.detect_region({"CanonicalLatin": name})
 
-        detected_region = detection.region_code.split("_")[0].upper() if detection else "NONE"
+        detected_region = (
+            detection.region_code.split("_")[0].upper() if detection else "NONE"
+        )
         is_correct = detected_region == expected_region
 
         # Record results
@@ -123,7 +129,9 @@ def validate_tier1(verbose: bool = False, save_failures: bool = False):
             if verbose:
                 print(f"❌ [{i}/{total_tests}] {name}")
                 print(f"   Expected: {expected_region}, Got: {detected_region}")
-                print(f"   Confidence: {failure['confidence']:.2f}, Method: {failure['method']}")
+                print(
+                    f"   Confidence: {failure['confidence']:.2f}, Method: {failure['method']}"
+                )
                 print()
 
         # Progress indicator
@@ -166,7 +174,9 @@ def validate_tier1(verbose: bool = False, save_failures: bool = False):
     print("PER-REGION ACCURACY")
     print("=" * 80)
     print()
-    print(f"{'Region':<8} {'Correct':<10} {'Total':<8} {'Accuracy':<10} {'95% CI':<20} {'Status'}")
+    print(
+        f"{'Region':<8} {'Correct':<10} {'Total':<8} {'Accuracy':<10} {'95% CI':<20} {'Status'}"
+    )
     print("-" * 80)
 
     sorted_regions = sorted(results["by_region"].items(), key=lambda x: x[0])
@@ -223,9 +233,13 @@ def validate_tier1(verbose: bool = False, save_failures: bool = False):
     # Sample size adequacy
     required_n = 3147  # For ±1% margin at 95% CI
     if results["total_tested"] >= required_n:
-        print(f"✅ Sample size adequate for ±1% margin ({results['total_tested']} ≥ {required_n})")
+        print(
+            f"✅ Sample size adequate for ±1% margin ({results['total_tested']} ≥ {required_n})"
+        )
     else:
-        print(f"⚠️  Sample size below target ({results['total_tested']} < {required_n})")
+        print(
+            f"⚠️  Sample size below target ({results['total_tested']} < {required_n})"
+        )
         print(f"   Current margin: ±{margin*100:.1f}%")
 
     # Coverage completeness
@@ -250,7 +264,9 @@ def validate_tier1(verbose: bool = False, save_failures: bool = False):
 
     if overall_acc >= target and len(failed_regions) <= 3:
         print("✅ VALIDATION PASSED")
-        print(f"   Overall accuracy {overall_acc:.1f}% meets Phase 1 target (≥{target}%)")
+        print(
+            f"   Overall accuracy {overall_acc:.1f}% meets Phase 1 target (≥{target}%)"
+        )
         print(f"   {len(failed_regions)} regions below threshold (acceptable)")
     elif overall_acc >= target:
         print("⚠️  CONDITIONAL PASS")
@@ -287,7 +303,9 @@ def save_failure_report(results: dict):
                 "total": stats["total"],
                 "correct": stats["correct"],
                 "accuracy": (
-                    (stats["correct"] / stats["total"] * 100) if stats["total"] > 0 else 0.0
+                    (stats["correct"] / stats["total"] * 100)
+                    if stats["total"] > 0
+                    else 0.0
                 ),
                 "failures": stats["failures"],
             }
@@ -301,9 +319,14 @@ def save_failure_report(results: dict):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Validate Tier 1 regional detection")
-    parser.add_argument("--verbose", "-v", action="store_true", help="Show detailed failure output")
     parser.add_argument(
-        "--save-failures", "-s", action="store_true", help="Save failure analysis report"
+        "--verbose", "-v", action="store_true", help="Show detailed failure output"
+    )
+    parser.add_argument(
+        "--save-failures",
+        "-s",
+        action="store_true",
+        help="Save failure analysis report",
     )
 
     args = parser.parse_args()

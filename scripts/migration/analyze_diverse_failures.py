@@ -26,7 +26,11 @@ def extract_category(comment):
         return "Unknown"
 
     comment_lower = comment.lower()
-    if "sport" in comment_lower or "football" in comment_lower or "baseball" in comment_lower:
+    if (
+        "sport" in comment_lower
+        or "football" in comment_lower
+        or "baseball" in comment_lower
+    ):
         return "Sports"
     elif (
         "entertainment" in comment_lower
@@ -35,11 +39,23 @@ def extract_category(comment):
         or "k-pop" in comment_lower
     ):
         return "Entertainment"
-    elif "business" in comment_lower or "chaebol" in comment_lower or "ceo" in comment_lower:
+    elif (
+        "business" in comment_lower
+        or "chaebol" in comment_lower
+        or "ceo" in comment_lower
+    ):
         return "Business"
-    elif "politics" in comment_lower or "president" in comment_lower or "minister" in comment_lower:
+    elif (
+        "politics" in comment_lower
+        or "president" in comment_lower
+        or "minister" in comment_lower
+    ):
         return "Politics"
-    elif "literature" in comment_lower or "author" in comment_lower or "poet" in comment_lower:
+    elif (
+        "literature" in comment_lower
+        or "author" in comment_lower
+        or "poet" in comment_lower
+    ):
         return "Literature"
     elif "science" in comment_lower or "researcher" in comment_lower:
         return "Science"
@@ -72,9 +88,14 @@ def main():
         # Check for special romanization patterns in the name
         if "Yu-Na" in canonical_latin or "Yuna" in canonical_latin:
             romanization_styles["Yu-Na/Yuna pattern"] += 1
-        if any(part.lower() in ["lee", "rhee", "yi", "li"] for part in canonical_latin.split()):
+        if any(
+            part.lower() in ["lee", "rhee", "yi", "li"]
+            for part in canonical_latin.split()
+        ):
             romanization_styles["Lee/Rhee/Yi/Li variations"] += 1
-        if any(part.lower() in ["park", "pak", "bak"] for part in canonical_latin.split()):
+        if any(
+            part.lower() in ["park", "pak", "bak"] for part in canonical_latin.split()
+        ):
             romanization_styles["Park/Pak/Bak variations"] += 1
 
         # Test conversion

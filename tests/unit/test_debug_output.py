@@ -75,7 +75,9 @@ def test_debug_output():
                     for key, value in results.items():
                         print(f"\n{key}:")
                         if isinstance(value, dict):
-                            print(f"  RegionCode: {value.get('RegionCode', 'NOT_FOUND')}")
+                            print(
+                                f"  RegionCode: {value.get('RegionCode', 'NOT_FOUND')}"
+                            )
                             print(f"  Keys: {list(value.keys())[:10]}")
                         else:
                             print(f"  Value type: {type(value)}")

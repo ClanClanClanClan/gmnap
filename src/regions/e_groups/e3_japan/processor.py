@@ -317,7 +317,9 @@ class E3_Japan(RegionSpec):
 
         # Rule 12: Japanese Post-2020 Order Rule - majority rule for English papers
         if components.get("family_name") and components.get("given_name"):
-            order_variants = self._generate_post_2020_order_variants(canonical, components, entry)
+            order_variants = self._generate_post_2020_order_variants(
+                canonical, components, entry
+            )
             for variant in order_variants:
                 entry["Variants"]["Synthesised"].append(variant)
 
@@ -588,12 +590,16 @@ class E3_Japan(RegionSpec):
                     # Current is Given Family format (pre-2020 style)
                     # Generate Family Given variant (post-2020 style)
                     post_2020_variant = f"{family} {given}"
-                    variants.append({"str": post_2020_variant, "type": "japanese-post-2020-order"})
+                    variants.append(
+                        {"str": post_2020_variant, "type": "japanese-post-2020-order"}
+                    )
                 elif first_word.lower() == family.lower():
                     # Current is Family Given format (post-2020 style)
                     # Generate Given Family variant (pre-2020 style)
                     pre_2020_variant = f"{given} {family}"
-                    variants.append({"str": pre_2020_variant, "type": "japanese-pre-2020-order"})
+                    variants.append(
+                        {"str": pre_2020_variant, "type": "japanese-pre-2020-order"}
+                    )
 
             # Also generate comma-separated canonical format
             if ", " not in canonical:
@@ -616,7 +622,9 @@ class E3_Japan(RegionSpec):
         if canonical_native:
             if not self._is_japanese(canonical_native):
                 # For edge cases, warn instead of failing
-                self.logger.warning(f"CanonicalNative is not Japanese script: {canonical_native}")
+                self.logger.warning(
+                    f"CanonicalNative is not Japanese script: {canonical_native}"
+                )
                 # Only fail for single character test cases
                 if len(canonical_native) == 1:
                     # Single character names are edge cases but acceptable
@@ -629,12 +637,16 @@ class E3_Japan(RegionSpec):
         # If CanonicalLatin exists, it should be romanized
         if canonical_latin:
             if self._is_japanese(canonical_latin):
-                raise RegionRuleError(f"CanonicalLatin should be romanized: {canonical_latin}")
+                raise RegionRuleError(
+                    f"CanonicalLatin should be romanized: {canonical_latin}"
+                )
 
             # Check for valid romanization pattern - be lenient for edge cases
             if not self._is_valid_romanization(canonical_latin):
                 # For edge cases and international names, warn instead of failing
-                self.logger.warning(f"Non-standard romanization format: {canonical_latin}")
+                self.logger.warning(
+                    f"Non-standard romanization format: {canonical_latin}"
+                )
 
     def _is_valid_romanization(self, text: str) -> bool:
         """Check if text is valid Japanese romanization."""

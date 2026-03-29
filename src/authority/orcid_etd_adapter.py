@@ -13,7 +13,11 @@ class ORCIDETDAdapter:
 
     async def enrich(self, entry: Dict[str, Any]) -> Dict[str, Any]:
         name = entry.get("CanonicalLatin", "")
-        q = {"q": f'given-names:{name.split(",")[-1].strip()}'} if "," in name else {"q": name}
+        q = (
+            {"q": f'given-names:{name.split(",")[-1].strip()}'}
+            if "," in name
+            else {"q": name}
+        )
         key = canonical_query_key({"svc": self.name, "q": q})
         c = await self.ctx.cache.get_json(key)
         if c is not None:

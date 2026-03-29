@@ -47,7 +47,9 @@ for k, v in data.items():
     ko = eng2kor(rr)
 
     if ko != ko_exp:
-        eng_to_kor_failures.append({"name": k, "input": rr, "expected": ko_exp, "got": ko})
+        eng_to_kor_failures.append(
+            {"name": k, "input": rr, "expected": ko_exp, "got": ko}
+        )
         continue
 
     # Check roundtrip
@@ -64,11 +66,15 @@ for k, v in data.items():
         )
 
 print(f"\n=== FAILURE BREAKDOWN ===")
-print(f"✅ Successes: {total_cases - len(eng_to_kor_failures) - len(roundtrip_failures)}/733")
+print(
+    f"✅ Successes: {total_cases - len(eng_to_kor_failures) - len(roundtrip_failures)}/733"
+)
 print(
     f"❌ Eng→Kor failures: {len(eng_to_kor_failures)} (-{len(eng_to_kor_failures)} direct losses)"
 )
-print(f"🔄 Roundtrip failures: {len(roundtrip_failures)} (-{len(roundtrip_failures)} dice losses)")
+print(
+    f"🔄 Roundtrip failures: {len(roundtrip_failures)} (-{len(roundtrip_failures)} dice losses)"
+)
 print(f"📈 Total failures: {len(eng_to_kor_failures) + len(roundtrip_failures)}")
 
 print(f"\n=== PATH TO 97%+ ===")
@@ -87,7 +93,9 @@ else:
 print(f"\n=== QUICKEST WINS (Top 10 fixable) ===")
 
 # Find cases closest to passing roundtrip threshold
-near_miss_roundtrip = sorted(roundtrip_failures, key=lambda x: x["dice_score"], reverse=True)[:10]
+near_miss_roundtrip = sorted(
+    roundtrip_failures, key=lambda x: x["dice_score"], reverse=True
+)[:10]
 
 for i, case in enumerate(near_miss_roundtrip):
     print(f"{i+1:2d}. {case['name']} (dice: {case['dice_score']:.3f}) - ALMOST PASSING")
@@ -99,4 +107,6 @@ if needed_math <= 10:
     print("📝 APPROACH: Fine-tune romanization preferences in variant_map.csv")
 else:
     print("🏗️ ARCHITECTURE: Need fundamental approach changes")
-    print("📝 OPTIONS: 1) Relax dice threshold, 2) Improve context engine, 3) Hybrid approach")
+    print(
+        "📝 OPTIONS: 1) Relax dice threshold, 2) Improve context engine, 3) Hybrid approach"
+    )

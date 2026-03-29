@@ -28,7 +28,9 @@ async def test_fixes():
         latin = entry.get("CanonicalLatin", "")
         print(f"{native:10} → {latin:20}")
 
-    print("\nQuality Gates:", "PASSED" if result["quality_gates"]["passed"] else "FAILED")
+    print(
+        "\nQuality Gates:", "PASSED" if result["quality_gates"]["passed"] else "FAILED"
+    )
     print("Metrics:")
     print(f"  Processed: {result['metrics']['processed_entries']}")
     print(f"  Duplicates: {result['metrics'].get('duplicate_global_ids', 0)}")

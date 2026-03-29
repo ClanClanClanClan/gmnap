@@ -44,12 +44,14 @@ class TestConcurrentGlobalIDGeneration:
         """Test that concurrent GlobalID generation maintains uniqueness."""
         # Create many similar entries that could collide
         base_entries = [
-            {"CanonicalNative": f"Test{i:03d}, Person", "BirthYear": 1980} for i in range(1000)
+            {"CanonicalNative": f"Test{i:03d}, Person", "BirthYear": 1980}
+            for i in range(1000)
         ]
 
         # Add some duplicate entries to force collisions
         duplicate_entries = [
-            {"CanonicalNative": "Duplicate, Person", "BirthYear": 1980} for _ in range(50)
+            {"CanonicalNative": "Duplicate, Person", "BirthYear": 1980}
+            for _ in range(50)
         ]
 
         all_entries = base_entries + duplicate_entries
@@ -72,7 +74,10 @@ class TestConcurrentGlobalIDGeneration:
         # Split work across multiple threads
         num_workers = 10
         batch_size = len(all_entries) // num_workers
-        batches = [all_entries[i : i + batch_size] for i in range(0, len(all_entries), batch_size)]
+        batches = [
+            all_entries[i : i + batch_size]
+            for i in range(0, len(all_entries), batch_size)
+        ]
 
         all_results = []
         all_errors = []
@@ -87,7 +92,9 @@ class TestConcurrentGlobalIDGeneration:
                 all_errors.extend(errors)
 
         # Verify no errors occurred
-        assert len(all_errors) == 0, f"Errors during concurrent generation: {all_errors[:5]}"
+        assert (
+            len(all_errors) == 0
+        ), f"Errors during concurrent generation: {all_errors[:5]}"
 
         # Verify all GlobalIDs are unique
         unique_ids = set(all_results)
@@ -100,7 +107,9 @@ class TestConcurrentGlobalIDGeneration:
         base_ids = [gid for gid in all_results if "--" not in gid]
 
         # Should have some collisions from duplicate entries
-        assert len(collision_ids) > 0, "No collision handling occurred with duplicate entries"
+        assert (
+            len(collision_ids) > 0
+        ), "No collision handling occurred with duplicate entries"
 
         # Verify collision numbering is correct
         collision_map = {}
@@ -187,7 +196,9 @@ class TestConcurrentGlobalIDGeneration:
             suffixes = [int(gid.split("--")[1]) for gid in collision_ids]
             suffixes.sort()
             expected_suffixes = list(range(1, len(suffixes) + 1))
-            assert suffixes == expected_suffixes, f"Non-sequential collision suffixes: {suffixes}"
+            assert (
+                suffixes == expected_suffixes
+            ), f"Non-sequential collision suffixes: {suffixes}"
 
     def test_concurrent_memory_corruption(self):
         """Test for memory corruption under concurrent access."""
@@ -208,8 +219,12 @@ class TestConcurrentGlobalIDGeneration:
                     global_id = local_generator.generate(entry)
 
                     # Verify ID integrity
-                    assert len(global_id) >= 22, f"Corrupted GlobalID length: {global_id}"
-                    assert global_id.count("--") <= 1, f"Corrupted GlobalID format: {global_id}"
+                    assert (
+                        len(global_id) >= 22
+                    ), f"Corrupted GlobalID length: {global_id}"
+                    assert (
+                        global_id.count("--") <= 1
+                    ), f"Corrupted GlobalID format: {global_id}"
 
                     # Store for verification
                     self.results.put((worker_id, i, global_id))
@@ -258,7 +273,9 @@ class TestConcurrentGlobalIDGeneration:
         # Verify all GlobalIDs are unique
         global_ids = [result[2] for result in results]
         unique_ids = set(global_ids)
-        assert len(unique_ids) == len(global_ids), f"Memory corruption caused duplicate GlobalIDs"
+        assert len(unique_ids) == len(
+            global_ids
+        ), f"Memory corruption caused duplicate GlobalIDs"
 
 
 class TestConcurrentCacheAccess:
@@ -303,7 +320,9 @@ class TestConcurrentCacheAccess:
                     read_data = self.cache.get("test_service", key)
 
                     if read_data != data:
-                        self.errors.put((worker_id, i, "Data corruption", data, read_data))
+                        self.errors.put(
+                            (worker_id, i, "Data corruption", data, read_data)
+                        )
                     else:
                         self.results.put((worker_id, i, "success"))
 
@@ -653,7 +672,9 @@ class TestConcurrentDatabaseAccess:
         assert len(results) > 0, "No database operations completed"
 
         # Database should still be functional
-        test_result = self.db.connection.execute("SELECT COUNT(*) FROM test_deadlock").fetchone()[0]
+        test_result = self.db.connection.execute(
+            "SELECT COUNT(*) FROM test_deadlock"
+        ).fetchone()[0]
         assert test_result == 2, "Database corrupted by deadlock scenarios"
 
 
@@ -714,11 +735,15 @@ class TestChaosEngineering:
         # Patch various methods to inject failures
         with patch(
             "src.core.globalid.GlobalIDGenerator.generate",
-            side_effect=inject_random_failure("globalid_generate", GlobalIDGenerator.generate),
+            side_effect=inject_random_failure(
+                "globalid_generate", GlobalIDGenerator.generate
+            ),
         ):
             with patch(
                 "src.core.unicode_handler.UnicodeNormalizer.normalize",
-                side_effect=inject_random_failure("unicode_normalize", UnicodeNormalizer.normalize),
+                side_effect=inject_random_failure(
+                    "unicode_normalize", UnicodeNormalizer.normalize
+                ),
             ):
 
                 # Run pipeline with chaos injection
@@ -728,13 +753,17 @@ class TestChaosEngineering:
                     result = pipeline.run(input_dir)
 
                     # Pipeline should handle failures gracefully
-                    assert result is not None, "Pipeline failed to handle injected failures"
+                    assert (
+                        result is not None
+                    ), "Pipeline failed to handle injected failures"
 
                     # Some failures should have been injected
                     assert len(self.failures_injected) > 0, "No failures were injected"
 
                     # System should still produce some results
-                    assert result.total_entries > 0, "No entries processed despite partial failures"
+                    assert (
+                        result.total_entries > 0
+                    ), "No entries processed despite partial failures"
 
                 except Exception as e:
                     # Complete failure is acceptable if many failures were injected
@@ -860,7 +889,9 @@ class TestChaosEngineering:
                 assert result is not None, "Pipeline failed to handle network partition"
 
                 # Should process local data even without network
-                assert result.total_entries > 0, "No entries processed during network partition"
+                assert (
+                    result.total_entries > 0
+                ), "No entries processed during network partition"
 
             except Exception as e:
                 # Network failures should be handled gracefully

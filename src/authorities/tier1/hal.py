@@ -72,16 +72,24 @@ class HALFetcher(AuthorityFetcher):
                 )
 
             return FetchResult(
-                status=FetchStatus.SUCCESS, source=self.service, query=identifier, data=author_data
+                status=FetchStatus.SUCCESS,
+                source=self.service,
+                query=identifier,
+                data=author_data,
             )
 
         except Exception as e:
             logger.error(f"HAL fetch error: {e}")
             return FetchResult(
-                status=FetchStatus.ERROR, source=self.service, query=identifier, error=str(e)
+                status=FetchStatus.ERROR,
+                source=self.service,
+                query=identifier,
+                error=str(e),
             )
 
-    async def _search_author(self, author_name: str, max_results: int = 10) -> List[Dict[str, Any]]:
+    async def _search_author(
+        self, author_name: str, max_results: int = 10
+    ) -> List[Dict[str, Any]]:
         """
         Search HAL for documents by author.
 
@@ -178,7 +186,9 @@ class HALFetcher(AuthorityFetcher):
         # Build AuthorityData
         authority_data = AuthorityData(
             source=self.service,
-            source_id=list(hal_ids)[0] if hal_ids else f"hal_{query_name.replace(' ', '_')}",
+            source_id=(
+                list(hal_ids)[0] if hal_ids else f"hal_{query_name.replace(' ', '_')}"
+            ),
             canonical_name=query_name,
             name_variants=[],
             affiliations=[
@@ -228,7 +238,8 @@ class HALFetcher(AuthorityFetcher):
         # French institutions are authoritative in HAL
         french_keywords = ["université", "cnrs", "inria", "école", "institut"]
         has_french_affiliation = any(
-            any(keyword in str(aff).lower() for keyword in french_keywords) for aff in affiliations
+            any(keyword in str(aff).lower() for keyword in french_keywords)
+            for aff in affiliations
         )
         if has_french_affiliation:
             confidence += 0.1
@@ -254,7 +265,9 @@ class HALFetcher(AuthorityFetcher):
         # Use first document's author as canonical name
         author_names = docs[0].get("authFullName_s", [])
         canonical_name = (
-            author_names[0] if isinstance(author_names, list) and author_names else "Unknown"
+            author_names[0]
+            if isinstance(author_names, list) and author_names
+            else "Unknown"
         )
 
         return self._parse_author_data(canonical_name, docs)

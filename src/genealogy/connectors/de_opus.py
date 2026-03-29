@@ -30,7 +30,11 @@ class DeOpusOAI:
         token = None
         async with aiohttp.ClientSession() as s:
             while True:
-                p = params if not token else {"verb": "ListRecords", "resumptionToken": token}
+                p = (
+                    params
+                    if not token
+                    else {"verb": "ListRecords", "resumptionToken": token}
+                )
                 async with s.get(self.base_url, params=p) as r:
                     r.raise_for_status()
                     xml = await r.text()

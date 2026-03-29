@@ -81,7 +81,9 @@ def analyze_labeling_consistency(train_profiles):
 
     # Find countries with multiple regions (potential labeling issue)
     inconsistent_countries = {
-        country: regions for country, regions in country_to_regions.items() if len(regions) > 1
+        country: regions
+        for country, regions in country_to_regions.items()
+        if len(regions) > 1
     }
 
     return country_to_regions, region_to_countries, inconsistent_countries
@@ -142,7 +144,9 @@ def main():
     print("-" * 60)
     for count, expected, detected in confusions[:15]:
         pct = count / len(val_profiles) * 100
-        print(f"{count:4d}  {expected:8s} → {detected:8s}  ({pct:.1f}% of validation set)")
+        print(
+            f"{count:4d}  {expected:8s} → {detected:8s}  ({pct:.1f}% of validation set)"
+        )
 
     print()
 
@@ -152,8 +156,8 @@ def main():
     print("=" * 80)
     print()
 
-    country_to_regions, region_to_countries, inconsistent = analyze_labeling_consistency(
-        train_profiles
+    country_to_regions, region_to_countries, inconsistent = (
+        analyze_labeling_consistency(train_profiles)
     )
 
     print(f"Countries with multiple region labels: {len(inconsistent)}")
@@ -161,9 +165,9 @@ def main():
 
     if inconsistent:
         print("Top inconsistent countries (potential labeling issues):")
-        sorted_inconsistent = sorted(inconsistent.items(), key=lambda x: len(x[1]), reverse=True)[
-            :10
-        ]
+        sorted_inconsistent = sorted(
+            inconsistent.items(), key=lambda x: len(x[1]), reverse=True
+        )[:10]
 
         for country, regions in sorted_inconsistent:
             count = sum(1 for p in train_profiles if p.get("country_code") == country)
@@ -213,7 +217,9 @@ def main():
         failures_by_type[key].append(f)
 
     # Get top confusion types
-    top_confusions = sorted(failures_by_type.items(), key=lambda x: len(x[1]), reverse=True)[:5]
+    top_confusions = sorted(
+        failures_by_type.items(), key=lambda x: len(x[1]), reverse=True
+    )[:5]
 
     for confusion_type, failure_list in top_confusions:
         print(f"\n{confusion_type} ({len(failure_list)} failures):")
@@ -240,7 +246,9 @@ def main():
         else 0
     )
 
-    print(f"1. Model Confidence: {top3_accuracy:.1f}% of failures have correct answer in top-3")
+    print(
+        f"1. Model Confidence: {top3_accuracy:.1f}% of failures have correct answer in top-3"
+    )
     print(f"   → Suggests model is uncertain, not completely wrong")
     print()
 

@@ -14,7 +14,9 @@ class AggConfig:
     max_latency_ms: int = 30  # latency budget to reach target_size
     emergency_flush_ms: int = 100  # upper bound under continuous trickle
     max_concurrency: int = 1  # concurrent process_func calls
-    fastpath_threshold: int = 10  # if submitted list <= this and queue empty -> direct call bypass
+    fastpath_threshold: int = (
+        10  # if submitted list <= this and queue empty -> direct call bypass
+    )
 
 
 @dataclass
@@ -109,9 +111,14 @@ class AsyncBatchAggregator:
 
                 # Emergency trickle flush safeguard
                 elapsed_ms = (loop.time() - t0) * 1000
-                if len(batch) < self.cfg.min_size and elapsed_ms < self.cfg.emergency_flush_ms:
+                if (
+                    len(batch) < self.cfg.min_size
+                    and elapsed_ms < self.cfg.emergency_flush_ms
+                ):
                     # try one more quick wait to grab any stragglers
-                    timeout = max(0.0, (self.cfg.emergency_flush_ms - elapsed_ms) / 1000)
+                    timeout = max(
+                        0.0, (self.cfg.emergency_flush_ms - elapsed_ms) / 1000
+                    )
                     try:
                         while len(batch) < self.cfg.min_size:
                             nxt = await asyncio.wait_for(self._q.get(), timeout=timeout)

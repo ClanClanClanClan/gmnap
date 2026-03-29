@@ -16,7 +16,9 @@ def test_all_regional_processors():
         from src.regions.e_groups.e1_sinophone_mainland import E1_SinophoneMainland
         from src.regions.b_groups.b1_east_slavic import B1_EastSlavic
         from src.regions.e_groups.e3_japan.processor import E3_Japan
-        from src.regions.c_groups.c3_arabic_levant_nile.processor import C3_ArabicLevantNile
+        from src.regions.c_groups.c3_arabic_levant_nile.processor import (
+            C3_ArabicLevantNile,
+        )
 
         tests = [
             (E4KoreanProcessor(), "김민수", "Kim"),
@@ -78,7 +80,11 @@ def test_duckdb_analytics():
 
         # Test loading entries
         test_entries = [
-            {"GlobalID": "TEST-1", "CanonicalNative": "Test 1", "CanonicalLatin": "Test One"},
+            {
+                "GlobalID": "TEST-1",
+                "CanonicalNative": "Test 1",
+                "CanonicalLatin": "Test One",
+            },
             {
                 "GlobalID": "TEST-2",
                 "CanonicalNative": "Test 2",

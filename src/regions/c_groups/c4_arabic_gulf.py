@@ -232,7 +232,10 @@ class C4_ArabicGulf(RegionSpec):
             # Check if it's a title
             if clean_word in self.titles:
                 # Some titles are multi-word (e.g., "His Excellency")
-                if i + 1 < len(words) and f"{clean_word} {words[i+1].rstrip('.,')}" in self.titles:
+                if (
+                    i + 1 < len(words)
+                    and f"{clean_word} {words[i+1].rstrip('.,')}" in self.titles
+                ):
                     skip_next = True
                 continue
 
@@ -302,11 +305,15 @@ class C4_ArabicGulf(RegionSpec):
             if romanized != canonical:
                 # Update CanonicalLatin to be romanized
                 entry["CanonicalLatin"] = romanized
-                entry["Variants"]["Synthesised"].append({"str": romanized, "type": "romanization"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": romanized, "type": "romanization"}
+                )
 
         # Add variant without patronymic
         if components.get("patronymic"):
-            without_patronymic = self._generate_no_patronymic_variant(canonical, components)
+            without_patronymic = self._generate_no_patronymic_variant(
+                canonical, components
+            )
             if without_patronymic and without_patronymic != canonical:
                 entry["Variants"]["Synthesised"].append(
                     {"str": without_patronymic, "type": "no-patronymic"}
@@ -316,7 +323,9 @@ class C4_ArabicGulf(RegionSpec):
         al_variants = self._generate_al_variants(canonical)
         for variant in al_variants:
             if variant != canonical:
-                entry["Variants"]["Synthesised"].append({"str": variant, "type": "al-variant"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": variant, "type": "al-variant"}
+                )
 
     def _extract_components(self, name: str) -> Dict[str, Any]:
         """Extract name components."""
@@ -366,7 +375,10 @@ class C4_ArabicGulf(RegionSpec):
         """Find patronymic indicators in word list."""
         for i, word in enumerate(words):
             word_lower = word.lower()
-            if word_lower in self.patronymic_patterns or word in self.patronymic_patterns:
+            if (
+                word_lower in self.patronymic_patterns
+                or word in self.patronymic_patterns
+            ):
                 return {
                     "patronymic": word,
                     "patronymic_index": i,
@@ -379,7 +391,11 @@ class C4_ArabicGulf(RegionSpec):
     def _find_family_start(self, words: List[str]) -> int:
         """Find where family name starts (usually with Al- prefix)."""
         for i, word in enumerate(words):
-            if word.startswith("Al-") or word.startswith("ال") or word in self.family_prefixes:
+            if (
+                word.startswith("Al-")
+                or word.startswith("ال")
+                or word in self.family_prefixes
+            ):
                 return i
         return -1
 
@@ -526,12 +542,18 @@ class C4_ArabicGulf(RegionSpec):
             if not self._is_arabic(canonical_native) and not self._is_mixed_script(
                 canonical_native
             ):
-                raise RegionRuleError(f"CanonicalNative should contain Arabic: {canonical_native}")
+                raise RegionRuleError(
+                    f"CanonicalNative should contain Arabic: {canonical_native}"
+                )
 
         # If CanonicalLatin exists, it should be romanized
         if canonical_latin:
-            if self._is_arabic(canonical_latin) and not self._is_mixed_script(canonical_latin):
-                raise RegionRuleError(f"CanonicalLatin should be romanized: {canonical_latin}")
+            if self._is_arabic(canonical_latin) and not self._is_mixed_script(
+                canonical_latin
+            ):
+                raise RegionRuleError(
+                    f"CanonicalLatin should be romanized: {canonical_latin}"
+                )
 
         # Check name structure
         for canonical in [canonical_native, canonical_latin]:

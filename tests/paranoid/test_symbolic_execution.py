@@ -80,8 +80,12 @@ class SymbolicExecutor:
         # Create symbolic inputs
         symbolic_inputs = {}
         for param_name, param in sig.parameters.items():
-            param_type = param.annotation if param.annotation != inspect.Parameter.empty else int
-            symbolic_inputs[param_name] = self.create_symbolic_input(param_name, param_type)
+            param_type = (
+                param.annotation if param.annotation != inspect.Parameter.empty else int
+            )
+            symbolic_inputs[param_name] = self.create_symbolic_input(
+                param_name, param_type
+            )
 
         # Start exploration
         initial_path = ExecutionPath(
@@ -330,7 +334,9 @@ class ConstraintSolver:
 
             for var in model:
                 result[str(var)] = (
-                    model[var].as_long() if hasattr(model[var], "as_long") else str(model[var])
+                    model[var].as_long()
+                    if hasattr(model[var], "as_long")
+                    else str(model[var])
                 )
 
             return result
@@ -411,7 +417,9 @@ class TestSymbolicExecution:
         vulnerabilities = executor.find_vulnerabilities()
 
         # Should detect potential issues
-        assert len(vulnerabilities) >= 0  # May or may not find depending on analysis depth
+        assert (
+            len(vulnerabilities) >= 0
+        )  # May or may not find depending on analysis depth
 
         for path, vuln_type in vulnerabilities:
             print(f"Found vulnerability: {vuln_type} in path {path.path_id}")

@@ -39,7 +39,9 @@ class FastQualityGates:
             if gid is None:
                 continue
             total += 1
-            if gid in seen_local or (self.cfg.remember_cross_batch and gid in self.state.seen_gids):
+            if gid in seen_local or (
+                self.cfg.remember_cross_batch and gid in self.state.seen_gids
+            ):
                 dups += 1
             seen_local.add(gid)
         # Update cross-batch memory

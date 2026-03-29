@@ -33,7 +33,15 @@ class TestRealityChecker:
 
         try:
             result = subprocess.run(
-                [sys.executable, "-m", "pytest", str(test_file), "-v", "--tb=short", "-q"],
+                [
+                    sys.executable,
+                    "-m",
+                    "pytest",
+                    str(test_file),
+                    "-v",
+                    "--tb=short",
+                    "-q",
+                ],
                 capture_output=True,
                 text=True,
                 timeout=timeout,
@@ -104,7 +112,10 @@ class TestRealityChecker:
 
                 status, message = self.run_single_test(test_file, timeout)
                 self.results[status].append(
-                    {"file": str(test_file.relative_to(self.project_root)), "message": message}
+                    {
+                        "file": str(test_file.relative_to(self.project_root)),
+                        "message": message,
+                    }
                 )
                 category_results[status] += 1
 
@@ -190,7 +201,9 @@ class TestRealityChecker:
 
         print(f"\n🔧 Main Issues:")
         if len(self.results["import_error"]) > 10:
-            print(f"  - Widespread import errors ({len(self.results['import_error'])} files)")
+            print(
+                f"  - Widespread import errors ({len(self.results['import_error'])} files)"
+            )
         if len(self.results["failed"]) > 20:
             print(f"  - Many test failures ({len(self.results['failed'])} files)")
         if len(self.results["timeout"]) > 10:

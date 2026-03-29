@@ -94,10 +94,20 @@ class HonestTestRunner:
         env["GMNAP_OFFLINE"] = "1"
         env["GMNAP_TEST_MODE"] = "true"
 
-        cmd = [sys.executable, "-m", "pytest", str(test_path), "--tb=no", "--no-header", "-q"]
+        cmd = [
+            sys.executable,
+            "-m",
+            "pytest",
+            str(test_path),
+            "--tb=no",
+            "--no-header",
+            "-q",
+        ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, env=env)
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=30, env=env
+            )
 
             output = result.stdout + result.stderr
 
@@ -221,7 +231,9 @@ class HonestTestRunner:
                         else:
                             symbol = "❌"
 
-                        print(f"  {symbol} {test_file.name:<40} {passed} passed, {failed} failed")
+                        print(
+                            f"  {symbol} {test_file.name:<40} {passed} passed, {failed} failed"
+                        )
 
             self.results["categories"][category] = category_results
 

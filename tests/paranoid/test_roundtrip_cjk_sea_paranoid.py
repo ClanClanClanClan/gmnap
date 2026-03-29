@@ -1,6 +1,11 @@
 import pytest
 
-CJK = [("张伟", "Zhang Wei"), ("王芳", "Wang Fang"), ("김민준", "Kim Min-jun"), ("佐藤", "Sato")]
+CJK = [
+    ("张伟", "Zhang Wei"),
+    ("王芳", "Wang Fang"),
+    ("김민준", "Kim Min-jun"),
+    ("佐藤", "Sato"),
+]
 SEA = [
     ("ສະບາຍດີ", "sabaidee"),
     ("សួស្តី", "suostei"),

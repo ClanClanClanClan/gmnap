@@ -336,9 +336,12 @@ class F3_HornOfAfrica(RegionSpec):
         if native:
             has_ethiopic = any(
                 ord(c) in range(self.ethiopic_base[0], self.ethiopic_base[1] + 1)
-                or ord(c) in range(self.ethiopic_supplement[0], self.ethiopic_supplement[1] + 1)
-                or ord(c) in range(self.ethiopic_extended[0], self.ethiopic_extended[1] + 1)
-                or ord(c) in range(self.ethiopic_extended_a[0], self.ethiopic_extended_a[1] + 1)
+                or ord(c)
+                in range(self.ethiopic_supplement[0], self.ethiopic_supplement[1] + 1)
+                or ord(c)
+                in range(self.ethiopic_extended[0], self.ethiopic_extended[1] + 1)
+                or ord(c)
+                in range(self.ethiopic_extended_a[0], self.ethiopic_extended_a[1] + 1)
                 for c in native
             )
 
@@ -445,7 +448,9 @@ class F3_HornOfAfrica(RegionSpec):
 
         return info
 
-    def _detect_country(self, entry: Dict[str, Any], components: Dict[str, Any]) -> Optional[str]:
+    def _detect_country(
+        self, entry: Dict[str, Any], components: Dict[str, Any]
+    ) -> Optional[str]:
         """Detect whether name is more likely Ethiopian or Eritrean."""
         # Check email/affiliation
         email = entry.get("Email", "").lower()
@@ -460,13 +465,17 @@ class F3_HornOfAfrica(RegionSpec):
         ethnicity = components.get("probable_ethnicity")
         if ethnicity == "oromo":
             return "ethiopia"  # Oromo mainly in Ethiopia
-        if ethnicity == "tigray" and ("asmara" in affiliation or "asmera" in affiliation):
+        if ethnicity == "tigray" and (
+            "asmara" in affiliation or "asmera" in affiliation
+        ):
             return "eritrea"
 
         # Default based on population
         return "ethiopia"  # Ethiopia has larger population
 
-    def _generate_patronymic_variants(self, name: str, components: Dict[str, Any]) -> List[str]:
+    def _generate_patronymic_variants(
+        self, name: str, components: Dict[str, Any]
+    ) -> List[str]:
         """Generate patronymic order variants."""
         variants = []
 
@@ -547,11 +556,15 @@ class F3_HornOfAfrica(RegionSpec):
 
         # SECURITY: Check for dangerous characters first
         if self._has_security_risks(canonical):
-            raise RegionRuleError(f"Name contains dangerous characters: {canonical[:50]}...")
+            raise RegionRuleError(
+                f"Name contains dangerous characters: {canonical[:50]}..."
+            )
 
         # Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         # THEN handle legitimate edge cases
         if len(canonical.strip()) == 1:

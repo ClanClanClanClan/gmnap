@@ -58,7 +58,9 @@ class TestUnicodeNormalizationSecurity:
             cyrillic_scripts = self.normalizer.get_script_info(cyrillic_name)
 
             # Latin should be pure Latin
-            assert "Latin" in latin_scripts, f"Latin text should contain Latin script: {latin_name}"
+            assert (
+                "Latin" in latin_scripts
+            ), f"Latin text should contain Latin script: {latin_name}"
             assert (
                 "Cyrillic" not in latin_scripts
             ), f"Latin text should not contain Cyrillic: {latin_name}"
@@ -103,7 +105,9 @@ class TestUnicodeNormalizationSecurity:
         for attack_vector in attack_vectors:
             # Should normalize without crashing
             normalized = self.normalizer.normalize(attack_vector)
-            assert isinstance(normalized, str), f"Normalization failed for: {repr(attack_vector)}"
+            assert isinstance(
+                normalized, str
+            ), f"Normalization failed for: {repr(attack_vector)}"
 
             # Should not be excessively long
             assert (
@@ -114,7 +118,9 @@ class TestUnicodeNormalizationSecurity:
             try:
                 normalized.encode("utf-8")
             except UnicodeEncodeError:
-                pytest.fail(f"Normalization produced invalid Unicode: {repr(attack_vector)}")
+                pytest.fail(
+                    f"Normalization produced invalid Unicode: {repr(attack_vector)}"
+                )
 
     def test_script_confusion_attacks(self):
         """Test script confusion attacks."""
@@ -152,7 +158,9 @@ class TestUnicodeNormalizationSecurity:
 
             # Should normalize without corruption
             normalized = self.normalizer.normalize(name)
-            assert len(normalized) > 0, f"Normalization produced empty result for: {name}"
+            assert (
+                len(normalized) > 0
+            ), f"Normalization produced empty result for: {name}"
 
     def test_unicode_bidi_attacks(self):
         """Test Unicode bidirectional text attacks."""
@@ -177,7 +185,9 @@ class TestUnicodeNormalizationSecurity:
         for attack in bidi_attacks:
             # Should normalize without crashing
             normalized = self.normalizer.normalize(attack)
-            assert isinstance(normalized, str), f"Bidi attack crashed normalization: {repr(attack)}"
+            assert isinstance(
+                normalized, str
+            ), f"Bidi attack crashed normalization: {repr(attack)}"
 
             # Should not contain dangerous bidi characters
             dangerous_bidi = [
@@ -270,15 +280,21 @@ class TestUnicodeNormalizationSecurity:
             normalized = self.normalizer.normalize(attack)
             normalized_twice = self.normalizer.normalize(normalized)
 
-            assert normalized == normalized_twice, f"Normalization not idempotent: {attack}"
+            assert (
+                normalized == normalized_twice
+            ), f"Normalization not idempotent: {attack}"
 
             # Should generate reasonable variants
             variants = self.normalizer.generate_variants(attack)
-            assert len(variants) <= 10, f"Too many variants generated: {len(variants)} for {attack}"
+            assert (
+                len(variants) <= 10
+            ), f"Too many variants generated: {len(variants)} for {attack}"
 
             # All variants should be valid
             for variant in variants:
-                assert isinstance(variant, str), f"Invalid variant type: {type(variant)}"
+                assert isinstance(
+                    variant, str
+                ), f"Invalid variant type: {type(variant)}"
                 assert len(variant) > 0, f"Empty variant generated for: {attack}"
 
 
@@ -315,7 +331,9 @@ class TestUnicodePerformance:
 
             # Should complete quickly
             chars_per_second = (
-                len(test_string) / normalization_time if normalization_time > 0 else float("inf")
+                len(test_string) / normalization_time
+                if normalization_time > 0
+                else float("inf")
             )
             assert (
                 chars_per_second > 10000
@@ -386,7 +404,9 @@ class TestUnicodePerformance:
                     normalized = self.normalizer.normalize(string)
                     normalization_time = time.time() - start_time
 
-                    worker_results.append((worker_id, i, normalized, normalization_time))
+                    worker_results.append(
+                        (worker_id, i, normalized, normalization_time)
+                    )
 
                 except Exception as e:
                     worker_errors.append((worker_id, i, str(e)))
@@ -401,7 +421,9 @@ class TestUnicodePerformance:
 
         threads = []
         for i in range(num_workers):
-            thread = threading.Thread(target=normalize_worker, args=(i, strings_per_worker))
+            thread = threading.Thread(
+                target=normalize_worker, args=(i, strings_per_worker)
+            )
             threads.append(thread)
             thread.start()
 
@@ -429,7 +451,9 @@ class TestUnicodePerformance:
         assert (
             len(worker_results) == num_workers
         ), f"Not all workers completed: {len(worker_results)}"
-        assert len(worker_errors) == 0, f"Errors during concurrent normalization: {worker_errors}"
+        assert (
+            len(worker_errors) == 0
+        ), f"Errors during concurrent normalization: {worker_errors}"
 
         # Check performance
         all_times = []
@@ -438,7 +462,9 @@ class TestUnicodePerformance:
                 all_times.append(norm_time)
 
         avg_time = sum(all_times) / len(all_times)
-        assert avg_time < 0.01, f"Concurrent normalization too slow: {avg_time:.4f}s average"
+        assert (
+            avg_time < 0.01
+        ), f"Concurrent normalization too slow: {avg_time:.4f}s average"
 
     def test_memory_usage_normalization(self):
         """Test memory usage during normalization."""
@@ -467,7 +493,9 @@ class TestUnicodePerformance:
         memory_growth = final_memory - initial_memory
 
         # Should not leak excessive memory
-        assert memory_growth < 50, f"Unicode normalization memory leak: {memory_growth}MB"
+        assert (
+            memory_growth < 50
+        ), f"Unicode normalization memory leak: {memory_growth}MB"
 
 
 class TestUnicodeEdgeCases:
@@ -502,7 +530,9 @@ class TestUnicodeEdgeCases:
         combining_chars = ["\u0301", "\u0308", "\u0302", "\u0300", "\u030a"]
         for char in combining_chars:
             normalized = self.normalizer.normalize(char)
-            assert isinstance(normalized, str), f"Failed to normalize combining char: {repr(char)}"
+            assert isinstance(
+                normalized, str
+            ), f"Failed to normalize combining char: {repr(char)}"
 
         # Control characters
         control_chars = [
@@ -517,7 +547,9 @@ class TestUnicodeEdgeCases:
         ]
         for char in control_chars:
             normalized = self.normalizer.normalize(char)
-            assert isinstance(normalized, str), f"Failed to normalize control char: {repr(char)}"
+            assert isinstance(
+                normalized, str
+            ), f"Failed to normalize control char: {repr(char)}"
 
         # High surrogates (should be handled gracefully)
         high_surrogates = ["\ud800", "\ud801", "\ud802", "\udbff"]
@@ -612,11 +644,15 @@ class TestUnicodeEdgeCases:
             results.append(normalized)
 
         # Should produce consistent results
-        assert len(set(results)) <= 2, f"Too many different normalization results: {set(results)}"
+        assert (
+            len(set(results)) <= 2
+        ), f"Too many different normalization results: {set(results)}"
 
         # All should be valid strings
         for result in results:
-            assert isinstance(result, str), f"Invalid normalization result: {type(result)}"
+            assert isinstance(
+                result, str
+            ), f"Invalid normalization result: {type(result)}"
             assert len(result) > 0, f"Empty normalization result"
 
     def test_unicode_validation_edge_cases(self):
@@ -637,7 +673,9 @@ class TestUnicodeEdgeCases:
 
             # Should validate successfully
             is_valid = self.normalizer.validate_normalization(text, normalized)
-            assert is_valid, f"Validation failed for {name}: {repr(text)} -> {repr(normalized)}"
+            assert (
+                is_valid
+            ), f"Validation failed for {name}: {repr(text)} -> {repr(normalized)}"
 
             # Should preserve essential characters
             if any(c.isalpha() for c in text):
@@ -690,7 +728,9 @@ class TestUnicodeConfigurationOptions:
         variants_disabled = normalizer_disabled.generate_variants(test_text)
 
         # Enabled should generate more variants
-        assert len(variants_enabled) >= len(variants_disabled), "Sharp s setting reduced variants"
+        assert len(variants_enabled) >= len(
+            variants_disabled
+        ), "Sharp s setting reduced variants"
 
         # Enabled should include 'ss' variant
         has_ss_variant = any("ss" in variant for variant in variants_enabled)
@@ -743,7 +783,9 @@ class TestUnicodeConfigurationOptions:
         variant_counts = [len(r[1]) for r in results]
 
         # Should have some variation
-        assert len(set(normalized_results)) >= 2, "Configuration had no effect on normalization"
+        assert (
+            len(set(normalized_results)) >= 2
+        ), "Configuration had no effect on normalization"
         assert len(set(variant_counts)) >= 2, "Configuration had no effect on variants"
 
 

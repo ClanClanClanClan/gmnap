@@ -28,7 +28,9 @@ class SafeAdditionValidator:
                     locks[dataset] = json.load(f)
                 print(f"✅ Loaded {len(locks[dataset])} locked cases for {dataset}")
             except FileNotFoundError:
-                print(f"⚠️  No lock file found for {dataset} - run create_regression_lock.py first")
+                print(
+                    f"⚠️  No lock file found for {dataset} - run create_regression_lock.py first"
+                )
                 locks[dataset] = []
         return locks
 
@@ -63,7 +65,9 @@ class SafeAdditionValidator:
         """Rebuild FST files after changes"""
         try:
             result = subprocess.run(
-                ["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True
+                ["python3", "scripts/build_fsts_multi.py"],
+                capture_output=True,
+                text=True,
             )
             if result.returncode != 0:
                 print(f"⚠️  FST rebuild warning: {result.stderr}")
@@ -141,7 +145,10 @@ class SafeAdditionValidator:
             return False
 
     def test_proposed_addition(
-        self, proposed_weights=None, proposed_equivalences=None, description="Proposed change"
+        self,
+        proposed_weights=None,
+        proposed_equivalences=None,
+        description="Proposed change",
     ):
         """Test a proposed addition for safety"""
         print(f"\n🧪 Testing: {description}")
@@ -167,7 +174,11 @@ class SafeAdditionValidator:
             regressions = self.validate_no_regression()
 
             if not regressions:
-                result = {"safe": True, "reason": "No regressions detected", "regressions": []}
+                result = {
+                    "safe": True,
+                    "reason": "No regressions detected",
+                    "regressions": [],
+                }
                 print("✅ SAFE: No regressions detected")
             else:
                 total_regressions = sum(r["count"] for r in regressions)
@@ -178,10 +189,16 @@ class SafeAdditionValidator:
                 }
                 print(f"❌ UNSAFE: {total_regressions} regressions detected")
                 for reg in regressions:
-                    print(f"  {reg['dataset']}: {reg['count']}/{reg['total_locked']} cases broken")
+                    print(
+                        f"  {reg['dataset']}: {reg['count']}/{reg['total_locked']} cases broken"
+                    )
 
         except Exception as e:
-            result = {"safe": False, "reason": f"Error during testing: {e}", "regressions": []}
+            result = {
+                "safe": False,
+                "reason": f"Error during testing: {e}",
+                "regressions": [],
+            }
 
         finally:
             # Always restore backups
@@ -189,9 +206,13 @@ class SafeAdditionValidator:
 
         return result
 
-    def find_safe_weight_for_case(self, failing_case_input, failing_case_expected, max_attempts=5):
+    def find_safe_weight_for_case(
+        self, failing_case_input, failing_case_expected, max_attempts=5
+    ):
         """Try to find a safe weight addition for a specific failing case"""
-        print(f"\n🔍 Finding safe fix for: {failing_case_input} → {failing_case_expected}")
+        print(
+            f"\n🔍 Finding safe fix for: {failing_case_input} → {failing_case_expected}"
+        )
 
         # Extract syllables from the failing case to target specific patterns
         approaches = [
@@ -227,7 +248,11 @@ class SafeAdditionValidator:
             )
 
             if result["safe"]:
-                return {"success": True, "weight": weight_entry, "description": description}
+                return {
+                    "success": True,
+                    "weight": weight_entry,
+                    "description": description,
+                }
 
         return {"success": False, "reason": "All approaches cause regressions"}
 
@@ -240,7 +265,8 @@ def example_test_weight_addition():
     # Test adding a conservative weight
     test_weight = "테스트,test,-1.5,GN,G"
     result = validator.test_proposed_addition(
-        proposed_weights=[test_weight], description="Example conservative weight addition"
+        proposed_weights=[test_weight],
+        description="Example conservative weight addition",
     )
 
     print(f"Result: {result}")

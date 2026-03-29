@@ -155,7 +155,9 @@ class PredictiveAnalyticsEngine:
 
         self.logger.info(f"PredictiveAnalyticsEngine initialized")
         if not ML_AVAILABLE:
-            self.logger.warning("scikit-learn not available. Predictive features will be limited.")
+            self.logger.warning(
+                "scikit-learn not available. Predictive features will be limited."
+            )
 
     async def ingest_metric(self, metric: MetricDataPoint):
         """Ingest a new metric data point"""
@@ -277,9 +279,9 @@ class PredictiveAnalyticsEngine:
             x = list(range(len(recent_values)))
             y = recent_values
             if len(x) > 1:
-                slope = (sum(x[i] * y[i] for i in range(len(x))) * len(x) - sum(x) * sum(y)) / (
-                    sum(x[i] ** 2 for i in range(len(x))) * len(x) - sum(x) ** 2
-                )
+                slope = (
+                    sum(x[i] * y[i] for i in range(len(x))) * len(x) - sum(x) * sum(y)
+                ) / (sum(x[i] ** 2 for i in range(len(x))) * len(x) - sum(x) ** 2)
                 features.append(slope)
 
         return features
@@ -309,7 +311,9 @@ class PredictiveAnalyticsEngine:
             self.anomaly_detectors[metric_name] = detector
             self.logger.info(f"Created anomaly detector for {metric_name}")
         except Exception as e:
-            self.logger.error(f"Failed to create anomaly detector for {metric_name}: {e}")
+            self.logger.error(
+                f"Failed to create anomaly detector for {metric_name}: {e}"
+            )
 
     async def _handle_anomaly(self, metric: MetricDataPoint):
         """Handle detected anomaly"""
@@ -396,7 +400,9 @@ class PredictiveAnalyticsEngine:
             alert_id=str(uuid.uuid4()),
             severity=AlertSeverity(rule.get("severity", "warning")),
             title=rule.get("title", f"Threshold exceeded for {metric.metric_name}"),
-            description=rule.get("description", f"Metric {metric.metric_name} exceeded threshold"),
+            description=rule.get(
+                "description", f"Metric {metric.metric_name} exceeded threshold"
+            ),
             metric_name=metric.metric_name,
             threshold=rule["threshold"],
             actual_value=metric.value,
@@ -431,7 +437,9 @@ class PredictiveAnalyticsEngine:
             predicted_values = model.predict(features)
 
             # Calculate confidence intervals (simplified)
-            confidence_interval = self._calculate_confidence_interval(metric_name, predicted_values)
+            confidence_interval = self._calculate_confidence_interval(
+                metric_name, predicted_values
+            )
 
             self.performance_tracking["predictions_made"] += len(predicted_values)
 
@@ -533,9 +541,13 @@ class PredictiveAnalyticsEngine:
             self.scalers[metric_name] = scaler
 
         except Exception as e:
-            self.logger.error(f"Failed to create prediction model for {metric_name}: {e}")
+            self.logger.error(
+                f"Failed to create prediction model for {metric_name}: {e}"
+            )
 
-    def _prepare_training_data(self, metric_name: str) -> Tuple[List[List[float]], List[float]]:
+    def _prepare_training_data(
+        self, metric_name: str
+    ) -> Tuple[List[List[float]], List[float]]:
         """Prepare training data for prediction model"""
         historical_values = self.historical_data[metric_name]
 
@@ -595,7 +607,9 @@ class PredictiveAnalyticsEngine:
         for step in range(1, steps + 1):
             future_time = current_time + timedelta(minutes=step * 5)
             feature_vector = base_feature.copy()
-            feature_vector.extend([future_time.hour, future_time.weekday(), future_time.day])
+            feature_vector.extend(
+                [future_time.hour, future_time.weekday(), future_time.day]
+            )
             features.append(feature_vector)
 
         return features
@@ -652,7 +666,9 @@ class PredictiveAnalyticsEngine:
                 continue
 
             recent_values = [m.value for m in values[-20:]]
-            older_values = [m.value for m in values[-40:-20]] if len(values) >= 40 else []
+            older_values = (
+                [m.value for m in values[-40:-20]] if len(values) >= 40 else []
+            )
 
             if not older_values:
                 continue
@@ -660,7 +676,9 @@ class PredictiveAnalyticsEngine:
             recent_avg = statistics.mean(recent_values)
             older_avg = statistics.mean(older_values)
 
-            change_percent = ((recent_avg - older_avg) / older_avg) * 100 if older_avg != 0 else 0
+            change_percent = (
+                ((recent_avg - older_avg) / older_avg) * 100 if older_avg != 0 else 0
+            )
 
             if abs(change_percent) > 20:  # Significant trend
                 trend_type = "increasing" if change_percent > 0 else "decreasing"
@@ -773,7 +791,10 @@ class PredictiveAnalyticsEngine:
         resource_metrics = [
             name
             for name in self.historical_data.keys()
-            if any(keyword in name.lower() for keyword in ["cpu", "memory", "disk", "usage"])
+            if any(
+                keyword in name.lower()
+                for keyword in ["cpu", "memory", "disk", "usage"]
+            )
         ]
 
         for metric_name in resource_metrics:
@@ -786,7 +807,9 @@ class PredictiveAnalyticsEngine:
 
             if avg_utilization > 80:  # High utilization
                 # Predict when capacity will be exceeded
-                prediction = await self.predict_metric(metric_name, 240)  # 4 hours ahead
+                prediction = await self.predict_metric(
+                    metric_name, 240
+                )  # 4 hours ahead
 
                 capacity_insight = AnalyticsInsight(
                     insight_id=str(uuid.uuid4()),
@@ -896,7 +919,9 @@ class PredictiveAnalyticsEngine:
         active_alerts = [alert for alert in self.alerts if not alert.resolved]
 
         # Recent insights
-        recent_insights = sorted(self.insights, key=lambda x: x.generated_at, reverse=True)[:10]
+        recent_insights = sorted(
+            self.insights, key=lambda x: x.generated_at, reverse=True
+        )[:10]
 
         return {
             "timestamp": current_time.isoformat(),
@@ -904,7 +929,9 @@ class PredictiveAnalyticsEngine:
             "recent_metrics": recent_metrics,
             "active_alerts": len(active_alerts),
             "alert_breakdown": {
-                severity.value: len([a for a in active_alerts if a.severity == severity])
+                severity.value: len(
+                    [a for a in active_alerts if a.severity == severity]
+                )
                 for severity in AlertSeverity
             },
             "recent_insights": [
@@ -976,7 +1003,9 @@ class PredictiveAnalyticsEngine:
             )
 
         # Top insights by impact
-        top_insights = sorted(self.insights, key=lambda x: x.impact_score, reverse=True)[:10]
+        top_insights = sorted(
+            self.insights, key=lambda x: x.impact_score, reverse=True
+        )[:10]
         report_data["top_insights"] = [
             {
                 "title": insight.title,

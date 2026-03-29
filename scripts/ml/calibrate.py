@@ -110,7 +110,9 @@ def compute_ece(predictions: List[Dict], num_bins: int = 10) -> float:
     return ece
 
 
-def apply_temperature_scaling(predictions: List[Dict], temperature: float) -> List[Dict]:
+def apply_temperature_scaling(
+    predictions: List[Dict], temperature: float
+) -> List[Dict]:
     """
     Apply temperature scaling to predictions
 
@@ -141,7 +143,9 @@ def apply_temperature_scaling(predictions: List[Dict], temperature: float) -> Li
 
         # Create new prediction dict
         new_pred = pred.copy()
-        new_pred["predictions"] = {r: float(p) for r, p in zip(regions, calibrated_probs)}
+        new_pred["predictions"] = {
+            r: float(p) for r, p in zip(regions, calibrated_probs)
+        }
         new_pred["top1_prob"] = float(calibrated_probs[regions.index(pred["top1"])])
         new_pred["temperature"] = temperature
 
@@ -162,7 +166,9 @@ def find_optimal_temperature(predictions: List[Dict]) -> float:
     return result.x
 
 
-def calibrate_model(model_path: Path, val_path: Path, output_path: Path, temperature: float = None):
+def calibrate_model(
+    model_path: Path, val_path: Path, output_path: Path, temperature: float = None
+):
     """
     Calibrate model using temperature scaling
 
@@ -188,13 +194,17 @@ def calibrate_model(model_path: Path, val_path: Path, output_path: Path, tempera
     print(f"\n[3/5] Measuring baseline calibration...")
     baseline_ece = compute_ece(predictions)
     baseline_acc = (
-        sum(1 for p in predictions if p["top1"] == p["true_region"]) / len(predictions) * 100
+        sum(1 for p in predictions if p["top1"] == p["true_region"])
+        / len(predictions)
+        * 100
     )
     print(f"  Baseline ECE: {baseline_ece:.4f}")
     print(f"  Baseline accuracy: {baseline_acc:.2f}%")
 
     # Find or use specified temperature
-    print(f"\n[4/5] {'Finding' if temperature is None else 'Using'} optimal temperature...")
+    print(
+        f"\n[4/5] {'Finding' if temperature is None else 'Using'} optimal temperature..."
+    )
     if temperature is None:
         optimal_T = find_optimal_temperature(predictions)
         print(f"  Optimal T: {optimal_T:.3f}")
@@ -206,12 +216,16 @@ def calibrate_model(model_path: Path, val_path: Path, output_path: Path, tempera
     calibrated = apply_temperature_scaling(predictions, optimal_T)
     calibrated_ece = compute_ece(calibrated)
     calibrated_acc = (
-        sum(1 for p in calibrated if p["top1"] == p["true_region"]) / len(calibrated) * 100
+        sum(1 for p in calibrated if p["top1"] == p["true_region"])
+        / len(calibrated)
+        * 100
     )
 
     print(f"\n  Calibrated ECE: {calibrated_ece:.4f}")
     print(f"  Calibrated accuracy: {calibrated_acc:.2f}%")
-    print(f"  ECE improvement: {(baseline_ece - calibrated_ece) / baseline_ece * 100:.1f}%")
+    print(
+        f"  ECE improvement: {(baseline_ece - calibrated_ece) / baseline_ece * 100:.1f}%"
+    )
 
     # Save results
     print(f"\n[5/5] Saving calibration results...")
@@ -247,9 +261,13 @@ def calibrate_model(model_path: Path, val_path: Path, output_path: Path, tempera
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print("Usage: python calibrate.py <model.bin> <val.json> <output.json> [--temperature T]")
+        print(
+            "Usage: python calibrate.py <model.bin> <val.json> <output.json> [--temperature T]"
+        )
         print("\nExample:")
-        print("  python calibrate.py data/ml_training/regional_classifier_v5_etymology.bin \\")
+        print(
+            "  python calibrate.py data/ml_training/regional_classifier_v5_etymology.bin \\"
+        )
         print("                      data/ml_training/val_split_etymo.json \\")
         print("                      reports/calibration.json")
         print("\nOr specify temperature:")

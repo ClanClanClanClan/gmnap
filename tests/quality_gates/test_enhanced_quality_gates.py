@@ -110,7 +110,10 @@ class TestRoundtripValidator:
         """Test entry with only Latin script"""
         validator = RoundtripValidator()
 
-        entry = {"CanonicalLatin": "Smith, John", "CanonicalNative": "Smith, John"}  # Same as Latin
+        entry = {
+            "CanonicalLatin": "Smith, John",
+            "CanonicalNative": "Smith, John",
+        }  # Same as Latin
 
         result = await validator.validate(entry)
         assert result.passed is True
@@ -339,7 +342,9 @@ class TestConsistencyVerifier:
         verifier = ConsistencyVerifier()
 
         entry = {
-            "Variants": {"Observed": [{"str": "Smith, J."}, {"str": "Smith, J."}]}  # Duplicate
+            "Variants": {
+                "Observed": [{"str": "Smith, J."}, {"str": "Smith, J."}]
+            }  # Duplicate
         }
 
         result = await verifier.validate(entry)
@@ -357,7 +362,11 @@ class TestAuthorityValidator:
 
         entry = {
             "authority_data": {
-                "ORCID": {"confidence": 0.95, "orcid": "0000-0002-1234-5678", "publications": 42},
+                "ORCID": {
+                    "confidence": 0.95,
+                    "orcid": "0000-0002-1234-5678",
+                    "publications": 42,
+                },
                 "Crossref": {"confidence": 0.88, "affiliations": ["MIT", "Harvard"]},
             }
         }

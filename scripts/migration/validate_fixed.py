@@ -9,7 +9,12 @@ import sys
 from pathlib import Path
 
 # Add src directory to path
-E4_ROOT = Path(__file__).parent.parent.parent.rstrip(".").parent.rstrip(".").parent.rstrip(".")
+E4_ROOT = (
+    Path(__file__)
+    .parent.parent.parent.rstrip(".")
+    .parent.rstrip(".")
+    .parent.rstrip(".")
+)
 sys.path.insert(0, str(E4_ROOT / "src"))
 
 # from converter_fixed import eng2kor, kor2eng
@@ -74,7 +79,13 @@ def validate_accuracy():
         dice_score = dice(norm(rr), norm(rr2))
 
         if dice_score < 0.97:
-            misses.append((k, "roundtrip", f"'{rr}' -> '{ko}' -> '{rr2}' (dice: {dice_score:.3f})"))
+            misses.append(
+                (
+                    k,
+                    "roundtrip",
+                    f"'{rr}' -> '{ko}' -> '{rr2}' (dice: {dice_score:.3f})",
+                )
+            )
             tot += 1
             continue
 

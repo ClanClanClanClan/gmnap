@@ -416,7 +416,13 @@ class TestKoreanDetectionHell:
 
             if result.region_code != expected_region:
                 format_errors.append(
-                    (test_name, description, expected_region, result.region_code, result.confidence)
+                    (
+                        test_name,
+                        description,
+                        expected_region,
+                        result.region_code,
+                        result.confidence,
+                    )
                 )
 
         # Should handle most format variations correctly
@@ -520,7 +526,13 @@ class TestKoreanDetectionHell:
 
             except Exception as e:
                 unicode_errors.append(
-                    (test_input, description, f"Exception: {e}", "ERROR", repr(test_input))
+                    (
+                        test_input,
+                        description,
+                        f"Exception: {e}",
+                        "ERROR",
+                        repr(test_input),
+                    )
                 )
 
         # Should handle most Unicode edge cases
@@ -580,7 +592,13 @@ class TestKoreanDetectionHell:
 
                     if result.region_code != "E4":
                         linguistic_errors.append(
-                            (hangul, romanization, test_name, result.region_code, result.confidence)
+                            (
+                                hangul,
+                                romanization,
+                                test_name,
+                                result.region_code,
+                                result.confidence,
+                            )
                         )
 
         # Should recognize most linguistic variations
@@ -661,7 +679,9 @@ class TestKoreanDetectionHell:
                         final_idx = final_consonants.index(final)
 
                         # Hangul syllable formula
-                        syllable_code = 0xAC00 + (initial_idx * 588) + (vowel_idx * 28) + final_idx
+                        syllable_code = (
+                            0xAC00 + (initial_idx * 588) + (vowel_idx * 28) + final_idx
+                        )
                         syllable = chr(syllable_code)
                         synthetic_syllables.append(syllable)
 
@@ -698,9 +718,13 @@ class TestKoreanDetectionHell:
                     detection_results["error"] += 1
 
         total_tests = (
-            detection_results["E4"] + detection_results["other"] + detection_results["error"]
+            detection_results["E4"]
+            + detection_results["other"]
+            + detection_results["error"]
         )
-        korean_detection_rate = detection_results["E4"] / total_tests if total_tests > 0 else 0
+        korean_detection_rate = (
+            detection_results["E4"] / total_tests if total_tests > 0 else 0
+        )
         error_rate = detection_results["error"] / total_tests if total_tests > 0 else 0
 
         print(
@@ -713,7 +737,9 @@ class TestKoreanDetectionHell:
         ), f"Low synthetic Korean recognition: {korean_detection_rate:.2%}"
 
         # Should not have many errors
-        assert error_rate < 0.1, f"High error rate on synthetic Korean: {error_rate:.2%}"
+        assert (
+            error_rate < 0.1
+        ), f"High error rate on synthetic Korean: {error_rate:.2%}"
 
     # ========== KOREAN ADVERSARIAL HELL ==========
 
@@ -779,7 +805,13 @@ class TestKoreanDetectionHell:
 
             if result.region_code != expected_region:
                 adversarial_errors.append(
-                    (test_name, expected_region, result.region_code, result.confidence, description)
+                    (
+                        test_name,
+                        expected_region,
+                        result.region_code,
+                        result.confidence,
+                        description,
+                    )
                 )
 
         # Should handle most adversarial examples correctly
@@ -810,10 +842,22 @@ class TestKoreanProcessingHell:
         "korean_name,romanized_variants",
         [
             ("김정은", ["Kim Jong-un", "Kim Jong un", "Kim Jongun", "Gim Jong-eun"]),
-            ("박근혜", ["Park Geun-hye", "Park Geun hye", "Pak Keun-hye", "Bak Geun-hye"]),
-            ("이명박", ["Lee Myung-bak", "Yi Myeong-bak", "Rhee Myung-bak", "I Myung-pak"]),
-            ("최지훈", ["Choi Ji-hoon", "Choe Ji-hun", "Ch'oe Chi-hun", "Tsoi Ji-hoon"]),
-            ("정수진", ["Jung Soo-jin", "Jeong Su-jin", "Chung Soo-jin", "Jong Su-jin"]),
+            (
+                "박근혜",
+                ["Park Geun-hye", "Park Geun hye", "Pak Keun-hye", "Bak Geun-hye"],
+            ),
+            (
+                "이명박",
+                ["Lee Myung-bak", "Yi Myeong-bak", "Rhee Myung-bak", "I Myung-pak"],
+            ),
+            (
+                "최지훈",
+                ["Choi Ji-hoon", "Choe Ji-hun", "Ch'oe Chi-hun", "Tsoi Ji-hoon"],
+            ),
+            (
+                "정수진",
+                ["Jung Soo-jin", "Jeong Su-jin", "Chung Soo-jin", "Jong Su-jin"],
+            ),
         ],
     )
     @pytest.mark.paranoid
@@ -830,12 +874,17 @@ class TestKoreanProcessingHell:
 
             # Check if variants were generated
             if "Variants" in entry and "Synthesised" in entry["Variants"]:
-                generated_variants = [v["str"] for v in entry["Variants"]["Synthesised"]]
+                generated_variants = [
+                    v["str"] for v in entry["Variants"]["Synthesised"]
+                ]
 
                 # Check that expected romanized variants are present
                 found_variants = []
                 for expected_variant in romanized_variants:
-                    if any(expected_variant.lower() in gv.lower() for gv in generated_variants):
+                    if any(
+                        expected_variant.lower() in gv.lower()
+                        for gv in generated_variants
+                    ):
                         found_variants.append(expected_variant)
 
                 # Should find at least some expected variants
@@ -894,32 +943,50 @@ class TestKoreanProcessingHell:
                         try:
                             korean_processor.augment(back_entry)
 
-                            if "Variants" in back_entry and "Synthesised" in back_entry["Variants"]:
+                            if (
+                                "Variants" in back_entry
+                                and "Synthesised" in back_entry["Variants"]
+                            ):
                                 hangul_variants = [
                                     v["str"]
                                     for v in back_entry["Variants"]["Synthesised"]
                                     if any(
-                                        ord(c) >= 0xAC00 and ord(c) <= 0xD7AF for c in v["str"]
+                                        ord(c) >= 0xAC00 and ord(c) <= 0xD7AF
+                                        for c in v["str"]
                                     )  # Is Hangul
                                 ]
 
                                 # Should be able to convert back to similar Hangul
                                 if not any(hangul_name in hv for hv in hangul_variants):
                                     conversion_errors.append(
-                                        (hangul_name, romanized, "No round-trip", hangul_variants)
+                                        (
+                                            hangul_name,
+                                            romanized,
+                                            "No round-trip",
+                                            hangul_variants,
+                                        )
                                     )
 
                         except Exception as e:
                             conversion_errors.append(
-                                (hangul_name, romanized, f"Back-conversion error: {e}", [])
+                                (
+                                    hangul_name,
+                                    romanized,
+                                    f"Back-conversion error: {e}",
+                                    [],
+                                )
                             )
 
             except Exception as e:
-                conversion_errors.append((hangul_name, "N/A", f"Forward conversion error: {e}", []))
+                conversion_errors.append(
+                    (hangul_name, "N/A", f"Forward conversion error: {e}", [])
+                )
 
         # Should have reasonable bidirectional conversion success
         total_attempts = sum(len(roms) for _, roms in bidirectional_test_cases)
-        error_rate = len(conversion_errors) / total_attempts if total_attempts > 0 else 0
+        error_rate = (
+            len(conversion_errors) / total_attempts if total_attempts > 0 else 0
+        )
 
         assert (
             error_rate < 0.5

@@ -114,7 +114,9 @@ class CrossrefAPI:
                 self.request_count += 1
 
                 if response.status != 200:
-                    logger.warning(f"Crossref API returned {response.status} for {name}")
+                    logger.warning(
+                        f"Crossref API returned {response.status} for {name}"
+                    )
                     return []
 
                 data = await response.json()
@@ -138,10 +140,16 @@ class CrossrefAPI:
                             "given": author.given,
                             "family": author.family,
                             "orcid": author.orcid,
-                            "affiliations": self._extract_affiliations(author.affiliation),
+                            "affiliations": self._extract_affiliations(
+                                author.affiliation
+                            ),
                             "work_doi": item.get("DOI"),
-                            "work_title": item.get("title", [""])[0] if item.get("title") else "",
-                            "work_year": self._extract_year(item.get("published-print")),
+                            "work_title": (
+                                item.get("title", [""])[0] if item.get("title") else ""
+                            ),
+                            "work_year": self._extract_year(
+                                item.get("published-print")
+                            ),
                             "work_type": item.get("type"),
                             "subjects": item.get("subject", []),
                             "confidence": self._calculate_confidence(name, author),
@@ -261,7 +269,11 @@ class CrossrefAPI:
                 "last_updated": datetime.utcnow().isoformat(),
                 "confidence": best_match["confidence"],
                 "work_count": len(
-                    [a for a in authors if a["canonical_name"] == best_match["canonical_name"]]
+                    [
+                        a
+                        for a in authors
+                        if a["canonical_name"] == best_match["canonical_name"]
+                    ]
                 ),
             }
         )

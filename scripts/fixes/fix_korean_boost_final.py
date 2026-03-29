@@ -43,7 +43,9 @@ def fix_korean_boost_final():
 
         # Insert after the scores dictionary
         insertion_point = scores_match.end()
-        content = content[:insertion_point] + korean_boost_correct + content[insertion_point:]
+        content = (
+            content[:insertion_point] + korean_boost_correct + content[insertion_point:]
+        )
 
         print("   ✅ Moved Korean boost to after scores initialization")
 

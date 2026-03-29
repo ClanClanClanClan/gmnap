@@ -390,7 +390,9 @@ class D3_SouthAsiaBengali(RegionSpec):
             indicators.append(f"places:{place_score:.2f}")
 
         if confidence > 0:
-            self.logger.debug(f"D3 detection: {confidence:.3f} [{', '.join(indicators)}]")
+            self.logger.debug(
+                f"D3 detection: {confidence:.3f} [{', '.join(indicators)}]"
+            )
 
         return min(confidence, 1.0)
 
@@ -547,8 +549,12 @@ class D3_SouthAsiaBengali(RegionSpec):
             "bhattacharya",
         ]
 
-        muslim_score = sum(1 for indicator in muslim_indicators if indicator in name_lower)
-        hindu_score = sum(1 for indicator in hindu_indicators if indicator in name_lower)
+        muslim_score = sum(
+            1 for indicator in muslim_indicators if indicator in name_lower
+        )
+        hindu_score = sum(
+            1 for indicator in hindu_indicators if indicator in name_lower
+        )
 
         if muslim_score > hindu_score:
             return "muslim"
@@ -613,7 +619,10 @@ class D3_SouthAsiaBengali(RegionSpec):
         # Check for patronymic patterns
         if tradition == "hindu" and len(parts) >= 2:
             # Look for patronymic indicators
-            if any(part.lower().endswith(("kumar", "chandra", "nath")) for part in parts[:-1]):
+            if any(
+                part.lower().endswith(("kumar", "chandra", "nath"))
+                for part in parts[:-1]
+            ):
                 components["patronymic"] = parts[-2] if len(parts) >= 2 else None
 
         return components
@@ -626,14 +635,18 @@ class D3_SouthAsiaBengali(RegionSpec):
 
         # SECURITY: Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         # Apply comprehensive security and validation checks from base class
         self.apply_security_and_validation_checks(entry)
 
         # Check for valid Bengali characteristics
         if not self._has_bengali_characteristics(canonical):
-            self.logger.warning(f"Name lacks clear Bengali linguistic characteristics: {canonical}")
+            self.logger.warning(
+                f"Name lacks clear Bengali linguistic characteristics: {canonical}"
+            )
 
         # Check for mixed script issues
         if self._has_mixed_scripts(canonical):
@@ -642,7 +655,9 @@ class D3_SouthAsiaBengali(RegionSpec):
         # Check naming tradition consistency
         tradition = self._detect_naming_tradition(canonical)
         if tradition == "unknown":
-            self.logger.warning(f"Unable to determine naming tradition (Hindu/Muslim): {canonical}")
+            self.logger.warning(
+                f"Unable to determine naming tradition (Hindu/Muslim): {canonical}"
+            )
 
     def _has_bengali_characteristics(self, name: str) -> bool:
         """Check if name has clear Bengali characteristics."""
@@ -652,7 +667,10 @@ class D3_SouthAsiaBengali(RegionSpec):
         if self._detect_bengali_script(name) > 0:
             return True
         # Check for characteristic patterns
-        return self._check_bengali_patterns(name) > 0 or self._check_bengali_surnames(name) > 0
+        return (
+            self._check_bengali_patterns(name) > 0
+            or self._check_bengali_surnames(name) > 0
+        )
 
     def _has_mixed_scripts(self, name: str) -> bool:
         """Check if name has mixed script characters."""
@@ -718,9 +736,13 @@ class D3_SouthAsiaBengali(RegionSpec):
         import unicodedata
 
         family_normalized = unicodedata.normalize("NFD", family)
-        family_normalized = "".join(c for c in family_normalized if unicodedata.category(c) != "Mn")
+        family_normalized = "".join(
+            c for c in family_normalized if unicodedata.category(c) != "Mn"
+        )
         given_normalized = unicodedata.normalize("NFD", given)
-        given_normalized = "".join(c for c in given_normalized if unicodedata.category(c) != "Mn")
+        given_normalized = "".join(
+            c for c in given_normalized if unicodedata.category(c) != "Mn"
+        )
 
         # Convert to uppercase for case-insensitive sorting
         sort_family = family_normalized.upper()

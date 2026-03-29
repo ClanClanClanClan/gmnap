@@ -94,7 +94,9 @@ class V7RuntimeConfig:
         return configs.get(mode, configs["Quick"])
 
 
-def stage0_load_config(config_path: Optional[Path] = None) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+def stage0_load_config(
+    config_path: Optional[Path] = None,
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """
     Stage 0: Load and validate configuration
 

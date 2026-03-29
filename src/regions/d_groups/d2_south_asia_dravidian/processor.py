@@ -464,7 +464,9 @@ class D2_SouthAsiaDravidian(RegionSpec):
             indicators.append(f"places:{place_score:.2f}")
 
         if confidence > 0:
-            self.logger.debug(f"D2 detection: {confidence:.3f} [{', '.join(indicators)}]")
+            self.logger.debug(
+                f"D2 detection: {confidence:.3f} [{', '.join(indicators)}]"
+            )
 
         return min(confidence, 1.0)
 
@@ -636,7 +638,9 @@ class D2_SouthAsiaDravidian(RegionSpec):
         elif any(surname in name_lower for surname in self.common_surnames["kannada"]):
             return "kannada"
         # Malayalam indicators
-        elif any(surname in name_lower for surname in self.common_surnames["malayalam"]):
+        elif any(
+            surname in name_lower for surname in self.common_surnames["malayalam"]
+        ):
             return "malayalam"
 
         return "dravidian_unspecified"
@@ -705,7 +709,9 @@ class D2_SouthAsiaDravidian(RegionSpec):
 
         # SECURITY: Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         # Apply comprehensive security and validation checks from base class
         self.apply_security_and_validation_checks(entry)
@@ -807,9 +813,13 @@ class D2_SouthAsiaDravidian(RegionSpec):
         import unicodedata
 
         family_normalized = unicodedata.normalize("NFD", family)
-        family_normalized = "".join(c for c in family_normalized if unicodedata.category(c) != "Mn")
+        family_normalized = "".join(
+            c for c in family_normalized if unicodedata.category(c) != "Mn"
+        )
         given_normalized = unicodedata.normalize("NFD", given)
-        given_normalized = "".join(c for c in given_normalized if unicodedata.category(c) != "Mn")
+        given_normalized = "".join(
+            c for c in given_normalized if unicodedata.category(c) != "Mn"
+        )
 
         # Convert to uppercase for case-insensitive sorting
         sort_family = family_normalized.upper()

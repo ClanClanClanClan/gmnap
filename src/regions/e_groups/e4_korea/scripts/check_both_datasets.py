@@ -82,7 +82,8 @@ for k, v in diverse_data.items():
                 # Try to find Korean in variants
                 for variant in v.get("AllCommonVariants", []):
                     if isinstance(variant, str) and all(
-                        ord(c) >= 0xAC00 and ord(c) <= 0xD7A3 for c in variant.replace(" ", "")
+                        ord(c) >= 0xAC00 and ord(c) <= 0xD7A3
+                        for c in variant.replace(" ", "")
                     ):
                         ko_exp = variant
                         break

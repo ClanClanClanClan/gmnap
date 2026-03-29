@@ -60,7 +60,9 @@ def fix_region_file(region_code: str, file_path: Path, scripts: list):
         content = f.read()
 
     # Find the super().__init__ call and add scripts parameter
-    pattern = r'(super\(\).__init__\(\s*code="{}".*?yaml_files=\[\].*?)(\s*\))'.format(region_code)
+    pattern = r'(super\(\).__init__\(\s*code="{}".*?yaml_files=\[\].*?)(\s*\))'.format(
+        region_code
+    )
 
     scripts_str = repr(scripts)
     replacement = r"\1,\n            scripts={}\2".format(scripts_str)

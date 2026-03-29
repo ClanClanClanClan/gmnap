@@ -67,7 +67,9 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
         self.enforce_idempotency = True  # Always enforce 0-byte difference
         self.enable_deployment = False  # Default to not deploy automatically
 
-        logger.info("V7 Pipeline Complete Final initialized with all closure pack components")
+        logger.info(
+            "V7 Pipeline Complete Final initialized with all closure pack components"
+        )
 
     async def _stage_4_authority_enrich(
         self, entries: List[Dict[str, Any]]
@@ -106,7 +108,9 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
 
         # PERFORMANCE: Skip DuckDB for small batches
         if len(entries) < 50 and self.mode == PipelineMode.QUICK:
-            logger.info("Skipping DuckDB analytics for small batch (performance optimization)")
+            logger.info(
+                "Skipping DuckDB analytics for small batch (performance optimization)"
+            )
             # Simple in-memory collision detection
             seen_ids = {}
             for entry in entries:
@@ -127,10 +131,14 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
                 for entry in entries:
                     global_id = entry.get("GlobalID")
                     if global_id in analytics_result.get("suffixes", {}):
-                        entry["CollisionSuffix"] = analytics_result["suffixes"][global_id]
+                        entry["CollisionSuffix"] = analytics_result["suffixes"][
+                            global_id
+                        ]
                         entry["GlobalID"] = f"{global_id}_{entry['CollisionSuffix']}"
 
-                logger.info(f"Detected {analytics_result.get('collision_count', 0)} collisions")
+                logger.info(
+                    f"Detected {analytics_result.get('collision_count', 0)} collisions"
+                )
 
             except Exception as e:
                 logger.warning(f"DuckDB analytics failed (graceful skip): {e}")
@@ -194,7 +202,9 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
         logger.info(f"Stage 6 completed with final score: {final_score:.3f}")
         return entries
 
-    async def _stage_8_global_validate(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_8_global_validate(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         Stage 8: Global validation with schema enforcement.
         Uses the closure pack's strict schema validator.
@@ -230,10 +240,16 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
                 # In non-strict mode, accept entries with warnings
                 validated_entries.append(entry)
                 if errors and not strict_validation:
-                    logger.debug(f"Validation warnings for {entry.get('GlobalID')}: {errors}")
+                    logger.debug(
+                        f"Validation warnings for {entry.get('GlobalID')}: {errors}"
+                    )
             else:
-                validation_failures.append({"GlobalID": entry.get("GlobalID"), "errors": errors})
-                logger.warning(f"Validation failed for {entry.get('GlobalID')}: {errors}")
+                validation_failures.append(
+                    {"GlobalID": entry.get("GlobalID"), "errors": errors}
+                )
+                logger.warning(
+                    f"Validation failed for {entry.get('GlobalID')}: {errors}"
+                )
 
         logger.info(
             f"Validation complete: {len(validated_entries)} passed, {len(validation_failures)} failed"
@@ -257,7 +273,9 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
         Uses the closure pack's deterministic writer for 0-byte consistency.
         """
         start_time = time.time()
-        logger.info(f"Stage 9: Writing {len(entries)} entries with deterministic output")
+        logger.info(
+            f"Stage 9: Writing {len(entries)} entries with deterministic output"
+        )
 
         # Deterministic JSON write (sorted keys, canonical format)
         output_path = self._output_path / "output_v7_final.json"
@@ -362,7 +380,11 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
         if len(entries) < 50 and self.mode == PipelineMode.QUICK:
             logger.info("Using lightweight analytics for small batch")
             # Simple collision count
-            collision_stats = {"collision_count": 0, "collision_rate": 0.0, "suffixes": {}}
+            collision_stats = {
+                "collision_count": 0,
+                "collision_rate": 0.0,
+                "suffixes": {},
+            }
         else:
             # 1. Run DuckDB collision analytics
             collision_stats = self.duckdb_analytics.analyze_collisions(entries)
@@ -387,7 +409,9 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
 
         # 4. Graph coherence statistics
         coherence_scores = [e.get("GraphCoherence", 0) for e in entries]
-        avg_coherence = sum(coherence_scores) / len(coherence_scores) if coherence_scores else 0
+        avg_coherence = (
+            sum(coherence_scores) / len(coherence_scores) if coherence_scores else 0
+        )
         min_coherence = min(coherence_scores) if coherence_scores else 0
         max_coherence = max(coherence_scores) if coherence_scores else 0
 
@@ -400,7 +424,9 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
         throughput = len(entries) / total_time if total_time > 0 else 0
 
         # Generate comprehensive report
-        report_path = self._output_path / f"analytics_report_{datetime.now():%Y%m%d_%H%M%S}.md"
+        report_path = (
+            self._output_path / f"analytics_report_{datetime.now():%Y%m%d_%H%M%S}.md"
+        )
         report_path.parent.mkdir(parents=True, exist_ok=True)
 
         with open(report_path, "w") as f:
@@ -412,10 +438,14 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
             f.write("## Collision Analysis (DuckDB)\n")
             f.write(f"- Unique Names: {collision_stats.get('unique_names', 0)}\n")
             f.write(f"- Collisions: {collision_stats.get('collisions', 0)}\n")
-            f.write(f"- Collision Rate: {collision_stats.get('collision_rate', 0):.2%}\n\n")
+            f.write(
+                f"- Collision Rate: {collision_stats.get('collision_rate', 0):.2%}\n\n"
+            )
 
             f.write("## Field Distribution\n")
-            for field, count in sorted(field_dist.items(), key=lambda x: x[1], reverse=True)[:10]:
+            for field, count in sorted(
+                field_dist.items(), key=lambda x: x[1], reverse=True
+            )[:10]:
                 f.write(f"- {field}: {count} ({count/len(entries)*100:.1f}%)\n")
             f.write("\n")
 
@@ -444,7 +474,9 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
             f.write(f"- Total Processing Time: {total_time:.2f}s\n")
             f.write(f"- Throughput: {throughput:.1f} entries/sec\n")
             if throughput > 0:
-                f.write(f"- Projected 1M Processing: {1000000/throughput/60:.1f} minutes\n\n")
+                f.write(
+                    f"- Projected 1M Processing: {1000000/throughput/60:.1f} minutes\n\n"
+                )
             else:
                 f.write(f"- Projected 1M Processing: N/A (throughput too low)\n\n")
 
@@ -456,7 +488,9 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
 
         # Also output key metrics to console
         logger.info(f"Key Analytics:")
-        logger.info(f"  - Collision Rate: {collision_stats.get('collision_rate', 0):.2%}")
+        logger.info(
+            f"  - Collision Rate: {collision_stats.get('collision_rate', 0):.2%}"
+        )
         logger.info(f"  - Authority Coverage: {authority_rate:.2%}")
         logger.info(f"  - Avg Graph Coherence: {avg_coherence:.3f}")
         logger.info(f"  - Quality Pass Rate: {quality_rate:.2%}")
@@ -464,7 +498,9 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
 
         self.metrics.stage_timings["stage_10_analytics"] = time.time() - start_time
 
-    async def _stage_12_deployment(self, entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def _stage_12_deployment(
+        self, entries: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Stage 12: Deployment - Deploy to production with versioning and validation.
 
@@ -483,7 +519,10 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
 
         if not self.enable_deployment:
             logger.info("Deployment disabled (use enable_deployment=True to deploy)")
-            return {"deployed": False, "message": "Deployment disabled in configuration"}
+            return {
+                "deployed": False,
+                "message": "Deployment disabled in configuration",
+            }
 
         # Collect metrics for deployment
         deployment_metrics = {
@@ -495,13 +534,18 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
             ),
             "stage_timings": dict(self.metrics.stage_timings),
             "mode": self.mode.value,
-            "idempotency_verified": getattr(self.metrics, "idempotency_verified", False),
+            "idempotency_verified": getattr(
+                self.metrics, "idempotency_verified", False
+            ),
         }
 
         # Deploy with validation
         try:
             result = self.deployment_manager.deploy(
-                entries=entries, metrics=deployment_metrics, bump_type="patch", force=False
+                entries=entries,
+                metrics=deployment_metrics,
+                bump_type="patch",
+                force=False,
             )
 
             if result["success"]:
@@ -509,7 +553,9 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
                 logger.info(f"   Deployed {result['entries_deployed']} entries")
                 logger.info(f"   Artifacts: {result['artifacts']['data']}")
             else:
-                logger.error(f"❌ Deployment failed: {result.get('message', 'Unknown error')}")
+                logger.error(
+                    f"❌ Deployment failed: {result.get('message', 'Unknown error')}"
+                )
                 if "validation" in result:
                     for error in result["validation"].get("errors", []):
                         logger.error(f"   - {error}")
@@ -520,9 +566,15 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
         except Exception as e:
             logger.error(f"Deployment failed with exception: {e}")
             self.metrics.stage_timings["stage_12_deployment"] = time.time() - start_time
-            return {"deployed": False, "error": str(e), "message": f"Deployment failed: {e}"}
+            return {
+                "deployed": False,
+                "error": str(e),
+                "message": f"Deployment failed: {e}",
+            }
 
-    async def _stage_1_ingest(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_1_ingest(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         Override Stage 1 to ensure deterministic processing.
         Removes timestamp fields that break idempotency.
@@ -583,7 +635,8 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
             logger.error(f"Error checking quality gates: {e}")
             # On error, fail safe by blocking
             raise QualityGateBlockedException(
-                f"Quality gate check failed: {e}", {"blocked": True, "failures": [str(e)]}
+                f"Quality gate check failed: {e}",
+                {"blocked": True, "failures": [str(e)]},
             )
 
     async def _reprocess_for_idempotency(
@@ -699,7 +752,9 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
 
             # Stage 5: Collision analytics - ALWAYS RUN
             results = await self._safe_stage_execution(
-                "Stage 5: Collision Analytics", self._stage_5_collision_analytics, results
+                "Stage 5: Collision Analytics",
+                self._stage_5_collision_analytics,
+                results,
             )
 
             # Stage 6: Graph consistency - ALWAYS RUN

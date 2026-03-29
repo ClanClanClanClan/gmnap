@@ -58,11 +58,23 @@ class V7ComplianceTest:
         # V7 edge cases (should be handled gracefully)
         self.edge_cases = [
             # Single character names (should pass with warnings)
-            {"name": "Single char A", "test": {"CanonicalLatin": "A", "GlobalID": "edge-1"}},
-            {"name": "Single char X", "test": {"CanonicalLatin": "X", "GlobalID": "edge-2"}},
-            {"name": "Single char Z", "test": {"CanonicalLatin": "Z", "GlobalID": "edge-3"}},
+            {
+                "name": "Single char A",
+                "test": {"CanonicalLatin": "A", "GlobalID": "edge-1"},
+            },
+            {
+                "name": "Single char X",
+                "test": {"CanonicalLatin": "X", "GlobalID": "edge-2"},
+            },
+            {
+                "name": "Single char Z",
+                "test": {"CanonicalLatin": "Z", "GlobalID": "edge-3"},
+            },
             # Mononyms (should pass)
-            {"name": "Mononym Cher", "test": {"CanonicalLatin": "Cher", "GlobalID": "edge-4"}},
+            {
+                "name": "Mononym Cher",
+                "test": {"CanonicalLatin": "Cher", "GlobalID": "edge-4"},
+            },
             {
                 "name": "Mononym Madonna",
                 "test": {"CanonicalLatin": "Madonna", "GlobalID": "edge-5"},
@@ -81,11 +93,17 @@ class V7ComplianceTest:
             },
             {
                 "name": "International accents",
-                "test": {"CanonicalLatin": "José María de la Cruz-Sánchez", "GlobalID": "edge-8"},
+                "test": {
+                    "CanonicalLatin": "José María de la Cruz-Sánchez",
+                    "GlobalID": "edge-8",
+                },
             },
             {
                 "name": "French particles",
-                "test": {"CanonicalLatin": "François-André de Saint-Exupéry", "GlobalID": "edge-9"},
+                "test": {
+                    "CanonicalLatin": "François-André de Saint-Exupéry",
+                    "GlobalID": "edge-9",
+                },
             },
             # Empty field handling (should not crash)
             {
@@ -104,7 +122,10 @@ class V7ComplianceTest:
             },
             {
                 "name": "Academic suffixes",
-                "test": {"CanonicalLatin": "Dr. Smith, John Jr.", "GlobalID": "edge-13"},
+                "test": {
+                    "CanonicalLatin": "Dr. Smith, John Jr.",
+                    "GlobalID": "edge-13",
+                },
             },
             # Mixed scripts (for applicable regions)
             {
@@ -158,7 +179,12 @@ class V7ComplianceTest:
         """Test a region's security compliance against attack vectors."""
         region = self.manager.get_region(region_code)
         if not region:
-            return {"status": "FAILED", "error": "Region not loaded", "blocked": 0, "total": 0}
+            return {
+                "status": "FAILED",
+                "error": "Region not loaded",
+                "blocked": 0,
+                "total": 0,
+            }
 
         blocked_attacks = 0
         failed_blocks = []
@@ -188,7 +214,9 @@ class V7ComplianceTest:
 
         return {
             "status": (
-                "PASSED" if block_rate >= 99.0 else "PARTIAL" if block_rate >= 90.0 else "FAILED"
+                "PASSED"
+                if block_rate >= 99.0
+                else "PARTIAL" if block_rate >= 90.0 else "FAILED"
             ),
             "blocked": blocked_attacks,
             "total": total_attacks,
@@ -200,7 +228,12 @@ class V7ComplianceTest:
         """Test a region's edge case handling."""
         region = self.manager.get_region(region_code)
         if not region:
-            return {"status": "FAILED", "error": "Region not loaded", "passed": 0, "total": 0}
+            return {
+                "status": "FAILED",
+                "error": "Region not loaded",
+                "passed": 0,
+                "total": 0,
+            }
 
         passed_cases = 0
         failed_cases = []
@@ -226,7 +259,9 @@ class V7ComplianceTest:
 
         return {
             "status": (
-                "PASSED" if pass_rate >= 95.0 else "PARTIAL" if pass_rate >= 80.0 else "FAILED"
+                "PASSED"
+                if pass_rate >= 95.0
+                else "PARTIAL" if pass_rate >= 80.0 else "FAILED"
             ),
             "passed": passed_cases,
             "total": total_cases,
@@ -287,7 +322,9 @@ class V7ComplianceTest:
         print(
             f"  - Security: {len(self.security_attacks)} attack vectors (99%+ block rate required)"
         )
-        print(f"  - Edge cases: {len(self.edge_cases)} test cases (95%+ pass rate required)")
+        print(
+            f"  - Edge cases: {len(self.edge_cases)} test cases (95%+ pass rate required)"
+        )
         print()
 
         results = {}
@@ -357,23 +394,31 @@ class V7ComplianceTest:
     def _calculate_overall_stats(self, results: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate overall statistics from test results."""
         total = len(results)
-        excellent = sum(1 for r in results.values() if r.get("overall_status") == "EXCELLENT")
+        excellent = sum(
+            1 for r in results.values() if r.get("overall_status") == "EXCELLENT"
+        )
         passed = sum(1 for r in results.values() if r.get("overall_status") == "PASSED")
-        partial = sum(1 for r in results.values() if r.get("overall_status") == "PARTIAL")
+        partial = sum(
+            1 for r in results.values() if r.get("overall_status") == "PARTIAL"
+        )
         failed = sum(1 for r in results.values() if r.get("overall_status") == "FAILED")
         errors = sum(1 for r in results.values() if r.get("overall_status") == "ERROR")
 
         # Calculate averages (excluding errors)
-        valid_results = [r for r in results.values() if "security" in r and "edge_cases" in r]
+        valid_results = [
+            r for r in results.values() if "security" in r and "edge_cases" in r
+        ]
 
         if valid_results:
-            avg_security = sum(r["security"]["block_rate"] for r in valid_results) / len(
+            avg_security = sum(
+                r["security"]["block_rate"] for r in valid_results
+            ) / len(valid_results)
+            avg_edge_cases = sum(
+                r["edge_cases"]["pass_rate"] for r in valid_results
+            ) / len(valid_results)
+            overall_compliance = sum(r["overall_score"] for r in valid_results) / len(
                 valid_results
             )
-            avg_edge_cases = sum(r["edge_cases"]["pass_rate"] for r in valid_results) / len(
-                valid_results
-            )
-            overall_compliance = sum(r["overall_score"] for r in valid_results) / len(valid_results)
         else:
             avg_security = 0.0
             avg_edge_cases = 0.0

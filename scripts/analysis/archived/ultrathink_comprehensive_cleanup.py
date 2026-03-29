@@ -140,7 +140,9 @@ class UltrathinkCleaner:
 
         # Find all markdown files
         md_files = list(self.root.glob("**/*.md"))
-        md_files = [f for f in md_files if ".venv" not in str(f) and ".git" not in str(f)]
+        md_files = [
+            f for f in md_files if ".venv" not in str(f) and ".git" not in str(f)
+        ]
 
         # Group by directory
         docs_by_dir = defaultdict(list)
@@ -159,7 +161,9 @@ class UltrathinkCleaner:
 
         # Common redundant patterns in Korean scripts
         korean_scripts = (
-            list(Path("scripts/korean").glob("*.py")) if Path("scripts/korean").exists() else []
+            list(Path("scripts/korean").glob("*.py"))
+            if Path("scripts/korean").exists()
+            else []
         )
         korean_src = (
             list(Path("src/regions/e_groups/e4_korea").glob("**/*.py"))
@@ -172,7 +176,16 @@ class UltrathinkCleaner:
         for script in korean_scripts + korean_src:
             base_name = script.stem.lower()
             # Remove common suffixes
-            for suffix in ["_v2", "_v3", "_final", "_fixed", "_new", "_old", "_backup", "_test"]:
+            for suffix in [
+                "_v2",
+                "_v3",
+                "_final",
+                "_fixed",
+                "_new",
+                "_old",
+                "_backup",
+                "_test",
+            ]:
                 base_name = base_name.replace(suffix, "")
             name_groups[base_name].append(script)
 
@@ -317,7 +330,8 @@ class UltrathinkCleaner:
                     "stats": self.stats,
                     "files_to_delete": [str(p) for p in self.to_delete[:100]],
                     "duplicate_groups": {
-                        k: [str(p) for p in v] for k, v in list(self.duplicates.items())[:10]
+                        k: [str(p) for p in v]
+                        for k, v in list(self.duplicates.items())[:10]
                     },
                 },
                 f,

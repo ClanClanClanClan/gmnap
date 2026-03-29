@@ -18,7 +18,12 @@ def _as_list(x: Any) -> List[dict]:
             else:
                 out.append({"status": "processing_error", "error": str(itm)})
         return out
-    return [{"status": "processing_error", "error": f"Unexpected result type: {type(x).__name__}"}]
+    return [
+        {
+            "status": "processing_error",
+            "error": f"Unexpected result type: {type(x).__name__}",
+        }
+    ]
 
 
 def normalize_result(res: Any) -> Tuple[List[dict], dict]:
@@ -31,7 +36,9 @@ def normalize_result(res: Any) -> Tuple[List[dict], dict]:
                 return _as_list(res[key]), metrics
         if any(k in res for k in ("GlobalID", "status", "CanonicalNative")):
             return [res], metrics
-        return [{"status": "processing_error", "error": "Malformed result dict"}], metrics
+        return [
+            {"status": "processing_error", "error": "Malformed result dict"}
+        ], metrics
     if isinstance(res, list):
         return _as_list(res), {}
     return [{"status": "processing_error", "error": str(res)}], {}
@@ -49,7 +56,9 @@ class StreamConfig:
 
 
 class StreamingExecutor:
-    def __init__(self, fn: Callable[[List[dict]], Any], cfg: StreamConfig | None = None):
+    def __init__(
+        self, fn: Callable[[List[dict]], Any], cfg: StreamConfig | None = None
+    ):
         self.fn = fn
         self.cfg = cfg or StreamConfig()
 
@@ -60,7 +69,11 @@ class StreamingExecutor:
                 res = await asyncio.wait_for(res, timeout=self.cfg.soft_timeout_s)
         except Exception as ex:
             return [
-                {"GlobalID": e.get("GlobalID"), "status": "processing_error", "error": str(ex)}
+                {
+                    "GlobalID": e.get("GlobalID"),
+                    "status": "processing_error",
+                    "error": str(ex),
+                }
                 for e in chunk
             ]
         rows, _ = normalize_result(res)
@@ -73,7 +86,9 @@ class StreamingExecutor:
         fails = [e for e in out if e.get("status") == "processing_error"]
         if not fails:
             return out
-        await asyncio.sleep(self.cfg.retry_base_s + random.random() * self.cfg.retry_jitter_s)
+        await asyncio.sleep(
+            self.cfg.retry_base_s + random.random() * self.cfg.retry_jitter_s
+        )
         retry_out = await self._call_once(fails)
         ridx = 0
         merged = []
@@ -143,7 +158,11 @@ async def main():
 
         # Create test data
         entries = [
-            {"ID": f"test_{i:08d}", "CanonicalNative": "John Smith", "Region": "a1_anglo_sphere"}
+            {
+                "ID": f"test_{i:08d}",
+                "CanonicalNative": "John Smith",
+                "Region": "a1_anglo_sphere",
+            }
             for i in range(size)
         ]
 
@@ -172,7 +191,11 @@ async def main():
 
         # Determine status
         meets_target = time_for_1m <= 35.0 and success_rate >= 95.0
-        status = "✅ PASS" if meets_target else "⚠️ REVIEW" if time_for_1m <= 42.0 else "❌ FAIL"
+        status = (
+            "✅ PASS"
+            if meets_target
+            else "⚠️ REVIEW" if time_for_1m <= 42.0 else "❌ FAIL"
+        )
 
         print(f"  {status}")
         print(f"    Speed: {entries_per_sec:>6.0f} entries/sec")

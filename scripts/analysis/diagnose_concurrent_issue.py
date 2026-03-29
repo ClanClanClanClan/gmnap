@@ -76,7 +76,9 @@ def test_pipeline_processing(test_entries):
         except Exception as e:
             print(f"Failed to process entry {i}: {e}")
 
-    print(f"\nProcessed unique GlobalIDs: {len(processed_globalids)}/{len(test_entries)}")
+    print(
+        f"\nProcessed unique GlobalIDs: {len(processed_globalids)}/{len(test_entries)}"
+    )
     if duplicates:
         print(f"❌ Found {len(duplicates)} duplicates in pipeline!")
 
@@ -161,7 +163,9 @@ def test_concurrent_processing():
     print(f"Expected entries: {num_threads * entries_per_thread}")
 
     if stats["total_entries"] < num_threads * entries_per_thread:
-        print(f"❌ Missing {num_threads * entries_per_thread - stats['total_entries']} entries!")
+        print(
+            f"❌ Missing {num_threads * entries_per_thread - stats['total_entries']} entries!"
+        )
     else:
         print("✅ All entries persisted")
 

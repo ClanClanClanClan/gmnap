@@ -12,7 +12,9 @@ try:
     from .merge_authority_data import merge_authority_fragments  # provided in Push 3
 except Exception:
     # Fallback simple merger
-    def merge_authority_fragments(frags: List[Dict[str, Any]], _=None) -> Dict[str, Any]:
+    def merge_authority_fragments(
+        frags: List[Dict[str, Any]], _=None
+    ) -> Dict[str, Any]:
         out: Dict[str, Any] = {}
         for f in frags:
             for k, v in f.items():
@@ -37,7 +39,9 @@ ADAPTERS = [
 ]
 
 
-async def enrich_all(entry: Dict[str, Any], cfg: Dict[str, Any] | None = None) -> Dict[str, Any]:
+async def enrich_all(
+    entry: Dict[str, Any], cfg: Dict[str, Any] | None = None
+) -> Dict[str, Any]:
     tasks = []
     instances = [cls((cfg or {}).get(cls.__name__, {})) for cls in ADAPTERS]
     for inst in instances:

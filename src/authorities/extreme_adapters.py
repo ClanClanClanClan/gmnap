@@ -49,7 +49,11 @@ class Scopus(BaseExtreme):
         api_key = os.getenv(api_key_env)
         if not api_key:
             return {"ok": False, "reason": "no_api_key"}
-        return {"ok": True, "source": self.name, "data": {"search-results": {"entry": []}}}
+        return {
+            "ok": True,
+            "source": self.name,
+            "data": {"search-results": {"entry": []}},
+        }
 
 
 class Dimensions(BaseExtreme):

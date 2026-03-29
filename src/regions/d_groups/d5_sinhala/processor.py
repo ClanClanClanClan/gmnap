@@ -377,7 +377,9 @@ class D5_Sinhala(RegionSpec):
 
         # Generate initial expansion variants
         if initial_info and initial_info.get("has_initials"):
-            expanded_variants = self._generate_expanded_initial_variants(canonical, initial_info)
+            expanded_variants = self._generate_expanded_initial_variants(
+                canonical, initial_info
+            )
             for variant in expanded_variants:
                 if variant != canonical:
                     entry["Variants"]["Synthesised"].append(
@@ -388,7 +390,9 @@ class D5_Sinhala(RegionSpec):
         if components.get("family_name") and components.get("given_name"):
             family_given = f"{components['family_name']}, {components['given_name']}"
             if family_given != canonical:
-                entry["Variants"]["Synthesised"].append({"str": family_given, "type": "order-swap"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": family_given, "type": "order-swap"}
+                )
 
     def _detect_scripts(self, entry: Dict[str, Any]) -> Dict[str, bool]:
         """Detect which scripts are used in the entry."""
@@ -398,10 +402,12 @@ class D5_Sinhala(RegionSpec):
         native = entry.get("CanonicalNative", "")
         if native:
             has_sinhala = any(
-                ord(c) in range(self.sinhala_range[0], self.sinhala_range[1] + 1) for c in native
+                ord(c) in range(self.sinhala_range[0], self.sinhala_range[1] + 1)
+                for c in native
             )
             has_tamil = any(
-                ord(c) in range(self.tamil_range[0], self.tamil_range[1] + 1) for c in native
+                ord(c) in range(self.tamil_range[0], self.tamil_range[1] + 1)
+                for c in native
             )
 
             if has_sinhala:
@@ -455,7 +461,12 @@ class D5_Sinhala(RegionSpec):
                     "de alwis",
                 ]:
                     return "sinhala_portuguese"
-                elif family_lower in ["ondaatje", "bartholomeusz", "van dort", "de kretser"]:
+                elif family_lower in [
+                    "ondaatje",
+                    "bartholomeusz",
+                    "van dort",
+                    "de kretser",
+                ]:
                     return "burgher"
                 else:
                     return "sinhala"
@@ -486,7 +497,11 @@ class D5_Sinhala(RegionSpec):
         # Check if initials might represent Ge names
         initial_info = self._analyze_initials(name)
         if initial_info and initial_info.get("possible_ge_name_initials"):
-            return {"has_ge_name": True, "ge_name_type": "abbreviated", "ge_name_in_initials": True}
+            return {
+                "has_ge_name": True,
+                "ge_name_type": "abbreviated",
+                "ge_name_in_initials": True,
+            }
 
         return None
 
@@ -495,7 +510,9 @@ class D5_Sinhala(RegionSpec):
         name_lower = name.lower()
 
         # Portuguese influence
-        if any(part in name_lower for part in ["de ", "da ", "fernando", "perera", "silva"]):
+        if any(
+            part in name_lower for part in ["de ", "da ", "fernando", "perera", "silva"]
+        ):
             return "portuguese"
 
         # Dutch influence
@@ -554,11 +571,15 @@ class D5_Sinhala(RegionSpec):
 
         # SECURITY: Check for dangerous characters first
         if self.has_security_risks_lenient(canonical):
-            raise RegionRuleError(f"Name contains dangerous characters: {canonical[:50]}...")
+            raise RegionRuleError(
+                f"Name contains dangerous characters: {canonical[:50]}..."
+            )
 
         # Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         # THEN handle legitimate edge cases
         if len(canonical.strip()) == 1:

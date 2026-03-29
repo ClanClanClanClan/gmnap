@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 import csv, pathlib, os
 
-os.chdir("/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/regions/e_groups/e4_korea")
+os.chdir(
+    "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/regions/e_groups/e4_korea"
+)
 p = pathlib.Path("resources/variant_map.csv")
-rows = [r for r in csv.reader(p.open(encoding="utf8")) if r and not r[0].startswith("#")]
+rows = [
+    r for r in csv.reader(p.open(encoding="utf8")) if r and not r[0].startswith("#")
+]
 canon = []
 seen = set()
 for h, rr, *tag in rows:

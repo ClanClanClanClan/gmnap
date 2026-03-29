@@ -69,7 +69,9 @@ class UltrathinkDiagnostic:
                 tracemalloc.stop()
 
                 memory_delta = mem_after["rss_mb"] - mem_before["rss_mb"]
-                memory_per_entry = memory_delta / size * 1024 if size > 0 else 0  # KB per entry
+                memory_per_entry = (
+                    memory_delta / size * 1024 if size > 0 else 0
+                )  # KB per entry
 
                 result = {
                     "batch_size": size,
@@ -92,7 +94,9 @@ class UltrathinkDiagnostic:
 
             except Exception as e:
                 print(f"❌ Error: {str(e)[:50]}")
-                self.results.append({"batch_size": size, "error": str(e), "status": "failed"})
+                self.results.append(
+                    {"batch_size": size, "error": str(e), "status": "failed"}
+                )
 
     async def test_timing_measurement_corruption(self):
         """Test for timing measurement issues."""
@@ -159,7 +163,9 @@ class UltrathinkDiagnostic:
 
                 if entries_per_sec_perf > 5000:  # Impossibly fast
                     result["critical_issue"] = "IMPOSSIBLE_SPEED"
-                    print(f"    🚨 CRITICAL: Impossible speed {entries_per_sec_perf:.0f} e/s!")
+                    print(
+                        f"    🚨 CRITICAL: Impossible speed {entries_per_sec_perf:.0f} e/s!"
+                    )
 
                 self.results.append(result)
                 del pipeline
@@ -175,12 +181,21 @@ class UltrathinkDiagnostic:
         problematic_cases = [
             {
                 "name": "Hindi Name",
-                "data": {"CanonicalNative": "Ram Sharma", "Region": "d1_south_asia_hindi_belt"},
+                "data": {
+                    "CanonicalNative": "Ram Sharma",
+                    "Region": "d1_south_asia_hindi_belt",
+                },
             },
-            {"name": "Korean Name", "data": {"CanonicalNative": "김정은", "Region": "e4_korea"}},
+            {
+                "name": "Korean Name",
+                "data": {"CanonicalNative": "김정은", "Region": "e4_korea"},
+            },
             {
                 "name": "Arabic Name",
-                "data": {"CanonicalNative": "Ahmed Hassan", "Region": "c3_arabic_levant_nile"},
+                "data": {
+                    "CanonicalNative": "Ahmed Hassan",
+                    "Region": "c3_arabic_levant_nile",
+                },
             },
             {
                 "name": "Chinese Name",
@@ -193,9 +208,14 @@ class UltrathinkDiagnostic:
         ]
 
         for case in problematic_cases:
-            print(f"  Testing {case['name']}: '{case['data']['CanonicalNative']}'... ", end="")
+            print(
+                f"  Testing {case['name']}: '{case['data']['CanonicalNative']}'... ",
+                end="",
+            )
 
-            entries = [{"ID": "security_test_001", "SourceDatabase": "test", **case["data"]}]
+            entries = [
+                {"ID": "security_test_001", "SourceDatabase": "test", **case["data"]}
+            ]
 
             try:
                 pipeline = V7Pipeline()
@@ -240,7 +260,10 @@ class UltrathinkDiagnostic:
 
             except Exception as e:
                 error_msg = str(e)
-                if "Security violation" in error_msg or "Security threat blocked" in error_msg:
+                if (
+                    "Security violation" in error_msg
+                    or "Security threat blocked" in error_msg
+                ):
                     print(f"❌ BLOCKED (Security violation)")
                     self.results.append(
                         {
@@ -275,7 +298,9 @@ class UltrathinkDiagnostic:
             print("-" * 40)
             for r in memory_results:
                 status = (
-                    "🚨 CRITICAL" if r.get("critical_issue") == "MEMORY_EXPLOSION" else "✅ Normal"
+                    "🚨 CRITICAL"
+                    if r.get("critical_issue") == "MEMORY_EXPLOSION"
+                    else "✅ Normal"
                 )
                 print(
                     f"{r['batch_size']:>4} | {r['memory_delta_mb']:>+8.1f}MB | {r['memory_per_entry_kb']:>7.0f}KB | {status}"
@@ -290,7 +315,8 @@ class UltrathinkDiagnostic:
             for r in timing_results:
                 status = (
                     "🚨 CRITICAL"
-                    if r.get("critical_issue") in ["IMPOSSIBLE_TIMING", "IMPOSSIBLE_SPEED"]
+                    if r.get("critical_issue")
+                    in ["IMPOSSIBLE_TIMING", "IMPOSSIBLE_SPEED"]
                     else "✅ Normal"
                 )
                 print(
@@ -305,9 +331,13 @@ class UltrathinkDiagnostic:
             print("-" * 50)
             for r in security_results:
                 status_icon = (
-                    "❌" if "SECURITY_FALSE_POSITIVE" in str(r.get("critical_issue", "")) else "✅"
+                    "❌"
+                    if "SECURITY_FALSE_POSITIVE" in str(r.get("critical_issue", ""))
+                    else "✅"
                 )
-                print(f"{r['test_case']:<15} | {r['input']:<15} | {status_icon} {r['status']}")
+                print(
+                    f"{r['test_case']:<15} | {r['input']:<15} | {status_icon} {r['status']}"
+                )
 
         # Critical issues summary
         critical_issues = [r for r in self.results if "critical_issue" in r]

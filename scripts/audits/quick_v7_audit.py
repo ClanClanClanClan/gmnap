@@ -21,7 +21,11 @@ class QuickV7Audit:
     """Quick V7 compliance audit."""
 
     def __init__(self):
-        self.results = {"timestamp": datetime.now().isoformat(), "requirements": {}, "summary": {}}
+        self.results = {
+            "timestamp": datetime.now().isoformat(),
+            "requirements": {},
+            "summary": {},
+        }
 
     def audit_pipeline_stages(self):
         """Check pipeline stages."""
@@ -146,7 +150,9 @@ class QuickV7Audit:
             "compliant": gates_present >= 2,
         }
 
-        print(f"   {'✅' if gates_present >= 2 else '❌'} {gates_present}/3 gate components")
+        print(
+            f"   {'✅' if gates_present >= 2 else '❌'} {gates_present}/3 gate components"
+        )
         return gates_present >= 2
 
     async def audit_data_integrity(self):

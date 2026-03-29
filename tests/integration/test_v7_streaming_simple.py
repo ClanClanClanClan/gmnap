@@ -61,7 +61,9 @@ def test_simple_streaming():
         # Configure pipeline
         output_dir = tmpdir / "output"
         config = V7StreamConfig(
-            chunk_size=8000, output_dir=output_dir, enable_compression=False  # Faster for testing
+            chunk_size=8000,
+            output_dir=output_dir,
+            enable_compression=False,  # Faster for testing
         )
 
         # Measure initial memory

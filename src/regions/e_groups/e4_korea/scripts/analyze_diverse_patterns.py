@@ -42,7 +42,9 @@ for name, info in diverse_data.items():
         if actual is None:
             patterns.setdefault("None_failures", []).append((name, rom, expected))
         elif len(actual) != len(expected):
-            length_issues.append((name, rom, expected, actual, len(expected), len(actual)))
+            length_issues.append(
+                (name, rom, expected, actual, len(expected), len(actual))
+            )
         else:
             # Character-by-character analysis
             for i, (exp_char, act_char) in enumerate(zip(expected, actual)):
@@ -51,8 +53,21 @@ for name, info in diverse_data.items():
                     patterns.setdefault(f"char_sub_{i}", []).append((name, issue, rom))
 
                     # Check if it's a vowel issue
-                    vowels = ["ㅏ", "ㅓ", "ㅗ", "ㅜ", "ㅡ", "ㅣ", "ㅑ", "ㅕ", "ㅛ", "ㅠ"]
-                    if any(v in exp_char for v in vowels) or any(v in act_char for v in vowels):
+                    vowels = [
+                        "ㅏ",
+                        "ㅓ",
+                        "ㅗ",
+                        "ㅜ",
+                        "ㅡ",
+                        "ㅣ",
+                        "ㅑ",
+                        "ㅕ",
+                        "ㅛ",
+                        "ㅠ",
+                    ]
+                    if any(v in exp_char for v in vowels) or any(
+                        v in act_char for v in vowels
+                    ):
                         vowel_issues.append((name, rom, exp_char, act_char, i))
 
 print("2. CRITICAL MISSING SYLLABLES")

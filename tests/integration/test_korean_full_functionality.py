@@ -55,7 +55,9 @@ def test_korean_converter():
             print(f"  FAIL {eng:20} -> ERROR: {e}")
 
     eng2kor_rate = eng2kor_successful / len(test_cases)
-    print(f"\n📊 Eng2Kor Success Rate: {eng2kor_successful}/{len(test_cases)} ({eng2kor_rate:.0%})")
+    print(
+        f"\n📊 Eng2Kor Success Rate: {eng2kor_successful}/{len(test_cases)} ({eng2kor_rate:.0%})"
+    )
 
     # Test round-trip accuracy
     print("\n🔄 TESTING ROUND-TRIP ACCURACY:")
@@ -70,9 +72,13 @@ def test_korean_converter():
                     dice = _enhanced_dice(eng, back_to_eng)
                     if dice >= 0.97:
                         roundtrip_successful += 1
-                        print(f"  PASS {eng} -> {korean} -> {back_to_eng} (dice: {dice:.3f})")
+                        print(
+                            f"  PASS {eng} -> {korean} -> {back_to_eng} (dice: {dice:.3f})"
+                        )
                     else:
-                        print(f"  WARN  {eng} -> {korean} -> {back_to_eng} (dice: {dice:.3f})")
+                        print(
+                            f"  WARN  {eng} -> {korean} -> {back_to_eng} (dice: {dice:.3f})"
+                        )
                 else:
                     print(f"  FAIL {eng} -> {korean} -> None")
             else:

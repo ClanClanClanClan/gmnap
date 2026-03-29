@@ -62,7 +62,9 @@ def test_region_detection():
 
     for entry in test_entries:
         result = manager.detect_region(entry, internal=True)
-        name = entry.get("name", entry.get("CanonicalLatin", entry.get("CanonicalNative", "???")))
+        name = entry.get(
+            "name", entry.get("CanonicalLatin", entry.get("CanonicalNative", "???"))
+        )
         print(
             f"{name:30} {result.region_code:6} {result.confidence:10.2f} {result.detection_method:20}"
         )
@@ -88,7 +90,9 @@ def test_region_detection():
 
     for entry in surname_tests:
         result = manager.detect_region(entry, internal=True)
-        print(f"{entry['name']:20} -> {result.region_code} (confidence: {result.confidence:.2f})")
+        print(
+            f"{entry['name']:20} -> {result.region_code} (confidence: {result.confidence:.2f})"
+        )
         if "surname_pattern" in result.metadata:
             print(f"  Detected surname: {result.metadata['surname_pattern']}")
 

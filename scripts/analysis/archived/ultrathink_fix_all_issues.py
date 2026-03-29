@@ -194,7 +194,9 @@ async def verify_fixes():
     ]
 
     for name, expected in tests:
-        result = manager.detect_region({"CanonicalNative": name, "GlobalID": f"TEST-{name}"})
+        result = manager.detect_region(
+            {"CanonicalNative": name, "GlobalID": f"TEST-{name}"}
+        )
         actual = result.region_code if result else "None"
         status = "✅" if actual == expected else "❌"
         print(f"    {status} {name}: {actual} (expected {expected})")

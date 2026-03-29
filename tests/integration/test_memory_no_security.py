@@ -192,16 +192,22 @@ if memory_points:
         print(f"\nPASS LEAK ISOLATED: Security validation was the primary source!")
         print(f"   Core detection leak: {current_leak:.3f} MB/1K ops (negligible)")
     elif security_overhead > current_leak:
-        print(f"\n🟡 LEAK PARTIALLY ISOLATED: Security validation was major contributor")
+        print(
+            f"\n🟡 LEAK PARTIALLY ISOLATED: Security validation was major contributor"
+        )
         print(f"   But core detection still has leak: {current_leak:.3f} MB/1K ops")
     else:
         print(f"\n🔴 LEAK NOT ISOLATED: Core detection is the main source")
-        print(f"   Need to investigate FastText model, caching, or RegionDetectionResult retention")
+        print(
+            f"   Need to investigate FastText model, caching, or RegionDetectionResult retention"
+        )
 
     # Final cache analysis
     final_cache = manager.get_cache_stats()
     print(f"\n📈 FINAL CACHE STATE:")
-    print(f"   Cache size: {final_cache['cache_size']:,}/{final_cache['cache_max_size']:,}")
+    print(
+        f"   Cache size: {final_cache['cache_size']:,}/{final_cache['cache_max_size']:,}"
+    )
     print(f"   Cache hits: {final_cache['cache_hits']:,}")
     print(f"   Cache misses: {final_cache['cache_misses']:,}")
     print(f"   Hit rate: {final_cache['hit_rate']:.1%}")

@@ -13,7 +13,9 @@ class C7Armenian(RegionSpec):
 
     def __init__(self):
         super().__init__(
-            code="C7", yaml_files=[], scripts=["Armenian", "Latin"]  # TODO: Add actual YAML files,
+            code="C7",
+            yaml_files=[],
+            scripts=["Armenian", "Latin"],  # TODO: Add actual YAML files,
         )
 
     def clean(self, name: str) -> str:

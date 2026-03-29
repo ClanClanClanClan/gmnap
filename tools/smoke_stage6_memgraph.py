@@ -30,7 +30,12 @@ def mg_coherence(uri, auth, pairs):
 
 
 def bayes(score, sources, bw=0.6, aw=0.4, priors=None):
-    priors = priors or {"Crossref": 0.9, "ORCID_ETD": 0.8, "OpenAlex": 0.85, "Wikidata_P184": 0.7}
+    priors = priors or {
+        "Crossref": 0.9,
+        "ORCID_ETD": 0.8,
+        "OpenAlex": 0.85,
+        "Wikidata_P184": 0.7,
+    }
     alpha, beta = 1.0, 1.0
     for s in sorted(set(sources)):
         p = priors.get(s, 0.5)

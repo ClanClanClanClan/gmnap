@@ -59,7 +59,9 @@ async def enrich_from_authorities(
                 if "AuthoritySources" in entry:
                     metrics["entries_enriched"] += 1
                 if "ExternalIDs" in entry:
-                    orcids = [e for e in entry["ExternalIDs"] if e.get("type") == "ORCID"]
+                    orcids = [
+                        e for e in entry["ExternalIDs"] if e.get("type") == "ORCID"
+                    ]
                     metrics["orcids_found"] += len(orcids)
                 if "Affiliations" in entry:
                     metrics["affiliations_found"] += len(entry["Affiliations"])
@@ -119,10 +121,24 @@ class AuthorityManager:
             # Default config
             self.config = {
                 "tier_0": {
-                    "crossref": {"enabled": True, "daily_quota": 4300000, "license": "CC0"},
-                    "openalex": {"enabled": False, "daily_quota": 864000, "license": "CC0"},
+                    "crossref": {
+                        "enabled": True,
+                        "daily_quota": 4300000,
+                        "license": "CC0",
+                    },
+                    "openalex": {
+                        "enabled": False,
+                        "daily_quota": 864000,
+                        "license": "CC0",
+                    },
                 },
-                "tier_1": {"wikidata": {"enabled": False, "daily_quota": None, "license": "CC0"}},
+                "tier_1": {
+                    "wikidata": {
+                        "enabled": False,
+                        "daily_quota": None,
+                        "license": "CC0",
+                    }
+                },
             }
 
     async def enrich_batch(
@@ -139,7 +155,9 @@ class AuthorityManager:
             Enriched entries
         """
         # Currently only Crossref is implemented
-        if tier == 0 and self.config.get("tier_0", {}).get("crossref", {}).get("enabled"):
+        if tier == 0 and self.config.get("tier_0", {}).get("crossref", {}).get(
+            "enabled"
+        ):
             from ..authorities.crossref import CrossrefAPI
 
             async with CrossrefAPI() as api:

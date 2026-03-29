@@ -32,7 +32,9 @@ class ThreadSafetyTester:
         self.results = {}
         self.lock = threading.Lock()
 
-    def worker_thread(self, thread_id: int, region_code: str, test_entries: List[Dict]) -> Dict:
+    def worker_thread(
+        self, thread_id: int, region_code: str, test_entries: List[Dict]
+    ) -> Dict:
         """Worker thread that processes entries concurrently."""
         results = {
             "thread_id": thread_id,
@@ -57,7 +59,9 @@ class ThreadSafetyTester:
                 try:
                     # Add thread and iteration info to make entries unique but still test caching
                     test_entry = entry.copy()
-                    test_entry["GlobalID"] = f"{test_entry['GlobalID']}-t{thread_id}-i{i}"
+                    test_entry["GlobalID"] = (
+                        f"{test_entry['GlobalID']}-t{thread_id}-i{i}"
+                    )
 
                     # This will hit the shared cache
                     region.clean(test_entry)
@@ -69,7 +73,9 @@ class ThreadSafetyTester:
                     # Periodically check cache size
                     if i % 5 == 0:
                         cache_size = len(getattr(region, "_processing_cache", {}))
-                        results["cache_states"].append(f"After entry {i}: cache size {cache_size}")
+                        results["cache_states"].append(
+                            f"After entry {i}: cache size {cache_size}"
+                        )
 
                 except Exception as e:
                     results["errors"].append(f"Entry {i}: {str(e)}")
@@ -116,7 +122,9 @@ class ThreadSafetyTester:
             futures = []
 
             for thread_id in range(num_threads):
-                future = executor.submit(self.worker_thread, thread_id, region_code, test_entries)
+                future = executor.submit(
+                    self.worker_thread, thread_id, region_code, test_entries
+                )
                 futures.append(future)
 
             # Collect results
@@ -131,9 +139,13 @@ class ThreadSafetyTester:
         end_time = time.time()
 
         # Analyze results
-        self.analyze_thread_safety_results(region_code, thread_results, end_time - start_time)
+        self.analyze_thread_safety_results(
+            region_code, thread_results, end_time - start_time
+        )
 
-    def analyze_thread_safety_results(self, region_code: str, results: List[Dict], duration: float):
+    def analyze_thread_safety_results(
+        self, region_code: str, results: List[Dict], duration: float
+    ):
         """Analyze the results for thread safety issues."""
         print(f"\n📊 THREAD SAFETY ANALYSIS for {region_code}:")
         print(f"Duration: {duration:.2f}s")
@@ -168,10 +180,14 @@ class ThreadSafetyTester:
         # Check for race condition indicators
         cache_size_variations = len(set(final_cache_sizes)) > 1
         if cache_size_variations:
-            print(f"WARN RACE CONDITION DETECTED: Threads reported different cache sizes")
+            print(
+                f"WARN RACE CONDITION DETECTED: Threads reported different cache sizes"
+            )
 
         if total_errors > 0:
-            print(f"FAIL THREAD SAFETY FAILED: {total_errors} errors during concurrent processing")
+            print(
+                f"FAIL THREAD SAFETY FAILED: {total_errors} errors during concurrent processing"
+            )
         elif cache_size_variations:
             print(f"WARN THREAD SAFETY QUESTIONABLE: Cache inconsistencies detected")
         else:
@@ -280,7 +296,9 @@ class ThreadSafetyTester:
         same_cache = len(set(cache_ids)) == 1
 
         if same_region and same_cache:
-            print(f"FAIL CONFIRMED: All threads share the SAME region instance and cache")
+            print(
+                f"FAIL CONFIRMED: All threads share the SAME region instance and cache"
+            )
             print(f"   This WILL cause race conditions in multi-threaded processing")
             return True
         else:

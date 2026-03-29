@@ -29,6 +29,12 @@ if __name__ == "__main__":
     entries = json.load(open(sys.argv[1], encoding="utf-8"))
     dgid = dup_gid(entries)
     pext = pct_dup_external(entries)
-    print(json.dumps({"duplicate_global_id": dgid, "duplicate_external_id_pct": pext}, indent=2))
+    print(
+        json.dumps(
+            {"duplicate_global_id": dgid, "duplicate_external_id_pct": pext}, indent=2
+        )
+    )
     assert dgid == EXT_DUP_GID_MAX, "duplicate_global_id must be 0 (Extreme)"
-    assert pext <= EXT_DUP_EXTID_PCT_MAX, "duplicate_external_id_pct must be 0.00% (Extreme)"
+    assert (
+        pext <= EXT_DUP_EXTID_PCT_MAX
+    ), "duplicate_external_id_pct must be 0.00% (Extreme)"

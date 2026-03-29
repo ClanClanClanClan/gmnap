@@ -69,7 +69,11 @@ class StressTestMonitor:
                     "memory_vms_mb": memory.vms / 1024 / 1024,
                     "cpu_percent": cpu,
                     "threads": self.process.num_threads(),
-                    "fds": self.process.num_fds() if hasattr(self.process, "num_fds") else 0,
+                    "fds": (
+                        self.process.num_fds()
+                        if hasattr(self.process, "num_fds")
+                        else 0
+                    ),
                     "gc_objects": len(gc.get_objects()),
                 }
 
@@ -77,7 +81,9 @@ class StressTestMonitor:
 
                 # Check for alerts
                 if memory.rss / 1024 / 1024 > 2048:  # 2GB
-                    self.alerts.append(f"High memory usage: {memory.rss / 1024 / 1024:.1f}MB")
+                    self.alerts.append(
+                        f"High memory usage: {memory.rss / 1024 / 1024:.1f}MB"
+                    )
 
                 if cpu > 95:
                     self.alerts.append(f"High CPU usage: {cpu:.1f}%")
@@ -99,7 +105,8 @@ class StressTestMonitor:
         cpu_values = [m["cpu_percent"] for m in self.metrics]
 
         return {
-            "duration_seconds": self.metrics[-1]["timestamp"] - self.metrics[0]["timestamp"],
+            "duration_seconds": self.metrics[-1]["timestamp"]
+            - self.metrics[0]["timestamp"],
             "memory_peak_mb": max(memory_values),
             "memory_avg_mb": sum(memory_values) / len(memory_values),
             "cpu_peak_percent": max(cpu_values),
@@ -174,8 +181,12 @@ class TestLongRunningStress:
         # Verify results
         summary = self.monitor.get_summary()
 
-        assert len(errors) < 10, f"Too many errors during continuous generation: {errors[:5]}"
-        assert generation_count > 10000, f"Generation rate too low: {generation_count} in 5 minutes"
+        assert (
+            len(errors) < 10
+        ), f"Too many errors during continuous generation: {errors[:5]}"
+        assert (
+            generation_count > 10000
+        ), f"Generation rate too low: {generation_count} in 5 minutes"
         assert (
             summary["memory_peak_mb"] < 2048
         ), f"Memory exceeded limit: {summary['memory_peak_mb']}MB"
@@ -244,8 +255,12 @@ class TestLongRunningStress:
         # Verify results
         summary = self.monitor.get_summary()
 
-        assert len(errors) < 5, f"Too many errors during Unicode processing: {errors[:3]}"
-        assert processing_count > 5000, f"Processing rate too low: {processing_count} in 3 minutes"
+        assert (
+            len(errors) < 5
+        ), f"Too many errors during Unicode processing: {errors[:3]}"
+        assert (
+            processing_count > 5000
+        ), f"Processing rate too low: {processing_count} in 3 minutes"
         assert (
             summary["memory_peak_mb"] < 1024
         ), f"Memory exceeded limit: {summary['memory_peak_mb']}MB"
@@ -349,7 +364,9 @@ class TestLongRunningStress:
         assert (
             summary["memory_peak_mb"] < 2048
         ), f"Memory exceeded limit: {summary['memory_peak_mb']}MB"
-        assert len(summary["alerts"]) < 10, f"Too many resource alerts: {len(summary['alerts'])}"
+        assert (
+            len(summary["alerts"]) < 10
+        ), f"Too many resource alerts: {len(summary['alerts'])}"
 
 
 class TestMemoryPressureEndurance:
@@ -384,7 +401,10 @@ class TestMemoryPressureEndurance:
                 memory_hogs.append(chunk)
 
                 # Test GlobalID generation under pressure
-                entry = {"CanonicalNative": f"MemoryTest{i:03d}, Person", "BirthYear": 1980 + i}
+                entry = {
+                    "CanonicalNative": f"MemoryTest{i:03d}, Person",
+                    "BirthYear": 1980 + i,
+                }
 
                 global_id = generator.generate(entry)
                 assert (
@@ -416,7 +436,9 @@ class TestMemoryPressureEndurance:
     def test_cache_under_memory_pressure(self):
         """Test cache behavior under memory pressure."""
         cache = CacheManager(
-            cache_dir=Path(self.temp_dir) / "cache", max_size_gb=0.1, default_ttl_days=1  # 100MB
+            cache_dir=Path(self.temp_dir) / "cache",
+            max_size_gb=0.1,
+            default_ttl_days=1,  # 100MB
         )
 
         self.monitor.start()
@@ -462,7 +484,9 @@ class TestMemoryPressureEndurance:
         # Cache should still be functional
         cache.set("final_test", {"final": "test"})
         final_data = cache.get("final_test")
-        assert final_data == {"final": "test"}, "Cache not functional after memory pressure"
+        assert final_data == {
+            "final": "test"
+        }, "Cache not functional after memory pressure"
 
 
 class TestDatabaseStressEndurance:
@@ -526,7 +550,8 @@ class TestDatabaseStressEndurance:
 
                     elif operation == "select":
                         result = worker_db.execute(
-                            "SELECT COUNT(*) FROM stress_test WHERE worker_id = ?", (worker_id,)
+                            "SELECT COUNT(*) FROM stress_test WHERE worker_id = ?",
+                            (worker_id,),
                         ).fetchone()
 
                     elif operation == "update":

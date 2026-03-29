@@ -196,12 +196,15 @@ class GMNAPPipeline:
             for canonical_latin, entry in self._entries.items():
                 # Entry is successful if it made it through all stages without critical errors
                 if not any(
-                    canonical_latin in str(error) for error in self._metrics.validation_errors
+                    canonical_latin in str(error)
+                    for error in self._metrics.validation_errors
                 ):
                     successful_count += 1
 
             self._metrics.successful_entries = successful_count
-            self._metrics.failed_entries = self._metrics.total_entries - successful_count
+            self._metrics.failed_entries = (
+                self._metrics.total_entries - successful_count
+            )
 
         return self._metrics
 
@@ -247,7 +250,9 @@ class GMNAPPipeline:
             yaml_loader.width = 200
 
             # Find all YAML files
-            yaml_files = list(input_path.glob("**/*.yaml")) + list(input_path.glob("**/*.yml"))
+            yaml_files = list(input_path.glob("**/*.yaml")) + list(
+                input_path.glob("**/*.yml")
+            )
 
             for yaml_file in yaml_files:
                 try:
@@ -267,7 +272,9 @@ class GMNAPPipeline:
                         data = security_validator.validate_yaml_keys(data)
                         logger.debug(f"Security validation passed for {yaml_file}")
                     except SecurityError as e:
-                        metrics.errors.append(f"Security validation failed for {yaml_file}: {e}")
+                        metrics.errors.append(
+                            f"Security validation failed for {yaml_file}: {e}"
+                        )
                         logger.error(f"Security validation failed for {yaml_file}: {e}")
                         continue
 
@@ -291,7 +298,9 @@ class GMNAPPipeline:
                             metrics.errors.append(
                                 f"Security validation failed for entry {canonical_latin}: {e}"
                             )
-                            logger.warning(f"Skipping dangerous entry {canonical_latin}: {e}")
+                            logger.warning(
+                                f"Skipping dangerous entry {canonical_latin}: {e}"
+                            )
                             metrics.entries_failed += 1
                             continue
 
@@ -300,7 +309,9 @@ class GMNAPPipeline:
                     metrics.entries_failed += 1
 
             self._metrics.total_entries = len(self._entries)
-            logger.info(f"Loaded {len(self._entries)} entries from {len(yaml_files)} files")
+            logger.info(
+                f"Loaded {len(self._entries)} entries from {len(yaml_files)} files"
+            )
 
         finally:
             metrics.end_time = datetime.now()
@@ -357,7 +368,9 @@ class GMNAPPipeline:
                     metrics.entries_processed += 1
 
                 except Exception as e:
-                    metrics.errors.append(f"Region detection failed for {canonical_latin}: {e}")
+                    metrics.errors.append(
+                        f"Region detection failed for {canonical_latin}: {e}"
+                    )
                     entry["_region"] = "Z0"  # Quarantine
                     metrics.entries_failed += 1
 
@@ -394,7 +407,9 @@ class GMNAPPipeline:
                     region = self.region_manager.get_region(region_code)
                     if not region:
                         if region_code != "Z0":
-                            metrics.warnings.append(f"No processor for region {region_code}")
+                            metrics.warnings.append(
+                                f"No processor for region {region_code}"
+                            )
                         continue
 
                     try:
@@ -410,7 +425,9 @@ class GMNAPPipeline:
 
                     except RegionRuleError as e:
                         # Route to quarantine
-                        logger.warning(f"Region processing failed for {canonical_latin}: {e}")
+                        logger.warning(
+                            f"Region processing failed for {canonical_latin}: {e}"
+                        )
                         entry["_region"] = "Z0"
                         entry["_region_error"] = str(e)
                         metrics.entries_failed += 1
@@ -447,7 +464,9 @@ class GMNAPPipeline:
 
             # Use cached/deterministic authority data during idempotency checks
             if self.idempotency_check:
-                logger.info("Using cached authority data for deterministic idempotency check")
+                logger.info(
+                    "Using cached authority data for deterministic idempotency check"
+                )
                 # During idempotency checks, use existing cached authority data rather than fetching fresh
                 self._use_cached_authority_data()
                 metrics.entries_processed = len(self._entries)
@@ -475,9 +494,13 @@ class GMNAPPipeline:
                 return
 
             # Process in larger batches for better performance
-            batch_size = min(10000, max(100, len(self._entries) // 10))  # Adaptive batch size
+            batch_size = min(
+                10000, max(100, len(self._entries) // 10)
+            )  # Adaptive batch size
             entries_list = list(self._entries.items())
-            logger.info(f"Processing {len(entries_list)} entries in batches of {batch_size}")
+            logger.info(
+                f"Processing {len(entries_list)} entries in batches of {batch_size}"
+            )
 
             try:
                 for i in range(0, len(entries_list), batch_size):
@@ -497,14 +520,18 @@ class GMNAPPipeline:
                         )
 
                         # Run async batch fetch with caching
-                        results = asyncio.run(self._cached_batch_fetch(queries, active_authorities))
+                        results = asyncio.run(
+                            self._cached_batch_fetch(queries, active_authorities)
+                        )
                     else:
                         results = []
 
                     # Process results
                     result_idx = 0
                     for canonical_latin, entry in batch:
-                        entry_results = results[result_idx : result_idx + len(active_authorities)]
+                        entry_results = results[
+                            result_idx : result_idx + len(active_authorities)
+                        ]
                         result_idx += len(active_authorities)
 
                         # Merge authority data
@@ -517,7 +544,9 @@ class GMNAPPipeline:
                             if result.status.value == "success" and result.data:
                                 # Add identifier
                                 if result.data.source_id:
-                                    entry["AuthorityIDs"][service] = result.data.source_id
+                                    entry["AuthorityIDs"][
+                                        service
+                                    ] = result.data.source_id
 
                                 # Merge other data
                                 self._merge_authority_data(entry, result.data)
@@ -559,7 +588,9 @@ class GMNAPPipeline:
                     # Try common authority services
                     for service in ["Crossref", "ORCID", "DBLP"]:
                         try:
-                            cached_data = self._authority_cache.get(service, canonical_latin)
+                            cached_data = self._authority_cache.get(
+                                service, canonical_latin
+                            )
                             if cached_data:
                                 break
                         except:
@@ -596,10 +627,14 @@ class GMNAPPipeline:
 
                     # Add deterministic synthetic variants
                     base_name = (
-                        canonical_latin.split(",")[0] if "," in canonical_latin else canonical_latin
+                        canonical_latin.split(",")[0]
+                        if "," in canonical_latin
+                        else canonical_latin
                     )
                     given_name = (
-                        canonical_latin.split(", ")[1] if ", " in canonical_latin else "Unknown"
+                        canonical_latin.split(", ")[1]
+                        if ", " in canonical_latin
+                        else "Unknown"
                     )
                     entry["Variants"]["Observed"].append(
                         {
@@ -625,7 +660,9 @@ class GMNAPPipeline:
         logger.info(f"Applied deterministic authority data to {enriched_count} entries")
 
     async def _cached_batch_fetch(
-        self, queries: List[Tuple[str, str]], active_authorities: Dict[str, AuthorityFetcher]
+        self,
+        queries: List[Tuple[str, str]],
+        active_authorities: Dict[str, AuthorityFetcher],
     ) -> List:
         """Batch fetch with caching support."""
         results = []
@@ -649,7 +686,9 @@ class GMNAPPipeline:
                             affiliations=cached_response.get("affiliations", []),
                             identifiers=cached_response.get("identifiers", {}),
                             msc_codes=cached_response.get("msc_codes", []),
-                            confidence_score=cached_response.get("confidence_score", 0.0),
+                            confidence_score=cached_response.get(
+                                "confidence_score", 0.0
+                            ),
                         ),
                     )
                     results.append(result)
@@ -758,9 +797,13 @@ class GMNAPPipeline:
                 # Surname stats
                 if family_name:
                     surname_prefix = (
-                        family_name[:3].upper() if len(family_name) >= 3 else family_name.upper()
+                        family_name[:3].upper()
+                        if len(family_name) >= 3
+                        else family_name.upper()
                     )
-                    birth_decade = (birth_year // 10 * 10) if isinstance(birth_year, int) else None
+                    birth_decade = (
+                        (birth_year // 10 * 10) if isinstance(birth_year, int) else None
+                    )
 
                     conn.execute(
                         "INSERT INTO surname_stats VALUES (?, ?, ?, ?, ?)",
@@ -917,7 +960,9 @@ class GMNAPPipeline:
                     metrics.errors.append(
                         f"Duplicate GlobalID {global_id}: {canonical_latin} and {global_ids[global_id]}"
                     )
-                    self._metrics.validation_errors.append(f"Duplicate GlobalID: {global_id}")
+                    self._metrics.validation_errors.append(
+                        f"Duplicate GlobalID: {global_id}"
+                    )
                 else:
                     global_ids[global_id] = canonical_latin
 
@@ -949,13 +994,17 @@ class GMNAPPipeline:
 
                     # Validate
                     if not self.schema_validator.validate_entry(entry):
-                        metrics.errors.append(f"Schema validation failed for {canonical_latin}")
+                        metrics.errors.append(
+                            f"Schema validation failed for {canonical_latin}"
+                        )
                         metrics.entries_failed += 1
                     else:
                         metrics.entries_processed += 1
 
                 except Exception as e:
-                    metrics.errors.append(f"Validation error for {canonical_latin}: {e}")
+                    metrics.errors.append(
+                        f"Validation error for {canonical_latin}: {e}"
+                    )
                     metrics.entries_failed += 1
 
             # Data quality validation
@@ -966,7 +1015,9 @@ class GMNAPPipeline:
 
                     # Log errors
                     for error in quality_result["errors"]:
-                        metrics.errors.append(f"Data quality error in {canonical_latin}: {error}")
+                        metrics.errors.append(
+                            f"Data quality error in {canonical_latin}: {error}"
+                        )
                         data_quality_issues += 1
 
                     # Log warnings
@@ -982,8 +1033,12 @@ class GMNAPPipeline:
                         )
 
                 except Exception as e:
-                    logger.error(f"Data quality validation error for {canonical_latin}: {e}")
-                    metrics.errors.append(f"Data quality check failed for {canonical_latin}: {e}")
+                    logger.error(
+                        f"Data quality validation error for {canonical_latin}: {e}"
+                    )
+                    metrics.errors.append(
+                        f"Data quality check failed for {canonical_latin}: {e}"
+                    )
 
             if data_quality_issues > 0:
                 logger.warning(f"Found {data_quality_issues} data quality issues")
@@ -1036,15 +1091,16 @@ class GMNAPPipeline:
                 # Sort entries by order key
                 sorted_entries = dict(
                     sorted(
-                        entries.items(), key=lambda x: self._entries[x[0]].get("_order_key", x[0])
+                        entries.items(),
+                        key=lambda x: self._entries[x[0]].get("_order_key", x[0]),
                     )
                 )
 
                 # Apply file hooks
                 for entry in sorted_entries.values():
-                    region_code = self._entries.get(entry.get("CanonicalLatin", ""), {}).get(
-                        "_region"
-                    )
+                    region_code = self._entries.get(
+                        entry.get("CanonicalLatin", ""), {}
+                    ).get("_region")
                     if region_code:
                         region = self.region_manager.get_region(region_code)
                         if region:
@@ -1056,9 +1112,9 @@ class GMNAPPipeline:
 
                 # After write hooks
                 for entry in sorted_entries.values():
-                    region_code = self._entries.get(entry.get("CanonicalLatin", ""), {}).get(
-                        "_region"
-                    )
+                    region_code = self._entries.get(
+                        entry.get("CanonicalLatin", ""), {}
+                    ).get("_region")
                     if region_code:
                         region = self.region_manager.get_region(region_code)
                         if region:
@@ -1150,7 +1206,11 @@ class GMNAPPipeline:
                 if metrics.end_time:
                     duration = str(metrics.end_time - metrics.start_time)
 
-                status = "✅ Success" if not metrics.errors else f"❌ {len(metrics.errors)} errors"
+                status = (
+                    "✅ Success"
+                    if not metrics.errors
+                    else f"❌ {len(metrics.errors)} errors"
+                )
 
                 html_content += f"""
         <tr>
@@ -1176,7 +1236,10 @@ class GMNAPPipeline:
 </html>"""
 
             # Write HTML file
-            diff_file = diff_dir / f"pipeline_diff_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+            diff_file = (
+                diff_dir
+                / f"pipeline_diff_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+            )
             with open(diff_file, "w", encoding="utf-8") as f:
                 f.write(html_content)
 
@@ -1234,19 +1297,27 @@ class GMNAPPipeline:
                     for error in self._metrics.validation_errors[:20]:  # First 20
                         f.write(f"- {error}\n")
                     if len(self._metrics.validation_errors) > 20:
-                        f.write(f"- ... and {len(self._metrics.validation_errors) - 20} more\n")
+                        f.write(
+                            f"- ... and {len(self._metrics.validation_errors) - 20} more\n"
+                        )
 
             # Generate metrics.json
             metrics_path = Path(self.config.cache.cache_dir) / "metrics.json"
             metrics_data = {
                 "mode": self.mode.value,
-                "runtime_seconds": (datetime.now() - self._metrics.start_time).total_seconds(),
+                "runtime_seconds": (
+                    datetime.now() - self._metrics.start_time
+                ).total_seconds(),
                 "total_entries": self._metrics.total_entries,
                 "successful_entries": self._metrics.successful_entries,
                 "failed_entries": self._metrics.failed_entries,
                 "new_entries": self._metrics.new_entries,
-                "warnings": sum(len(m.warnings) for m in self._metrics.stage_metrics.values()),
-                "errors": sum(len(m.errors) for m in self._metrics.stage_metrics.values()),
+                "warnings": sum(
+                    len(m.warnings) for m in self._metrics.stage_metrics.values()
+                ),
+                "errors": sum(
+                    len(m.errors) for m in self._metrics.stage_metrics.values()
+                ),
             }
 
             with open(metrics_path, "w") as f:
@@ -1276,7 +1347,9 @@ class GMNAPPipeline:
 
                 # For idempotency check, re-run the original with deterministic timestamps
                 # This ensures we're comparing apples to apples
-                original_pipeline = GMNAPPipeline(self.config, self.mode, idempotency_check=True)
+                original_pipeline = GMNAPPipeline(
+                    self.config, self.mode, idempotency_check=True
+                )
                 original_pipeline._stage_0_config()
                 original_pipeline._stage_1_ingest(temp_path / "input")
                 original_pipeline._stage_2_detect_region()
@@ -1288,10 +1361,14 @@ class GMNAPPipeline:
                 original_pipeline._stage_8_write_diff()
 
                 # Compute hash from deterministic original
-                original_hash = original_pipeline._compute_pipeline_hash(exclude_timestamps=True)
+                original_hash = original_pipeline._compute_pipeline_hash(
+                    exclude_timestamps=True
+                )
 
                 # Create new pipeline instance for idempotency check with deterministic timestamps
-                check_pipeline = GMNAPPipeline(self.config, self.mode, idempotency_check=True)
+                check_pipeline = GMNAPPipeline(
+                    self.config, self.mode, idempotency_check=True
+                )
 
                 # Only run if we have input data
                 if (temp_path / "input").exists():
@@ -1307,10 +1384,14 @@ class GMNAPPipeline:
                     check_pipeline._stage_8_write_diff()
 
                     # Compute hash after reprocessing (exclude timestamps for fair comparison)
-                    check_hash = check_pipeline._compute_pipeline_hash(exclude_timestamps=True)
+                    check_hash = check_pipeline._compute_pipeline_hash(
+                        exclude_timestamps=True
+                    )
                 else:
                     # No output to reprocess, consider it idempotent
-                    logger.info("No output files to reprocess, skipping idempotency check")
+                    logger.info(
+                        "No output files to reprocess, skipping idempotency check"
+                    )
                     check_hash = original_hash
 
                 if original_hash == check_hash:
@@ -1328,7 +1409,9 @@ class GMNAPPipeline:
                     # Debug: find specific differences
                     orig_entries = len(self._entries)
                     check_entries = (
-                        len(check_pipeline._entries) if hasattr(check_pipeline, "_entries") else 0
+                        len(check_pipeline._entries)
+                        if hasattr(check_pipeline, "_entries")
+                        else 0
                     )
                     logger.debug(
                         f"Entry count difference: orig={orig_entries}, check={check_entries}"
@@ -1375,13 +1458,19 @@ class GMNAPPipeline:
                                 for variant in entry["Variants"]["Observed"]:
                                     variant.pop("accessed", None)
 
-                        orig_clean = {k: v for k, v in orig_entry.items() if not k.startswith("_")}
+                        orig_clean = {
+                            k: v for k, v in orig_entry.items() if not k.startswith("_")
+                        }
                         check_clean = {
-                            k: v for k, v in check_entry.items() if not k.startswith("_")
+                            k: v
+                            for k, v in check_entry.items()
+                            if not k.startswith("_")
                         }
 
                         if orig_clean != check_clean:
-                            logger.error(f"Entry mismatch for '{orig_key}' vs '{check_key}':")
+                            logger.error(
+                                f"Entry mismatch for '{orig_key}' vs '{check_key}':"
+                            )
                             for k in set(orig_clean.keys()) | set(check_clean.keys()):
                                 v1 = orig_clean.get(k)
                                 v2 = check_clean.get(k)
@@ -1391,8 +1480,12 @@ class GMNAPPipeline:
                             logger.error(
                                 "Entries match after cleaning - hash difference may be in file output"
                             )
-                            logger.error(f"Original hash data: {len(self._entries)} entries")
-                            logger.error(f"Check hash data: {len(check_pipeline._entries)} entries")
+                            logger.error(
+                                f"Original hash data: {len(self._entries)} entries"
+                            )
+                            logger.error(
+                                f"Check hash data: {len(check_pipeline._entries)} entries"
+                            )
                             # Log the actual hash inputs to see what's different
                             import json
 
@@ -1403,7 +1496,9 @@ class GMNAPPipeline:
                                 logger.error(f"Orig JSON length: {len(orig_str)}")
                                 logger.error(f"Check JSON length: {len(check_str)}")
                             else:
-                                logger.error("JSON serializations match - file/count difference")
+                                logger.error(
+                                    "JSON serializations match - file/count difference"
+                                )
 
                     metrics.errors.append(f"Pipeline is not idempotent (hash mismatch)")
                     self._metrics.validation_errors.append("Idempotency check failed")
@@ -1436,7 +1531,9 @@ class GMNAPPipeline:
 
                             # Remove timestamp fields from YAML data
                             if isinstance(data, dict):
-                                for entry_key in sorted(data.keys()):  # Ensure deterministic order
+                                for entry_key in sorted(
+                                    data.keys()
+                                ):  # Ensure deterministic order
                                     entry_data = data[entry_key]
                                     if isinstance(entry_data, dict):
                                         entry_data.pop("UpdatedAt", None)
@@ -1446,7 +1543,9 @@ class GMNAPPipeline:
                                             "Variants" in entry_data
                                             and "Observed" in entry_data["Variants"]
                                         ):
-                                            for variant in entry_data["Variants"]["Observed"]:
+                                            for variant in entry_data["Variants"][
+                                                "Observed"
+                                            ]:
                                                 if isinstance(variant, dict):
                                                     variant.pop("accessed", None)
                                         # Remove ALL authority-related fields that might have timestamps
@@ -1493,16 +1592,23 @@ class GMNAPPipeline:
                     if exclude_timestamps:
                         non_deterministic_fields.extend(["UpdatedAt", "timestamp"])
                         # Also exclude nested timestamp fields in authority data
-                        if "Variants" in entry_copy and "Observed" in entry_copy["Variants"]:
+                        if (
+                            "Variants" in entry_copy
+                            and "Observed" in entry_copy["Variants"]
+                        ):
                             for variant in entry_copy["Variants"]["Observed"]:
                                 variant.pop("accessed", None)
                     for field in non_deterministic_fields:
                         entry_copy.pop(field, None)
 
                     # Remove any other internal fields
-                    entry_copy = {k: v for k, v in entry_copy.items() if not k.startswith("_")}
+                    entry_copy = {
+                        k: v for k, v in entry_copy.items() if not k.startswith("_")
+                    }
 
-                    entry_str = json.dumps(entry_copy, sort_keys=True, ensure_ascii=True)
+                    entry_str = json.dumps(
+                        entry_copy, sort_keys=True, ensure_ascii=True
+                    )
                     hasher.update(entry_str.encode("utf-8"))
                     entry_count += 1
                 except Exception as e:
@@ -1559,7 +1665,9 @@ class GMNAPPipeline:
     def _load_authorities(self) -> None:
         """Load authority fetchers."""
         # Load source manifest
-        manifest_path = Path(self.config.cache.cache_dir) / "config" / "source_manifest.json"
+        manifest_path = (
+            Path(self.config.cache.cache_dir) / "config" / "source_manifest.json"
+        )
         if manifest_path.exists():
             with open(manifest_path) as f:
                 source_manifest = json.load(f)
@@ -1616,8 +1724,16 @@ class GMNAPPipeline:
                         "email": "gmnap@example.com",
                     },
                 ),
-                ("ORCID", ORCIDFetcher, {"enabled": True, "daily_quota": 500, "tier": 0}),
-                ("zbMATH", ZbMATHFetcher, {"enabled": True, "daily_quota": 200, "tier": 0}),
+                (
+                    "ORCID",
+                    ORCIDFetcher,
+                    {"enabled": True, "daily_quota": 500, "tier": 0},
+                ),
+                (
+                    "zbMATH",
+                    ZbMATHFetcher,
+                    {"enabled": True, "daily_quota": 200, "tier": 0},
+                ),
             ]
 
             for service_name, fetcher_class, default_config in fetcher_configs:
@@ -1638,7 +1754,11 @@ class GMNAPPipeline:
                     from src.authorities.tier1.dblp import DBLPFetcher
 
                     tier1_configs = [
-                        ("DBLP", DBLPFetcher, {"enabled": True, "daily_quota": 86400, "tier": 1})
+                        (
+                            "DBLP",
+                            DBLPFetcher,
+                            {"enabled": True, "daily_quota": 86400, "tier": 1},
+                        )
                     ]
 
                     for service_name, fetcher_class, default_config in tier1_configs:
@@ -1647,10 +1767,14 @@ class GMNAPPipeline:
 
                             if config.get("enabled", True):
                                 self._authorities[service_name] = fetcher_class(config)
-                                logger.info(f"Loaded {service_name} authority fetcher (tier-1)")
+                                logger.info(
+                                    f"Loaded {service_name} authority fetcher (tier-1)"
+                                )
 
                         except Exception as e:
-                            logger.warning(f"Failed to load {service_name} fetcher: {e}")
+                            logger.warning(
+                                f"Failed to load {service_name} fetcher: {e}"
+                            )
 
                 except ImportError as e:
                     logger.warning(f"Failed to import tier-1 fetchers: {e}")
@@ -1678,9 +1802,13 @@ class GMNAPPipeline:
                 for source, id_data in entry["AuthorityIDs"].items():
                     if source in proprietary_sources:
                         if isinstance(id_data, dict) and "license" not in id_data:
-                            raise ValueError(f"Proprietary source {source} missing license field")
+                            raise ValueError(
+                                f"Proprietary source {source} missing license field"
+                            )
 
-    def _merge_authority_data(self, entry: Dict[str, Any], auth_data: AuthorityData) -> None:
+    def _merge_authority_data(
+        self, entry: Dict[str, Any], auth_data: AuthorityData
+    ) -> None:
         """Merge authority data into entry."""
         # Add name variants
         if "Variants" not in entry:
@@ -1719,7 +1847,9 @@ class GMNAPPipeline:
             entry["Confidence"] = 0
 
         # Simple confidence boost for having authority data
-        entry["Confidence"] = min(100, entry["Confidence"] + auth_data.confidence_score * 20)
+        entry["Confidence"] = min(
+            100, entry["Confidence"] + auth_data.confidence_score * 20
+        )
 
     def _validate_roundtrip(self) -> None:
         """Validate round-trip for deterministic scripts."""
@@ -1738,12 +1868,12 @@ class GMNAPPipeline:
 
                 if script_type in deterministic_scripts:
                     # Perform round-trip validation
-                    success = self._test_roundtrip(canonical_native, canonical_latin, script_type)
+                    success = self._test_roundtrip(
+                        canonical_native, canonical_latin, script_type
+                    )
 
                     if not success:
-                        error_msg = (
-                            f"Round-trip validation failed for {canonical_latin} ({script_type})"
-                        )
+                        error_msg = f"Round-trip validation failed for {canonical_latin} ({script_type})"
                         self._metrics.validation_errors.append(error_msg)
                         logger.warning(error_msg)
 
@@ -1846,7 +1976,9 @@ class GMNAPPipeline:
             )
 
         # Runtime (for 1M entries) - improved calculation
-        runtime_seconds = float((datetime.now() - self._metrics.start_time).total_seconds())
+        runtime_seconds = float(
+            (datetime.now() - self._metrics.start_time).total_seconds()
+        )
         entries_count = int(self._metrics.total_entries)  # Ensure integer
 
         if runtime_seconds > 0 and entries_count > 0:
@@ -1862,7 +1994,9 @@ class GMNAPPipeline:
                 entries_per_second = entries_count / processing_time
 
             projected_1m_minutes = (
-                (1_000_000 / entries_per_second) / 60 if entries_per_second > 0 else float("inf")
+                (1_000_000 / entries_per_second) / 60
+                if entries_per_second > 0
+                else float("inf")
             )
 
             max_minutes = 30 if self.mode == PipelineMode.QUICK else 60

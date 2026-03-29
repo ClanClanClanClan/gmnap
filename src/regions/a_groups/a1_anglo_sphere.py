@@ -232,7 +232,10 @@ class A1_AngloSphere(RegionSpec):
                 normalized_words.append(word + ".")
             # Check if it's a single capital letter with punctuation (but not period)
             elif (
-                len(word) == 2 and word[0].isupper() and word[1] in ",;:" and not word.endswith(".")
+                len(word) == 2
+                and word[0].isupper()
+                and word[1] in ",;:"
+                and not word.endswith(".")
             ):
                 normalized_words.append(word[0] + ".")
             else:
@@ -280,7 +283,9 @@ class A1_AngloSphere(RegionSpec):
         # Add ASCII-only variant
         ascii_variant = self._generate_ascii_variant(canonical)
         if ascii_variant != canonical:
-            entry["Variants"]["Synthesised"].append({"str": ascii_variant, "type": "ascii-lossy"})
+            entry["Variants"]["Synthesised"].append(
+                {"str": ascii_variant, "type": "ascii-lossy"}
+            )
 
     def _extract_components(self, name: str) -> Dict[str, Any]:
         """Extract name components."""
@@ -333,7 +338,9 @@ class A1_AngloSphere(RegionSpec):
 
         return components
 
-    def _generate_collapsed_variant(self, name: str, components: Dict[str, Any]) -> Optional[str]:
+    def _generate_collapsed_variant(
+        self, name: str, components: Dict[str, Any]
+    ) -> Optional[str]:
         """
         Rule 18: Anglo Middle-Initial Collapse – John C. clusters with John.
 
@@ -353,7 +360,8 @@ class A1_AngloSphere(RegionSpec):
         # Pattern 1: Traditional middle initials (e.g., "John C.")
         has_middle_initial = (
             any(
-                len(part) <= 2 and (part.endswith(".") or (len(part) == 1 and part.isupper()))
+                len(part) <= 2
+                and (part.endswith(".") or (len(part) == 1 and part.isupper()))
                 for part in given_parts[1:]
             )
             if len(given_parts) > 1

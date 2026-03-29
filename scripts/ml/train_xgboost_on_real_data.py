@@ -127,8 +127,15 @@ def main():
     print()
 
     # Load REAL training data
-    train_file = Path(__file__).parent.parent.parent / "data" / "ml_training" / "train_split.json"
-    test_file = Path(__file__).parent.parent.parent / "data" / "ml_training" / "test_split.json"
+    train_file = (
+        Path(__file__).parent.parent.parent
+        / "data"
+        / "ml_training"
+        / "train_split.json"
+    )
+    test_file = (
+        Path(__file__).parent.parent.parent / "data" / "ml_training" / "test_split.json"
+    )
 
     print(f"Loading training data from: {train_file}")
     with open(train_file) as f:
@@ -269,7 +276,12 @@ def main():
     # Train with early stopping
     evals = [(dtrain, "train"), (dtest, "test")]
     bst = xgb.train(
-        params, dtrain, num_boost_round=100, evals=evals, early_stopping_rounds=10, verbose_eval=10
+        params,
+        dtrain,
+        num_boost_round=100,
+        evals=evals,
+        early_stopping_rounds=10,
+        verbose_eval=10,
     )
 
     print()
@@ -304,7 +316,9 @@ def main():
     for region in sorted(region_total.keys()):
         if region_total[region] > 0:
             acc = region_correct[region] / region_total[region] * 100
-            print(f"  {region}: {acc:.1f}% ({region_correct[region]}/{region_total[region]})")
+            print(
+                f"  {region}: {acc:.1f}% ({region_correct[region]}/{region_total[region]})"
+            )
     print()
 
     # Save model

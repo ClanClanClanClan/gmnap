@@ -191,7 +191,9 @@ def main():
         print(f"{'Region':<10} {'Count':>8} {'%':>8}")
         print("-" * 80)
 
-        for region, count in sorted(distribution.items(), key=lambda x: x[1], reverse=True)[:20]:
+        for region, count in sorted(
+            distribution.items(), key=lambda x: x[1], reverse=True
+        )[:20]:
             pct = (count / len(all_names)) * 100
             print(f"{region:<10} {count:>8} {pct:>7.2f}%")
 

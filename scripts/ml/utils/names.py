@@ -55,7 +55,9 @@ def remove_diacritics(text: str) -> str:
 
     # Keep only characters that are not combining marks
     result = "".join(
-        char for char in nfd if unicodedata.category(char) != "Mn"  # Mn = Nonspacing_Mark
+        char
+        for char in nfd
+        if unicodedata.category(char) != "Mn"  # Mn = Nonspacing_Mark
     )
 
     # Normalize back to NFC
@@ -240,7 +242,11 @@ def find_duplicates(names: list[str]) -> dict[str, list[str]]:
         normalized_map[normalized].append(name)
 
     # Return only duplicates
-    return {norm: originals for norm, originals in normalized_map.items() if len(originals) > 1}
+    return {
+        norm: originals
+        for norm, originals in normalized_map.items()
+        if len(originals) > 1
+    }
 
 
 def extract_surname_cluster(surname: str, min_length: int = 3) -> str:

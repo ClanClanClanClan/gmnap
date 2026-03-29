@@ -20,7 +20,8 @@ class ConflictPolicy:
 
     @staticmethod
     def load(
-        path: str = "config/conflict_policy.yaml", weights_path: str = "config/weights.yaml"
+        path: str = "config/conflict_policy.yaml",
+        weights_path: str = "config/weights.yaml",
     ) -> "ConflictPolicy":
         with open(path, "r", encoding="utf-8") as f:
             conf = yaml.safe_load(f) or {}

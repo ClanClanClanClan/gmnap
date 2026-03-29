@@ -100,7 +100,9 @@ def apply_tab_newline_normalization_fix(content):
                 new_lines.append(line)
                 indent = len(lines[i + 1]) - len(lines[i + 1].lstrip())
                 indent_str = " " * indent
-                new_lines.append(f"{indent_str}# Normalize newline to space (V7 edge case)")
+                new_lines.append(
+                    f"{indent_str}# Normalize newline to space (V7 edge case)"
+                )
                 new_lines.append(f'{indent_str}value = value.replace("\\n", " ")')
                 new_lines.append(f"{indent_str}entry[field] = value")
                 new_lines.append(f"{indent_str}continue  # Skip to next char")
@@ -114,12 +116,18 @@ def apply_tab_newline_normalization_fix(content):
                 # Replace with normalization approach
                 indent = len(line) - len(line.lstrip())
                 indent_str = " " * indent
-                new_lines.append(f"{indent_str}# Normalize tabs and newlines (V7 edge case)")
+                new_lines.append(
+                    f"{indent_str}# Normalize tabs and newlines (V7 edge case)"
+                )
                 new_lines.append(f'{indent_str}if "\\t" in raw_input:')
-                new_lines.append(f'{indent_str}    raw_input = raw_input.replace("\\t", " ")')
+                new_lines.append(
+                    f'{indent_str}    raw_input = raw_input.replace("\\t", " ")'
+                )
                 new_lines.append(f"{indent_str}    entry[field] = raw_input")
                 new_lines.append(f'{indent_str}if "\\n" in raw_input:')
-                new_lines.append(f'{indent_str}    raw_input = raw_input.replace("\\n", " ")')
+                new_lines.append(
+                    f'{indent_str}    raw_input = raw_input.replace("\\n", " ")'
+                )
                 new_lines.append(f"{indent_str}    entry[field] = raw_input")
                 new_lines.append(f"{indent_str}# Check remaining dangerous chars")
                 new_lines.append(
@@ -152,13 +160,18 @@ def apply_security_method_fixes(content):
     # Remove security_validate_all_fields calls
     if "self.security_validate_all_fields(" in content:
         content = re.sub(
-            r"^\s*self\.security_validate_all_fields\([^)]*\)\s*$", "", content, flags=re.MULTILINE
+            r"^\s*self\.security_validate_all_fields\([^)]*\)\s*$",
+            "",
+            content,
+            flags=re.MULTILINE,
         )
         modified = True
 
     # Replace security_clean_field with just the value
     if "self.security_clean_field(" in content:
-        content = re.sub(r"self\.security_clean_field\(\s*([^,)]+),\s*[^)]+\)", r"\1", content)
+        content = re.sub(
+            r"self\.security_clean_field\(\s*([^,)]+),\s*[^)]+\)", r"\1", content
+        )
         modified = True
 
     return content, modified

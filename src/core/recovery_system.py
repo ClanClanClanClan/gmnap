@@ -133,7 +133,9 @@ class EmailNotification(NotificationChannel):
 
     def _format_email_body(self, alert: SystemAlert, context: Dict[str, Any]) -> str:
         """Format email body with alert details."""
-        timestamp = datetime.fromtimestamp(alert.timestamp).strftime("%Y-%m-%d %H:%M:%S UTC")
+        timestamp = datetime.fromtimestamp(alert.timestamp).strftime(
+            "%Y-%m-%d %H:%M:%S UTC"
+        )
 
         body = f"""
         <html>
@@ -186,11 +188,21 @@ class SlackNotification(NotificationChannel):
                         "title": f"GMNAP v7 Alert: {alert.component}",
                         "text": alert.message,
                         "fields": [
-                            {"title": "Level", "value": alert.level.value.upper(), "short": True},
-                            {"title": "Component", "value": alert.component, "short": True},
+                            {
+                                "title": "Level",
+                                "value": alert.level.value.upper(),
+                                "short": True,
+                            },
+                            {
+                                "title": "Component",
+                                "value": alert.component,
+                                "short": True,
+                            },
                             {
                                 "title": "Time",
-                                "value": datetime.fromtimestamp(alert.timestamp).isoformat(),
+                                "value": datetime.fromtimestamp(
+                                    alert.timestamp
+                                ).isoformat(),
                                 "short": True,
                             },
                             {
@@ -319,7 +331,9 @@ class AutoRecoverySystem:
         logger.setLevel(logging.INFO)
 
         if not logger.handlers:
-            formatter = logging.Formatter("%(asctime)s [RECOVERY] %(levelname)s: %(message)s")
+            formatter = logging.Formatter(
+                "%(asctime)s [RECOVERY] %(levelname)s: %(message)s"
+            )
             console_handler = logging.StreamHandler()
             console_handler.setFormatter(formatter)
             logger.addHandler(console_handler)
@@ -334,8 +348,12 @@ class AutoRecoverySystem:
             action=RecoveryAction.CLEAR_CACHE,
             component="cache",
             trigger_conditions=["memory_usage > 90", "cache_errors > 10"],
-            max_attempts=self.config["recovery_operations"]["cache_clear"]["max_attempts"],
-            retry_delay=self.config["recovery_operations"]["cache_clear"]["retry_delay"],
+            max_attempts=self.config["recovery_operations"]["cache_clear"][
+                "max_attempts"
+            ],
+            retry_delay=self.config["recovery_operations"]["cache_clear"][
+                "retry_delay"
+            ],
             timeout=self.config["recovery_operations"]["cache_clear"]["timeout"],
         )
 
@@ -345,8 +363,12 @@ class AutoRecoverySystem:
             action=RecoveryAction.RESTART_SERVICE,
             component="application",
             trigger_conditions=["error_rate > 10", "response_time > 5"],
-            max_attempts=self.config["recovery_operations"]["service_restart"]["max_attempts"],
-            retry_delay=self.config["recovery_operations"]["service_restart"]["retry_delay"],
+            max_attempts=self.config["recovery_operations"]["service_restart"][
+                "max_attempts"
+            ],
+            retry_delay=self.config["recovery_operations"]["service_restart"][
+                "retry_delay"
+            ],
             timeout=self.config["recovery_operations"]["service_restart"]["timeout"],
         )
 
@@ -356,8 +378,12 @@ class AutoRecoverySystem:
             action=RecoveryAction.RESET_CONNECTIONS,
             component="database",
             trigger_conditions=["connection_errors > 5", "database_timeout"],
-            max_attempts=self.config["recovery_operations"]["connection_reset"]["max_attempts"],
-            retry_delay=self.config["recovery_operations"]["connection_reset"]["retry_delay"],
+            max_attempts=self.config["recovery_operations"]["connection_reset"][
+                "max_attempts"
+            ],
+            retry_delay=self.config["recovery_operations"]["connection_reset"][
+                "retry_delay"
+            ],
             timeout=self.config["recovery_operations"]["connection_reset"]["timeout"],
         )
 
@@ -475,7 +501,9 @@ class AutoRecoverySystem:
                 f"Sent notifications for {alert.component} alert ({success_count} channels)"
             )
         else:
-            self.logger.warning(f"Failed to send notifications for {alert.component} alert")
+            self.logger.warning(
+                f"Failed to send notifications for {alert.component} alert"
+            )
 
     def _check_recovery_needed(self, alert: SystemAlert):
         """Check if recovery action is needed for this alert."""
@@ -483,7 +511,11 @@ class AutoRecoverySystem:
             return
 
         # Only trigger recovery for WARNING and CRITICAL alerts
-        if alert.level not in [AlertLevel.WARNING, AlertLevel.CRITICAL, AlertLevel.EMERGENCY]:
+        if alert.level not in [
+            AlertLevel.WARNING,
+            AlertLevel.CRITICAL,
+            AlertLevel.EMERGENCY,
+        ]:
             return
 
         # Find applicable recovery operations
@@ -496,7 +528,9 @@ class AutoRecoverySystem:
         for op in applicable_ops:
             self._schedule_recovery(op, alert)
 
-    def _should_trigger_recovery(self, operation: RecoveryOperation, alert: SystemAlert) -> bool:
+    def _should_trigger_recovery(
+        self, operation: RecoveryOperation, alert: SystemAlert
+    ) -> bool:
         """Check if recovery operation should be triggered."""
         # Check if already running
         if operation.id in self.active_recoveries:
@@ -510,10 +544,14 @@ class AutoRecoverySystem:
         # For now, trigger on any WARNING/CRITICAL alert for matching component
         return True
 
-    def _schedule_recovery(self, operation: RecoveryOperation, trigger_alert: SystemAlert):
+    def _schedule_recovery(
+        self, operation: RecoveryOperation, trigger_alert: SystemAlert
+    ):
         """Schedule a recovery operation."""
         if len(self.active_recoveries) >= self.max_concurrent_recoveries:
-            self.logger.warning(f"Max concurrent recoveries reached, skipping {operation.id}")
+            self.logger.warning(
+                f"Max concurrent recoveries reached, skipping {operation.id}"
+            )
             return
 
         execution = RecoveryExecution(
@@ -537,7 +575,9 @@ class AutoRecoverySystem:
         recovery_thread.daemon = True
         recovery_thread.start()
 
-    def _execute_recovery(self, operation: RecoveryOperation, execution: RecoveryExecution):
+    def _execute_recovery(
+        self, operation: RecoveryOperation, execution: RecoveryExecution
+    ):
         """Execute a recovery operation."""
         execution.status = RecoveryStatus.IN_PROGRESS
         execution.logs.append(f"Starting recovery operation: {operation.action.value}")
@@ -692,7 +732,9 @@ class AutoRecoverySystem:
             execution.logs.append(f"Graceful shutdown failed: {e}")
             return False
 
-    def _schedule_retry(self, operation: RecoveryOperation, execution: RecoveryExecution):
+    def _schedule_retry(
+        self, operation: RecoveryOperation, execution: RecoveryExecution
+    ):
         """Schedule retry of failed recovery operation."""
         execution.attempt_number += 1
         execution.status = RecoveryStatus.PENDING
@@ -710,7 +752,10 @@ class AutoRecoverySystem:
         current_time = time.time()
 
         for execution in list(self.active_recoveries.values()):
-            if execution.status == RecoveryStatus.PENDING and execution.start_time <= current_time:
+            if (
+                execution.status == RecoveryStatus.PENDING
+                and execution.start_time <= current_time
+            ):
                 operation = self.recovery_operations.get(execution.operation_id)
                 if operation:
                     # Start recovery in separate thread

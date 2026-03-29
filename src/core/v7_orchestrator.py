@@ -29,7 +29,9 @@ class V7Orchestrator:
     4. Managing system state
     """
 
-    def __init__(self, mode: PipelineMode = PipelineMode.QUICK, config_dir: Path = None):
+    def __init__(
+        self, mode: PipelineMode = PipelineMode.QUICK, config_dir: Path = None
+    ):
         """Initialize V7 orchestrator."""
         self.mode = mode
         self.config_dir = config_dir or Path("./config")
@@ -66,7 +68,9 @@ class V7Orchestrator:
                 logger.info("V7 orchestrator initialization complete")
                 return True
             else:
-                logger.error(f"V7 orchestrator initialization failed: {readiness_check['errors']}")
+                logger.error(
+                    f"V7 orchestrator initialization failed: {readiness_check['errors']}"
+                )
                 return False
 
         except Exception as e:
@@ -87,7 +91,9 @@ class V7Orchestrator:
             Complete V7 processing results with compliance metrics
         """
         if not self.is_initialized:
-            raise RuntimeError("V7 orchestrator not initialized - call initialize() first")
+            raise RuntimeError(
+                "V7 orchestrator not initialized - call initialize() first"
+            )
 
         run_id = run_id or f"v7_run_{datetime.now():%Y%m%d_%H%M%S}"
         logger.info(f"Starting V7 processing run: {run_id}")
@@ -106,7 +112,9 @@ class V7Orchestrator:
 
             # Phase 3: Quality gate enforcement
             entries_for_quality = pipeline_results.get("processed_entries", entries)
-            quality_results = await self.quality_gates.validate_batch(entries_for_quality)
+            quality_results = await self.quality_gates.validate_batch(
+                entries_for_quality
+            )
 
             # Phase 4: V7 compliance verification
             compliance_results = await self.compliance_tracker.verify_v7_compliance(
@@ -186,7 +194,9 @@ class V7Orchestrator:
             "timestamp": datetime.now().isoformat(),
         }
 
-    async def _pre_process_validation(self, entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def _pre_process_validation(
+        self, entries: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """Pre-process validation before pipeline execution."""
         validation_results = {
             "passed": True,
@@ -201,28 +211,38 @@ class V7Orchestrator:
                 try:
                     # Check required fields
                     if not entry.get("CanonicalLatin"):
-                        validation_results["errors"].append(f"Entry {i}: Missing CanonicalLatin")
+                        validation_results["errors"].append(
+                            f"Entry {i}: Missing CanonicalLatin"
+                        )
                         validation_results["entries_failed"] += 1
                         continue
 
                     # Basic field type validation
                     canonical = entry.get("CanonicalLatin")
                     if not isinstance(canonical, str) or len(canonical.strip()) == 0:
-                        validation_results["errors"].append(f"Entry {i}: Invalid CanonicalLatin")
+                        validation_results["errors"].append(
+                            f"Entry {i}: Invalid CanonicalLatin"
+                        )
                         validation_results["entries_failed"] += 1
                         continue
 
                     validation_results["entries_validated"] += 1
 
                 except Exception as e:
-                    validation_results["errors"].append(f"Entry {i}: Validation error - {e}")
+                    validation_results["errors"].append(
+                        f"Entry {i}: Validation error - {e}"
+                    )
                     validation_results["entries_failed"] += 1
 
             # Check if too many entries failed
-            failure_rate = validation_results["entries_failed"] / len(entries) if entries else 0
+            failure_rate = (
+                validation_results["entries_failed"] / len(entries) if entries else 0
+            )
             if failure_rate > 0.1:  # More than 10% failed
                 validation_results["passed"] = False
-                validation_results["errors"].append(f"High failure rate: {failure_rate:.2%}")
+                validation_results["errors"].append(
+                    f"High failure rate: {failure_rate:.2%}"
+                )
 
         except Exception as e:
             validation_results["passed"] = False
@@ -234,9 +254,13 @@ class V7Orchestrator:
         self, run_id: str, validation_results: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Handle pre-validation failures."""
-        logger.error(f"Pre-validation failed for run {run_id}: {validation_results['errors']}")
+        logger.error(
+            f"Pre-validation failed for run {run_id}: {validation_results['errors']}"
+        )
 
-        await self.compliance_tracker.record_validation_failure(run_id, validation_results)
+        await self.compliance_tracker.record_validation_failure(
+            run_id, validation_results
+        )
 
         return {
             "run_id": run_id,
@@ -293,10 +317,16 @@ class V7Orchestrator:
             "compliance": {
                 "overall_score": compliance_score,
                 "status": status,
-                "pipeline_compliance": compliance_results.get("pipeline_compliance", {}),
-                "authority_compliance": compliance_results.get("authority_compliance", {}),
+                "pipeline_compliance": compliance_results.get(
+                    "pipeline_compliance", {}
+                ),
+                "authority_compliance": compliance_results.get(
+                    "authority_compliance", {}
+                ),
                 "region_compliance": compliance_results.get("region_compliance", {}),
-                "linguistic_compliance": compliance_results.get("linguistic_compliance", {}),
+                "linguistic_compliance": compliance_results.get(
+                    "linguistic_compliance", {}
+                ),
             },
             # System metrics
             "system": {
@@ -358,7 +388,9 @@ class V7Orchestrator:
         try:
             output_dir = Path("output")
             if output_dir.exists():
-                total_size = sum(f.stat().st_size for f in output_dir.rglob("*") if f.is_file())
+                total_size = sum(
+                    f.stat().st_size for f in output_dir.rglob("*") if f.is_file()
+                )
                 return int(total_size / 1024 / 1024)
             return 0
         except Exception:
@@ -372,7 +404,11 @@ class V7Orchestrator:
             "orchestrator": {
                 "initialized": self.is_initialized,
                 "mode": self.mode.value,
-                "last_run": self.last_run_results.get("run_id") if self.last_run_results else None,
+                "last_run": (
+                    self.last_run_results.get("run_id")
+                    if self.last_run_results
+                    else None
+                ),
             },
             "components": readiness["checks"],
             "ready": readiness["ready"],
@@ -390,7 +426,9 @@ class V7Orchestrator:
         logger.info("Starting forced V7 compliance check...")
 
         # Run comprehensive compliance validation
-        compliance_check = await self.compliance_tracker.comprehensive_compliance_audit()
+        compliance_check = (
+            await self.compliance_tracker.comprehensive_compliance_audit()
+        )
 
         return compliance_check
 

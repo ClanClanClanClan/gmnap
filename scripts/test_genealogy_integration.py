@@ -45,7 +45,9 @@ try:
         print(f"  get_lineage() paths: {len(lineage['paths'])}")
 
         for i, path in enumerate(lineage["paths"], 1):
-            print(f"    Path {i} (length {path['length']}): {' → '.join(path['nodes'][:3])}")
+            print(
+                f"    Path {i} (length {path['length']}): {' → '.join(path['nodes'][:3])}"
+            )
 
     enricher.close()
     print("✅ Test 1 PASSED: Direct mode enrichment works")
@@ -80,7 +82,9 @@ try:
         print(f"  get_lineage() paths: {len(lineage['paths'])}")
 
         for i, path in enumerate(lineage["paths"], 1):
-            print(f"    Path {i} (length {path['length']}): {' → '.join(path['nodes'][:3])}")
+            print(
+                f"    Path {i} (length {path['length']}): {' → '.join(path['nodes'][:3])}"
+            )
 
     enricher.close()
     print("✅ Test 2 PASSED: API mode enrichment works")
@@ -176,7 +180,9 @@ try:
     direct_time = time.time() - start
     enricher_direct.close()
 
-    print(f"  Direct mode: 10 queries in {direct_time:.3f}s ({direct_time/10*1000:.1f}ms avg)")
+    print(
+        f"  Direct mode: 10 queries in {direct_time:.3f}s ({direct_time/10*1000:.1f}ms avg)"
+    )
 
     # Test API mode performance (if API is running)
     try:
@@ -188,7 +194,9 @@ try:
         api_time = time.time() - start
         enricher_api.close()
 
-        print(f"  API mode: 10 queries in {api_time:.3f}s ({api_time/10*1000:.1f}ms avg)")
+        print(
+            f"  API mode: 10 queries in {api_time:.3f}s ({api_time/10*1000:.1f}ms avg)"
+        )
 
         speedup = api_time / direct_time if direct_time > 0 else 0
         print(

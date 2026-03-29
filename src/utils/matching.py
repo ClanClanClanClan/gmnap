@@ -22,7 +22,10 @@ def fuzzy_ratio(a: str, b: str) -> float:
 
 
 def map_wikidata_to_global_id(
-    wd_name: str, birth_year: Optional[int], entries: List[Dict[str, Any]], min_ratio: float = 0.85
+    wd_name: str,
+    birth_year: Optional[int],
+    entries: List[Dict[str, Any]],
+    min_ratio: float = 0.85,
 ) -> Tuple[Optional[str], float]:
     # Exact pass
     for e in entries:

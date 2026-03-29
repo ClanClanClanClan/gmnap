@@ -128,7 +128,9 @@ class EnduranceMonitor:
         return {
             "runtime_hours": runtime / 3600,
             "total_operations": self.metrics["operations"],
-            "ops_per_second": self.metrics["operations"] / runtime if runtime > 0 else 0,
+            "ops_per_second": (
+                self.metrics["operations"] / runtime if runtime > 0 else 0
+            ),
             "memory_growth_mb": (self.process.memory_info().rss - self.initial_memory)
             / (1024 * 1024),
             "thread_growth": threading.active_count() - self.initial_threads,
@@ -191,10 +193,14 @@ class TestEndurance24Hour:
 
                 # Add some randomization
                 if random.random() < 0.1:
-                    test_str = "".join(random.choices(string.printable, k=random.randint(1, 1000)))
+                    test_str = "".join(
+                        random.choices(string.printable, k=random.randint(1, 1000))
+                    )
 
                 # Validate string
-                result = self.validator.validate_string(test_str, f"endurance_{iteration}")
+                result = self.validator.validate_string(
+                    test_str, f"endurance_{iteration}"
+                )
 
                 # Every 1000 iterations, checkpoint
                 if iteration % 1000 == 0:
@@ -203,10 +209,14 @@ class TestEndurance24Hour:
 
                     # Check for excessive memory growth
                     current_memory = monitor.process.memory_info().rss
-                    memory_growth_mb = (current_memory - monitor.initial_memory) / (1024 * 1024)
+                    memory_growth_mb = (current_memory - monitor.initial_memory) / (
+                        1024 * 1024
+                    )
 
                     if memory_growth_mb > 500:  # Alert if > 500MB growth
-                        print(f"WARNING: Memory growth detected: {memory_growth_mb:.2f}MB")
+                        print(
+                            f"WARNING: Memory growth detected: {memory_growth_mb:.2f}MB"
+                        )
 
                 iteration += 1
 
@@ -305,7 +315,9 @@ class TestEndurance24Hour:
                     # Print progress
                     elapsed = time.time() - monitor.start_time
                     remaining = end_time - time.time()
-                    print(f"Progress: {elapsed/3600:.1f}h elapsed, {remaining/3600:.1f}h remaining")
+                    print(
+                        f"Progress: {elapsed/3600:.1f}h elapsed, {remaining/3600:.1f}h remaining"
+                    )
 
                 time.sleep(1)
 
@@ -318,7 +330,9 @@ class TestEndurance24Hour:
         print(f"\nConcurrent Load Report:")
         print(f"  Runtime: {report['runtime_hours']:.2f} hours")
         print(f"  Total operations: {total_operations:,}")
-        print(f"  Ops/sec/thread: {total_operations / (num_threads * self.test_seconds):.2f}")
+        print(
+            f"  Ops/sec/thread: {total_operations / (num_threads * self.test_seconds):.2f}"
+        )
         print(f"  Memory growth: {report['memory_growth_mb']:.2f}MB")
         print(f"  Thread stability: {report['thread_growth']} unexpected threads")
 
@@ -326,7 +340,9 @@ class TestEndurance24Hour:
         assert (
             report["memory_growth_mb"] < 2000
         ), f"Memory leak under load: {report['memory_growth_mb']}MB"
-        assert report["thread_growth"] < 20, f"Thread leak: {report['thread_growth']} extra threads"
+        assert (
+            report["thread_growth"] < 20
+        ), f"Thread leak: {report['thread_growth']} extra threads"
 
     @pytest.mark.timeout(15)
     def test_resource_exhaustion_24h(self):
@@ -357,7 +373,9 @@ class TestEndurance24Hour:
                     threads = []
                     for i in range(50):
                         t = threading.Thread(
-                            target=lambda: self.validator.validate_string(f"thread-{i}", "thread")
+                            target=lambda: self.validator.validate_string(
+                                f"thread-{i}", "thread"
+                            )
                         )
                         t.start()
                         threads.append(t)
@@ -390,7 +408,9 @@ class TestEndurance24Hour:
                     monitor.checkpoint()
 
             except Exception as e:
-                monitor.metrics["errors"].append({"test_type": test_type, "error": str(e)})
+                monitor.metrics["errors"].append(
+                    {"test_type": test_type, "error": str(e)}
+                )
 
             # Small delay to prevent tight loop
             time.sleep(0.01)
@@ -403,7 +423,9 @@ class TestEndurance24Hour:
         print(f"  System remained stable: {report['degradation_events'] < 20}")
 
         # System should handle resource exhaustion gracefully
-        assert report["degradation_events"] < 50, f"System unstable under resource pressure"
+        assert (
+            report["degradation_events"] < 50
+        ), f"System unstable under resource pressure"
 
     @pytest.mark.timeout(15)
     def test_cache_overflow_24h(self):
@@ -452,8 +474,12 @@ class TestEndurance24Hour:
         print(f"  Memory growth: {report['memory_growth_mb']:.2f}MB")
 
         # Cache should not cause unbounded memory growth
-        memory_per_entry = report["memory_growth_mb"] / max(1, unique_count) * 1000  # KB per entry
-        assert memory_per_entry < 10, f"Excessive memory per cache entry: {memory_per_entry:.2f}KB"
+        memory_per_entry = (
+            report["memory_growth_mb"] / max(1, unique_count) * 1000
+        )  # KB per entry
+        assert (
+            memory_per_entry < 10
+        ), f"Excessive memory per cache entry: {memory_per_entry:.2f}KB"
 
     @pytest.mark.timeout(15)
     def test_log_file_growth_24h(self):
@@ -490,7 +516,9 @@ class TestEndurance24Hour:
                 elif event_type == "security":
                     # Security event
                     try:
-                        self.validator.validate_string("'; DROP TABLE users; --", "security")
+                        self.validator.validate_string(
+                            "'; DROP TABLE users; --", "security"
+                        )
                     except:
                         pass  # Expected
 
@@ -579,7 +607,9 @@ class TestEndurance24Hour:
 
         while time.time() < end_time:
             # Normal operation for a while
-            normal_duration = min(60, (end_time - time.time()) / 4)  # 1 minute or remaining/4
+            normal_duration = min(
+                60, (end_time - time.time()) / 4
+            )  # 1 minute or remaining/4
             normal_end = time.time() + normal_duration
 
             baseline_times = []
@@ -595,7 +625,9 @@ class TestEndurance24Hour:
                 baseline_avg = 0.001
 
             # Stress period
-            stress_duration = min(10, (end_time - time.time()) / 2)  # 10 seconds or remaining/2
+            stress_duration = min(
+                10, (end_time - time.time()) / 2
+            )  # 10 seconds or remaining/2
             stress_end = time.time() + stress_duration
             stress_start = time.time()
 
@@ -604,7 +636,8 @@ class TestEndurance24Hour:
             for i in range(20):
                 t = threading.Thread(
                     target=lambda: [
-                        self.validator.validate_string("X" * 1000, "stress") for _ in range(100)
+                        self.validator.validate_string("X" * 1000, "stress")
+                        for _ in range(100)
                     ]
                 )
                 t.start()
@@ -615,7 +648,10 @@ class TestEndurance24Hour:
                 t.join(timeout=stress_duration)
 
             stress_periods.append(
-                {"duration": time.time() - stress_start, "time": stress_start - monitor.start_time}
+                {
+                    "duration": time.time() - stress_start,
+                    "time": stress_start - monitor.start_time,
+                }
             )
 
             # Measure recovery
@@ -623,7 +659,9 @@ class TestEndurance24Hour:
             recovered = False
             recovery_measurements = []
 
-            while time.time() < min(recovery_start + 60, end_time):  # Max 1 minute recovery
+            while time.time() < min(
+                recovery_start + 60, end_time
+            ):  # Max 1 minute recovery
                 start = time.time()
                 self.validator.validate_string("recovery_test", "recovery")
                 operation_time = time.time() - start
@@ -644,16 +682,22 @@ class TestEndurance24Hour:
             monitor.checkpoint()
 
         report = monitor.report()
-        avg_recovery = sum(recovery_times) / len(recovery_times) if recovery_times else 0
+        avg_recovery = (
+            sum(recovery_times) / len(recovery_times) if recovery_times else 0
+        )
 
         print(f"\nStress Recovery Report:")
         print(f"  Runtime: {report['runtime_hours']:.2f} hours")
         print(f"  Stress periods: {len(stress_periods)}")
         print(f"  Average recovery time: {avg_recovery:.2f} seconds")
-        print(f"  Max recovery time: {max(recovery_times) if recovery_times else 0:.2f} seconds")
+        print(
+            f"  Max recovery time: {max(recovery_times) if recovery_times else 0:.2f} seconds"
+        )
 
         # System should recover quickly
-        assert avg_recovery < 30, f"Slow recovery from stress: {avg_recovery:.2f}s average"
+        assert (
+            avg_recovery < 30
+        ), f"Slow recovery from stress: {avg_recovery:.2f}s average"
 
 
 def run_endurance_suite():

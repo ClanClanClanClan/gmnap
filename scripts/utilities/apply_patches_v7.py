@@ -152,7 +152,9 @@ def main():
             successfully_applied.append(patch)
         else:
             print(f"\n✗ Failed to apply patch {patch}")
-            print(f"Successfully applied {len(successfully_applied)} patches before failure")
+            print(
+                f"Successfully applied {len(successfully_applied)} patches before failure"
+            )
             print("Stopping here to avoid further issues")
             return 1
 
@@ -162,7 +164,9 @@ def main():
 
     # Verify the system after patches
     print("\nRunning post-patch verification...")
-    result = subprocess.run(["python3", "v7_systematic_check.py"], capture_output=True, text=True)
+    result = subprocess.run(
+        ["python3", "v7_systematic_check.py"], capture_output=True, text=True
+    )
 
     # Show just the summary
     lines = result.stdout.split("\n")

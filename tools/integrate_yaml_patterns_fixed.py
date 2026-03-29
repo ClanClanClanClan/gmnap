@@ -73,7 +73,10 @@ class PipelinePatternIntegratorFixed:
             item_str = f"'{item}'"
 
             # Check if adding this item would exceed line length
-            if len(current_line + item_str) > max_line_length and current_line != "    '":
+            if (
+                len(current_line + item_str) > max_line_length
+                and current_line != "    '"
+            ):
                 # Close current line and start new one
                 current_line = current_line.rstrip(", ") + ","
                 lines.append(current_line)
@@ -138,7 +141,10 @@ class PipelinePatternIntegratorFixed:
                 clean = pattern.lower()
                 clean = clean.replace("ő", "o").replace("ű", "u").replace("á", "a")
                 clean = (
-                    clean.replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u")
+                    clean.replace("é", "e")
+                    .replace("í", "i")
+                    .replace("ó", "o")
+                    .replace("ú", "u")
                 )
 
                 # Only add if it's in priority list or not already present
@@ -228,7 +234,9 @@ class PipelinePatternIntegratorFixed:
             content = re.sub(korean_pattern, new_line, content, flags=re.DOTALL)
 
             print(f"   ✅ Added {len(yaml_patterns)} new Korean patterns")
-            print(f"   🎯 Key additions: {[p for p in yaml_patterns[:10]]}")  # Show first 10
+            print(
+                f"   🎯 Key additions: {[p for p in yaml_patterns[:10]]}"
+            )  # Show first 10
 
         return content
 
@@ -265,7 +273,9 @@ class PipelinePatternIntegratorFixed:
             filtered_patterns = []
             for pattern in slavic_patterns:
                 clean = pattern.lower()
-                if clean in priority_slavic or (len(filtered_patterns) < 25 and len(clean) > 3):
+                if clean in priority_slavic or (
+                    len(filtered_patterns) < 25 and len(clean) > 3
+                ):
                     if clean not in filtered_patterns:
                         filtered_patterns.append(clean)
 
@@ -283,7 +293,9 @@ class PipelinePatternIntegratorFixed:
             scores['G1'] = max(0, scores['G1'] - 4)  # Reduce Spanish score"""
 
             insertion_point = hungarian_section.end()
-            content = content[:insertion_point] + slavic_code + content[insertion_point:]
+            content = (
+                content[:insertion_point] + slavic_code + content[insertion_point:]
+            )
 
             print(f"   ✅ Added {len(filtered_patterns)} new Slavic patterns")
             print(
@@ -350,9 +362,15 @@ class PipelinePatternIntegratorFixed:
         self.write_pipeline(content)
 
         print("\n📊 INTEGRATION SUMMARY:")
-        print(f"   🇭🇺 Hungarian patterns: {len(patterns['hungarian'])} (fixes Rényi accent issue)")
-        print(f"   🇰🇷 Korean patterns: {len(patterns['korean'])} (fixes Lee/Choi A1 issue)")
-        print(f"   🇨🇿🇵🇱 Slavic patterns: {len(patterns['slavic'])} (fixes Spanish confusion)")
+        print(
+            f"   🇭🇺 Hungarian patterns: {len(patterns['hungarian'])} (fixes Rényi accent issue)"
+        )
+        print(
+            f"   🇰🇷 Korean patterns: {len(patterns['korean'])} (fixes Lee/Choi A1 issue)"
+        )
+        print(
+            f"   🇨🇿🇵🇱 Slavic patterns: {len(patterns['slavic'])} (fixes Spanish confusion)"
+        )
 
         print(f"\n🎯 EXPECTED IMPACT: 42 failures → ~31 failures (87% pass rate)")
         print("✅ Ready for testing!")

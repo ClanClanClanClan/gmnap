@@ -116,7 +116,9 @@ def categorize_roundtrip_failures(failures):
     for pattern_name, cases in patterns.items():
         print(f"\\n{pattern_name}: {len(cases)} cases")
         for case in cases[:3]:  # Show first 3
-            print(f"  {case['canonical']} → {case['roundtrip']} (dice: {case['dice']:.3f})")
+            print(
+                f"  {case['canonical']} → {case['roundtrip']} (dice: {case['dice']:.3f})"
+            )
 
     return patterns
 
@@ -129,17 +131,31 @@ def apply_targeted_weight_fixes(patterns):
     fixes = []
 
     if "park_to_pak" in patterns and len(patterns["park_to_pak"]) > 0:
-        fixes.append(("박", "park", "-1.5", f"Fix {len(patterns['park_to_pak'])} park→pak cases"))
+        fixes.append(
+            ("박", "park", "-1.5", f"Fix {len(patterns['park_to_pak'])} park→pak cases")
+        )
         fixes.append(("박", "pak", "0.5", "Reduce pak preference"))
 
     if "jung_to_jeong" in patterns and len(patterns["jung_to_jeong"]) > 0:
         fixes.append(
-            ("정", "jeong", "-1.2", f"Fix {len(patterns['jung_to_jeong'])} jung→jeong cases")
+            (
+                "정",
+                "jeong",
+                "-1.2",
+                f"Fix {len(patterns['jung_to_jeong'])} jung→jeong cases",
+            )
         )
         fixes.append(("정", "jung", "0.3", "Reduce jung preference"))
 
     if "baek_to_baik" in patterns and len(patterns["baek_to_baik"]) > 0:
-        fixes.append(("백", "baek", "-1.2", f"Fix {len(patterns['baek_to_baik'])} baek→baik cases"))
+        fixes.append(
+            (
+                "백",
+                "baek",
+                "-1.2",
+                f"Fix {len(patterns['baek_to_baik'])} baek→baik cases",
+            )
+        )
         fixes.append(("백", "baik", "0.5", "Reduce baik preference"))
 
     if "june_segmentation" in patterns and len(patterns["june_segmentation"]) > 0:
@@ -184,7 +200,9 @@ def apply_targeted_weight_fixes(patterns):
 
     # Write updated CSV
     if changes_made > 0:
-        with open("resources/rr_syllable_map.csv", "w", encoding="utf-8", newline="") as f:
+        with open(
+            "resources/rr_syllable_map.csv", "w", encoding="utf-8", newline=""
+        ) as f:
             writer = csv.writer(f)
             for row in rows:
                 writer.writerow(row)
@@ -249,7 +267,9 @@ def main():
         if new_accuracy >= 97.0:
             print("\\n🎉 V7 PERFORMANCE TARGET ACHIEVED!")
         else:
-            print(f"\\n⚠️ Still {97.0 - new_accuracy:.2f}% short - may need additional analysis")
+            print(
+                f"\\n⚠️ Still {97.0 - new_accuracy:.2f}% short - may need additional analysis"
+            )
     else:
         print("\\n❌ No targeted fixes could be applied")
 

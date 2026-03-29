@@ -70,10 +70,14 @@ class TestUltraChaosConcurrent:
                     )
                 else:
                     # Normal input
-                    test_input = f"Thread{thread_id}_Test{i}_{'X' * random.randint(1, 100)}"
+                    test_input = (
+                        f"Thread{thread_id}_Test{i}_{'X' * random.randint(1, 100)}"
+                    )
 
                 try:
-                    result = self.validator.validate_string(test_input, f"thread_{thread_id}")
+                    result = self.validator.validate_string(
+                        test_input, f"thread_{thread_id}"
+                    )
                     thread_results.append((thread_id, i, result))
                 except Exception as e:
                     thread_errors.append((thread_id, i, str(e)))
@@ -107,7 +111,9 @@ class TestUltraChaosConcurrent:
 
         # Check for consistency
         result_values = [r[2] for r in results]
-        assert len(set(result_values)) < len(result_values), "All results unique (no caching?)"
+        assert len(set(result_values)) < len(
+            result_values
+        ), "All results unique (no caching?)"
 
         print(
             f"Concurrent validator test: {len(results)} successes, {len(errors)} errors in {duration:.2f}s"
@@ -143,7 +149,8 @@ class TestUltraChaosConcurrent:
             # Use threads within each process
             with ThreadPoolExecutor(max_workers=num_threads_per_process) as executor:
                 futures = [
-                    executor.submit(generate_batch, tid) for tid in range(num_threads_per_process)
+                    executor.submit(generate_batch, tid)
+                    for tid in range(num_threads_per_process)
                 ]
 
                 for future in as_completed(futures):
@@ -154,7 +161,8 @@ class TestUltraChaosConcurrent:
         # Use processes
         with ProcessPoolExecutor(max_workers=num_processes) as executor:
             process_futures = [
-                executor.submit(generate_ids_process, pid) for pid in range(num_processes)
+                executor.submit(generate_ids_process, pid)
+                for pid in range(num_processes)
             ]
 
             all_generated_ids = []
@@ -184,7 +192,9 @@ class TestUltraChaosConcurrent:
             for i in range(operations):
                 key = f"key_{random.randint(0, 50)}"  # Limited key space for conflicts
 
-                operation = random.choice(["get", "set", "clear", "get", "get"])  # More reads
+                operation = random.choice(
+                    ["get", "set", "clear", "get", "get"]
+                )  # More reads
 
                 try:
                     if operation == "get":
@@ -193,7 +203,9 @@ class TestUltraChaosConcurrent:
                             # Verify value format
                             if not value.startswith("thread_"):
                                 with lock:
-                                    corruption_detected.append(f"Corrupted value: {value}")
+                                    corruption_detected.append(
+                                        f"Corrupted value: {value}"
+                                    )
 
                     elif operation == "set":
                         value = f"thread_{thread_id}_value_{i}"
@@ -233,7 +245,9 @@ class TestUltraChaosConcurrent:
         # Check for corruption
         if corruption_detected:
             print(f"Cache corruption detected: {corruption_detected[:5]}")
-            assert False, f"Cache corruption found: {len(corruption_detected)} instances"
+            assert (
+                False
+            ), f"Cache corruption found: {len(corruption_detected)} instances"
 
         print(f"Cache concurrent test passed: {num_threads * operations} operations")
 
@@ -302,7 +316,9 @@ class TestUltraChaosConcurrent:
             print("WARNING: Potential deadlock detected!")
 
         # This test intentionally might deadlock - that's what we're testing for
-        assert len(operations_completed) > 0, "No operations completed (complete deadlock)"
+        assert (
+            len(operations_completed) > 0
+        ), "No operations completed (complete deadlock)"
         print(f"Deadlock test: {len(operations_completed)} operations completed")
 
     @pytest.mark.timeout(15)
@@ -364,7 +380,9 @@ class TestUltraChaosConcurrent:
         print(f"  Expected counter: {expected_counter}")
         print(f"  Actual counter: {actual_counter}")
         print(f"  Race conditions detected: {race_detected}")
-        print(f"  List items: {len(state.list)} (expected {num_threads * ops_per_thread})")
+        print(
+            f"  List items: {len(state.list)} (expected {num_threads * ops_per_thread})"
+        )
 
         # We EXPECT race conditions in this test
         assert race_detected, "No race conditions detected (unexpected!)"
@@ -417,7 +435,9 @@ class TestUltraChaosConcurrent:
 
         # Check if any visibility issues detected
         visibility_issues = results.count("VISIBILITY_ISSUE")
-        print(f"Memory visibility test: {visibility_issues} potential issues in 100 runs")
+        print(
+            f"Memory visibility test: {visibility_issues} potential issues in 100 runs"
+        )
 
     @pytest.mark.timeout(15)
     def test_async_chaos(self):
@@ -551,7 +571,9 @@ class TestUltraChaosConcurrent:
 
             # Verify signals were received
             assert len(received_signals) > 0, "No signals received"
-            print(f"Signal chaos test: {len(received_signals)} signals handled during work")
+            print(
+                f"Signal chaos test: {len(received_signals)} signals handled during work"
+            )
 
         finally:
             # Restore old handler

@@ -63,7 +63,9 @@ def add_edge_case_validation():
             if len(words) < 2:
                 raise ValueError(f"Name must contain both surname and given name: {name}")"""
 
-        content = re.sub(function_start_pattern, validation_code, content, flags=re.DOTALL)
+        content = re.sub(
+            function_start_pattern, validation_code, content, flags=re.DOTALL
+        )
         print("   ✅ Added comprehensive edge case validation")
 
     # Write fixed pipeline

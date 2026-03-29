@@ -26,7 +26,9 @@ def check_baseline():
     print("\nChecking baseline performance...")
 
     # Run mathematician test
-    result = subprocess.run(["python3", "scripts/validate.py"], capture_output=True, text=True)
+    result = subprocess.run(
+        ["python3", "scripts/validate.py"], capture_output=True, text=True
+    )
 
     math_pass = None
     if "PASSED:" in result.stdout:

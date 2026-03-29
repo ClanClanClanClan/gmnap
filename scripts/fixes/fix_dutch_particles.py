@@ -35,7 +35,9 @@ def fix_dutch_particles():
         print("   ✅ Added Dutch particle detection")
 
         # Find the German prefix scoring and add Dutch particle scoring
-        german_scoring_pattern = r"if has_german_prefix:\n            scores\['A2'\] \+= 2"
+        german_scoring_pattern = (
+            r"if has_german_prefix:\n            scores\['A2'\] \+= 2"
+        )
 
         if re.search(german_scoring_pattern, content):
             new_scoring = """if has_german_prefix:

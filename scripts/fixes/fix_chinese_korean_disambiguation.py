@@ -21,9 +21,7 @@ def fix_chinese_korean_disambiguation():
         content = f.read()
 
     # Find the location after Chinese surname scoring
-    chinese_scoring_pattern = (
-        r"if has_chinese_surname:\n            scores\['E1'\] \+= 7  # Very strong indicator"
-    )
+    chinese_scoring_pattern = r"if has_chinese_surname:\n            scores\['E1'\] \+= 7  # Very strong indicator"
 
     if re.search(chinese_scoring_pattern, content):
         # Add Chinese-Korean disambiguation logic after Chinese scoring
@@ -48,7 +46,9 @@ def fix_chinese_korean_disambiguation():
 
         # Insert the disambiguation logic after Chinese surname scoring
         content = re.sub(
-            chinese_scoring_pattern, chinese_scoring_pattern + disambiguation_code, content
+            chinese_scoring_pattern,
+            chinese_scoring_pattern + disambiguation_code,
+            content,
         )
         print("   ✅ Added Chinese-Korean disambiguation logic")
 

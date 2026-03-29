@@ -85,7 +85,9 @@ class WikidataP184Connector:
                     print(f"  Querying Wikidata: offset {offset}...")
 
                     response = await client.get(
-                        self.config.endpoint, params={"query": paginated_query}, headers=headers
+                        self.config.endpoint,
+                        params={"query": paginated_query},
+                        headers=headers,
                     )
                     response.raise_for_status()
                     data = response.json()
@@ -123,14 +125,20 @@ class WikidataP184Connector:
                     error = f"HTTP {e.response.status_code} at offset {offset}"
                     print(f"  ⚠️  {error}")
                     self.errors.append(
-                        {"type": "http_error", "status": e.response.status_code, "offset": offset}
+                        {
+                            "type": "http_error",
+                            "status": e.response.status_code,
+                            "offset": offset,
+                        }
                     )
                     break
 
                 except Exception as e:
                     error = f"Error at offset {offset}: {str(e)}"
                     print(f"  ❌ {error}")
-                    self.errors.append({"type": "unknown_error", "error": str(e), "offset": offset})
+                    self.errors.append(
+                        {"type": "unknown_error", "error": str(e), "offset": offset}
+                    )
                     break
 
                 # Rate limiting
@@ -148,7 +156,9 @@ class WikidataP184Connector:
             SPARQL query string
         """
         # Build occupation filter
-        occupation_filter = " || ".join([f"?occupation = wd:{qid}" for qid in occupations])
+        occupation_filter = " || ".join(
+            [f"?occupation = wd:{qid}" for qid in occupations]
+        )
 
         query = f"""
 SELECT DISTINCT
@@ -246,7 +256,9 @@ LIMIT {limit}
 
 
 # Convenience function
-def create_connector(rate_limit: float = 0.5, timeout: int = 60) -> WikidataP184Connector:
+def create_connector(
+    rate_limit: float = 0.5, timeout: int = 60
+) -> WikidataP184Connector:
     """
     Create Wikidata P184 connector.
 

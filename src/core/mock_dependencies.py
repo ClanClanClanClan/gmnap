@@ -21,7 +21,9 @@ class MockPyJWT:
 
         header = {"alg": algorithm, "typ": "JWT"}
         header_b64 = base64.b64encode(json.dumps(header).encode()).decode().rstrip("=")
-        payload_b64 = base64.b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+        payload_b64 = (
+            base64.b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+        )
         signature = base64.b64encode(b"mock-signature").decode().rstrip("=")
         return f"{header_b64}.{payload_b64}.{signature}"
 

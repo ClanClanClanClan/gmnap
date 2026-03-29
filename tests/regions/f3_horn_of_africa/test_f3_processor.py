@@ -96,12 +96,18 @@ class TestF3HornOfAfricaProcessor(unittest.TestCase):
     def test_ethnic_background_analysis(self):
         """Test ethnic background analysis."""
         # Test Amhara patterns
-        amhara_entry = {"CanonicalLatin": "Abebe Bekele", "Affiliation": "Addis Ababa University"}
+        amhara_entry = {
+            "CanonicalLatin": "Abebe Bekele",
+            "Affiliation": "Addis Ababa University",
+        }
         analysis = self.processor._analyze_ethnic_background(amhara_entry)
         self.assertIn("amhara", analysis.get("ethnicity_scores", {}))
 
         # Test Oromo patterns
-        oromo_entry = {"CanonicalLatin": "Gemechu Lemma", "Affiliation": "Jimma University"}
+        oromo_entry = {
+            "CanonicalLatin": "Gemechu Lemma",
+            "Affiliation": "Jimma University",
+        }
         analysis = self.processor._analyze_ethnic_background(oromo_entry)
         self.assertIn("oromo", analysis.get("ethnicity_scores", {}))
 
@@ -129,7 +135,10 @@ class TestF3HornOfAfricaProcessor(unittest.TestCase):
     @pytest.mark.timeout(15)
     def test_variant_generation(self):
         """Test variant generation."""
-        entry = {"CanonicalLatin": "Gebre Mariam Tekle", "CanonicalNative": "ገብረ ማርያም ተክለ"}
+        entry = {
+            "CanonicalLatin": "Gebre Mariam Tekle",
+            "CanonicalNative": "ገብረ ማርያም ተክለ",
+        }
 
         ethnic_analysis = {"primary_ethnicity": "amhara"}
         patronymic_analysis = {
@@ -139,7 +148,9 @@ class TestF3HornOfAfricaProcessor(unittest.TestCase):
             "structure": "given_father_grandfather",
         }
 
-        variants = self.processor._generate_variants(entry, ethnic_analysis, patronymic_analysis)
+        variants = self.processor._generate_variants(
+            entry, ethnic_analysis, patronymic_analysis
+        )
 
         # Should have various types of variants
         variant_types = [v.get("type") for v in variants]
@@ -265,7 +276,9 @@ class TestF3HornOfAfricaProcessor(unittest.TestCase):
         self.assertEqual(analysis["structure"], "mononym")
 
         # Very long name
-        long_name_entry = {"CanonicalLatin": "Gebre Mariam Tekle Haile Selassie Desta Bekele"}
+        long_name_entry = {
+            "CanonicalLatin": "Gebre Mariam Tekle Haile Selassie Desta Bekele"
+        }
         analysis = self.processor._analyze_patronymic_structure(long_name_entry)
         self.assertEqual(analysis["structure"], "extended_patronymic")
 

@@ -85,7 +85,9 @@ class TestDatabaseIntegrity:
             corrupted_db.close()
             # If we got here without error, the database might have recovered
             # Check if data is intact
-            assert stats["total_entries"] >= 0, "Database recovered but data might be lost"
+            assert (
+                stats["total_entries"] >= 0
+            ), "Database recovered but data might be lost"
         except Exception as e:
             # Expected - database is corrupted
             assert (
@@ -99,7 +101,8 @@ class TestDatabaseIntegrity:
         """Test DuckDB to SQLite fallback under memory pressure."""
         # Test with low memory threshold
         config = DatabaseConfig(
-            db_path=str(self.db_path), memory_threshold_gb=100.0  # Set impossibly high threshold
+            db_path=str(self.db_path),
+            memory_threshold_gb=100.0,  # Set impossibly high threshold
         )
 
         # Mock low available memory
@@ -109,7 +112,9 @@ class TestDatabaseIntegrity:
             db = DatabaseManager(config)
 
             # Should be using SQLite due to memory constraints
-            assert db.db_type == "sqlite", "Should fall back to SQLite under memory pressure"
+            assert (
+                db.db_type == "sqlite"
+            ), "Should fall back to SQLite under memory pressure"
 
             # Should still work correctly
             test_entries = [
@@ -136,7 +141,8 @@ class TestDatabaseIntegrity:
     def test_concurrent_transaction_integrity(self):
         """Test transaction integrity under concurrent access."""
         config = DatabaseConfig(
-            db_path=str(self.db_path), use_duckdb=False  # Force SQLite for transaction testing
+            db_path=str(self.db_path),
+            use_duckdb=False,  # Force SQLite for transaction testing
         )
 
         # Create initial database
@@ -202,7 +208,9 @@ class TestDatabaseIntegrity:
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
             futures = []
             for worker_id in range(num_workers):
-                future = executor.submit(transaction_worker, worker_id, iterations_per_worker)
+                future = executor.submit(
+                    transaction_worker, worker_id, iterations_per_worker
+                )
                 futures.append(future)
 
             # Wait for completion
@@ -288,7 +296,9 @@ class TestDatabaseIntegrity:
                 insert_time < 10.0
             ), f"Insert too slow: {insert_time:.2f}s for {total_entries} entries"
             assert stats_time < 5.0, f"Stats building too slow: {stats_time:.2f}s"
-            assert collision_time < 5.0, f"Collision detection too slow: {collision_time:.2f}s"
+            assert (
+                collision_time < 5.0
+            ), f"Collision detection too slow: {collision_time:.2f}s"
 
             # Verify data integrity
             stats = db.get_statistics()
@@ -422,7 +432,9 @@ class TestDatabaseRecovery:
         """Test WAL mode recovery after crash."""
         db_path = Path(self.temp_dir) / "wal_test.db"
         config = DatabaseConfig(
-            db_path=str(db_path), use_duckdb=False, enable_wal=True  # Use SQLite for WAL testing
+            db_path=str(db_path),
+            use_duckdb=False,
+            enable_wal=True,  # Use SQLite for WAL testing
         )
 
         # Create database and insert data

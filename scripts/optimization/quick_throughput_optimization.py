@@ -18,7 +18,11 @@ async def quick_optimization_test():
     print("=" * 60)
 
     try:
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig, test_data_generator
+        from src.core.streaming_v7 import (
+            V7StreamingPipeline,
+            StreamingConfig,
+            test_data_generator,
+        )
 
         # Test 3 key configurations quickly
         configs = [
@@ -60,7 +64,9 @@ async def quick_optimization_test():
 
             results.append(result)
 
-            print(f"   Throughput: {throughput:.1f} entries/sec ({throughput * 3600:.0f}/hour)")
+            print(
+                f"   Throughput: {throughput:.1f} entries/sec ({throughput * 3600:.0f}/hour)"
+            )
             print(f"   Latency: {metrics.average_latency_ms:.1f}ms")
             print(f"   Success: {metrics.success_rate:.1f}%")
             print(f"   Processed: {metrics.entries_processed} in {duration:.2f}s")
@@ -91,14 +97,18 @@ async def quick_optimization_test():
         improvement = ((best["throughput"] - baseline_target) / baseline_target) * 100
 
         print(f"\n✅ PRODUCTION READINESS ASSESSMENT:")
-        print(f"   Target: {baseline_target} entries/sec ({hourly_target} entries/hour)")
+        print(
+            f"   Target: {baseline_target} entries/sec ({hourly_target} entries/hour)"
+        )
         print(
             f"   Achieved: {best['throughput']:.1f} entries/sec ({best['hourly']:.0f} entries/hour)"
         )
         print(f"   Performance: {improvement:+.1f}% above target")
 
         if best["throughput"] >= baseline_target * 2:  # 2x target
-            print(f"   🚀 STATUS: PRODUCTION EXCELLENCE (exceeds target by {improvement:.0f}%)")
+            print(
+                f"   🚀 STATUS: PRODUCTION EXCELLENCE (exceeds target by {improvement:.0f}%)"
+            )
             grade = "A+"
         elif best["throughput"] >= baseline_target:
             print(f"   ✅ STATUS: PRODUCTION READY (meets target)")

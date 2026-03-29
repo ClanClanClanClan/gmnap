@@ -36,7 +36,10 @@ class DeterministicWriter:
         return "".join(diff)
 
     def write_html_diff(
-        self, old_entries: List[Dict[str, Any]], new_entries: List[Dict[str, Any]], output_path: str
+        self,
+        old_entries: List[Dict[str, Any]],
+        new_entries: List[Dict[str, Any]],
+        output_path: str,
     ) -> None:
         """Generate HTML diff report."""
         old_str = canonical(old_entries)

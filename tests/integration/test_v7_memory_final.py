@@ -123,9 +123,13 @@ def main():
 
             # Calculate results
             max_memory = max(memory_samples) if memory_samples else 0
-            avg_memory = sum(memory_samples) / len(memory_samples) if memory_samples else 0
+            avg_memory = (
+                sum(memory_samples) / len(memory_samples) if memory_samples else 0
+            )
             memory_variation = (
-                max(memory_samples) - min(memory_samples) if len(memory_samples) > 1 else 0
+                max(memory_samples) - min(memory_samples)
+                if len(memory_samples) > 1
+                else 0
             )
 
             result = {

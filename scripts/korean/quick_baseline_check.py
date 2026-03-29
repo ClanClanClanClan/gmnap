@@ -16,7 +16,9 @@ os.chdir(
 # Run test on current state
 print("Testing current state...")
 result = subprocess.run(
-    [sys.executable, "test_accuracy.py", "data/korean.yaml"], capture_output=True, text=True
+    [sys.executable, "test_accuracy.py", "data/korean.yaml"],
+    capture_output=True,
+    text=True,
 )
 
 if result.returncode == 0:

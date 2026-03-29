@@ -192,7 +192,10 @@ class LoopMutator(MutationOperator):
         elif isinstance(node, ast.For):
             # Skip first iteration
             if isinstance(node.iter, ast.Call):
-                if isinstance(node.iter.func, ast.Name) and node.iter.func.id == "range":
+                if (
+                    isinstance(node.iter.func, ast.Name)
+                    and node.iter.func.id == "range"
+                ):
                     if len(node.iter.args) > 0:
                         # Start from 1 instead of 0
                         if (
@@ -266,7 +269,14 @@ class MutationEngine:
         """Run tests and return True if all pass"""
         try:
             result = subprocess.run(
-                [sys.executable, "-m", "pytest", str(self.test_file), "-xvs", "--tb=no"],
+                [
+                    sys.executable,
+                    "-m",
+                    "pytest",
+                    str(self.test_file),
+                    "-xvs",
+                    "--tb=no",
+                ],
                 capture_output=True,
                 text=True,
                 timeout=10,
@@ -320,7 +330,9 @@ class MutationEngine:
                 else:
                     # Mutation was killed! This is good
                     self.mutations_killed += 1
-                    print(f"  PASS Mutation {i+1}/{len(mutants)} KILLED: {mutator_name}")
+                    print(
+                        f"  PASS Mutation {i+1}/{len(mutants)} KILLED: {mutator_name}"
+                    )
 
             finally:
                 # Restore original source

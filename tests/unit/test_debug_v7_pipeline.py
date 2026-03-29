@@ -52,7 +52,10 @@ def test_debug_v7_pipeline():
     manager = RegionManager()
 
     for name, expected in test_mathematicians.items():
-        test_entry = {"GlobalID": f"test_{name.replace(', ', '_')}", "CanonicalLatin": name}
+        test_entry = {
+            "GlobalID": f"test_{name.replace(', ', '_')}",
+            "CanonicalLatin": name,
+        }
 
         result = manager.detect_region(test_entry)
         print(f"\n{name}:")

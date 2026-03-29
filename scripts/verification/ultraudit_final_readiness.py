@@ -78,7 +78,9 @@ class FinalReadinessAuditor:
 
             # Fresh instances should be different
             if region_thread_safe is region_legacy:
-                self.log_issue("WARNING", "thread_safe=True not creating fresh instances")
+                self.log_issue(
+                    "WARNING", "thread_safe=True not creating fresh instances"
+                )
 
             return True
 
@@ -167,7 +169,9 @@ class FinalReadinessAuditor:
             }
 
             # Step 1: Security validation
-            success, clean_name = validator.validate_string(test_entry["CanonicalLatin"], "test")
+            success, clean_name = validator.validate_string(
+                test_entry["CanonicalLatin"], "test"
+            )
             if not success:
                 self.log_issue("CRITICAL", "Security validation failed")
                 return False
@@ -271,7 +275,8 @@ class FinalReadinessAuditor:
             # Should be at least 50 entries/second for reasonable performance
             if throughput < 50:
                 self.log_issue(
-                    "WARNING", f"Performance may be degraded: {throughput:.1f} entries/s"
+                    "WARNING",
+                    f"Performance may be degraded: {throughput:.1f} entries/s",
                 )
                 return False
 
@@ -316,7 +321,9 @@ class FinalReadinessAuditor:
                     all_errors.extend(errors)
 
             if all_errors:
-                self.log_issue("CRITICAL", f"Thread safety broken: {len(all_errors)} errors")
+                self.log_issue(
+                    "CRITICAL", f"Thread safety broken: {len(all_errors)} errors"
+                )
                 for error in all_errors[:3]:
                     print(f"   {error}")
                 return False
@@ -396,7 +403,9 @@ class FinalReadinessAuditor:
 
         # Final assessment
         critical_issues = len(self.issues)
-        major_warnings = len([w for w in self.warnings if "Performance" in w or "thread_safe" in w])
+        major_warnings = len(
+            [w for w in self.warnings if "Performance" in w or "thread_safe" in w]
+        )
 
         print(f"\n🎯 FINAL READINESS ASSESSMENT:")
 

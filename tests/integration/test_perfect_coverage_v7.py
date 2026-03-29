@@ -296,7 +296,8 @@ class TestQualityGates(TestV7PerfectCoverage):
         """Test performance quality gates"""
         # Process batch and check performance
         test_data = [
-            {"CanonicalNative": f"Name{i}", "GlobalID": f"PERF-{i:04d}"} for i in range(100)
+            {"CanonicalNative": f"Name{i}", "GlobalID": f"PERF-{i:04d}"}
+            for i in range(100)
         ]
 
         start = time.time()
@@ -333,7 +334,10 @@ class TestIdempotency(TestV7PerfectCoverage):
     @pytest.mark.asyncio
     async def test_deterministic_processing(self, pipeline):
         """Test deterministic processing with same seed"""
-        test_data = [{"CanonicalNative": f"Name{i}", "GlobalID": f"DET-{i:04d}"} for i in range(10)]
+        test_data = [
+            {"CanonicalNative": f"Name{i}", "GlobalID": f"DET-{i:04d}"}
+            for i in range(10)
+        ]
 
         # Process twice with same seed
         pipeline1 = V7Pipeline(mode=PipelineMode.DETERMINISTIC, seed=42)
@@ -343,7 +347,9 @@ class TestIdempotency(TestV7PerfectCoverage):
         result2 = await pipeline2.process_batch(test_data)
 
         # Results should be identical
-        assert json.dumps(result1, sort_keys=True) == json.dumps(result2, sort_keys=True)
+        assert json.dumps(result1, sort_keys=True) == json.dumps(
+            result2, sort_keys=True
+        )
 
     @pytest.mark.asyncio
     async def test_hash_consistency(self, pipeline):
@@ -389,7 +395,9 @@ class TestAnalytics(TestV7PerfectCoverage):
         assert count[0]["cnt"] == 100
 
         # Test aggregations
-        regions = analytics.query("SELECT Region, COUNT(*) as cnt FROM entries GROUP BY Region")
+        regions = analytics.query(
+            "SELECT Region, COUNT(*) as cnt FROM entries GROUP BY Region"
+        )
         assert len(regions) > 0
 
         # Test collision detection
@@ -400,7 +408,8 @@ class TestAnalytics(TestV7PerfectCoverage):
     async def test_performance_metrics(self, pipeline):
         """Test performance metrics collection"""
         test_data = [
-            {"CanonicalNative": f"Name{i}", "GlobalID": f"METRIC-{i:04d}"} for i in range(50)
+            {"CanonicalNative": f"Name{i}", "GlobalID": f"METRIC-{i:04d}"}
+            for i in range(50)
         ]
 
         result = await pipeline.process_batch(test_data)
@@ -441,7 +450,8 @@ class TestErrorRecovery(TestV7PerfectCoverage):
         """Test handling under memory pressure"""
         # Create large batch
         large_batch = [
-            {"CanonicalNative": f"Name{i}" * 100, "GlobalID": f"MEM-{i:04d}"} for i in range(1000)
+            {"CanonicalNative": f"Name{i}" * 100, "GlobalID": f"MEM-{i:04d}"}
+            for i in range(1000)
         ]
 
         # Should handle without crashing
@@ -495,7 +505,8 @@ class TestConcurrency(TestV7PerfectCoverage):
 
         # Create concurrent tasks
         entries = [
-            {"CanonicalNative": f"김민수{i}", "GlobalID": f"THREAD-{i:04d}"} for i in range(100)
+            {"CanonicalNative": f"김민수{i}", "GlobalID": f"THREAD-{i:04d}"}
+            for i in range(100)
         ]
 
         tasks = [process_entry(entry) for entry in entries]
@@ -570,4 +581,6 @@ class TestEndToEnd(TestV7PerfectCoverage):
 
 if __name__ == "__main__":
     # Run tests with coverage report
-    pytest.main([__file__, "-v", "--tb=short", "--cov=src", "--cov-report=term-missing"])
+    pytest.main(
+        [__file__, "-v", "--tb=short", "--cov=src", "--cov-report=term-missing"]
+    )

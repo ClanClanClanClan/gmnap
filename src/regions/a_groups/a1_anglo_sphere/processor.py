@@ -227,7 +227,9 @@ class A1_AngloSphere(RegionSpec):
                     )
                 # Check for DoS via excessive length
                 if len(raw_input) > 150:
-                    raise RegionRuleError(f"Name too long: {len(raw_input)} characters (max 150)")
+                    raise RegionRuleError(
+                        f"Name too long: {len(raw_input)} characters (max 150)"
+                    )
 
         # Clean canonical forms
         for field in ["CanonicalLatin", "CanonicalNative"]:
@@ -323,7 +325,10 @@ class A1_AngloSphere(RegionSpec):
                 normalized_words.append(word + ".")
             # Check if it's a single capital letter with punctuation (but not period)
             elif (
-                len(word) == 2 and word[0].isupper() and word[1] in ",;:" and not word.endswith(".")
+                len(word) == 2
+                and word[0].isupper()
+                and word[1] in ",;:"
+                and not word.endswith(".")
             ):
                 normalized_words.append(word[0] + ".")
             else:
@@ -376,7 +381,9 @@ class A1_AngloSphere(RegionSpec):
             if collapsed and collapsed != canonical:
                 # Use add_variant if available, otherwise direct append
                 if hasattr(self, "add_variant"):
-                    self.add_variant(entry, {"str": collapsed, "type": "initial-collapse"})
+                    self.add_variant(
+                        entry, {"str": collapsed, "type": "initial-collapse"}
+                    )
                 else:
                     # Avoid duplicates
                     existing = [v.get("str") for v in entry["Variants"]["Synthesised"]]
@@ -450,7 +457,9 @@ class A1_AngloSphere(RegionSpec):
 
         return components
 
-    def _generate_collapsed_variant(self, name: str, components: Dict[str, Any]) -> Optional[str]:
+    def _generate_collapsed_variant(
+        self, name: str, components: Dict[str, Any]
+    ) -> Optional[str]:
         """
         Rule 18: Anglo Middle-Initial Collapse – John C. clusters with John.
 
@@ -470,7 +479,8 @@ class A1_AngloSphere(RegionSpec):
         # Pattern 1: Traditional middle initials (e.g., "John C.")
         has_middle_initial = (
             any(
-                len(part) <= 2 and (part.endswith(".") or (len(part) == 1 and part.isupper()))
+                len(part) <= 2
+                and (part.endswith(".") or (len(part) == 1 and part.isupper()))
                 for part in given_parts[1:]
             )
             if len(given_parts) > 1

@@ -34,7 +34,9 @@ class TestCJKRoundTrip:
 
         for chinese, expected in test_cases:
             result = self.roundtrip.romanize(chinese)
-            assert expected in result, f"Failed to romanize {chinese} to {expected}, got {result}"
+            assert (
+                expected in result
+            ), f"Failed to romanize {chinese} to {expected}, got {result}"
 
     @pytest.mark.timeout(15)
     def test_korean_surname_romanization(self):
@@ -49,7 +51,9 @@ class TestCJKRoundTrip:
 
         for korean, expected in test_cases:
             result = self.roundtrip.romanize(korean)
-            assert expected in result, f"Failed to romanize {korean} to {expected}, got {result}"
+            assert (
+                expected in result
+            ), f"Failed to romanize {korean} to {expected}, got {result}"
 
     @pytest.mark.timeout(15)
     def test_japanese_surname_romanization(self):
@@ -64,7 +68,9 @@ class TestCJKRoundTrip:
 
         for japanese, expected in test_cases:
             result = self.roundtrip.romanize(japanese)
-            assert expected in result, f"Failed to romanize {japanese} to {expected}, got {result}"
+            assert (
+                expected in result
+            ), f"Failed to romanize {japanese} to {expected}, got {result}"
 
     @pytest.mark.timeout(15)
     def test_dice_coefficient_calculation(self):
@@ -75,7 +81,9 @@ class TestCJKRoundTrip:
 
         # Test completely different strings
         score = self.roundtrip.dice_coefficient("abc", "xyz")
-        assert score == 0.0, "Completely different strings should have Dice coefficient of 0.0"
+        assert (
+            score == 0.0
+        ), "Completely different strings should have Dice coefficient of 0.0"
 
         # Test similar strings
         score = self.roundtrip.dice_coefficient("hello", "hallo")

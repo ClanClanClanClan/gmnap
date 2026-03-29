@@ -31,7 +31,9 @@ def test_wikidata_contract():
 
 
 @pytest.mark.live
-@pytest.mark.skipif(not LIVE or os.getenv("OAI_BASE_URL") is None, reason="Need OAI_BASE_URL")
+@pytest.mark.skipif(
+    not LIVE or os.getenv("OAI_BASE_URL") is None, reason="Need OAI_BASE_URL"
+)
 def test_oai_identify_contract():
     out = OAI_University().query()
     assert out.get("ok")
@@ -51,7 +53,9 @@ def test_hal_contract():
 
 
 @pytest.mark.live
-@pytest.mark.skipif(not LIVE or os.getenv("GND_SRU_URL") is None, reason="Need GND_SRU_URL")
+@pytest.mark.skipif(
+    not LIVE or os.getenv("GND_SRU_URL") is None, reason="Need GND_SRU_URL"
+)
 def test_gnd_contract():
     out = GND().query()
     assert out.get("ok")
@@ -60,7 +64,9 @@ def test_gnd_contract():
 
 
 @pytest.mark.live
-@pytest.mark.skipif(not LIVE or os.getenv("ZBMATH_API_URL") is None, reason="Need ZBMATH_API_URL")
+@pytest.mark.skipif(
+    not LIVE or os.getenv("ZBMATH_API_URL") is None, reason="Need ZBMATH_API_URL"
+)
 def test_zbmath_contract():
     out = zbMATH_Open().query()
     assert out.get("ok")

@@ -36,7 +36,9 @@ async def profile_pipeline():
     print(f"\nResults:")
     print(f"  Duration: {duration:.2f} seconds")
     print(f"  Entries/sec: {len(test_data)/duration:.1f}")
-    print(f"  Projected 1M time: {(1000000 * duration / len(test_data) / 60):.1f} minutes")
+    print(
+        f"  Projected 1M time: {(1000000 * duration / len(test_data) / 60):.1f} minutes"
+    )
     print(f"  Success rate: {result['metrics']['success_rate']:.1%}")
 
     # Show stage timings
@@ -93,7 +95,9 @@ def main():
                         if len(func_name) > 60:
                             func_name = func_name[:57] + "..."
 
-                        print(f"  {cumtime:6.2f}s  {tottime:6.2f}s  {ncalls:>8}  {func_name}")
+                        print(
+                            f"  {cumtime:6.2f}s  {tottime:6.2f}s  {ncalls:>8}  {func_name}"
+                        )
                 except (ValueError, IndexError):
                     pass
 

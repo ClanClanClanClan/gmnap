@@ -38,7 +38,9 @@ class RegionHooksStage:
             config = context.get("config", {})
 
             if not regional_assignments:
-                raise RegionalProcessingError("No regional assignments found from Stage 2")
+                raise RegionalProcessingError(
+                    "No regional assignments found from Stage 2"
+                )
 
             # Initialize processing statistics
             processing_stats = {
@@ -56,7 +58,9 @@ class RegionHooksStage:
 
             for region_code, region_records in regional_data.items():
                 try:
-                    region_results = self._process_region_data(region_code, region_records, config)
+                    region_results = self._process_region_data(
+                        region_code, region_records, config
+                    )
                     processed_data.extend(region_results)
                     processing_stats["processed_records"] += len(region_results)
 
@@ -83,7 +87,9 @@ class RegionHooksStage:
             return context
 
         except Exception as e:
-            raise RegionalProcessingError(f"Stage 3 regional processing failed: {str(e)}")
+            raise RegionalProcessingError(
+                f"Stage 3 regional processing failed: {str(e)}"
+            )
 
     def _group_by_region(
         self, data: List[Dict[str, Any]], assignments: List[Dict[str, Any]]
@@ -116,7 +122,9 @@ class RegionHooksStage:
             # Get regional processor
             region_processor = self.region_manager.get_region(region_code)
             if not region_processor:
-                raise RegionalProcessingError(f"Regional processor {region_code} not found")
+                raise RegionalProcessingError(
+                    f"Regional processor {region_code} not found"
+                )
 
             # Process each record through the regional processor
             processed_records = []
@@ -136,7 +144,9 @@ class RegionHooksStage:
                     record["processing_status"] = "regional_failed"
                     record["assigned_region"] = region_code
                     processed_records.append(record)
-                    logger.warning(f"Record processing failed in {region_code}: {str(e)}")
+                    logger.warning(
+                        f"Record processing failed in {region_code}: {str(e)}"
+                    )
 
             # Update processing statistics
             processing_time = time.time() - start_time
@@ -166,7 +176,9 @@ class RegionHooksStage:
         """Process a single record through the regional processor"""
         try:
             # Remove internal assignment info from the record
-            processing_record = {k: v for k, v in record.items() if not k.startswith("_")}
+            processing_record = {
+                k: v for k, v in record.items() if not k.startswith("_")
+            }
 
             # Execute the v7.0 regional processing pipeline: clean → augment → validate → order_key
 
@@ -203,7 +215,9 @@ class RegionHooksStage:
                 "assignment_info": record.get("_assignment_info", {}),
                 "processing_timestamp": time.time(),
             }
-            raise RegionalProcessingError(f"Regional processing failed for record: {str(e)}")
+            raise RegionalProcessingError(
+                f"Regional processing failed for record: {str(e)}"
+            )
 
     def _calculate_final_stats(self, processing_stats: Dict[str, Any]) -> None:
         """Calculate final processing statistics"""
@@ -213,7 +227,9 @@ class RegionHooksStage:
             processing_stats["regional_processing_time"][region_code] = stats.get(
                 "processing_time", 0
             )
-            processing_stats["regional_success_rate"][region_code] = stats.get("success_rate", 0)
+            processing_stats["regional_success_rate"][region_code] = stats.get(
+                "success_rate", 0
+            )
 
         # Calculate overall success rate
         total_records = processing_stats["total_records"]
@@ -236,7 +252,8 @@ class RegionHooksStage:
         # Performance metrics
         if processing_stats["total_processing_time"] > 0:
             processing_stats["records_per_second"] = (
-                processing_stats["processed_records"] / processing_stats["total_processing_time"]
+                processing_stats["processed_records"]
+                / processing_stats["total_processing_time"]
             )
         else:
             processing_stats["records_per_second"] = 0

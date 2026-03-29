@@ -20,10 +20,16 @@ async def test_basic_streaming():
     print("🧪 TESTING: Basic V7 streaming pipeline")
 
     try:
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig, test_data_generator
+        from src.core.streaming_v7 import (
+            V7StreamingPipeline,
+            StreamingConfig,
+            test_data_generator,
+        )
 
         # Create minimal config for testing
-        config = StreamingConfig(batch_size=10, parallel_workers=2, database_batch_size=5)
+        config = StreamingConfig(
+            batch_size=10, parallel_workers=2, database_batch_size=5
+        )
 
         # Generate small test dataset
         data_source = test_data_generator(count=50)
@@ -56,10 +62,15 @@ async def test_performance_targets():
     print("\n🧪 TESTING: Streaming performance targets")
 
     try:
-        from src.core.streaming_v7 import benchmark_streaming_performance, StreamingConfig
+        from src.core.streaming_v7 import (
+            benchmark_streaming_performance,
+            StreamingConfig,
+        )
 
         # Performance test with larger dataset
-        config = StreamingConfig(batch_size=100, parallel_workers=8, database_batch_size=50)
+        config = StreamingConfig(
+            batch_size=100, parallel_workers=8, database_batch_size=50
+        )
 
         # Run benchmark
         benchmark_results = await benchmark_streaming_performance(1000, config)
@@ -69,8 +80,12 @@ async def test_performance_targets():
         quality = benchmark_results["quality_assessment"]
 
         print(f"PASS Performance benchmark completed:")
-        print(f"   Throughput: {perf['wall_clock_throughput_per_second']:.1f} entries/sec")
-        print(f"   Peak throughput: {perf['peak_throughput_per_second']:.1f} entries/sec")
+        print(
+            f"   Throughput: {perf['wall_clock_throughput_per_second']:.1f} entries/sec"
+        )
+        print(
+            f"   Peak throughput: {perf['peak_throughput_per_second']:.1f} entries/sec"
+        )
         print(f"   Average latency: {perf['average_latency_ms']:.1f}ms")
         print(f"   Success rate: {perf['success_rate_percent']:.1f}%")
         print(f"   Overall grade: {quality['overall_grade']}")
@@ -91,10 +106,14 @@ async def test_performance_targets():
         # Target 2: Low latency (<5 seconds)
         total_targets += 1
         if perf["average_latency_ms"] <= 5000:
-            print(f"   PASS Latency target: {perf['average_latency_ms']:.1f}ms (<=5000ms)")
+            print(
+                f"   PASS Latency target: {perf['average_latency_ms']:.1f}ms (<=5000ms)"
+            )
             targets_met += 1
         else:
-            print(f"   FAIL Latency target: {perf['average_latency_ms']:.1f}ms (>5000ms)")
+            print(
+                f"   FAIL Latency target: {perf['average_latency_ms']:.1f}ms (>5000ms)"
+            )
 
         # Target 3: High success rate (>=99%)
         total_targets += 1
@@ -117,7 +136,11 @@ async def test_database_integration():
     print("\n🧪 TESTING: Database integration with streaming")
 
     try:
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig, test_data_generator
+        from src.core.streaming_v7 import (
+            V7StreamingPipeline,
+            StreamingConfig,
+            test_data_generator,
+        )
         from src.core.memgraph_client import MemgraphClient
 
         # Count initial database entries
@@ -166,7 +189,11 @@ async def test_concurrent_streaming():
     print("\n🧪 TESTING: Concurrent streaming instances")
 
     try:
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig, test_data_generator
+        from src.core.streaming_v7 import (
+            V7StreamingPipeline,
+            StreamingConfig,
+            test_data_generator,
+        )
 
         # Create multiple pipeline instances
         config = StreamingConfig(batch_size=20, parallel_workers=4)

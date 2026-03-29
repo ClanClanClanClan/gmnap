@@ -429,7 +429,9 @@ class ComprehensiveTestSuite:
                         # Should have failed but didn't
                         self.results["failed"] += 1
                         self.results["region_stats"][region_code]["failed"] += 1
-                        self.record_error(f"{region_code}: {name}", "Expected to fail but passed")
+                        self.record_error(
+                            f"{region_code}: {name}", "Expected to fail but passed"
+                        )
                         print(f"  ✗ {name[:50]} - Expected to fail but passed")
 
                 except RegionRuleError as e:
@@ -448,7 +450,9 @@ class ComprehensiveTestSuite:
                 except Exception as e:
                     self.results["failed"] += 1
                     self.results["region_stats"][region_code]["failed"] += 1
-                    self.record_error(f"{region_code}: {name}", f"Unexpected error: {e}")
+                    self.record_error(
+                        f"{region_code}: {name}", f"Unexpected error: {e}"
+                    )
                     print(f"  ✗ {name[:50]} - Unexpected error: {e}")
 
     @pytest.mark.timeout(15)
@@ -657,18 +661,27 @@ class ComprehensiveTestSuite:
         """Test that variants are generated correctly."""
         variant_tests = {
             "A1": [
-                ("Smith, John William", ["Smith, J. W.", "Smith, John W.", "Smith, J. William"]),
+                (
+                    "Smith, John William",
+                    ["Smith, J. W.", "Smith, John W.", "Smith, J. William"],
+                ),
                 (
                     "O'Brien, Mary Catherine",
                     ["O'Brien, M. C.", "O'Brien, Mary C.", "O'Brien, M. Catherine"],
                 ),
             ],
             "C4": [
-                ("Muhammad bin Salman Al-Saud", ["Muhammad Al-Saud", "محمد بن سلمان آل سعود"]),
+                (
+                    "Muhammad bin Salman Al-Saud",
+                    ["Muhammad Al-Saud", "محمد بن سلمان آل سعود"],
+                ),
                 ("Fatima bint Rashid", ["Fatima", "فاطمة بنت راشد"]),
             ],
             "D1": [
-                ("राजेश कुमार शर्मा", ["Rajesh Kumar Sharma", "R. K. Sharma", "राजेश शर्मा"]),
+                (
+                    "राजेश कुमार शर्मा",
+                    ["Rajesh Kumar Sharma", "R. K. Sharma", "राजेश शर्मा"],
+                ),
                 ("प्रिया सिंह", ["Priya Singh", "P. Singh"]),
             ],
         }
@@ -802,7 +815,9 @@ class ComprehensiveTestSuite:
             else:
                 self.results["failed"] += 1
                 print(f"  ✗ {region_code}: {avg_ms:.3f}ms per entry - TOO SLOW")
-                self.record_warning(f"{region_code} performance", f"{avg_ms:.3f}ms per entry")
+                self.record_warning(
+                    f"{region_code} performance", f"{avg_ms:.3f}ms per entry"
+                )
 
     @pytest.mark.timeout(15)
     def test_concurrent_safety(self):
@@ -1077,7 +1092,9 @@ class ComprehensiveTestSuite:
                 print(f"    ✓ Consistent behavior across regions")
             else:
                 print(f"    WARN  Inconsistent behavior: {results}")
-                self.record_warning(test_group["feature"], f"Inconsistent behavior: {results}")
+                self.record_warning(
+                    test_group["feature"], f"Inconsistent behavior: {results}"
+                )
 
     def _is_non_latin_script(self, text: str) -> bool:
         """Check if text contains non-Latin scripts."""
@@ -1115,12 +1132,16 @@ class ComprehensiveTestSuite:
 
         # Per-region breakdown
         print("\nPer-Region Results:")
-        print(f"{'Region':<10} {'Tests':<10} {'Passed':<10} {'Failed':<10} {'Pass Rate':<10}")
+        print(
+            f"{'Region':<10} {'Tests':<10} {'Passed':<10} {'Failed':<10} {'Pass Rate':<10}"
+        )
         print("-" * 50)
 
         for region in sorted(self.results["region_stats"].keys()):
             stats = self.results["region_stats"][region]
-            pass_rate = stats["passed"] / stats["tests"] * 100 if stats["tests"] > 0 else 0
+            pass_rate = (
+                stats["passed"] / stats["tests"] * 100 if stats["tests"] > 0 else 0
+            )
             print(
                 f"{region:<10} {stats['tests']:<10} {stats['passed']:<10} {stats['failed']:<10} {pass_rate:<10.1f}%"
             )

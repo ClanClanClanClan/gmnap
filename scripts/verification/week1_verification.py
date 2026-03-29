@@ -86,7 +86,9 @@ def check_regional_processors() -> Tuple[bool, str]:
             print(f"  ❌ B1 Russian error: {e}")
 
         success = len(working_regions) >= 2
-        message = f"Working regions: {len(working_regions)}/3 ({', '.join(working_regions)})"
+        message = (
+            f"Working regions: {len(working_regions)}/3 ({', '.join(working_regions)})"
+        )
 
         if success:
             print(f"\n  ✅ PASS: {message}")

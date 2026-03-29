@@ -69,12 +69,16 @@ class DetectRegionStage:
                             "record_index": i,
                             "record_id": record.get("GlobalID", f"record_{i}"),
                             "assignments": assignments,
-                            "primary_region": assignments[0][0] if assignments else "R0",
+                            "primary_region": (
+                                assignments[0][0] if assignments else "R0"
+                            ),
                         }
                     )
 
                 except Exception as e:
-                    logger.warning(f"Regional detection failed for record {i}: {str(e)}")
+                    logger.warning(
+                        f"Regional detection failed for record {i}: {str(e)}"
+                    )
                     # Fallback to residual processor
                     regional_assignments.append(
                         {
@@ -96,7 +100,9 @@ class DetectRegionStage:
         except Exception as e:
             raise RegionalDetectionError(f"Stage 2 regional detection failed: {str(e)}")
 
-    def _detect_regions_for_record(self, record: Dict[str, Any]) -> List[Tuple[str, float, str]]:
+    def _detect_regions_for_record(
+        self, record: Dict[str, Any]
+    ) -> List[Tuple[str, float, str]]:
         """
         Detect appropriate regions for a single record
 
@@ -152,7 +158,9 @@ class DetectRegionStage:
                 if script in region_mappings:
                     for region_code, confidence_multiplier in region_mappings[script]:
                         final_confidence = score * confidence_multiplier
-                        assignments.append((region_code, final_confidence, f"script_{script}"))
+                        assignments.append(
+                            (region_code, final_confidence, f"script_{script}")
+                        )
 
         return assignments
 
@@ -169,14 +177,18 @@ class DetectRegionStage:
                 if lang_code in region_mappings:
                     for region_code, multiplier in region_mappings[lang_code]:
                         final_confidence = confidence * multiplier
-                        assignments.append((region_code, final_confidence, f"language_{lang_code}"))
+                        assignments.append(
+                            (region_code, final_confidence, f"language_{lang_code}")
+                        )
 
         except Exception as e:
             print(f"Language detection failed: {str(e)}")
 
         return assignments
 
-    def _detect_by_patterns(self, record: Dict[str, Any]) -> List[Tuple[str, float, str]]:
+    def _detect_by_patterns(
+        self, record: Dict[str, Any]
+    ) -> List[Tuple[str, float, str]]:
         """Detect region based on name patterns and structure"""
         assignments = []
 
@@ -210,7 +222,9 @@ class DetectRegionStage:
 
         return assignments
 
-    def _detect_by_context(self, record: Dict[str, Any]) -> List[Tuple[str, float, str]]:
+    def _detect_by_context(
+        self, record: Dict[str, Any]
+    ) -> List[Tuple[str, float, str]]:
         """Detect region based on contextual information"""
         assignments = []
 
@@ -281,7 +295,9 @@ class DetectRegionStage:
                 script_counts["other"] += 1
 
         total_chars = len(text)
-        script_ratios = {script: count / total_chars for script, count in script_counts.items()}
+        script_ratios = {
+            script: count / total_chars for script, count in script_counts.items()
+        }
 
         return script_ratios
 
@@ -297,7 +313,11 @@ class DetectRegionStage:
             "hebrew": [("C6", 0.95)],
             "devanagari": [("D1", 0.9), ("D3", 0.7)],
             "thai": [("E6", 0.95)],
-            "latin": [("A1", 0.6), ("A2", 0.6), ("G1", 0.5)],  # Lower confidence for Latin
+            "latin": [
+                ("A1", 0.6),
+                ("A2", 0.6),
+                ("G1", 0.5),
+            ],  # Lower confidence for Latin
         }
 
     def _get_language_to_region_mappings(self) -> Dict[str, List[Tuple[str, float]]]:
@@ -321,7 +341,9 @@ class DetectRegionStage:
             "it": [("A2", 0.7)],
         }
 
-    def _pattern_to_region_confidence(self, pattern_name: str) -> List[Tuple[str, float, str]]:
+    def _pattern_to_region_confidence(
+        self, pattern_name: str
+    ) -> List[Tuple[str, float, str]]:
         """Convert pattern matches to region confidence scores"""
         pattern_mappings = {
             "surname_first": [("A1", 0.7, "pattern_surname_first")],
@@ -336,8 +358,14 @@ class DetectRegionStage:
                 ("E2", 0.6, "pattern_chinese_surname"),
             ],
             "japanese_patterns": [("E3", 0.8, "pattern_japanese_surname")],
-            "arabic_patterns": [("C3", 0.7, "pattern_arabic"), ("C4", 0.7, "pattern_arabic")],
-            "slavic_patterns": [("B1", 0.7, "pattern_slavic"), ("B2", 0.7, "pattern_slavic")],
+            "arabic_patterns": [
+                ("C3", 0.7, "pattern_arabic"),
+                ("C4", 0.7, "pattern_arabic"),
+            ],
+            "slavic_patterns": [
+                ("B1", 0.7, "pattern_slavic"),
+                ("B2", 0.7, "pattern_slavic"),
+            ],
         }
 
         return pattern_mappings.get(pattern_name, [])
@@ -366,7 +394,9 @@ class DetectRegionStage:
 
         return detected
 
-    def _detect_institution_region(self, institution: str) -> List[Tuple[str, float, str]]:
+    def _detect_institution_region(
+        self, institution: str
+    ) -> List[Tuple[str, float, str]]:
         """Detect region based on institution name"""
         assignments = []
 
@@ -395,7 +425,15 @@ class DetectRegionStage:
 
         # Country/location mappings
         location_mappings = {
-            "A1": ["usa", "united states", "canada", "australia", "new zealand", "uk", "britain"],
+            "A1": [
+                "usa",
+                "united states",
+                "canada",
+                "australia",
+                "new zealand",
+                "uk",
+                "britain",
+            ],
             "A2": ["germany", "france", "italy", "spain", "netherlands", "belgium"],
             "E1": ["china", "prc", "mainland china"],
             "E2": ["taiwan", "hong kong", "singapore"],
@@ -442,7 +480,9 @@ class DetectRegionStage:
                 region_best[region] = (confidence, method)
 
         # Convert back to list and sort by confidence
-        result = [(region, conf, method) for region, (conf, method) in region_best.items()]
+        result = [
+            (region, conf, method) for region, (conf, method) in region_best.items()
+        ]
         result.sort(key=lambda x: x[1], reverse=True)
 
         return result

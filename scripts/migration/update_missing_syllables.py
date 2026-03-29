@@ -7,7 +7,12 @@ import yaml
 import csv
 from pathlib import Path
 
-E4_ROOT = Path(__file__).parent.parent.parent.rstrip(".").parent.rstrip(".").parent.rstrip(".")
+E4_ROOT = (
+    Path(__file__)
+    .parent.parent.parent.rstrip(".")
+    .parent.rstrip(".")
+    .parent.rstrip(".")
+)
 
 
 def get_missing_syllables():
@@ -42,7 +47,9 @@ def get_missing_syllables():
 
         for token in tokens:
             token_lower = token.lower()
-            if token_lower not in existing and token_lower not in [s[0] for s in missing]:
+            if token_lower not in existing and token_lower not in [
+                s[0] for s in missing
+            ]:
                 # Try to find the expected Hangul
                 missing.append((token_lower, ""))  # We'll need to map these manually
 

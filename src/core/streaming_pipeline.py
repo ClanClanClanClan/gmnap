@@ -29,7 +29,9 @@ class StreamingPipelineAdapter:
         self._sem = asyncio.Semaphore(inflight_limit)
 
     async def run_stream(
-        self, it: Iterable[Dict[str, Any]] | AsyncIterable[Dict[str, Any]], sink: SinkFunc
+        self,
+        it: Iterable[Dict[str, Any]] | AsyncIterable[Dict[str, Any]],
+        sink: SinkFunc,
     ) -> Dict[str, Any]:
         start = time.perf_counter()
         processed = 0

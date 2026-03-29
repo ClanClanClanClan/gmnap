@@ -131,7 +131,9 @@ async def test_v7_pipeline_config_stage():
 
         print("  PASS Stage 0 (Config) executed successfully")
         print(f"    - License valid: {getattr(pipeline, 'license_valid', False)}")
-        print(f"    - DOI credentials: {getattr(pipeline, 'doi_credentials_valid', False)}")
+        print(
+            f"    - DOI credentials: {getattr(pipeline, 'doi_credentials_valid', False)}"
+        )
         print(f"    - V7 specs loaded: {'v7_specs' in dir(pipeline)}")
 
         return True
@@ -165,7 +167,9 @@ async def test_v7_pipeline_basic_processing():
             # Stage 1: Ingest
             if hasattr(pipeline, "_stage_1_ingest"):
                 results = await pipeline._stage_1_ingest(test_entries)
-                print(f"    PASS Stage 1 (Ingest) passed - processed {len(results)} entries")
+                print(
+                    f"    PASS Stage 1 (Ingest) passed - processed {len(results)} entries"
+                )
 
             return True
 

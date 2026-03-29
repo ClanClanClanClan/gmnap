@@ -154,7 +154,9 @@ class RapidCollector:
         print(f"✅ Collected {len(profiles)} unique arXiv authors\n")
         return profiles
 
-    def collect_orcid(self, client_id: str, client_secret: str, n: int = 500) -> List[Dict]:
+    def collect_orcid(
+        self, client_id: str, client_secret: str, n: int = 500
+    ) -> List[Dict]:
         """Collect mathematician profiles from ORCID."""
         print(f"\n{'='*80}")
         print(f"COLLECTING FROM ORCID (target: {n} profiles)")
@@ -195,7 +197,10 @@ class RapidCollector:
                     "start": start,
                     "rows": rows,
                 },
-                headers={"Authorization": f"Bearer {access_token}", "Accept": "application/json"},
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Accept": "application/json",
+                },
             )
 
             if search_response.status_code != 200:
@@ -244,14 +249,22 @@ class RapidCollector:
 
                             # Safe address extraction
                             addresses = profile_data.get("addresses", {})
-                            address_list = addresses.get("address", []) if addresses else []
+                            address_list = (
+                                addresses.get("address", []) if addresses else []
+                            )
                             country = None
                             if address_list and len(address_list) > 0:
                                 country_obj = address_list[0].get("country", {})
-                                country = country_obj.get("value") if country_obj else None
+                                country = (
+                                    country_obj.get("value") if country_obj else None
+                                )
 
                             profiles.append(
-                                {"name": name, "country_code": country, "source": "orcid"}
+                                {
+                                    "name": name,
+                                    "country_code": country,
+                                    "source": "orcid",
+                                }
                             )
                     except (AttributeError, KeyError, TypeError, IndexError) as e:
                         # Log and skip problematic profiles
@@ -315,7 +328,9 @@ class RapidCollector:
                 "collection_date": time.strftime("%Y-%m-%d"),
                 "sources": dict(source_counts),
                 "top_countries": dict(
-                    sorted(country_counts.items(), key=lambda x: x[1], reverse=True)[:20]
+                    sorted(country_counts.items(), key=lambda x: x[1], reverse=True)[
+                        :20
+                    ]
                 ),
             },
             "profiles": profiles,

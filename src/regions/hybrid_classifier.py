@@ -263,7 +263,9 @@ class HybridRegionClassifier:
             if name:
                 try:
                     # Get top-k from ML
-                    pred = self.phase2.predict(name, k=k * 2)  # Get 2x for deduplication
+                    pred = self.phase2.predict(
+                        name, k=k * 2
+                    )  # Get 2x for deduplication
 
                     for i in range(min(k * 2, len(pred[0]))):
                         ml_region = pred[0][i].replace("__label__", "")
@@ -285,11 +287,16 @@ class HybridRegionClassifier:
         seen_regions = {}
         for result in results:
             region = result.region_code
-            if region not in seen_regions or result.confidence > seen_regions[region].confidence:
+            if (
+                region not in seen_regions
+                or result.confidence > seen_regions[region].confidence
+            ):
                 seen_regions[region] = result
 
         # Sort by confidence
-        topk_results = sorted(seen_regions.values(), key=lambda x: x.confidence, reverse=True)[:k]
+        topk_results = sorted(
+            seen_regions.values(), key=lambda x: x.confidence, reverse=True
+        )[:k]
 
         return topk_results
 
@@ -330,7 +337,9 @@ class HybridRegionClassifier:
             "total_regions": 37,
             "phase2_preferred_regions": len(self.PHASE2_PREFERRED),
             "phase1_preferred_regions": len(self.PHASE1_PREFERRED),
-            "default_regions": 37 - len(self.PHASE2_PREFERRED) - len(self.PHASE1_PREFERRED),
+            "default_regions": 37
+            - len(self.PHASE2_PREFERRED)
+            - len(self.PHASE1_PREFERRED),
             "expected_phase2_accuracy": "85-95% (non-Latin scripts)",
             "expected_phase1_accuracy": "75-85% (Latin scripts, surname patterns)",
             "expected_hybrid_accuracy": "82-88% (overall, based on v4_optimized + surname patterns)",
@@ -383,7 +392,9 @@ if __name__ == "__main__":
     for name, expected, expected_method in test_names:
         result = classifier.detect_region({"CanonicalNative": name})
         status = "✅" if result.region_code == expected else "❌"
-        method_match = "✓" if expected_method.lower() in result.detection_method else "✗"
+        method_match = (
+            "✓" if expected_method.lower() in result.detection_method else "✗"
+        )
 
         print(
             f"  {status} {name:20} → {result.region_code} (conf: {result.confidence:.3f}) [{result.detection_method}] {method_match}"

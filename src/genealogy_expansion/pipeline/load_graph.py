@@ -3,7 +3,9 @@ import json, os
 from neo4j import GraphDatabase
 
 
-def get_driver(uri: str = "bolt://localhost:7687", user: str = None, password: str = None):
+def get_driver(
+    uri: str = "bolt://localhost:7687", user: str = None, password: str = None
+):
     auth = (user, password) if user or password else None
     return GraphDatabase.driver(uri, auth=auth)
 
@@ -25,7 +27,11 @@ def run(db_type: str = "memgraph"):
 
         try:
             idx = open(idx_file, "r", encoding="utf-8").read()
-            for stmt in [s for s in idx.split(";") if s.strip() and not s.strip().startswith("--")]:
+            for stmt in [
+                s
+                for s in idx.split(";")
+                if s.strip() and not s.strip().startswith("--")
+            ]:
                 try:
                     sess.run(stmt)
                 except Exception as e:

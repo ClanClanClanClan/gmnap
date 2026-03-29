@@ -86,7 +86,9 @@ for i, name in enumerate(test_names):
             print(
                 f"  {i+1:,} ops: {current_memory:.1f} MB (+{memory_growth:.1f} MB, {leak_rate:.3f} MB/1K ops)"
             )
-            print(f"    Rate limiter cleanup: {cleanup_stats['clients_removed']} clients removed")
+            print(
+                f"    Rate limiter cleanup: {cleanup_stats['clients_removed']} clients removed"
+            )
 
             memory_points.append(
                 {
@@ -170,7 +172,9 @@ if memory_points:
     final_rl = global_rate_limiter.get_memory_stats()
 
     print(f"\n📈 FINAL SYSTEM STATE:")
-    print(f"   Cache: {final_cache['cache_size']:,}/{final_cache['cache_max_size']:,} entries")
+    print(
+        f"   Cache: {final_cache['cache_size']:,}/{final_cache['cache_max_size']:,} entries"
+    )
     print(f"   Hit rate: {final_cache['hit_rate']:.1%}")
     print(
         f"   Rate limiter: {final_rl['total_clients']} clients, {final_rl['estimated_memory_kb']} KB"

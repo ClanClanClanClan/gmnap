@@ -164,7 +164,11 @@ class Z0_Quarantine(RegionSpec):
 # Create directories and files
 regions_to_create = [
     ("src/regions/special/h1_historical", "H1_Historical", h1_content),
-    ("src/regions/special/r0_residual_latin_ascii", "R0_ResidualLatinAscii", r0_content),
+    (
+        "src/regions/special/r0_residual_latin_ascii",
+        "R0_ResidualLatinAscii",
+        r0_content,
+    ),
     ("src/regions/special/z0_quarantine", "Z0_Quarantine", z0_content),
 ]
 

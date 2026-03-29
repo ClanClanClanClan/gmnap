@@ -49,9 +49,12 @@ if __name__ == "__main__":
         print("No mappings found")
     else:
         for m in mappings:
-            pos_desc = {"S": "surname", "G": "given", "SG": "both", "": "general/unspecified"}.get(
-                m["pos"], f"unknown({m['pos']})"
-            )
+            pos_desc = {
+                "S": "surname",
+                "G": "given",
+                "SG": "both",
+                "": "general/unspecified",
+            }.get(m["pos"], f"unknown({m['pos']})")
 
             print(f"\n{hangul} → {m['roman']}")
             print(f"  Weight: {m['weight']}")
@@ -64,7 +67,9 @@ if __name__ == "__main__":
         new_roman = sys.argv[2]
         new_pos = sys.argv[3] if len(sys.argv) > 3 else "G"
 
-        print(f"\n=== Conflict check for new mapping: {hangul} → {new_roman} (pos={new_pos}) ===")
+        print(
+            f"\n=== Conflict check for new mapping: {hangul} → {new_roman} (pos={new_pos}) ==="
+        )
 
         conflicts = []
         for m in mappings:

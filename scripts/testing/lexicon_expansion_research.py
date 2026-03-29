@@ -408,7 +408,15 @@ LEXICON_EXPANSION = {
             },
         },
         "MEDIUM": {
-            "surnames": {"berg", "lund", "dahl", "holmberg", "strand", "lindqvist", "holm"},
+            "surnames": {
+                "berg",
+                "lund",
+                "dahl",
+                "holmberg",
+                "strand",
+                "lindqvist",
+                "holm",
+            },
         },
     },
     "A4": {  # Oceania (Australia, New Zealand, Pacific Islands)
@@ -472,7 +480,15 @@ LEXICON_EXPANSION = {
         },
         "MEDIUM": {
             # Common Anglo surnames in Oceania
-            "surnames": {"williams", "smith", "brown", "jones", "wilson", "taylor", "o'brien"},
+            "surnames": {
+                "williams",
+                "smith",
+                "brown",
+                "jones",
+                "wilson",
+                "taylor",
+                "o'brien",
+            },
         },
     },
     "A5": {  # Caribbean (English/French/Dutch Caribbean)
@@ -660,7 +676,16 @@ LEXICON_EXPANSION = {
     },
     "B3": {  # Greek & Cypriot
         "STRONG": {
-            "surname_suffix": {"os", "as", "is", "ou", "poulos", "akis", "opoulos", "ides"},
+            "surname_suffix": {
+                "os",
+                "as",
+                "is",
+                "ou",
+                "poulos",
+                "akis",
+                "opoulos",
+                "ides",
+            },
             "surnames": {
                 "papadopoulos",
                 "papadakis",
@@ -1251,8 +1276,27 @@ LEXICON_EXPANSION = {
     # ========== E GROUP: EAST/SOUTHEAST ASIA ==========
     "E3": {  # Japan
         "STRONG": {
-            "surname_suffix": {"moto", "kawa", "zaki", "hara", "mura", "yama", "da", "ta"},
-            "given_suffix": {"taro", "jiro", "ko", "hiko", "moto", "nori", "ki", "mi", "ya"},
+            "surname_suffix": {
+                "moto",
+                "kawa",
+                "zaki",
+                "hara",
+                "mura",
+                "yama",
+                "da",
+                "ta",
+            },
+            "given_suffix": {
+                "taro",
+                "jiro",
+                "ko",
+                "hiko",
+                "moto",
+                "nori",
+                "ki",
+                "mi",
+                "ya",
+            },
             "surnames": {
                 "sato",
                 "suzuki",

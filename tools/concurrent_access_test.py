@@ -12,7 +12,9 @@ def worker(c: TTLCache, idx: int, loops: int = 1000):
 
 if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as td:
-        c = TTLCache(path=os.path.join(td, "c.db"), namespace="T", capacity=10000, ttl_seconds=10)
+        c = TTLCache(
+            path=os.path.join(td, "c.db"), namespace="T", capacity=10000, ttl_seconds=10
+        )
         ths = [threading.Thread(target=worker, args=(c, i)) for i in range(8)]
         [t.start() for t in ths]
         [t.join() for t in ths]

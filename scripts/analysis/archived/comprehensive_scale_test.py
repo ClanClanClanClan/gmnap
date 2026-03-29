@@ -57,7 +57,9 @@ class ScaleTester:
 
         return entries
 
-    async def test_scale(self, entry_count: int, batch_size: int = 1000) -> Dict[str, Any]:
+    async def test_scale(
+        self, entry_count: int, batch_size: int = 1000
+    ) -> Dict[str, Any]:
         """Test pipeline at specific scale"""
         print(f"\n{'='*80}")
         print(f"TESTING {entry_count:,} ENTRIES")
@@ -74,7 +76,9 @@ class ScaleTester:
 
         memory_after_generation = self.get_memory_usage()
         print(f"Memory after generation: {memory_after_generation:.2f} MB")
-        print(f"Memory used for entries: {memory_after_generation - initial_memory:.2f} MB")
+        print(
+            f"Memory used for entries: {memory_after_generation - initial_memory:.2f} MB"
+        )
 
         # Initialize pipeline
         print(f"\nInitializing pipeline (mode=QUICK, batch_size={batch_size})...")
@@ -148,7 +152,9 @@ class ScaleTester:
 
         total_time = time.time() - start_time
         final_memory = self.get_memory_usage()
-        peak_memory = max(self.process.memory_info().peak_wset / 1024 / 1024, final_memory)
+        peak_memory = max(
+            self.process.memory_info().peak_wset / 1024 / 1024, final_memory
+        )
 
         # Calculate statistics
         successful_batches = [b for b in batch_results if b["success"]]
@@ -184,7 +190,9 @@ class ScaleTester:
                 "used_mb": final_memory - initial_memory,
             },
             "sample_batches": (
-                batch_results[:5] + batch_results[-5:] if len(batch_results) > 10 else batch_results
+                batch_results[:5] + batch_results[-5:]
+                if len(batch_results) > 10
+                else batch_results
             ),
         }
 

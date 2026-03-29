@@ -43,7 +43,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.linguistic.rules_engine import LinguisticRulesEngine
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -293,7 +295,10 @@ class ValidationTestSuite:
                     "Confidence": 90,
                     "CountryCodes": ["US"],
                     "PrimaryMSC": [{"code": "11A05", "source": "zbMATH"}],
-                    "AuthorityIDs": {"ORCID": "0000-0000-0000-0000", "zbMATH": "smith.john-edward"},
+                    "AuthorityIDs": {
+                        "ORCID": "0000-0000-0000-0000",
+                        "zbMATH": "smith.john-edward",
+                    },
                     "LanguageOfPublication": ["eng", "fra"],
                 },
                 "expected_completeness": 100,
@@ -366,7 +371,10 @@ class ValidationTestSuite:
                 "name": "A1 - Valid Anglo Name",
                 "region": "A1",
                 "script": "Latin",
-                "input": {"CanonicalLatin": "O'Brien, Patrick Michael", "CountryCodes": ["IE"]},
+                "input": {
+                    "CanonicalLatin": "O'Brien, Patrick Michael",
+                    "CountryCodes": ["IE"],
+                },
                 "expected_valid": True,
             },
             {
@@ -436,7 +444,11 @@ class ValidationTestSuite:
                 "input": "Smith    John",
                 "expected_normalized": "Smith John",
             },
-            {"name": "Comma Spacing", "input": "Smith,John", "expected_normalized": "Smith, John"},
+            {
+                "name": "Comma Spacing",
+                "input": "Smith,John",
+                "expected_normalized": "Smith, John",
+            },
             {
                 "name": "Extra Punctuation",
                 "input": "Smith,, John",
@@ -470,7 +482,10 @@ class ValidationTestSuite:
                 {"code": "14H52", "source": "zbMATH"},
                 {"code": "32G15", "source": "MathSciNet"},
             ],
-            "AuthorityIDs": {"ORCID": "0000-0002-1234-5678", "zbMATH": "muller.hans-jurgen"},
+            "AuthorityIDs": {
+                "ORCID": "0000-0002-1234-5678",
+                "zbMATH": "muller.hans-jurgen",
+            },
             "LanguageOfPublication": ["eng", "deu", "fra"],
             "AffiliationTimeline": [
                 {
@@ -479,7 +494,12 @@ class ValidationTestSuite:
                     "institution": "University of Heidelberg",
                     "country": "DE",
                 },
-                {"from": 2000, "to": None, "institution": "ETH Zurich", "country": "CH"},
+                {
+                    "from": 2000,
+                    "to": None,
+                    "institution": "ETH Zurich",
+                    "country": "CH",
+                },
             ],
             "Variants": {
                 "Published": [
@@ -578,7 +598,9 @@ class ValidationTestSuite:
         """Run a single regional validation test."""
         self.results["total_tests"] += 1
 
-        results = self.regional.validate_entry(test["input"], test["region"], test["script"])
+        results = self.regional.validate_entry(
+            test["input"], test["region"], test["script"]
+        )
 
         errors = []
         for result in results:

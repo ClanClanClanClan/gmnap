@@ -429,12 +429,16 @@ def update_manager():
                         insert_pos = pos
 
                         # Create insertion text
-                        insert_text = "\n                # Real mathematician surnames\n"
+                        insert_text = (
+                            "\n                # Real mathematician surnames\n"
+                        )
                         for surname in sorted(surnames)[:20]:  # Add top 20
                             insert_text += f'                "{surname}",\n'
 
                         # Insert into content
-                        content = content[:insert_pos] + insert_text + content[insert_pos:]
+                        content = (
+                            content[:insert_pos] + insert_text + content[insert_pos:]
+                        )
                         break
                 pos += 1
 

@@ -30,7 +30,9 @@ class MathGenealogyCollector:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.session = requests.Session()
         self.session.headers.update(
-            {"User-Agent": "Mozilla/5.0 (Academic Research Bot; mailto:research@example.com)"}
+            {
+                "User-Agent": "Mozilla/5.0 (Academic Research Bot; mailto:research@example.com)"
+            }
         )
 
     def search_by_name(self, name: str) -> List[Dict]:
@@ -211,7 +213,9 @@ class MathGenealogyCollector:
 
         return None
 
-    def collect_by_id_range(self, start_id: int, end_id: int, sample_rate: int = 100) -> List[Dict]:
+    def collect_by_id_range(
+        self, start_id: int, end_id: int, sample_rate: int = 100
+    ) -> List[Dict]:
         """
         Collect profiles by sampling ID range.
 
@@ -223,7 +227,9 @@ class MathGenealogyCollector:
         Returns:
             List of profiles
         """
-        print(f"Collecting MGP profiles from ID {start_id} to {end_id} (every {sample_rate}th)")
+        print(
+            f"Collecting MGP profiles from ID {start_id} to {end_id} (every {sample_rate}th)"
+        )
 
         profiles = []
         ids_to_sample = list(range(start_id, end_id, sample_rate))
@@ -235,7 +241,9 @@ class MathGenealogyCollector:
                 profiles.append(profile)
 
             if (i + 1) % 10 == 0:
-                print(f"  Progress: {i+1}/{len(ids_to_sample)} ({len(profiles)} valid profiles)")
+                print(
+                    f"  Progress: {i+1}/{len(ids_to_sample)} ({len(profiles)} valid profiles)"
+                )
 
         print(f"✅ Collected {len(profiles)} profiles")
         return profiles
@@ -308,7 +316,9 @@ def main():
         country_counts[country] = country_counts.get(country, 0) + 1
 
     print("\nCountry Distribution:")
-    for country, count in sorted(country_counts.items(), key=lambda x: x[1], reverse=True):
+    for country, count in sorted(
+        country_counts.items(), key=lambda x: x[1], reverse=True
+    ):
         print(f"  {country}: {count}")
 
     # Year distribution

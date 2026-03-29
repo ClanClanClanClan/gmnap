@@ -74,7 +74,9 @@ def test_seok_conversion():
         actual = eng2kor(eng)
         correct = actual == expected
         all_correct &= correct
-        print(f"  {eng:15} → {actual:10} {'✓' if correct else '✗ (expected ' + expected + ')'}")
+        print(
+            f"  {eng:15} → {actual:10} {'✓' if correct else '✗ (expected ' + expected + ')'}"
+        )
 
     return all_correct
 
@@ -89,7 +91,9 @@ def main():
 
     # Rebuild FSTs
     print("\nRebuilding FSTs...")
-    subprocess.run(["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True)
+    subprocess.run(
+        ["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True
+    )
 
     # Test the fix
     if test_seok_conversion():

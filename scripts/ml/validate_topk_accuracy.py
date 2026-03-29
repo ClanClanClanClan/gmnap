@@ -56,7 +56,9 @@ def main():
     top3_only = []  # Correct in top-3 but not top-1
     top3_miss = []  # Not in top-3
 
-    by_region_stats = defaultdict(lambda: {"total": 0, "top1": 0, "top3": 0, "predictions": []})
+    by_region_stats = defaultdict(
+        lambda: {"total": 0, "top1": 0, "top3": 0, "predictions": []}
+    )
 
     # Process each entry
     print("Processing entries...")
@@ -77,9 +79,12 @@ def main():
 
         # Check matches (prefix matching for flexibility)
         top1_match = (
-            top1_region is not None and top1_region.split("_")[0] == expected_region.split("_")[0]
+            top1_region is not None
+            and top1_region.split("_")[0] == expected_region.split("_")[0]
         )
-        top3_match = any(r.split("_")[0] == expected_region.split("_")[0] for r in top3_regions)
+        top3_match = any(
+            r.split("_")[0] == expected_region.split("_")[0] for r in top3_regions
+        )
 
         if top1_match:
             top1_correct += 1
@@ -148,9 +153,13 @@ def main():
     print("AMBIGUITY ANALYSIS")
     print("=" * 80)
     print()
-    print(f"Unambiguous (top-1 correct): {len(top1_only)} ({(len(top1_only)/total)*100:.2f}%)")
+    print(
+        f"Unambiguous (top-1 correct): {len(top1_only)} ({(len(top1_only)/total)*100:.2f}%)"
+    )
     print(f"Ambiguous (top-3 only): {ambiguous_count} ({ambiguous_pct:.2f}%)")
-    print(f"Misclassified (not in top-3): {len(top3_miss)} ({(len(top3_miss)/total)*100:.2f}%)")
+    print(
+        f"Misclassified (not in top-3): {len(top3_miss)} ({(len(top3_miss)/total)*100:.2f}%)"
+    )
     print()
 
     # Show examples of ambiguous cases
@@ -187,13 +196,18 @@ def main():
     print("-" * 80)
     for region, count, top1_acc, top3_acc in region_accs[:15]:
         delta = top3_acc - top1_acc
-        print(f"{region:<8} {count:>6} {top1_acc:>7.1f}% {top3_acc:>7.1f}% {delta:>+5.1f}%")
+        print(
+            f"{region:<8} {count:>6} {top1_acc:>7.1f}% {top3_acc:>7.1f}% {delta:>+5.1f}%"
+        )
 
     print()
 
     # Save detailed results
     output_file = (
-        Path(__file__).parent.parent.parent / "data" / "analysis" / "topk_validation_results.json"
+        Path(__file__).parent.parent.parent
+        / "data"
+        / "analysis"
+        / "topk_validation_results.json"
     )
     output_file.parent.mkdir(exist_ok=True, parents=True)
 
@@ -214,10 +228,14 @@ def main():
                         "top1_correct": stats["top1"],
                         "top3_correct": stats["top3"],
                         "top1_accuracy": (
-                            (stats["top1"] / stats["total"] * 100) if stats["total"] > 0 else 0
+                            (stats["top1"] / stats["total"] * 100)
+                            if stats["total"] > 0
+                            else 0
                         ),
                         "top3_accuracy": (
-                            (stats["top3"] / stats["total"] * 100) if stats["total"] > 0 else 0
+                            (stats["top3"] / stats["total"] * 100)
+                            if stats["total"] > 0
+                            else 0
                         ),
                     }
                     for region, stats in by_region_stats.items()

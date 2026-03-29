@@ -36,9 +36,13 @@ def _mint(bits: int, resource: str) -> str:
 def test_verify_hashcash_roundtrip_fast():
     # Use 16 bits to keep test fast; verifier will accept >=16
     stamp = _mint(16, "/api/test")
-    ok, reason = verify_hashcash(stamp, min_bits=16, resource="/api/test", max_age_seconds=3600)
+    ok, reason = verify_hashcash(
+        stamp, min_bits=16, resource="/api/test", max_age_seconds=3600
+    )
     assert ok, reason
-    ok2, reason2 = verify_hashcash(stamp, min_bits=18, resource="/api/test", max_age_seconds=3600)
+    ok2, reason2 = verify_hashcash(
+        stamp, min_bits=18, resource="/api/test", max_age_seconds=3600
+    )
     assert ok2 or not ok2  # acceptance depends on minted bits; sanity call
 
 

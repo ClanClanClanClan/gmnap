@@ -215,7 +215,9 @@ class TestConfigurationManager:
         # Valid config
         valid_config = GMNAPConfig(
             processing=ProcessingConfig(batch_size=100, max_workers=4),
-            validation=ValidationConfig(min_confidence_score=0.1, max_confidence_score=0.9),
+            validation=ValidationConfig(
+                min_confidence_score=0.1, max_confidence_score=0.9
+            ),
         )
         manager._validate_config(valid_config)  # Should not raise
 
@@ -225,14 +227,22 @@ class TestConfigurationManager:
             manager._validate_config(invalid_config)
 
         # Invalid confidence scores
-        with pytest.raises(ValueError, match="Min confidence score must be between 0 and 1"):
-            invalid_config = GMNAPConfig(validation=ValidationConfig(min_confidence_score=-0.1))
+        with pytest.raises(
+            ValueError, match="Min confidence score must be between 0 and 1"
+        ):
+            invalid_config = GMNAPConfig(
+                validation=ValidationConfig(min_confidence_score=-0.1)
+            )
             manager._validate_config(invalid_config)
 
         # Min > Max confidence
-        with pytest.raises(ValueError, match="Min confidence score cannot be greater than max"):
+        with pytest.raises(
+            ValueError, match="Min confidence score cannot be greater than max"
+        ):
             invalid_config = GMNAPConfig(
-                validation=ValidationConfig(min_confidence_score=0.8, max_confidence_score=0.2)
+                validation=ValidationConfig(
+                    min_confidence_score=0.8, max_confidence_score=0.2
+                )
             )
             manager._validate_config(invalid_config)
 

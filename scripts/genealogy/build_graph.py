@@ -13,7 +13,9 @@ async def main(entries_path: str, edges_path: str):
     with open(edges_path, "r", encoding="utf-8") as f:
         edges = json.load(f)
 
-    await populate_graph(entries=entries, edges=edges, compute_metrics=True, batch_size=1000)
+    await populate_graph(
+        entries=entries, edges=edges, compute_metrics=True, batch_size=1000
+    )
     print("Graph population complete.")
 
 

@@ -7,7 +7,9 @@ def _load_cfg(path: str) -> dict:
         return yaml.safe_load(f) or {}
 
 
-def push_directory_sftp(local_dir: str, config_path: str = "config/archive.yaml") -> None:
+def push_directory_sftp(
+    local_dir: str, config_path: str = "config/archive.yaml"
+) -> None:
     cfg = _load_cfg(config_path)
     host = cfg.get("host")
     port = int(cfg.get("port", 22))

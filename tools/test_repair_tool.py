@@ -81,7 +81,9 @@ def autofix(root: pathlib.Path) -> dict:
             new = "import pytest\n" + new
         if "@pytest.mark.timeout" not in new:
             new = re.sub(
-                r"(\n\s*def\s+test_[A-Za-z0-9_]+\s*\()", "\n@pytest.mark.timeout(15)\n\g<1>", new
+                r"(\n\s*def\s+test_[A-Za-z0-9_]+\s*\()",
+                "\n@pytest.mark.timeout(15)\n\g<1>",
+                new,
             )
         if new != txt:
             p.write_text(new, encoding="utf-8")

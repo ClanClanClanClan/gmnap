@@ -41,7 +41,10 @@ def build_draft_doi(
         "creators": creators,
         "publisher": publisher,
         "publicationYear": publication_year,
-        "types": {"resourceTypeGeneral": "Dataset", "resourceType": "Genealogy Snapshot"},
+        "types": {
+            "resourceTypeGeneral": "Dataset",
+            "resourceType": "Genealogy Snapshot",
+        },
         "subjects": subjects_attr,
         "descriptions": [{"description": description, "descriptionType": "Abstract"}],
         "url": snapshot_url or f"https://example.invalid/lineage/snapshots/{run_hash}",

@@ -103,16 +103,24 @@ class IEEEFetcher(AuthorityFetcher):
                 )
 
             return FetchResult(
-                status=FetchStatus.SUCCESS, source=self.service, query=identifier, data=author_data
+                status=FetchStatus.SUCCESS,
+                source=self.service,
+                query=identifier,
+                data=author_data,
             )
 
         except Exception as e:
             logger.error(f"IEEE fetch error: {e}")
             return FetchResult(
-                status=FetchStatus.ERROR, source=self.service, query=identifier, error=str(e)
+                status=FetchStatus.ERROR,
+                source=self.service,
+                query=identifier,
+                error=str(e),
             )
 
-    async def _search_author(self, author_name: str, max_results: int = 10) -> List[Dict[str, Any]]:
+    async def _search_author(
+        self, author_name: str, max_results: int = 10
+    ) -> List[Dict[str, Any]]:
         """
         Search IEEE Xplore for articles by author.
 
@@ -140,7 +148,9 @@ class IEEEFetcher(AuthorityFetcher):
                 if response.status == 200:
                     data = await response.json()
                     articles = data.get("articles", [])
-                    logger.info(f"IEEE: Found {len(articles)} articles for '{author_name}'")
+                    logger.info(
+                        f"IEEE: Found {len(articles)} articles for '{author_name}'"
+                    )
                     return articles
                 elif response.status == 401:
                     logger.error("IEEE: Authentication failed - invalid API key")
@@ -208,11 +218,16 @@ class IEEEFetcher(AuthorityFetcher):
         # Build AuthorityData
         authority_data = AuthorityData(
             source=self.service,
-            source_id=list(author_ids)[0] if author_ids else f"ieee_{query_name.replace(' ', '_')}",
+            source_id=(
+                list(author_ids)[0]
+                if author_ids
+                else f"ieee_{query_name.replace(' ', '_')}"
+            ),
             canonical_name=query_name,
             name_variants=[],
             affiliations=[
-                {"institution": aff} for aff in list(affiliations)[:5]  # Top 5 affiliations
+                {"institution": aff}
+                for aff in list(affiliations)[:5]  # Top 5 affiliations
             ],
             identifiers={"IEEE_Author_ID": list(author_ids)[0] if author_ids else None},
             msc_codes=[],  # IEEE doesn't use MSC codes

@@ -115,8 +115,12 @@ def test_security_fixes():
     globalid_working = passed == len(test_names)
     sql_working = sql_blocked == len(sql_attacks)
 
-    print(f"PASS Template injection protection: {'WORKING' if template_working else 'FAILED'}")
-    print(f"PASS GlobalID suffix handling: {'WORKING' if globalid_working else 'FAILED'}")
+    print(
+        f"PASS Template injection protection: {'WORKING' if template_working else 'FAILED'}"
+    )
+    print(
+        f"PASS GlobalID suffix handling: {'WORKING' if globalid_working else 'FAILED'}"
+    )
     print(f"PASS SQL injection protection: {'WORKING' if sql_working else 'FAILED'}")
 
     return template_working and globalid_working and sql_working

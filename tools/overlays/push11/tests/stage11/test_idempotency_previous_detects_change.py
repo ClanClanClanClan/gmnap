@@ -18,7 +18,9 @@ def test_idempotency_previous_detects_change(tmp_path):
             "ValidationStatus": "verified",
         }
     ]
-    _, m9a, sdir1 = write_and_diff(batch1, out_base=str(base), templates_dir="templates")
+    _, m9a, sdir1 = write_and_diff(
+        batch1, out_base=str(base), templates_dir="templates"
+    )
     # Run 2 (mutated)
     batch2 = [dict(batch1[0], CanonicalLatin="Noether, E.")]
     _, m11 = idempotency_check(

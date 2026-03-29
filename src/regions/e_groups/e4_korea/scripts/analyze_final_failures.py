@@ -98,7 +98,12 @@ print("\n=== ROUNDTRIP FAILURES ===")
 if roundtrip_failures:
     print("Categorizing by pattern...")
 
-    patterns = {"hyphen_loss": [], "variant_spelling": [], "spacing_issue": [], "other": []}
+    patterns = {
+        "hyphen_loss": [],
+        "variant_spelling": [],
+        "spacing_issue": [],
+        "other": [],
+    }
 
     for fail in roundtrip_failures:
         orig = fail["original"].lower()

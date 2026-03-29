@@ -246,7 +246,9 @@ class ProductionTestSuite:
             leak_ratio = second_half_avg / first_half_avg if first_half_avg > 0 else 1
 
             if leak_ratio > 1.5:
-                errors.append(f"Potential memory leak detected: {leak_ratio:.2f}x increase")
+                errors.append(
+                    f"Potential memory leak detected: {leak_ratio:.2f}x increase"
+                )
 
         result = TestResult(
             test_name="Memory Under Load",
@@ -341,7 +343,8 @@ class ProductionTestSuite:
 
         result = TestResult(
             test_name="Concurrent Access",
-            passed=len(errors) == 0 and processed_count == num_workers * operations_per_worker,
+            passed=len(errors) == 0
+            and processed_count == num_workers * operations_per_worker,
             duration=duration,
             memory_peak=0,
             entries_processed=processed_count,
@@ -378,9 +381,15 @@ class ProductionTestSuite:
             # Malformed input
             {"test": "malformed_input", "data": {"BadField": "test"}},
             # Null values
-            {"test": "null_values", "data": {"CanonicalNative": None, "GlobalID": "NULL-001"}},
+            {
+                "test": "null_values",
+                "data": {"CanonicalNative": None, "GlobalID": "NULL-001"},
+            },
             # Empty strings
-            {"test": "empty_strings", "data": {"CanonicalNative": "", "GlobalID": "EMPTY-001"}},
+            {
+                "test": "empty_strings",
+                "data": {"CanonicalNative": "", "GlobalID": "EMPTY-001"},
+            },
             # Unicode issues
             {
                 "test": "unicode_issues",
@@ -394,12 +403,18 @@ class ProductionTestSuite:
             # Injection attempts
             {
                 "test": "injection",
-                "data": {"CanonicalNative": "'; DROP TABLE users; --", "GlobalID": "INJ-001"},
+                "data": {
+                    "CanonicalNative": "'; DROP TABLE users; --",
+                    "GlobalID": "INJ-001",
+                },
             },
             # Mixed scripts
             {
                 "test": "mixed_scripts",
-                "data": {"CanonicalNative": "Test测试тестテスト", "GlobalID": "MIX-001"},
+                "data": {
+                    "CanonicalNative": "Test测试тестテスト",
+                    "GlobalID": "MIX-001",
+                },
             },
             # Special characters
             {
@@ -416,7 +431,11 @@ class ProductionTestSuite:
                 # Check if it handled the error gracefully
                 if result.get("errors"):
                     errors_recovered.append(
-                        {"test": test_case["test"], "handled": True, "error": result["errors"][0]}
+                        {
+                            "test": test_case["test"],
+                            "handled": True,
+                            "error": result["errors"][0],
+                        }
                     )
                 else:
                     # Successfully processed problematic input
@@ -432,7 +451,8 @@ class ProductionTestSuite:
         try:
             # Simulate OOM by processing huge batch
             huge_batch = [
-                {"CanonicalNative": f"Name{i}", "GlobalID": f"HUGE-{i}"} for i in range(100000)
+                {"CanonicalNative": f"Name{i}", "GlobalID": f"HUGE-{i}"}
+                for i in range(100000)
             ]
 
             with pytest.raises(Exception):
@@ -443,10 +463,15 @@ class ProductionTestSuite:
             result = await pipeline.process_batch(normal_batch)
 
             if not result.get("errors"):
-                errors_recovered.append({"test": "resource_exhaustion_recovery", "handled": True})
+                errors_recovered.append(
+                    {"test": "resource_exhaustion_recovery", "handled": True}
+                )
         except:
             errors_failed.append(
-                {"test": "resource_exhaustion_recovery", "exception": "Failed to recover"}
+                {
+                    "test": "resource_exhaustion_recovery",
+                    "exception": "Failed to recover",
+                }
             )
 
         result = TestResult(
@@ -505,7 +530,9 @@ class ProductionTestSuite:
                     if scenario["simulate"] == "timeout":
                         mock_get.side_effect = TimeoutError("Connection timed out")
                     elif scenario["simulate"] == "refused":
-                        mock_get.side_effect = ConnectionRefusedError("Connection refused")
+                        mock_get.side_effect = ConnectionRefusedError(
+                            "Connection refused"
+                        )
                     elif scenario["simulate"] == "dns":
                         mock_get.side_effect = Exception("DNS resolution failed")
                     elif scenario["simulate"] == "partial":
@@ -522,7 +549,8 @@ class ProductionTestSuite:
 
                     # Try to process with network issues
                     batch = [
-                        {"CanonicalNative": f"Test{i}", "GlobalID": f"NET-{i}"} for i in range(10)
+                        {"CanonicalNative": f"Test{i}", "GlobalID": f"NET-{i}"}
+                        for i in range(10)
                     ]
 
                     result = await pipeline.process_batch(batch)
@@ -547,10 +575,15 @@ class ProductionTestSuite:
             memory_peak=0,
             entries_processed=successes * 10,
             errors=errors,
-            metadata={"scenarios_tested": len(test_scenarios), "scenarios_passed": successes},
+            metadata={
+                "scenarios_tested": len(test_scenarios),
+                "scenarios_passed": successes,
+            },
         )
 
-        print(f"  PASS Handled {successes}/{len(test_scenarios)} network failure scenarios")
+        print(
+            f"  PASS Handled {successes}/{len(test_scenarios)} network failure scenarios"
+        )
 
         assert successes == len(test_scenarios), f"Failed scenarios: {errors}"
 
@@ -577,7 +610,8 @@ class ProductionTestSuite:
 
             # Add test data to cache
             test_data = {
-                f"key_{i}": {"data": f"value_{i}", "timestamp": time.time()} for i in range(1000)
+                f"key_{i}": {"data": f"value_{i}", "timestamp": time.time()}
+                for i in range(1000)
             }
 
             for key, value in test_data.items():
@@ -749,7 +783,10 @@ class ProductionTestSuite:
         # 7. Performance check
         try:
             start = time.time()
-            batch = [{"CanonicalNative": f"Name{i}", "GlobalID": f"PERF-{i}"} for i in range(100)]
+            batch = [
+                {"CanonicalNative": f"Name{i}", "GlobalID": f"PERF-{i}"}
+                for i in range(100)
+            ]
             result = await pipeline.process_batch(batch)
             duration = time.time() - start
             rate = 100 / duration if duration > 0 else 0
@@ -858,7 +895,17 @@ def main():
     print("=" * 80)
 
     # Run with pytest
-    pytest.main([__file__, "-v", "-m", "production", "--tb=short", "--timeout=3600", "--maxfail=1"])
+    pytest.main(
+        [
+            __file__,
+            "-v",
+            "-m",
+            "production",
+            "--tb=short",
+            "--timeout=3600",
+            "--maxfail=1",
+        ]
+    )
 
 
 if __name__ == "__main__":

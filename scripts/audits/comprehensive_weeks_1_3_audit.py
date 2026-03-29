@@ -85,7 +85,9 @@ class BrutalAuditor:
         result = await pipeline.process(test_entry)
         offline_has_authority = bool(result[0].get("AuthoritySources"))
 
-        print(f"Offline mode - Authority sources: {result[0].get('AuthoritySources', [])}")
+        print(
+            f"Offline mode - Authority sources: {result[0].get('AuthoritySources', [])}"
+        )
 
         # Test with OFFLINE=0 (should enrich)
         os.environ["OFFLINE"] = "0"
@@ -95,7 +97,9 @@ class BrutalAuditor:
         online_has_authority = bool(result[0].get("AuthoritySources"))
         has_crossref_data = "CrossrefData" in result[0]
 
-        print(f"Online mode - Authority sources: {result[0].get('AuthoritySources', [])}")
+        print(
+            f"Online mode - Authority sources: {result[0].get('AuthoritySources', [])}"
+        )
         print(f"CrossrefData present: {has_crossref_data}")
 
         if not offline_has_authority and online_has_authority and has_crossref_data:
@@ -142,7 +146,9 @@ class BrutalAuditor:
 
         has_coherence = all("GraphCoherence" in r for r in results)
         coherence_values = [r.get("GraphCoherence", 0) for r in results]
-        avg_coherence = sum(coherence_values) / len(coherence_values) if coherence_values else 0
+        avg_coherence = (
+            sum(coherence_values) / len(coherence_values) if coherence_values else 0
+        )
 
         print(f"Graph coherence present: {has_coherence}")
         print(f"Average coherence: {avg_coherence:.3f}")
@@ -299,7 +305,14 @@ class BrutalAuditor:
                 print(f"Report has authority coverage: {has_authority}")
                 print(f"Report has coherence metrics: {has_coherence}")
 
-                if all([has_collision_analysis, has_field_dist, has_authority, has_coherence]):
+                if all(
+                    [
+                        has_collision_analysis,
+                        has_field_dist,
+                        has_authority,
+                        has_coherence,
+                    ]
+                ):
                     print("✅ Stage 10 analytics works completely")
                     self.results["reality"]["stage_10_analytics"] = True
                     return True
@@ -315,7 +328,9 @@ class BrutalAuditor:
         print("AUDIT 7: Stage 12 Deployment")
         print("=" * 60)
 
-        pipeline = create_v7_pipeline(mode="quick", enable_live=False, enable_deployment=True)
+        pipeline = create_v7_pipeline(
+            mode="quick", enable_live=False, enable_deployment=True
+        )
 
         test_entries = [
             {

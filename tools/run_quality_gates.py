@@ -7,4 +7,6 @@ ap.add_argument("--in", dest="inp", required=True)
 a = ap.parse_args()
 cfg = f"config/gates.{a.profile}.yaml"
 print(json.dumps({"profile": a.profile, "config": cfg, "input": a.inp}, indent=2))
-subprocess.check_call(["python", "-m", "src.quality.quality_gates", "--in", a.inp, "--gates", cfg])
+subprocess.check_call(
+    ["python", "-m", "src.quality.quality_gates", "--in", a.inp, "--gates", cfg]
+)

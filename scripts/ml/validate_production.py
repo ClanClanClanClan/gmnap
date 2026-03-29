@@ -47,7 +47,9 @@ class ProductionValidator:
 
     def log(self, message: str, level: str = "INFO"):
         """Log message"""
-        prefix = {"PASS": "✅", "FAIL": "❌", "WARN": "⚠️ ", "INFO": "ℹ️ "}.get(level, "  ")
+        prefix = {"PASS": "✅", "FAIL": "❌", "WARN": "⚠️ ", "INFO": "ℹ️ "}.get(
+            level, "  "
+        )
 
         print(f"{prefix} {message}")
 
@@ -136,10 +138,14 @@ class ProductionValidator:
                 self.assert_in(field, result, f"Field '{field}' present")
 
             # Check values
-            self.assert_equal(result["model_name"], "fasttext-v5-etymology", "Model name")
+            self.assert_equal(
+                result["model_name"], "fasttext-v5-etymology", "Model name"
+            )
             self.assert_equal(result["label_policy"], "etymology", "Label policy")
             self.assert_equal(
-                result["calibration"]["method"], "temperature_scaling", "Calibration method"
+                result["calibration"]["method"],
+                "temperature_scaling",
+                "Calibration method",
             )
             self.assert_equal(result["calibration"]["T"], 2.817, "Temperature value")
 
@@ -196,10 +202,15 @@ class ProductionValidator:
                     )
             else:
                 self.failed += 1
-                self.log(f"'{name}': expected {expected_region}, got {predicted}", "FAIL")
+                self.log(
+                    f"'{name}': expected {expected_region}, got {predicted}", "FAIL"
+                )
 
         accuracy = correct / len(test_cases)
-        self.log(f"Golden dataset accuracy: {accuracy:.1%} ({correct}/{len(test_cases)})", "INFO")
+        self.log(
+            f"Golden dataset accuracy: {accuracy:.1%} ({correct}/{len(test_cases)})",
+            "INFO",
+        )
 
         if accuracy >= 0.75:
             self.passed += 1
@@ -228,7 +239,8 @@ class ProductionValidator:
             if result["abstained"]:
                 abstained_count += 1
                 self.log(
-                    f"'{name}' correctly abstained (reason: {result['abstain_reason']})", "PASS"
+                    f"'{name}' correctly abstained (reason: {result['abstain_reason']})",
+                    "PASS",
                 )
             else:
                 if self.verbose:
@@ -270,7 +282,9 @@ class ProductionValidator:
 
         avg_latency_ms = (elapsed / iterations) * 1000
 
-        self.log(f"Average latency: {avg_latency_ms:.2f}ms ({iterations} iterations)", "INFO")
+        self.log(
+            f"Average latency: {avg_latency_ms:.2f}ms ({iterations} iterations)", "INFO"
+        )
 
         # Target: <3ms
         if avg_latency_ms <= 3.0:
@@ -282,7 +296,10 @@ class ProductionValidator:
             return True
         else:
             self.failed += 1
-            self.log(f"Latency {avg_latency_ms:.2f}ms exceeds acceptable range (>5ms)", "FAIL")
+            self.log(
+                f"Latency {avg_latency_ms:.2f}ms exceeds acceptable range (>5ms)",
+                "FAIL",
+            )
             return False
 
     def test_hybrid_integration(self) -> bool:
@@ -301,7 +318,10 @@ class ProductionValidator:
             self.assert_true(hasattr(result, "confidence"), "Result has confidence")
 
             # Check that v5 is being used
-            if hasattr(result, "detection_method") and "v5" in result.detection_method.lower():
+            if (
+                hasattr(result, "detection_method")
+                and "v5" in result.detection_method.lower()
+            ):
                 self.log("Hybrid classifier using v5 model", "PASS")
                 self.passed += 1
             else:

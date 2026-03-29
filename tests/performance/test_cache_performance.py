@@ -91,7 +91,8 @@ def test_cache_performance():
         duration1 = (datetime.now() - start1).total_seconds()
 
         stage4_time1 = (
-            result1.stage_metrics["stage_4"].end_time - result1.stage_metrics["stage_4"].start_time
+            result1.stage_metrics["stage_4"].end_time
+            - result1.stage_metrics["stage_4"].start_time
         )
         print(f"Total time: {duration1:.3f}s")
         print(f"Stage 4 (Authority): {stage4_time1.total_seconds():.3f}s")
@@ -110,7 +111,8 @@ def test_cache_performance():
         duration2 = (datetime.now() - start2).total_seconds()
 
         stage4_time2 = (
-            result2.stage_metrics["stage_4"].end_time - result2.stage_metrics["stage_4"].start_time
+            result2.stage_metrics["stage_4"].end_time
+            - result2.stage_metrics["stage_4"].start_time
         )
         print(f"Total time: {duration2:.3f}s")
         print(f"Stage 4 (Authority): {stage4_time2.total_seconds():.3f}s")

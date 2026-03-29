@@ -125,7 +125,10 @@ class HybridRegionManager:
             else:
                 # No results - return unknown
                 return RegionDetectionResult(
-                    region_code="XX", confidence=0.0, detection_method="no-results", metadata={}
+                    region_code="XX",
+                    confidence=0.0,
+                    detection_method="no-results",
+                    metadata={},
                 )
 
         except Exception as e:

@@ -24,10 +24,16 @@ def test_imports():
         ),
         ("regional_manager", "from src.regions.manager import RegionManager"),
         ("quality_gates", "from src.quality.gates import QualityGates"),
-        ("duckdb_analytics", "from src.analytics.duckdb_analytics import DuckDBAnalytics"),
+        (
+            "duckdb_analytics",
+            "from src.analytics.duckdb_analytics import DuckDBAnalytics",
+        ),
         ("schema_validator", "from src.core.schema_validator import V7SchemaValidator"),
         ("unicode_handler", "from src.core.unicode_handler import UnicodeNormalizer"),
-        ("security_validator", "from src.core.security_validator import SecurityValidator"),
+        (
+            "security_validator",
+            "from src.core.security_validator import SecurityValidator",
+        ),
     ]
 
     for name, import_stmt in critical_imports:
@@ -69,7 +75,9 @@ def test_korean_processor():
         if actual and actual.lower() == expected.lower():
             results["passed"] += 1
         else:
-            results["failed"].append({"input": korean, "expected": expected, "actual": actual})
+            results["failed"].append(
+                {"input": korean, "expected": expected, "actual": actual}
+            )
 
     return results
 
@@ -127,7 +135,10 @@ async def test_quality_gates():
         result = await pipeline.process_batch(entries)
 
         # Check if duplicates were detected - they should be in metrics
-        if "metrics" in result and result["metrics"].get("duplicate_global_ids", 0) == 1:
+        if (
+            "metrics" in result
+            and result["metrics"].get("duplicate_global_ids", 0) == 1
+        ):
             # Duplicates were correctly found in metrics
             results["duplicate_detection"] = True
 
@@ -188,7 +199,9 @@ def test_regional_detection():
                     }
                 )
         except Exception as e:
-            results["failed"].append({"name": name, "expected": expected_region, "error": str(e)})
+            results["failed"].append(
+                {"name": name, "expected": expected_region, "error": str(e)}
+            )
 
     return results
 
@@ -207,7 +220,9 @@ async def main():
     print("📦 Testing Imports...")
     import_results = test_imports()
     all_results["imports"] = import_results
-    print(f"  ✅ {import_results['passed']}/{import_results['total']} imports successful")
+    print(
+        f"  ✅ {import_results['passed']}/{import_results['total']} imports successful"
+    )
     if import_results["failed"]:
         print(f"  ❌ Failed imports: {[f['module'] for f in import_results['failed']]}")
 
@@ -215,11 +230,15 @@ async def main():
     print("\n🇰🇷 Testing Korean Processor...")
     korean_results = test_korean_processor()
     all_results["korean_processor"] = korean_results
-    print(f"  ✅ {korean_results['passed']}/{korean_results['total']} names converted correctly")
+    print(
+        f"  ✅ {korean_results['passed']}/{korean_results['total']} names converted correctly"
+    )
     if korean_results["failed"]:
         print(f"  ❌ Failed conversions:")
         for fail in korean_results["failed"][:3]:  # Show first 3
-            print(f"     {fail['input']} → {fail['actual']} (expected: {fail['expected']})")
+            print(
+                f"     {fail['input']} → {fail['actual']} (expected: {fail['expected']})"
+            )
 
     # Test pipeline performance
     print("\n⚡ Testing Pipeline Performance...")
@@ -237,8 +256,12 @@ async def main():
     print("\n🚦 Testing Quality Gates...")
     gate_results = await test_quality_gates()
     all_results["quality_gates"] = gate_results
-    print(f"  Duplicate Detection: {'✅' if gate_results.get('duplicate_detection') else '❌'}")
-    print(f"  Performance Gates: {'✅' if gate_results.get('performance_gates') else '❌'}")
+    print(
+        f"  Duplicate Detection: {'✅' if gate_results.get('duplicate_detection') else '❌'}"
+    )
+    print(
+        f"  Performance Gates: {'✅' if gate_results.get('performance_gates') else '❌'}"
+    )
 
     # Test regional detection
     print("\n🌍 Testing Regional Detection...")
@@ -265,7 +288,10 @@ async def main():
         passed_tests += 1
     total_tests += 1
 
-    if any(m.get("passes_35min_target") for m in perf_results.get("batch_sizes", {}).values()):
+    if any(
+        m.get("passes_35min_target")
+        for m in perf_results.get("batch_sizes", {}).values()
+    ):
         passed_tests += 1
     total_tests += 1
 
@@ -279,7 +305,9 @@ async def main():
 
     overall_percentage = (passed_tests / total_tests * 100) if total_tests > 0 else 0
 
-    print(f"\n📊 Overall Score: {passed_tests}/{total_tests} ({overall_percentage:.1f}%)")
+    print(
+        f"\n📊 Overall Score: {passed_tests}/{total_tests} ({overall_percentage:.1f}%)"
+    )
 
     if overall_percentage >= 80:
         print("✅ SYSTEM READY FOR PRODUCTION")

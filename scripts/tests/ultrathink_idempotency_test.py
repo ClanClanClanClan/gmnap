@@ -46,14 +46,18 @@ def test_basic_idempotency():
             # Compare hashes
             hashes = [hash_result(r) for r in results]
             if len(set(hashes)) == 1:
-                print(f"  ✅ Idempotency verified - all 3 runs produced identical output")
+                print(
+                    f"  ✅ Idempotency verified - all 3 runs produced identical output"
+                )
                 return True
             else:
                 print(f"  ❌ Idempotency FAILED - different outputs on each run")
                 print(f"    Hashes: {hashes}")
                 # Show differences
                 for i, r in enumerate(results):
-                    print(f"    Run {i+1} first entry: {r[0].get('CanonicalLatin', 'NONE')}")
+                    print(
+                        f"    Run {i+1} first entry: {r[0].get('CanonicalLatin', 'NONE')}"
+                    )
                 return False
         else:
             print(f"  ❌ Could not complete 3 runs")
@@ -101,7 +105,9 @@ def test_deterministic_mode():
         if len(results_seed_42) == 2:
             hash_42_1 = hash_result(results_seed_42[0])
             hash_42_2 = hash_result(results_seed_42[1])
-            hash_123 = hash_result(result_seed_123["entries"]) if result_seed_123 else None
+            hash_123 = (
+                hash_result(result_seed_123["entries"]) if result_seed_123 else None
+            )
 
             if hash_42_1 == hash_42_2:
                 print(f"  ✅ Same seed produces identical results")

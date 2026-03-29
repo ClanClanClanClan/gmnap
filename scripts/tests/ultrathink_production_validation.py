@@ -104,7 +104,9 @@ async def test_performance(batch_sizes: list) -> dict:
             # Calculate metrics
             entries_per_sec = size / elapsed if elapsed > 0 else 0
             projected_1m_time = (
-                (1_000_000 / entries_per_sec / 60) if entries_per_sec > 0 else float("inf")
+                (1_000_000 / entries_per_sec / 60)
+                if entries_per_sec > 0
+                else float("inf")
             )
 
             results[size] = {
@@ -137,11 +139,27 @@ async def test_regions() -> dict:
     logger.info(f"{'='*60}")
 
     test_cases = [
-        {"CanonicalNative": "김민수", "GlobalID": "REGION-001", "expected_region": "E4"},
+        {
+            "CanonicalNative": "김민수",
+            "GlobalID": "REGION-001",
+            "expected_region": "E4",
+        },
         {"CanonicalNative": "李明", "GlobalID": "REGION-002", "expected_region": "E1"},
-        {"CanonicalNative": "Иванов Иван", "GlobalID": "REGION-003", "expected_region": "B1"},
-        {"CanonicalNative": "山田太郎", "GlobalID": "REGION-004", "expected_region": "E3"},
-        {"CanonicalNative": "محمد علي", "GlobalID": "REGION-005", "expected_region": "C3"},
+        {
+            "CanonicalNative": "Иванов Иван",
+            "GlobalID": "REGION-003",
+            "expected_region": "B1",
+        },
+        {
+            "CanonicalNative": "山田太郎",
+            "GlobalID": "REGION-004",
+            "expected_region": "E3",
+        },
+        {
+            "CanonicalNative": "محمد علي",
+            "GlobalID": "REGION-005",
+            "expected_region": "C3",
+        },
     ]
 
     pipeline = V7Pipeline(mode=PipelineMode.QUICK)
@@ -233,14 +251,20 @@ async def main():
         perf = perf_results[1000]
         target_met = perf["projected_1m_minutes"] < 35
         status = "✅" if target_met else "❌"
-        logger.info(f"{status} Performance: {perf['entries_per_second']:.0f} entries/sec")
-        logger.info(f"   Projected 1M: {perf['projected_1m_minutes']:.1f} min (target: <35 min)")
+        logger.info(
+            f"{status} Performance: {perf['entries_per_second']:.0f} entries/sec"
+        )
+        logger.info(
+            f"   Projected 1M: {perf['projected_1m_minutes']:.1f} min (target: <35 min)"
+        )
 
     # Regional summary
     regions_working = sum(1 for r in regional_results.values() if r["success"])
     total_regions = len(regional_results)
     status = "✅" if regions_working == total_regions else "⚠️"
-    logger.info(f"{status} Regional Processing: {regions_working}/{total_regions} working")
+    logger.info(
+        f"{status} Regional Processing: {regions_working}/{total_regions} working"
+    )
 
     # Quality gates summary
     if "duplicates_handled" in quality_results:
@@ -250,7 +274,9 @@ async def main():
         )
 
     # Save results
-    output_file = f"production_validation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    output_file = (
+        f"production_validation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
     with open(output_file, "w") as f:
         json.dump(results, f, indent=2, default=str)
 

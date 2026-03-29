@@ -28,7 +28,10 @@ class PersonIDMatcher:
     """
 
     def __init__(
-        self, mode: str = "generate", bolt_uri: Optional[str] = None, birth_year_window: int = 50
+        self,
+        mode: str = "generate",
+        bolt_uri: Optional[str] = None,
+        birth_year_window: int = 50,
     ):
         """
         Initialize ID matcher.
@@ -122,8 +125,12 @@ class PersonIDMatcher:
         thesis_year = edge.get("thesis_year")
 
         # Get or generate GlobalIDs
-        student_id = self._get_or_generate_id(student_canonical, thesis_year, is_student=True)
-        advisor_id = self._get_or_generate_id(advisor_canonical, thesis_year, is_student=False)
+        student_id = self._get_or_generate_id(
+            student_canonical, thesis_year, is_student=True
+        )
+        advisor_id = self._get_or_generate_id(
+            advisor_canonical, thesis_year, is_student=False
+        )
 
         # Add to edge
         edge["student_global_id"] = student_id
@@ -210,7 +217,9 @@ class PersonIDMatcher:
         # NOTE: For pilot, we use birth_year_estimate=None to avoid incorrect data
         # In production, we'd query OpenAlex/ORCID/etc for actual birth years
         gid = global_id(
-            canonical_native=canonical_name, birth=None, death=None  # Don't use estimates for now
+            canonical_native=canonical_name,
+            birth=None,
+            death=None,  # Don't use estimates for now
         )
 
         return gid
@@ -248,7 +257,9 @@ class PersonIDMatcher:
 
         print("=" * 80)
 
-    def save_matched_edges(self, edges: List[Dict], output_file: str, include_summary: bool = True):
+    def save_matched_edges(
+        self, edges: List[Dict], output_file: str, include_summary: bool = True
+    ):
         """
         Save matched edges to JSON file.
 
@@ -264,7 +275,10 @@ class PersonIDMatcher:
         person_summary = {}
         if include_summary:
             for canonical_name, gid in self.name_to_id.items():
-                person_summary[gid] = {"canonical_name": canonical_name, "global_id": gid}
+                person_summary[gid] = {
+                    "canonical_name": canonical_name,
+                    "global_id": gid,
+                }
 
         # Save
         with open(output_path, "w", encoding="utf-8") as f:
@@ -297,15 +311,21 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="Match genealogy persons to GlobalIDs")
-    parser.add_argument("--input", required=True, help="Input normalized edges JSON file")
-    parser.add_argument("--output", required=True, help="Output matched edges JSON file")
+    parser.add_argument(
+        "--input", required=True, help="Input normalized edges JSON file"
+    )
+    parser.add_argument(
+        "--output", required=True, help="Output matched edges JSON file"
+    )
     parser.add_argument(
         "--mode",
         default="generate",
         choices=["generate", "lookup"],
         help="Matching mode (default: generate)",
     )
-    parser.add_argument("--bolt-uri", default=None, help="Memgraph Bolt URI (for lookup mode)")
+    parser.add_argument(
+        "--bolt-uri", default=None, help="Memgraph Bolt URI (for lookup mode)"
+    )
 
     args = parser.parse_args()
 

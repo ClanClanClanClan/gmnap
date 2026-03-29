@@ -79,7 +79,10 @@ class PipelinePatternIntegrator:
                 clean = pattern.lower()
                 clean = clean.replace("ő", "o").replace("ű", "u").replace("á", "a")
                 clean = (
-                    clean.replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u")
+                    clean.replace("é", "e")
+                    .replace("í", "i")
+                    .replace("ó", "o")
+                    .replace("ú", "u")
                 )
                 if clean not in current_list and clean not in yaml_patterns:
                     yaml_patterns.append(clean)
@@ -134,7 +137,9 @@ class PipelinePatternIntegrator:
             content = re.sub(korean_pattern, new_line, content)
 
             print(f"   ✅ Added {len(yaml_patterns)} new Korean patterns")
-            print(f"   🎯 Key additions: {[p for p in yaml_patterns[:10]]}")  # Show first 10
+            print(
+                f"   🎯 Key additions: {[p for p in yaml_patterns[:10]]}"
+            )  # Show first 10
 
         return content
 
@@ -147,7 +152,9 @@ class PipelinePatternIntegrator:
 
         # Find the area where we assign B2 scores
         b2_section = re.search(
-            r"# Slavic \(B1/B2\) detection.*?scores\[\'B2\'\] \+= \d+", content, re.DOTALL
+            r"# Slavic \(B1/B2\) detection.*?scores\[\'B2\'\] \+= \d+",
+            content,
+            re.DOTALL,
         )
 
         if not b2_section:
@@ -172,7 +179,9 @@ class PipelinePatternIntegrator:
             """
 
                 insertion_point = hungarian_section.end()
-                content = content[:insertion_point] + slavic_code + content[insertion_point:]
+                content = (
+                    content[:insertion_point] + slavic_code + content[insertion_point:]
+                )
 
                 print(f"   ✅ Added {len(slavic_patterns)} new Slavic patterns")
                 print(
@@ -239,9 +248,15 @@ class PipelinePatternIntegrator:
         self.write_pipeline(content)
 
         print("\n📊 INTEGRATION SUMMARY:")
-        print(f"   🇭🇺 Hungarian patterns: {len(patterns['hungarian'])} (fixes Rényi accent issue)")
-        print(f"   🇰🇷 Korean patterns: {len(patterns['korean'])} (fixes Lee/Choi A1 issue)")
-        print(f"   🇨🇿🇵🇱 Slavic patterns: {len(patterns['slavic'])} (fixes Spanish confusion)")
+        print(
+            f"   🇭🇺 Hungarian patterns: {len(patterns['hungarian'])} (fixes Rényi accent issue)"
+        )
+        print(
+            f"   🇰🇷 Korean patterns: {len(patterns['korean'])} (fixes Lee/Choi A1 issue)"
+        )
+        print(
+            f"   🇨🇿🇵🇱 Slavic patterns: {len(patterns['slavic'])} (fixes Spanish confusion)"
+        )
 
         print(f"\n🎯 EXPECTED IMPACT: 42 failures → ~31 failures (87% pass rate)")
         print("✅ Ready for testing!")

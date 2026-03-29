@@ -57,19 +57,29 @@ TX_SUCCESS = Counter("gmnap_db_tx_success_total", "Successful DB transactions")
 TX_ROLLBACK = Counter("gmnap_db_tx_rollback_total", "Rolled back DB transactions")
 AUTH_FAILS = Counter("gmnap_auth_fail_total", "Authentication failures")
 AUTH_OK = Counter("gmnap_auth_ok_total", "Authentication successes")
-DB_APPLY_QUERIES = Counter("gmnap_db_apply_queries_total", "Queries applied from changelog")
+DB_APPLY_QUERIES = Counter(
+    "gmnap_db_apply_queries_total", "Queries applied from changelog"
+)
 
 # Stage 8 metrics
 SCHEMA_VALIDATION_ERRORS = Counter(
-    "gmnap_schema_validation_errors_total", "Schema validation errors", labelnames=["field"]
+    "gmnap_schema_validation_errors_total",
+    "Schema validation errors",
+    labelnames=["field"],
 )
 ROUNDTRIP_FAILURES = Counter(
-    "gmnap_roundtrip_failures_total", "Roundtrip validation failures", labelnames=["region"]
+    "gmnap_roundtrip_failures_total",
+    "Roundtrip validation failures",
+    labelnames=["region"],
 )
-PROCESSED_TOTAL = Counter("gmnap_processed_total", "Total entries processed", labelnames=["stage"])
+PROCESSED_TOTAL = Counter(
+    "gmnap_processed_total", "Total entries processed", labelnames=["stage"]
+)
 
 # Stage 11 idempotency metrics
-IDEMP_DIFF_BYTES = Gauge("gmnap_idempotency_diff_bytes", "Idempotency check difference in bytes")
+IDEMP_DIFF_BYTES = Gauge(
+    "gmnap_idempotency_diff_bytes", "Idempotency check difference in bytes"
+)
 IDEMP_OK_TOTAL = Counter("gmnap_idempotency_ok_total", "Idempotency checks passed")
 IDEMP_FAIL_TOTAL = Counter("gmnap_idempotency_fail_total", "Idempotency checks failed")
 

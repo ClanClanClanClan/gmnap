@@ -13,7 +13,9 @@ class F3HornOfAfrica(RegionSpec):
 
     def __init__(self):
         super().__init__(
-            code="F3", yaml_files=[], scripts=["Ge'ez", "Latin"]  # TODO: Add actual YAML files,
+            code="F3",
+            yaml_files=[],
+            scripts=["Ge'ez", "Latin"],  # TODO: Add actual YAML files,
         )
 
     def clean(self, name: str) -> str:

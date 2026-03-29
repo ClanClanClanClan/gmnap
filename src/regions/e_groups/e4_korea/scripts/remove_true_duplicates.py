@@ -61,7 +61,9 @@ def remove_only_true_duplicates():
                 keep_first = occurrences[0]
                 to_remove = occurrences[1:]
 
-                print(f"🗑️  Removing {len(to_remove)} true duplicates of: {key[0]},{key[1]}")
+                print(
+                    f"🗑️  Removing {len(to_remove)} true duplicates of: {key[0]},{key[1]}"
+                )
                 for line_num, line in to_remove:
                     lines_to_remove.add(line_num)
                     removed_count += 1

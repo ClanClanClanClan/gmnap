@@ -23,7 +23,9 @@ class AsyncBatchAggregatorV2:
         self.q: asyncio.Queue[Tuple[dict, asyncio.Future]] = asyncio.Queue()
         self.sem = asyncio.Semaphore(self.cfg.max_concurrency)
         self._closed = False
-        self._worker = asyncio.create_task(self._loop(), name="AsyncBatchAggregatorV2._loop")
+        self._worker = asyncio.create_task(
+            self._loop(), name="AsyncBatchAggregatorV2._loop"
+        )
 
     async def _loop(self):
         try:

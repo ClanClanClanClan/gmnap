@@ -134,15 +134,21 @@ def test_comprehensive_coverage():
         success_rate = successes / total if total > 0 else 0
 
         description = region_results[0]["description"] if region_results else "Unknown"
-        status = "PASS" if success_rate >= 0.5 else "WARN" if success_rate > 0 else "FAIL"
+        status = (
+            "PASS" if success_rate >= 0.5 else "WARN" if success_rate > 0 else "FAIL"
+        )
 
-        print(f"{status} {region_code} {description}: {successes}/{total} ({success_rate:.1%})")
+        print(
+            f"{status} {region_code} {description}: {successes}/{total} ({success_rate:.1%})"
+        )
 
         if success_rate < 1.0:
             print(f"    Issues:")
             for r in region_results:
                 if not r["success"]:
-                    print(f"      • {r['name']} -> {r['detected']} (method: {r['method']})")
+                    print(
+                        f"      • {r['name']} -> {r['detected']} (method: {r['method']})"
+                    )
 
     print(f"\n🎯 OVERALL PERFORMANCE:")
     print(f"  Total tests: {total_tests}")

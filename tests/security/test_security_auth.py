@@ -202,16 +202,24 @@ class TestAuthorization:
     def test_permission_checking(self):
         """Test permission checking"""
         # Admin can do everything
-        assert self.auth_mgr.check_permission("admin", Permission.DELETE_ENTRIES) is True
+        assert (
+            self.auth_mgr.check_permission("admin", Permission.DELETE_ENTRIES) is True
+        )
         assert self.auth_mgr.check_permission("admin", Permission.MANAGE_USERS) is True
 
         # Editor cannot manage users
-        assert self.auth_mgr.check_permission("editor", Permission.WRITE_ENTRIES) is True
-        assert self.auth_mgr.check_permission("editor", Permission.MANAGE_USERS) is False
+        assert (
+            self.auth_mgr.check_permission("editor", Permission.WRITE_ENTRIES) is True
+        )
+        assert (
+            self.auth_mgr.check_permission("editor", Permission.MANAGE_USERS) is False
+        )
 
         # Viewer cannot write
         assert self.auth_mgr.check_permission("viewer", Permission.READ_ENTRIES) is True
-        assert self.auth_mgr.check_permission("viewer", Permission.WRITE_ENTRIES) is False
+        assert (
+            self.auth_mgr.check_permission("viewer", Permission.WRITE_ENTRIES) is False
+        )
 
     @pytest.mark.timeout(15)
     def test_multiple_permissions(self):
@@ -219,14 +227,18 @@ class TestAuthorization:
         # Check all required
         assert (
             self.auth_mgr.check_multiple_permissions(
-                "editor", [Permission.READ_ENTRIES, Permission.WRITE_ENTRIES], require_all=True
+                "editor",
+                [Permission.READ_ENTRIES, Permission.WRITE_ENTRIES],
+                require_all=True,
             )
             is True
         )
 
         assert (
             self.auth_mgr.check_multiple_permissions(
-                "editor", [Permission.WRITE_ENTRIES, Permission.MANAGE_USERS], require_all=True
+                "editor",
+                [Permission.WRITE_ENTRIES, Permission.MANAGE_USERS],
+                require_all=True,
             )
             is False
         )
@@ -234,7 +246,9 @@ class TestAuthorization:
         # Check any required
         assert (
             self.auth_mgr.check_multiple_permissions(
-                "viewer", [Permission.READ_ENTRIES, Permission.WRITE_ENTRIES], require_all=False
+                "viewer",
+                [Permission.READ_ENTRIES, Permission.WRITE_ENTRIES],
+                require_all=False,
             )
             is True
         )
@@ -242,7 +256,10 @@ class TestAuthorization:
     @pytest.mark.timeout(15)
     def test_invalid_role(self):
         """Test invalid role handling"""
-        assert self.auth_mgr.check_permission("invalid_role", Permission.READ_ENTRIES) is False
+        assert (
+            self.auth_mgr.check_permission("invalid_role", Permission.READ_ENTRIES)
+            is False
+        )
         assert len(self.auth_mgr.get_role_permissions("invalid_role")) == 0
 
     @pytest.mark.timeout(15)
@@ -252,23 +269,31 @@ class TestAuthorization:
         user_id = "user_456"
 
         # Grant permission
-        self.auth_mgr.add_resource_permission(resource_id, user_id, [Permission.UPDATE_ENTRIES])
+        self.auth_mgr.add_resource_permission(
+            resource_id, user_id, [Permission.UPDATE_ENTRIES]
+        )
 
         # Check permission
         assert (
-            self.auth_mgr.check_resource_permission(resource_id, user_id, Permission.UPDATE_ENTRIES)
+            self.auth_mgr.check_resource_permission(
+                resource_id, user_id, Permission.UPDATE_ENTRIES
+            )
             is True
         )
 
         assert (
-            self.auth_mgr.check_resource_permission(resource_id, user_id, Permission.DELETE_ENTRIES)
+            self.auth_mgr.check_resource_permission(
+                resource_id, user_id, Permission.DELETE_ENTRIES
+            )
             is False
         )
 
         # Remove permission
         self.auth_mgr.remove_resource_permissions(resource_id, user_id)
         assert (
-            self.auth_mgr.check_resource_permission(resource_id, user_id, Permission.UPDATE_ENTRIES)
+            self.auth_mgr.check_resource_permission(
+                resource_id, user_id, Permission.UPDATE_ENTRIES
+            )
             is False
         )
 

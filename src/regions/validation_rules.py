@@ -549,7 +549,11 @@ class RegionalValidationEngine:
 
         if errors:
             return ValidationResult(
-                is_valid=False, errors=errors, warnings=[], field="CanonicalNative", rule_id=rule.id
+                is_valid=False,
+                errors=errors,
+                warnings=[],
+                field="CanonicalNative",
+                rule_id=rule.id,
             )
 
         return None
@@ -591,12 +595,20 @@ class RegionalValidationEngine:
                 # Check position and capitalization rules
                 if i == 0 and part[0].islower():
                     warnings.append(f"Particle '{part}' at start should be capitalized")
-                elif i > 0 and part in ["Von", "Van"] and "Dutch" not in entry.get("Notes", ""):
+                elif (
+                    i > 0
+                    and part in ["Von", "Van"]
+                    and "Dutch" not in entry.get("Notes", "")
+                ):
                     warnings.append(f"Particle '{part}' - verify if Dutch origin")
 
         if warnings:
             return ValidationResult(
-                is_valid=True, errors=[], warnings=warnings, field="CanonicalLatin", rule_id=rule.id
+                is_valid=True,
+                errors=[],
+                warnings=warnings,
+                field="CanonicalLatin",
+                rule_id=rule.id,
             )
 
         return None
@@ -626,7 +638,9 @@ class RegionalValidationEngine:
                 return ValidationResult(
                     is_valid=True,
                     errors=[],
-                    warnings=[f"Unusually long Chinese name ({len(cjk_chars)} characters)"],
+                    warnings=[
+                        f"Unusually long Chinese name ({len(cjk_chars)} characters)"
+                    ],
                     field="CanonicalNative",
                     rule_id=rule.id,
                 )
@@ -669,10 +683,14 @@ class RegionalValidationEngine:
                 continue
             # Check if it's Hangul Jamo (components)
             elif 0x1100 <= code <= 0x11FF or 0x3130 <= code <= 0x318F:
-                warnings.append("Hangul Jamo components detected - should use composed syllables")
+                warnings.append(
+                    "Hangul Jamo components detected - should use composed syllables"
+                )
             # Check compatibility Jamo
             elif 0x3130 <= code <= 0x318F:
-                errors.append("Hangul compatibility Jamo detected - use standard syllables")
+                errors.append(
+                    "Hangul compatibility Jamo detected - use standard syllables"
+                )
 
         if errors or warnings:
             return ValidationResult(
@@ -707,7 +725,11 @@ class RegionalValidationEngine:
 
         if warnings:
             return ValidationResult(
-                is_valid=True, errors=[], warnings=warnings, field="CanonicalLatin", rule_id=rule.id
+                is_valid=True,
+                errors=[],
+                warnings=warnings,
+                field="CanonicalLatin",
+                rule_id=rule.id,
             )
 
         return None

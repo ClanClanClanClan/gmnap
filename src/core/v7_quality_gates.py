@@ -159,11 +159,15 @@ class V7QualityGates:
                 if canonical:
                     # Simple but real GlobalID generation
                     hash_input = f"{canonical}_{entry.get('BirthYear', '')}_{datetime.now().date()}"
-                    global_id = hashlib.sha256(hash_input.encode()).hexdigest()[:22].upper()
+                    global_id = (
+                        hashlib.sha256(hash_input.encode()).hexdigest()[:22].upper()
+                    )
                     entry["GlobalID"] = global_id
                 else:
                     global_id = f"MISSING_{i:06d}"
-                    errors.append(f"Entry {i}: Cannot generate GlobalID, missing CanonicalLatin")
+                    errors.append(
+                        f"Entry {i}: Cannot generate GlobalID, missing CanonicalLatin"
+                    )
             else:
                 global_id = entry["GlobalID"]
 
@@ -180,11 +184,17 @@ class V7QualityGates:
         total_entries = len(entries)
         duplicate_count = len(duplicates)
         unique_count = len(seen_ids)
-        duplicate_rate = (duplicate_count / total_entries) * 100 if total_entries > 0 else 0
+        duplicate_rate = (
+            (duplicate_count / total_entries) * 100 if total_entries > 0 else 0
+        )
 
         # V7 compliance: No duplicates allowed
         passed = duplicate_count == 0
-        score = max(0.0, 1.0 - (duplicate_count / total_entries)) if total_entries > 0 else 0.0
+        score = (
+            max(0.0, 1.0 - (duplicate_count / total_entries))
+            if total_entries > 0
+            else 0.0
+        )
 
         return V7ValidationResult(
             passed=passed,
@@ -203,7 +213,10 @@ class V7QualityGates:
                     ((unique_count / total_entries) * 100) if total_entries > 0 else 0
                 ),
                 "global_id_coverage": (
-                    ((len([e for e in entries if e.get("GlobalID")]) / total_entries) * 100)
+                    (
+                        (len([e for e in entries if e.get("GlobalID")]) / total_entries)
+                        * 100
+                    )
                     if total_entries > 0
                     else 0
                 ),
@@ -249,7 +262,9 @@ class V7QualityGates:
 
         # Calculate roundtrip rate
         total_tests = len(roundtrip_tests)
-        roundtrip_rate = (successful_roundtrips / total_tests * 100) if total_tests > 0 else 0
+        roundtrip_rate = (
+            (successful_roundtrips / total_tests * 100) if total_tests > 0 else 0
+        )
 
         # V7 compliance: 95% roundtrip success rate required
         v7_threshold = 95.0
@@ -270,11 +285,15 @@ class V7QualityGates:
             errors=errors,
             metrics={
                 "roundtrip_consistency": roundtrip_rate,
-                "test_coverage": (total_tests / len(entries) * 100) if len(entries) > 0 else 0,
+                "test_coverage": (
+                    (total_tests / len(entries) * 100) if len(entries) > 0 else 0
+                ),
             },
         )
 
-    async def _validate_idempotent_diff(self, entries: List[Dict[str, Any]]) -> V7ValidationResult:
+    async def _validate_idempotent_diff(
+        self, entries: List[Dict[str, Any]]
+    ) -> V7ValidationResult:
         """
         Gate 3: idempotent_diff - Compare actual pipeline reruns
         V7 Requirement: Pipeline must be idempotent (same input -> same output)
@@ -293,7 +312,9 @@ class V7QualityGates:
             current_run = self._create_run_snapshot(entries)
 
             # Perform idempotency comparison
-            comparison_result = await self._compare_pipeline_runs(previous_run, current_run)
+            comparison_result = await self._compare_pipeline_runs(
+                previous_run, current_run
+            )
             idempotent_tests.append(comparison_result)
 
             if comparison_result["identical"]:
@@ -303,7 +324,9 @@ class V7QualityGates:
                     errors.append(f"Idempotency violation: {diff}")
         else:
             # First run - store for future comparison
-            self._pipeline_runs_cache[run_signature] = self._create_run_snapshot(entries)
+            self._pipeline_runs_cache[run_signature] = self._create_run_snapshot(
+                entries
+            )
             # Create a mock comparison for testing
             mock_comparison = {
                 "identical": True,
@@ -315,7 +338,9 @@ class V7QualityGates:
 
         # Calculate idempotency rate
         total_tests = len(idempotent_tests)
-        idempotency_rate = (consistent_reruns / total_tests * 100) if total_tests > 0 else 0
+        idempotency_rate = (
+            (consistent_reruns / total_tests * 100) if total_tests > 0 else 0
+        )
 
         # V7 compliance: 100% idempotency required
         v7_threshold = 100.0
@@ -378,7 +403,8 @@ class V7QualityGates:
                 return {
                     "success": False,
                     "original": canonical_latin,
-                    "roundtrip": canonical_latin + "*",  # Slight difference indicating failure
+                    "roundtrip": canonical_latin
+                    + "*",  # Slight difference indicating failure
                     "region": detected_region,
                     "error": f"Roundtrip mismatch in {detected_region} region",
                     "confidence": success_rate,
@@ -486,11 +512,15 @@ class V7QualityGates:
                 # Check for circular relationships (A advises B, B advises A)
                 if advisor in relationships:
                     if person in relationships[advisor]["advisors"]:
-                        conflict_key = f"{min(person, advisor)}<->{max(person, advisor)}"
+                        conflict_key = (
+                            f"{min(person, advisor)}<->{max(person, advisor)}"
+                        )
                         if conflict_key not in genealogy_conflicts:
                             genealogy_conflicts.append(conflict_key)
                             conflict_edges += 2  # Both directions
-                            errors.append(f"Circular advisor relationship: {person} <-> {advisor}")
+                            errors.append(
+                                f"Circular advisor relationship: {person} <-> {advisor}"
+                            )
 
                 # Check for multi-generation conflicts (A->B->C->A)
                 # Simplified check for demonstration
@@ -500,7 +530,9 @@ class V7QualityGates:
                     if cycle_key not in genealogy_conflicts:
                         genealogy_conflicts.append(cycle_key)
                         conflict_edges += 1
-                        errors.append(f"Multi-generation cycle detected involving {person}")
+                        errors.append(
+                            f"Multi-generation cycle detected involving {person}"
+                        )
 
         # Calculate conflict percentage
         conflict_rate = (conflict_edges / total_edges * 100) if total_edges > 0 else 0
@@ -508,7 +540,11 @@ class V7QualityGates:
         # V7 compliance: Less than 5% conflict rate required
         v7_threshold = 5.0
         passed = conflict_rate < v7_threshold
-        score = max(0.0, (v7_threshold - conflict_rate) / v7_threshold) if v7_threshold > 0 else 1.0
+        score = (
+            max(0.0, (v7_threshold - conflict_rate) / v7_threshold)
+            if v7_threshold > 0
+            else 1.0
+        )
 
         return V7ValidationResult(
             passed=passed,
@@ -529,7 +565,12 @@ class V7QualityGates:
         )
 
     def _check_genealogy_cycle(
-        self, current: str, target: str, relationships: Dict, visited: Set[str], max_depth: int = 3
+        self,
+        current: str,
+        target: str,
+        relationships: Dict,
+        visited: Set[str],
+        max_depth: int = 3,
     ) -> bool:
         """Check for genealogy cycles (simplified implementation)"""
         if max_depth <= 0 or current in visited:
@@ -579,7 +620,10 @@ class V7QualityGates:
             for node2_id, node2_data in graph_nodes.items():
                 if node1_id != node2_id:
                     # Connect nodes from same region
-                    if node1_data["region"] == node2_data["region"] and node1_data["region"]:
+                    if (
+                        node1_data["region"] == node2_data["region"]
+                        and node1_data["region"]
+                    ):
                         edge = (node1_id, node2_id, "same_region")
                         if edge not in graph_edges:
                             graph_edges.append(edge)
@@ -596,7 +640,9 @@ class V7QualityGates:
             # Connected components analysis
             connected_components = self._find_connected_components(graph_nodes)
             largest_component = (
-                max(len(comp) for comp in connected_components) if connected_components else 0
+                max(len(comp) for comp in connected_components)
+                if connected_components
+                else 0
             )
 
             # Graph density
@@ -604,7 +650,9 @@ class V7QualityGates:
             density = total_edges / max_possible_edges if max_possible_edges > 0 else 0
 
             # Coherence score calculation
-            connectivity_score = largest_component / total_nodes if total_nodes > 0 else 0
+            connectivity_score = (
+                largest_component / total_nodes if total_nodes > 0 else 0
+            )
             density_score = min(1.0, density * 10)  # Scale density appropriately
             coherence_score = (connectivity_score + density_score) / 2
 
@@ -620,7 +668,9 @@ class V7QualityGates:
                 "total_nodes": total_nodes,
                 "total_edges": total_edges,
                 "connected_components": (
-                    len(connected_components) if "connected_components" in locals() else 0
+                    len(connected_components)
+                    if "connected_components" in locals()
+                    else 0
                 ),
                 "largest_component_size": (
                     largest_component if "largest_component" in locals() else 0
@@ -637,7 +687,9 @@ class V7QualityGates:
             },
         )
 
-    def _find_connected_components(self, graph_nodes: Dict[str, Dict]) -> List[List[str]]:
+    def _find_connected_components(
+        self, graph_nodes: Dict[str, Dict]
+    ) -> List[List[str]]:
         """Find connected components in the graph"""
         visited = set()
         components = []
@@ -699,7 +751,9 @@ class V7QualityGates:
 
         # Score based on memory efficiency
         if v7_memory_limit_gb > 0:
-            score = max(0.0, (v7_memory_limit_gb - projected_rss_gb) / v7_memory_limit_gb)
+            score = max(
+                0.0, (v7_memory_limit_gb - projected_rss_gb) / v7_memory_limit_gb
+            )
         else:
             score = 0.0
 

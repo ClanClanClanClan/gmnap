@@ -23,7 +23,8 @@ except ImportError:
 
 # Skip test if segment function is not available
 @pytest.mark.skipif(
-    not SEGMENT_AVAILABLE, reason="segment function not available (pynini dependency missing)"
+    not SEGMENT_AVAILABLE,
+    reason="segment function not available (pynini dependency missing)",
 )
 @pytest.mark.timeout(15)
 def test_segment_cases():

@@ -61,10 +61,22 @@ class ComprehensiveAuditor:
             ),
             ("regional_manager", "from src.regions.manager import RegionManager"),
             ("quality_gates", "from src.quality.gates import QualityGates"),
-            ("duckdb_analytics", "from src.analytics.duckdb_analytics import DuckDBAnalytics"),
-            ("schema_validator", "from src.core.schema_validator import V7SchemaValidator"),
-            ("unicode_handler", "from src.core.unicode_handler import UnicodeNormalizer"),
-            ("security_validator", "from src.core.security_validator import SecurityValidator"),
+            (
+                "duckdb_analytics",
+                "from src.analytics.duckdb_analytics import DuckDBAnalytics",
+            ),
+            (
+                "schema_validator",
+                "from src.core.schema_validator import V7SchemaValidator",
+            ),
+            (
+                "unicode_handler",
+                "from src.core.unicode_handler import UnicodeNormalizer",
+            ),
+            (
+                "security_validator",
+                "from src.core.security_validator import SecurityValidator",
+            ),
             ("global_id", "from src.core.global_id import generate_global_id"),
         ]
 
@@ -129,8 +141,12 @@ class ComprehensiveAuditor:
             "critical_total": critical_total,
             "optional_passed": optional_passed,
             "optional_total": optional_total,
-            "critical_success_rate": critical_passed / critical_total if critical_total else 0,
-            "optional_success_rate": optional_passed / optional_total if optional_total else 0,
+            "critical_success_rate": (
+                critical_passed / critical_total if critical_total else 0
+            ),
+            "optional_success_rate": (
+                optional_passed / optional_total if optional_total else 0
+            ),
         }
 
         section["status"] = "passed" if critical_passed == critical_total else "failed"
@@ -183,7 +199,9 @@ class ComprehensiveAuditor:
                     }
 
                     if romanized != expected:
-                        section["issues"].append(f"{korean} → {romanized} (expected: {expected})")
+                        section["issues"].append(
+                            f"{korean} → {romanized} (expected: {expected})"
+                        )
 
                     section["tests"].append(test_result)
 
@@ -241,7 +259,10 @@ class ComprehensiveAuditor:
 
                     for batch_size in batch_sizes:
                         entries = [
-                            {"CanonicalNative": f"Test Name {i}", "GlobalID": f"TEST-{i}"}
+                            {
+                                "CanonicalNative": f"Test Name {i}",
+                                "GlobalID": f"TEST-{i}",
+                            }
                             for i in range(batch_size)
                         ]
 
@@ -259,7 +280,9 @@ class ComprehensiveAuditor:
                             "success_rate": metrics.get("success_rate", 0),
                             "duplicate_count": metrics.get("duplicate_global_ids", 0),
                             "status": (
-                                "passed" if metrics.get("success_rate", 0) >= 0.99 else "failed"
+                                "passed"
+                                if metrics.get("success_rate", 0) >= 0.99
+                                else "failed"
                             ),
                         }
 
@@ -270,12 +293,16 @@ class ComprehensiveAuditor:
 
             # Calculate aggregate metrics
             all_speeds = [
-                t["entries_per_second"] for t in section["tests"] if t.get("entries_per_second")
+                t["entries_per_second"]
+                for t in section["tests"]
+                if t.get("entries_per_second")
             ]
 
             section["metrics"] = {
                 "modes_tested": list(set(t["mode"] for t in section["tests"])),
-                "batch_sizes_tested": list(set(t["batch_size"] for t in section["tests"])),
+                "batch_sizes_tested": list(
+                    set(t["batch_size"] for t in section["tests"])
+                ),
                 "average_speed": sum(all_speeds) / len(all_speeds) if all_speeds else 0,
                 "max_speed": max(all_speeds) if all_speeds else 0,
                 "min_speed": min(all_speeds) if all_speeds else 0,
@@ -350,7 +377,9 @@ class ComprehensiveAuditor:
                     )
 
             section["status"] = (
-                "passed" if all(t["status"] == "passed" for t in section["tests"]) else "failed"
+                "passed"
+                if all(t["status"] == "passed" for t in section["tests"])
+                else "failed"
             )
 
         except Exception as e:
@@ -484,7 +513,9 @@ class ComprehensiveAuditor:
                         "path": dir_path,
                         "type": "directory",
                         "status": "exists",
-                        "size": sum(f.stat().st_size for f in path.rglob("*") if f.is_file()),
+                        "size": sum(
+                            f.stat().st_size for f in path.rglob("*") if f.is_file()
+                        ),
                     }
                 )
             else:
@@ -508,13 +539,16 @@ class ComprehensiveAuditor:
         # Look for __pycache__ directories
         pycache_dirs = list(Path(".").rglob("__pycache__"))
         if pycache_dirs:
-            section["warnings"].append(f"Found {len(pycache_dirs)} __pycache__ directories")
+            section["warnings"].append(
+                f"Found {len(pycache_dirs)} __pycache__ directories"
+            )
 
         section["metrics"] = {
             "total_python_files": len(python_files),
             "backup_files": len(backup_files),
             "pycache_dirs": len(pycache_dirs),
-            "total_size_mb": sum(f.stat().st_size for f in python_files) / (1024 * 1024),
+            "total_size_mb": sum(f.stat().st_size for f in python_files)
+            / (1024 * 1024),
         }
 
         section["status"] = "passed" if not section["issues"] else "failed"
@@ -608,7 +642,9 @@ class ComprehensiveAuditor:
         self.generate_summary()
 
         # Save results
-        output_file = f"audit_results_reality_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        output_file = (
+            f"audit_results_reality_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
         with open(output_file, "w") as f:
             json.dump(self.results, f, indent=2, default=str)
 

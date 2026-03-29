@@ -17,15 +17,29 @@ pipeline = GMNAPPipeline({"database_path": ":memory:"})
 # Categorize failures
 failures = [
     # Region validation failures
-    {"name": "Čížek, Pavel", "category": "wrong_region", "detected": "G1", "should_be": "B2"},
-    {"name": "Wang, Ming", "native": "王明", "category": "mixed_script", "detected": "E1"},
+    {
+        "name": "Čížek, Pavel",
+        "category": "wrong_region",
+        "detected": "G1",
+        "should_be": "B2",
+    },
+    {
+        "name": "Wang, Ming",
+        "native": "王明",
+        "category": "mixed_script",
+        "detected": "E1",
+    },
     {"name": "Test, Name", "region": "B1", "category": "forced_region"},
     # Normalization failures
     {"name": "Testﬃ", "category": "normalization", "issue": "ligature"},
     {"name": "Test№", "category": "normalization", "issue": "numero sign"},
     {"name": "Test½", "category": "normalization", "issue": "fraction"},
     # Script validation
-    {"name": "王明", "category": "script_in_latin", "issue": "Chinese in CanonicalLatin"},
+    {
+        "name": "王明",
+        "category": "script_in_latin",
+        "issue": "Chinese in CanonicalLatin",
+    },
 ]
 
 print("Failure Analysis - What Can We Fix?")

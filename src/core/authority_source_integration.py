@@ -41,7 +41,11 @@ class AuthoritySourceIntegrator:
         }
 
         # Test queries for validation
-        self.test_queries = ["Einstein, Albert", "Gauss, Carl Friedrich", "Euler, Leonhard"]
+        self.test_queries = [
+            "Einstein, Albert",
+            "Gauss, Carl Friedrich",
+            "Euler, Leonhard",
+        ]
 
     async def run_authority_source_integration(self) -> Dict[str, Any]:
         """
@@ -71,7 +75,9 @@ class AuthoritySourceIntegrator:
                     self.logger.info(f"✅ {source_name}: WORKING")
                 else:
                     self.failed_sources.append(source_name)
-                    self.logger.warning(f"❌ {source_name}: FAILED - {source_result['error']}")
+                    self.logger.warning(
+                        f"❌ {source_name}: FAILED - {source_result['error']}"
+                    )
 
             except Exception as e:
                 error_msg = f"Integration test failed: {e}"
@@ -143,7 +149,9 @@ class AuthoritySourceIntegrator:
         except Exception as e:
             self.logger.error(f"Error initializing authority sources: {e}")
 
-        self.logger.info(f"Initialized {len(authority_sources)} authority sources for testing")
+        self.logger.info(
+            f"Initialized {len(authority_sources)} authority sources for testing"
+        )
         return authority_sources
 
     async def _test_authority_source(
@@ -199,7 +207,8 @@ class AuthoritySourceIntegrator:
 
                 else:
                     query_result["error"] = (
-                        fetch_result.error_message or f"Status: {fetch_result.status.value}"
+                        fetch_result.error_message
+                        or f"Status: {fetch_result.status.value}"
                     )
 
             except asyncio.TimeoutError:
@@ -210,12 +219,18 @@ class AuthoritySourceIntegrator:
             test_results.append(query_result)
 
         # Determine if source is working
-        success_rate = (successful_queries / total_queries) * 100 if total_queries > 0 else 0
+        success_rate = (
+            (successful_queries / total_queries) * 100 if total_queries > 0 else 0
+        )
         working = successful_queries > 0 and success_rate >= 30  # At least 30% success
 
         # Calculate average metrics
-        avg_response_time = sum(r["response_time_ms"] for r in test_results) / len(test_results)
-        avg_data_quality = sum(r["data_quality_score"] for r in test_results) / len(test_results)
+        avg_response_time = sum(r["response_time_ms"] for r in test_results) / len(
+            test_results
+        )
+        avg_data_quality = sum(r["data_quality_score"] for r in test_results) / len(
+            test_results
+        )
 
         return {
             "working": working,
@@ -225,7 +240,11 @@ class AuthoritySourceIntegrator:
             "average_response_time_ms": avg_response_time,
             "average_data_quality": avg_data_quality,
             "test_results": test_results,
-            "error": None if working else f"Low success rate: {success_rate:.1f}% (need ≥30%)",
+            "error": (
+                None
+                if working
+                else f"Low success rate: {success_rate:.1f}% (need ≥30%)"
+            ),
         }
 
     def _assess_data_quality(self, data) -> float:
@@ -278,7 +297,9 @@ class AuthoritySourceIntegrator:
         # Calculate authority source improvement
         working_sources = integration_results["integration_summary"]["working_sources"]
         expected_sources = 15  # V7 expectation
-        authority_improvement = (working_sources / expected_sources) * 15  # Up to 15% boost
+        authority_improvement = (
+            working_sources / expected_sources
+        ) * 15  # Up to 15% boost
 
         # Updated V7 compliance
         new_compliance = base_compliance + authority_improvement
@@ -320,7 +341,9 @@ class ORCIDFetcher(AuthorityFetcher):
 
             return FetchResult(status=FetchStatus.SUCCESS, data=data)
         else:
-            return FetchResult(status=FetchStatus.NOT_FOUND, error_message="No ORCID found")
+            return FetchResult(
+                status=FetchStatus.NOT_FOUND, error_message="No ORCID found"
+            )
 
     def parse_response(self, response):
         from ..authorities.base import AuthorityData
@@ -343,7 +366,9 @@ class ArXivFetcher(AuthorityFetcher):
 
         # Mock successful response
         data = AuthorityData(
-            source=self.service, source_id=f"arxiv-{hash(query) % 100000}", canonical_name=query
+            source=self.service,
+            source_id=f"arxiv-{hash(query) % 100000}",
+            canonical_name=query,
         )
         data.metadata = {"papers_count": 5, "recent_activity": True}
         data.confidence_score = 0.6
@@ -371,9 +396,13 @@ class DBLPFetcher(AuthorityFetcher):
 
         # Mock successful response with rich data
         data = AuthorityData(
-            source=self.service, source_id=f"dblp-{hash(query) % 100000}", canonical_name=query
+            source=self.service,
+            source_id=f"dblp-{hash(query) % 100000}",
+            canonical_name=query,
         )
-        data.affiliations = [{"name": "Computer Science Department", "type": "institution"}]
+        data.affiliations = [
+            {"name": "Computer Science Department", "type": "institution"}
+        ]
         data.metadata = {"publications_count": 12, "h_index": 8}
         data.confidence_score = 0.75
 

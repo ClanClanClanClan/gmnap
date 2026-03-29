@@ -125,7 +125,9 @@ class B1_EastSlavic(RegionSpec):
                     if char_code == 127:  # DEL
                         raise RegionRuleError(f"DELETE character in {field}")
                     if char_code in [0x200B, 0x200C, 0x200D, 0xFEFF]:  # Zero-width
-                        raise RegionRuleError(f"Zero-width character in {field}: U+{char_code:04X}")
+                        raise RegionRuleError(
+                            f"Zero-width character in {field}: U+{char_code:04X}"
+                        )
 
         # Clean canonical forms
         for field in ["CanonicalLatin", "CanonicalNative"]:
@@ -220,7 +222,9 @@ class B1_EastSlavic(RegionSpec):
                 entry["CanonicalLatin"] = gost_romanized
                 # Use add_variant for idempotency
                 if hasattr(self, "add_variant"):
-                    self.add_variant(entry, {"str": gost_romanized, "type": "gost-romanization"})
+                    self.add_variant(
+                        entry, {"str": gost_romanized, "type": "gost-romanization"}
+                    )
                 else:
                     entry["Variants"]["Synthesised"].append(
                         {"str": gost_romanized, "type": "gost-romanization"}
@@ -231,7 +235,9 @@ class B1_EastSlavic(RegionSpec):
             if bgn_romanized != canonical and bgn_romanized != gost_romanized:
                 # Use add_variant for idempotency
                 if hasattr(self, "add_variant"):
-                    self.add_variant(entry, {"str": bgn_romanized, "type": "bgn-pcgn-romanization"})
+                    self.add_variant(
+                        entry, {"str": bgn_romanized, "type": "bgn-pcgn-romanization"}
+                    )
                 else:
                     entry["Variants"]["Synthesised"].append(
                         {"str": bgn_romanized, "type": "bgn-pcgn-romanization"}
@@ -240,11 +246,15 @@ class B1_EastSlavic(RegionSpec):
         # Rule 9: East-Slavic Patronymic – strip middle token; gender inference
         if components.get("patronymic"):
             # Generate variant without patronymic (stripped middle token)
-            without_patronymic = self._generate_no_patronymic_variant(canonical, components)
+            without_patronymic = self._generate_no_patronymic_variant(
+                canonical, components
+            )
             if without_patronymic and without_patronymic != canonical:
                 # Use add_variant for idempotency
                 if hasattr(self, "add_variant"):
-                    self.add_variant(entry, {"str": without_patronymic, "type": "no-patronymic"})
+                    self.add_variant(
+                        entry, {"str": without_patronymic, "type": "no-patronymic"}
+                    )
                 else:
                     entry["Variants"]["Synthesised"].append(
                         {"str": without_patronymic, "type": "no-patronymic"}
@@ -674,7 +684,9 @@ class B1_EastSlavic(RegionSpec):
 
         # If CanonicalNative exists, prefer it to be Cyrillic (but be very lenient)
         if canonical_native and len(canonical_native.strip()) > 0:
-            if not self._is_cyrillic(canonical_native) and not self._has_cyrillic(canonical_native):
+            if not self._is_cyrillic(canonical_native) and not self._has_cyrillic(
+                canonical_native
+            ):
                 # Only warn for non-Cyrillic native names in B1 region
                 # Don't fail completely - allow processing to continue
                 self.logger.warning(
@@ -684,7 +696,9 @@ class B1_EastSlavic(RegionSpec):
         # If CanonicalLatin exists, it should be mostly romanized (allow some Cyrillic in mixed names)
         if canonical_latin and len(canonical_latin.strip()) > 0:
             if self._is_cyrillic(canonical_latin):
-                raise RegionRuleError(f"CanonicalLatin should be romanized: {canonical_latin}")
+                raise RegionRuleError(
+                    f"CanonicalLatin should be romanized: {canonical_latin}"
+                )
 
     def _has_valid_characters(self, name: str) -> bool:
         """Check if name contains valid characters (permissive for international names)."""
@@ -725,7 +739,9 @@ class B1_EastSlavic(RegionSpec):
                 given = self._romanize_name(given)
         else:
             # Fallback to canonical form
-            canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
+            canonical = entry.get("CanonicalLatin", "") or entry.get(
+                "CanonicalNative", ""
+            )
 
             # If we have Cyrillic, romanize for sorting
             if self._is_cyrillic(canonical):

@@ -89,7 +89,13 @@ def analyze_roundtrip_problem():
     russian_latin = "Petrov"
 
     # Simple pattern matching for common transliterations
-    transliteration_patterns = {"ов$": "ov$", "ев$": "ev$", "ич$": "ich$", "^П": "^P", "^А": "^A"}
+    transliteration_patterns = {
+        "ов$": "ov$",
+        "ев$": "ev$",
+        "ич$": "ich$",
+        "^П": "^P",
+        "^А": "^A",
+    }
 
     print(f"Russian example: {russian_native} → {russian_latin}")
     print("Pattern-based validation:")
@@ -105,7 +111,9 @@ def analyze_roundtrip_problem():
 
     print("\n\n6. RECOMMENDED FIX:")
     print("=" * 50)
-    print("Add this to _calculate_roundtrip_score() before the SequenceMatcher fallback:")
+    print(
+        "Add this to _calculate_roundtrip_score() before the SequenceMatcher fallback:"
+    )
     print("""
     # Check for Cyrillic script
     cyrillic_chars = sum(1 for c in native if 0x0400 <= ord(c) <= 0x04FF)

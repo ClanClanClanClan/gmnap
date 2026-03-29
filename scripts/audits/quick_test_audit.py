@@ -18,7 +18,9 @@ def audit_test_files():
 
     # Find all test files
     test_files = list(Path(".").glob("**/test_*.py"))
-    test_files = [f for f in test_files if "venv" not in str(f) and "__pycache__" not in str(f)]
+    test_files = [
+        f for f in test_files if "venv" not in str(f) and "__pycache__" not in str(f)
+    ]
 
     stats = {
         "total": len(test_files),
@@ -49,7 +51,9 @@ def audit_test_files():
             test_count = len(re.findall(r"def test_\w+", content))
 
             # Check for common issues
-            has_import_error = "from src.regions.manager import" in content  # Old import
+            has_import_error = (
+                "from src.regions.manager import" in content
+            )  # Old import
 
             if test_count > 0:
                 stats["has_tests"] += 1
@@ -79,12 +83,16 @@ def audit_test_files():
     print(
         f"  Files with tests:        {stats['has_tests']} ({stats['has_tests']/stats['total']*100:.1f}%)"
     )
-    print(f"  Empty files:             {stats['empty']} ({stats['empty']/stats['total']*100:.1f}%)")
+    print(
+        f"  Empty files:             {stats['empty']} ({stats['empty']/stats['total']*100:.1f}%)"
+    )
     print(f"  Files with import issues: {stats['import_errors']}")
 
     print(f"\n📁 BY CATEGORY:")
     for category, cat_stats in sorted(stats["by_category"].items()):
-        print(f"  {category:<15} {cat_stats['has_tests']}/{cat_stats['total']} files with tests")
+        print(
+            f"  {category:<15} {cat_stats['has_tests']}/{cat_stats['total']} files with tests"
+        )
 
     print("\n🎯 VERDICT:")
     if stats["has_tests"] < stats["total"] * 0.3:

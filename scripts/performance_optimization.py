@@ -127,9 +127,13 @@ def benchmark_performance():
     print(f"\n🏆 BEST PERFORMERS:")
     for opt_name, result in results.items():
         if result == best_throughput:
-            print(f"  🚀 Highest throughput: {opt_name} ({result['throughput']:.1f}/sec)")
+            print(
+                f"  🚀 Highest throughput: {opt_name} ({result['throughput']:.1f}/sec)"
+            )
         if result == best_latency:
-            print(f"  ⚡ Lowest P95 latency: {opt_name} ({result['p95_latency']:.2f}ms)")
+            print(
+                f"  ⚡ Lowest P95 latency: {opt_name} ({result['p95_latency']:.2f}ms)"
+            )
 
     # Blueprint compliance check
     print(f"\n🎯 BLUEPRINT TARGETS:")
@@ -158,7 +162,9 @@ def benchmark_performance():
             print(
                 f"     P95 Latency: {result['p95_latency']:.1f}ms < {blueprint_targets['p95_latency']}"
             )
-            print(f"     Memory: ~{estimated_memory}MB < {blueprint_targets['memory_mb']}")
+            print(
+                f"     Memory: ~{estimated_memory}MB < {blueprint_targets['memory_mb']}"
+            )
         else:
             print(f"  ❌ {opt_name}: NOT COMPLIANT")
             if not throughput_ok:
@@ -170,7 +176,9 @@ def benchmark_performance():
                     f"     P95 Latency: {result['p95_latency']:.1f}ms ≥ {blueprint_targets['p95_latency']}"
                 )
             if not memory_ok:
-                print(f"     Memory: ~{estimated_memory}MB ≥ {blueprint_targets['memory_mb']}")
+                print(
+                    f"     Memory: ~{estimated_memory}MB ≥ {blueprint_targets['memory_mb']}"
+                )
 
     # Save performance results
     os.makedirs("data", exist_ok=True)
@@ -192,7 +200,9 @@ def benchmark_performance():
     # Overall assessment
     if compliant_optimizations:
         print(f"\n🎉 PHASE 14 PERFORMANCE: PASSED")
-        print(f"   {len(compliant_optimizations)} optimization(s) meet blueprint targets")
+        print(
+            f"   {len(compliant_optimizations)} optimization(s) meet blueprint targets"
+        )
         print(f"   Recommended: {compliant_optimizations[0]}")
     else:
         print(f"\n⚠️  PHASE 14 PERFORMANCE: NEEDS IMPROVEMENT")

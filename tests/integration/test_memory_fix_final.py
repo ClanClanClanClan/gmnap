@@ -87,4 +87,6 @@ if memory_points:
     if final_leak_rate < 0.10:
         print(f"   PASS PASS: Memory leak below 0.1 MB/1K threshold")
     else:
-        print(f"   FAIL FAIL: Memory leak {final_leak_rate:.3f} exceeds 0.1 MB/1K threshold")
+        print(
+            f"   FAIL FAIL: Memory leak {final_leak_rate:.3f} exceeds 0.1 MB/1K threshold"
+        )

@@ -15,5 +15,7 @@ def test_build_draft_doi_minimal():
     )
     assert doi.startswith("10.3929/ethz-lineage/")
     assert payload["data"]["attributes"]["event"] == "draft"
-    assert payload["data"]["attributes"]["titles"][0]["title"].startswith("MathLineage Snapshot")
+    assert payload["data"]["attributes"]["titles"][0]["title"].startswith(
+        "MathLineage Snapshot"
+    )
     assert payload["data"]["attributes"]["creators"][0]["name"] == "MathLineage Project"

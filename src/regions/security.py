@@ -57,14 +57,20 @@ class SecurityFilter:
                 r"\b(union|select|insert|update|delete|drop|alter|create|exec|execute)\b",
                 re.IGNORECASE,
             ),
-            re.compile(r'[\'";]\s*(or|and)\s+[\'"]?1[\'"]?\s*=\s*[\'"]?1', re.IGNORECASE),
-            re.compile(r'[\'";]\s*(or|and)\s+[\'"]?\w+[\'"]?\s*=\s*[\'"]?\w+', re.IGNORECASE),
+            re.compile(
+                r'[\'";]\s*(or|and)\s+[\'"]?1[\'"]?\s*=\s*[\'"]?1', re.IGNORECASE
+            ),
+            re.compile(
+                r'[\'";]\s*(or|and)\s+[\'"]?\w+[\'"]?\s*=\s*[\'"]?\w+', re.IGNORECASE
+            ),
             # LDAP injection
             re.compile(r"[()=*&|!]+", re.IGNORECASE),
             # Command injection
             re.compile(r"[;&|`$(){}[\]\\]"),
             re.compile(r"\$\{[^}]*\}"),  # Variable expansion
-            re.compile(r"%[0-9a-f]{2}", re.IGNORECASE),  # URL encoding of dangerous chars
+            re.compile(
+                r"%[0-9a-f]{2}", re.IGNORECASE
+            ),  # URL encoding of dangerous chars
             # Path traversal
             re.compile(r"\.\.[\\/]"),
             re.compile(r"[\\/]\.\."),
@@ -75,7 +81,12 @@ class SecurityFilter:
         ]
 
         # Dangerous control characters (except safe whitespace)
-        self.dangerous_controls = set(range(0, 32)) - {9, 10, 13, 32}  # Exclude \t, \n, \r, space
+        self.dangerous_controls = set(range(0, 32)) - {
+            9,
+            10,
+            13,
+            32,
+        }  # Exclude \t, \n, \r, space
 
         # Common attack strings
         self.attack_strings = {
@@ -206,7 +217,8 @@ class SecurityFilter:
             if pattern.search(text):
                 match = pattern.search(text)
                 raise SecurityError(
-                    f"Script injection pattern detected in {context}: " f"'{match.group()[:50]}...'"
+                    f"Script injection pattern detected in {context}: "
+                    f"'{match.group()[:50]}...'"
                 )
 
         # Check for excessive special characters (potential obfuscation)
@@ -273,7 +285,9 @@ class SecurityFilter:
 
         return text.strip()
 
-    def validate_entry(self, entry: Dict[str, Any], region_code: str = "unknown") -> None:
+    def validate_entry(
+        self, entry: Dict[str, Any], region_code: str = "unknown"
+    ) -> None:
         """
         Validate entire entry dictionary for security threats.
 
@@ -338,10 +352,13 @@ class SecurityFilter:
         # Final validation on cleaned string
         if cleaned != name:
             # If sanitization changed the string significantly, be suspicious
-            similarity = len(set(cleaned) & set(name)) / max(len(set(cleaned)), len(set(name)), 1)
+            similarity = len(set(cleaned) & set(name)) / max(
+                len(set(cleaned)), len(set(name)), 1
+            )
             if similarity < 0.7:  # Less than 70% character similarity
                 raise SecurityError(
-                    f"Suspicious content removed from {field_name}: " f"similarity {similarity:.1%}"
+                    f"Suspicious content removed from {field_name}: "
+                    f"similarity {similarity:.1%}"
                 )
 
         return cleaned

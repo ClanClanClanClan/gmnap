@@ -244,7 +244,9 @@ def main():
 
     parser = argparse.ArgumentParser(description="Clean up GMNAP project structure")
     parser.add_argument(
-        "--execute", action="store_true", help="Actually perform cleanup (default is dry run)"
+        "--execute",
+        action="store_true",
+        help="Actually perform cleanup (default is dry run)",
     )
     args = parser.parse_args()
 

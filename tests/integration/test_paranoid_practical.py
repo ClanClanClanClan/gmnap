@@ -120,7 +120,9 @@ class PracticalParanoidTester:
             )
 
         # Edge cases
-        self.test("Empty string", security_validator.is_safe(""), "Empty should be safe")
+        self.test(
+            "Empty string", security_validator.is_safe(""), "Empty should be safe"
+        )
 
         self.test(
             "Very long string (10K chars)",
@@ -129,7 +131,9 @@ class PracticalParanoidTester:
         )
 
         self.test(
-            "Null bytes", not security_validator.is_safe("test\x00null"), "Should reject null bytes"
+            "Null bytes",
+            not security_validator.is_safe("test\x00null"),
+            "Should reject null bytes",
         )
 
         # Complex nested attacks
@@ -155,7 +159,9 @@ class PracticalParanoidTester:
         duration = time.time() - start
 
         self.test(
-            "Performance (1000 checks)", duration < 1.0, f"Should be fast, took {duration:.3f}s"
+            "Performance (1000 checks)",
+            duration < 1.0,
+            f"Should be fast, took {duration:.3f}s",
         )
 
     @pytest.mark.timeout(15)
@@ -169,20 +175,28 @@ class PracticalParanoidTester:
         # Determinism
         id1 = gen.generate("Test Name", 2024)
         id2 = gen.generate("Test Name", 2024)
-        self.test("Deterministic generation", id1 == id2, "Same input should give same ID")
+        self.test(
+            "Deterministic generation", id1 == id2, "Same input should give same ID"
+        )
 
         # Case sensitivity
         id_lower = gen.generate("john smith", 2024)
         id_upper = gen.generate("JOHN SMITH", 2024)
         id_mixed = gen.generate("John Smith", 2024)
         self.test(
-            "Case normalization", id_lower == id_upper == id_mixed, "Case should be normalized"
+            "Case normalization",
+            id_lower == id_upper == id_mixed,
+            "Case should be normalized",
         )
 
         # Unicode normalization
         composed = gen.generate("café", 2024)  # é as single char
         decomposed = gen.generate("café", 2024)  # e + combining accent
-        self.test("Unicode normalization", composed == decomposed, "Unicode should be normalized")
+        self.test(
+            "Unicode normalization",
+            composed == decomposed,
+            "Unicode should be normalized",
+        )
 
         # Year variations
         years = [0, 1, 1000, 2024, 9999, -1, -1000, 999999]
@@ -201,7 +215,14 @@ class PracticalParanoidTester:
         )
 
         # Special characters
-        special_names = ["O'Brien", "Mary-Jane", "José María", "李明", "Müller", "Владимир"]
+        special_names = [
+            "O'Brien",
+            "Mary-Jane",
+            "José María",
+            "李明",
+            "Müller",
+            "Владимир",
+        ]
 
         special_ids = []
         for name in special_names:
@@ -246,7 +267,9 @@ class PracticalParanoidTester:
                 id = gen.generate(name, year)
                 valid = len(name.strip()) > 0
                 self.test(
-                    f"Edge case: '{name[:10]}'", valid, "Should handle edge cases appropriately"
+                    f"Edge case: '{name[:10]}'",
+                    valid,
+                    "Should handle edge cases appropriately",
                 )
             except:
                 self.test(
@@ -393,9 +416,17 @@ class PracticalParanoidTester:
             try:
                 s = seq.decode("utf-8", errors="replace")
                 normalized = normalizer.normalize(s)
-                self.test(f"Invalid Unicode: {repr(seq)}", True, "Should handle invalid sequences")
+                self.test(
+                    f"Invalid Unicode: {repr(seq)}",
+                    True,
+                    "Should handle invalid sequences",
+                )
             except:
-                self.test(f"Invalid Unicode: {repr(seq)}", True, "Exception handling is acceptable")
+                self.test(
+                    f"Invalid Unicode: {repr(seq)}",
+                    True,
+                    "Exception handling is acceptable",
+                )
 
         # Case folding
         case_pairs = [
@@ -409,7 +440,9 @@ class PracticalParanoidTester:
             folded_upper = normalizer.casefold(upper)
             folded_lower = normalizer.casefold(lower)
             self.test(
-                f"Casefold: {upper}", folded_upper == folded_lower, "Should casefold correctly"
+                f"Casefold: {upper}",
+                folded_upper == folded_lower,
+                "Should casefold correctly",
             )
 
     @pytest.mark.timeout(15)
@@ -436,7 +469,9 @@ class PracticalParanoidTester:
 
         for entry in valid_entries:
             result = validator.validate(entry)
-            self.test("Valid schema", result["is_valid"], "Should validate correct schema")
+            self.test(
+                "Valid schema", result["is_valid"], "Should validate correct schema"
+            )
 
         # Missing required fields
         required_fields = [
@@ -454,7 +489,9 @@ class PracticalParanoidTester:
             del invalid[field]
             result = validator.validate(invalid)
             self.test(
-                f"Missing {field}", not result["is_valid"], "Should reject missing required field"
+                f"Missing {field}",
+                not result["is_valid"],
+                "Should reject missing required field",
             )
 
         # Invalid types
@@ -470,7 +507,9 @@ class PracticalParanoidTester:
             invalid[field] = value
             result = validator.validate(invalid)
             self.test(
-                f"Invalid type for {field}", not result["is_valid"], "Should reject invalid types"
+                f"Invalid type for {field}",
+                not result["is_valid"],
+                "Should reject invalid types",
             )
 
         # Edge cases
@@ -490,7 +529,9 @@ class PracticalParanoidTester:
                     "Should reject invalid input",
                 )
             except:
-                self.test(f"Edge case: {type(case).__name__}", True, "Exception is acceptable")
+                self.test(
+                    f"Edge case: {type(case).__name__}", True, "Exception is acceptable"
+                )
 
     @pytest.mark.timeout(15)
     def test_authority_cache_paranoid(self):
@@ -508,7 +549,9 @@ class PracticalParanoidTester:
         retrieved = cache.get(test_id, "orcid")
 
         self.test(
-            "Basic cache set/get", retrieved == test_data, "Should store and retrieve correctly"
+            "Basic cache set/get",
+            retrieved == test_data,
+            "Should store and retrieve correctly",
         )
 
         # Cache expiration
@@ -542,7 +585,11 @@ class PracticalParanoidTester:
         cache.set("large", large_data, "test")
         retrieved_large = cache.get("large", "test")
 
-        self.test("Large data caching", retrieved_large == large_data, "Should handle large data")
+        self.test(
+            "Large data caching",
+            retrieved_large == large_data,
+            "Should handle large data",
+        )
 
         # Invalid inputs
         invalid_tests = [
@@ -556,11 +603,15 @@ class PracticalParanoidTester:
                 cache.set(key, data, source)
                 result = cache.get(key, source)
                 self.test(
-                    f"Invalid input: {key}, {data}, {source}", True, "Should handle gracefully"
+                    f"Invalid input: {key}, {data}, {source}",
+                    True,
+                    "Should handle gracefully",
                 )
             except:
                 self.test(
-                    f"Invalid input: {key}, {data}, {source}", True, "Exception is acceptable"
+                    f"Invalid input: {key}, {data}, {source}",
+                    True,
+                    "Exception is acceptable",
                 )
 
     @pytest.mark.timeout(15)
@@ -571,7 +622,9 @@ class PracticalParanoidTester:
 
         # Try to import Korean converter
         try:
-            os.chdir(Path(__file__).parent / "src" / "regions" / "e_groups" / "e4_korea")
+            os.chdir(
+                Path(__file__).parent / "src" / "regions" / "e_groups" / "e4_korea"
+            )
             sys.path.insert(0, os.getcwd())
 
             # # # from converter_v7 import KoreanConverterV7
@@ -588,7 +641,9 @@ class PracticalParanoidTester:
                 accuracy = converter.round_trip_accuracy(korean_name, is_korean=True)
 
                 self.test(
-                    f"Round-trip: {korean_name}", accuracy >= 0.97, f"Got {accuracy:.3f} accuracy"
+                    f"Round-trip: {korean_name}",
+                    accuracy >= 0.97,
+                    f"Got {accuracy:.3f} accuracy",
                 )
 
             # Edge cases
@@ -605,14 +660,20 @@ class PracticalParanoidTester:
                     romanized = converter.romanize(case)
                     self.test(f"Edge case: '{case}'", True, "Should handle edge case")
                 except:
-                    self.test(f"Edge case: '{case}'", len(case.strip()) == 0, "Should reject empty")
+                    self.test(
+                        f"Edge case: '{case}'",
+                        len(case.strip()) == 0,
+                        "Should reject empty",
+                    )
 
             # Multiple valid romanizations
             romanizations = ["kim chul soo", "kim cheol su", "kim chul-soo"]
 
             for rom in romanizations:
                 korean = converter.koreanize(rom)
-                self.test(f"Romanization variant: {rom}", korean == "김철수", f"Got {korean}")
+                self.test(
+                    f"Romanization variant: {rom}", korean == "김철수", f"Got {korean}"
+                )
 
             # Performance
             start = time.time()
@@ -620,10 +681,18 @@ class PracticalParanoidTester:
                 converter.romanize("김철수")
             duration = time.time() - start
 
-            self.test("Conversion performance (100 names)", duration < 1.0, f"Took {duration:.3f}s")
+            self.test(
+                "Conversion performance (100 names)",
+                duration < 1.0,
+                f"Took {duration:.3f}s",
+            )
 
         except ImportError:
-            self.test("Korean converter availability", False, "Could not import Korean converter")
+            self.test(
+                "Korean converter availability",
+                False,
+                "Could not import Korean converter",
+            )
         except Exception as e:
             self.test("Korean converter testing", False, f"Error: {e}")
         finally:
@@ -652,7 +721,9 @@ class PracticalParanoidTester:
         for name, year, expected_region in test_names:
             # Detect region
             region_result = manager.detect_regions(name)
-            detected_region = region_result.get("primary_region") if region_result else None
+            detected_region = (
+                region_result.get("primary_region") if region_result else None
+            )
 
             # Generate ID
             global_id = gen.generate(name, year)
@@ -663,7 +734,9 @@ class PracticalParanoidTester:
                 "OriginalName": name,
                 "NormalizedName": name.lower(),
                 "PrimaryRegion": detected_region or "UNKNOWN",
-                "AllRegions": region_result.get("all_regions", []) if region_result else [],
+                "AllRegions": (
+                    region_result.get("all_regions", []) if region_result else []
+                ),
                 "Year": year,
                 "CreatedAt": datetime.utcnow().isoformat() + "Z",
                 "UpdatedAt": datetime.utcnow().isoformat() + "Z",
@@ -690,9 +763,15 @@ class PracticalParanoidTester:
                 if name:
                     region_result = manager.detect_regions(name)
                 global_id = gen.generate(name or "", year)
-                self.test(f"Error handling: {name}, {year}", False, "Should have failed")
+                self.test(
+                    f"Error handling: {name}, {year}", False, "Should have failed"
+                )
             except:
-                self.test(f"Error handling: {name}, {year}", True, "Correctly raised exception")
+                self.test(
+                    f"Error handling: {name}, {year}",
+                    True,
+                    "Correctly raised exception",
+                )
 
     def generate_report(self):
         """Generate the paranoid test report."""
@@ -736,8 +815,12 @@ class PracticalParanoidTester:
         # Component breakdown
         print("\n📈 COMPONENT BREAKDOWN:")
         components = {
-            "Security": [t for t in self.failed_tests if "security" in t["name"].lower()],
-            "GlobalID": [t for t in self.failed_tests if "globalid" in t["name"].lower()],
+            "Security": [
+                t for t in self.failed_tests if "security" in t["name"].lower()
+            ],
+            "GlobalID": [
+                t for t in self.failed_tests if "globalid" in t["name"].lower()
+            ],
             "Region": [t for t in self.failed_tests if "region" in t["name"].lower()],
             "Unicode": [t for t in self.failed_tests if "unicode" in t["name"].lower()],
             "Schema": [t for t in self.failed_tests if "schema" in t["name"].lower()],
@@ -746,7 +829,9 @@ class PracticalParanoidTester:
         }
 
         for component, failures in components.items():
-            total = len([t for t in self.failed_tests if component.lower() in t["name"].lower()])
+            total = len(
+                [t for t in self.failed_tests if component.lower() in t["name"].lower()]
+            )
             if total > 0:
                 print(f"  {component}: {len(failures)} failures")
 

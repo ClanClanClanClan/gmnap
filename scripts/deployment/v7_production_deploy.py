@@ -123,7 +123,9 @@ def validate_production_environment():
             checks_passed += 1
             print(f"   ✅ Regional processors ready ({loaded}/{len(test_regions)})")
         else:
-            print(f"   ❌ Regional processors insufficient ({loaded}/{len(test_regions)})")
+            print(
+                f"   ❌ Regional processors insufficient ({loaded}/{len(test_regions)})"
+            )
     except Exception as e:
         print(f"   ❌ Regional processor error: {e}")
 
@@ -140,7 +142,9 @@ def validate_production_environment():
 
     # Assessment
     validation_score = (checks_passed / total_checks) * 100
-    print(f"\n📊 Environment validation: {checks_passed}/{total_checks} ({validation_score:.1f}%)")
+    print(
+        f"\n📊 Environment validation: {checks_passed}/{total_checks} ({validation_score:.1f}%)"
+    )
 
     if checks_passed >= 3:
         print("✅ Environment ready for production")

@@ -52,7 +52,9 @@ class MemgraphClient:
     Implements Stage 6: Graph Consistency requirements
     """
 
-    def __init__(self, uri: str = "bolt://localhost:7687", user: str = None, password: str = None):
+    def __init__(
+        self, uri: str = "bolt://localhost:7687", user: str = None, password: str = None
+    ):
         """
         Initialize Memgraph connection
 
@@ -70,7 +72,9 @@ class MemgraphClient:
         """Establish connection to Memgraph"""
         try:
             if self.user and self.password:
-                self._driver = AsyncGraphDatabase.driver(self.uri, auth=(self.user, self.password))
+                self._driver = AsyncGraphDatabase.driver(
+                    self.uri, auth=(self.user, self.password)
+                )
             else:
                 self._driver = AsyncGraphDatabase.driver(self.uri)
 
@@ -168,7 +172,9 @@ class MemgraphClient:
 
                 try:
                     await session.run(
-                        query, global_id=node.global_id, properties=node.to_cypher_props()
+                        query,
+                        global_id=node.global_id,
+                        properties=node.to_cypher_props(),
                     )
                     success += 1
                 except Exception as e:
@@ -212,7 +218,9 @@ class MemgraphClient:
                 logger.error(f"Failed to create coauthor relationship: {e}")
                 return False
 
-    async def find_duplicates(self, threshold: float = 0.95) -> List[Tuple[str, str, float]]:
+    async def find_duplicates(
+        self, threshold: float = 0.95
+    ) -> List[Tuple[str, str, float]]:
         """
         Find potential duplicate entries using graph analysis
 
@@ -267,7 +275,9 @@ class MemgraphClient:
         async with self._driver.session() as session:
             try:
                 # Count nodes
-                result = await session.run("MATCH (n:Mathematician) RETURN count(n) as count")
+                result = await session.run(
+                    "MATCH (n:Mathematician) RETURN count(n) as count"
+                )
                 record = await result.single()
                 metrics["total_nodes"] = record["count"]
 
@@ -287,7 +297,9 @@ class MemgraphClient:
 
                 # Calculate average degree
                 if metrics["total_nodes"] > 0:
-                    metrics["avg_degree"] = (2 * metrics["total_edges"]) / metrics["total_nodes"]
+                    metrics["avg_degree"] = (2 * metrics["total_edges"]) / metrics[
+                        "total_nodes"
+                    ]
 
                 # Find max degree
                 result = await session.run("""
@@ -305,7 +317,9 @@ class MemgraphClient:
 
         return metrics
 
-    async def run_consistency_checks(self, batch: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def run_consistency_checks(
+        self, batch: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Run Stage 6 consistency checks on a batch
 
@@ -354,7 +368,9 @@ class MemgraphClient:
             # Simple consistency score based on isolated nodes and duplicates
             isolated_ratio = metrics["isolated_nodes"] / metrics["total_nodes"]
             duplicate_ratio = results["duplicates_found"] / metrics["total_nodes"]
-            results["consistency_score"] = max(0, 1.0 - isolated_ratio - duplicate_ratio)
+            results["consistency_score"] = max(
+                0, 1.0 - isolated_ratio - duplicate_ratio
+            )
 
         results["graph_metrics"] = metrics
 

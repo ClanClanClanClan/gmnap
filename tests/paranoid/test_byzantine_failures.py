@@ -56,7 +56,9 @@ class ByzantineMessage:
 class ByzantineNode:
     """A node that might exhibit Byzantine behavior"""
 
-    def __init__(self, node_id: str, byzantine_type: ByzantineType = ByzantineType.HONEST):
+    def __init__(
+        self, node_id: str, byzantine_type: ByzantineType = ByzantineType.HONEST
+    ):
         self.node_id = node_id
         self.byzantine_type = byzantine_type
         self.peers: Set[str] = set()
@@ -104,7 +106,9 @@ class ByzantineNode:
                 content["value"] = not content.get("value", True)
             elif isinstance(content, (int, float)):
                 content = (
-                    content * -1 if random.random() < 0.5 else content + random.randint(1, 100)
+                    content * -1
+                    if random.random() < 0.5
+                    else content + random.randint(1, 100)
                 )
 
         elif self.byzantine_type == ByzantineType.EQUIVOCATOR:
@@ -129,7 +133,9 @@ class ByzantineNode:
                 # Flip a character
                 if content:
                     idx = random.randint(0, len(content) - 1)
-                    content = content[:idx] + chr(ord(content[idx]) ^ 1) + content[idx + 1 :]
+                    content = (
+                        content[:idx] + chr(ord(content[idx]) ^ 1) + content[idx + 1 :]
+                    )
             elif isinstance(content, dict):
                 # Add or remove a field
                 if random.random() < 0.5:
@@ -197,8 +203,12 @@ class ByzantineConsensus:
         self.byzantine_threshold = byzantine_threshold  # f in PBFT (n = 3f + 1)
         self.view = 0
         self.primary_idx = 0
-        self.prepared: Dict[str, Set[str]] = defaultdict(set)  # value -> nodes that prepared
-        self.committed: Dict[str, Set[str]] = defaultdict(set)  # value -> nodes that committed
+        self.prepared: Dict[str, Set[str]] = defaultdict(
+            set
+        )  # value -> nodes that prepared
+        self.committed: Dict[str, Set[str]] = defaultdict(
+            set
+        )  # value -> nodes that committed
         self.decided_value = None
 
     def get_primary(self) -> ByzantineNode:
@@ -211,7 +221,12 @@ class ByzantineConsensus:
 
         # Primary broadcasts PRE-PREPARE
         primary.broadcast(
-            {"type": "pre-prepare", "view": self.view, "value": value, "primary": primary.node_id}
+            {
+                "type": "pre-prepare",
+                "view": self.view,
+                "value": value,
+                "primary": primary.node_id,
+            }
         )
 
         return True
@@ -229,7 +244,9 @@ class ByzantineConsensus:
 
         # Send PREPARE
         value = content.get("value")
-        node.broadcast({"type": "prepare", "view": self.view, "value": value, "node": node.node_id})
+        node.broadcast(
+            {"type": "prepare", "view": self.view, "value": value, "node": node.node_id}
+        )
 
     def handle_prepare(self, node: ByzantineNode, msg: ByzantineMessage):
         """Handle PREPARE message"""
@@ -241,7 +258,12 @@ class ByzantineConsensus:
         # If 2f+1 prepares received, send COMMIT
         if len(self.prepared[str(value)]) >= 2 * self.byzantine_threshold + 1:
             node.broadcast(
-                {"type": "commit", "view": self.view, "value": value, "node": node.node_id}
+                {
+                    "type": "commit",
+                    "view": self.view,
+                    "value": value,
+                    "node": node.node_id,
+                }
             )
 
     def handle_commit(self, node: ByzantineNode, msg: ByzantineMessage):
@@ -304,7 +326,9 @@ class TestByzantineFailures:
 
         # Check what honest nodes received
         # From Byzantine node - should be modified
-        byzantine_msgs = [msg for msg in nodes[0].sent_messages if msg.sender == "node_3"]
+        byzantine_msgs = [
+            msg for msg in nodes[0].sent_messages if msg.sender == "node_3"
+        ]
         honest_msgs = [msg for msg in nodes[3].sent_messages if msg.sender == "node_0"]
 
         # Byzantine node should have lied
@@ -474,7 +498,9 @@ class TestByzantineFailures:
                     behaviors_seen.add("corruptor_or_liar")
 
         # Should exhibit multiple Byzantine behaviors
-        assert len(behaviors_seen) >= 2, f"Expected multiple behaviors, saw {behaviors_seen}"
+        assert (
+            len(behaviors_seen) >= 2
+        ), f"Expected multiple behaviors, saw {behaviors_seen}"
         print(f"Chaotic Byzantine exhibited: {behaviors_seen}")
 
     @pytest.mark.timeout(15)
@@ -505,7 +531,9 @@ class TestByzantineFailures:
         """Test fork attack where Byzantine node creates conflicting chains"""
 
         class BlockchainNode(ByzantineNode):
-            def __init__(self, node_id: str, byzantine_type: ByzantineType = ByzantineType.HONEST):
+            def __init__(
+                self, node_id: str, byzantine_type: ByzantineType = ByzantineType.HONEST
+            ):
                 super().__init__(node_id, byzantine_type)
                 self.blockchain = []
 
@@ -515,7 +543,9 @@ class TestByzantineFailures:
                     "index": len(self.blockchain),
                     "data": data,
                     "previous_hash": previous_hash,
-                    "hash": hashlib.sha256(f"{data}{previous_hash}".encode()).hexdigest(),
+                    "hash": hashlib.sha256(
+                        f"{data}{previous_hash}".encode()
+                    ).hexdigest(),
                 }
 
                 if self.byzantine_type == ByzantineType.EQUIVOCATOR:
@@ -543,7 +573,9 @@ class TestByzantineFailures:
         # Check for forks
         unique_blocks = set(b["hash"] for b in blocks_to_peers.values())
         if len(unique_blocks) > 1:
-            print(f"Fork attack detected: {len(unique_blocks)} different chains created")
+            print(
+                f"Fork attack detected: {len(unique_blocks)} different chains created"
+            )
 
         # Byzantine node created conflicting chains
         assert len(unique_blocks) >= 1  # At least tried to create forks
@@ -553,7 +585,9 @@ class TestByzantineFailures:
         """Test double spending attack by Byzantine node"""
 
         class PaymentNode(ByzantineNode):
-            def __init__(self, node_id: str, byzantine_type: ByzantineType = ByzantineType.HONEST):
+            def __init__(
+                self, node_id: str, byzantine_type: ByzantineType = ByzantineType.HONEST
+            ):
                 super().__init__(node_id, byzantine_type)
                 self.balance = 100
                 self.pending_transfers = []
@@ -570,7 +604,9 @@ class TestByzantineFailures:
 
                 if self.balance >= amount:
                     self.balance -= amount
-                    self.send_message(recipient, {"transfer": amount, "id": f"tx_{time.time()}"})
+                    self.send_message(
+                        recipient, {"transfer": amount, "id": f"tx_{time.time()}"}
+                    )
                     return True
                 return False
 
@@ -580,7 +616,9 @@ class TestByzantineFailures:
         byzantine.transfer("merchant_1", 100)
 
         # Check for double spend attempts
-        transfers = [msg for msg in byzantine.sent_messages if "transfer" in msg.content]
+        transfers = [
+            msg for msg in byzantine.sent_messages if "transfer" in msg.content
+        ]
         tx_ids = [msg.content.get("id") for msg in transfers]
 
         # If same tx_id appears multiple times, it's double spending

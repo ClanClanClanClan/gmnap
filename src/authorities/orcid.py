@@ -141,7 +141,9 @@ class ORCIDAPI:
                         token_data = await response.json()
                         return token_data.get("access_token")
                     else:
-                        logger.warning(f"Failed to get ORCID access token: {response.status}")
+                        logger.warning(
+                            f"Failed to get ORCID access token: {response.status}"
+                        )
                         return None
         except Exception as e:
             logger.error(f"Error getting ORCID access token: {e}")
@@ -176,7 +178,9 @@ class ORCIDAPI:
                 self.request_count += 1
 
                 if response.status != 200:
-                    logger.warning(f"ORCID search returned {response.status} for {query}")
+                    logger.warning(
+                        f"ORCID search returned {response.status} for {query}"
+                    )
                     return []
 
                 data = await response.json()
@@ -243,7 +247,9 @@ class ORCIDAPI:
         # Handle dict input
         if isinstance(orcid, dict):
             # If we get a dict, try to extract the actual identifier
-            orcid = orcid.get("identifier", orcid.get("query", orcid.get("orcid", str(orcid))))
+            orcid = orcid.get(
+                "identifier", orcid.get("query", orcid.get("orcid", str(orcid)))
+            )
 
         # Ensure it's a string
         orcid = str(orcid)
@@ -283,7 +289,9 @@ class ORCIDAPI:
 
                 # Other names
                 other_names = data.get("other-names", {}).get("other-name", [])
-                person.other_names = [n.get("content") for n in other_names if n.get("content")]
+                person.other_names = [
+                    n.get("content") for n in other_names if n.get("content")
+                ]
 
                 # Biography
                 bio = data.get("biography", {})
@@ -292,16 +300,22 @@ class ORCIDAPI:
 
                 # Keywords
                 keywords = data.get("keywords", {}).get("keyword", [])
-                person.keywords = [k.get("content") for k in keywords if k.get("content")]
+                person.keywords = [
+                    k.get("content") for k in keywords if k.get("content")
+                ]
 
                 # External identifiers
-                ext_ids = data.get("external-identifiers", {}).get("external-identifier", [])
+                ext_ids = data.get("external-identifiers", {}).get(
+                    "external-identifier", []
+                )
                 for ext_id in ext_ids:
                     person.external_identifiers.append(
                         {
                             "external-id-type": ext_id.get("external-id-type"),
                             "external-id-value": ext_id.get("external-id-value"),
-                            "external-id-url": ext_id.get("external-id-url", {}).get("value"),
+                            "external-id-url": ext_id.get("external-id-url", {}).get(
+                                "value"
+                            ),
                         }
                     )
 
@@ -346,7 +360,9 @@ class ORCIDAPI:
                                 "organization": org.get("name"),
                                 "department": group.get("department-name"),
                                 "role": group.get("role-title"),
-                                "start_date": self._format_date(group.get("start-date")),
+                                "start_date": self._format_date(
+                                    group.get("start-date")
+                                ),
                                 "end_date": self._format_date(group.get("end-date")),
                                 "city": org.get("address", {}).get("city"),
                                 "country": org.get("address", {}).get("country"),
@@ -370,7 +386,9 @@ class ORCIDAPI:
                                 "organization": org.get("name"),
                                 "department": group.get("department-name"),
                                 "role": group.get("role-title"),
-                                "start_date": self._format_date(group.get("start-date")),
+                                "start_date": self._format_date(
+                                    group.get("start-date")
+                                ),
                                 "end_date": self._format_date(group.get("end-date")),
                                 "city": org.get("address", {}).get("city"),
                                 "country": org.get("address", {}).get("country"),
@@ -526,7 +544,9 @@ class ORCIDAPI:
 
         # Add other researcher IDs
         for id_type, id_value in person.researcher_ids.items():
-            entry["ExternalIDs"].append({"type": id_type, "value": id_value, "source": "ORCID"})
+            entry["ExternalIDs"].append(
+                {"type": id_type, "value": id_value, "source": "ORCID"}
+            )
 
         # Add affiliations
         if person.affiliations:

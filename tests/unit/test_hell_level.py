@@ -59,7 +59,8 @@ class HellTester:
                 # Test inheritance
                 if not isinstance(processor, RegionSpec):
                     self.record_failure(
-                        f"{processor.code}_inheritance", f"Does not inherit from RegionSpec"
+                        f"{processor.code}_inheritance",
+                        f"Does not inherit from RegionSpec",
                     )
 
                 # Test required methods exist with correct signatures
@@ -94,7 +95,8 @@ class HellTester:
 
                 except Exception as e:
                     self.record_failure(
-                        f"{processor.code}_method_signatures", f"Method signature error: {e}"
+                        f"{processor.code}_method_signatures",
+                        f"Method signature error: {e}",
                     )
 
                 self.tests_run += 1
@@ -127,7 +129,9 @@ class HellTester:
                 {"CanonicalLatin": "../../../etc/passwd"},
                 # Encoding attacks
                 {"CanonicalLatin": "Sm\xc0\x80ith, John"},  # Overlong UTF-8
-                {"CanonicalLatin": bytes([0xFF, 0xFE]).decode("latin1")},  # Invalid UTF-8
+                {
+                    "CanonicalLatin": bytes([0xFF, 0xFE]).decode("latin1")
+                },  # Invalid UTF-8
                 # Format string attacks
                 {"CanonicalLatin": "Smith%s%s%s%s, John%n%n%n"},
                 {"CanonicalLatin": "Smith{0}{1}{2}, John"},
@@ -168,7 +172,8 @@ class HellTester:
                     # Some inputs should have been rejected
                     if isinstance(evil_entry.get("CanonicalLatin"), str):
                         if any(
-                            ord(c) < 32 and c not in "\t\n\r" for c in evil_entry["CanonicalLatin"]
+                            ord(c) < 32 and c not in "\t\n\r"
+                            for c in evil_entry["CanonicalLatin"]
                         ):
                             self.record_warning(
                                 "malicious_input",
@@ -177,7 +182,10 @@ class HellTester:
 
                 except Exception as e:
                     # This is usually good - malicious input was rejected
-                    if "invalid" not in str(e).lower() and "error" not in str(e).lower():
+                    if (
+                        "invalid" not in str(e).lower()
+                        and "error" not in str(e).lower()
+                    ):
                         self.record_warning(
                             "malicious_input", f"Unexpected error for input {i}: {e}"
                         )
@@ -317,7 +325,9 @@ class HellTester:
                 a3.augment(entry)
                 a3.validate(entry)
 
-                is_patronymic = entry.get("RegionalExtras", {}).get("is_patronymic", False)
+                is_patronymic = entry.get("RegionalExtras", {}).get(
+                    "is_patronymic", False
+                )
                 patronymic_type = entry.get("RegionalExtras", {}).get("patronymic_type")
 
                 if is_patronymic != should_be_patronymic:
@@ -350,15 +360,21 @@ class HellTester:
                 b3.augment(entry)
                 b3.validate(entry)
 
-                has_chatzi = entry.get("RegionalExtras", {}).get("has_chatzi_prefix", False)
+                has_chatzi = entry.get("RegionalExtras", {}).get(
+                    "has_chatzi_prefix", False
+                )
                 variants = entry.get("Variants", {}).get("Synthesised", [])
                 chatzi_variants = [v for v in variants if v["type"] == "chatzi-variant"]
 
                 if not has_chatzi:
-                    self.record_failure("chatzi_detection", f"{name}: Chatzi prefix not detected")
+                    self.record_failure(
+                        "chatzi_detection", f"{name}: Chatzi prefix not detected"
+                    )
 
                 if len(chatzi_variants) == 0:
-                    self.record_failure("chatzi_variants", f"{name}: No Chatzi variants generated")
+                    self.record_failure(
+                        "chatzi_variants", f"{name}: No Chatzi variants generated"
+                    )
 
                 # Verify at least Hatzi variant exists
                 hatzi_found = any("Hatzi" in v["str"] for v in chatzi_variants)
@@ -406,7 +422,9 @@ class HellTester:
 
                 # Verify no cross-contamination
                 for j, (region, name, result) in enumerate(results):
-                    for k, (other_region, other_name, other_result) in enumerate(results):
+                    for k, (other_region, other_name, other_result) in enumerate(
+                        results
+                    ):
                         if j != k:
                             if other_name in str(result) or other_region in str(result):
                                 self.record_failure(
@@ -444,7 +462,8 @@ class HellTester:
                 # If this succeeds, verify it actually worked
                 if not result.get("RegionalExtras"):
                     self.record_failure(
-                        "korean_hollow_success", "E4 claims success but produces no regional data"
+                        "korean_hollow_success",
+                        "E4 claims success but produces no regional data",
                     )
 
             except Exception as e:
@@ -469,7 +488,9 @@ class HellTester:
             processor = A3NordicBalticProcessor()
 
             # Test with extremely long names
-            long_name = "VeryLongSurname" + "X" * 1000 + ", VeryLongGivenName" + "Y" * 1000
+            long_name = (
+                "VeryLongSurname" + "X" * 1000 + ", VeryLongGivenName" + "Y" * 1000
+            )
 
             start_time = time.time()
 
@@ -484,7 +505,8 @@ class HellTester:
 
             if duration > 1.0:  # Should not take > 1 second for any name
                 self.record_failure(
-                    "performance_long_name", f"Long name took {duration:.3f}s to process"
+                    "performance_long_name",
+                    f"Long name took {duration:.3f}s to process",
                 )
 
             # Test rapid-fire processing
@@ -503,7 +525,8 @@ class HellTester:
 
             if throughput < 1000:  # Should process >1000 entries/sec
                 self.record_warning(
-                    "performance_throughput", f"Throughput only {throughput:.0f} entries/sec"
+                    "performance_throughput",
+                    f"Throughput only {throughput:.0f} entries/sec",
                 )
 
             self.tests_run += 1

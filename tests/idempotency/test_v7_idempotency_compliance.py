@@ -97,7 +97,11 @@ class TestV7IdempotencyCompliance:
                 "CanonicalNative": "O'Connor, Seán",
                 "GlobalID": "test_004",
             },
-            {"CanonicalLatin": "李, 明", "CanonicalNative": "李明", "GlobalID": "test_005"},
+            {
+                "CanonicalLatin": "李, 明",
+                "CanonicalNative": "李明",
+                "GlobalID": "test_005",
+            },
         ]
 
     @classmethod
@@ -119,13 +123,17 @@ class TestV7IdempotencyCompliance:
             }
 
         test_data = ["item1", "item2", "item3"]
-        result = self.checker.check_pipeline_idempotency(deterministic_pipeline, test_data)
+        result = self.checker.check_pipeline_idempotency(
+            deterministic_pipeline, test_data
+        )
 
         # Should be identical (V7 requirement)
         assert (
             result.is_identical
         ), f"Deterministic pipeline failed idempotency: {result.diff_details}"
-        assert result.diff_bytes == 0, f"V7 violation: {result.diff_bytes} diff bytes (expected 0)"
+        assert (
+            result.diff_bytes == 0
+        ), f"V7 violation: {result.diff_bytes} diff bytes (expected 0)"
         assert result.metadata["v7_compliant"], "Must meet V7 compliance requirements"
 
     @pytest.mark.timeout(15)
@@ -141,10 +149,14 @@ class TestV7IdempotencyCompliance:
             }
 
         test_data = {"test": "data"}
-        result = self.checker.check_pipeline_idempotency(non_deterministic_pipeline, test_data)
+        result = self.checker.check_pipeline_idempotency(
+            non_deterministic_pipeline, test_data
+        )
 
         # Should fail idempotency (different timestamps)
-        assert not result.is_identical, "Non-deterministic pipeline should fail idempotency"
+        assert (
+            not result.is_identical
+        ), "Non-deterministic pipeline should fail idempotency"
         assert result.diff_bytes > 0, "Should detect byte differences"
         assert not result.metadata["v7_compliant"], "Should not be V7 compliant"
 
@@ -153,7 +165,9 @@ class TestV7IdempotencyCompliance:
         """Test idempotency compliance across region processors"""
         region_results = {}
 
-        for region_code, region in list(self.regions.items())[:3]:  # Test first 3 regions
+        for region_code, region in list(self.regions.items())[
+            :3
+        ]:  # Test first 3 regions
             print(f"\nTesting idempotency for region {region_code}")
 
             result = self.checker.check_region_idempotency(region, self.test_entries)
@@ -171,7 +185,9 @@ class TestV7IdempotencyCompliance:
         print(f"  Total regions tested: {compliance_report['summary']['total_tests']}")
         print(f"  Passing regions: {compliance_report['summary']['passing_tests']}")
         print(f"  Pass rate: {compliance_report['summary']['pass_rate']:.1%}")
-        print(f"  V7 compliance rate: {compliance_report['summary']['v7_compliance_rate']:.1%}")
+        print(
+            f"  V7 compliance rate: {compliance_report['summary']['v7_compliance_rate']:.1%}"
+        )
 
         # V7 requires 100% compliance (0 diff bytes)
         v7_compliant = validate_v7_idempotency_compliance(region_results)
@@ -204,7 +220,11 @@ class TestV7IdempotencyCompliance:
                 "CanonicalNative": "Test\nName",
                 "GlobalID": "newline",
             },
-            {"CanonicalLatin": "A" * 200, "CanonicalNative": "A" * 200, "GlobalID": "long_name"},
+            {
+                "CanonicalLatin": "A" * 200,
+                "CanonicalNative": "A" * 200,
+                "GlobalID": "long_name",
+            },
         ]
 
         # Test with one representative region
@@ -237,7 +257,9 @@ class TestV7IdempotencyCompliance:
                 # Simulate processing that might have ordering issues
                 processed = {"item": item, "processed_at": "fixed_time"}
                 results.append(processed)
-            return sorted(results, key=lambda x: x["item"])  # Ensure deterministic ordering
+            return sorted(
+                results, key=lambda x: x["item"]
+            )  # Ensure deterministic ordering
 
         test_data = ["item3", "item1", "item2"]  # Unsorted input
 
@@ -297,10 +319,16 @@ class TestV7IdempotencyCompliance:
 
             return data
 
-        result = self.checker.check_pipeline_idempotency(data_processing_pipeline, complex_data)
+        result = self.checker.check_pipeline_idempotency(
+            data_processing_pipeline, complex_data
+        )
 
-        assert result.is_identical, f"Complex data serialization should be deterministic"
-        assert result.diff_bytes == 0, f"V7 requirement: 0 diff bytes, got {result.diff_bytes}"
+        assert (
+            result.is_identical
+        ), f"Complex data serialization should be deterministic"
+        assert (
+            result.diff_bytes == 0
+        ), f"V7 requirement: 0 diff bytes, got {result.diff_bytes}"
 
     @pytest.mark.timeout(15)
     def test_error_handling_idempotency(self):
@@ -318,7 +346,9 @@ class TestV7IdempotencyCompliance:
         # Input that will cause errors
         error_data = ["good1", {"error": "trigger"}, "good2"]
 
-        result = self.checker.check_pipeline_idempotency(error_prone_pipeline, error_data)
+        result = self.checker.check_pipeline_idempotency(
+            error_prone_pipeline, error_data
+        )
 
         # Even with errors, behavior should be deterministic
         assert result.is_identical, "Error handling should be deterministic"
@@ -330,20 +360,28 @@ class TestV7IdempotencyCompliance:
         # Create mock results for testing
         mock_results = {
             "test_pass": type(
-                "MockResult", (), {"is_identical": True, "diff_bytes": 0, "test_id": "test_pass"}
+                "MockResult",
+                (),
+                {"is_identical": True, "diff_bytes": 0, "test_id": "test_pass"},
             )(),
             "test_fail": type(
-                "MockResult", (), {"is_identical": False, "diff_bytes": 42, "test_id": "test_fail"}
+                "MockResult",
+                (),
+                {"is_identical": False, "diff_bytes": 42, "test_id": "test_fail"},
             )(),
         }
 
         # Test passing validation
         pass_only = {"test_pass": mock_results["test_pass"]}
-        assert validate_v7_idempotency_compliance(pass_only), "Should validate passing tests"
+        assert validate_v7_idempotency_compliance(
+            pass_only
+        ), "Should validate passing tests"
 
         # Test failing validation
         mixed_results = mock_results
-        assert not validate_v7_idempotency_compliance(mixed_results), "Should reject failing tests"
+        assert not validate_v7_idempotency_compliance(
+            mixed_results
+        ), "Should reject failing tests"
 
     @pytest.mark.timeout(15)
     def test_generate_idempotency_report(self):

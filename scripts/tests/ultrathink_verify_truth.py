@@ -33,7 +33,8 @@ async def verify_pipeline_integration():
     ]
 
     test_data = [
-        {"CanonicalNative": name, "GlobalID": f"{lang}-TEST"} for lang, name, _ in test_cases
+        {"CanonicalNative": name, "GlobalID": f"{lang}-TEST"}
+        for lang, name, _ in test_cases
     ]
 
     print("Testing 5 regional names through pipeline...")
@@ -108,7 +109,8 @@ async def verify_performance():
 
     # Test with 100 entries
     test_data = [
-        {"CanonicalNative": f"Test Name {i}", "GlobalID": f"PERF-{i:04d}"} for i in range(100)
+        {"CanonicalNative": f"Test Name {i}", "GlobalID": f"PERF-{i:04d}"}
+        for i in range(100)
     ]
 
     print("Processing 100 entries...")

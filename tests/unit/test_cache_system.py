@@ -173,8 +173,12 @@ class TestCacheManager:
         assert remaining_entries >= 1  # At least one should remain
 
         # Later entries should be more likely to exist than earlier ones
-        later_exists = sum(1 for i in range(15, 20) if self.cache.get(f"entry_{i}") is not None)
-        earlier_exists = sum(1 for i in range(0, 5) if self.cache.get(f"entry_{i}") is not None)
+        later_exists = sum(
+            1 for i in range(15, 20) if self.cache.get(f"entry_{i}") is not None
+        )
+        earlier_exists = sum(
+            1 for i in range(0, 5) if self.cache.get(f"entry_{i}") is not None
+        )
 
         # Later entries should be more likely to survive than earlier ones
         assert later_exists >= earlier_exists
@@ -182,7 +186,9 @@ class TestCacheManager:
     def test_cache_batch_operations(self):
         """Test batch cache operations."""
         # Batch set
-        batch_data = {f"batch_key_{i}": {"index": i, "data": f"value_{i}"} for i in range(10)}
+        batch_data = {
+            f"batch_key_{i}": {"index": i, "data": f"value_{i}"} for i in range(10)
+        }
 
         self.cache.set_batch(batch_data)
 

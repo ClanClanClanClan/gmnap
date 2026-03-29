@@ -96,7 +96,9 @@ async def test_v7_pipeline():
                     if hasattr(region, "process"):
                         result = region.process(test_entry)
                         if "CanonicalLatin" in result:
-                            print(f"✅ {expected}: {name} -> {result['CanonicalLatin']}")
+                            print(
+                                f"✅ {expected}: {name} -> {result['CanonicalLatin']}"
+                            )
                             regions_working += 1
                         else:
                             print(f"⚠️  {expected}: No Latin output")
@@ -122,7 +124,8 @@ async def test_v7_pipeline():
     import time
 
     test_batch = [
-        {"GlobalID": f"PERF-{i:04d}", "CanonicalNative": f"Test Name {i}"} for i in range(100)
+        {"GlobalID": f"PERF-{i:04d}", "CanonicalNative": f"Test Name {i}"}
+        for i in range(100)
     ]
 
     start = time.time()

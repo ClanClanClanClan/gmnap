@@ -17,10 +17,15 @@ def test_b1_handles_cyrillic_text():
     # Test 1: Process Latin text (should remain unchanged)
     entry_latin = {"CanonicalLatin": "Vladimir Putin"}
     b1.clean(entry_latin)
-    assert entry_latin["CanonicalLatin"] == "Vladimir Putin", "Latin text should remain unchanged"
+    assert (
+        entry_latin["CanonicalLatin"] == "Vladimir Putin"
+    ), "Latin text should remain unchanged"
 
     # Test 2: Process entry with Cyrillic in native field
-    entry_native = {"CanonicalLatin": "Vladimir Putin", "CanonicalNative": "Владимир Путин"}
+    entry_native = {
+        "CanonicalLatin": "Vladimir Putin",
+        "CanonicalNative": "Владимир Путин",
+    }
     b1.clean(entry_native)
     # Should process without errors
     assert "CanonicalLatin" in entry_native

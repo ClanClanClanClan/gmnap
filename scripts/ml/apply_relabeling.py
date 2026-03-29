@@ -27,7 +27,10 @@ def main():
 
     # Load relabel candidates
     analysis_file = (
-        Path(__file__).parent.parent.parent / "data" / "analysis" / "high_conf_disagreements.json"
+        Path(__file__).parent.parent.parent
+        / "data"
+        / "analysis"
+        / "high_conf_disagreements.json"
     )
 
     if not analysis_file.exists():
@@ -50,7 +53,9 @@ def main():
 
     print("CATEGORY BREAKDOWN:")
     print("-" * 80)
-    for category, count in sorted(by_category.items(), key=lambda x: x[1], reverse=True):
+    for category, count in sorted(
+        by_category.items(), key=lambda x: x[1], reverse=True
+    ):
         print(f"  {category.replace('_', ' ').title()}: {count}")
     print()
 
@@ -122,7 +127,9 @@ def main():
                 entry["Region"] = new_region
 
             relabeled_count += 1
-            relabel_stats[f"{original_region}→{new_region}"]["from"].append(original_region)
+            relabel_stats[f"{original_region}→{new_region}"]["from"].append(
+                original_region
+            )
             relabel_stats[f"{original_region}→{new_region}"]["to"].append(new_region)
 
     print(f"  Relabeled {relabeled_count} entries")

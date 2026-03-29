@@ -88,12 +88,16 @@ class GenealogyEnricher:
         self.cache = GenealogyCache(ttl_seconds=cache_ttl)
 
         if self.mode == "api":
-            self.api_url = api_url or os.environ.get("GENEALOGY_API_URL", "http://localhost:8080")
+            self.api_url = api_url or os.environ.get(
+                "GENEALOGY_API_URL", "http://localhost:8080"
+            )
             logger.info(f"GenealogyEnricher initialized in API mode: {self.api_url}")
             self.driver = None
 
         else:  # direct mode
-            uri = bolt_uri or os.environ.get("GENEALOGY_BOLT_URI", "bolt://localhost:7688")
+            uri = bolt_uri or os.environ.get(
+                "GENEALOGY_BOLT_URI", "bolt://localhost:7688"
+            )
             user = bolt_user or os.environ.get("GENEALOGY_BOLT_USER", "")
             password = bolt_pass or os.environ.get("GENEALOGY_BOLT_PASS", "")
 
@@ -188,7 +192,9 @@ class GenealogyEnricher:
 
                 paths = []
                 for record in result:
-                    paths.append({"length": record["path_length"], "nodes": record["path_nodes"]})
+                    paths.append(
+                        {"length": record["path_length"], "nodes": record["path_nodes"]}
+                    )
 
                 if not paths:
                     return None
@@ -242,7 +248,9 @@ class GenealogyEnricher:
 
 
 # Convenience function for quick usage
-def get_lineage(global_id: str, max_depth: int = 10, mode: str = "api") -> Optional[Dict]:
+def get_lineage(
+    global_id: str, max_depth: int = 10, mode: str = "api"
+) -> Optional[Dict]:
     """
     Convenience function to get lineage without managing enricher instance.
 

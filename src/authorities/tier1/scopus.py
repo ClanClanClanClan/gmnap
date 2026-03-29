@@ -95,14 +95,18 @@ class ScopusFetcher(AuthorityFetcher):
                 )
 
             # Get detailed author profile
-            author_id = author_results[0].get("dc:identifier", "").replace("AUTHOR_ID:", "")
+            author_id = (
+                author_results[0].get("dc:identifier", "").replace("AUTHOR_ID:", "")
+            )
             if author_id:
                 author_profile = await self._get_author_profile(author_id)
             else:
                 author_profile = author_results[0]
 
             # Parse author data
-            author_data = self._parse_author_data(identifier, author_profile, author_results)
+            author_data = self._parse_author_data(
+                identifier, author_profile, author_results
+            )
 
             if not author_data:
                 return FetchResult(
@@ -110,16 +114,24 @@ class ScopusFetcher(AuthorityFetcher):
                 )
 
             return FetchResult(
-                status=FetchStatus.SUCCESS, source=self.service, query=identifier, data=author_data
+                status=FetchStatus.SUCCESS,
+                source=self.service,
+                query=identifier,
+                data=author_data,
             )
 
         except Exception as e:
             logger.error(f"Scopus fetch error: {e}")
             return FetchResult(
-                status=FetchStatus.ERROR, source=self.service, query=identifier, error=str(e)
+                status=FetchStatus.ERROR,
+                source=self.service,
+                query=identifier,
+                error=str(e),
             )
 
-    async def _search_author(self, author_name: str, max_results: int = 10) -> List[Dict[str, Any]]:
+    async def _search_author(
+        self, author_name: str, max_results: int = 10
+    ) -> List[Dict[str, Any]]:
         """
         Search Scopus for author.
 
@@ -133,17 +145,25 @@ class ScopusFetcher(AuthorityFetcher):
         if not self._session:
             self._session = aiohttp.ClientSession()
 
-        params = {"query": f"AUTHNAME({author_name})", "count": max_results, "view": "ENHANCED"}
+        params = {
+            "query": f"AUTHNAME({author_name})",
+            "count": max_results,
+            "view": "ENHANCED",
+        }
 
         headers = {"X-ELS-APIKey": self.api_key, "Accept": "application/json"}
 
         try:
             url = f"{self.base_url}/content/search/author"
-            async with self._session.get(url, params=params, headers=headers) as response:
+            async with self._session.get(
+                url, params=params, headers=headers
+            ) as response:
                 if response.status == 200:
                     data = await response.json()
                     entries = data.get("search-results", {}).get("entry", [])
-                    logger.info(f"Scopus: Found {len(entries)} authors for '{author_name}'")
+                    logger.info(
+                        f"Scopus: Found {len(entries)} authors for '{author_name}'"
+                    )
                     return entries
                 elif response.status == 401:
                     logger.error("Scopus: Authentication failed")
@@ -152,7 +172,9 @@ class ScopusFetcher(AuthorityFetcher):
                     logger.warning("Scopus: Rate limit exceeded")
                     return []
                 else:
-                    logger.warning(f"Scopus search failed with status {response.status}")
+                    logger.warning(
+                        f"Scopus search failed with status {response.status}"
+                    )
                     return []
         except Exception as e:
             logger.error(f"Scopus search error: {e}")
@@ -184,14 +206,19 @@ class ScopusFetcher(AuthorityFetcher):
                         else data.get("author-retrieval-response", {})
                     )
                 else:
-                    logger.warning(f"Scopus profile fetch failed with status {response.status}")
+                    logger.warning(
+                        f"Scopus profile fetch failed with status {response.status}"
+                    )
                     return {}
         except Exception as e:
             logger.error(f"Scopus profile error: {e}")
             return {}
 
     def _parse_author_data(
-        self, query_name: str, profile: Dict[str, Any], search_results: List[Dict[str, Any]]
+        self,
+        query_name: str,
+        profile: Dict[str, Any],
+        search_results: List[Dict[str, Any]],
     ) -> Optional[AuthorityData]:
         """
         Parse Scopus data to extract author information.
@@ -213,13 +240,13 @@ class ScopusFetcher(AuthorityFetcher):
         # Extract author ID
         author_id = data.get("dc:identifier", "").replace("AUTHOR_ID:", "")
         if not author_id and search_results:
-            author_id = search_results[0].get("dc:identifier", "").replace("AUTHOR_ID:", "")
+            author_id = (
+                search_results[0].get("dc:identifier", "").replace("AUTHOR_ID:", "")
+            )
 
         # Extract name
         preferred_name = data.get("preferred-name", {})
-        canonical_name = (
-            f"{preferred_name.get('given-name', '')} {preferred_name.get('surname', '')}".strip()
-        )
+        canonical_name = f"{preferred_name.get('given-name', '')} {preferred_name.get('surname', '')}".strip()
         if not canonical_name:
             canonical_name = query_name
 
@@ -232,7 +259,9 @@ class ScopusFetcher(AuthorityFetcher):
                 affiliations.append(
                     {
                         "institution": aff_info.get("ip-doc", {}).get("afdispname", ""),
-                        "country": aff_info.get("ip-doc", {}).get("address", {}).get("country", ""),
+                        "country": aff_info.get("ip-doc", {})
+                        .get("address", {})
+                        .get("country", ""),
                     }
                 )
 
@@ -282,7 +311,9 @@ class ScopusFetcher(AuthorityFetcher):
                 "document_count": document_count,
                 "subject_areas": data.get("subject-area", []),
             },
-            confidence_score=self._calculate_confidence(h_index, citation_count, document_count),
+            confidence_score=self._calculate_confidence(
+                h_index, citation_count, document_count
+            ),
             fetch_timestamp=datetime.now(),
             personal_data_scrubbed=True,
         )

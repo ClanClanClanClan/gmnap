@@ -92,7 +92,9 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                 AUTHN_FAILED.inc()
                 return JSONResponse({"error": "missing_auth"}, status_code=401)
             with HASHCASH_VERIFY_LATENCY.time():
-                ok, reason = verify_hashcash(hashcash_header, min_bits=self.bits, resource=path)
+                ok, reason = verify_hashcash(
+                    hashcash_header, min_bits=self.bits, resource=path
+                )
             if not ok:
                 AUTHN_FAILED.inc()
                 SECURITY_EVENT.labels(event=f"hashcash_{reason}").inc()

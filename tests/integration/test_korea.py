@@ -21,13 +21,18 @@ handler = E4KoreanProcessor()
 @pytest.mark.timeout(15)
 def test_roundtrip(entry_id, entry):
     """Test each mathematician entry"""
-    assert handler.quality_gate(entry), f"Failed: {entry_id} - {entry['CanonicalLatin']}"
+    assert handler.quality_gate(
+        entry
+    ), f"Failed: {entry_id} - {entry['CanonicalLatin']}"
 
 
 @pytest.mark.timeout(15)
 def test_handler_integration():
     """Test E4 handler integration"""
-    test_entry = {"CanonicalLatin": "Kim, Tae-Hyung", "AllCommonVariants": ["Kim Taehyung"]}
+    test_entry = {
+        "CanonicalLatin": "Kim, Tae-Hyung",
+        "AllCommonVariants": ["Kim Taehyung"],
+    }
 
     # Test conversion
     hangul = handler.latin_to_native(test_entry)

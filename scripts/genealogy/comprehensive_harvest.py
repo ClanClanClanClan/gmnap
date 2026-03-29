@@ -47,7 +47,9 @@ class ComprehensiveGenealogyHarvester:
         )
 
         # US dissertations (Crossref)
-        self.us_crossref = UsCrossrefAPI(mailto="gmnap@research.example.com", rate_limit=2.0)
+        self.us_crossref = UsCrossrefAPI(
+            mailto="gmnap@research.example.com", rate_limit=2.0
+        )
 
         self.results = {
             "timestamp": datetime.now().isoformat(),
@@ -183,7 +185,11 @@ class ComprehensiveGenealogyHarvester:
         print(f"\n✅ Wikidata P184: {len(relationships):,} relationships")
         print(f"   Saved to: {wikidata_file}")
 
-        return {"count": len(relationships), "relationships": relationships, "errors": errors}
+        return {
+            "count": len(relationships),
+            "relationships": relationships,
+            "errors": errors,
+        }
 
     async def harvest_connector(
         self, connector, name: str, target: int = 5000, **kwargs
@@ -211,7 +217,9 @@ class ComprehensiveGenealogyHarvester:
 
                 # Save checkpoint every 1000 records
                 if count % 1000 == 0:
-                    checkpoint_file = self.output_dir / f"{name}_checkpoint_{count}.json"
+                    checkpoint_file = (
+                        self.output_dir / f"{name}_checkpoint_{count}.json"
+                    )
                     with open(checkpoint_file, "w") as f:
                         json.dump({"count": count, "records": records}, f, indent=2)
                     print(f"  ✅ Checkpoint: {count:,} records")
@@ -224,7 +232,11 @@ class ComprehensiveGenealogyHarvester:
             # Save final results
             final_file = self.output_dir / f"{name}_harvest.json"
             with open(final_file, "w") as f:
-                json.dump({"source": name, "count": len(records), "records": records}, f, indent=2)
+                json.dump(
+                    {"source": name, "count": len(records), "records": records},
+                    f,
+                    indent=2,
+                )
 
             print(f"\n✅ {name.upper()}: {len(records):,} records")
             print(f"   Saved to: {final_file}")
@@ -253,7 +265,9 @@ class ComprehensiveGenealogyHarvester:
         print(f"Output directory: {self.output_dir}")
         print()
         print("SOURCES:")
-        print(f"  1. Wikidata P184 (doctoral advisors): {wikidata_limit:,} relationships")
+        print(
+            f"  1. Wikidata P184 (doctoral advisors): {wikidata_limit:,} relationships"
+        )
         print(f"  2. French theses (theses.fr): {thesis_target:,} records")
         print(f"  3. US Crossref (dissertations): {thesis_target:,} records")
         print(f"\nEstimated total: {wikidata_limit + (thesis_target * 2):,}+ records")
@@ -264,7 +278,9 @@ class ComprehensiveGenealogyHarvester:
         results = await asyncio.gather(
             self.harvest_wikidata_p184(limit=wikidata_limit),
             self.harvest_connector(self.fr_theses, "french", thesis_target),
-            self.harvest_connector(self.us_crossref, "us_crossref", thesis_target, rows=100),
+            self.harvest_connector(
+                self.us_crossref, "us_crossref", thesis_target, rows=100
+            ),
             return_exceptions=True,
         )
 
@@ -301,7 +317,9 @@ class ComprehensiveGenealogyHarvester:
             "sources_succeeded": len(
                 [s for s in self.results["sources"].values() if "error" not in s]
             ),
-            "sources_failed": len([s for s in self.results["sources"].values() if "error" in s]),
+            "sources_failed": len(
+                [s for s in self.results["sources"].values() if "error" in s]
+            ),
             "total_errors": len(all_errors),
         }
         self.results["errors"] = all_errors
@@ -322,7 +340,9 @@ class ComprehensiveGenealogyHarvester:
         print(
             f"\n✅ Sources succeeded: {self.results['statistics']['sources_succeeded']}/{total_sources}"
         )
-        print(f"❌ Sources failed: {self.results['statistics']['sources_failed']}/{total_sources}")
+        print(
+            f"❌ Sources failed: {self.results['statistics']['sources_failed']}/{total_sources}"
+        )
         print(f"⚠️  Total errors: {len(all_errors)}")
         print(f"\n📁 Output directory: {self.output_dir}")
         print(f"📄 Summary report: {summary_file}")

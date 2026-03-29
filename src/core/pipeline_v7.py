@@ -92,7 +92,9 @@ for _name, _obj in [
 
 # Genealogy components
 try:
-    from src.pipeline.stage4_authority_enrich import enrich_batch as genealogy_enrich_batch
+    from src.pipeline.stage4_authority_enrich import (
+        enrich_batch as genealogy_enrich_batch,
+    )
     from src.pipeline.stage5_edge_extract import extract_edges_from_entries
     from src.pipeline.stage6_graph_consistency import populate_graph
 
@@ -143,9 +145,7 @@ class BatchAggregator:
         self.min_batch_size = min_batch_size
         self.pending_entries = []
         self.pending_futures = []
-        self.aggregation_delay = (
-            0.005  # 5ms delay to collect more entries (reduced for better responsiveness)
-        )
+        self.aggregation_delay = 0.005  # 5ms delay to collect more entries (reduced for better responsiveness)
         self.accumulated_results = []
         self.accumulated_metrics = {
             "total_entries": 0,
@@ -153,7 +153,9 @@ class BatchAggregator:
             "entries_per_second": 0.0,
         }
 
-    async def add_batch(self, entries: List[Dict[str, Any]], process_func) -> Dict[str, Any]:
+    async def add_batch(
+        self, entries: List[Dict[str, Any]], process_func
+    ) -> Dict[str, Any]:
         """Add entries to aggregator and process when threshold reached."""
         self.pending_entries.extend(entries)
 
@@ -174,10 +176,16 @@ class BatchAggregator:
         # Return empty result structure if no processing happened
         return {
             "results": [],
-            "metrics": {"total_entries": 0, "processing_time": 0, "entries_per_second": 0},
+            "metrics": {
+                "total_entries": 0,
+                "processing_time": 0,
+                "entries_per_second": 0,
+            },
         }
 
-    def _handle_dict_result(self, result: Any, original_batch_size: int) -> Dict[str, Any]:
+    def _handle_dict_result(
+        self, result: Any, original_batch_size: int
+    ) -> Dict[str, Any]:
         """Handle both dict and list return types from process_func."""
         if isinstance(result, dict):
             # Already in correct format
@@ -185,7 +193,9 @@ class BatchAggregator:
         elif isinstance(result, list):
             # Convert list to dict format
             return {
-                "results": result[:original_batch_size],  # Return only the requested entries
+                "results": result[
+                    :original_batch_size
+                ],  # Return only the requested entries
                 "metrics": {
                     "total_entries": len(result),
                     "processing_time": 0,
@@ -197,7 +207,11 @@ class BatchAggregator:
             logger.warning(f"Unexpected result type from process_func: {type(result)}")
             return {
                 "results": [],
-                "metrics": {"total_entries": 0, "processing_time": 0, "entries_per_second": 0},
+                "metrics": {
+                    "total_entries": 0,
+                    "processing_time": 0,
+                    "entries_per_second": 0,
+                },
             }
 
 
@@ -241,7 +255,8 @@ class PipelineMetrics:
         self.end_time: Optional[datetime] = None
         self.start_time: datetime = (
             get_deterministic_mode().get_timestamp()
-            if get_deterministic_mode() and hasattr(get_deterministic_mode(), "get_timestamp")
+            if get_deterministic_mode()
+            and hasattr(get_deterministic_mode(), "get_timestamp")
             else datetime.now()
         )
         self.stage_timings: Dict[str, float] = {}
@@ -318,19 +333,27 @@ class V7Pipeline:
             enable_deterministic_mode(seed)
 
         self.config = self._load_config()
-        self.batch_size = self.config.get("default_batch_size", 1000)  # Set default batch size
+        self.batch_size = self.config.get(
+            "default_batch_size", 1000
+        )  # Set default batch size
 
         # Use FastQualityGates for O(n) performance
         gate_profile = "test" if mode == PipelineMode.QUICK else "prod"
         self.quality_gates = FastQualityGates(
-            GateConfig(profile=gate_profile, stage6_min=0.85, projected_1m_minutes_max=35.0)
+            GateConfig(
+                profile=gate_profile, stage6_min=0.85, projected_1m_minutes_max=35.0
+            )
         )
         self.metrics = PipelineMetrics()
 
         # Initialize AsyncBatchAggregator lazily (will be created when needed)
         self._batch_aggregator = None
         self._batch_aggregator_config = AggConfig(
-            min_size=32, target_size=128, max_size=512, max_latency_ms=25, fastpath_threshold=10
+            min_size=32,
+            target_size=128,
+            max_size=512,
+            max_latency_ms=25,
+            fastpath_threshold=10,
         )
 
         # Lazy initialization for performance optimization
@@ -367,7 +390,12 @@ class V7Pipeline:
             "peak_memory_limit": "6GB RSS",
             "default_batch_size": 1000,  # Optimal for <35min/1M target
             "runtime_profiles": [
-                {"mode": "Quick", "apis": "tier-0", "cpu_workers": 4, "runtime_per_1M": "≤ 35 min"},
+                {
+                    "mode": "Quick",
+                    "apis": "tier-0",
+                    "cpu_workers": 4,
+                    "runtime_per_1M": "≤ 35 min",
+                },
                 {
                     "mode": "Full",
                     "apis": "tier-0+1",
@@ -417,13 +445,17 @@ class V7Pipeline:
 
     def _get_worker_count(self) -> int:
         """Get worker count based on mode."""
-        return {PipelineMode.QUICK: 4, PipelineMode.FULL: 8, PipelineMode.EXTREME: 12}[self.mode]
+        return {PipelineMode.QUICK: 4, PipelineMode.FULL: 8, PipelineMode.EXTREME: 12}[
+            self.mode
+        ]
 
     @property
     def region_manager(self):
         """Lazy initialization of region manager."""
         if self._region_manager is None:
-            self._region_manager = HybridRegionManager()  # Use 97.54% accurate classifier
+            self._region_manager = (
+                HybridRegionManager()
+            )  # Use 97.54% accurate classifier
         return self._region_manager
 
     @property
@@ -490,13 +522,17 @@ class V7Pipeline:
             process_func, micro_cfg=self._batch_aggregator_config, inflight_limit=4
         )
 
-    async def _process_small_batch_fast(self, entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def _process_small_batch_fast(
+        self, entries: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """Fast processing path for small batches (≤25 entries)."""
         start_time = time.time()
 
         # Use cached components for better performance
         if not self._unicode_handler:
-            self._unicode_handler = get_cached_component("unicode_normalizer", UnicodeNormalizer)
+            self._unicode_handler = get_cached_component(
+                "unicode_normalizer", UnicodeNormalizer
+            )
         if not self._region_manager:
             self._region_manager = get_cached_component(
                 "region_manager", lambda: HybridRegionManager()
@@ -514,7 +550,9 @@ class V7Pipeline:
                 # Only normalize if not already normalized
                 native = processed["CanonicalNative"]
                 if isinstance(native, str) and native:
-                    processed["CanonicalNative"] = self._unicode_handler.normalize(native)
+                    processed["CanonicalNative"] = self._unicode_handler.normalize(
+                        native
+                    )
 
             # Stage 2: Region detection (only if needed) - optimized
             if "DetectedRegion" not in processed and "CanonicalNative" in processed:
@@ -545,7 +583,9 @@ class V7Pipeline:
                 # Use a simpler GlobalID generation for small batches
                 native = processed.get("CanonicalNative", "")
                 region = processed.get("DetectedRegion", "unknown")
-                processed["GlobalID"] = f"gmnap_{region}_{abs(hash(native)) % 1000000:06d}"
+                processed["GlobalID"] = (
+                    f"gmnap_{region}_{abs(hash(native)) % 1000000:06d}"
+                )
 
             results.append(processed)
 
@@ -648,7 +688,9 @@ class V7Pipeline:
 
                 try:
                     results = await stage_func(results)
-                    elapsed = (time.time() - start_time) if not self.deterministic else 0.1
+                    elapsed = (
+                        (time.time() - start_time) if not self.deterministic else 0.1
+                    )
                     self.metrics.stage_timings[f"stage_{stage_num}"] = elapsed
                     logger.info(f"Stage {stage_num} completed in {elapsed:.2f}s")
                 except Exception as e:
@@ -662,7 +704,9 @@ class V7Pipeline:
             try:
                 logger.info(f"Genealogy Stage 4: Authority enrichment for advisors")
                 offline_mode = os.getenv("OFFLINE") == "1"
-                all_results = await genealogy_enrich_batch(all_results, offline=offline_mode)
+                all_results = await genealogy_enrich_batch(
+                    all_results, offline=offline_mode
+                )
 
                 logger.info(f"Genealogy Stage 5: Edge extraction")
                 genealogy_edges = extract_edges_from_entries(all_results)
@@ -716,7 +760,8 @@ class V7Pipeline:
     async def process_stream(self, entries, chunk=2000, inflight=4, retries=1):
         """Process entries using streaming executor for improved performance at scale."""
         execu = StreamingExecutor(
-            self.process_batch, StreamConfig(chunk=chunk, inflight=inflight, max_retries=retries)
+            self.process_batch,
+            StreamConfig(chunk=chunk, inflight=inflight, max_retries=retries),
         )
         entries = [sanitise_entry(dict(e)) for e in entries]
         out, _ = await execu.run(entries)
@@ -729,7 +774,9 @@ class V7Pipeline:
         # TODO: Check DOI credentials
         pass
 
-    async def _stage_1_ingest(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_1_ingest(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 1: Read YAML, Unicode NFC→NFKD→fold→NFC."""
         logger.info(f"Stage 1: Ingest - processing {len(entries)} entries")
 
@@ -772,7 +819,9 @@ class V7Pipeline:
                 processed.append(entry)
                 self.metrics.processed_entries += 1
             except Exception as e:
-                logger.warning(f"Failed to process entry {entry.get('GlobalID', 'unknown')}: {e}")
+                logger.warning(
+                    f"Failed to process entry {entry.get('GlobalID', 'unknown')}: {e}"
+                )
                 entry["Status"] = "failed"
                 entry["StatusError"] = str(e)
                 processed.append(entry)
@@ -783,7 +832,9 @@ class V7Pipeline:
 
         return processed
 
-    async def _stage_2_detect_region(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_2_detect_region(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 2: DetectRegion - Script, ICU, fastText, affiliation, DOI prefix."""
         logger.info(f"Stage 2: DetectRegion - processing {len(entries)} entries")
 
@@ -830,7 +881,9 @@ class V7Pipeline:
 
         return results
 
-    async def _parallel_detect_regions(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _parallel_detect_regions(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Detect regions in parallel using multiple workers."""
         from concurrent.futures import ProcessPoolExecutor
 
@@ -848,7 +901,9 @@ class V7Pipeline:
 
         # Split into batches for workers
         batch_size = len(entries) // self.workers + 1
-        batches = [entries[i : i + batch_size] for i in range(0, len(entries), batch_size)]
+        batches = [
+            entries[i : i + batch_size] for i in range(0, len(entries), batch_size)
+        ]
 
         # Process in parallel
         with ProcessPoolExecutor(max_workers=self.workers) as executor:
@@ -859,7 +914,9 @@ class V7Pipeline:
 
         return results
 
-    async def _stage_3_region_hooks(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_3_region_hooks(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 3: RegionHooks - clean→augment→validate→order_key."""
         logger.info(f"Stage 3: RegionHooks - processing {len(entries)} entries")
 
@@ -869,7 +926,9 @@ class V7Pipeline:
             region_code = entry.get("DetectedRegion")
             if not region_code:
                 # Regional processing is mandatory - fail if no region detected
-                raise ValueError(f"No region detected for entry {entry.get('GlobalID')}")
+                raise ValueError(
+                    f"No region detected for entry {entry.get('GlobalID')}"
+                )
 
             try:
                 # Skip processing for security-blocked entries (XX region)
@@ -896,7 +955,9 @@ class V7Pipeline:
                 result = region_processor.process(entry)
                 # Merge results back into entry
                 entry.update(result)
-                logger.debug(f"Processed {entry.get('GlobalID')} with {region_code} processor")
+                logger.debug(
+                    f"Processed {entry.get('GlobalID')} with {region_code} processor"
+                )
             except Exception as e:
                 # Regional processing failed - mark as failed but continue
                 logger.error(f"Regional processing failed for {region_code}: {e}")
@@ -918,7 +979,9 @@ class V7Pipeline:
             logger.info("Using authority enrichment")
             try:
                 enriched_entries = await authority_enrich(entries)
-                logger.info(f"Enriched {len(enriched_entries)} entries with authority data")
+                logger.info(
+                    f"Enriched {len(enriched_entries)} entries with authority data"
+                )
                 return enriched_entries
             except Exception as e:
                 logger.warning(f"Authority enrichment failed: {e}")
@@ -951,14 +1014,18 @@ class V7Pipeline:
         )
 
         if DuckDBAnalytics:
-            analytics_type = "DuckDB" if "duckdb" in DuckDBAnalytics.__module__ else "SQLite"
+            analytics_type = (
+                "DuckDB" if "duckdb" in DuckDBAnalytics.__module__ else "SQLite"
+            )
             logger.info(f"Using {analytics_type} for collision analytics")
 
             # Initialize analytics (works for both DuckDB and SQLite)
             db_path = os.getenv("GMNAP_DUCKDB_PATH", ":memory:")
 
             try:
-                analytics = DuckDBAnalytics(db_path if analytics_type == "DuckDB" else None)
+                analytics = DuckDBAnalytics(
+                    db_path if analytics_type == "DuckDB" else None
+                )
 
                 # Check if this is the original DuckDB implementation
                 if hasattr(analytics, "load_entries"):
@@ -1005,21 +1072,30 @@ class V7Pipeline:
                             # Check if duplicates are based on GlobalID or just similar content
                             from collections import Counter
 
-                            global_ids = [e.get("GlobalID") for e in entries if e.get("GlobalID")]
+                            global_ids = [
+                                e.get("GlobalID") for e in entries if e.get("GlobalID")
+                            ]
                             id_counts = Counter(global_ids)
                             # Count unique IDs that appear more than once
-                            actual_duplicates = sum(1 for count in id_counts.values() if count > 1)
+                            actual_duplicates = sum(
+                                1 for count in id_counts.values() if count > 1
+                            )
                             # Only update if we found more duplicates
                             if actual_duplicates > self.metrics.duplicate_global_ids:
                                 self.metrics.duplicate_global_ids = actual_duplicates
                         else:
                             # Only update if we found more collisions
-                            collision_count = len(collision_results.get("collisions", []))
+                            collision_count = len(
+                                collision_results.get("collisions", [])
+                            )
                             if collision_count > self.metrics.duplicate_global_ids:
                                 self.metrics.duplicate_global_ids = collision_count
 
                         # Apply suffixes from duplicates list if present
-                        if "duplicates" in collision_results and collision_results["duplicates"]:
+                        if (
+                            "duplicates" in collision_results
+                            and collision_results["duplicates"]
+                        ):
                             suffix_map = {}
                             for dup_tuple in collision_results["duplicates"]:
                                 if isinstance(dup_tuple, tuple) and len(dup_tuple) == 2:
@@ -1039,7 +1115,9 @@ class V7Pipeline:
                         # Old format (shouldn't happen but handle gracefully)
                         # Don't reset duplicate count - it was already counted at the start
                         # self.metrics.duplicate_global_ids = 0
-                        logger.warning(f"{analytics_type} analytics: unexpected result format")
+                        logger.warning(
+                            f"{analytics_type} analytics: unexpected result format"
+                        )
 
             finally:
                 if hasattr(analytics, "close"):
@@ -1082,7 +1160,9 @@ class V7Pipeline:
                 return entries
             # Initialize BayesCoherence once and cache it
             if self._bayes_coherence is None:
-                self._bayes_coherence = BayesCoherence(weights_path="config/weights.yaml")
+                self._bayes_coherence = BayesCoherence(
+                    weights_path="config/weights.yaml"
+                )
 
             # Calculate Bayesian coherence score
             scores = self._bayes_coherence.score(entries)
@@ -1147,7 +1227,9 @@ class V7Pipeline:
 
         return entries
 
-    async def _stage_7_tag_short_forms(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_7_tag_short_forms(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 7: TagShortForms - Populate ShortFormClusters."""
         logger.info(f"Stage 7: TagShortForms - processing {len(entries)} entries")
 
@@ -1186,7 +1268,9 @@ class V7Pipeline:
 
         return entries
 
-    async def _stage_8_global_validate(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_8_global_validate(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 8: GlobalValidate - JSON-Schema, roundtrip, coherence gate."""
         logger.info(f"Stage 8: GlobalValidate - validating {len(entries)} entries")
 
@@ -1224,7 +1308,9 @@ class V7Pipeline:
 
     async def _stage_9_write_diff(self, entries: List[Dict[str, Any]]) -> None:
         """Stage 9: Write&Diff - Deterministic YAML, HTML diff, SQL changelog."""
-        logger.info(f"Stage 9: Write&Diff - writing {len(entries)} entries deterministically")
+        logger.info(
+            f"Stage 9: Write&Diff - writing {len(entries)} entries deterministically"
+        )
 
         try:
             from src.stage9_write_diff.src.diff.write_and_diff import write_yaml_sorted
@@ -1255,8 +1341,12 @@ class V7Pipeline:
         except ImportError as e:
             logger.warning(f"Stage 9 modules not available: {e}")
             # Fallback to basic JSON output
-            timestamp_str = self.deterministic_mode.get_timestamp().strftime("%Y%m%d_%H%M%S")
-            output_path = Path(f"output/v7_pipeline_{self.mode.value}_{timestamp_str}.json")
+            timestamp_str = self.deterministic_mode.get_timestamp().strftime(
+                "%Y%m%d_%H%M%S"
+            )
+            output_path = Path(
+                f"output/v7_pipeline_{self.mode.value}_{timestamp_str}.json"
+            )
             output_path.parent.mkdir(exist_ok=True)
             with open(output_path, "w") as f:
                 json.dump(entries, f, indent=2, sort_keys=True)
@@ -1269,13 +1359,17 @@ class V7Pipeline:
 
         # Generate metrics report
         report = self._generate_report()
-        timestamp_str = self.deterministic_mode.get_timestamp().strftime("%Y%m%d_%H%M%S")
+        timestamp_str = self.deterministic_mode.get_timestamp().strftime(
+            "%Y%m%d_%H%M%S"
+        )
         report_path = Path(f"output/v7_report_{self.mode.value}_{timestamp_str}.md")
 
         # Generate analytics if available
         analytics_report = None
         if DuckDBAnalytics:
-            analytics_type = "DuckDB" if "duckdb" in DuckDBAnalytics.__module__ else "SQLite"
+            analytics_type = (
+                "DuckDB" if "duckdb" in DuckDBAnalytics.__module__ else "SQLite"
+            )
             logger.info(f"Generating {analytics_type} analytics report")
             try:
                 with DuckDBAnalytics() as analytics:
@@ -1293,19 +1387,25 @@ class V7Pipeline:
         with open(report_path, "w") as f:
             f.write(f"# V7 Pipeline Report\n\n")
             f.write(f"Mode: {self.mode.value}\n")
-            f.write(f"Date: {self.deterministic_mode.get_timestamp():%Y-%m-%d %H:%M:%S}\n\n")
+            f.write(
+                f"Date: {self.deterministic_mode.get_timestamp():%Y-%m-%d %H:%M:%S}\n\n"
+            )
             f.write(f"## Metrics\n")
             f.write(f"- Total entries: {self.metrics.total_entries}\n")
             f.write(f"- Processed: {self.metrics.processed_entries}\n")
             f.write(f"- Failed: {self.metrics.failed_entries}\n")
             f.write(f"- Duration: {self.metrics.duration_seconds:.2f}s\n")
             f.write(f"- Throughput: {self.metrics.entries_per_second:.2f} entries/s\n")
-            f.write(f"- Projected 1M time: {self.metrics.projected_time_per_million:.2f} minutes\n")
+            f.write(
+                f"- Projected 1M time: {self.metrics.projected_time_per_million:.2f} minutes\n"
+            )
 
             # Add analytics section if available
             if analytics_report:
                 f.write(f"\n## Analytics Report\n")
-                f.write(f"- Analytics Engine: {analytics_report.get('database', 'Unknown')}\n")
+                f.write(
+                    f"- Analytics Engine: {analytics_report.get('database', 'Unknown')}\n"
+                )
 
                 if "collision_analysis" in analytics_report:
                     collision = analytics_report["collision_analysis"]
@@ -1326,7 +1426,9 @@ class V7Pipeline:
                 if "graph_coherence" in analytics_report:
                     coherence = analytics_report["graph_coherence"]
                     f.write(f"\n### Graph Coherence\n")
-                    f.write(f"- Average coherence: {coherence['average_coherence']:.3f}\n")
+                    f.write(
+                        f"- Average coherence: {coherence['average_coherence']:.3f}\n"
+                    )
                     f.write(
                         f"- Meets threshold: {'✅' if coherence['meets_threshold'] else '❌'}\n"
                     )
@@ -1383,7 +1485,9 @@ class V7Pipeline:
         gen_config = self.config.get("genealogy", {})
 
         if not gen_config.get("enabled", False):
-            logger.info("Stage 12: Genealogy enrichment disabled (genealogy.enabled=false)")
+            logger.info(
+                "Stage 12: Genealogy enrichment disabled (genealogy.enabled=false)"
+            )
             return entries
 
         if not _GENEALOGY_ENRICHER_AVAILABLE:
@@ -1394,7 +1498,9 @@ class V7Pipeline:
             logger.warning("Stage 12: Genealogy enricher not initialized")
             return entries
 
-        logger.info(f"Stage 12: Genealogy Enrichment (mode={gen_config.get('mode', 'api')})")
+        logger.info(
+            f"Stage 12: Genealogy Enrichment (mode={gen_config.get('mode', 'api')})"
+        )
 
         enriched_count = 0
         max_depth = gen_config.get("queries", {}).get("default_max_depth", 10)
@@ -1407,13 +1513,17 @@ class V7Pipeline:
 
                 # Get lineage data
                 try:
-                    lineage = self.genealogy_enricher.get_lineage(global_id, max_depth=max_depth)
+                    lineage = self.genealogy_enricher.get_lineage(
+                        global_id, max_depth=max_depth
+                    )
 
                     if lineage and lineage.get("paths"):
                         # Add genealogy data to entry
                         entry["Genealogy"] = {
                             "HasData": True,
-                            "AdvisorCount": self.genealogy_enricher.get_advisor_count(global_id),
+                            "AdvisorCount": self.genealogy_enricher.get_advisor_count(
+                                global_id
+                            ),
                             "LineageDepth": (
                                 max(p["length"] for p in lineage["paths"])
                                 if lineage["paths"]
@@ -1467,7 +1577,9 @@ class V7Pipeline:
 
         if self.metrics.duration_seconds > 0 and self.metrics.processed_entries > 0:
             # Project to 1M entries
-            entries_per_sec = self.metrics.processed_entries / self.metrics.duration_seconds
+            entries_per_sec = (
+                self.metrics.processed_entries / self.metrics.duration_seconds
+            )
             if entries_per_sec > 0:
                 perf_minutes = (1000000 / entries_per_sec) / 60.0
 
@@ -1492,12 +1604,18 @@ class V7Pipeline:
             "performance": {
                 "passed": gates_passed,
                 "message": (
-                    f"Projected 1M time: {perf_minutes:.1f} min" if perf_minutes else "Not measured"
+                    f"Projected 1M time: {perf_minutes:.1f} min"
+                    if perf_minutes
+                    else "Not measured"
                 ),
             },
             "stage6": {
                 "passed": True if stage6_score is None else stage6_score >= 0.85,
-                "message": f"Stage 6 score: {stage6_score:.2f}" if stage6_score else "Not measured",
+                "message": (
+                    f"Stage 6 score: {stage6_score:.2f}"
+                    if stage6_score
+                    else "Not measured"
+                ),
             },
         }
 
@@ -1519,7 +1637,8 @@ class V7Pipeline:
                 "processed_entries": self.metrics.processed_entries,
                 "failed_entries": self.metrics.failed_entries,
                 "success_rate": self.metrics.success_rate,
-                "success_count": self.metrics.processed_entries - self.metrics.failed_entries,
+                "success_count": self.metrics.processed_entries
+                - self.metrics.failed_entries,
                 "failed_count": self.metrics.failed_entries,
                 "duration_seconds": self.metrics.duration_seconds,
                 "entries_per_second": self.metrics.entries_per_second,
@@ -1542,13 +1661,19 @@ class V7Pipeline:
         if hasattr(self, "final_entries"):
             report["entries"] = self.final_entries
             # Add success rate based on Status field
-            success_count = sum(1 for e in self.final_entries if e.get("Status") == "success")
+            success_count = sum(
+                1 for e in self.final_entries if e.get("Status") == "success"
+            )
             failed_count = sum(
-                1 for e in self.final_entries if e.get("Status") in ["failed", "failed_validation"]
+                1
+                for e in self.final_entries
+                if e.get("Status") in ["failed", "failed_validation"]
             )
             total_count = len(self.final_entries)
             if total_count > 0:
-                report["metrics"]["status_success_rate"] = (success_count / total_count) * 100.0
+                report["metrics"]["status_success_rate"] = (
+                    success_count / total_count
+                ) * 100.0
                 report["metrics"]["status_success_count"] = success_count
                 report["metrics"]["status_failed_count"] = failed_count
 

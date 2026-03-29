@@ -290,7 +290,11 @@ class ConsensusNode(NetworkNode):
 
         # Request votes
         self.broadcast(
-            {"type": "request_vote", "term": self.current_term, "candidate": self.node_id}
+            {
+                "type": "request_vote",
+                "term": self.current_term,
+                "candidate": self.node_id,
+            }
         )
 
     def check_election_timeout(self):
@@ -362,7 +366,9 @@ class TestNetworkPartition:
         assert received < sent
         assert network.metrics["messages_lost"] > 20
 
-        print(f"Message loss test: {network.metrics['messages_lost']}/100 messages lost")
+        print(
+            f"Message loss test: {network.metrics['messages_lost']}/100 messages lost"
+        )
 
     @pytest.mark.timeout(15)
     def test_message_corruption(self):
@@ -429,11 +435,14 @@ class TestNetworkPartition:
 
         # Check if any reordering occurred
         is_ordered = all(
-            received_order[i] <= received_order[i + 1] for i in range(len(received_order) - 1)
+            received_order[i] <= received_order[i + 1]
+            for i in range(len(received_order) - 1)
         )
 
         assert not is_ordered or network.metrics["messages_reordered"] > 0
-        print(f"Reordering test: {network.metrics['messages_reordered']} messages reordered")
+        print(
+            f"Reordering test: {network.metrics['messages_reordered']} messages reordered"
+        )
 
     @pytest.mark.timeout(15)
     def test_split_brain_consensus(self):
@@ -475,8 +484,12 @@ class TestNetworkPartition:
             time.sleep(0.01)
 
         # Check for split-brain
-        majority_leaders = sum(1 for i in range(3) if nodes[f"node_{i}"].role == "leader")
-        minority_leaders = sum(1 for i in range(3, 5) if nodes[f"node_{i}"].role == "leader")
+        majority_leaders = sum(
+            1 for i in range(3) if nodes[f"node_{i}"].role == "leader"
+        )
+        minority_leaders = sum(
+            1 for i in range(3, 5) if nodes[f"node_{i}"].role == "leader"
+        )
 
         # Majority partition should elect a leader
         # Minority partition should not (no quorum)
@@ -595,7 +608,9 @@ class TestNetworkPartition:
                 sender = random.choice(nodes)
                 receiver = random.choice(nodes)
                 if sender != receiver:
-                    future = executor.submit(sender.send, receiver.node_id, {"data": "X" * 1000})
+                    future = executor.submit(
+                        sender.send, receiver.node_id, {"data": "X" * 1000}
+                    )
                     futures.append(future)
                     messages_sent += 1
 
@@ -653,7 +668,10 @@ class TestNetworkPartition:
         class PartialNetwork(NetworkSimulator):
             def send_message(self, msg: NetworkMessage) -> bool:
                 # 50% chance of message loss between partitions
-                if msg.source in ["node_0", "node_1"] and msg.destination in ["node_2", "node_3"]:
+                if msg.source in ["node_0", "node_1"] and msg.destination in [
+                    "node_2",
+                    "node_3",
+                ]:
                     if random.random() < 0.5:
                         self.metrics["messages_lost"] += 1
                         return False
@@ -677,7 +695,9 @@ class TestNetworkPartition:
                 successes += 1
 
         # Should have partial success
-        assert 10 < successes < 40, f"Expected partial success, got {successes}/{attempts}"
+        assert (
+            10 < successes < 40
+        ), f"Expected partial success, got {successes}/{attempts}"
         print(f"Partial partition: {successes}/{attempts} messages got through")
 
 

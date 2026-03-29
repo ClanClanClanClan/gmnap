@@ -78,7 +78,9 @@ def validate_model(model, profiles, model_name):
             acc = results["correct"] / (i + 1) * 100
             print(f"  Progress: {i+1}/{len(profiles)} ({acc:.2f}% accurate)")
 
-    results["accuracy"] = results["correct"] / results["total"] * 100 if results["total"] > 0 else 0
+    results["accuracy"] = (
+        results["correct"] / results["total"] * 100 if results["total"] > 0 else 0
+    )
 
     return results
 
@@ -102,7 +104,8 @@ def print_comparison(v3_results, v4_results):
     print("-" * 48)
 
     all_regions = sorted(
-        set(v3_results["regional_stats"].keys()) | set(v4_results["regional_stats"].keys())
+        set(v3_results["regional_stats"].keys())
+        | set(v4_results["regional_stats"].keys())
     )
 
     for region in all_regions:
@@ -112,8 +115,16 @@ def print_comparison(v3_results, v4_results):
         if v3_stats["total"] == 0:
             continue
 
-        v3_acc = (v3_stats["correct"] / v3_stats["total"] * 100) if v3_stats["total"] > 0 else 0
-        v4_acc = (v4_stats["correct"] / v4_stats["total"] * 100) if v4_stats["total"] > 0 else 0
+        v3_acc = (
+            (v3_stats["correct"] / v3_stats["total"] * 100)
+            if v3_stats["total"] > 0
+            else 0
+        )
+        v4_acc = (
+            (v4_stats["correct"] / v4_stats["total"] * 100)
+            if v4_stats["total"] > 0
+            else 0
+        )
         delta = v4_acc - v3_acc
 
         if delta >= 10:
@@ -133,7 +144,9 @@ def print_comparison(v3_results, v4_results):
     print("Key Metrics:")
     print(f"  v3: {v3_results['correct']}/{v3_results['total']} correct")
     print(f"  v4: {v4_results['correct']}/{v4_results['total']} correct")
-    print(f"  Improvement: +{v4_results['correct'] - v3_results['correct']} correct predictions")
+    print(
+        f"  Improvement: +{v4_results['correct'] - v3_results['correct']} correct predictions"
+    )
     print()
 
     # Verdict

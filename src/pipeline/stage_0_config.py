@@ -46,11 +46,19 @@ class ConfigStage:
 
     def _validate_config(self) -> None:
         """Validate that required configuration sections exist"""
-        required_sections = ["pipeline", "regions", "authorities", "security", "monitoring"]
+        required_sections = [
+            "pipeline",
+            "regions",
+            "authorities",
+            "security",
+            "monitoring",
+        ]
 
         for section in required_sections:
             if section not in self.config:
-                raise ConfigurationError(f"Missing required configuration section: {section}")
+                raise ConfigurationError(
+                    f"Missing required configuration section: {section}"
+                )
 
         # Validate pipeline configuration
         pipeline_config = self.config.get("pipeline", {})

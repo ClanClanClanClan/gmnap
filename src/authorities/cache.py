@@ -182,14 +182,20 @@ class AuthorityCache:
                 try:
                     return json.loads(row["response"])
                 except json.JSONDecodeError:
-                    logger.error(f"Failed to parse cached response for {service}:{query}")
+                    logger.error(
+                        f"Failed to parse cached response for {service}:{query}"
+                    )
                     return None
 
             self._stats["misses"] += 1
             return None
 
     def put(
-        self, service: str, query: str, response: Dict[str, Any], ttl: Optional[int] = None
+        self,
+        service: str,
+        query: str,
+        response: Dict[str, Any],
+        ttl: Optional[int] = None,
     ) -> None:
         """
         Cache an authority response.

@@ -22,7 +22,12 @@ class CollisionDetectionTester:
     """Test Stage 5 collision detection and suffix generation."""
 
     def __init__(self):
-        self.results = {"tests_run": 0, "tests_passed": 0, "tests_failed": 0, "errors": []}
+        self.results = {
+            "tests_run": 0,
+            "tests_passed": 0,
+            "tests_failed": 0,
+            "errors": [],
+        }
 
     async def test_exact_duplicates(self):
         """Test handling of exact name duplicates."""
@@ -76,7 +81,9 @@ class CollisionDetectionTester:
             if len(duplicates) == 2:
                 # Check suffix format
                 expected = [("DUP-002", "DUP-002--1"), ("DUP-003", "DUP-003--2")]
-                if duplicates[0][1].endswith("--1") and duplicates[1][1].endswith("--2"):
+                if duplicates[0][1].endswith("--1") and duplicates[1][1].endswith(
+                    "--2"
+                ):
                     print("✅ Correct suffix generation for duplicates")
                     self.results["tests_passed"] += 1
                 else:
@@ -86,7 +93,9 @@ class CollisionDetectionTester:
             else:
                 print(f"❌ Expected 2 duplicates, got {len(duplicates)}")
                 self.results["tests_failed"] += 1
-                self.results["errors"].append(f"Expected 2 duplicates, got {len(duplicates)}")
+                self.results["errors"].append(
+                    f"Expected 2 duplicates, got {len(duplicates)}"
+                )
 
         except Exception as e:
             print(f"❌ Error: {e}")
@@ -136,7 +145,9 @@ class CollisionDetectionTester:
             else:
                 print(f"❌ Should not suffix different birth years: {duplicates}")
                 self.results["tests_failed"] += 1
-                self.results["errors"].append("Incorrectly suffixed different birth years")
+                self.results["errors"].append(
+                    "Incorrectly suffixed different birth years"
+                )
 
         except Exception as e:
             print(f"❌ Error: {e}")
@@ -154,7 +165,11 @@ class CollisionDetectionTester:
         test_entries = [
             {"GlobalID": "COL-001", "CanonicalLatin": "Test One", "BirthYear": 1900},
             {"GlobalID": "COL-002", "CanonicalLatin": "Test Two", "BirthYear": 1901},
-            {"GlobalID": "COL-003", "CanonicalLatin": "Test One", "BirthYear": 1900},  # Duplicate
+            {
+                "GlobalID": "COL-003",
+                "CanonicalLatin": "Test One",
+                "BirthYear": 1900,
+            },  # Duplicate
             {"GlobalID": "COL-004", "CanonicalLatin": "Test Three", "BirthYear": 1902},
             {
                 "GlobalID": "COL-005",

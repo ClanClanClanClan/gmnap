@@ -158,7 +158,9 @@ class GenealogyIntegrator:
 
         for source in sources:
             if not source["file"].exists():
-                print(f"⚠️  Skipping {source['name']}: file not found ({source['file']})")
+                print(
+                    f"⚠️  Skipping {source['name']}: file not found ({source['file']})"
+                )
                 continue
 
             print(f"Processing {source['name']} ({source['file']})...")
@@ -285,7 +287,9 @@ class GenealogyIntegrator:
         name_lower = name.lower()
         return any(kw in name_lower for kw in institution_keywords)
 
-    async def normalize_all_names(self, edges: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def normalize_all_names(
+        self, edges: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Normalize student and advisor names through GMNAP V7."""
         print("Normalizing names through GMNAP V7 pipeline...")
 
@@ -340,7 +344,9 @@ class GenealogyIntegrator:
             name = name.replace(title, "").strip()
         return name
 
-    async def match_person_ids(self, edges: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def match_person_ids(
+        self, edges: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Match person IDs (assign GlobalIDs, deduplicate)."""
         print("Matching person IDs and deduplicating...")
 
@@ -416,7 +422,11 @@ class GenealogyIntegrator:
                 print(f"  ✅ Persons in database: {persons:,}")
                 print(f"  ✅ Relationships in database: {relationships:,}")
 
-                return {"status": "ok", "persons": persons, "relationships": relationships}
+                return {
+                    "status": "ok",
+                    "persons": persons,
+                    "relationships": relationships,
+                }
 
         except Exception as e:
             error_msg = f"API verification failed: {str(e)}"

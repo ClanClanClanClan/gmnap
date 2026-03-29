@@ -233,28 +233,36 @@ class TestUltraParanoidSecurity:
     @pytest.mark.timeout(15)
     def test_sql_injection_bombardment(self):
         """Test every SQL injection pattern we can think of"""
-        for attack in [s for s in self.attack_strings if "OR" in s or "UNION" in s or "--" in s]:
+        for attack in [
+            s for s in self.attack_strings if "OR" in s or "UNION" in s or "--" in s
+        ]:
             with pytest.raises(Exception):  # Should raise SecurityError
                 self.validator.validate_string(attack, "sql_test")
 
     @pytest.mark.timeout(15)
     def test_xss_injection_bombardment(self):
         """Test every XSS pattern"""
-        for attack in [s for s in self.attack_strings if "<" in s or "script" in s.lower()]:
+        for attack in [
+            s for s in self.attack_strings if "<" in s or "script" in s.lower()
+        ]:
             with pytest.raises(Exception):
                 self.validator.validate_string(attack, "xss_test")
 
     @pytest.mark.timeout(15)
     def test_command_injection_bombardment(self):
         """Test command injection patterns"""
-        for attack in [s for s in self.attack_strings if ";" in s or "|" in s or "`" in s]:
+        for attack in [
+            s for s in self.attack_strings if ";" in s or "|" in s or "`" in s
+        ]:
             with pytest.raises(Exception):
                 self.validator.validate_string(attack, "cmd_test")
 
     @pytest.mark.timeout(15)
     def test_path_traversal_bombardment(self):
         """Test path traversal patterns"""
-        for attack in [s for s in self.attack_strings if ".." in s or "etc/passwd" in s]:
+        for attack in [
+            s for s in self.attack_strings if ".." in s or "etc/passwd" in s
+        ]:
             with pytest.raises(Exception):
                 self.validator.validate_string(attack, "path_test")
 

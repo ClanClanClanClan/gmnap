@@ -208,7 +208,9 @@ class C4_ArabicGulf(RegionSpec):
                     )
                 # Check for DoS via excessive length
                 if len(raw_input) > 150:
-                    raise RegionRuleError(f"Name too long: {len(raw_input)} characters (max 150)")
+                    raise RegionRuleError(
+                        f"Name too long: {len(raw_input)} characters (max 150)"
+                    )
 
         # Clean canonical forms
         for field in ["CanonicalLatin", "CanonicalNative"]:
@@ -266,7 +268,10 @@ class C4_ArabicGulf(RegionSpec):
             # Check if it's a title
             if clean_word in self.titles:
                 # Some titles are multi-word (e.g., "His Excellency")
-                if i + 1 < len(words) and f"{clean_word} {words[i+1].rstrip('.,')}" in self.titles:
+                if (
+                    i + 1 < len(words)
+                    and f"{clean_word} {words[i+1].rstrip('.,')}" in self.titles
+                ):
                     skip_next = True
                 continue
 
@@ -343,9 +348,13 @@ class C4_ArabicGulf(RegionSpec):
 
         # Add variant without patronymic
         if components.get("patronymic"):
-            without_patronymic = self._generate_no_patronymic_variant(canonical, components)
+            without_patronymic = self._generate_no_patronymic_variant(
+                canonical, components
+            )
             if without_patronymic and without_patronymic != canonical:
-                self.add_variant(entry, {"str": without_patronymic, "type": "no-patronymic"})
+                self.add_variant(
+                    entry, {"str": without_patronymic, "type": "no-patronymic"}
+                )
 
         # Add variant with Al- prefix variations
         al_variants = self._generate_al_variants(canonical)
@@ -401,7 +410,10 @@ class C4_ArabicGulf(RegionSpec):
         """Find patronymic indicators in word list."""
         for i, word in enumerate(words):
             word_lower = word.lower()
-            if word_lower in self.patronymic_patterns or word in self.patronymic_patterns:
+            if (
+                word_lower in self.patronymic_patterns
+                or word in self.patronymic_patterns
+            ):
                 return {
                     "patronymic": word,
                     "patronymic_index": i,
@@ -414,7 +426,11 @@ class C4_ArabicGulf(RegionSpec):
     def _find_family_start(self, words: List[str]) -> int:
         """Find where family name starts (usually with Al- prefix)."""
         for i, word in enumerate(words):
-            if word.startswith("Al-") or word.startswith("ال") or word in self.family_prefixes:
+            if (
+                word.startswith("Al-")
+                or word.startswith("ال")
+                or word in self.family_prefixes
+            ):
                 return i
         return -1
 
@@ -574,8 +590,12 @@ class C4_ArabicGulf(RegionSpec):
 
         # If CanonicalLatin exists, it should be romanized
         if canonical_latin:
-            if self._is_arabic(canonical_latin) and not self._is_mixed_script(canonical_latin):
-                raise RegionRuleError(f"CanonicalLatin should be romanized: {canonical_latin}")
+            if self._is_arabic(canonical_latin) and not self._is_mixed_script(
+                canonical_latin
+            ):
+                raise RegionRuleError(
+                    f"CanonicalLatin should be romanized: {canonical_latin}"
+                )
 
         # Check name structure
         for canonical in [canonical_native, canonical_latin]:

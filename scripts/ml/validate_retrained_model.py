@@ -62,7 +62,9 @@ def validate_on_val_set(model, profiles):
         "confidence_stats": [],
     }
 
-    print(f"Validating on {len(profiles)} real mathematician names from validation set...")
+    print(
+        f"Validating on {len(profiles)} real mathematician names from validation set..."
+    )
     print()
 
     for i, profile in enumerate(profiles):
@@ -95,7 +97,9 @@ def validate_on_val_set(model, profiles):
             )
 
         # Track confidence
-        results["confidence_stats"].append({"confidence": confidence, "correct": is_correct})
+        results["confidence_stats"].append(
+            {"confidence": confidence, "correct": is_correct}
+        )
 
         # Progress
         if (i + 1) % 100 == 0 or (i + 1) == len(profiles):
@@ -103,7 +107,9 @@ def validate_on_val_set(model, profiles):
             print(f"  Progress: {i+1}/{len(profiles)} ({acc:.2f}% accurate)")
 
     # Calculate accuracy
-    results["accuracy"] = results["correct"] / results["total"] * 100 if results["total"] > 0 else 0
+    results["accuracy"] = (
+        results["correct"] / results["total"] * 100 if results["total"] > 0 else 0
+    )
 
     return results
 
@@ -114,7 +120,9 @@ def print_results(results):
     print("VALIDATION RESULTS (Held-Out Validation Set)")
     print(f"{'='*80}\n")
 
-    print(f"Overall Accuracy: {results['correct']}/{results['total']} = {results['accuracy']:.2f}%")
+    print(
+        f"Overall Accuracy: {results['correct']}/{results['total']} = {results['accuracy']:.2f}%"
+    )
     print()
 
     # Regional breakdown
@@ -133,8 +141,12 @@ def print_results(results):
         avg_conf = sum(s["confidence"] for s in results["confidence_stats"]) / len(
             results["confidence_stats"]
         )
-        correct_conf = [s["confidence"] for s in results["confidence_stats"] if s["correct"]]
-        incorrect_conf = [s["confidence"] for s in results["confidence_stats"] if not s["correct"]]
+        correct_conf = [
+            s["confidence"] for s in results["confidence_stats"] if s["correct"]
+        ]
+        incorrect_conf = [
+            s["confidence"] for s in results["confidence_stats"] if not s["correct"]
+        ]
 
         print()
         print("Confidence Analysis:")
@@ -142,7 +154,9 @@ def print_results(results):
         if correct_conf:
             print(f"  Correct predictions: {sum(correct_conf)/len(correct_conf):.3f}")
         if incorrect_conf:
-            print(f"  Incorrect predictions: {sum(incorrect_conf)/len(incorrect_conf):.3f}")
+            print(
+                f"  Incorrect predictions: {sum(incorrect_conf)/len(incorrect_conf):.3f}"
+            )
 
     # Top failures
     if results["failures"]:
@@ -151,7 +165,9 @@ def print_results(results):
         for i, failure in enumerate(results["failures"][:10], 1):
             print(f"  {i}. {failure['name']}")
             print(f"     Expected: {failure['expected']}, Got: {failure['detected']}")
-            print(f"     Confidence: {failure['confidence']:.3f}, Country: {failure['country']}")
+            print(
+                f"     Confidence: {failure['confidence']:.3f}, Country: {failure['country']}"
+            )
 
 
 def print_verdict(old_accuracy, new_accuracy):

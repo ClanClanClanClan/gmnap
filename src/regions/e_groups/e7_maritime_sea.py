@@ -85,7 +85,10 @@ class E7MaritimeSEA(RegionSpec):
 
         # Common Maritime SEA countries for pattern detection
         self.country_patterns = {
-            "MY": {"patronymics": ["bin", "binti"], "surnames": ["Ahmad", "Hassan", "Rahman"]},
+            "MY": {
+                "patronymics": ["bin", "binti"],
+                "surnames": ["Ahmad", "Hassan", "Rahman"],
+            },
             "SG": {"mixed": True},  # Mixed patterns
             "ID": {"mononyms": True, "surnames": ["Sari", "Indra", "Putra", "Dewi"]},
             "BN": {"patronymics": ["bin", "binti"]},
@@ -224,7 +227,9 @@ class E7MaritimeSEA(RegionSpec):
 
         # Generate variant without patronymic (Rule 28)
         if malay_patronymic:
-            without_patronymic = self._generate_no_patronymic_variant(canonical, malay_patronymic)
+            without_patronymic = self._generate_no_patronymic_variant(
+                canonical, malay_patronymic
+            )
             if without_patronymic and without_patronymic != canonical:
                 entry["Variants"]["Synthesised"].append(
                     {"str": without_patronymic, "type": "no-patronymic"}
@@ -238,7 +243,9 @@ class E7MaritimeSEA(RegionSpec):
         ):
             family_given = f"{components['family_name']}, {components['given_name']}"
             if family_given != canonical:
-                entry["Variants"]["Synthesised"].append({"str": family_given, "type": "order-swap"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": family_given, "type": "order-swap"}
+                )
 
     def _is_mononym(self, name: str) -> bool:
         """

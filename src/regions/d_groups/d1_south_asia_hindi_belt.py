@@ -399,17 +399,23 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
             if romanized != canonical:
                 # Update CanonicalLatin to be romanized
                 entry["CanonicalLatin"] = romanized
-                entry["Variants"]["Synthesised"].append({"str": romanized, "type": "romanization"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": romanized, "type": "romanization"}
+                )
 
         # Add initials variant
         initials_variant = self._generate_initials_variant(canonical, components)
         if initials_variant and initials_variant != canonical:
-            entry["Variants"]["Synthesised"].append({"str": initials_variant, "type": "initials"})
+            entry["Variants"]["Synthesised"].append(
+                {"str": initials_variant, "type": "initials"}
+            )
 
         # Add variant without middle/father name
         short_variant = self._generate_short_variant(canonical, components)
         if short_variant and short_variant != canonical:
-            entry["Variants"]["Synthesised"].append({"str": short_variant, "type": "short-form"})
+            entry["Variants"]["Synthesised"].append(
+                {"str": short_variant, "type": "short-form"}
+            )
 
     def _extract_components(self, name: str) -> Dict[str, Any]:
         """Extract name components."""
@@ -478,11 +484,25 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
                 result["caste_indicator"] = last_word
 
                 # Determine probable community
-                if last_word in ["शर्मा", "Sharma", "पांडे", "Pandey", "मिश्र", "Mishra"]:
+                if last_word in [
+                    "शर्मा",
+                    "Sharma",
+                    "पांडे",
+                    "Pandey",
+                    "मिश्र",
+                    "Mishra",
+                ]:
                     result["probable_community"] = "Brahmin"
                 elif last_word in ["सिंह", "Singh", "राणा", "Rana", "ठाकुर", "Thakur"]:
                     result["probable_community"] = "Kshatriya"
-                elif last_word in ["गुप्ता", "Gupta", "अग्रवाल", "Agrawal", "जैन", "Jain"]:
+                elif last_word in [
+                    "गुप्ता",
+                    "Gupta",
+                    "अग्रवाल",
+                    "Agrawal",
+                    "जैन",
+                    "Jain",
+                ]:
                     result["probable_community"] = "Vaishya"
 
         return result if result else None
@@ -652,7 +672,9 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
         simplified = " ".join(simplified.split())
         return simplified.title()
 
-    def _generate_initials_variant(self, name: str, components: Dict[str, Any]) -> Optional[str]:
+    def _generate_initials_variant(
+        self, name: str, components: Dict[str, Any]
+    ) -> Optional[str]:
         """Generate variant with initials."""
         given = components.get("given_name", "")
         middle = components.get("middle_name", "") or components.get("father_name", "")
@@ -668,7 +690,9 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
 
         return None
 
-    def _generate_short_variant(self, name: str, components: Dict[str, Any]) -> Optional[str]:
+    def _generate_short_variant(
+        self, name: str, components: Dict[str, Any]
+    ) -> Optional[str]:
         """Generate short form without middle/father name."""
         given = components.get("given_name", "")
         family = components.get("family_name", "")
@@ -698,15 +722,21 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
 
         # If CanonicalLatin exists, it should be romanized
         if canonical_latin:
-            if self._is_devanagari(canonical_latin) and not self._is_mixed_script(canonical_latin):
-                raise RegionRuleError(f"CanonicalLatin should be romanized: {canonical_latin}")
+            if self._is_devanagari(canonical_latin) and not self._is_mixed_script(
+                canonical_latin
+            ):
+                raise RegionRuleError(
+                    f"CanonicalLatin should be romanized: {canonical_latin}"
+                )
 
         # Check name structure
         for canonical in [canonical_native, canonical_latin]:
             if canonical:
                 words = canonical.split()
                 if len(words) < 1:
-                    raise RegionRuleError(f"Name should have at least 1 word: {canonical}")
+                    raise RegionRuleError(
+                        f"Name should have at least 1 word: {canonical}"
+                    )
 
                 # Check for invalid characters
                 if not self._has_valid_characters(canonical):

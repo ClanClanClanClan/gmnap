@@ -32,10 +32,15 @@ class OpenAlexCollector:
         self.email = email
         self.session = requests.Session()
         self.session.headers.update(
-            {"User-Agent": f"GMNAP-DataCollector (mailto:{email})", "Accept": "application/json"}
+            {
+                "User-Agent": f"GMNAP-DataCollector (mailto:{email})",
+                "Accept": "application/json",
+            }
         )
 
-    def search_authors(self, query: str = "mathematics", max_results: int = 10000) -> List[Dict]:
+    def search_authors(
+        self, query: str = "mathematics", max_results: int = 10000
+    ) -> List[Dict]:
         """
         Search for mathematician authors.
 
@@ -70,7 +75,9 @@ class OpenAlexCollector:
             response = self.session.get(f"{self.base_url}/authors", params=params)
 
             if response.status_code == 403:
-                print(f"⚠️  Access forbidden (403). Trying alternative search method...")
+                print(
+                    f"⚠️  Access forbidden (403). Trying alternative search method..."
+                )
                 # Fallback: simple search without topic filter
                 params_fallback = {
                     "search": query,
@@ -78,7 +85,9 @@ class OpenAlexCollector:
                     "page": page,
                     "mailto": self.email,
                 }
-                response = self.session.get(f"{self.base_url}/authors", params=params_fallback)
+                response = self.session.get(
+                    f"{self.base_url}/authors", params=params_fallback
+                )
 
             if response.status_code != 200:
                 print(f"⚠️  Request failed: {response.status_code}")
@@ -130,7 +139,9 @@ class OpenAlexCollector:
             inst_name = inst.get("display_name")
 
             if country_code or inst_name:
-                affiliations.append({"institution": inst_name, "country_code": country_code})
+                affiliations.append(
+                    {"institution": inst_name, "country_code": country_code}
+                )
 
         # Extract topics (to verify mathematics)
         topics = [t.get("display_name") for t in author.get("topics", [])[:3]]
@@ -168,7 +179,9 @@ class OpenAlexCollector:
                 profiles.append(profile)
 
             if (i + 1) % 500 == 0:
-                print(f"  Progress: {i+1}/{len(raw_authors)} ({len(profiles)} with affiliations)")
+                print(
+                    f"  Progress: {i+1}/{len(raw_authors)} ({len(profiles)} with affiliations)"
+                )
 
         print(f"✅ Enriched {len(profiles)} profiles with affiliation data")
         return profiles
@@ -233,7 +246,9 @@ def main():
             country_counts[country] = country_counts.get(country, 0) + 1
 
     print("\nTop 10 Countries:")
-    for country, count in sorted(country_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
+    for country, count in sorted(
+        country_counts.items(), key=lambda x: x[1], reverse=True
+    )[:10]:
         print(f"  {country}: {count}")
 
     # Top cited

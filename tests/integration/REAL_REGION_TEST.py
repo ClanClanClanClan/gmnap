@@ -23,7 +23,13 @@ def test_all_regions():
 
     # Comprehensive test data - multiple examples per region
     test_data = {
-        "A1": ["John Smith", "William Johnson", "Robert Brown", "James Wilson", "Smith, John"],
+        "A1": [
+            "John Smith",
+            "William Johnson",
+            "Robert Brown",
+            "James Wilson",
+            "Smith, John",
+        ],
         "A2": [
             "F. Dubois",
             "Jean-Pierre Martin",
@@ -68,15 +74,23 @@ def test_all_regions():
 
                 if is_correct:
                     correct += 1
-                    print(f"  PASS {name:30} -> {result.region_code} ({result.confidence:.2f})")
+                    print(
+                        f"  PASS {name:30} -> {result.region_code} ({result.confidence:.2f})"
+                    )
                 else:
-                    print(f"  FAIL {name:30} -> {result.region_code} (expected {expected_region})")
+                    print(
+                        f"  FAIL {name:30} -> {result.region_code} (expected {expected_region})"
+                    )
 
             except Exception as e:
                 print(f"  FAIL {name:30} -> ERROR: {e}")
 
         accuracy = correct / total if total > 0 else 0
-        results[expected_region] = {"correct": correct, "total": total, "accuracy": accuracy}
+        results[expected_region] = {
+            "correct": correct,
+            "total": total,
+            "accuracy": accuracy,
+        }
         print(f"  Accuracy: {correct}/{total} ({accuracy:.0%})")
 
     # Summary
@@ -91,7 +105,9 @@ def test_all_regions():
 
     print(f"\nWorking regions ({len(working_regions)}): {sorted(working_regions)}")
     print(f"Broken regions ({len(broken_regions)}): {sorted(broken_regions)}")
-    print(f"\nOverall accuracy: {total_correct}/{total_tested} ({total_correct/total_tested:.0%})")
+    print(
+        f"\nOverall accuracy: {total_correct}/{total_tested} ({total_correct/total_tested:.0%})"
+    )
 
     # Check cache performance with real usage
     print("\n" + "=" * 60)
@@ -124,7 +140,9 @@ def test_all_regions():
         miss_time = total_time / 100 * stats["cache_misses"]
         hit_time = total_time / 100 * stats["cache_hits"]
         actual_speedup = (
-            miss_time / (hit_time / stats["cache_hits"]) if stats["cache_hits"] > 0 else 1
+            miss_time / (hit_time / stats["cache_hits"])
+            if stats["cache_hits"] > 0
+            else 1
         )
         print(f"  Actual cache speedup: ~{actual_speedup:.1f}x")
 

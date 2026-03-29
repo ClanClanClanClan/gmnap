@@ -48,7 +48,9 @@ def _to_short_form(canonical_latin: str) -> str | None:
     family, given = _family_given(canonical_latin)
     if not family or not given:
         return None
-    initials = " ".join(f"{p[0]}." for p in re.split(r"[\s\-]+", given) if p and p[0].isalpha())
+    initials = " ".join(
+        f"{p[0]}." for p in re.split(r"[\s\-]+", given) if p and p[0].isalpha()
+    )
     if not initials:
         return None
     return f"{initials} {family}"

@@ -156,7 +156,18 @@ def check_mappings_needed():
         lookup = rom2han()
 
         # Syllables we need
-        needed_syllables = ["chul", "soo", "mi", "na", "young", "hee", "dong", "hun", "eun", "ji"]
+        needed_syllables = [
+            "chul",
+            "soo",
+            "mi",
+            "na",
+            "young",
+            "hee",
+            "dong",
+            "hun",
+            "eun",
+            "ji",
+        ]
 
         print("Checking lookup table:")
         for syl in needed_syllables:

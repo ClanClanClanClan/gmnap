@@ -90,8 +90,12 @@ for i, name in enumerate(test_names):
             print(
                 f"\n  {i+1:,} ops: {current_memory:.1f} MB (+{memory_growth:.1f} MB, {leak_rate:.4f} MB/1K ops)"
             )
-            print(f"    Rate limiter cleanup: {cleanup_stats['clients_removed']} clients removed")
-            print(f"    Rate limiter memory: {memory_stats_after['estimated_memory_kb']} KB")
+            print(
+                f"    Rate limiter cleanup: {cleanup_stats['clients_removed']} clients removed"
+            )
+            print(
+                f"    Rate limiter memory: {memory_stats_after['estimated_memory_kb']} KB"
+            )
 
             memory_points.append(
                 {

@@ -16,7 +16,9 @@ from dataclasses import dataclass
 from .production_monitor import ProductionMonitor
 from .recovery_system import AutoRecoverySystem
 from .load_balancer import LoadBalancer
-from .military_grade_security import MilitaryGradeSecurityValidator as MilitaryGradeSecurity
+from .military_grade_security import (
+    MilitaryGradeSecurityValidator as MilitaryGradeSecurity,
+)
 
 
 @dataclass
@@ -87,7 +89,9 @@ class EnterpriseInfrastructure:
         logger = logging.getLogger("gmnap.infrastructure")
 
         # Set log level from config
-        level = getattr(logging, self.config.infrastructure_log_level.upper(), logging.INFO)
+        level = getattr(
+            logging, self.config.infrastructure_log_level.upper(), logging.INFO
+        )
         logger.setLevel(level)
 
         if not logger.handlers:
@@ -108,7 +112,8 @@ class EnterpriseInfrastructure:
             try:
                 file_handler = logging.FileHandler(log_dir / "infrastructure.log")
                 file_formatter = logging.Formatter(
-                    "%(asctime)s [%(name)s] %(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+                    "%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+                    datefmt="%Y-%m-%d %H:%M:%S",
                 )
                 file_handler.setFormatter(file_formatter)
                 logger.addHandler(file_handler)
@@ -139,7 +144,9 @@ class EnterpriseInfrastructure:
             self.running = True
             uptime = time.time() - self.startup_time
 
-            self.logger.info(f"✅ Enterprise Infrastructure started successfully in {uptime:.2f}s")
+            self.logger.info(
+                f"✅ Enterprise Infrastructure started successfully in {uptime:.2f}s"
+            )
             self.logger.info("🛡️  Military-grade security: ACTIVE")
             self.logger.info("📊 Production monitoring: ACTIVE")
             self.logger.info("🔄 Automatic recovery: ACTIVE")
@@ -193,7 +200,9 @@ class EnterpriseInfrastructure:
             if health_status["status"] in ["healthy", "warning"]:
                 self.logger.info("✅ Production monitoring system operational")
             else:
-                self.logger.warning(f"⚠️  Monitoring system status: {health_status['status']}")
+                self.logger.warning(
+                    f"⚠️  Monitoring system status: {health_status['status']}"
+                )
 
         except Exception as e:
             self.logger.error(f"Monitoring initialization failed: {e}")
@@ -208,11 +217,15 @@ class EnterpriseInfrastructure:
         self.logger.info("Initializing automatic recovery system...")
 
         try:
-            self.recovery_system = AutoRecoverySystem(self.monitor, self.config.recovery_config)
+            self.recovery_system = AutoRecoverySystem(
+                self.monitor, self.config.recovery_config
+            )
             self.recovery_system.start_recovery_system()
 
             # Register infrastructure recovery callback
-            self.recovery_system.register_alert_callback(self._handle_infrastructure_alert)
+            self.recovery_system.register_alert_callback(
+                self._handle_infrastructure_alert
+            )
 
             self.logger.info("✅ Automatic recovery system operational")
 
@@ -236,7 +249,11 @@ class EnterpriseInfrastructure:
                 from .load_balancer import ServiceEndpoint
 
                 default_endpoint = ServiceEndpoint(
-                    id="localhost", host="127.0.0.1", port=8000, weight=1.0, max_connections=100
+                    id="localhost",
+                    host="127.0.0.1",
+                    port=8000,
+                    weight=1.0,
+                    max_connections=100,
                 )
                 self.load_balancer.add_endpoint(default_endpoint)
 
@@ -269,7 +286,10 @@ class EnterpriseInfrastructure:
                 current_time = time.time()
 
                 # Health check coordination
-                if current_time - last_health_update >= self.config.health_check_interval:
+                if (
+                    current_time - last_health_update
+                    >= self.config.health_check_interval
+                ):
                     self._coordinate_health_checks()
                     last_health_update = current_time
 
@@ -304,7 +324,9 @@ class EnterpriseInfrastructure:
                 # Update load balancer with health metrics
                 if self.load_balancer:
                     health_status = self.monitor.get_health_status()
-                    self.load_balancer.update_service_level(health_status["current_metrics"])
+                    self.load_balancer.update_service_level(
+                        health_status["current_metrics"]
+                    )
 
         except Exception as e:
             self.logger.error(f"Health check coordination failed: {e}")
@@ -349,7 +371,9 @@ class EnterpriseInfrastructure:
     async def process_request(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process a request through the enterprise infrastructure."""
         if not self.running:
-            return self._infrastructure_unavailable_response(request_data.get("id", "unknown"))
+            return self._infrastructure_unavailable_response(
+                request_data.get("id", "unknown")
+            )
 
         request_start = time.time()
         request_id = request_data.get("id", str(time.time()))
@@ -468,7 +492,9 @@ class EnterpriseInfrastructure:
             self.logger.info(f"   Uptime: {uptime:.2f} seconds")
             self.logger.info(f"   Requests processed: {self.total_requests_processed}")
             self.logger.info(f"   Errors handled: {self.total_errors_handled}")
-            self.logger.info(f"   Recoveries performed: {self.total_recoveries_performed}")
+            self.logger.info(
+                f"   Recoveries performed: {self.total_recoveries_performed}"
+            )
             self.logger.info(f"   Security blocks: {self.total_security_blocks}")
 
             if self.total_requests_processed > 0:
@@ -490,8 +516,10 @@ class EnterpriseInfrastructure:
             "uptime_seconds": time.time() - self.startup_time if self.running else 0,
             "components": {
                 "security": self.security is not None and self.config.security_enabled,
-                "monitoring": self.monitor is not None and self.config.monitoring_enabled,
-                "recovery": self.recovery_system is not None and self.config.recovery_enabled,
+                "monitoring": self.monitor is not None
+                and self.config.monitoring_enabled,
+                "recovery": self.recovery_system is not None
+                and self.config.recovery_enabled,
                 "load_balancer": self.load_balancer is not None
                 and self.config.load_balancing_enabled,
             },
@@ -563,7 +591,9 @@ async def create_enterprise_infrastructure(
                     setattr(config, key, value)
 
         except Exception as e:
-            logging.warning(f"Failed to load infrastructure config from {config_path}: {e}")
+            logging.warning(
+                f"Failed to load infrastructure config from {config_path}: {e}"
+            )
 
     infrastructure = EnterpriseInfrastructure(config)
     await infrastructure.startup()

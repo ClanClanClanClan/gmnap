@@ -30,7 +30,9 @@ class AuditLogger:
             return hmac.new(self.key, payload, hashlib.sha256).hexdigest()
         return hashlib.sha256(payload).hexdigest()
 
-    def log(self, actor: str, action: str, details: Dict[str, Any] | None = None) -> str:
+    def log(
+        self, actor: str, action: str, details: Dict[str, Any] | None = None
+    ) -> str:
         rec = {
             "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "actor": actor,
@@ -56,7 +58,9 @@ class AuditLogger:
                         return False
                     tmp = obj.copy()
                     h = tmp.pop("hash", None)
-                    payload = json.dumps(tmp, sort_keys=True, separators=(",", ":")).encode("utf-8")
+                    payload = json.dumps(
+                        tmp, sort_keys=True, separators=(",", ":")
+                    ).encode("utf-8")
                     dig = self._digest(payload)
                     if h != dig:
                         return False

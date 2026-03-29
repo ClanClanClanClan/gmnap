@@ -144,7 +144,9 @@ async def test_pipeline_integration():
 
             if has_openalex_id:
                 openalex_id = next(
-                    e["value"] for e in enriched["ExternalIDs"] if e.get("type") == "OpenAlex"
+                    e["value"]
+                    for e in enriched["ExternalIDs"]
+                    if e.get("type") == "OpenAlex"
                 )
                 print(f"      ID: {openalex_id}")
             if has_metrics:
@@ -193,7 +195,9 @@ async def test_batch_processing():
         # Count successful enrichments
         success_count = 0
         for entry in enriched_batch:
-            has_openalex = any(e.get("type") == "OpenAlex" for e in entry.get("ExternalIDs", []))
+            has_openalex = any(
+                e.get("type") == "OpenAlex" for e in entry.get("ExternalIDs", [])
+            )
             if has_openalex:
                 success_count += 1
                 print(f"  ✅ {entry['CanonicalLatin']:25} -> Enriched")

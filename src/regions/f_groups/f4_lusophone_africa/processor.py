@@ -86,7 +86,9 @@ class F4_LusophoneAfrica(RegionSpec):
 
         # Basic character validation for F4
         if not self._is_valid_name(name_to_validate):
-            raise RegionRuleError(f"Name contains invalid characters: {name_to_validate}")
+            raise RegionRuleError(
+                f"Name contains invalid characters: {name_to_validate}"
+            )
 
     def _is_valid_name(self, name: str) -> bool:
         """Check if name contains valid characters for this region."""

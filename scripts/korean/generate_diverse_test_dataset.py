@@ -129,7 +129,10 @@ GIVEN_NAME_SYLLABLES = {
 
 
 def generate_name_variants(
-    surname_kr: str, given_kr: str, surname_variants: List[str], given_variants: List[List[str]]
+    surname_kr: str,
+    given_kr: str,
+    surname_variants: List[str],
+    given_variants: List[List[str]],
 ) -> Tuple[str, str, List[str]]:
     """Generate various romanization variants for a name."""
     # Create canonical forms
@@ -232,7 +235,14 @@ def generate_diverse_dataset():
 
     # 1. Athletes
     athletes = [
-        ("Son_HeungMin", "손", "흥민", ["Son", "Sohn"], [["Heung"], ["Min"]], "Sports (Football)"),
+        (
+            "Son_HeungMin",
+            "손",
+            "흥민",
+            ["Son", "Sohn"],
+            [["Heung"], ["Min"]],
+            "Sports (Football)",
+        ),
         (
             "Kim_YuNa",
             "김",
@@ -298,7 +308,14 @@ def generate_diverse_dataset():
             [["Jin", "Chin"], ["Young", "Yeong"]],
             "Sports (Golf)",
         ),
-        ("An_SanMi", "안", "산미", ["An", "Ahn"], [["San"], ["Mi", "Mee"]], "Sports (Archery)"),
+        (
+            "An_SanMi",
+            "안",
+            "산미",
+            ["An", "Ahn"],
+            [["San"], ["Mi", "Mee"]],
+            "Sports (Archery)",
+        ),
     ]
 
     # 2. Entertainment (BTS, Blackpink, actors, etc.)
@@ -375,7 +392,14 @@ def generate_diverse_dataset():
             [["Chae"], ["Young", "Yeong"]],
             "Entertainment (BLACKPINK - Rosé)",
         ),
-        ("Lee_MinHo", "이", "민호", ["Lee", "Yi", "I"], [["Min"], ["Ho"]], "Entertainment (Actor)"),
+        (
+            "Lee_MinHo",
+            "이",
+            "민호",
+            ["Lee", "Yi", "I"],
+            [["Min"], ["Ho"]],
+            "Entertainment (Actor)",
+        ),
         (
             "Song_HyeKyo",
             "송",
@@ -384,7 +408,14 @@ def generate_diverse_dataset():
             [["Hye", "Hae"], ["Kyo", "Gyo"]],
             "Entertainment (Actress)",
         ),
-        ("Gong_Yoo", "공", "유", ["Gong", "Kong"], [["Yoo", "Yu"]], "Entertainment (Actor)"),
+        (
+            "Gong_Yoo",
+            "공",
+            "유",
+            ["Gong", "Kong"],
+            [["Yoo", "Yu"]],
+            "Entertainment (Actor)",
+        ),
         (
             "Bae_SuZy",
             "배",
@@ -485,7 +516,14 @@ def generate_diverse_dataset():
             [["Eui", "Ui"], ["Sun", "Seon"]],
             "Business (Hyundai)",
         ),
-        ("Lee_JaeYong", "이", "재용", ["Lee", "Yi"], [["Jae"], ["Yong"]], "Business (Samsung)"),
+        (
+            "Lee_JaeYong",
+            "이",
+            "재용",
+            ["Lee", "Yi"],
+            [["Jae"], ["Yong"]],
+            "Business (Samsung)",
+        ),
     ]
 
     # 4. Traditional and modern common names
@@ -672,7 +710,14 @@ def generate_diverse_dataset():
     # 7. Single syllable names
     single_syllable = [
         ("Kim_Min", "김", "민", ["Kim", "Gim"], [["Min"]], "Single syllable name"),
-        ("Lee_Jun", "이", "준", ["Lee", "Yi"], [["Jun", "Joon"]], "Single syllable name"),
+        (
+            "Lee_Jun",
+            "이",
+            "준",
+            ["Lee", "Yi"],
+            [["Jun", "Joon"]],
+            "Single syllable name",
+        ),
         ("Park_Bin", "박", "빈", ["Park", "Pak"], [["Bin"]], "Single syllable name"),
         ("Choi_Sol", "최", "솔", ["Choi", "Choe"], [["Sol"]], "Single syllable name"),
         ("Jung_Han", "정", "한", ["Jung", "Jeong"], [["Han"]], "Single syllable name"),
@@ -859,7 +904,14 @@ def generate_diverse_dataset():
             [["Hak"], ["Soon", "Sun"]],
             "Traditional name",
         ),
-        ("Lee_ChunHyang", "이", "춘향", ["Lee", "Yi"], [["Chun"], ["Hyang"]], "Traditional name"),
+        (
+            "Lee_ChunHyang",
+            "이",
+            "춘향",
+            ["Lee", "Yi"],
+            [["Chun"], ["Hyang"]],
+            "Traditional name",
+        ),
         (
             "Park_BokNam",
             "박",
@@ -908,9 +960,23 @@ def generate_diverse_dataset():
 
     # 12. Special cases with particles or titles
     special_cases = [
-        ("Kim_PhD", "김", "박사", ["Kim", "Gim"], [["Park-sa", "Baksa"]], "Title included"),
+        (
+            "Kim_PhD",
+            "김",
+            "박사",
+            ["Kim", "Gim"],
+            [["Park-sa", "Baksa"]],
+            "Title included",
+        ),
         ("Dr_Lee", "이", "박사", ["Lee", "Yi"], [["Dr.", "Doctor"]], "Western title"),
-        ("Prof_Park", "박", "교수", ["Park", "Pak"], [["Prof.", "Professor"]], "Western title"),
+        (
+            "Prof_Park",
+            "박",
+            "교수",
+            ["Park", "Pak"],
+            [["Prof.", "Professor"]],
+            "Western title",
+        ),
     ]
 
     # Combine all categories
@@ -935,7 +1001,15 @@ def generate_diverse_dataset():
             name_id, surname_kr, given_kr, surname_vars, given_vars, domain = entry_data
             diaspora = None
         else:
-            name_id, surname_kr, given_kr, surname_vars, given_vars, domain, diaspora = entry_data
+            (
+                name_id,
+                surname_kr,
+                given_kr,
+                surname_vars,
+                given_vars,
+                domain,
+                diaspora,
+            ) = entry_data
 
         dataset[name_id] = create_test_entry(
             name_id, surname_kr, given_kr, surname_vars, given_vars, domain, diaspora
@@ -963,7 +1037,12 @@ def generate_diverse_dataset():
 
         name_id = f"Random_{i+1:03d}"
         dataset[name_id] = create_test_entry(
-            name_id, surname_kr, given_kr, surname_vars, given_vars, "Randomly generated name"
+            name_id,
+            surname_kr,
+            given_kr,
+            surname_vars,
+            given_vars,
+            "Randomly generated name",
         )
 
     return dataset
@@ -981,7 +1060,9 @@ def main():
     output_file = "/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/src/gmnap/regions/e_groups/e4_korea/data/korean_diverse_test.yaml"
 
     with open(output_file, "w", encoding="utf-8") as f:
-        yaml.dump(dataset, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
+        yaml.dump(
+            dataset, f, allow_unicode=True, default_flow_style=False, sort_keys=False
+        )
 
     print(f"Dataset saved to: {output_file}")
 

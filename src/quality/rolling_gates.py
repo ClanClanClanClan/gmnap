@@ -44,4 +44,9 @@ class RollingGates:
         minutes_1m = (1_000_000 / eps) / 60.0
         sr = self.s.ok / max(1, self.s.total)
         ok = (minutes_1m <= self.l.minutes_1m_max) and (sr >= self.l.min_success_rate)
-        return {"ok": ok, "minutes_1m": minutes_1m, "success_rate": sr, "seen": self.s.total}
+        return {
+            "ok": ok,
+            "minutes_1m": minutes_1m,
+            "success_rate": sr,
+            "seen": self.s.total,
+        }

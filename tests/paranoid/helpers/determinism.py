@@ -22,9 +22,9 @@ def canonicalize_entries(entries):
 
 def to_canonical_bytes(entries):
     canon = canonicalize_entries(entries)
-    return json.dumps(canon, ensure_ascii=True, separators=(",", ":"), sort_keys=True).encode(
-        "utf-8"
-    )
+    return json.dumps(
+        canon, ensure_ascii=True, separators=(",", ":"), sort_keys=True
+    ).encode("utf-8")
 
 
 def sha256_hex(b: bytes) -> str:

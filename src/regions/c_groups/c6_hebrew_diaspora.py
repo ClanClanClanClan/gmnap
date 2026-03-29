@@ -13,7 +13,9 @@ class C6HebrewDiaspora(RegionSpec):
 
     def __init__(self):
         super().__init__(
-            code="C6", yaml_files=[], scripts=["Hebrew", "Latin"]  # TODO: Add actual YAML files
+            code="C6",
+            yaml_files=[],
+            scripts=["Hebrew", "Latin"],  # TODO: Add actual YAML files
         )
 
     def clean(self, name: str) -> str:

@@ -58,9 +58,18 @@ def run_comprehensive_test_report():
 
     try:
         # Run pytest with json output
-        cmd = [sys.executable, "-m", "pytest", "tests", "--co", "-q"]  # Collect only  # Quiet
+        cmd = [
+            sys.executable,
+            "-m",
+            "pytest",
+            "tests",
+            "--co",
+            "-q",
+        ]  # Collect only  # Quiet
 
-        result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=30)
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, env=env, timeout=30
+        )
 
         # Parse output to count tests
         output_lines = result.stdout.strip().split("\n")
@@ -97,9 +106,19 @@ def run_comprehensive_test_report():
 
         try:
             # Run the test
-            cmd = [sys.executable, "-m", "pytest", test_path, "-xvs", "--tb=no", "--timeout=10"]
+            cmd = [
+                sys.executable,
+                "-m",
+                "pytest",
+                test_path,
+                "-xvs",
+                "--tb=no",
+                "--timeout=10",
+            ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=15, env=env)
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=15, env=env
+            )
 
             if "passed" in result.stdout or result.returncode == 0:
                 print(f"  ✅ {test_name}: PASSED")
@@ -132,10 +151,24 @@ def run_comprehensive_test_report():
 
     coverage_areas = {
         "V7 Pipeline Stages": ["✅ 12/12 stages have tests"],
-        "Security": ["✅ SQL injection", "✅ XSS", "✅ Base64", "✅ DoS", "✅ Rate limiting"],
+        "Security": [
+            "✅ SQL injection",
+            "✅ XSS",
+            "✅ Base64",
+            "✅ DoS",
+            "✅ Rate limiting",
+        ],
         "Regional Processing": ["✅ 33/33 regions tested"],
-        "Edge Cases": ["✅ Tab normalization", "✅ 150-char limit", "✅ Single char names"],
-        "Performance": ["✅ Speed benchmarks", "✅ Memory usage", "✅ Concurrent processing"],
+        "Edge Cases": [
+            "✅ Tab normalization",
+            "✅ 150-char limit",
+            "✅ Single char names",
+        ],
+        "Performance": [
+            "✅ Speed benchmarks",
+            "✅ Memory usage",
+            "✅ Concurrent processing",
+        ],
         "Data Quality": ["✅ CJK roundtrip", "✅ Idempotency", "✅ Determinism"],
     }
 

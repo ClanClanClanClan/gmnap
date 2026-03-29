@@ -156,7 +156,11 @@ class LinguisticRulesEngine:
         logger.info(f"Loaded {len(essential_rules)} essential linguistic rules")
 
     def apply_rules(
-        self, text: str, rule_types: List[RuleType] = None, region: str = None, script: str = None
+        self,
+        text: str,
+        rule_types: List[RuleType] = None,
+        region: str = None,
+        script: str = None,
     ) -> Tuple[str, List[str]]:
         """
         Apply linguistic rules to text.
@@ -205,7 +209,9 @@ class LinguisticRulesEngine:
                 elif rule.id == "validate_name_length":
                     # Special handling for validation rules
                     if not re.match(rule.pattern, processed):
-                        logger.warning(f"Name length validation failed: {len(processed)} chars")
+                        logger.warning(
+                            f"Name length validation failed: {len(processed)} chars"
+                        )
                         continue
                     new_text = processed
                 else:
@@ -234,7 +240,12 @@ class LinguisticRulesEngine:
             Dictionary with normalized name and metadata
         """
         if not name:
-            return {"original": name, "normalized": name, "applied_rules": [], "warnings": []}
+            return {
+                "original": name,
+                "normalized": name,
+                "applied_rules": [],
+                "warnings": [],
+            }
 
         warnings = []
 
@@ -348,8 +359,12 @@ class LinguisticRulesEngine:
             stats["by_type"][rule_type] = stats["by_type"].get(rule_type, 0) + 1
 
             # Count by priority range
-            priority_range = f"{(rule.priority // 10) * 10}-{(rule.priority // 10) * 10 + 9}"
-            stats["by_priority"][priority_range] = stats["by_priority"].get(priority_range, 0) + 1
+            priority_range = (
+                f"{(rule.priority // 10) * 10}-{(rule.priority // 10) * 10 + 9}"
+            )
+            stats["by_priority"][priority_range] = (
+                stats["by_priority"].get(priority_range, 0) + 1
+            )
 
         return stats
 
