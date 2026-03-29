@@ -5,11 +5,12 @@ Provides graph database operations for Stage 6 Graph Consistency
 """
 
 import asyncio
-import logging
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass
-from neo4j import AsyncGraphDatabase, AsyncDriver
 import json
+import logging
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
+
+from neo4j import AsyncDriver, AsyncGraphDatabase
 
 logger = logging.getLogger(__name__)
 

@@ -1,11 +1,13 @@
-import pytest
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent))
 
-import random, pytest
-from helpers.determinism import to_canonical_bytes, sha256_hex
+import random
+
+from helpers.determinism import sha256_hex, to_canonical_bytes
 
 
 @pytest.mark.paranoid

@@ -4,17 +4,18 @@ Performance test script for Korean V5 converter
 Tests P95 latency, throughput, and memory usage targets
 """
 
-import yaml
-import time
-import statistics
-import psutil
-import os
-from concurrent.futures import ThreadPoolExecutor
 import argparse
+import os
+import statistics
 import sys
+import time
+from concurrent.futures import ThreadPoolExecutor
+
+import psutil
+import yaml
 
 sys.path.insert(0, "../src")
-from v5.converter_cached import optimized_convert, monitor
+from v5.converter_cached import optimized_convert
 
 
 def load_test_names(yaml_path, limit=1000):
@@ -43,7 +44,7 @@ def single_thread_test(names, iterations=3):
     for _ in range(iterations):
         for name in names:
             start = time.perf_counter()
-            result = optimized_convert(name)
+            optimized_convert(name)
             end = time.perf_counter()
 
             latency_ms = (end - start) * 1000
@@ -79,7 +80,7 @@ def multi_thread_test(names, num_threads=4, iterations=3):
         results = []
         for name in name_batch:
             start = time.perf_counter()
-            result = optimized_convert(name)
+            optimized_convert(name)
             end = time.perf_counter()
             results.append((end - start) * 1000)
         return results
@@ -188,7 +189,7 @@ def run_performance_tests(yaml_path):
 
     # Single-threaded results
     st = results["single_thread"]
-    print(f"\nSingle-threaded:")
+    print("\nSingle-threaded:")
     print(
         f"  P95 Latency: {st['p95_latency_ms']:.1f}ms (target: <{targets['p95_latency_ms']}ms)"
     )
@@ -209,14 +210,14 @@ def run_performance_tests(yaml_path):
 
     # Memory results
     mem = results["memory"]
-    print(f"\nMemory Usage:")
+    print("\nMemory Usage:")
     print(
         f"  RSS Memory: {mem['memory_rss_mb']:.1f}MB (target: <{targets['memory_mb']}MB)"
     )
 
     # Cache results
     cache = results["cache"]
-    print(f"\nCache Performance:")
+    print("\nCache Performance:")
     print(f"  Hit Rate: {cache['cache_hit_rate']:.1%}")
     print(f"  Cached Throughput: {cache['cached_throughput']:.0f}/sec")
 

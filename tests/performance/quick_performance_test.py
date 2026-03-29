@@ -3,8 +3,8 @@
 Quick performance test - verify optimization works
 """
 
-import time
 import sys
+import time
 
 sys.path.insert(0, ".")
 
@@ -65,11 +65,11 @@ def test_region_loading():
     if optimized_time < original_time:
         improvement = ((original_time - optimized_time) / original_time) * 100
         speedup = original_time / optimized_time
-        print(f"\nPASS OPTIMIZATION CONFIRMED!")
+        print("\nPASS OPTIMIZATION CONFIRMED!")
         print(f"   Improvement: {improvement:.1f}% faster")
         print(f"   Speedup: {speedup:.2f}x")
     else:
-        print(f"\nFAIL NO IMPROVEMENT DETECTED")
+        print("\nFAIL NO IMPROVEMENT DETECTED")
 
     return original_time, optimized_time, loaded_regions
 

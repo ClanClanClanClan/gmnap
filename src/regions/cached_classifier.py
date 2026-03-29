@@ -35,8 +35,8 @@ Usage:
 
 import hashlib
 import time
-from typing import Dict, Optional
 from threading import Lock
+from typing import Dict, Optional
 
 
 class CachedRegionalClassifier:

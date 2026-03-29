@@ -5,15 +5,15 @@ Comprehensive test suite for newly implemented SecurityValidator methods.
 Tests validate_cjk_roundtrip, normalize_unicode, and validate_entry methods.
 """
 
-import pytest
-import time
-import unicodedata
-from unittest.mock import patch, MagicMock
 import sys
+import time
 from pathlib import Path
+from unittest.mock import patch
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.security_validator import SecurityValidator, SecurityError
+from src.core.security_validator import SecurityError, SecurityValidator
 
 
 class TestValidateCJKRoundtrip:
@@ -613,7 +613,7 @@ class TestIntegration:
 
         # Test rate limiting in validate_entry
         entry = {"GlobalID": "dos-test", "CanonicalLatin": "Test"}
-        result1 = self.validator.validate_entry(entry, "DoS", enable_rate_limiting=True)
+        self.validator.validate_entry(entry, "DoS", enable_rate_limiting=True)
         result2 = self.validator.validate_entry(entry, "DoS", enable_rate_limiting=True)
         assert result2["rate_limited"] is True
 
@@ -637,7 +637,7 @@ class TestIntegration:
 
             # Some should raise errors, others should be normalized
             try:
-                result = self.validator.validate_entry(entry, "Unicode security")
+                self.validator.validate_entry(entry, "Unicode security")
                 # If it doesn't raise, check it was normalized
                 assert "CanonicalLatin" in entry
             except SecurityError:

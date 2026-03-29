@@ -6,14 +6,14 @@ and data quality metrics across the GMNAP pipeline.
 """
 
 import json
+import logging
+import threading
 import time
 from collections import defaultdict
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Any
-import threading
-import logging
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,7 @@
-import yaml
 import sys
+
+import yaml
+
 sys.path.append('src')
 from converter import eng2kor, kor2eng
 
@@ -18,7 +20,8 @@ def _dice(a, b):
     b = '' if not b else b.replace(',', '').replace('-', ' ') 
     a = b'' if not a else unicodedata.normalize('NFC', a.casefold().replace(' ','')).encode()
     b = b'' if not b else unicodedata.normalize('NFC', b.casefold().replace(' ','')).encode()
-    bigr = lambda s: {s[i:i+2] for i in range(len(s)-1)}
+    def bigr(s):
+        return {s[i:i + 2] for i in range(len(s) - 1)}
     x, y = bigr(a), bigr(b)
     return (2*len(x&y))/(len(x)+len(y) or 1)
 
@@ -51,7 +54,7 @@ print(f'Total tested: {total}')
 print(f'Failures: {len(failures)}')
 print(f'Success rate: {(total-len(failures))/total*100:.2f}%')
 
-print(f'\n=== ENG->KOR FAILURES (first 15) ===')
+print('\n=== ENG->KOR FAILURES (first 15) ===')
 eng_failures = [f for f in failures if f[1].startswith('eng')]
 for name, ftype, rr, expected, actual in eng_failures[:15]:
     print(f'{name}: {rr} -> {actual} (exp: {expected})')

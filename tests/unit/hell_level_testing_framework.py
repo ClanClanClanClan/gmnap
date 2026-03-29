@@ -12,24 +12,21 @@ import asyncio
 import json
 import logging
 import random
-import string
-import time
-import threading
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple, Set
-from dataclasses import dataclass
-from enum import Enum
 
 # Add project paths
 import sys
+import time
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / "src"))
 
-from src.regions.manager_optimized import RegionManager
 from src.core.military_grade_security import MilitaryGradeSecurityValidator
+from src.regions.manager_optimized import RegionManager
 
 
 class TestSeverity(Enum):
@@ -339,10 +336,10 @@ class HellLevelTester:
                         region_processor.clean(test_entry)
                         region_processor.validate(test_entry)
                         region_processor.augment(test_entry)
-                        order_key = region_processor.order_key(test_entry)
+                        region_processor.order_key(test_entry)
 
                         successes += 1
-                    except Exception as e:
+                    except Exception:
                         failures += 1
 
             duration = time.time() - start_time
@@ -397,7 +394,7 @@ class HellLevelTester:
         for bomb in self.unicode_bombs:
             try:
                 test_input = {"name": bomb, "data": bomb}
-                result = self.region_manager.detect_region(test_input)
+                self.region_manager.detect_region(test_input)
                 unicode_handled += 1
             except Exception as e:
                 unicode_crashed += 1
@@ -425,7 +422,7 @@ class HellLevelTester:
             try:
                 # Set timeout to prevent hanging
                 start_time = time.time()
-                result = self.region_manager.detect_region(exhaustion_input)
+                self.region_manager.detect_region(exhaustion_input)
 
                 if time.time() - start_time < 10.0:  # Must complete in 10s
                     memory_survived += 1
@@ -457,7 +454,7 @@ class HellLevelTester:
             """Single concurrent test."""
             try:
                 test_input = {"name": random.choice(["John", "Jane", "李明", "Maria"])}
-                result = self.region_manager.detect_region(test_input)
+                self.region_manager.detect_region(test_input)
                 return True
             except:
                 return False
@@ -468,7 +465,7 @@ class HellLevelTester:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         successes = sum(1 for r in results if r is True)
-        failures = len(results) - successes
+        len(results) - successes
         duration = time.time() - start_time
 
         success_rate = successes / len(results) * 100
@@ -520,7 +517,7 @@ class HellLevelTester:
 
             for entry in batch:
                 try:
-                    result = self.region_manager.detect_region(entry)
+                    self.region_manager.detect_region(entry)
                     processed += 1
                 except Exception:
                     errors += 1
@@ -552,7 +549,7 @@ class HellLevelTester:
             for i in range(100):
                 mutation = self._mutate_name(base_name)
                 try:
-                    result = self.region_manager.detect_region({"name": mutation})
+                    self.region_manager.detect_region({"name": mutation})
                     mutations_survived += 1
                 except Exception:
                     mutations_crashed += 1
@@ -593,11 +590,10 @@ class HellLevelTester:
         ]
 
         edge_handled = 0
-        edge_crashed = 0
 
         for edge_case in edge_cases:
             try:
-                result = self.region_manager.detect_region(edge_case)
+                self.region_manager.detect_region(edge_case)
                 edge_handled += 1
             except Exception:
                 edge_handled += 1  # Graceful exception handling is OK
@@ -687,7 +683,7 @@ class HellLevelTester:
         )
 
         # Overall statistics
-        self.logger.info(f"\n📊 OVERALL STATISTICS:")
+        self.logger.info("\n📊 OVERALL STATISTICS:")
         self.logger.info(f"Total tests: {self.total_tests}")
         self.logger.info(f"Passed: {self.passed_tests}")
         self.logger.info(f"Failed: {self.failed_tests}")
@@ -707,7 +703,7 @@ class HellLevelTester:
                     "rate": severity_rate,
                 }
 
-        self.logger.info(f"\n🎯 SEVERITY BREAKDOWN:")
+        self.logger.info("\n🎯 SEVERITY BREAKDOWN:")
         for severity, stats in severity_stats.items():
             icon = {
                 "normal": "🟢",
@@ -723,14 +719,14 @@ class HellLevelTester:
         # Performance metrics
         perf_results = [r for r in self.test_results if r.performance_metrics]
         if perf_results:
-            self.logger.info(f"\n⚡ PERFORMANCE HIGHLIGHTS:")
+            self.logger.info("\n⚡ PERFORMANCE HIGHLIGHTS:")
             for result in perf_results:
                 if "throughput" in result.performance_metrics:
                     throughput = result.performance_metrics["throughput"]
                     self.logger.info(f"  {result.test_name}: {throughput:.1f} ops/sec")
 
         # Overall assessment
-        self.logger.info(f"\n🎯 HELL-LEVEL ASSESSMENT:")
+        self.logger.info("\n🎯 HELL-LEVEL ASSESSMENT:")
 
         if success_rate >= 95:
             grade = "A+ APOCALYPSE SURVIVOR"
@@ -812,7 +808,7 @@ async def main():
         json.dump(report, f, indent=2)
 
     print(
-        f"\n🔥 Hell-level testing complete. Report saved to hell_level_test_report.json"
+        "\n🔥 Hell-level testing complete. Report saved to hell_level_test_report.json"
     )
     return report
 

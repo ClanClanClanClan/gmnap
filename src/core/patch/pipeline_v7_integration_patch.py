@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 import os
-from typing import Any, List, Dict
-from src.ops.streaming_executor import StreamingExecutor, StreamConfig
+from typing import Any, Dict, List
+
 from src.core.compat.normalize_result import normalize_result
 from src.core.preflight_sanitiser import sanitise_entry
+from src.ops.streaming_executor import StreamConfig, StreamingExecutor
 
 
 def enable_streaming_patch(

@@ -8,7 +8,8 @@ Features: Arabic script, patronymic (ibn/bint), flexible order
 import re
 from typing import Any, Dict, List, Optional
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class C3_ArabicLevantNile(RegionSpec):
@@ -691,7 +692,7 @@ class C3_ArabicLevantNile(RegionSpec):
 
         # Script validation (more lenient)
         canonical_native = entry.get("CanonicalNative", "")
-        canonical_latin = entry.get("CanonicalLatin", "")
+        entry.get("CanonicalLatin", "")
 
         # If CanonicalNative exists, prefer it to be Arabic (but be lenient)
         if canonical_native and len(canonical_native.strip()) > 0:

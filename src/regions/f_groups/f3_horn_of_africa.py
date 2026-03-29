@@ -5,7 +5,8 @@ Implements Ge'ez script with patronymic chains
 """
 
 from typing import Any, Dict
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class F3HornOfAfrica(RegionSpec):

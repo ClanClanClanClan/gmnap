@@ -1,7 +1,10 @@
 from __future__ import annotations
-import asyncio, time
-from typing import AsyncIterable, Awaitable, Callable, Iterable, List, Dict, Any
-from .async_batch_agg import AsyncBatchAggregator, AggConfig
+
+import asyncio
+import time
+from typing import Any, AsyncIterable, Awaitable, Callable, Dict, Iterable, List
+
+from .async_batch_agg import AggConfig, AsyncBatchAggregator
 
 AsyncBatch = AsyncIterable[List[dict]]
 ProcessBatchFunc = Callable[[List[dict]], Awaitable[List[dict]]]

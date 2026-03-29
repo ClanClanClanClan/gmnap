@@ -8,7 +8,8 @@ Features: Simplified Chinese characters, pinyin romanization, family-given order
 import re
 from typing import Any, Dict
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class E1_SinophoneMainland(RegionSpec):

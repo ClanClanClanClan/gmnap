@@ -1,4 +1,7 @@
-import csv, collections, pathlib, unicodedata as ud
+import collections
+import csv
+import pathlib
+import unicodedata as ud
 
 dup_in, dup_out = collections.defaultdict(list), collections.defaultdict(list)
 with open("resources/rr_syllable_map.csv") as f:

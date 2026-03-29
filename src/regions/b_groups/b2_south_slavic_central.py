@@ -389,7 +389,7 @@ class B2_SouthSlavicCentral(RegionSpec):
 
     def _is_hungarian_name(self, name: str) -> bool:
         """Detect if name follows Hungarian conventions."""
-        name_lower = name.lower()
+        name.lower()
 
         # Check for Hungarian characters
         if any(c in name for c in "őűŐŰ"):
@@ -411,7 +411,7 @@ class B2_SouthSlavicCentral(RegionSpec):
 
     def _estimate_country(self, name: str, script: str) -> Optional[str]:
         """Estimate country based on name characteristics."""
-        name_lower = name.lower()
+        name.lower()
 
         # Script-based initial filtering
         if script == "Cyrillic":

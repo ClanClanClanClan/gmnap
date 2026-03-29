@@ -33,11 +33,11 @@ Usage:
 
 import hashlib
 import json
+from collections import deque
+from dataclasses import asdict, dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional
-from collections import deque
-from datetime import datetime
-from dataclasses import dataclass, asdict
 
 
 @dataclass
@@ -388,7 +388,7 @@ if __name__ == "__main__":
         min_samples_for_decision=50,
     )
 
-    print(f"\nConfiguration:")
+    print("\nConfiguration:")
     print(f"  Control: {config.control_model}")
     print(f"  Treatment: {config.treatment_model}")
     print(f"  Traffic split: {config.traffic_split:.0%} to treatment")
@@ -423,7 +423,7 @@ if __name__ == "__main__":
         else:
             control_count += 1
 
-    print(f"\nAssignment Distribution:")
+    print("\nAssignment Distribution:")
     print(f"  Control (v4): {control_count}/100 ({control_count}%)")
     print(f"  Treatment (v5): {treatment_count}/100 ({treatment_count}%)")
     print(f"  Expected: ~{config.traffic_split:.0%} to treatment")

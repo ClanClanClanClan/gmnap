@@ -8,7 +8,8 @@ Features: Patronymic handling, mononym detection, diverse naming patterns.
 
 import re
 from typing import Any, Dict, Optional
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class E7MaritimeSEA(RegionSpec):

@@ -4,12 +4,12 @@ ULTRA-PARANOID Security Testing
 Testing every possible attack vector with extreme prejudice
 """
 
-import pytest
 import random
 import string
-import itertools
 import sys
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 

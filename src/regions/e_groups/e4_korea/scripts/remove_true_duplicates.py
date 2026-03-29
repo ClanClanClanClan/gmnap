@@ -5,8 +5,8 @@ Remove only true duplicates (identical entries) while preserving intentional var
 
 import csv
 import shutil
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
 
 
 def remove_only_true_duplicates():
@@ -58,7 +58,7 @@ def remove_only_true_duplicates():
         for row_key, occurrences in row_groups.items():
             if len(occurrences) > 1:
                 # Keep first, remove others
-                keep_first = occurrences[0]
+                occurrences[0]
                 to_remove = occurrences[1:]
 
                 print(

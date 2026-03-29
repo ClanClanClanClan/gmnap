@@ -1,9 +1,10 @@
+import unicodedata
+
 import pynini as pn
 from fst_utils import first_output
+from lookup import rom2han
 from preprocess import tokenise
 from segment import segment
-from lookup import rom2han
-import unicodedata
 
 
 def _dice(a, b):
@@ -20,7 +21,8 @@ def _dice(a, b):
         if not b
         else unicodedata.normalize("NFC", b.casefold().replace(" ", "")).encode()
     )
-    bigr = lambda s: {s[i : i + 2] for i in range(len(s) - 1)}
+    def bigr(s):
+        return {s[i:i + 2] for i in range(len(s) - 1)}
     x, y = bigr(a), bigr(b)
     return (2 * len(x & y)) / (len(x) + len(y) or 1)
 
@@ -104,7 +106,8 @@ def _enhanced_dice(a, b):
     # Continue with standard dice calculation
     a = unicodedata.normalize("NFC", a.casefold().replace(" ", "")).encode()
     b = unicodedata.normalize("NFC", b.casefold().replace(" ", "")).encode()
-    bigr = lambda s: {s[i : i + 2] for i in range(len(s) - 1)}
+    def bigr(s):
+        return {s[i:i + 2] for i in range(len(s) - 1)}
     x, y = bigr(a), bigr(b)
     return (2 * len(x & y)) / (len(x) + len(y) or 1)
 

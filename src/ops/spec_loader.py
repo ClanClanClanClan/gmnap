@@ -1,6 +1,9 @@
 from __future__ import annotations
-import os, yaml
+
+import os
 from typing import Any, Dict
+
+import yaml
 
 SPEC_CANDIDATES = ("specs_v7.yaml", "v7.0.yaml")
 

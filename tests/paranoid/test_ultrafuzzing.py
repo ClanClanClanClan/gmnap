@@ -4,21 +4,22 @@ ULTRA-FUZZING Test Suite
 Throw millions of random inputs at the system to find edge cases
 """
 
-import pytest
-import random
 import string
-import struct
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from hypothesis import given, strategies as st, settings, assume
-from hypothesis.stateful import RuleBasedStateMachine, rule, invariant, Bundle
 import unicodedata
 
-from src.core.security_validator import SecurityValidator
+from hypothesis import given, settings
+from hypothesis import strategies as st
+from hypothesis.stateful import Bundle, RuleBasedStateMachine, invariant, rule
+
 from src.core.globalid import GlobalIDGenerator
+from src.core.security_validator import SecurityValidator
 from src.core.unicode_handler import UnicodeNormalizer
 from src.regions.manager import RegionManager
 
@@ -127,7 +128,7 @@ class TestUltraFuzzing:
             assert len(global_id) > 0
             assert global_id.startswith("GMN")
 
-        except Exception as e:
+        except Exception:
             # Some inputs might be invalid
             pass
 
@@ -335,7 +336,7 @@ class TestUltraFuzzing:
 
             for test in test_cases:
                 try:
-                    result = self.validator.validate_string(test, "bidi")
+                    self.validator.validate_string(test, "bidi")
                     # Should detect and handle bidi attacks
                 except Exception as e:
                     # These should be caught as security issues
@@ -357,7 +358,7 @@ class TestUltraFuzzing:
 
             for test in test_cases:
                 try:
-                    result = self.validator.validate_string(test, "control")
+                    self.validator.validate_string(test, "control")
                     # Most control chars should be rejected
                     assert False, f"Control char {i} was not rejected"
                 except Exception as e:
@@ -382,7 +383,7 @@ class TestUltraFuzzing:
 
         for pattern in format_patterns:
             try:
-                result = self.validator.validate_string(pattern, "format")
+                self.validator.validate_string(pattern, "format")
                 # Some might be allowed if not dangerous
             except:
                 pass  # Format strings might be rejected
@@ -501,14 +502,13 @@ class StatefulFuzzingTest(RuleBasedStateMachine):
                         entry["input"], entry["context"]
                     )
                     assert result == entry["output"], "Validation not consistent"
-                except Exception as e:
+                except Exception:
                     assert entry["error"] is not None, "Error state changed"
 
     @invariant()
     def check_memory_usage(self):
         """Check that we're not leaking memory"""
         import gc
-        import sys
 
         gc.collect()
         # This is a rough check - in production you'd want more sophisticated monitoring

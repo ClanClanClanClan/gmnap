@@ -4,6 +4,7 @@ Tests all the sophisticated features from the fix pack.
 """
 
 import pytest
+
 from src.regions.e_groups.e4_korea.processor import E4KoreanProcessor
 
 
@@ -86,7 +87,7 @@ def test_different_standards():
     """Test different romanization standards."""
     # RR strict
     processor_strict = E4KoreanProcessor(standard="rr_strict")
-    result_strict = processor_strict.process({"CanonicalNative": "이순신"})
+    processor_strict.process({"CanonicalNative": "이순신"})
 
     # RR common (international)
     processor_common = E4KoreanProcessor(standard="rr_common")

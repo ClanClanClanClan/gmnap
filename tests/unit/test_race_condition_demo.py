@@ -1,14 +1,12 @@
-import pytest
 
 #!/usr/bin/env python3
 """
 Demonstrate actual race condition causing data corruption
 """
 
-import sys
-import threading
-import time
 import concurrent.futures
+import sys
+import time
 from pathlib import Path
 
 # Add src to path
@@ -27,10 +25,9 @@ def demonstrate_cache_race_condition():
     # Clear cache
     if hasattr(region, "_processing_cache"):
         region._processing_cache.clear()
-        print(f"Starting with empty cache")
+        print("Starting with empty cache")
 
     corruption_found = False
-    inconsistent_cache_sizes = []
 
     def racing_worker(worker_id):
         nonlocal corruption_found
@@ -145,7 +142,7 @@ def demonstrate_processed_entries_race():
                 # Check set consistency
                 if hasattr(region, "_processed_entries"):
                     processed_set = region._processed_entries
-                    set_size = len(processed_set)
+                    len(processed_set)
 
                     # Try to detect if we can observe the set in an inconsistent state
                     # This is tricky because set operations are mostly atomic in CPython
@@ -250,12 +247,12 @@ def demonstrate_idempotency_violation():
     print(f"Unique variant counts: {len(unique_variant_counts)}")
 
     if len(unique_canonicals) > 1:
-        print(f"FAIL IDEMPOTENCY VIOLATION: Different canonical values")
+        print("FAIL IDEMPOTENCY VIOLATION: Different canonical values")
         print(f"   Values seen: {unique_canonicals}")
         idempotency_violated = True
 
     if len(unique_variant_counts) > 1:
-        print(f"FAIL IDEMPOTENCY VIOLATION: Different variant counts")
+        print("FAIL IDEMPOTENCY VIOLATION: Different variant counts")
         print(f"   Counts seen: {unique_variant_counts}")
         idempotency_violated = True
 

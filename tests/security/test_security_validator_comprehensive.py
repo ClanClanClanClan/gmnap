@@ -4,24 +4,25 @@
 Tests all 93 dangerous patterns and security validation methods.
 """
 
-import tempfile
-import yaml
-import json
-import pytest
 import base64
+import sys
+import tempfile
 from pathlib import Path
+
+import pytest
+import yaml
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import sys
 from pathlib import Path
 
+from src.core.security_validator import SecurityError, SecurityValidator
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.security_validator import SecurityValidator, SecurityError
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.pipeline_v6 import GMNAPPipeline
-import sys
-from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.config import GMNAPConfig

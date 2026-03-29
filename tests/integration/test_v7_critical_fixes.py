@@ -169,7 +169,7 @@ def run_comprehensive_test():
     print("=" * 60)
 
     print(f"\nPASS Korean Integration: {korean_rate:.0%}")
-    print(f"PASS Enhanced Patterns:")
+    print("PASS Enhanced Patterns:")
     for region, rate in pattern_results.items():
         print(f"   {region}: {rate:.0%}")
     print(f"PASS Non-regression: {regression_rate:.0%}")
@@ -204,7 +204,7 @@ def run_comprehensive_test():
         achievements.append("No regression in stable regions")
 
     if achievements:
-        print(f"\n🏆 ACHIEVEMENTS:")
+        print("\n🏆 ACHIEVEMENTS:")
         for achievement in achievements:
             print(f"   • {achievement}")
 

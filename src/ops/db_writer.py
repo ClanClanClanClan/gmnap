@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 import pathlib
 from typing import List
-from .metrics import DB_APPLY_QUERIES
+
 from ..core.db_pool import DBPool
+from .metrics import DB_APPLY_QUERIES
 
 
 def _split_cypher(content: str) -> List[str]:

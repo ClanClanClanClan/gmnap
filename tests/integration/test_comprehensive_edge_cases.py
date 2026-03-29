@@ -1,6 +1,4 @@
-from typing import List
-from typing import Any
-import pytest
+from typing import Any, List
 
 #!/usr/bin/env python3
 """
@@ -10,10 +8,10 @@ Real mathematician names covering all regions, scripts, edge cases.
 This is what 39 tests should have been from the start.
 """
 
-import sys
 import json
+import sys
 import time
-from typing import Dict, List, Any
+from typing import Dict
 
 sys.path.insert(0, "src")
 
@@ -1151,10 +1149,10 @@ class ComprehensiveEdgeCaseTester:
         test_cases = self.get_comprehensive_test_cases()
         self.results["total_tests"] = len(test_cases)
 
-        print(f"🚀 COMPREHENSIVE EDGE CASE TEST SUITE")
-        print(f"=" * 60)
+        print("🚀 COMPREHENSIVE EDGE CASE TEST SUITE")
+        print("=" * 60)
         print(f"Testing {len(test_cases)} real mathematician names + edge cases")
-        print(f"=" * 60)
+        print("=" * 60)
 
         start_time = time.time()
 
@@ -1195,7 +1193,7 @@ class ComprehensiveEdgeCaseTester:
                             "issue": "Should have failed but passed",
                         }
                     )
-                    print(f" FAIL SHOULD HAVE FAILED")
+                    print(" FAIL SHOULD HAVE FAILED")
                 elif actual_region == expected_region:
                     # Correct
                     self.results["passed"] += 1
@@ -1257,7 +1255,7 @@ class ComprehensiveEdgeCaseTester:
         print(f"Time: {elapsed_time:.2f}s ({total/elapsed_time:.1f} tests/sec)")
 
         # Results by category
-        print(f"\n📋 RESULTS BY CATEGORY:")
+        print("\n📋 RESULTS BY CATEGORY:")
         print("-" * 60)
         for category, stats in sorted(self.results["by_category"].items()):
             total_cat = stats["total"]
@@ -1285,7 +1283,7 @@ class ComprehensiveEdgeCaseTester:
         with open("comprehensive_test_results.json", "w") as f:
             json.dump(self.results, f, indent=2)
 
-        print(f"\n💾 Detailed results saved to comprehensive_test_results.json")
+        print("\n💾 Detailed results saved to comprehensive_test_results.json")
 
 
 if __name__ == "__main__":

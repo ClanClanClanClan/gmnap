@@ -1,11 +1,15 @@
 from __future__ import annotations
-import asyncio, os
+
+import asyncio
+import os
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Tuple
 
 # ---- Minimal recorder (time/RSS only; no external deps) ----
 try:
-    import resource, psutil
+    import resource
+
+    import psutil
 
     def _rss_mb() -> float:
         try:

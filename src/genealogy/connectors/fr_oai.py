@@ -3,8 +3,11 @@ genealogy/connectors/fr_oai.py
 Minimal OAI‑PMH harvester skeleton for theses.fr.
 """
 
-import asyncio, aiohttp, xml.etree.ElementTree as ET
-from typing import AsyncIterator, Dict, Any
+import asyncio
+import xml.etree.ElementTree as ET
+from typing import Any, AsyncIterator, Dict
+
+import aiohttp
 
 NS_OAI = "{http://www.openarchives.org/OAI/2.0/}"
 NS_DC = "{http://purl.org/dc/elements/1.1/}"

@@ -11,7 +11,6 @@ Test coverage:
 """
 
 import pytest
-from typing import Dict, Any
 from processor import E6_MainlandSEA
 
 
@@ -141,7 +140,7 @@ class TestThaiProcessing:
             self.processor.augment(entry)
 
             extras = entry.get("RegionalExtras", {})
-            assert extras.get("has_royal_elements", False) == True
+            assert extras.get("has_royal_elements", False) is True
 
     @pytest.mark.timeout(15)
     def test_thai_buddhist_elements(self):
@@ -153,7 +152,7 @@ class TestThaiProcessing:
             self.processor.augment(entry)
 
             extras = entry.get("RegionalExtras", {})
-            assert extras.get("has_buddhist_elements", False) == True
+            assert extras.get("has_buddhist_elements", False) is True
 
     @pytest.mark.timeout(15)
     def test_thai_security_validation(self):

@@ -1,5 +1,3 @@
-from typing import Dict
-from typing import List
 import pytest
 
 #!/usr/bin/env python3
@@ -11,10 +9,8 @@ with existing regional processors while providing enhanced features.
 """
 
 import sys
-import traceback
 import time
-import json
-from typing import Any, Dict, List
+import traceback
 
 # Add src to path
 sys.path.insert(0, "src")
@@ -124,10 +120,10 @@ def test_v7_adapter_functionality(manager):
             try:
                 # Test individual methods
                 cleaned = adapter.clean(test_entry)
-                print(f"    ✓ clean() returned copy")
+                print("    ✓ clean() returned copy")
 
                 augmented = adapter.augment(cleaned)
-                print(f"    ✓ augment() returned copy")
+                print("    ✓ augment() returned copy")
 
                 is_valid = adapter.validate(augmented)
                 print(f"    ✓ validate() returned: {is_valid}")
@@ -137,7 +133,7 @@ def test_v7_adapter_functionality(manager):
 
                 # Test full pipeline
                 processed = adapter.process_entry(test_entry)
-                print(f"    ✓ process_entry() completed")
+                print("    ✓ process_entry() completed")
                 print(f"    ✓ Entry has _order_key: {'_order_key' in processed}")
 
                 region_results.append(
@@ -185,7 +181,7 @@ def test_v7_manager_methods(manager):
 
         print(f"Testing manager process_entry with {test_region}:")
         processed = manager.process_entry(test_entry, test_region)
-        print(f"  ✓ Entry processed successfully")
+        print("  ✓ Entry processed successfully")
         print(f"  ✓ Has _order_key: {'_order_key' in processed}")
 
         # Test invalid region
@@ -238,7 +234,7 @@ def test_v7_error_handling(manager):
             cleaned = adapter.clean(test_case)
             augmented = adapter.augment(cleaned)
             is_valid = adapter.validate(augmented)
-            order_key = adapter.order_key(augmented)
+            adapter.order_key(augmented)
 
             print(f"  Case {i+1}: Handled gracefully (valid={is_valid})")
 
@@ -274,7 +270,7 @@ def test_v7_performance(manager):
         processed_count = 0
         for entry in test_entries:
             try:
-                processed = adapter.process_entry(entry)
+                adapter.process_entry(entry)
                 processed_count += 1
             except:
                 pass  # Performance test, ignore errors

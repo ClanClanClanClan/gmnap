@@ -3,8 +3,10 @@ collectors/orcid_client.py
 Guard against None and implement respectful backoff.
 """
 
-import time, requests
-from typing import Optional, Dict, Any
+import time
+from typing import Any, Dict, Optional
+
+import requests
 
 BASE = "https://pub.orcid.org/v3.0"
 

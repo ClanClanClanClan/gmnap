@@ -74,7 +74,7 @@ async def test_basic_pipeline():
         print("PASS Test 2: GlobalIDs preserved")
         tests_passed += 1
     else:
-        print(f"FAIL Test 2: GlobalIDs mismatch")
+        print("FAIL Test 2: GlobalIDs mismatch")
         tests_failed += 1
 
     # Test 3: Authority enrichment

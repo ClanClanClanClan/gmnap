@@ -1,5 +1,3 @@
-from typing import Any
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -7,12 +5,10 @@ Complete V7 System Integration Test
 Tests full streaming pipeline integration with V7 features
 """
 
-import sys
 import asyncio
+import sys
 import time
-import json
 from pathlib import Path
-from typing import Dict, Any
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -23,9 +19,10 @@ async def test_v7_complete_integration():
     print("TESTING: Complete V7 System Integration")
 
     try:
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig
-        from src.core.memgraph_client import MemgraphClient
         import os
+
+        from src.core.memgraph_client import MemgraphClient
+        from src.core.streaming_v7 import StreamingConfig, V7StreamingPipeline
 
         os.environ["GMNAP_TEST_MODE"] = "true"
         from src.regions.manager import RegionManager
@@ -34,7 +31,7 @@ async def test_v7_complete_integration():
         region_manager = RegionManager(Path("./config"))
         db_client = MemgraphClient(username="", password="", use_mock=False)
 
-        print(f"PASS V7 System initialized:")
+        print("PASS V7 System initialized:")
         print(
             f"   Regions loaded: {len([region_manager.get_region(code) for code in ['A1','B1','C1','D1','E1','F1','G1']])}"
         )
@@ -139,7 +136,7 @@ async def test_v7_complete_integration():
         final_count = final_metrics.total_mathematicians
         entries_added = final_count - initial_count
 
-        print(f"\nPASS V7 Integration Results:")
+        print("\nPASS V7 Integration Results:")
         print(f"   Duration: {duration:.2f}s")
         print(f"   Entries ingested: {metrics.entries_ingested}")
         print(f"   Entries processed: {metrics.entries_processed}")
@@ -179,7 +176,7 @@ async def test_v7_complete_integration():
         else:
             success_checks.append("FAIL Integration performance too slow")
 
-        print(f"\n V7 Integration Assessment:")
+        print("\n V7 Integration Assessment:")
         for check in success_checks:
             print(f"   {check}")
 
@@ -189,14 +186,14 @@ async def test_v7_complete_integration():
         all_passed = all("PASS" in check for check in success_checks)
 
         if all_passed:
-            print(f"\n V7 COMPLETE INTEGRATION: SUCCESS")
-            print(f"   PASS Streaming pipeline fully integrated with V7 system")
-            print(f"   PASS Regional processing working across all regions")
-            print(f"   PASS Database storage operational")
-            print(f"   PASS Edge cases handled correctly")
+            print("\n V7 COMPLETE INTEGRATION: SUCCESS")
+            print("   PASS Streaming pipeline fully integrated with V7 system")
+            print("   PASS Regional processing working across all regions")
+            print("   PASS Database storage operational")
+            print("   PASS Edge cases handled correctly")
             return True
         else:
-            print(f"\nFAIL V7 COMPLETE INTEGRATION: ISSUES FOUND")
+            print("\nFAIL V7 COMPLETE INTEGRATION: ISSUES FOUND")
             return False
 
     except Exception as e:
@@ -213,8 +210,8 @@ async def test_v7_performance_under_load():
 
     try:
         from src.core.streaming_v7 import (
-            benchmark_streaming_performance,
             StreamingConfig,
+            benchmark_streaming_performance,
         )
 
         # Performance test with production-like configuration
@@ -233,7 +230,7 @@ async def test_v7_performance_under_load():
         perf = benchmark_results["performance_results"]
         quality = benchmark_results["quality_assessment"]
 
-        print(f"PASS V7 Performance Results:")
+        print("PASS V7 Performance Results:")
         print(
             f"   Entries processed: {benchmark_results['processing_metrics']['entries_processed']}"
         )

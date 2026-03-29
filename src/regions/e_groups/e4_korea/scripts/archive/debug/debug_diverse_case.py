@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 import sys
+
 sys.path.insert(0, 'src')
-from converter import _rr2han
 from context_lookup import apply_context
+from converter import _rr2han
 from preprocess import tokenise
 from segment import segment
 
 name = "An, Jung-Geun"
 print(f"=== DEBUGGING: {name} ===")
-print(f"Expected: 안중근, Got: 안정근")
+print("Expected: 안중근, Got: 안정근")
 
 # Step 1: Tokenization
 tokens = list(tokenise(name))
@@ -39,7 +40,7 @@ for i, tok in enumerate(tokens):
             h_fallback = _rr2han(syl)
             print(f"      Fallback: {syl} → {h_fallback}")
 
-print(f"\n=== TESTING ALTERNATIVES ===")
+print("\n=== TESTING ALTERNATIVES ===")
 # Test what jung should map to in this context
 test_mappings = ['jung', 'joong', 'jjoong']
 for mapping in test_mappings:

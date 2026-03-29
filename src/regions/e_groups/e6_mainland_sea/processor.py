@@ -17,11 +17,12 @@ V7 SPEC COMPLIANCE:
 - distinct_features: Buddhist naming; Sanskrit influence; tonal languages
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Set
+import re
+from typing import Any, Dict, List, Set
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class E6_MainlandSEA(RegionSpec):
@@ -61,7 +62,7 @@ class E6_MainlandSEA(RegionSpec):
             canonical_order="Given Family",
             romanisation_standards=["Royal Thai", "BGN/PCGN"],
         )
-        self.logger = logging.getLogger(f"gmnap.regions.E6")
+        self.logger = logging.getLogger("gmnap.regions.E6")
 
         # Load linguistic resources
         self.script_patterns = self._load_script_patterns()
@@ -72,7 +73,7 @@ class E6_MainlandSEA(RegionSpec):
         self.honorific_titles = self._load_honorific_titles()
         self.place_indicators = self._load_place_indicators()
 
-        self.logger.info(f"E6 Mainland Southeast Asia processor initialized")
+        self.logger.info("E6 Mainland Southeast Asia processor initialized")
 
     def _load_script_patterns(self) -> Dict[str, Dict[str, Any]]:
         """Load script-specific patterns for each country."""

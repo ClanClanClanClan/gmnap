@@ -3,24 +3,25 @@ V7-compliant processing pipeline for GMNAP - COMPLETE IMPLEMENTATION
 Implements all 12 stages from V7 specification with real functionality.
 """
 
+import difflib
 import hashlib
 import json
 import logging
 import time
-from collections import defaultdict, Counter
-from dataclasses import dataclass, field, asdict
+from collections import Counter, defaultdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-import difflib
+
 import yaml
 
-from src.core.unicode_handler import UnicodeNormalizer
-from src.core.security_validator import SecurityValidator, SecurityError
-from src.regions.manager_optimized import RegionManager as OptimizedRegionManager
-from src.core.globalid import GlobalIDGenerator
 from src.authorities.enricher import AuthorityEnricher
+from src.core.globalid import GlobalIDGenerator
+from src.core.security_validator import SecurityError, SecurityValidator
+from src.core.unicode_handler import UnicodeNormalizer
+from src.regions.manager_optimized import RegionManager as OptimizedRegionManager
 
 logger = logging.getLogger(__name__)
 

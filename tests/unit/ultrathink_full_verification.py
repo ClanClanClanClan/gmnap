@@ -16,11 +16,8 @@ This script verifies:
 
 import sys
 import time
-import json
-import os
 import traceback
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -74,11 +71,11 @@ class UltrathinkVerifier:
 
         # Test basic pipeline functionality
         try:
-            from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
             from src.core.config import GMNAPConfig
+            from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 
             config = GMNAPConfig()
-            pipeline = GMNAPPipeline(config, mode=PipelineMode.QUICK)
+            GMNAPPipeline(config, mode=PipelineMode.QUICK)
             print("PASS Pipeline imports successfully")
             self.successes.append("Pipeline imports work after cleanup")
         except Exception as e:
@@ -93,10 +90,12 @@ class UltrathinkVerifier:
         print("=" * 60)
 
         try:
-            from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
-            from src.core.config import GMNAPConfig
             import tempfile
+
             import yaml
+
+            from src.core.config import GMNAPConfig
+            from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 
             # Create test dataset
             test_data = {}
@@ -129,7 +128,7 @@ class UltrathinkVerifier:
                 # Test QUICK mode performance
                 start_time = time.time()
                 pipeline = GMNAPPipeline(config, mode=PipelineMode.QUICK)
-                result = pipeline.run(Path(tmpdir))
+                pipeline.run(Path(tmpdir))
                 duration = time.time() - start_time
 
                 entries_per_sec = len(test_data) / duration
@@ -142,7 +141,7 @@ class UltrathinkVerifier:
                     "projected_1m_minutes": projected_1m,
                 }
 
-                print(f"📊 QUICK Mode Performance:")
+                print("📊 QUICK Mode Performance:")
                 print(f"  Duration: {duration:.2f}s for {len(test_data)} entries")
                 print(f"  Rate: {entries_per_sec:.1f} entries/sec")
                 print(f"  Projected 1M: {projected_1m:.1f} minutes")
@@ -436,12 +435,12 @@ class UltrathinkVerifier:
 
         # Performance summary
         if self.performance_metrics:
-            print(f"\n📊 PERFORMANCE METRICS:")
+            print("\n📊 PERFORMANCE METRICS:")
             for mode, metrics in self.performance_metrics.items():
                 print(f"  - {mode}: {metrics['projected_1m_minutes']:.1f} min/1M")
 
         # Final verdict
-        print(f"\n🏁 FINAL VERDICT:")
+        print("\n🏁 FINAL VERDICT:")
         if len(self.issues_found) == 0:
             print("  PASS SYSTEM IS 100% COMPLIANT - ALL CLAIMS VERIFIED!")
             compliance = 100.0

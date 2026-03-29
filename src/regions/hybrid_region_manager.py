@@ -9,12 +9,12 @@ Purpose: Drop-in replacement for RegionManager in pipeline_v7.py
 Expected accuracy: 97.54% top-1, 99.93% top-3
 """
 
-from typing import Dict, Any
-from dataclasses import dataclass, field
-
-from src.regions.hybrid_classifier import HybridRegionClassifier
-from src.core.security_validator import SecurityValidator, SecurityError
 import logging
+from dataclasses import dataclass, field
+from typing import Any, Dict
+
+from src.core.security_validator import SecurityError, SecurityValidator
+from src.regions.hybrid_classifier import HybridRegionClassifier
 
 logger = logging.getLogger(__name__)
 

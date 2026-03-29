@@ -3,12 +3,12 @@ Enhanced Quality Gates for GMNAP V7
 Implements comprehensive validation with 8 quality gates
 """
 
+import logging
 import re
-from typing import Dict, List, Any
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-import logging
-from abc import ABC, abstractmethod
+from typing import Any, Dict, List
 
 
 @dataclass

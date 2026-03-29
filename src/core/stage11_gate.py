@@ -1,6 +1,11 @@
 from __future__ import annotations
-import json, sys, pathlib, hashlib
-from typing import List, Dict, Any, Tuple
+
+import hashlib
+import json
+import pathlib
+import sys
+from typing import Any, Dict, List, Tuple
+
 from src.core.stage9_write_diff.write_and_diff import write_yaml_sorted
 
 
@@ -68,7 +73,7 @@ def main():
     ap.add_argument("--old", required=True)
     ap.add_argument("--new", required=True)
     args = ap.parse_args()
-    old = json.loads(pathlib.Path(args.old).read_text("utf-8"))
+    json.loads(pathlib.Path(args.old).read_text("utf-8"))
     new = json.loads(pathlib.Path(args.new).read_text("utf-8"))
     out1 = pathlib.Path("stage9_run1.yaml")
     out2 = pathlib.Path("stage9_run2.yaml")

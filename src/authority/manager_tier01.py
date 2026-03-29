@@ -1,6 +1,12 @@
 from __future__ import annotations
-import os, json, asyncio, pathlib, hashlib, zlib
-from typing import Dict, Any, List
+
+import asyncio
+import hashlib
+import json
+import os
+import pathlib
+import zlib
+from typing import Any, Dict, List
 
 OFFLINE = os.getenv("OFFLINE", "1") == "1"
 CACHE_DIR = pathlib.Path(os.getenv("GMNAP_CACHE_DIR", "./cache/authority")).resolve()

@@ -30,7 +30,6 @@ def test_imports():
 
     # Test V7 Pipeline
     try:
-        from src import V7Pipeline
 
         print("✓ V7Pipeline")
         results["success"] += 1
@@ -40,7 +39,6 @@ def test_imports():
 
     # Test Security Validator
     try:
-        from src import SecurityValidator
 
         print("✓ SecurityValidator")
         results["success"] += 1
@@ -50,7 +48,6 @@ def test_imports():
 
     # Test Region Manager
     try:
-        from src import RegionManager
 
         print("✓ RegionManager")
         results["success"] += 1
@@ -78,7 +75,6 @@ def test_imports():
 
     # Test Memgraph
     try:
-        from src.core.memgraph_integration import MemgraphClient, GraphNode
 
         print("✓ Memgraph Integration")
         results["success"] += 1
@@ -88,7 +84,6 @@ def test_imports():
 
     # Test Streaming
     try:
-        from src.core.streaming_pipeline import StreamingConfig, StreamingPipeline
 
         print("✓ Streaming Pipeline")
         results["success"] += 1
@@ -98,7 +93,6 @@ def test_imports():
 
     # Test Monitoring
     try:
-        from src.core.monitoring import MetricsCollector, HealthCheck
 
         print("✓ Monitoring Stack")
         results["success"] += 1
@@ -121,7 +115,7 @@ def test_instantiation():
     try:
         from src import RegionManager
 
-        manager = RegionManager()
+        RegionManager()
         print("✓ RegionManager instantiated")
         results["success"] += 1
     except Exception as e:
@@ -133,7 +127,7 @@ def test_instantiation():
         from src.core.streaming_pipeline import StreamingConfig, StreamingPipeline
 
         config = StreamingConfig(chunk_size=8000)
-        pipeline = StreamingPipeline(config)
+        StreamingPipeline(config)
         print(f"✓ StreamingPipeline (chunk={config.chunk_size})")
         results["success"] += 1
     except Exception as e:
@@ -142,13 +136,13 @@ def test_instantiation():
 
     # Test Memgraph Client (mock mode)
     try:
-        from src.core.memgraph_integration import MemgraphClient, GraphNode
+        from src.core.memgraph_integration import GraphNode, MemgraphClient
 
-        client = MemgraphClient()
-        node = GraphNode(
+        MemgraphClient()
+        GraphNode(
             global_id="test-001", canonical_latin="Test, User", region_code="A1"
         )
-        print(f"✓ MemgraphClient + GraphNode")
+        print("✓ MemgraphClient + GraphNode")
         results["success"] += 1
     except Exception as e:
         print(f"✗ Memgraph: {e}")
@@ -190,7 +184,7 @@ def test_basic_functionality():
             print(f"✓ Idempotency: {len(hash1)} bytes")
             results["success"] += 1
         else:
-            print(f"✗ Idempotency: Hash mismatch")
+            print("✗ Idempotency: Hash mismatch")
             results["failed"] += 1
     except Exception as e:
         print(f"✗ Idempotency: {e}")

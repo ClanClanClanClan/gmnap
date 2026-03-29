@@ -11,15 +11,15 @@ This test verifies that Rule 2 is working correctly in both C3 and C4 regions:
 - Proper assimilation handling
 """
 
-import os
 
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.regions.c_groups.c3_arabic_levant_nile import C3_ArabicLevantNile
 import sys
 from pathlib import Path
+
+from src.regions.c_groups.c3_arabic_levant_nile import C3_ArabicLevantNile
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.c_groups.c4_arabic_gulf import C4_ArabicGulf
@@ -162,7 +162,7 @@ def test_rule_2_comprehensive():
                 f"  C3 - Type: {c3_article_info['type']}, Root: {c3_article_info['root']}"
             )
         else:
-            print(f"  C3 - No article detected")
+            print("  C3 - No article detected")
 
         # Test in C4
         entry_c4 = {"CanonicalNative": arabic_name, "RegionalExtras": {}}
@@ -174,7 +174,7 @@ def test_rule_2_comprehensive():
                 f"  C4 - Type: {c4_article_info['type']}, Root: {c4_article_info['root']}"
             )
         else:
-            print(f"  C4 - No article detected")
+            print("  C4 - No article detected")
 
 
 def main():

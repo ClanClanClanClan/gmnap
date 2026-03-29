@@ -13,9 +13,9 @@ All regional processors should use these security functions to ensure
 comprehensive protection against malicious input.
 """
 
+import html
 import re
 import unicodedata
-import html
 from typing import Any, Dict
 from urllib.parse import unquote
 
@@ -316,7 +316,7 @@ class SecurityFilter:
 
         # Scan entire entry structure
         try:
-            scan_recursive(entry, f"entry")
+            scan_recursive(entry, "entry")
         except SecurityError as e:
             # Add region context to error
             raise SecurityError(f"Security violation in region {region_code}: {e}")

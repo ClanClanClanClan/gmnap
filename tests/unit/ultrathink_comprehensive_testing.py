@@ -10,15 +10,16 @@ This replaces synthetic testing with real mathematician names to expose
 actual linguistic patterns, romanization issues, and performance bottlenecks.
 """
 
-import sys
-import time
 import json
 import logging
-import traceback
-from pathlib import Path
-from dataclasses import dataclass
-from typing import Dict, List, Any, Tuple, Optional
+import sys
 import tempfile
+import time
+import traceback
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import yaml
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -184,7 +185,7 @@ class UltrathinkTester:
             )
 
             # Detailed accuracy report
-            print(f"\n📈 PER-REGION ACCURACY:")
+            print("\n📈 PER-REGION ACCURACY:")
             for region, accuracy in sorted(region_accuracy.items()):
                 status = (
                     "PASS"
@@ -305,8 +306,8 @@ class UltrathinkTester:
         print("=" * 60)
 
         try:
-            from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
             from src.core.config import GMNAPConfig
+            from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 
             # Create realistic test dataset
             test_entries = {}
@@ -354,7 +355,7 @@ class UltrathinkTester:
                 entries_per_sec = len(test_entries) / duration
                 minutes_per_million = (1_000_000 / entries_per_sec) / 60
 
-                print(f"📈 REALISTIC PERFORMANCE RESULTS:")
+                print("📈 REALISTIC PERFORMANCE RESULTS:")
                 print(
                     f"  ⏱️  Duration: {duration:.2f}s for {len(test_entries)} entries"
                 )
@@ -374,16 +375,12 @@ class UltrathinkTester:
 
                 if minutes_per_million <= 30:
                     print("  🎯 PERFORMANCE: MEETS TARGET (<=30 min/1M)")
-                    performance_grade = "EXCELLENT"
                 elif minutes_per_million <= 60:
                     print("  WARN PERFORMANCE: CLOSE TO TARGET (<=60 min/1M)")
-                    performance_grade = "GOOD"
                 elif minutes_per_million <= 240:
                     print("  WARN PERFORMANCE: ACCEPTABLE FOR PILOTS (<=240 min/1M)")
-                    performance_grade = "ACCEPTABLE"
                 else:
                     print("  FAIL PERFORMANCE: TOO SLOW FOR PRODUCTION")
-                    performance_grade = "POOR"
 
                 # This is the TRUE performance measurement with real data
                 print(
@@ -523,9 +520,9 @@ class UltrathinkTester:
 
                         if workflow_successful:
                             workflow_success += 1
-                            print(f"  PASS End-to-end workflow successful")
+                            print("  PASS End-to-end workflow successful")
                         else:
-                            print(f"  FAIL Workflow incomplete")
+                            print("  FAIL Workflow incomplete")
 
                     else:
                         print(f"  FAIL No processor found for region {detected_region}")

@@ -4,7 +4,7 @@ ULTRAFIX Phase 8: Properly detect romanized names before region detection
 """
 
 import re
-from typing import Optional, List
+from typing import List, Optional
 
 
 class RomanizationDetector:

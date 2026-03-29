@@ -9,29 +9,24 @@ memory leaks, performance degradation, resource exhaustion, and scalability issu
 These tests push the system to its absolute limits.
 """
 
-import pytest
-import time
 import gc
-import threading
 import multiprocessing
-import psutil
-import os
-import sys
-import tracemalloc
-from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from collections import deque
 import random
-import string
-from typing import List, Dict, Tuple
+import sys
+import threading
+import time
+import tracemalloc
 import weakref
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+
+import psutil
+import pytest
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "src"))
 
 from src.regions.manager_optimized import RegionManager
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
-from src.core.config import GMNAPConfig
 
 
 class MemoryMonitor:
@@ -532,7 +527,7 @@ class TestPerformanceHell:
     def test_sustained_load_endurance(self, memory_monitor):
         """Test system endurance under sustained load."""
 
-        manager = RegionManager()
+        RegionManager()
 
         # Run for 5 minutes or 10,000 operations, whichever comes first
         max_duration = 300  # 5 minutes
@@ -786,7 +781,7 @@ class TestResourceLimits:
             start_time = time.perf_counter()
 
             try:
-                result = manager.detect_region(entry)
+                manager.detect_region(entry)
 
                 end_time = time.perf_counter()
                 cpu_time = end_time - start_time
@@ -797,7 +792,7 @@ class TestResourceLimits:
                     cpu_time < 5.0
                 ), f"CPU time limit exceeded: {cpu_time:.2f}s for input length {len(cpu_input)}"
 
-            except Exception as e:
+            except Exception:
                 end_time = time.perf_counter()
                 cpu_time = end_time - start_time
                 cpu_times.append(cpu_time)

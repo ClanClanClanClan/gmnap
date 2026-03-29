@@ -12,16 +12,17 @@ CRITICAL FIXES IMPLEMENTED:
 - TTY detection for CI safety (§3.4)
 """
 
-import json
 import csv
+import hashlib
+import json
+import re
 import shutil
 import subprocess
-import hashlib
-import re
 import sys
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
+
 from statsmodels.stats.proportion import proportion_confint
 
 

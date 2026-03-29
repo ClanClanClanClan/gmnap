@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -108,7 +107,7 @@ for entry, expected_region, description in test_cases:
 total_romanized = len([t for t in test_cases if t[1] is not None])
 total_non_romanized = len([t for t in test_cases if t[1] is None])
 
-print(f"\n📊 Romanization Detection Results:")
+print("\n📊 Romanization Detection Results:")
 print(f"  Romanized names detected: {romanization_detected}/{total_romanized}")
 print(f"  Romanized names correct: {romanization_correct}/{total_romanized}")
 print(
@@ -120,12 +119,12 @@ false_positive_rate = (
     non_romanized_affected / total_non_romanized if total_non_romanized > 0 else 0
 )
 
-print(f"\n🎯 Accuracy Metrics:")
+print("\n🎯 Accuracy Metrics:")
 print(f"  Romanization accuracy: {accuracy:.1%}")
 print(f"  False positive rate: {false_positive_rate:.1%}")
 
 # Test specific improvements
-print(f"\n🔍 Specific Improvements:")
+print("\n🔍 Specific Improvements:")
 print(
     f"  'Zhang Wei' -> {manager.detect_region({'name': 'Zhang Wei'}).region_code} (should be E1)"
 )
@@ -141,6 +140,6 @@ if romanization_correct >= total_romanized * 0.8 and non_romanized_affected == 0
     print("   - High accuracy for romanized names")
     print("   - No false positives for non-romanized names")
 else:
-    print(f"\nWARN  ROMANIZATION INTEGRATION NEEDS IMPROVEMENT")
+    print("\nWARN  ROMANIZATION INTEGRATION NEEDS IMPROVEMENT")
     print(f"   - Accuracy: {accuracy:.1%} (target: 80%+)")
     print(f"   - False positives: {false_positive_rate:.1%} (target: 0%)")

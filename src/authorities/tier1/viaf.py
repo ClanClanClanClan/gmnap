@@ -3,14 +3,15 @@ VIAF (Virtual International Authority File) fetcher for V7 compliance.
 Provides access to global authority data from multiple national libraries.
 """
 
-import aiohttp
 import logging
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
+import aiohttp
 
 from src.authorities.base import (
-    AuthorityFetcher,
     AuthorityData,
+    AuthorityFetcher,
     AuthorityTier,
     FetchResult,
     FetchStatus,

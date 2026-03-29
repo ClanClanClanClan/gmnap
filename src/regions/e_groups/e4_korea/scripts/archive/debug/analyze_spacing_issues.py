@@ -4,12 +4,14 @@ Analyze spacing and segmentation issues in name conversion.
 """
 
 import json
-import sys
 import pathlib
+import sys
+
 sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
 
 from converter import eng2kor, tokenise
 from segment import segment
+
 
 def analyze_multisyllable_failures():
     """Analyze failures involving multi-syllable names."""

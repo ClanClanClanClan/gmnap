@@ -4,10 +4,11 @@ from typing import Dict
 Generate a diverse Korean name test dataset covering various domains and romanization styles.
 """
 
-import yaml
 import random
 from collections import defaultdict
-from typing import List, Dict, Tuple
+from typing import Dict, List, Tuple
+
+import yaml
 
 # Common Korean surnames with variations
 SURNAMES = {

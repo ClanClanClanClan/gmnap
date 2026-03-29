@@ -5,12 +5,12 @@ This module provides collision detection and analytics using SQLite,
 which is built into Python and doesn't require external installation.
 """
 
-import sqlite3
 import hashlib
-from typing import Dict, List, Any, Optional
-from pathlib import Path
-from datetime import datetime
 import logging
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 

@@ -1,8 +1,8 @@
-import pytest
-
-import os, json, pathlib
+import pathlib
 import sys
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.db.changelog_expand import generate_arrays_cypher, generate_edges_cypher

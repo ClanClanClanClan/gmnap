@@ -14,12 +14,12 @@ Tests script handling across all regions to verify:
 - Error handling for unsupported scripts
 """
 
-import pytest
-import unicodedata
-import re
-from pathlib import Path
-from typing import Dict, Any, List, Set, Tuple, Optional
 import sys
+import unicodedata
+from pathlib import Path
+from typing import Dict, List, Set
+
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -32,9 +32,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import os
 
 os.environ["GMNAP_TEST_MODE"] = "true"
-from src.regions.manager import RegionManager
 import sys
 from pathlib import Path
+
+from src.regions.manager import RegionManager
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.base import RegionRuleError
@@ -392,7 +393,7 @@ class TestV7ScriptValidation:
             region = self.regions[region_code]
 
             for case in test_cases:
-                base_name = case["name"]
+                case["name"]
                 variants = case["variants"]
 
                 results = []

@@ -45,7 +45,7 @@ for full_name, expected_romanization in surname_cases:
             if roundtrip_clean == expected_clean:
                 print("✅ ROUNDTRIP SUCCESS")
             else:
-                print(f"❌ ROUNDTRIP FAILURE")
+                print("❌ ROUNDTRIP FAILURE")
                 print(f"   Expected: '{expected_clean}'")
                 print(f"   Actual:   '{roundtrip_clean}'")
 

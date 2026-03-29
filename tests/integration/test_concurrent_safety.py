@@ -5,11 +5,11 @@ import pytest
 Test concurrent safety with realistic data.
 """
 
+import os
+import random
 import sys
 import threading
 import time
-import random
-import os
 
 sys.path.insert(0, "src")
 
@@ -238,7 +238,7 @@ def test_concurrent_processing():
     elapsed = time.time() - start_time
 
     # Analyze results
-    print(f"\n=== Results ===")
+    print("\n=== Results ===")
     print(
         f"Total processed: {len(results['success'])} success, {len(results['failed'])} failed"
     )
@@ -262,7 +262,7 @@ def test_concurrent_processing():
 
     # Check database integrity
     stats = pipeline.database.get_stats()
-    print(f"\nDatabase statistics:")
+    print("\nDatabase statistics:")
     print(f"  Total entries: {stats['total_entries']}")
     print(f"  Expected: {len(results['success'])}")
 
@@ -274,20 +274,20 @@ def test_concurrent_processing():
         )
 
     # Show region distribution
-    print(f"\n  Entries by region:")
+    print("\n  Entries by region:")
     for region, count in stats["regions"].items():
         print(f"    {region}: {count}")
 
     # Show some sample failures
     if results["failed"]:
-        print(f"\nSample failures (first 5):")
+        print("\nSample failures (first 5):")
         for failure in results["failed"][:5]:
             print(
                 f"  Thread {failure['thread']}: {failure['entry']} -> {failure['error']}"
             )
 
     # Test thread safety of stats
-    print(f"\nPipeline statistics (thread-safe):")
+    print("\nPipeline statistics (thread-safe):")
     pipeline_status = pipeline.get_status()
     print(f"  Processed: {pipeline_status['statistics']['processed']}")
     print(f"  Failed: {pipeline_status['statistics']['failed']}")

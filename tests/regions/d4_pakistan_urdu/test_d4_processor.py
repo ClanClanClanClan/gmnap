@@ -6,8 +6,8 @@ Test script for D4 Pakistan Urdu region processor.
 Tests various Pakistani mathematician name patterns and edge cases.
 """
 
-import sys
 import os
+import sys
 
 # Add the src directory to Python path
 src_dir = os.path.dirname(
@@ -110,13 +110,13 @@ def test_d4_processor():
 
             # Test validation
             processor.validate(entry)
-            print(f"  Validation: PASSED")
+            print("  Validation: PASSED")
 
             # Test order key generation
             order_key = processor.order_key(entry)
             print(f"  Order key: '{order_key}'")
 
-            print(f"  PASS PASSED\n")
+            print("  PASS PASSED\n")
             passed += 1
 
         except Exception as e:

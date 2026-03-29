@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -7,8 +6,8 @@ This isolates whether FastText language detection is causing memory accumulation
 """
 
 import gc
-import sys
 import random
+import sys
 from pathlib import Path
 
 # Add project root to Python path
@@ -16,8 +15,9 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / "src"))
 
-import psutil
 import os
+
+import psutil
 
 
 def get_memory_mb():
@@ -183,7 +183,7 @@ for i, name in enumerate(test_names):
         print(f"Error at operation {i+1}: {e}")
         break
 
-print(f"\n📊 MEMORY ANALYSIS (NO SECURITY, NO FASTTEXT):")
+print("\n📊 MEMORY ANALYSIS (NO SECURITY, NO FASTTEXT):")
 if memory_points:
     print(f"   Total operations: {len(test_names):,}")
     print(f"   Final memory: {memory_points[-1]['memory_mb']:.1f} MB")
@@ -195,7 +195,7 @@ if memory_points:
     no_security_leak = 0.090  # Without security
     current_leak = memory_points[-1]["leak_rate"]
 
-    print(f"\n🔍 FASTTEXT OVERHEAD ANALYSIS:")
+    print("\n🔍 FASTTEXT OVERHEAD ANALYSIS:")
     print(f"   Original leak (with security): {original_leak:.3f} MB/1K ops")
     print(f"   No security leak: {no_security_leak:.3f} MB/1K ops")
     print(f"   No security + no FastText: {current_leak:.3f} MB/1K ops")
@@ -208,20 +208,20 @@ if memory_points:
 
     # Verdict
     if current_leak < 0.01:
-        print(f"\nPASS LEAK ELIMINATED: FastText was the remaining leak source!")
+        print("\nPASS LEAK ELIMINATED: FastText was the remaining leak source!")
         print(f"   Core detection leak: {current_leak:.3f} MB/1K ops (negligible)")
     elif current_leak < no_security_leak * 0.5:
-        print(f"\n🟡 LEAK SIGNIFICANTLY REDUCED: FastText was major contributor")
+        print("\n🟡 LEAK SIGNIFICANTLY REDUCED: FastText was major contributor")
         print(f"   But core detection still has leak: {current_leak:.3f} MB/1K ops")
     else:
-        print(f"\n🔴 LEAK PERSISTS: FastText not the main source")
+        print("\n🔴 LEAK PERSISTS: FastText not the main source")
         print(
-            f"   Need to investigate caching, RegionDetectionResult retention, or other components"
+            "   Need to investigate caching, RegionDetectionResult retention, or other components"
         )
 
     # Final cache analysis
     final_cache = manager.get_cache_stats()
-    print(f"\n📈 FINAL CACHE STATE:")
+    print("\n📈 FINAL CACHE STATE:")
     print(
         f"   Cache size: {final_cache['cache_size']:,}/{final_cache['cache_max_size']:,}"
     )

@@ -1,7 +1,11 @@
 from __future__ import annotations
-import asyncio, time, random
+
+import asyncio
+import random
+import time
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Tuple
+
 from src.core.compat.normalize_result import normalize_result
 
 

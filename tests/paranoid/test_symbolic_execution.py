@@ -15,10 +15,11 @@ Explores all possible execution paths through symbolic analysis:
 import ast
 import inspect
 import sys
-import z3
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+
+import z3
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -412,7 +413,7 @@ class TestSymbolicExecution:
             return result
 
         executor = SymbolicExecutor(vulnerable_function)
-        paths = executor.explore_paths()
+        executor.explore_paths()
 
         vulnerabilities = executor.find_vulnerabilities()
 

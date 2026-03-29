@@ -6,14 +6,10 @@ and all scenarios that could cause corruption or security issues.
 """
 
 import gc
-import random
-import string
 import threading
 import time
 import unicodedata
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from queue import Empty, Queue
-from typing import Dict, List, Tuple
 
 import psutil
 import pytest
@@ -21,8 +17,6 @@ import pytest
 from src.core.unicode_handler import (
     UnicodeConfig,
     UnicodeNormalizer,
-    generate_name_variants,
-    normalize_name,
 )
 
 
@@ -476,10 +470,10 @@ class TestUnicodePerformance:
             complex_string = f"Test{i:04d}" + "é" * 100 + "李明" * 50 + "\u0301" * 100
 
             # Normalize
-            normalized = self.normalizer.normalize(complex_string)
+            self.normalizer.normalize(complex_string)
 
             # Generate variants
-            variants = self.normalizer.generate_variants(complex_string)
+            self.normalizer.generate_variants(complex_string)
 
             # Detect script
             _ = self.normalizer.detect_primary_script(complex_string)
@@ -653,7 +647,7 @@ class TestUnicodeEdgeCases:
             assert isinstance(
                 result, str
             ), f"Invalid normalization result: {type(result)}"
-            assert len(result) > 0, f"Empty normalization result"
+            assert len(result) > 0, "Empty normalization result"
 
     def test_unicode_validation_edge_cases(self):
         """Test Unicode validation edge cases."""

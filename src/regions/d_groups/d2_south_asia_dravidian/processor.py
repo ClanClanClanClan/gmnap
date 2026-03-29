@@ -12,11 +12,12 @@ HELL-LEVEL TESTED:
 - Romanization standards (ISO 15919, ITRANS, academic transliteration)
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Set
+import re
+from typing import Any, Dict, List, Set
 
-from ...base_enhanced import EnhancedRegionSpec as RegionSpec, RegionRuleError
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class D2_SouthAsiaDravidian(RegionSpec):
@@ -64,7 +65,7 @@ class D2_SouthAsiaDravidian(RegionSpec):
         self.common_surnames = self._load_common_surnames()
         self.place_names = self._load_place_names()
 
-        self.logger.info(f"D2 South Asia Dravidian processor initialized")
+        self.logger.info("D2 South Asia Dravidian processor initialized")
 
     def _load_dravidian_patterns(self) -> Dict[str, List[str]]:
         """Load Dravidian language patterns."""
@@ -506,7 +507,7 @@ class D2_SouthAsiaDravidian(RegionSpec):
         if not name:
             return 0.0
 
-        name_lower = name.lower()
+        name.lower()
         pattern_matches = 0
         total_patterns = 0
 
@@ -564,7 +565,7 @@ class D2_SouthAsiaDravidian(RegionSpec):
             return
 
         # Detect specific Dravidian language
-        detected_lang = self._detect_specific_language(canonical)
+        self._detect_specific_language(canonical)
 
         # Clean and standardize name
         cleaned_name = self._clean_name(canonical)
@@ -591,7 +592,7 @@ class D2_SouthAsiaDravidian(RegionSpec):
         romanized_name = self._romanize_name(canonical, detected_lang)
 
         # Extract components
-        components = self._extract_name_components(romanized_name, detected_lang)
+        self._extract_name_components(romanized_name, detected_lang)
 
         # Add metadata
         entry["RegionCode"] = self.REGION_CODE

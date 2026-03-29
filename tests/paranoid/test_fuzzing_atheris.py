@@ -1,5 +1,4 @@
 import pytest
-import sys, pytest
 
 try:
     import atheris  # type: ignore

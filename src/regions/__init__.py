@@ -17,6 +17,6 @@ Each region implements clean→augment→validate→order_key operations
 with script-specific linguistic rules.
 """
 
-from .base import RegionSpec, RegionRuleError
+from .base import RegionRuleError, RegionSpec
 
 __all__ = ["RegionSpec", "RegionRuleError"]

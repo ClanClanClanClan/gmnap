@@ -1,13 +1,14 @@
-from pathlib import Path
+import csv
+import pathlib
+
 import pytest
-import csv, pathlib
+
 from src.linguistics.roundtrip import roundtrip_score
 
 
 @pytest.mark.timeout(15)
 def test_cjk_roundtrip_fixture():
     p = pathlib.Path("extras/fixtures/cjk_pairs.csv")
-    ok = []
     with p.open(encoding="utf-8") as fh:
         for i, row in enumerate(csv.DictReader(fh)):
             native = row["native"]

@@ -1,4 +1,6 @@
-import click, json
+import json
+
+import click
 
 
 @click.group()

@@ -11,10 +11,6 @@ Test V7 Pipeline Integration
 Tests the newly integrated V7 compliance components
 """
 
-import asyncio
-import json
-import sys
-from pathlib import Path
 
 # Test without full pipeline import to avoid timeout
 print("=" * 60)
@@ -96,8 +92,8 @@ def test_quality_gates():
 
         # Note: check_all_gates might not exist, so check for method
         if hasattr(checker, "check"):
-            result = checker.check(test_metrics)
-            print(f"PASS Quality gate check completed")
+            checker.check(test_metrics)
+            print("PASS Quality gate check completed")
         else:
             print("ℹ️  Quality gate checker is a stub implementation")
 
@@ -111,7 +107,6 @@ def test_quality_gates():
 def test_authority_manager():
     """Test authority manager module."""
     try:
-        from src.authorities.manager_tier01 import CostMeter
 
         print("PASS Authority manager module imported successfully")
         print("ℹ️  Authority manager is a stub implementation (CostMeter)")
@@ -153,7 +148,7 @@ def test_v7_pipeline_components():
         import os
 
         os.environ["GMNAP_OFFLINE"] = "1"
-        from src.core.pipeline_v7 import V7Pipeline, PipelineMode, PipelineMetrics
+        from src.core.pipeline_v7 import PipelineMetrics, PipelineMode, V7Pipeline
 
         print("PASS V7Pipeline imported successfully")
 
@@ -162,12 +157,12 @@ def test_v7_pipeline_components():
         print(f"PASS V7Pipeline initialized in {pipeline.mode.value} mode")
 
         # Test metrics
-        metrics = PipelineMetrics()
-        print(f"PASS Pipeline metrics initialized")
+        PipelineMetrics()
+        print("PASS Pipeline metrics initialized")
 
         # Test quality gates
         gates = pipeline.quality_gates
-        print(f"PASS Quality gates configured:")
+        print("PASS Quality gates configured:")
         print(f"   - Duplicate GlobalID limit: {gates.duplicate_global_id}")
         print(
             f"   - Runtime limit (1M entries): {gates.warm_cache_runtime_per_1M_min} min"

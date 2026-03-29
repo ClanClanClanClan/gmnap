@@ -1,17 +1,20 @@
-import pytest
-
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.ops.hashcash import verify_hashcash, HashcashStamp
-import time, hashlib, itertools
+import hashlib
+import itertools
+import time
+
+from src.ops.hashcash import HashcashStamp, verify_hashcash
 
 
 def _mint(bits: int, resource: str) -> str:
     # Brute-force a tiny stamp for test (bits <= 16 fast; if 18, may take longer but still ok for unit)
     date = time.strftime("%Y%m%d%H%M%S", time.gmtime())
-    base = HashcashStamp("1", bits, date, resource, "", "rnd", "0")
+    HashcashStamp("1", bits, date, resource, "", "rnd", "0")
     # Simple counter search
     for i in itertools.count():
         stamp = HashcashStamp("1", bits, date, resource, "", "rnd", str(i)).to_stamp()

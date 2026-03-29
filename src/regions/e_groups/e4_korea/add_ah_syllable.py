@@ -30,8 +30,8 @@ def add_ah_mapping():
 
 def test_ah_names():
     """Test names containing 'ah'."""
-    import sys
     import pathlib
+    import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     # from converter import eng2kor

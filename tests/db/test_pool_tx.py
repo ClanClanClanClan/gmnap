@@ -1,12 +1,13 @@
-import asyncio
-import pytest, asyncio
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.ops.conn_pool import ConnectionPool
 import sys
 from pathlib import Path
+
+from src.ops.conn_pool import ConnectionPool
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.ops.transactions import execute_transaction

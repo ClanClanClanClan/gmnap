@@ -1,11 +1,10 @@
-import pytest
-
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.pipeline.stage7_shortforms import (
-    annotate_short_forms,
     compute_short_form_clusters,
 )
 

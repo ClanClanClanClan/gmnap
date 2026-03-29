@@ -4,12 +4,11 @@ Direct comprehensive testing without pytest mocking
 Runs all tests against live API and database
 """
 
-import requests
-import time
-import json
-from neo4j import GraphDatabase
-from typing import Dict, List
 import concurrent.futures
+import time
+
+import requests
+from neo4j import GraphDatabase
 
 BASE_URL = "http://localhost:8080"
 DB_URI = "bolt://localhost:7688"
@@ -39,7 +38,7 @@ class TestResults:
     def summary(self):
         total = len(self.passed) + len(self.failed) + len(self.skipped)
         print(f"\n{'='*70}")
-        print(f"TEST SUMMARY")
+        print("TEST SUMMARY")
         print(f"{'='*70}")
         print(f"Total Tests: {total}")
         print(f"✅ Passed: {len(self.passed)}")
@@ -127,7 +126,7 @@ def run_tests():
         data = r.json()
         dist = data["statistics"]["confidence_distribution"]
         assert "high" in dist and "medium" in dist and "low" in dist
-        total = dist["high"] + dist["medium"] + dist["low"]
+        dist["high"] + dist["medium"] + dist["low"]
         results.add_pass(
             "stats_confidence",
             f"High: {dist['high']}, Medium: {dist['medium']}, Low: {dist['low']}",

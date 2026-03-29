@@ -1,6 +1,7 @@
-import pytest
+import os
 
-import os, pytest, httpx
+import httpx
+import pytest
 
 pytestmark = pytest.mark.liveapi
 

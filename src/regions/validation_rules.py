@@ -511,7 +511,7 @@ class RegionalValidationEngine:
         warnings = []
         for char in native:
             code = ord(char)
-            is_valid_cjk = any(start <= code <= end for start, end in cjk_blocks)
+            any(start <= code <= end for start, end in cjk_blocks)
 
             # Check for private use area (suspicious)
             if 0xE000 <= code <= 0xF8FF or 0xF0000 <= code <= 0xFFFFF:
@@ -708,7 +708,7 @@ class RegionalValidationEngine:
     ) -> Optional[ValidationResult]:
         """Validate Arabic patronymic chains."""
         canonical = entry.get("CanonicalLatin", "")
-        native = entry.get("CanonicalNative", "")
+        entry.get("CanonicalNative", "")
 
         warnings = []
 

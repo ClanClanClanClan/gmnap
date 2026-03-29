@@ -3,12 +3,13 @@ Authentication module for GMNAP V7
 Implements JWT-based authentication for API access
 """
 
-import os
-import jwt
 import hashlib
-from datetime import datetime, timedelta
-from typing import Optional, Dict, Any
+import os
 import secrets
+from datetime import datetime, timedelta
+from typing import Any, Dict, Optional
+
+import jwt
 
 
 class AuthenticationManager:

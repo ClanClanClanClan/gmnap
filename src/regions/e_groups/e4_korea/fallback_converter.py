@@ -2,8 +2,8 @@
 Fallback Korean converter using CSV mappings when pynini is unavailable.
 """
 
-import os
 import csv
+import os
 from typing import Optional
 
 
@@ -226,13 +226,6 @@ class FallbackKoreanConverter:
         return result
 
         # Accept common romanization variants
-        romanization_variants = {
-            "sung": ["seong", "sung"],
-            "sun": ["soon", "sun"],
-            "jung": ["jeong", "jung"],
-            "woo": ["u", "woo"],
-            "yeol": ["yul", "yeol"],
-        }
 
 
 # Global instance

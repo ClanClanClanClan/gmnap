@@ -19,7 +19,7 @@ def test_memgraph_client_functionality():
     print("🧪 TESTING MEMGRAPH CLIENT FUNCTIONALITY...")
 
     try:
-        from src.core.memgraph_client import MemgraphClient, GenealogyRelation
+        from src.core.memgraph_client import MemgraphClient
 
         print("PASS Import successful")
 
@@ -144,7 +144,7 @@ def test_security_validator_integration():
     print("\n🧪 TESTING SECURITY VALIDATOR INTEGRATION...")
 
     try:
-        from src.core.security_validator import SecurityValidator, SecurityError
+        from src.core.security_validator import SecurityError, SecurityValidator
 
         print("PASS SecurityValidator import successful")
 
@@ -205,8 +205,8 @@ def test_end_to_end_integration():
 
     try:
         # Test full workflow: Manager -> Region -> Security -> Processing
-        from src.regions.manager import RegionManager
         from src.core.security_validator import SecurityValidator
+        from src.regions.manager import RegionManager
 
         manager = RegionManager(Path("./config"))
         validator = SecurityValidator()
@@ -241,7 +241,7 @@ def test_end_to_end_integration():
         region.augment(entry)
         region.validate(entry)
 
-        print(f"PASS End-to-end processing successful")
+        print("PASS End-to-end processing successful")
         print(f"Final entry: {entry}")
 
         return True

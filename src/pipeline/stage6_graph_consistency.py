@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 import os
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 from ..graph.graph_loader import GraphLoader
 
 

@@ -6,28 +6,29 @@ Implements all 12 stages with full compliance including:
 - Stage 11: 0-byte idempotency enforcement
 """
 
+import logging
 import time
 from datetime import datetime
-from typing import Dict, List, Any
-import logging
+from typing import Any, Dict, List
 
-# Import existing pipeline components
-from src.core.pipeline_v7_fixed import V7PipelineFixed, PipelineMode
-
-# Import new closure pack components
-from src.core.stage6_bayesian import BayesianCoherence
-from src.core.graph_coherence.coherence import GraphCoherence
-from src.core.stage9_write_diff.write_and_diff import DeterministicWriter
-from src.core.stage9_db.db_writer import DuckDBWriter
-from src.core.stage11_gate import IdempotencyGate
 from src.analytics.duckdb_analytics import DuckDBAnalytics
-from src.quality.gates import QualityGatesEnforcer
-from src.quality.strict_gates import StrictQualityGates, QualityGateBlockedException
-from src.validation.schema_validator import V7SchemaValidator
 
 # from src.linguistics.roundtrip import RoundTripValidator  # Not available
 from src.authorities.live_adapters import LiveAuthorityAdapters
+from src.core.graph_coherence.coherence import GraphCoherence
+
+# Import existing pipeline components
+from src.core.pipeline_v7_fixed import PipelineMode, V7PipelineFixed
+
+# Import new closure pack components
+from src.core.stage6_bayesian import BayesianCoherence
+from src.core.stage9_db.db_writer import DuckDBWriter
+from src.core.stage9_write_diff.write_and_diff import DeterministicWriter
+from src.core.stage11_gate import IdempotencyGate
 from src.core.stage12_deployment import DeploymentManager
+from src.quality.gates import QualityGatesEnforcer
+from src.quality.strict_gates import QualityGateBlockedException, StrictQualityGates
+from src.validation.schema_validator import V7SchemaValidator
 
 logger = logging.getLogger(__name__)
 
@@ -351,7 +352,7 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
             # In CI, this will block the merge
             raise ValueError(error_msg)
 
-        logger.info(f"✅ Idempotency check PASSED: 0-byte difference verified")
+        logger.info("✅ Idempotency check PASSED: 0-byte difference verified")
         logger.info(f"Hash: {current_hash}")
 
         # Clean up temp file
@@ -478,7 +479,7 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
                     f"- Projected 1M Processing: {1000000/throughput/60:.1f} minutes\n\n"
                 )
             else:
-                f.write(f"- Projected 1M Processing: N/A (throughput too low)\n\n")
+                f.write("- Projected 1M Processing: N/A (throughput too low)\n\n")
 
             f.write("## Stage Timings\n")
             for stage, timing in sorted(self.metrics.stage_timings.items()):
@@ -487,7 +488,7 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
         logger.info(f"Analytics report written to {report_path}")
 
         # Also output key metrics to console
-        logger.info(f"Key Analytics:")
+        logger.info("Key Analytics:")
         logger.info(
             f"  - Collision Rate: {collision_stats.get('collision_rate', 0):.2%}"
         )
@@ -714,12 +715,12 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
 
         # NO MORE CHEATING! Run ALL stages for ALL batch sizes
         # Real optimization = better algorithms, not skipping stages
-        logger.info(f"Starting V7 Complete Final Pipeline - HONEST MODE")
+        logger.info("Starting V7 Complete Final Pipeline - HONEST MODE")
         logger.info(f"Processing {len(entries)} entries in {self.mode.value} mode")
         logger.info(
             f"Components: Bayesian={True}, DuckDB={True}, Idempotency={self.enforce_idempotency}"
         )
-        logger.info(f"ALL 12 STAGES WILL RUN - NO SKIPPING!")
+        logger.info("ALL 12 STAGES WILL RUN - NO SKIPPING!")
 
         # Stage 0: Config (inherited from parent)
         await self._stage_0_config()
@@ -786,7 +787,7 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
         await self._stage_11_idempotency_check(all_results)
 
         # Stage 12: Deployment (if enabled)
-        deployment_result = await self._stage_12_deployment(all_results)
+        await self._stage_12_deployment(all_results)
 
         # Store results for quality gate checking
         self._last_processed_entries = all_results
@@ -799,7 +800,7 @@ class V7PipelineCompleteFinal(V7PipelineFixed):
             logger.error("=" * 70)
             logger.error("V7 PIPELINE BLOCKED BY QUALITY GATES")
             logger.error("=" * 70)
-            logger.error(f"Processing blocked due to quality gate failures:")
+            logger.error("Processing blocked due to quality gate failures:")
             for failure in e.failures:
                 logger.error(f"  - {failure}")
             logger.error("=" * 70)

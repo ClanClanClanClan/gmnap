@@ -1,5 +1,7 @@
+import os
+
 import pytest
-import os, pytest, requests
+import requests
 
 LIVE = os.getenv("OFFLINE", "1") == "0" and os.getenv("LIVE_AUTH", "0") == "1"
 

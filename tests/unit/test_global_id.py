@@ -8,14 +8,15 @@ V7 Specification:
 """
 
 import pytest
+
 from src.core.global_id import (
-    global_id,
+    add_global_id,
+    compute_global_id_for_pipeline,
     generate_global_id,
     generate_unique_global_id,
-    validate_global_id,
-    compute_global_id_for_pipeline,
-    add_global_id,
+    global_id,
     reset_collision_tracking,
+    validate_global_id,
 )
 
 

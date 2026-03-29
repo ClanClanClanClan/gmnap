@@ -3,10 +3,10 @@ Authorization module for GMNAP V7
 Implements Role-Based Access Control (RBAC)
 """
 
-from enum import Enum
-from typing import List, Dict, Set
-from functools import wraps
 import logging
+from enum import Enum
+from functools import wraps
+from typing import Dict, List, Set
 
 
 class Permission(Enum):

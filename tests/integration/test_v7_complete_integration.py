@@ -1,6 +1,3 @@
-from typing import List
-from typing import Any
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -12,16 +9,13 @@ import asyncio
 import json
 import sys
 import time
-from pathlib import Path
-from typing import Dict, List, Any
 from datetime import datetime
+from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.core.pipeline_v7_complete import V7PipelineComplete, PipelineMode
-from src.core.v7_idempotency import V7IdempotencyChecker
-from src.regions.manager import RegionManager
+from src.core.pipeline_v7_complete import PipelineMode, V7PipelineComplete
 
 
 class V7CompleteIntegrationTest:
@@ -130,7 +124,7 @@ class V7CompleteIntegrationTest:
                         if len(result.get("CanonicalLatin", "")) <= 150:
                             passed += 1
                         else:
-                            failures.append(f"Truncation failed")
+                            failures.append("Truncation failed")
 
                     # Check general validity
                     elif case.get("expected_valid", True):
@@ -230,7 +224,7 @@ class V7CompleteIntegrationTest:
 
         # Measure performance
         start_time = time.time()
-        processed = await self.pipeline.process_batch(test_entries)
+        await self.pipeline.process_batch(test_entries)
         elapsed = time.time() - start_time
 
         entries_per_second = len(test_entries) / elapsed if elapsed > 0 else 0

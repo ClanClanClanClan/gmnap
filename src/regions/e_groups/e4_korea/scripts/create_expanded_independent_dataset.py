@@ -1061,7 +1061,7 @@ with open(
     json.dump(dataset, f, indent=2, ensure_ascii=False)
 
 print("✅ Expanded independent validation dataset created!")
-print(f"Saved to: data/expanded_independent_validation_dataset.json")
+print("Saved to: data/expanded_independent_validation_dataset.json")
 print()
 print("=== DATASET STATISTICS ===")
 for category, count in sorted(dataset_info["categories"].items()):

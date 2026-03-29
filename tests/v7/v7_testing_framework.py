@@ -25,37 +25,29 @@ Usage:
     python tests/v7_testing_framework.py --concurrency
 """
 
-import asyncio
-import json
 import logging
-import multiprocessing as mp
-import os
-import psutil
 import random
-import subprocess
-import sys
-import tempfile
-import time
-import traceback
-import unicodedata
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Set
 import statistics
+import sys
+import time
+from concurrent.futures import ProcessPoolExecutor
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import psutil
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import pytest
-import hypothesis
-from hypothesis import given, strategies as st
+from hypothesis import given
+from hypothesis import strategies as st
+
+from src.core.unicode_handler import UnicodeNormalizer
 
 # Core system imports
 from src.regions.manager_optimized import RegionManager
-from src.core.security_validator import security_validator
-from src.core.unicode_handler import UnicodeNormalizer
 from validation.schema import SchemaValidator
 
 logger = logging.getLogger(__name__)
@@ -75,7 +67,7 @@ def concurrency_worker_task(worker_id: int) -> Dict[str, Any]:
 
         for entry in test_entries:
             try:
-                result = manager.detect_region(entry, internal=True)
+                manager.detect_region(entry, internal=True)
                 processed += 1
             except Exception:
                 errors += 1
@@ -500,7 +492,7 @@ class V7TestingFramework:
         for fixture in fixtures:
             try:
                 entry = {"CanonicalLatin": fixture["CanonicalLatin"]}
-                result = self.region_manager.detect_region(entry, internal=True)
+                self.region_manager.detect_region(entry, internal=True)
                 processed += 1
             except Exception as e:
                 errors += 1
@@ -612,7 +604,7 @@ class V7TestingFramework:
                 entry = {"CanonicalLatin": f"{base_name}_{i}"}
 
                 try:
-                    result = self.region_manager.detect_region(entry, internal=True)
+                    self.region_manager.detect_region(entry, internal=True)
                     processed += 1
                 except Exception:
                     errors += 1
@@ -645,7 +637,7 @@ class V7TestingFramework:
         )
 
         return TestResult(
-            test_name=f"2M_stress_test",
+            test_name="2M_stress_test",
             success=success,
             duration_seconds=duration,
             memory_peak_mb=peak_memory,
@@ -769,7 +761,7 @@ class V7TestingFramework:
                     if abs(result1.confidence - result2.confidence) > 0.1:
                         errors.append(f"Inconsistent detection: {name1} vs {name2}")
 
-            except Exception as e:
+            except Exception:
                 # Ignore exceptions in property tests - focus on logic consistency
                 pass
 

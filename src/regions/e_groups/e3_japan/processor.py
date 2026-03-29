@@ -9,7 +9,8 @@ import re
 import unicodedata
 from typing import Any, Dict, List
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class E3_Japan(RegionSpec):
@@ -632,7 +633,7 @@ class E3_Japan(RegionSpec):
 
             # Check length - Japanese names are typically 2-4 characters - be lenient
             if len(canonical_native) < 1:  # Must have at least 1 character
-                raise RegionRuleError(f"Empty CanonicalNative")
+                raise RegionRuleError("Empty CanonicalNative")
 
         # If CanonicalLatin exists, it should be romanized
         if canonical_latin:

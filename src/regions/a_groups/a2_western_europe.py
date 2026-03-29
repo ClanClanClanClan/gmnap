@@ -412,7 +412,7 @@ class A2_WesternEurope(RegionSpec):
 
     def _generate_single_surname_variants(self, name: str) -> List[str]:
         """Generate variants with single surname from dual surname."""
-        if not ", " in name:
+        if ", " not in name:
             return []
 
         family, given = name.split(", ", 1)

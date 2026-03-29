@@ -77,8 +77,8 @@ def fix_heon_mappings():
 
 def test_heon_conversions():
     """Test heon-related conversions."""
-    import sys
     import pathlib
+    import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     # from converter import eng2kor

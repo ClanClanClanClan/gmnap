@@ -1,10 +1,13 @@
 from __future__ import annotations
+
 import asyncio
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List
-from .async_batch_agg_v2 import AsyncBatchAggregatorV2, AggConfig
-from .preflight_sanitiser import sanitise_entry
+
 from src.diag.flight_recorder import FlightRecorder
+
+from .async_batch_agg_v2 import AggConfig, AsyncBatchAggregatorV2
+from .preflight_sanitiser import sanitise_entry
 
 
 @dataclass

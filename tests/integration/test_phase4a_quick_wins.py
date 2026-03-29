@@ -6,8 +6,8 @@ Test Phase 4A Quick Wins Implementation
 Tests the 45-minute improvements for 95% accuracy target
 """
 
-import sys
 import json
+import sys
 from pathlib import Path
 
 project_root = Path(__file__).parent
@@ -137,10 +137,10 @@ def test_phase4a_improvements():
     accuracy = correct / len(test_cases)
 
     print("-" * 50)
-    print(f"📊 PHASE 4A RESULTS:")
+    print("📊 PHASE 4A RESULTS:")
     print(f"   Correct: {correct}/{len(test_cases)}")
     print(f"   Accuracy: {accuracy:.1%}")
-    print(f"   Target: 95%")
+    print("   Target: 95%")
 
     if accuracy >= 0.95:
         print("🎉 SUCCESS: 95% accuracy target ACHIEVED!")
@@ -153,7 +153,7 @@ def test_phase4a_improvements():
     new_tests = [r for r in results if "(NEW)" in r["description"]]
     new_correct = sum(1 for r in new_tests if r["correct"])
 
-    print(f"\n🌟 NEW PHASE 4A DETECTION PERFORMANCE:")
+    print("\n🌟 NEW PHASE 4A DETECTION PERFORMANCE:")
     print(
         f"   Turkish detections: {sum(1 for r in new_tests if 'Turkish' in r['description'] and r['correct'])}/3"
     )
@@ -179,7 +179,7 @@ def test_phase4a_improvements():
             indent=2,
         )
 
-    print(f"\n💾 Detailed results saved to: phase4a_test_results.json")
+    print("\n💾 Detailed results saved to: phase4a_test_results.json")
 
     return accuracy
 

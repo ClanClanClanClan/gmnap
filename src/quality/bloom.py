@@ -1,5 +1,8 @@
 from __future__ import annotations
-import math, mmh3  # type: ignore
+
+import math
+
+import mmh3  # type: ignore
 
 
 class BloomFilter:

@@ -1,20 +1,25 @@
 from __future__ import annotations
-from typing import Callable, Awaitable, Optional, Dict, Any
-import os, ipaddress, jwt
+
+import ipaddress
+import os
+from typing import Any, Awaitable, Callable, Dict, Optional
+
+import jwt
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response, JSONResponse
+from starlette.responses import JSONResponse, Response
+
 from ..ops.hashcash import verify_hashcash
-from ..ops.rate_limit import RateLimiter
 from ..ops.metrics_security import (
     AUTHN_FAILED,
     AUTHZ_FAILED,
-    RATE_LIMIT_DROPPED,
     HASHCASH_VERIFIED,
-    JWT_VERIFIED,
-    SECURITY_EVENT,
     HASHCASH_VERIFY_LATENCY,
+    JWT_VERIFIED,
+    RATE_LIMIT_DROPPED,
+    SECURITY_EVENT,
 )
+from ..ops.rate_limit import RateLimiter
 
 
 class SecurityMiddleware(BaseHTTPMiddleware):
@@ -71,7 +76,6 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         key = self._client_key(request)
         paid = False
         role = "viewer"
-        user = "anon"
 
         authz_header = request.headers.get("authorization")
         hashcash_header = request.headers.get("x-hashcash")
@@ -85,7 +89,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                 return JSONResponse({"error": "unauthorized"}, status_code=401)
             paid = True
             role = claims.get("role") or claims.get("roles") or "viewer"
-            user = claims.get("sub") or "jwt"
+            claims.get("sub") or "jwt"
         else:
             # Require Hashcash for free tier
             if not hashcash_header:
@@ -102,7 +106,6 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                     {"error": "invalid_hashcash", "reason": reason}, status_code=401
                 )
             HASHCASH_VERIFIED.inc()
-            user = f"hashcash:{key}"
 
         # Rate limit
         if not await self.rl.allow(key, paid=paid, cost=1):

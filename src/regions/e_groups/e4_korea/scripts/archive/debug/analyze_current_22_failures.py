@@ -1,7 +1,10 @@
-import yaml
 import sys
+
+import yaml
+
 sys.path.append('src')
-from converter import eng2kor, kor2eng, eng2kor_nbest, _enhanced_dice
+from converter import _enhanced_dice, eng2kor, eng2kor_nbest, kor2eng
+
 
 def find_hangul(variants):
     for v in variants:
@@ -50,7 +53,7 @@ for name, info in data.items():
             'issue': f"{rr} → {rr2} (dice={dice_score:.3f})"
         })
 
-print(f"=== CURRENT 22 FAILURES ANALYSIS (97.00% → 97.8% target) ===")
+print("=== CURRENT 22 FAILURES ANALYSIS (97.00% → 97.8% target) ===")
 print(f"Total failures: {len(current_failures)}")
 
 conversion_failures = [f for f in current_failures if f['type'] == 'conversion']
@@ -59,16 +62,16 @@ roundtrip_failures = [f for f in current_failures if f['type'] == 'roundtrip']
 print(f"Conversion failures: {len(conversion_failures)}")
 print(f"Roundtrip failures: {len(roundtrip_failures)}")
 
-print(f"\n=== CONVERSION FAILURES (need positional weight fixes) ===")
+print("\n=== CONVERSION FAILURES (need positional weight fixes) ===")
 for i, f in enumerate(conversion_failures, 1):
     print(f"{i}. {f['name']}: {f['issue']}")
 
-print(f"\n=== ROUNDTRIP FAILURES (need enhanced equivalences) ===")
+print("\n=== ROUNDTRIP FAILURES (need enhanced equivalences) ===")
 for i, f in enumerate(roundtrip_failures[:10], 1):
     print(f"{i}. {f['name']}: {f['issue']}")
 
 # Analyze patterns in remaining roundtrip failures
-print(f"\n=== PATTERN ANALYSIS FOR REMAINING ROUNDTRIPS ===")
+print("\n=== PATTERN ANALYSIS FOR REMAINING ROUNDTRIPS ===")
 common_patterns = {}
 for f in roundtrip_failures:
     input_lower = f['input'].lower().replace(',', '').replace('-', ' ').replace(' ', '')
@@ -90,7 +93,7 @@ for pattern, count in sorted(common_patterns.items(), key=lambda x: x[1], revers
     print(f"  {pattern}: {count} times")
 
 # Suggest additional Korean equivalents
-print(f"\n=== SUGGESTED ADDITIONAL EQUIVALENTS ===")
+print("\n=== SUGGESTED ADDITIONAL EQUIVALENTS ===")
 suggested = set()
 for f in roundtrip_failures:
     input_clean = f['input'].lower().replace(',', '').replace('-', ' ').replace(' ', '')

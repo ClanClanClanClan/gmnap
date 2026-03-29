@@ -6,8 +6,8 @@ Test suite for F3 Horn of Africa region processor
 Tests Ethiopian and Eritrean mathematician name processing
 """
 
-import unittest
 import sys
+import unittest
 from pathlib import Path
 
 # Add the source directory to the path
@@ -232,7 +232,6 @@ class TestF3HornOfAfricaProcessor(unittest.TestCase):
         self.assertTrue(self.processor._has_religious_elements(islamic_entry))
 
         # Secular elements
-        secular_entry = {"CanonicalLatin": "Desta Bekele Lemma"}
         # This might still return True due to common religious names
 
     @pytest.mark.timeout(15)
@@ -256,7 +255,6 @@ class TestF3HornOfAfricaProcessor(unittest.TestCase):
         self.assertTrue(self.processor._is_valid_latin_text(valid_latin))
 
         # Invalid mixed (depends on implementation)
-        invalid_mixed = "ገብረ123@#$"
         # This test depends on specific validation rules
 
     @pytest.mark.timeout(15)

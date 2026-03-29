@@ -4,8 +4,8 @@ Rollback problematic English syllables and add only complete English names.
 """
 
 import csv
-import subprocess
 import json
+import subprocess
 
 
 def rollback_batch(batch_file):

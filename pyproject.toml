@@ -80,9 +80,22 @@ extend-exclude = '''
 )/
 '''
 
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+ignore = ["E402", "E722", "F821", "E741", "F601", "F811", "F402", "F403", "F401"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"scripts/**" = ["F401", "F841", "E701", "E702"]
+"src/regions/e_groups/e4_korea/scripts/**" = ["F401", "F841", "E701", "E702"]
+"tools/**" = ["F401", "F841"]
+"tests/**" = ["F401", "E701", "E702"]
+
 [tool.isort]
 profile = "black"
-line_length = 100
+line_length = 88
 multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0

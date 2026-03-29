@@ -6,7 +6,8 @@ API: https://pqdtopen.proquest.com/api/search
 Type: REST (Requires Auth)
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
+
 from ..templates.authority_engine import create_authority_fetcher
 
 

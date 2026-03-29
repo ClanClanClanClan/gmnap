@@ -1,6 +1,8 @@
 from __future__ import annotations
-import json, pathlib
-from typing import Dict, List, Any
+
+import json
+import pathlib
+from typing import Any, Dict, List
 
 
 def _append(path: pathlib.Path, lines: List[str]):

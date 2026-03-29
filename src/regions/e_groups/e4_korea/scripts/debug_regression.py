@@ -3,7 +3,10 @@
 Debug the math dataset regression from comprehensive fixes
 """
 
-import yaml, sys, os
+import os
+import sys
+
+import yaml
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 # from converter import eng2kor, kor2eng

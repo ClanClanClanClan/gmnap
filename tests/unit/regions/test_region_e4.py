@@ -7,19 +7,18 @@ This test file serves as the TEMPLATE for all regional tests.
 Every region MUST implement all test categories shown here.
 """
 
-import pytest
-from typing import Dict, List, Any
-import yaml
-from pathlib import Path
-
 # Import the components we're testing
 import sys
 from pathlib import Path
 
+import pytest
+import yaml
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.regions.manager_optimized import RegionManager
 import sys
 from pathlib import Path
+
+from src.regions.manager_optimized import RegionManager
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.e_groups.e4_korea.processor import E4KoreanProcessor as E4Processor

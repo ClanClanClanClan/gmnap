@@ -1,6 +1,4 @@
-from typing import List
-from typing import Any
-import pytest
+from typing import Any, List
 
 #!/usr/bin/env python3
 """
@@ -9,14 +7,13 @@ Comprehensive testing of 99.9% uptime production infrastructure
 """
 
 import asyncio
-import json
 import logging
-import time
-from pathlib import Path
-from typing import Dict, Any, List
 
 # Add project root to Python path
 import sys
+import time
+from pathlib import Path
+from typing import Dict
 
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
@@ -26,15 +23,15 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import sys
+from pathlib import Path
+
 from src.core.enterprise_infrastructure import (
     EnterpriseInfrastructure,
     InfrastructureConfig,
 )
-import sys
-from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.production_monitor import AlertLevel
 
 
 class InfrastructureTestSuite:
@@ -119,7 +116,7 @@ class InfrastructureTestSuite:
                 status = self.infrastructure.get_infrastructure_status()
                 components = status["components"]
 
-                print(f"Components initialized:")
+                print("Components initialized:")
                 print(f"  🛡️  Security: {'PASS' if components['security'] else 'FAIL'}")
                 print(
                     f"  📊 Monitoring: {'PASS' if components['monitoring'] else 'FAIL'}"
@@ -206,7 +203,7 @@ class InfrastructureTestSuite:
             # Test 1: Safe input
             safe_input = {"name": "John Smith", "email": "john@example.com"}
             try:
-                result = security.validate_entry(safe_input)
+                security.validate_entry(safe_input)
                 print("PASS Safe input correctly validated")
             except Exception as e:
                 print(f"WARN  Safe input flagged: {e}")
@@ -217,9 +214,9 @@ class InfrastructureTestSuite:
                 "email": "test@test.com",
             }
             try:
-                result = security.validate_entry(sql_injection)
+                security.validate_entry(sql_injection)
                 print("FAIL SQL injection attack not detected")
-            except Exception as e:
+            except Exception:
                 print("PASS SQL injection attack blocked")
                 self.infrastructure.total_security_blocks += 1
 
@@ -229,18 +226,18 @@ class InfrastructureTestSuite:
                 "comment": "normal text",
             }
             try:
-                result = security.validate_entry(xss_attack)
+                security.validate_entry(xss_attack)
                 print("FAIL XSS attack not detected")
-            except Exception as e:
+            except Exception:
                 print("PASS XSS attack blocked")
                 self.infrastructure.total_security_blocks += 1
 
             # Test 4: Path traversal attempt
             path_traversal = {"name": "../../etc/passwd", "content": "data"}
             try:
-                result = security.validate_entry(path_traversal)
+                security.validate_entry(path_traversal)
                 print("FAIL Path traversal attack not detected")
-            except Exception as e:
+            except Exception:
                 print("PASS Path traversal attack blocked")
                 self.infrastructure.total_security_blocks += 1
 
@@ -347,7 +344,7 @@ class InfrastructureTestSuite:
             else:
                 print("FAIL Manual recovery trigger failed")
 
-            self._record_test_result("recovery", True, f"Recovery system operational")
+            self._record_test_result("recovery", True, "Recovery system operational")
 
         except Exception as e:
             print(f"FAIL Recovery system test failed: {e}")
@@ -425,7 +422,7 @@ class InfrastructureTestSuite:
             response = await self.infrastructure.process_request(test_request)
 
             if "error" not in response:
-                print(f"PASS Normal request processed successfully")
+                print("PASS Normal request processed successfully")
                 print(f"   Response ID: {response.get('request_id')}")
             else:
                 print(f"WARN  Request processing returned error: {response['error']}")
@@ -442,14 +439,14 @@ class InfrastructureTestSuite:
             response = await self.infrastructure.process_request(malicious_request)
 
             if response.get("error") == "security_blocked":
-                print(f"PASS Malicious request blocked by security")
+                print("PASS Malicious request blocked by security")
             else:
                 print(f"FAIL Malicious request not blocked: {response}")
 
             # Check infrastructure statistics
             status = self.infrastructure.get_infrastructure_status()
             stats = status["statistics"]
-            print(f"\nInfrastructure statistics:")
+            print("\nInfrastructure statistics:")
             print(f"  Requests processed: {stats['requests_processed']}")
             print(f"  Errors handled: {stats['errors_handled']}")
             print(f"  Security blocks: {stats['security_blocks']}")
@@ -553,7 +550,7 @@ class InfrastructureTestSuite:
             failed = len(responses) - successful
             throughput = len(requests) / duration
 
-            print(f"Load test results:")
+            print("Load test results:")
             print(f"  Duration: {duration:.2f} seconds")
             print(
                 f"  Successful: {successful}/{len(requests)} ({successful/len(requests)*100:.1f}%)"

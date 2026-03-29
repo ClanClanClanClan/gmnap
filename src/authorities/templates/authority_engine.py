@@ -12,8 +12,8 @@ This template provides the core patterns that enabled successful authority imple
 
 import asyncio
 import urllib.parse
-from typing import Any, Dict
 from pathlib import Path
+from typing import Any, Dict
 
 # Optional SPARQL support
 try:
@@ -25,7 +25,6 @@ except ImportError:
 
 # Import with relative path handling
 import sys
-from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -838,5 +837,5 @@ if __name__ == "__main__":
         config = AuthorityTemplate.AUTHORITY_CONFIGS[source]
         print(f"  {source}: {config['api_type']} API ({config['tier'].name})")
 
-    print(f"\n🎯 Expected compliance boost: ~+6% (authority coverage 40% → 70%)")
+    print("\n🎯 Expected compliance boost: ~+6% (authority coverage 40% → 70%)")
     print("🚀 Ready for API key configuration and testing")

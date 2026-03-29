@@ -1,5 +1,3 @@
-from typing import List
-from typing import Any
 import pytest
 
 #!/usr/bin/env python3
@@ -7,12 +5,9 @@ import pytest
 Direct thread safety test - focus on shared state issues
 """
 
-import sys
-import threading
-import time
 import concurrent.futures
+import sys
 from pathlib import Path
-from typing import Dict, List, Any
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))

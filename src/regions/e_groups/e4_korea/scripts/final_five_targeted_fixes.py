@@ -85,7 +85,7 @@ for hangul, roman, weight in final_five_fixes:
         print(f"  ADDED: {hangul} → {roman} (weight: {weight})")
         added_count += 1
 
-print(f"\nFinal targeted fixes:")
+print("\nFinal targeted fixes:")
 print(f"- Fixed: {fixed_count} existing mappings")
 print(f"- Added: {added_count} new mappings")
 print(f"- Total rows: {len(rows)}")

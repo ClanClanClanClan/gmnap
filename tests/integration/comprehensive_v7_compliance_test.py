@@ -15,8 +15,7 @@ Targets: A1-A5, B1-B3, C1-C9, D1-D5, E1-E7, F1-F3, G1
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Any
-import traceback
+from typing import Any, Dict
 
 # Add project root to path
 project_root = Path(__file__).parent
@@ -205,7 +204,7 @@ class V7ComplianceTest:
                 # If we reach here, the attack was not blocked
                 failed_blocks.append(attack["name"])
 
-            except Exception as e:
+            except Exception:
                 # Attack was blocked (expected behavior)
                 blocked_attacks += 1
 
@@ -245,7 +244,7 @@ class V7ComplianceTest:
                 region.clean(entry)
                 region.augment(entry)
                 region.validate(entry)
-                key = region.order_key(entry)
+                region.order_key(entry)
 
                 # Success if we reach here without exceptions
                 passed_cases += 1
@@ -375,17 +374,17 @@ class V7ComplianceTest:
 
         # Final verdict
         if stats["overall_compliance"] >= 97.0:
-            print(f"\n🎉 EXCELLENT V7 COMPLIANCE ACHIEVED!")
-            print(f"   System exceeds all V7 requirements")
+            print("\n🎉 EXCELLENT V7 COMPLIANCE ACHIEVED!")
+            print("   System exceeds all V7 requirements")
         elif stats["overall_compliance"] >= 95.0:
-            print(f"\nPASS V7 COMPLIANCE ACHIEVED!")
-            print(f"   System meets all V7 requirements")
+            print("\nPASS V7 COMPLIANCE ACHIEVED!")
+            print("   System meets all V7 requirements")
         elif stats["overall_compliance"] >= 85.0:
-            print(f"\nWARN  PARTIAL V7 COMPLIANCE")
-            print(f"   Some regions need improvement")
+            print("\nWARN  PARTIAL V7 COMPLIANCE")
+            print("   Some regions need improvement")
         else:
-            print(f"\nFAIL V7 COMPLIANCE NOT ACHIEVED")
-            print(f"   Significant improvements needed")
+            print("\nFAIL V7 COMPLIANCE NOT ACHIEVED")
+            print("   Significant improvements needed")
 
         print("=" * 60)
 

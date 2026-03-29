@@ -8,7 +8,8 @@ Features: Middle initials, generational suffixes, Latin ASCII script.
 import re
 from typing import Any, Dict, Optional
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class A1_AngloSphere(RegionSpec):
@@ -249,7 +250,6 @@ class A1_AngloSphere(RegionSpec):
             return name
 
         # Preserve original for comparison
-        original = name
 
         # Handle "Family, Given" format
         if "," in name:

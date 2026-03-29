@@ -6,7 +6,8 @@ API: https://query.wikidata.org/sparql
 Type: SPARQL
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
+
 from src.authorities.templates.authority_engine import create_authority_fetcher
 
 

@@ -12,7 +12,7 @@ import os
 
 os.environ["GMNAP_TEST_MODE"] = "true"
 
-from src.core.security_validator import SecurityValidator, SecurityError
+from src.core.security_validator import SecurityError, SecurityValidator
 
 
 @pytest.mark.timeout(15)

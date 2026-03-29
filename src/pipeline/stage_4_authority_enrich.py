@@ -3,13 +3,14 @@ GMNAP v7.0 Pipeline Stage 4: Authority Enrichment
 Enriches name records with data from tiered authority sources.
 """
 
-from typing import Dict, Any, List, Optional
+import logging
+import time
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 from ..authorities.base import AuthoritySource
 from ..core.errors import AuthorityEnrichmentError
 from ..core.rate_limiter import RateLimiter
-from pathlib import Path
-import time
-import logging
 
 logger = logging.getLogger(__name__)
 

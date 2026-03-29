@@ -5,7 +5,8 @@ Implements Pre-modern Latinized names and epithets
 """
 
 from typing import Any, Dict
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class H1Historical(RegionSpec):

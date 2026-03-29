@@ -6,8 +6,8 @@ API Documentation: https://arxiv.org/help/api/
 """
 
 import asyncio
-import xml.etree.ElementTree as ET
 import urllib.parse
+import xml.etree.ElementTree as ET
 from datetime import datetime
 from typing import Any, Dict
 

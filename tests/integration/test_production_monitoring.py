@@ -6,11 +6,10 @@ Production Monitoring System Test Suite
 BRUTAL honesty test - validate TRUE production readiness
 """
 
-import sys
 import asyncio
-import time
+import sys
 import tempfile
-import threading
+import time
 from pathlib import Path
 
 # Add src to path
@@ -23,8 +22,8 @@ async def test_comprehensive_metrics_collection():
 
     try:
         from src.core.monitoring_production import (
-            ProductionMonitoringSystem,
             AlertNotificationConfig,
+            ProductionMonitoringSystem,
         )
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -41,7 +40,7 @@ async def test_comprehensive_metrics_collection():
             # Get live status
             status = monitor.get_live_status()
 
-            print(f"PASS Comprehensive metrics results:")
+            print("PASS Comprehensive metrics results:")
             print(
                 f"   System metrics collected: {len([k for k in status['system'].keys() if status['system'][k] > 0])}/5"
             )
@@ -93,8 +92,8 @@ async def test_real_time_alerting():
 
     try:
         from src.core.monitoring_production import (
-            ProductionMonitoringSystem,
             AlertNotificationConfig,
+            ProductionMonitoringSystem,
         )
 
         # Capture alerts
@@ -123,7 +122,6 @@ async def test_real_time_alerting():
             )
 
             # Monkey patch webhook sender to capture alerts
-            original_send_webhook = monitor._send_webhook_alert
             monitor._send_webhook_alert = test_alert_handler
 
             # Simulate high resource usage to trigger alerts
@@ -147,7 +145,7 @@ async def test_real_time_alerting():
 
             time.sleep(1)  # Allow alert processing
 
-            print(f"PASS Real-time alerting results:")
+            print("PASS Real-time alerting results:")
             print(f"   Alerts generated: {len(captured_alerts)}")
             print(f"   Active alert keys: {len(monitor._active_alerts)}")
 
@@ -176,8 +174,8 @@ async def test_live_monitoring_endpoints():
 
     try:
         from src.core.monitoring_production import (
-            ProductionMonitoringSystem,
             AlertNotificationConfig,
+            ProductionMonitoringSystem,
         )
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -213,7 +211,7 @@ async def test_live_monitoring_endpoints():
             # Test dashboard endpoint
             dashboard = monitor.get_performance_dashboard(hours=1)
 
-            print(f"PASS Live monitoring results:")
+            print("PASS Live monitoring results:")
             print(f"   Live status sections: {len(live_status.keys())}")
             print(
                 f"   Pipeline throughput: {live_status['pipeline']['throughput']} entries/sec"
@@ -264,12 +262,12 @@ async def test_production_integration():
 
     try:
         from src.core.monitoring_production import (
-            ProductionMonitoringSystem,
             AlertNotificationConfig,
+            ProductionMonitoringSystem,
         )
         from src.core.streaming_v7 import (
-            V7StreamingPipeline,
             StreamingConfig,
+            V7StreamingPipeline,
             test_data_generator,
         )
 
@@ -314,7 +312,7 @@ async def test_production_integration():
             final_status = monitor.get_live_status()
             dashboard = monitor.get_performance_dashboard(hours=1)
 
-            print(f"PASS Production integration results:")
+            print("PASS Production integration results:")
             print(f"   Integration duration: {duration:.2f}s")
             print(f"   Pipeline entries processed: {metrics.entries_processed}")
             print(
@@ -358,12 +356,12 @@ async def test_monitoring_performance_impact():
 
     try:
         from src.core.monitoring_production import (
-            ProductionMonitoringSystem,
             AlertNotificationConfig,
+            ProductionMonitoringSystem,
         )
         from src.core.streaming_v7 import (
-            V7StreamingPipeline,
             StreamingConfig,
+            V7StreamingPipeline,
             test_data_generator,
         )
 
@@ -405,7 +403,7 @@ async def test_monitoring_performance_impact():
             (monitored_duration - baseline_duration) / baseline_duration
         ) * 100
 
-        print(f"PASS Performance impact results:")
+        print("PASS Performance impact results:")
         print(f"   Baseline duration: {baseline_duration:.2f}s")
         print(f"   Monitored duration: {monitored_duration:.2f}s")
         print(f"   Performance impact: {impact_percent:.1f}%")

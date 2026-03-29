@@ -9,7 +9,9 @@ multiple ethnic groups (Amhara, Tigray, Oromo, Afar, Somali), religious titles.
 import re
 import unicodedata
 from typing import Any, Dict, List, Optional
-from ...base_enhanced import EnhancedRegionSpec as RegionSpec, RegionRuleError
+
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class F3_HornOfAfrica(RegionSpec):

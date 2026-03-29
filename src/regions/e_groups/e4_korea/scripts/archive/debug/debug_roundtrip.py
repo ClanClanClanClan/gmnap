@@ -1,8 +1,11 @@
-import yaml
 import sys
+
+import yaml
+
 sys.path.append('src')
-from converter import eng2kor, kor2eng, _dice
 import unicodedata
+
+from converter import _dice, eng2kor, kor2eng
 
 data=yaml.safe_load(open('data/korean.yaml',encoding='utf8'))
 

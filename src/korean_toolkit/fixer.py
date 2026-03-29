@@ -4,8 +4,8 @@ Replaces: fix_*.py scripts
 """
 
 import re
-from typing import Dict, List, Any
 from collections import defaultdict
+from typing import Any, Dict, List
 
 
 class KoreanFixer:

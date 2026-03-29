@@ -4,8 +4,10 @@ REST JSON client for Crossref dissertations API.
 Harvests US/Canada mathematics dissertations with advisor metadata.
 """
 
-import asyncio, aiohttp
-from typing import AsyncIterator, Dict, Any
+import asyncio
+from typing import Any, AsyncIterator, Dict
+
+import aiohttp
 
 
 class UsCrossrefAPI:

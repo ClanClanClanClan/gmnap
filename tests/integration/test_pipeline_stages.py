@@ -1,4 +1,3 @@
-import unittest
 import pytest
 
 #!/usr/bin/env python3

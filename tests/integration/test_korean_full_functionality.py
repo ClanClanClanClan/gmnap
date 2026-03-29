@@ -147,7 +147,7 @@ def main():
     print("🎯 KOREAN FUNCTIONALITY ASSESSMENT:")
     print("=" * 60)
 
-    print(f"\nPASS Import: Fixed")
+    print("\nPASS Import: Fixed")
     print(
         f"PASS Eng2Kor: {converter_results['eng2kor_successful']}/{converter_results['total_tests']} ({converter_results['eng2kor_rate']:.0%})"
     )

@@ -3,7 +3,10 @@
 Analyze the remaining 53 failures to understand patterns
 """
 
-import yaml, sys, os
+import os
+import sys
+
+import yaml
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 # from converter import eng2kor, kor2eng

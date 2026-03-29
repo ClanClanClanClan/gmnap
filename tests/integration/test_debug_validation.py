@@ -5,7 +5,6 @@ import pytest
 
 pytest.skip("Test needs major refactoring", allow_module_level=True)
 
-import sys
 
 # sys.path.insert(0, 'src')
 
@@ -53,6 +52,6 @@ for test in test_cases:
             adapter = v7_manager.get_adapter(region_code)
             try:
                 adapter_result = adapter.process_entry(entry)
-                print(f"  ? Adapter succeeded but pipeline failed")
+                print("  ? Adapter succeeded but pipeline failed")
             except Exception as ae:
                 print(f"  ✗ Adapter also failed: {ae}")

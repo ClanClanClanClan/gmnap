@@ -1,5 +1,7 @@
 from __future__ import annotations
-import time, pathlib
+
+import pathlib
+import time
 
 
 def rotate_snapshots(

@@ -5,13 +5,13 @@ Multi-region deployment with auto-scaling and disaster recovery
 
 import asyncio
 import logging
-import time
-from datetime import datetime
-from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional, Tuple
-from enum import Enum
-import uuid
 import os
+import time
+import uuid
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 # Cloud provider SDKs (graceful fallback)
 try:
@@ -427,7 +427,7 @@ class GlobalDeploymentManager:
             task_response = ecs_client.register_task_definition(**task_def)
 
             # Create service
-            service_response = ecs_client.create_service(
+            ecs_client.create_service(
                 cluster="default",
                 serviceName=name,
                 taskDefinition=task_response["taskDefinition"]["taskDefinitionArn"],
@@ -676,17 +676,6 @@ class GlobalDeploymentManager:
         self.logger.info("Setting up monitoring and alerting...")
 
         # Configure metrics collection
-        metrics_config = {
-            "collection_interval": 30,
-            "retention_days": 90,
-            "metrics": [
-                "cpu_utilization",
-                "memory_utilization",
-                "request_rate",
-                "response_time",
-                "error_rate",
-            ],
-        }
 
         # Configure alerts
         alert_rules = [

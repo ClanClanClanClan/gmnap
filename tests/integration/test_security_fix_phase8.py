@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -95,7 +94,7 @@ for test_input, description in security_test_cases:
             passed += 1
 
 total = len(security_test_cases)
-print(f"\n📊 Security Results:")
+print("\n📊 Security Results:")
 print(f"  Correctly handled: {blocked}/{total}")
 print(f"  Security issues: {passed}/{total}")
 

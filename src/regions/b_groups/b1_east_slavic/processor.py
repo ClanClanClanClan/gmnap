@@ -8,7 +8,8 @@ Features: Cyrillic script, patronymic names, flexible order
 import re
 from typing import Any, Dict, Optional
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class B1_EastSlavic(RegionSpec):

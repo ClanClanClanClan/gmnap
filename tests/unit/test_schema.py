@@ -2,11 +2,10 @@
 Tests for YAML schema validation.
 """
 
-from datetime import datetime
 
 import pytest
 
-from src.validation.schema import SchemaValidator, validate_entry, validate_yaml_file
+from src.validation.schema import SchemaValidator, validate_entry
 
 
 class TestSchemaValidator:

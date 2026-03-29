@@ -3,9 +3,9 @@ Regional Processing Verification - Step 3.3
 Real verification of regional processing functionality with 5+ regions tested
 """
 
-from datetime import datetime
-from typing import Dict, Any
 import logging
+from datetime import datetime
+from typing import Any, Dict
 
 from ..regions.manager import RegionManager
 

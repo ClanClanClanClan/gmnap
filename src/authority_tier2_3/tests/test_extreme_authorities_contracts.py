@@ -1,10 +1,12 @@
-import os, pytest
+import os
+
+import pytest
 from overlays.authority_tier2_3.src.authority.extreme_adapters import (
-    MathSciNet_HTML,
-    Scopus,
     Dimensions,
-    ProQuest_ETD,
     Google_Scholar,
+    MathSciNet_HTML,
+    ProQuest_ETD,
+    Scopus,
 )
 
 LIVE = os.getenv("OFFLINE", "1") == "0" and os.getenv("LIVE_AUTH", "0") == "1"

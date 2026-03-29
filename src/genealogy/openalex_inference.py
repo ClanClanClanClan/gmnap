@@ -1,6 +1,7 @@
 from __future__ import annotations
+
 import os
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 
 async def infer_from_openalex(student: Dict[str, Any]) -> List[Dict[str, Any]]:

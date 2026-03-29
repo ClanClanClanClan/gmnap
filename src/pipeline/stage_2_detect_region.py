@@ -3,11 +3,12 @@ GMNAP v7.0 Pipeline Stage 2: Regional Detection
 Detects appropriate regional processors for incoming data.
 """
 
-from typing import Dict, Any, List, Optional, Tuple
-from ..regions.manager import RegionManager
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 from ..core.errors import RegionalDetectionError
 from ..core.romanization_detector import RomanizationDetector
-from pathlib import Path
+from ..regions.manager import RegionManager
 
 
 class DetectRegionStage:

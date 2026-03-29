@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import List, Dict, Any
+
 import json
 from pathlib import Path
+from typing import Any, Dict, List
 
 
 def canonical_json(obj: Any) -> str:

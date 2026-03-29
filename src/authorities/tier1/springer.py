@@ -13,19 +13,20 @@ License: Requires API keys
 Daily Quota: 5,000 calls/day (free tier), 100 hits/min
 """
 
-import aiohttp
 import logging
-import yaml
-from typing import Dict, List, Any, Optional
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import aiohttp
+import yaml
 
 from src.authorities.base import (
-    AuthorityFetcher,
-    FetchStatus,
     AuthorityData,
-    FetchResult,
+    AuthorityFetcher,
     AuthorityTier,
+    FetchResult,
+    FetchStatus,
 )
 
 logger = logging.getLogger(__name__)

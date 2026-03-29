@@ -4,17 +4,16 @@ ULTRACHECK MANIACAL HELL-LEVEL TESTING
 No mercy. No bias. ACTIVELY TRYING TO BREAK THE SYSTEM.
 """
 
-import json
-import sys
-import traceback
-import time
-import random
-import string
-import threading
 import gc
-from pathlib import Path
-from datetime import datetime
+import json
+import random
+import sys
+import threading
+import time
+import traceback
 import unicodedata
+from datetime import datetime
+from pathlib import Path
 
 # Add project root to Python path
 project_root = Path(__file__).parent
@@ -301,7 +300,7 @@ def concurrent_chaos():
     for t in threads:
         t.join(timeout=60)  # 60 second timeout
         if t.is_alive():
-            breaks.append(f"Thread hung and timed out")
+            breaks.append("Thread hung and timed out")
 
     elapsed = time.time() - start_time
     error_rate = (len(breaks) / 10000) * 100  # 10 threads * 1000 operations each
@@ -323,8 +322,9 @@ def memory_destruction():
     """Test for memory leaks with massive operations"""
     breaks = []
 
-    import psutil
     import os
+
+    import psutil
 
     process = psutil.Process(os.getpid())
     initial_memory = process.memory_info().rss / 1024 / 1024  # MB
@@ -336,7 +336,7 @@ def memory_destruction():
 
     for i in range(50000):
         try:
-            result = manager.detect_region({"name": f"{test_name}{i}"})
+            manager.detect_region({"name": f"{test_name}{i}"})
 
             # Check memory every 10,000 operations
             if i % 10000 == 0 and i > 0:
@@ -612,7 +612,7 @@ print(
 print(f"💀 CRITICAL BREAKS FOUND: {len(hell_audit['critical_breaks'])}")
 
 if len(hell_audit["critical_breaks"]) > 0:
-    print(f"\n🚨 CRITICAL SYSTEM BREAKS:")
+    print("\n🚨 CRITICAL SYSTEM BREAKS:")
     for i, break_desc in enumerate(hell_audit["critical_breaks"][:20]):  # Show first 20
         print(f"   {i+1}. {break_desc}")
     if len(hell_audit["critical_breaks"]) > 20:
@@ -638,7 +638,7 @@ print(f"\n{emoji} MANIACAL HELL VERDICT: {verdict}")
 with open("ultracheck_maniacal_hell_results.json", "w") as f:
     json.dump(hell_audit, f, indent=2)
 
-print(f"\n📄 Maniacal hell results saved to: ultracheck_maniacal_hell_results.json")
+print("\n📄 Maniacal hell results saved to: ultracheck_maniacal_hell_results.json")
 print("\n" + "=" * 80)
 print("MANIACAL HELL TESTING COMPLETE")
 print("THE TRUTH HAS BEEN REVEALED")

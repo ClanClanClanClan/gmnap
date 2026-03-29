@@ -7,9 +7,9 @@ Handles French diacritics, particles, format standardization.
 
 import json
 import re
-from pathlib import Path
-from typing import Dict, Any, List, Tuple
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
 
 
 class NameNormalizer:
@@ -259,7 +259,7 @@ class NameNormalizer:
         print("-" * 80)
         print()
 
-        print(f"📊 NAME COUNTS:")
+        print("📊 NAME COUNTS:")
         print(f"  Unique students (raw): {stats['unique_students_raw']:,}")
         print(
             f"  Unique students (normalized): {stats['unique_students_normalized']:,}"
@@ -270,7 +270,7 @@ class NameNormalizer:
         )
         print()
 
-        print(f"📝 NAME FEATURES:")
+        print("📝 NAME FEATURES:")
         print(
             f"  Edges with accented names: {stats['names_with_accents']:,} "
             f"({stats['names_with_accents']/stats['total_edges']*100:.1f}%)"

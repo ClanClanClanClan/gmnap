@@ -4,8 +4,10 @@ OpenAlex client with polite identification and mailto param.
 Docs: https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication
 """
 
-import time, requests
-from typing import Dict, Any, Optional
+import time
+from typing import Any, Dict, Optional
+
+import requests
 
 
 class OpenAlex:

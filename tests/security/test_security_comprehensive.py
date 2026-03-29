@@ -1,5 +1,5 @@
 from typing import Dict
-from typing import List
+
 import pytest
 
 #!/usr/bin/env python3
@@ -26,22 +26,22 @@ This test ensures that all regional processors are protected against
 malicious input while preserving legitimate multilingual name data.
 """
 
-import sys
 import traceback
-from typing import Any, Dict, List
+from typing import Any
 
 # Import security components
 try:
-    from src.regions.security import SecurityFilter, SecurityError
     from src.regions.base import RegionRuleError
+    from src.regions.security import SecurityError, SecurityFilter
 
     # Import processors from proper package structure
     try:
         import os
 
         os.environ["GMNAP_TEST_MODE"] = "true"
-        from src.regions.manager import RegionManager
         from pathlib import Path
+
+        from src.regions.manager import RegionManager
 
         # Create manager instance to get processors
         manager = RegionManager(Path("./config"))

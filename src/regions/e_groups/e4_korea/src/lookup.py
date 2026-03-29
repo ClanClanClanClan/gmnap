@@ -1,4 +1,6 @@
-import csv, functools, os
+import csv
+import functools
+import os
 
 
 @functools.lru_cache

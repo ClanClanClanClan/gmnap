@@ -7,9 +7,9 @@ Creates person nodes and DOCTORAL_ADVISOR relationships.
 
 import json
 import logging
-from typing import Dict, List, Any
-from collections import defaultdict
 import os
+from collections import defaultdict
+from typing import Any, Dict, List
 
 # Neo4j driver (Memgraph compatible)
 try:
@@ -113,7 +113,7 @@ class MemgraphLoader:
 
         edges = data.get("edges", [])
         persons = data.get("persons", {})
-        metadata = data.get("metadata", {})
+        data.get("metadata", {})
 
         self.stats["total_edges"] = len(edges)
         self.stats["total_persons"] = len(persons)
@@ -205,7 +205,7 @@ class MemgraphLoader:
             "passed": gate2_passed,
             "details": {"note": "Full cycle detection requires graph load"},
         }
-        print(f"    ✅ PASS: No obvious cycles detected (full check post-load)")
+        print("    ✅ PASS: No obvious cycles detected (full check post-load)")
 
         # Gate 3: Temporal validation
         print("  Gate 3: Temporal validation...")
@@ -369,11 +369,11 @@ class MemgraphLoader:
         """Print loading statistics."""
         print("📊 LOADING STATISTICS:")
         print()
-        print(f"  Persons:")
+        print("  Persons:")
         print(f"    Total unique: {self.stats['total_persons']:,}")
         print(f"    Created: {self.stats['persons_created']:,}")
         print()
-        print(f"  Edges:")
+        print("  Edges:")
         print(f"    Total: {self.stats['total_edges']:,}")
         print(f"    Created: {self.stats['edges_created']:,}")
         print()

@@ -126,7 +126,7 @@ def test_manager_caching_internals():
     print(f"Same instance: {manager._regions.get('A1') is region}")
 
     # Get different region
-    region_a2 = manager.get_region("A2")
+    manager.get_region("A2")
     print(f"Manager cache after A2: {list(manager._regions.keys())}")
 
     # Get A1 again

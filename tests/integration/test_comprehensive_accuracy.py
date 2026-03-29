@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -131,25 +130,25 @@ for entry, expected_region, description in test_cases:
 # Calculate overall accuracy
 accuracy = correct / total if total > 0 else 0
 
-print(f"\n📊 COMPREHENSIVE ACCURACY RESULTS:")
+print("\n📊 COMPREHENSIVE ACCURACY RESULTS:")
 print(f"  Overall: {correct}/{total} = {accuracy:.1%}")
 
 # Accuracy by region
-print(f"\n📍 Accuracy by Region:")
+print("\n📍 Accuracy by Region:")
 for region in sorted(results_by_region.keys()):
     stats = results_by_region[region]
     region_accuracy = stats["correct"] / stats["total"] if stats["total"] > 0 else 0
     print(f"  {region}: {stats['correct']}/{stats['total']} = {region_accuracy:.1%}")
 
 # Detection method breakdown
-print(f"\n🔍 Detection Methods Used:")
+print("\n🔍 Detection Methods Used:")
 for method in sorted(method_counts.keys()):
     count = method_counts[method]
     percentage = count / total * 100 if total > 0 else 0
     print(f"  {method}: {count} ({percentage:.1f}%)")
 
 # Assessment
-print(f"\n🎯 ACCURACY ASSESSMENT:")
+print("\n🎯 ACCURACY ASSESSMENT:")
 if accuracy >= 0.95:
     print(f"PASS TARGET ACHIEVED! {accuracy:.1%} accuracy meets 95%+ target")
     print("   System is ready for production deployment")
@@ -168,7 +167,7 @@ low_accuracy_regions = [
 ]
 
 if low_accuracy_regions:
-    print(f"\nWARN  Regions needing improvement:")
+    print("\nWARN  Regions needing improvement:")
     for region in low_accuracy_regions:
         stats = results_by_region[region]
         acc = stats["correct"] / stats["total"]

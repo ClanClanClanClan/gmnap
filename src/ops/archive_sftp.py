@@ -1,5 +1,9 @@
 from __future__ import annotations
-import yaml, pathlib, paramiko
+
+import pathlib
+
+import paramiko
+import yaml
 
 
 def _load_cfg(path: str) -> dict:

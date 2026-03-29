@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -6,8 +5,8 @@ Test ULTRAFIX Phase 4 - Memory leak fix validation
 """
 
 import gc
-import sys
 import random
+import sys
 from pathlib import Path
 
 # Add project root to Python path
@@ -15,8 +14,9 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / "src"))
 
-import psutil
 import os
+
+import psutil
 
 
 def get_memory_mb():
@@ -32,9 +32,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.regions.manager_optimized import RegionManager
 import sys
 from pathlib import Path
+
+from src.regions.manager_optimized import RegionManager
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.rate_limiter import global_rate_limiter
@@ -111,7 +112,7 @@ for i, name in enumerate(test_names):
         print(f"Error at operation {i+1}: {e}")
         break
 
-print(f"\n📊 MEMORY LEAK FIX VALIDATION:")
+print("\n📊 MEMORY LEAK FIX VALIDATION:")
 print(f"   Total operations: {len(test_names):,}")
 if memory_points:
     print(f"   Final memory: {memory_points[-1]['memory_mb']:.1f} MB")
@@ -124,7 +125,7 @@ if memory_points:
         late_rate = memory_points[-1]["leak_rate"]  # Final rate
         rate_change = late_rate - early_rate
 
-        print(f"\n🔍 LEAK IMPROVEMENT ANALYSIS:")
+        print("\n🔍 LEAK IMPROVEMENT ANALYSIS:")
         print(f"   Early leak rate (10K ops): {early_rate:.4f} MB/1K ops")
         print(f"   Late leak rate (final): {late_rate:.4f} MB/1K ops")
         print(f"   Rate change: {rate_change:.4f} MB/1K ops")
@@ -140,7 +141,7 @@ if memory_points:
 
 # Final rate limiter analysis
 final_rl_stats = global_rate_limiter.get_memory_stats()
-print(f"\n📈 FINAL RATE LIMITER STATE:")
+print("\n📈 FINAL RATE LIMITER STATE:")
 print(f"   Total clients tracked: {final_rl_stats['total_clients']:,}")
 print(f"   Total cooldowns: {final_rl_stats['total_cooldowns']:,}")
 print(f"   Rate limiter memory: {final_rl_stats['estimated_memory_kb']} KB")

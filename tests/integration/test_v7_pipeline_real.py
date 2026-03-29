@@ -4,16 +4,14 @@ REAL V7 Pipeline Integration Test
 Tests actual functionality, not simulations or mocks.
 """
 
-import asyncio
-import json
-import pytest
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, ".")
 
-from src.core.pipeline_v7_complete import V7PipelineComplete, PipelineMode
-from src.core.security_validator import SecurityError
+from src.core.pipeline_v7_complete import PipelineMode, V7PipelineComplete
 
 
 @pytest.mark.integration

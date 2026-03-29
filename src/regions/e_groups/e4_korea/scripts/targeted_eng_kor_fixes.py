@@ -4,7 +4,10 @@ Find targeted eng→kor fixes that won't hurt roundtrip quality
 Focus on None results and unique context cases
 """
 
-import yaml, sys, pathlib
+import pathlib
+import sys
+
+import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 # from converter import eng2kor, kor2eng
@@ -49,7 +52,7 @@ for f in eng_kor_failures:
 print(f"Safe fixes (None results): {len(safe_fixes)}")
 print(f"Risky fixes (Wrong mappings): {len(risky_fixes)}")
 
-print(f"\n=== SAFE FIXES (None results - can add mapping safely) ===")
+print("\n=== SAFE FIXES (None results - can add mapping safely) ===")
 for i, f in enumerate(safe_fixes[:10]):
     print(f"{i+1:2d}. {f['name']}")
     print(f"    Input: {f['input']}")
@@ -70,7 +73,7 @@ for i, f in enumerate(safe_fixes[:10]):
                 print(f"    → MISSING: '{seg}' → need Korean mapping")
     print()
 
-print(f"\n=== SAFE FIX RECOMMENDATIONS ===")
+print("\n=== SAFE FIX RECOMMENDATIONS ===")
 # Generate safe mappings that can be added without conflicts
 safe_mappings = {
     # These are segments that return None and need Korean mappings

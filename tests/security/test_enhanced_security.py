@@ -3,16 +3,17 @@ import pytest
 #!/usr/bin/env python3
 """Test enhanced security validator against the 3 previously-passing attacks."""
 
+import sys
 import tempfile
-import yaml
 from pathlib import Path
+
+import yaml
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.pipeline_v6 import GMNAPPipeline
-import sys
-from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.config import GMNAPConfig

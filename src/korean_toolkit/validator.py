@@ -4,7 +4,7 @@ Replaces: validate_*.py scripts
 """
 
 import re
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 
 class KoreanValidator:
@@ -168,7 +168,6 @@ class KoreanValidator:
         valid_mappings = []
 
         required_fields = ["hangul", "roman"]
-        optional_fields = ["weight", "context", "tags"]
 
         for i, mapping in enumerate(mappings):
             mapping_issues = []

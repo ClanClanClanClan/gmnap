@@ -16,26 +16,26 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
-from src.core.unicode_handler import UnicodeNormalizer
-from src.regions.hybrid_region_manager import HybridRegionManager  # 97.54% accuracy
-from src.core.memgraph_client import get_memgraph_client
+
+# Performance optimization imports
+from src.core.async_batch_agg import AggConfig, AsyncBatchAggregator
+
+# Expert solution: Add result normalization import
+from src.core.compat.normalize_result import normalize_result
 from src.core.deterministic_mode import (
     DeterministicMode,
     enable_deterministic_mode,
     get_deterministic_mode,
 )
-
-# Expert solution: Add result normalization import
-from src.core.compat.normalize_result import normalize_result
+from src.core.memgraph_client import get_memgraph_client
+from src.core.preflight_sanitiser import sanitise_entry
+from src.core.streaming_pipeline import StreamingPipelineAdapter
+from src.core.unicode_handler import UnicodeNormalizer
 
 # Expert solution: Add streaming executor imports
-from src.ops.streaming_executor import StreamingExecutor, StreamConfig
-from src.core.preflight_sanitiser import sanitise_entry
-
-# Performance optimization imports
-from src.core.async_batch_agg import AsyncBatchAggregator, AggConfig
+from src.ops.streaming_executor import StreamConfig, StreamingExecutor
 from src.quality.gates_fast import FastQualityGates, GateConfig
-from src.core.streaming_pipeline import StreamingPipelineAdapter
+from src.regions.hybrid_region_manager import HybridRegionManager  # 97.54% accuracy
 
 # Phase 2 genealogy enrichment (Model 1.5)
 try:
@@ -107,8 +107,8 @@ except ImportError:
 
 # Performance optimization: Import heavy modules at module level to avoid repeated imports
 try:
-    from src.stage6_bayesian.src.graph.bayes_coherence import BayesCoherence
     from src.graph_coherence.src.graph.coherence import GraphCoherence
+    from src.stage6_bayesian.src.graph.bayes_coherence import BayesCoherence
 
     _BAYES_IMPORTS_AVAILABLE = True
 except ImportError:
@@ -273,8 +273,9 @@ class PipelineMetrics:
     def duration_seconds(self) -> float:
         if self.end_time:
             return (self.end_time - self.start_time).total_seconds()
-        from src.core.deterministic_mode import get_deterministic_mode
         from datetime import datetime
+
+        from src.core.deterministic_mode import get_deterministic_mode
 
         det_mode = get_deterministic_mode()
         current_time = det_mode.get_timestamp() if det_mode else datetime.now()
@@ -638,7 +639,7 @@ class V7Pipeline:
         # Performance optimization for small batches
         # For now, skip batch aggregator until it's properly integrated
         # Defensive check for _force_immediate_processing attribute
-        force_immediate = getattr(self, "_force_immediate_processing", False)
+        getattr(self, "_force_immediate_processing", False)
 
         # Direct processing for all batch sizes until aggregator is fixed
         return await self._process_batch_internal(entries)
@@ -702,17 +703,17 @@ class V7Pipeline:
         # Genealogy stages (authority enrich for advisors, edge extract, graph populate)
         if _GENEALOGY_AVAILABLE and genealogy_enrich_batch:
             try:
-                logger.info(f"Genealogy Stage 4: Authority enrichment for advisors")
+                logger.info("Genealogy Stage 4: Authority enrichment for advisors")
                 offline_mode = os.getenv("OFFLINE") == "1"
                 all_results = await genealogy_enrich_batch(
                     all_results, offline=offline_mode
                 )
 
-                logger.info(f"Genealogy Stage 5: Edge extraction")
+                logger.info("Genealogy Stage 5: Edge extraction")
                 genealogy_edges = extract_edges_from_entries(all_results)
                 logger.info(f"Extracted {len(genealogy_edges)} genealogy edges")
 
-                logger.info(f"Genealogy Stage 6: Graph population")
+                logger.info("Genealogy Stage 6: Graph population")
                 await populate_graph(
                     entries=all_results,
                     edges=genealogy_edges,
@@ -782,8 +783,8 @@ class V7Pipeline:
 
         from src.core.global_id import (
             compute_global_id_for_pipeline,
-            get_duplicate_count,
             generate_batch_global_ids,
+            get_duplicate_count,
         )
 
         # Optimize GlobalID generation for batches
@@ -1003,7 +1004,6 @@ class V7Pipeline:
         global_ids = [e.get("GlobalID") for e in entries if e.get("GlobalID")]
         id_counts = Counter(global_ids)
         duplicate_count = sum(1 for count in id_counts.values() if count > 1)
-        initial_duplicate_count = duplicate_count  # Store initial count
 
         # Only update if we haven't already counted duplicates in stage 1
         # (Stage 1 handles original duplicate inputs, stage 5 handles name collisions)
@@ -1313,12 +1313,12 @@ class V7Pipeline:
         )
 
         try:
-            from src.stage9_write_diff.src.diff.write_and_diff import write_yaml_sorted
             from src.stage9_db.src.stage9.db_writer import (
-                write_yaml,
                 write_duckdb_changelog,
                 write_html_index,
+                write_yaml,
             )
+            from src.stage9_write_diff.src.diff.write_and_diff import write_yaml_sorted
 
             # Write deterministic YAML (canonical JSON format)
             output_path = Path("output/stage9.yaml")
@@ -1358,7 +1358,7 @@ class V7Pipeline:
         logger.info("Stage 10: Report - generating comprehensive analytics report")
 
         # Generate metrics report
-        report = self._generate_report()
+        self._generate_report()
         timestamp_str = self.deterministic_mode.get_timestamp().strftime(
             "%Y%m%d_%H%M%S"
         )
@@ -1385,12 +1385,12 @@ class V7Pipeline:
                 logger.warning(f"Failed to generate analytics report: {e}")
 
         with open(report_path, "w") as f:
-            f.write(f"# V7 Pipeline Report\n\n")
+            f.write("# V7 Pipeline Report\n\n")
             f.write(f"Mode: {self.mode.value}\n")
             f.write(
                 f"Date: {self.deterministic_mode.get_timestamp():%Y-%m-%d %H:%M:%S}\n\n"
             )
-            f.write(f"## Metrics\n")
+            f.write("## Metrics\n")
             f.write(f"- Total entries: {self.metrics.total_entries}\n")
             f.write(f"- Processed: {self.metrics.processed_entries}\n")
             f.write(f"- Failed: {self.metrics.failed_entries}\n")
@@ -1402,20 +1402,20 @@ class V7Pipeline:
 
             # Add analytics section if available
             if analytics_report:
-                f.write(f"\n## Analytics Report\n")
+                f.write("\n## Analytics Report\n")
                 f.write(
                     f"- Analytics Engine: {analytics_report.get('database', 'Unknown')}\n"
                 )
 
                 if "collision_analysis" in analytics_report:
                     collision = analytics_report["collision_analysis"]
-                    f.write(f"\n### Collision Analysis\n")
+                    f.write("\n### Collision Analysis\n")
                     f.write(f"- Total collisions: {collision['total_collisions']}\n")
                     f.write(f"- Collision rate: {collision['collision_rate']:.2f}%\n")
 
                 if "authority_coverage" in analytics_report:
                     authority = analytics_report["authority_coverage"]
-                    f.write(f"\n### Authority Coverage\n")
+                    f.write("\n### Authority Coverage\n")
                     f.write(
                         f"- Overall coverage: {authority['overall_coverage_percentage']:.2f}%\n"
                     )
@@ -1425,7 +1425,7 @@ class V7Pipeline:
 
                 if "graph_coherence" in analytics_report:
                     coherence = analytics_report["graph_coherence"]
-                    f.write(f"\n### Graph Coherence\n")
+                    f.write("\n### Graph Coherence\n")
                     f.write(
                         f"- Average coherence: {coherence['average_coherence']:.3f}\n"
                     )
@@ -1440,8 +1440,9 @@ class V7Pipeline:
         logger.info("Stage 11: IdempotencyCheck - Verifying 0-byte idempotency")
 
         try:
-            from src.stage9_write_diff.src.diff.write_and_diff import write_yaml_sorted
             import hashlib
+
+            from src.stage9_write_diff.src.diff.write_and_diff import write_yaml_sorted
 
             # Write entries twice and verify identical output
             output1 = Path("output/idempotency_test1.yaml")

@@ -9,6 +9,7 @@ Features: Georgian script detection, patronymic analysis, regional classificatio
 import re
 import unicodedata
 from typing import Any, Dict, List, Optional
+
 from ...base_enhanced import EnhancedRegionSpec as RegionSpec
 
 

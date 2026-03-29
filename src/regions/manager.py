@@ -8,17 +8,17 @@ Performance improvements:
 """
 
 import logging
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
-import warnings
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", message=".*load_model does not return.*")
     import fasttext
 
 from src.core.unicode_handler import UnicodeNormalizer
+
 from .base import REGION_CODES, RegionSpec, get_region_for_territory
 
 logger = logging.getLogger(__name__)
@@ -54,7 +54,8 @@ def get_fasttext_model(config_dir: Path = Path("./config")):
 
         if model_path.exists():
             # Suppress fasttext C++ warning by redirecting stderr
-            import sys, os
+            import os
+            import sys
 
             old_stderr = sys.stderr
             try:

@@ -10,9 +10,9 @@ Strategy: Region-based routing to use each system where it performs best.
 Expected accuracy: 94-95% (vs 91.36% Phase 1, 91.91% Phase 2)
 """
 
-from pathlib import Path
-from typing import Dict, Set, Optional
 from collections import namedtuple
+from pathlib import Path
+from typing import Dict, Optional, Set
 
 try:
     import fasttext
@@ -21,8 +21,8 @@ try:
 except ImportError:
     FASTTEXT_AVAILABLE = False
 
-from src.regions.manager_optimized import RegionManager
 from src.ml import router_dynamic
+from src.regions.manager_optimized import RegionManager
 
 # Detection result structure
 DetectionResult = namedtuple(
@@ -121,11 +121,11 @@ class HybridRegionClassifier:
                     print(f"✅ Loaded Phase 2 ML model: {model_path}")
                 except Exception as e:
                     print(f"⚠️  Failed to load fastText model: {e}")
-                    print(f"   Falling back to Phase 1 only")
+                    print("   Falling back to Phase 1 only")
                     self.use_ml = False
             else:
                 print(f"⚠️  fastText model not found: {model_path}")
-                print(f"   Falling back to Phase 1 only")
+                print("   Falling back to Phase 1 only")
                 self.use_ml = False
 
     def detect_region(self, entry: Dict) -> DetectionResult:

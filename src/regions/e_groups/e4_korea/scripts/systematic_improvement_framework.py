@@ -4,13 +4,13 @@ Systematic Improvement Framework for Korean Regional Processor
 Deterministic way to add new names without introducing regressions
 """
 
-import json
 import csv
+import json
 import shutil
 import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
 
 
 class SystematicImprovementFramework:
@@ -328,7 +328,7 @@ def main():
         framework.capture_baseline_performance()
 
     elif command == "validate":
-        baseline = framework.capture_baseline_performance()  # Acts as validation
+        framework.capture_baseline_performance()  # Acts as validation
 
     elif command == "add":
         if len(sys.argv) < 3:

@@ -1,6 +1,10 @@
 from __future__ import annotations
-import aiohttp, xml.etree.ElementTree as ET
+
+import xml.etree.ElementTree as ET
 from typing import Any, AsyncIterator, Dict, Optional
+
+import aiohttp
+
 from .base import BaseConnector
 
 NS_OAI = "{http://www.openarchives.org/OAI/2.0/}"

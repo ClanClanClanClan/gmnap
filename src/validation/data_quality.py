@@ -5,9 +5,9 @@ Ensures data completeness, consistency, and accuracy.
 
 import logging
 import re
+from collections import Counter
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from collections import Counter
 
 logger = logging.getLogger(__name__)
 
@@ -213,7 +213,7 @@ class DataQualityValidator:
     def _check_consistency(self, entry: Dict[str, Any], result: Dict[str, Any]) -> None:
         """Check internal consistency."""
         # Check name consistency
-        canonical = entry.get("CanonicalLatin", "")
+        entry.get("CanonicalLatin", "")
 
         # Check if CanonicalNative exists for non-Latin scripts
         if "RegionCode" in entry:

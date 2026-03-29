@@ -14,13 +14,11 @@ Tests every single requirement in the V7 specification:
 - Security requirements
 """
 
-import json
 import hashlib
-import random
+import json
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -208,23 +206,6 @@ class TestV7SpecUltraCompliance:
         pipeline = V7Pipeline()
 
         # V7 spec requires 15 authority sources
-        required_authorities = [
-            "Crossref",
-            "ORCID",
-            "PubMed",
-            "arXiv",
-            "Scopus",
-            "Web of Science",
-            "Google Scholar",
-            "Microsoft Academic",
-            "Semantic Scholar",
-            "DBLP",
-            "IEEE Xplore",
-            "ACM Digital Library",
-            "SpringerLink",
-            "ScienceDirect",
-            "JSTOR",
-        ]
 
         entry = {"CanonicalLatin": "John Smith", "GlobalID": "GMN123"}
 
@@ -324,7 +305,7 @@ class TestV7SpecUltraCompliance:
 
         validated = pipeline.stage_global_validate(entry)
 
-        assert validated["validated"] == True
+        assert validated["validated"] is True
         assert "validation_timestamp" in validated
         assert "validation_rules_passed" in validated
 
@@ -351,14 +332,14 @@ class TestV7SpecUltraCompliance:
 
         assert "write_status" in result
         assert "diff_generated" in result
-        assert "previous_version" in result or result["is_new"] == True
+        assert "previous_version" in result or result["is_new"] is True
 
         # Second write should generate diff
         entry["updated_field"] = "new_value"
         result2 = pipeline.stage_write_and_diff(entry)
 
         if not result2["is_new"]:
-            assert result2["diff_generated"] == True
+            assert result2["diff_generated"] is True
             assert "changes" in result2
 
         print("✓ V7 Write&Diff stage compliant")
@@ -458,6 +439,7 @@ class TestV7SpecUltraCompliance:
     def test_quality_gate_memory(self):
         """V7 Quality Gate: Memory growth < 10MB per 1000 records"""
         import gc
+
         import psutil
 
         from src.core.pipeline_v7 import V7Pipeline

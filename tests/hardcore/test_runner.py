@@ -9,11 +9,9 @@ import gc
 import json
 import logging
 import sys
-import tempfile
 import threading
 import time
-from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -462,7 +460,7 @@ def main():
     report = runner.run_test_suite(categories)
 
     # Print summary
-    print(f"\nHardcore Test Suite Complete!")
+    print("\nHardcore Test Suite Complete!")
     print(f"Overall Status: {report['overall_status']}")
     print(f"Duration: {report['total_duration_seconds']:.2f} seconds")
     print(

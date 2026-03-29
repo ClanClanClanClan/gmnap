@@ -1,5 +1,3 @@
-from typing import Dict
-from typing import Any
 import pytest
 
 #!/usr/bin/env python3
@@ -9,19 +7,13 @@ Tests ABSOLUTELY EVERYTHING including things that shouldn't exist.
 This is beyond thorough - this is paranoid to the point of insanity.
 """
 
-import sys
-import os
-import time
-import random
-import string
-import threading
-import multiprocessing
 import gc
-import json
-import unicodedata
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
+import os
+import sys
+import threading
+import time
 import traceback
+from pathlib import Path
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -30,9 +22,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.regions.manager import RegionManager
 import sys
 from pathlib import Path
+
+from src.regions.manager import RegionManager
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.base import RegionRuleError
@@ -237,7 +230,7 @@ class PsychoticParanoidTester:
 
                 self.stats["passed"] += 1
 
-            except RegionRuleError as e:
+            except RegionRuleError:
                 categories_tested[name] = "REJECTED"
                 self.stats["passed"] += 1
             except Exception as e:
@@ -261,7 +254,7 @@ class PsychoticParanoidTester:
         )
 
         if sample_failures:
-            print(f"\nWARN Issues found:")
+            print("\nWARN Issues found:")
             for failure in sample_failures[:5]:
                 print(f"  - {failure}")
                 self.warnings.append(failure)
@@ -328,7 +321,7 @@ class PsychoticParanoidTester:
                 self.warnings.append(f"{attack_type} not blocked: {attack[:30]}")
                 self.stats["warnings"] += 1
 
-            except (RegionRuleError, ValueError) as e:
+            except (RegionRuleError, ValueError):
                 # Good - attack was blocked
                 blocked += 1
                 self.stats["passed"] += 1
@@ -463,7 +456,6 @@ class PsychoticParanoidTester:
         print("Testing for memory leaks...")
 
         import psutil
-        import os
 
         process = psutil.Process(os.getpid())
 
@@ -565,7 +557,7 @@ class PsychoticParanoidTester:
                 else:
                     self.stats["passed"] += 1
 
-            except Exception as e:
+            except Exception:
                 self.stats["passed"] += 1  # Good - rejected malformed input
 
     @pytest.mark.timeout(15)
@@ -793,7 +785,7 @@ class PsychoticParanoidTester:
                     )
                     self.stats["warnings"] += 1
 
-            except Exception as e:
+            except Exception:
                 self.stats["passed"] += 1  # Rejected weird whitespace
 
     @pytest.mark.timeout(15)
@@ -1073,7 +1065,7 @@ class PsychoticParanoidTester:
             entry = {"CanonicalLatin": ligature, "GlobalID": "test"}
             region.clean(entry)
 
-            result = entry.get("CanonicalLatin", "")
+            entry.get("CanonicalLatin", "")
             # Check if ligature was decomposed or preserved appropriately
             self.stats["passed"] += 1
 
@@ -1288,7 +1280,7 @@ class PsychoticParanoidTester:
         print("PSYCHOTIC PARANOID TEST RESULTS")
         print("=" * 80)
 
-        print(f"\n📊 Statistics:")
+        print("\n📊 Statistics:")
         print(f"  Total tests: {self.stats['total']}")
         print(
             f"  Passed: {self.stats['passed']} ({self.stats['passed']/max(1,self.stats['total'])*100:.1f}%)"
@@ -1331,7 +1323,7 @@ class PsychoticParanoidTester:
         print(f"\n🎯 OVERALL COMPLIANCE: {compliance:.1f}%")
 
         if compliance < 100:
-            print(f"\n📝 Why not 100%?")
+            print("\n📝 Why not 100%?")
             print("  1. Korean FST round-trip not implemented")
             print("  2. Collision suffix '--1' blocked as CSV injection")
             print("  3. Some Unicode edge cases not fully normalized")

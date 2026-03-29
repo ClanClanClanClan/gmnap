@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import List, Dict, Any, Tuple, Union
+
+from typing import Any, Dict, List, Tuple, Union
 
 try:
     import duckdb  # type: ignore

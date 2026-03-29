@@ -4,7 +4,6 @@ Unit tests for YAML schema validation.
 Tests JSON schema v1.5 validation and custom validation rules.
 """
 
-from datetime import datetime
 
 import pytest
 

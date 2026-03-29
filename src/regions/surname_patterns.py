@@ -15,8 +15,8 @@ Expected Impact: +15-20pp accuracy boost on Latin-script names
 """
 
 import re
-from typing import List, Tuple, Optional
 from dataclasses import dataclass
+from typing import List, Optional, Tuple
 
 
 @dataclass
@@ -55,18 +55,6 @@ class SurnamePatternDetector:
         # ===================================================================
 
         # English locative surnames (-ton = "town")
-        english_ton = [
-            "Newton",
-            "Washington",
-            "Hamilton",
-            "Wellington",
-            "Carleton",
-            "Middleton",
-            "Livingston",
-            "Clinton",
-            "Allington",
-            "Barton",
-        ]
         patterns.append(
             SurnamePattern(
                 pattern=r"ton$",

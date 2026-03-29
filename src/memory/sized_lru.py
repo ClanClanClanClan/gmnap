@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import Tuple, Any
-from collections import OrderedDict
+
 import sys
+from collections import OrderedDict
+from typing import Any, Tuple
 
 
 class SizedLRU:

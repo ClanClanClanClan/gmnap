@@ -43,8 +43,8 @@ def add_jung_to_joong():
 
 def test_jung_names():
     """Test specific jung-containing names."""
-    import sys
     import pathlib
+    import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     # from converter import eng2kor

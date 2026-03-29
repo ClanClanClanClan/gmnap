@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Analyze low dice score failures to find weight adjustment opportunities."""
 
-import json
 import csv
-from collections import defaultdict, Counter
+import json
+from collections import Counter, defaultdict
 
 # Load failures
 with open("data/expanded_independent_test_results.json") as f:

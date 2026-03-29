@@ -10,7 +10,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 Basic V7 functionality test
 Tests that core components are working
 """
-import sys
 import traceback
 
 
@@ -25,21 +24,18 @@ def test_imports():
 
     # Core modules
     try:
-        from src.core.pipeline_v7 import PipelineMode
 
         tests.append(("✓", "src.core.pipeline_v7"))
     except Exception as e:
         tests.append(("✗", f"src.core.pipeline_v7: {e}"))
 
     try:
-        from src.core.db_pool import DBPool, BoltPool
 
         tests.append(("✓", "src.core.db_pool (with BoltPool alias)"))
     except Exception as e:
         tests.append(("✗", f"src.core.db_pool: {e}"))
 
     try:
-        from src.core.security_validator import SecurityValidator
 
         tests.append(("✓", "src.core.security_validator"))
     except Exception as e:
@@ -74,12 +70,6 @@ def test_imports():
 
     # Metrics
     try:
-        from src.ops.metrics import (
-            SCHEMA_VALIDATION_ERRORS,
-            ROUNDTRIP_FAILURES,
-            IDEMP_DIFF_BYTES,
-            PROCESSED_TOTAL,
-        )
 
         tests.append(("✓", "src.ops.metrics (all required metrics)"))
     except Exception as e:
@@ -124,14 +114,14 @@ def test_basic_pipeline():
         from src.pipeline.stage3_region_hooks import apply_region_hooks
 
         result = apply_region_hooks([test_entry])
-        print(f"  ✓ Region hooks work")
+        print("  ✓ Region hooks work")
 
         # Test validation
         from src.pipeline.stage8_global_validate import global_validate
 
         try:
             result, metrics = global_validate(result, mode="Quick")
-            print(f"  ✓ Global validation works")
+            print("  ✓ Global validation works")
         except Exception as e:
             print(f"  ⚠ Global validation warning: {str(e)[:50]}")
 

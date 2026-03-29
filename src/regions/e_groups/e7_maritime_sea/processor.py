@@ -11,7 +11,9 @@ Colonial Influences: Spanish, Dutch, English, Portuguese
 import re
 import unicodedata
 from typing import Any, Dict, Optional
-from ...base_enhanced import EnhancedRegionSpec as RegionSpec, RegionRuleError
+
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class E7MaritimeSEAProcessor(RegionSpec):

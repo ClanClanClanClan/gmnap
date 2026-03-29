@@ -3,12 +3,12 @@ import pytest
 #!/usr/bin/env python3
 """Comprehensive test suite for SecurityValidator covering all attack vectors."""
 
-import os
 import sys
-import unittest
 import tempfile
-import yaml
+import unittest
 from pathlib import Path
+
+import yaml
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -17,14 +17,16 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.security_validator import SecurityValidator, SecurityError
 import sys
 from pathlib import Path
 
+from src.core.security_validator import SecurityError, SecurityValidator
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.pipeline_v6 import GMNAPPipeline
 import sys
 from pathlib import Path
+
+from src.core.pipeline_v6 import GMNAPPipeline
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.config import GMNAPConfig

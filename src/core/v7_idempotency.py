@@ -4,13 +4,13 @@ V7 Idempotency Checker - Ensures 0-byte idempotency per V7 specification.
 V7 Requirement: Same input must produce bit-identical output on repeated processing.
 """
 
+import copy
 import hashlib
 import json
-from typing import Dict, List, Any, Tuple, Optional
+import logging
 from dataclasses import dataclass
 from datetime import datetime
-import copy
-import logging
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -330,7 +330,7 @@ class V7IdempotencyChecker:
 
         # Log results
         if result.is_idempotent:
-            self.logger.info(f"✅ Pipeline is idempotent (0-byte difference)")
+            self.logger.info("✅ Pipeline is idempotent (0-byte difference)")
         else:
             self.logger.error(
                 f"❌ Pipeline is NOT idempotent ({result.byte_difference} byte difference)"

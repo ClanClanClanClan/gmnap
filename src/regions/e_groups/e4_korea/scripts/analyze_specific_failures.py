@@ -3,7 +3,10 @@
 Analyze the specific failure cases mentioned in expert Patch A
 """
 
-import yaml, sys, os
+import os
+import sys
+
+import yaml
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 # from converter import eng2kor, kor2eng
@@ -61,7 +64,7 @@ for case_name in target_cases:
     else:
         print(f"\n{case_name}: NOT FOUND in test data")
 
-print(f"\n=== CURRENT MAPPINGS CHECK ===")
+print("\n=== CURRENT MAPPINGS CHECK ===")
 from lookup import rom2han
 
 mappings = rom2han()

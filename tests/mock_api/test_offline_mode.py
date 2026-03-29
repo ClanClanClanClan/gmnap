@@ -5,15 +5,10 @@ Provides mock implementations of all external APIs for testing without network.
 """
 
 import asyncio
-import json
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
-
-from src.authorities.base import AuthorityFetcher, FetchResult, FetchStatus
-from src.authorities.tier0.openalex import OpenAlexFetcher
 
 
 class MockOpenAlexAPI:
@@ -292,7 +287,7 @@ class TestOfflineMode:
         os.environ["OFFLINE"] = "1"
 
         # Mock configuration should detect offline mode
-        assert self.mock_server.offline_mode == True
+        assert self.mock_server.offline_mode is True
 
         # Clean up
         if "OFFLINE" in os.environ:
@@ -329,7 +324,6 @@ class TestOfflineMode:
     @pytest.mark.asyncio
     async def test_quota_management_mock(self):
         """Test quota management with mock."""
-        from src.authorities.base import QuotaManager
 
         # Mock quota manager
         quota_manager = Mock()
@@ -350,7 +344,7 @@ class TestOfflineMode:
             fetcher = mock_class()
 
             # Check quota before fetch
-            assert fetcher.quota_manager.can_fetch() == True
+            assert fetcher.quota_manager.can_fetch() is True
 
             # Perform fetch
             result = await fetcher.fetch("Smith, John")

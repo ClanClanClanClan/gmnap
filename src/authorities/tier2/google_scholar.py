@@ -6,7 +6,8 @@ API: https://scholar.google.com/citations
 Type: REST (Scraping)
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
+
 from ..templates.authority_engine import create_authority_fetcher
 
 

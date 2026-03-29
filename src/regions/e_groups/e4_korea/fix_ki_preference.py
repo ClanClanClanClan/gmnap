@@ -84,8 +84,8 @@ def fix_ki_mappings():
 
 def test_ki_conversions():
     """Test ki-related conversions."""
-    import sys
     import pathlib
+    import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     # from converter import eng2kor

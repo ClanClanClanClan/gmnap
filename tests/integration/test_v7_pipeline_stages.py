@@ -1,6 +1,4 @@
-from typing import List
-from typing import Any
-import pytest
+from typing import Any, List
 
 #!/usr/bin/env python3
 """
@@ -24,19 +22,16 @@ This test validates each of the 12 stages in the V7 processing pipeline:
 
 import asyncio
 import json
-
+import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Any
-
-import sys
-from pathlib import Path
+from typing import Dict
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import os
 
 os.environ["GMNAP_OFFLINE"] = "1"
-from src.core.pipeline_v7 import V7Pipeline, PipelineMode
+from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 
 
 class V7StageValidator:
@@ -66,20 +61,6 @@ class V7StageValidator:
         entries = []
 
         # Generate proper GlobalIDs (22-char Base32)
-        test_global_ids = [
-            "ABCDEFGHIJKLMNOPQRSTUV0",
-            "ABCDEFGHIJKLMNOPQRSTUV1",
-            "ABCDEFGHIJKLMNOPQRSTUV2",
-            "ABCDEFGHIJKLMNOPQRSTUV3",
-            "ABCDEFGHIJKLMNOPQRSTUV4",
-            "ABCDEFGHIJKLMNOPQRSTUV5",
-            "ABCDEFGHIJKLMNOPQRSTUV6",
-            "ABCDEFGHIJKLMNOPQRSTUV7",
-            "ABCDEFGHIJKLMNOPQRSTUV8",
-            "ABCDEFGHIJKLMNOPQRSTUV9",
-            "ABCDEFGHIJKLMNOPQRSTUVX",
-            "ABCDEFGHIJKLMNOPQRSTUVY",
-        ]
 
         test_entries = [
             # A1 Anglo Sphere

@@ -8,12 +8,12 @@ Tests CJK round-trip requirements from V7 specification (Linguistic Rule #11)
 V7 Requirement: "CJK Round‑Trip – romanise+back‑convert; >= 97% match (Dice coefficient after NFC casefold)"
 """
 
-import pytest
+import sys
 import unicodedata
 from pathlib import Path
-from typing import Dict, Any, List, Set, Tuple
-import sys
-import re
+from typing import Any, Dict, List, Set
+
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -471,7 +471,6 @@ class TestV7CJKRoundtrip:
         try:
             # Step 1: Convert native to romanized (if region supports this)
             # For now, we'll use the expected_latin as the "romanized" form
-            romanized = expected_latin
 
             # Step 2: Convert romanized back to native (if region supports this)
             # This would require the region to have back-conversion capability

@@ -4,15 +4,16 @@ FULL COMPREHENSIVE AUDIT - Deep verification of all 70+ claimed implementations
 Goes beyond surface-level checks to verify actual functionality
 """
 
-import json
-import hashlib
-import subprocess
 import csv
+import hashlib
+import json
 import os
 import re
-import yaml
-from pathlib import Path
+import subprocess
 from datetime import datetime
+from pathlib import Path
+
+import yaml
 
 
 class FullComprehensiveAudit:
@@ -60,7 +61,7 @@ class FullComprehensiveAudit:
                 section_results["passed"] += 1
                 section_results["details"].append("SHA-256 and Git tracking working")
             else:
-                print(f"   ✗ Hash mismatch or Git tracking failed")
+                print("   ✗ Hash mismatch or Git tracking failed")
                 section_results["details"].append("Hash/Git tracking inconsistent")
         except Exception as e:
             print(f"   ✗ SHA-256/Git test failed: {e}")
@@ -341,10 +342,10 @@ class FullComprehensiveAudit:
                         section_results["passed"] += 1
                         section_results["details"].append("PyNini caching configured")
                     else:
-                        print(f"   ✗ PyNini caching not configured")
+                        print("   ✗ PyNini caching not configured")
                         section_results["details"].append("PyNini caching missing")
             else:
-                print(f"   ✗ CI file missing for PyNini caching check")
+                print("   ✗ CI file missing for PyNini caching check")
                 section_results["details"].append("CI file missing")
         except Exception as e:
             print(f"   ✗ PyNini caching test failed: {e}")
@@ -400,7 +401,7 @@ class FullComprehensiveAudit:
             original_perms = oct(os.stat("resources/rr_syllable_map.csv").st_mode)[-3:]
 
             if original_perms == "444":
-                print(f"   ✓ File permission management: read-only enforcement")
+                print("   ✓ File permission management: read-only enforcement")
                 section_results["passed"] += 1
                 section_results["details"].append("File permission management working")
             else:
@@ -444,7 +445,7 @@ class FullComprehensiveAudit:
                 section_results["passed"] += 1
                 section_results["details"].append("Weight format validation correct")
             else:
-                print(f"   ✗ Weight regex pattern failed tests")
+                print("   ✗ Weight regex pattern failed tests")
                 section_results["details"].append("Weight format validation wrong")
         except Exception as e:
             print(f"   ✗ Weight format test failed: {e}")
@@ -638,7 +639,7 @@ def main():
     with open("full_audit_results.json", "w") as f:
         json.dump(auditor.audit_results, f, indent=2)
 
-    print(f"\\n📊 Detailed results saved to: full_audit_results.json")
+    print("\\n📊 Detailed results saved to: full_audit_results.json")
     return success
 
 

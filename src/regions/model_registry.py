@@ -25,10 +25,10 @@ Usage:
     active = registry.get_active_model()
 """
 
-import json
 import hashlib
-from pathlib import Path
+import json
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Optional
 
 

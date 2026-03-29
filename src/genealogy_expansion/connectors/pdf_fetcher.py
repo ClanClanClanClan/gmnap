@@ -1,6 +1,8 @@
 from __future__ import annotations
-import aiohttp
+
 from typing import Optional
+
+import aiohttp
 
 
 async def fetch_pdf_bytes(url: str, timeout: int = 45) -> Optional[bytes]:

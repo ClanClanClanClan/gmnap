@@ -11,7 +11,6 @@ This test verifies that Rule 9 is working correctly in B1 region:
 - order_key exclusion of patronymic for proper sorting
 """
 
-import os
 
 import sys
 from pathlib import Path
@@ -170,15 +169,15 @@ def test_rule_9_comprehensive():
 
         # Check if patronymic detection worked
         if patronymic == expected_patronymic:
-            print(f"  PASS Patronymic detection correct")
+            print("  PASS Patronymic detection correct")
         else:
-            print(f"  WARN  Patronymic detection failed")
+            print("  WARN  Patronymic detection failed")
 
         # Check if gender inference worked
         if gender == expected_gender and entry_gender == expected_gender:
-            print(f"  PASS Gender inference correct")
+            print("  PASS Gender inference correct")
         else:
-            print(f"  WARN  Gender inference failed")
+            print("  WARN  Gender inference failed")
 
 
 @pytest.mark.timeout(15)
@@ -209,15 +208,15 @@ def test_rule_9_order_key():
         patronymic = entry["RegionalExtras"].get("patronymic", "")
         if patronymic:
             if patronymic.upper() not in order_key:
-                print(f"  PASS Patronymic correctly excluded from order_key")
+                print("  PASS Patronymic correctly excluded from order_key")
             else:
-                print(f"  WARN  Patronymic may still be in order_key")
+                print("  WARN  Patronymic may still be in order_key")
 
         # Check that we have family and given names
         if len(order_key.split()) >= 2:
-            print(f"  PASS Order key contains both family and given names")
+            print("  PASS Order key contains both family and given names")
         else:
-            print(f"  WARN  Order key may be incomplete")
+            print("  WARN  Order key may be incomplete")
 
 
 def main():

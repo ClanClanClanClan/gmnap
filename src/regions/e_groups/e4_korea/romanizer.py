@@ -4,11 +4,12 @@ Supports RR strict, RR common (international usage), and McCune-Reischauer.
 """
 
 from __future__ import annotations
+
 import json
 import unicodedata as _ud
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Tuple, Optional
+from typing import Dict, Optional, Tuple
 
 # Hangul decomposition constants
 _SBASE = 0xAC00

@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -6,10 +5,10 @@ V7 Monitoring System Test Suite
 Tests performance monitoring, alerting, and reporting
 """
 
-import sys
 import asyncio
-import time
+import sys
 import tempfile
+import time
 from pathlib import Path
 
 # Add src to path
@@ -22,11 +21,10 @@ async def test_monitoring_basic_functionality():
 
     try:
         from src.core.monitoring_v7 import (
-            V7MonitoringSystem,
+            MetricType,
             MonitoringConfig,
             PerformanceMetric,
-            MetricType,
-            AlertLevel,
+            V7MonitoringSystem,
         )
 
         # Create temporary config for testing
@@ -58,7 +56,7 @@ async def test_monitoring_basic_functionality():
             # Test current metrics retrieval
             current = monitor.get_current_metrics()
 
-            print(f"PASS Basic monitoring results:")
+            print("PASS Basic monitoring results:")
             print(f"   Metrics recorded: {len(test_metrics)}")
             print(f"   Current metrics: {len(current)}")
             print(
@@ -88,11 +86,10 @@ async def test_monitoring_alerting():
 
     try:
         from src.core.monitoring_v7 import (
-            V7MonitoringSystem,
+            MetricType,
             MonitoringConfig,
             PerformanceMetric,
-            MetricType,
-            AlertLevel,
+            V7MonitoringSystem,
         )
 
         # Track alerts
@@ -130,7 +127,7 @@ async def test_monitoring_alerting():
                 monitor.record_metric(metric)
                 time.sleep(0.01)  # Small delay to avoid timing issues
 
-            print(f"PASS Alerting results:")
+            print("PASS Alerting results:")
             print(f"   Alert-triggering metrics: {len(alert_metrics)}")
             print(f"   Alerts captured: {len(captured_alerts)}")
 
@@ -156,10 +153,10 @@ async def test_monitoring_integration():
     print("\n🧪 TESTING: V7 monitoring integration with streaming")
 
     try:
-        from src.core.monitoring_v7 import V7MonitoringSystem, MonitoringConfig
+        from src.core.monitoring_v7 import MonitoringConfig, V7MonitoringSystem
         from src.core.streaming_v7 import (
-            V7StreamingPipeline,
             StreamingConfig,
+            V7StreamingPipeline,
             test_data_generator,
         )
 
@@ -186,7 +183,7 @@ async def test_monitoring_integration():
                 metrics = await pipeline.process_stream(data_source)
 
                 # Record streaming metrics in monitoring system
-                from src.core.monitoring_v7 import PerformanceMetric, MetricType
+                from src.core.monitoring_v7 import MetricType, PerformanceMetric
 
                 monitor.record_metric(
                     PerformanceMetric(
@@ -220,7 +217,7 @@ async def test_monitoring_integration():
             # Get system health
             health = monitor.get_system_health()
 
-            print(f"PASS Integration results:")
+            print("PASS Integration results:")
             print(f"   Integration duration: {duration:.2f}s")
             print(f"   Streaming processed: {metrics.entries_processed}")
             print(
@@ -255,10 +252,10 @@ async def test_monitoring_reporting():
 
     try:
         from src.core.monitoring_v7 import (
-            V7MonitoringSystem,
+            MetricType,
             MonitoringConfig,
             PerformanceMetric,
-            MetricType,
+            V7MonitoringSystem,
         )
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -303,7 +300,7 @@ async def test_monitoring_reporting():
             # Test CSV export
             csv_export = monitor.export_metrics("csv", hours=1)
 
-            print(f"PASS Reporting results:")
+            print("PASS Reporting results:")
             print(f"   Sample metrics recorded: {len(sample_metrics)}")
             print(
                 f"   Report period: {report['report_period']['duration_hours']} hours"

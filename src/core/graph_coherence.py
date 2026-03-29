@@ -10,12 +10,13 @@ V7 Quality Gates:
 """
 
 import logging
-import networkx as nx
+import statistics
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List
-import statistics
+
+import networkx as nx
 
 logger = logging.getLogger(__name__)
 

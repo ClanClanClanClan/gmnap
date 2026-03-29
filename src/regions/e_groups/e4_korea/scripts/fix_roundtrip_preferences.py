@@ -48,7 +48,7 @@ with open("resources/variant_map.csv", "w", encoding="utf8", newline="") as f:
 print("✅ Added roundtrip preference variants!")
 
 # Show current jeong/jong variants
-print(f"\nCurrent 정 variants:")
+print("\nCurrent 정 variants:")
 jeong_variants = [row for row in rows if len(row) >= 2 and row[0] == "정"]
 for h, r, *tag in jeong_variants:
     tag_str = tag[0] if tag else ""

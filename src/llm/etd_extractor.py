@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Dict, Tuple, List
+
+from typing import Dict, List, Tuple
 
 try:
     import pdfplumber  # optional

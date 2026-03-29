@@ -15,14 +15,14 @@ Key features:
 - Enhanced dice scoring for Korean romanization variants
 """
 
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(__file__) + "/src")
 
 # Try to import the FST-based converter, fall back to CSV-based if unavailable
 try:
-    from converter import eng2kor, kor2eng, eng2kor_nbest, _enhanced_dice
+    from converter import _enhanced_dice, eng2kor, eng2kor_nbest, kor2eng
 except ImportError:
     # Use fallback CSV-based converter when pynini is unavailable
     from .fallback_converter import FallbackKoreanConverter
@@ -30,9 +30,8 @@ except ImportError:
     _converter = FallbackKoreanConverter()
     eng2kor = _converter.eng2kor
     kor2eng = _converter.kor2eng
-    eng2kor_nbest = lambda name, n=3: [
-        _converter.eng2kor(name)
-    ]  # Simple single result for now
+    def eng2kor_nbest(name, n=3):
+        return [_converter.eng2kor(name)]  # Simple single result for now
 
     def _enhanced_dice(s1, s2):
         # Simple dice coefficient for fallback

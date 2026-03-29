@@ -3,11 +3,12 @@ GMNAP v7.0 Pipeline Stage 5: Collision Detection and Analytics
 Detects and analyzes name collisions across the processed dataset.
 """
 
-from typing import Dict, Any, List, Optional
-from collections import defaultdict, Counter
-from ..core.errors import CollisionAnalyticsError
-from pathlib import Path
 import time
+from collections import Counter, defaultdict
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from ..core.errors import CollisionAnalyticsError
 
 
 class CollisionAnalyticsStage:

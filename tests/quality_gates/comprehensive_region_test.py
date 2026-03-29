@@ -7,10 +7,8 @@ before proceeding with v7 implementation.
 """
 
 import sys
-import traceback
 import time
-import json
-from typing import Any, Dict, List, Tuple
+import traceback
 
 # Add src to path
 sys.path.insert(0, "src")
@@ -176,15 +174,15 @@ def test_basic_functionality(instances):
             try:
                 # Test clean method
                 instance.clean(entry)
-                print(f"    ✓ clean() succeeded")
+                print("    ✓ clean() succeeded")
 
                 # Test augment method
                 instance.augment(entry)
-                print(f"    ✓ augment() succeeded")
+                print("    ✓ augment() succeeded")
 
                 # Test validate method
                 instance.validate(entry)
-                print(f"    ✓ validate() succeeded")
+                print("    ✓ validate() succeeded")
 
                 # Test order_key method
                 order_key = instance.order_key(entry)
@@ -248,7 +246,7 @@ def test_edge_cases(instances):
                 instance.clean(entry)
                 instance.augment(entry)
                 instance.validate(entry)
-                order_key = instance.order_key(entry)
+                instance.order_key(entry)
                 print(f"  ✓ Edge case {i+1} handled: {entry_desc}")
 
             except Exception as e:

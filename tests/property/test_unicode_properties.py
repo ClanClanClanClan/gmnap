@@ -5,7 +5,6 @@ Uses Hypothesis to generate exhaustive test cases.
 
 import re
 import unicodedata
-from typing import List, Set, Tuple
 
 import pytest
 from hypothesis import HealthCheck, assume, given, settings
@@ -15,7 +14,6 @@ from hypothesis.strategies import characters, composite, integers, lists, text
 from src.core.unicode_handler import (
     UnicodeConfig,
     UnicodeNormalizer,
-    generate_name_variants,
     normalize_name,
 )
 

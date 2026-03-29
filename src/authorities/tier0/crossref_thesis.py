@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 
 import aiohttp
 
-from ..base import AuthorityFetcher, AuthorityData
+from ..base import AuthorityData, AuthorityFetcher
 
 logger = logging.getLogger(__name__)
 

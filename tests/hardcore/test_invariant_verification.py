@@ -6,12 +6,8 @@ These are the most important tests - they verify that the system's
 core guarantees are never violated.
 """
 
-import hashlib
-import sqlite3
 import tempfile
-import threading
-import time
-from collections import Counter, defaultdict
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -24,7 +20,6 @@ from src.core.globalid import GlobalIDGenerator, validate_global_id
 from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 from src.core.unicode_handler import UnicodeNormalizer
 from src.regions.manager import RegionManager
-from src.validation.schema import SchemaValidator
 
 
 class TestGlobalIDInvariants:
@@ -123,7 +118,7 @@ class TestGlobalIDInvariants:
             # INVARIANT: All collision IDs should be unique
             assert len(set(collision_ids)) == len(
                 collision_ids
-            ), f"INVARIANT VIOLATED: Collision handling produced duplicates"
+            ), "INVARIANT VIOLATED: Collision handling produced duplicates"
 
             # INVARIANT: Collision suffixes should be sequential
             collision_suffixes = []
@@ -213,7 +208,7 @@ class TestGlobalIDInvariants:
         # INVARIANT: All IDs should be unique
         assert len(set(generated_ids)) == len(
             generated_ids
-        ), f"INVARIANT VIOLATED: Concurrent generation produced duplicates"
+        ), "INVARIANT VIOLATED: Concurrent generation produced duplicates"
 
         # INVARIANT: All IDs should be valid
         for global_id in generated_ids:
@@ -693,8 +688,8 @@ class TestSystemInvariants:
         # Generate many objects
         for i in range(1000):
             entry = {"CanonicalNative": f"Test{i:03d}, Person", "BirthYear": 1980}
-            global_id = generator.generate(entry)
-            normalized = unicode_handler.normalize(f"Test{i:03d}, Person")
+            generator.generate(entry)
+            unicode_handler.normalize(f"Test{i:03d}, Person")
 
         # Force garbage collection
         gc.collect()
@@ -719,7 +714,7 @@ class TestSystemInvariants:
         # Test that similar errors are handled consistently
 
         generator = GlobalIDGenerator()
-        unicode_handler = UnicodeNormalizer()
+        UnicodeNormalizer()
 
         # Test various error conditions
         error_cases = [

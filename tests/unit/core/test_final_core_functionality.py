@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 """Test CORE FUNCTIONALITY after migration."""
 
-import pytest
-import sys
-import tempfile
-import yaml
-from pathlib import Path
 import asyncio
+import sys
+
+import pytest
 
 sys.path.insert(0, "src")
 
-from src.core.pipeline_v7 import V7Pipeline, PipelineMode
+from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 
 
 @pytest.mark.timeout(30)  # Increased timeout for realistic processing
@@ -49,7 +47,7 @@ async def test_core_functionality():
 
     try:
         result = await pipeline.process_batch(test_data)
-        print(f"Pipeline completed successfully")
+        print("Pipeline completed successfully")
         print(f"Processed: {result['metrics']['processed_entries']} entries")
         print(f"Performance: {result['metrics']['entries_per_second']:.0f} entries/sec")
 

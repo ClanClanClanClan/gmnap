@@ -8,7 +8,8 @@ Features: Persian/Dari/Tajik scripts, patronymic patterns, flexible order
 import re
 from typing import Any, Dict, List, Optional
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class C2_PersianTajik(RegionSpec):
@@ -782,7 +783,7 @@ class C2_PersianTajik(RegionSpec):
         variants = []
 
         root = zadeh_info.get("zadeh_root", "")
-        zadeh_type = zadeh_info.get("zadeh_type", "")
+        zadeh_info.get("zadeh_type", "")
         current_suffix = zadeh_info.get("zadeh_suffix", "")
 
         if not root:
@@ -899,7 +900,7 @@ class C2_PersianTajik(RegionSpec):
 
         # Script validation (more lenient)
         canonical_native = entry.get("CanonicalNative", "")
-        canonical_latin = entry.get("CanonicalLatin", "")
+        entry.get("CanonicalLatin", "")
 
         # If CanonicalNative exists, prefer it to be Persian or Cyrillic (but be lenient)
         if canonical_native and len(canonical_native.strip()) > 0:

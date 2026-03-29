@@ -1,6 +1,7 @@
-from pathlib import Path
+import csv
+import pathlib
+
 import pytest
-import pathlib, csv, pytest
 
 BASE = pathlib.Path("datasets/regional_test_suites")
 codes = [p.name for p in BASE.iterdir() if p.is_dir()]

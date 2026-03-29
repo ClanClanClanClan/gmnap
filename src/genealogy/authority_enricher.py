@@ -1,10 +1,15 @@
 from __future__ import annotations
-import os, asyncio, json
-from typing import Dict, Any, List, Optional
-from .wikidata_client import WikidataClient
-from .mathgenealogy_client import MathGenealogyClient
-from ..utils.caching import build_cache
+
+import asyncio
+import json
+import os
+from typing import Any, Dict, List, Optional
+
 from dateutil.parser import parse as dtparse
+
+from ..utils.caching import build_cache
+from .mathgenealogy_client import MathGenealogyClient
+from .wikidata_client import WikidataClient
 
 
 class AuthorityEnricher:

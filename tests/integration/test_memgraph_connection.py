@@ -12,7 +12,7 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from src.core.memgraph_client import MemgraphClient, GenealogyRelation
+from src.core.memgraph_client import GenealogyRelation, MemgraphClient
 
 
 @pytest.mark.timeout(15)
@@ -226,7 +226,7 @@ def test_performance(client):
         duration = end_time - start_time
         throughput = batch_size / duration
 
-        print(f"PASS Performance test completed:")
+        print("PASS Performance test completed:")
         print(f"   Created {batch_size} mathematicians in {duration:.3f}s")
         print(f"   Throughput: {throughput:.1f} mathematicians/second")
 

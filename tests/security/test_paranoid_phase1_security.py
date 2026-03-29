@@ -7,26 +7,26 @@ Testing GMNAP v7 spec compliance for security hardening.
 Mad-men level paranoid testing of every possible attack vector.
 """
 
+import sys
 import tempfile
+from pathlib import Path
+
 import yaml
-import subprocess
-import os
-from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.pipeline_v6 import GMNAPPipeline
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.config import GMNAPConfig
-import sys
-from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.security_validator import SecurityValidator, SecurityError
+from src.core.security_validator import SecurityError, SecurityValidator
 
 
 @pytest.mark.timeout(15)
@@ -56,7 +56,7 @@ def test_v7_spec_security_requirements():
         try:
             config = GMNAPConfig()
             pipeline = GMNAPPipeline(config)
-            result = pipeline.run(tmpdir)
+            pipeline.run(tmpdir)
 
             # V7 spec says suffixed IDs should PASS duplicate gate
             print("PASS GlobalID collision handling: Suffixed IDs passed")
@@ -65,14 +65,6 @@ def test_v7_spec_security_requirements():
             print(f"FAIL GlobalID collision test failed: {e}")
 
     # Test GDPR compliance fields
-    gdpr_test = {
-        "Euler, Leonhard": {
-            "GlobalID": "euler001",
-            "GDPR_DATA": True,  # Personal data flag
-            "BirthYear": 1707,
-            "DeathYear": 1783,
-        }
-    }
 
     print("\nPASS GDPR_DATA field support verified")
     print("PASS ShadowNode concept ready for implementation")
@@ -105,7 +97,7 @@ def test_malicious_yaml_keys():
         "key\r\ninjection",  # CRLF injection
     ]
 
-    validator = SecurityValidator()
+    SecurityValidator()
     blocked = 0
 
     for evil_key in evil_keys:
@@ -121,7 +113,7 @@ def test_malicious_yaml_keys():
 
                 config = GMNAPConfig()
                 pipeline = GMNAPPipeline(config)
-                result = pipeline.run(tmpdir)
+                pipeline.run(tmpdir)
 
                 # Check if evil key made it through
                 output_files = list(Path(config.cache.cache_dir).glob("output/*.yaml"))
@@ -274,9 +266,9 @@ def test_injection_payload_variants():
 
     for payload, description in payloads:
         try:
-            validated = validator.validate_string(payload, context="test")
+            validator.validate_string(payload, context="test")
             print(f"FAIL PASSED: {description} - '{payload}'")
-        except SecurityError as e:
+        except SecurityError:
             blocked += 1
             print(f"PASS Blocked: {description}")
 
@@ -312,7 +304,7 @@ def test_regex_dos_patterns():
     for pattern, description in redos_patterns:
         start_time = time.time()
         try:
-            validated = validator.validate_string(pattern, context="test")
+            validator.validate_string(pattern, context="test")
             elapsed = time.time() - start_time
 
             if elapsed > 0.1:  # If it took more than 100ms, it's suspicious
@@ -320,7 +312,7 @@ def test_regex_dos_patterns():
             else:
                 print(f"FAIL PASSED: {description} - '{pattern}'")
 
-        except SecurityError as e:
+        except SecurityError:
             blocked += 1
             elapsed = time.time() - start_time
             print(f"PASS Blocked: {description} - {elapsed:.3f}s")
@@ -365,9 +357,9 @@ def test_file_system_attacks():
 
     for attack, description in attacks:
         try:
-            validated = validator.validate_string(attack, context="test")
+            validator.validate_string(attack, context="test")
             print(f"FAIL PASSED: {description} - '{attack}'")
-        except SecurityError as e:
+        except SecurityError:
             blocked += 1
             print(f"PASS Blocked: {description}")
 
@@ -412,9 +404,9 @@ def test_polyglot_attacks():
 
     for polyglot, description in polyglots:
         try:
-            validated = validator.validate_string(polyglot, context="test")
+            validator.validate_string(polyglot, context="test")
             print(f"FAIL PASSED: {description}")
-        except SecurityError as e:
+        except SecurityError:
             blocked += 1
             print(f"PASS Blocked: {description}")
 
@@ -515,7 +507,7 @@ def test_comprehensive_pipeline_security():
         pipeline = GMNAPPipeline(config)
 
         try:
-            result = pipeline.run(tmpdir)
+            pipeline.run(tmpdir)
 
             # Check output for any attacks that made it through
             output_dir = Path(config.cache.cache_dir) / "output"
@@ -534,7 +526,7 @@ def test_comprehensive_pipeline_security():
             total_attacks = len(all_attacks)
             blocked_attacks = total_attacks - len(passed_attacks)
 
-            print(f"\n📊 RESULTS:")
+            print("\n📊 RESULTS:")
             print(f"Total attacks: {total_attacks}")
             print(f"Blocked: {blocked_attacks}")
             print(f"Passed: {len(passed_attacks)}")

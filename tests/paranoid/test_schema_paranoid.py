@@ -1,6 +1,8 @@
+import itertools
+
 import pytest
-import itertools, pytest
-from hypothesis import given, strategies as st
+from hypothesis import given
+from hypothesis import strategies as st
 
 REQUIRED = [
     "GlobalID",

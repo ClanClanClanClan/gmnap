@@ -1,8 +1,13 @@
 from __future__ import annotations
+
+import json
+import os
+import unicodedata
 from typing import Dict, List, Tuple
-import os, json, unicodedata
+
 from jsonschema import Draft202012Validator
-from ..ops.metrics import SCHEMA_VALIDATION_ERRORS, ROUNDTRIP_FAILURES, PROCESSED_TOTAL
+
+from ..ops.metrics import PROCESSED_TOTAL, ROUNDTRIP_FAILURES, SCHEMA_VALIDATION_ERRORS
 from ..pipeline.stage6_graph_consistency import enforce_graph_coherence_gate
 
 
@@ -56,7 +61,6 @@ def global_validate(
 ) -> Tuple[List[Dict], Dict[str, float]]:
     validator = _load_entry_schema()
     mode = (mode or os.getenv("GMNAP_RUNTIME_MODE", "Quick")).strip()
-    gates = {"Quick": 0.85, "Full": 0.92, "Extreme": 0.97}
     rt_min = 0.97
 
     errors_total = 0

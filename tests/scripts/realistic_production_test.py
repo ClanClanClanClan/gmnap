@@ -15,24 +15,25 @@ Tests the system under realistic conditions that the audit deliberately avoids:
 This exposes the true production readiness vs audit deceptions.
 """
 
-import sys
-import tempfile
-import time
-import psutil
-import yaml
 import json
-import threading
 import queue
 import random
-from pathlib import Path
+import sys
+import tempfile
+import threading
+import time
 from datetime import datetime
-from typing import Dict, List, Any, Tuple
+from pathlib import Path
+from typing import Any, Dict, List
+
+import psutil
+import yaml
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 from src.core.config import GMNAPConfig
+from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 
 
 class RealisticProductionTest:
@@ -396,14 +397,13 @@ class RealisticProductionTest:
 
                 try:
                     pipeline = GMNAPPipeline(config, PipelineMode.QUICK)
-                    result = pipeline.run(input_dir)
+                    pipeline.run(input_dir)
                     success = True
                     error = None
 
                 except Exception as e:
                     success = False
                     error = str(e)
-                    result = None
 
                 end_time = time.time()
                 final_memory = self._get_memory_usage()
@@ -439,7 +439,7 @@ class RealisticProductionTest:
                     print(f"  🎯 Projected 1M: {projected_1m_minutes:.1f} minutes")
 
                     if projected_1m_minutes <= 30:
-                        print(f"  🎉 MEETS TARGET!")
+                        print("  🎉 MEETS TARGET!")
                     else:
                         print(
                             f"  WARN  {projected_1m_minutes/30:.1f}x slower than target"
@@ -633,7 +633,7 @@ class RealisticProductionTest:
             coverage_results["implemented_total"] / total_regions_tested * 100
         )
 
-        print(f"\n📊 COVERAGE ANALYSIS:")
+        print("\n📊 COVERAGE ANALYSIS:")
         print(
             f"  Implemented regions: {coverage_results['implemented_total']}/{total_regions_tested} ({coverage_percentage:.1f}%)"
         )
@@ -642,7 +642,7 @@ class RealisticProductionTest:
         print(f"  Detection failures: {len(coverage_results['detection_failures'])}")
 
         if coverage_results["critical_gaps"]:
-            print(f"\n🚨 CRITICAL COVERAGE GAPS:")
+            print("\n🚨 CRITICAL COVERAGE GAPS:")
             for gap in coverage_results["critical_gaps"]:
                 print(
                     f"    {gap['expected']}: {gap['name']} incorrectly -> {gap['incorrectly_assigned']}"
@@ -697,14 +697,13 @@ class RealisticProductionTest:
 
             try:
                 pipeline = GMNAPPipeline(config, PipelineMode.QUICK)
-                result = pipeline.run(input_dir)
+                pipeline.run(input_dir)
                 success = True
                 error = None
 
             except Exception as e:
                 success = False
                 error = str(e)
-                result = None
 
             end_time = time.time()
             quota_results["test_duration"] = end_time - start_time
@@ -719,7 +718,7 @@ class RealisticProductionTest:
                 quota_results["error"] = error
 
             # This would require instrumenting the quota manager to get real data
-            print(f"  WARN  Quota tracking needs instrumentation for detailed analysis")
+            print("  WARN  Quota tracking needs instrumentation for detailed analysis")
 
         return quota_results
 
@@ -773,7 +772,7 @@ class RealisticProductionTest:
 
                         start_time = time.time()
                         pipeline = GMNAPPipeline(config, PipelineMode.QUICK)
-                        result = pipeline.run(input_dir)
+                        pipeline.run(input_dir)
                         end_time = time.time()
 
                         worker_results["operations"].append(
@@ -958,13 +957,13 @@ class RealisticProductionTest:
         # Analyze regional coverage
         coverage_data = results.get("regional_coverage", {})
         coverage_percentage = coverage_data.get("coverage_percentage", 0)
-        implemented_accuracy = coverage_data.get("implemented_accuracy", 0)
+        coverage_data.get("implemented_accuracy", 0)
 
         # Analyze concurrent operations
         concurrent_data = results.get("concurrent_operations", {})
         concurrent_success_rate = concurrent_data.get("success_rate", 0)
 
-        print(f"\n📊 SYSTEM CAPABILITY MATRIX:")
+        print("\n📊 SYSTEM CAPABILITY MATRIX:")
         print(f"{'Component':<30} {'Status':<20} {'Production Ready?':<20}")
         print("-" * 70)
 
@@ -1030,7 +1029,7 @@ class RealisticProductionTest:
             ]
         )
 
-        print(f"\n🎯 OVERALL PRODUCTION READINESS:")
+        print("\n🎯 OVERALL PRODUCTION READINESS:")
         if production_ready_count >= 3:
             print(f"PASS PRODUCTION READY ({production_ready_count}/4 components)")
         elif production_ready_count >= 2:
@@ -1038,7 +1037,7 @@ class RealisticProductionTest:
         else:
             print(f"FAIL NOT PRODUCTION READY ({production_ready_count}/4 components)")
 
-        print(f"\n💡 DEPLOYMENT RECOMMENDATIONS:")
+        print("\n💡 DEPLOYMENT RECOMMENDATIONS:")
 
         if max_successful_size >= 500:
             print(f"PASS Deploy for datasets up to {max_successful_size:,} entries")
@@ -1060,7 +1059,7 @@ class RealisticProductionTest:
 
         if concurrent_success_rate < 95:
             print(
-                f"WARN Concurrent operations unreliable - use single-threaded deployment"
+                "WARN Concurrent operations unreliable - use single-threaded deployment"
             )
 
 

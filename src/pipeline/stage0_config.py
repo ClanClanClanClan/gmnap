@@ -4,14 +4,15 @@ GMNAP V7 Stage 0: Configuration and Environment Setup
 Loads config, validates environment, decrypts secrets, queries registry
 """
 
-import os
-import json
-import yaml
-import logging
-from pathlib import Path
-from typing import Dict, Any, Tuple, Optional, List
-from dataclasses import dataclass, asdict
 import hashlib
+import json
+import logging
+import os
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -415,7 +416,7 @@ def test_stage0():
         runtime = V7RuntimeConfig.from_mode(mode)
         print(f"  Workers: {runtime.cpu_workers}")
         print(f"  Runtime/1M: {runtime.runtime_per_1M}")
-        print(f"  Quality gates:")
+        print("  Quality gates:")
         print(f"    - Graph coherence: {runtime.graph_coherence_score_min}")
         print(f"    - Idempotency: {runtime.idempotent_diff_bytes_max} bytes")
 

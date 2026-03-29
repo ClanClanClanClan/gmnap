@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import Dict, Any
+
+from typing import Any, Dict
 from urllib.parse import urlencode
+
 from .common import AuthorityContext, canonical_query_key
 
 

@@ -1,6 +1,9 @@
 from __future__ import annotations
-import os, asyncio
-from typing import List, Dict, Any, Optional
+
+import asyncio
+import os
+from typing import Any, Dict, List, Optional
+
 import httpx
 
 SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"

@@ -1,7 +1,8 @@
 import pytest
+
 from src.authorities.validators import (
-    ensure_orcid,
     AuthorityInputError,
+    ensure_orcid,
     safe_startswith,
 )
 

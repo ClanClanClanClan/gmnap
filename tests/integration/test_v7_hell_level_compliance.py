@@ -1,6 +1,4 @@
-from typing import List
 from typing import Any
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -14,9 +12,7 @@ import sys
 import time
 import traceback
 from pathlib import Path
-from typing import Dict, List, Any
-import random
-import string
+from typing import Dict
 
 # Add source to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -25,9 +21,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.pipeline_v7 import V7Pipeline
 import sys
 from pathlib import Path
+
+from src.core.pipeline_v7 import V7Pipeline
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.manager_optimized import RegionManager
@@ -390,8 +387,9 @@ class V7HellLevelCompliance:
 
         # Test 2: Memory stability
         print("  Testing memory stability...")
-        import psutil
         import os
+
+        import psutil
 
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss / 1024 / 1024  # MB
@@ -688,25 +686,25 @@ async def main():
         print("=" * 60)
 
         summary = report["summary"]
-        print(f"\n📊 Overall Results:")
+        print("\n📊 Overall Results:")
         print(f"  Total Tests: {summary['total_tests']}")
         print(f"  Passed: {summary['passed_tests']}")
         print(f"  Failed: {summary['failed_tests']}")
         print(f"  Pass Rate: {summary['pass_rate']}%")
         print(f"  Status: {summary['overall_status']}")
 
-        print(f"\n🎯 Compliance Scores:")
+        print("\n🎯 Compliance Scores:")
         for component, score in report["compliance_scores"].items():
             emoji = "PASS" if score >= 90 else "WARN" if score >= 75 else "FAIL"
             print(f"  {emoji} {component.title()}: {score}%")
 
-        print(f"\n📋 V7 Certification:")
+        print("\n📋 V7 Certification:")
         cert = report["v7_certification"]
         for key, value in cert.items():
             emoji = "PASS" if value else "FAIL"
             print(f"  {emoji} {key.replace('_', ' ').title()}: {value}")
 
-        print(f"\n💾 Detailed report saved to: v7_hell_level_compliance_report.json")
+        print("\n💾 Detailed report saved to: v7_hell_level_compliance_report.json")
 
         # Return exit code based on compliance
         return 0 if report["summary"]["overall_status"] == "COMPLIANT" else 1

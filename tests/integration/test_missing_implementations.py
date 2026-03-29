@@ -118,13 +118,13 @@ def test_missing_implementations():
         try:
             result = pipeline.process_entry(entry)
             # It passed
-            print(f"  PASS PASSED")
+            print("  PASS PASSED")
 
             if test_case.get("should_fail"):
                 results["should_fail_but_pass"].append(
                     {"test": name, "reason": test_case["reason"], "entry": entry}
                 )
-                print(f"  WARN  WARNING: This should have FAILED!")
+                print("  WARN  WARNING: This should have FAILED!")
                 print(f"      Reason: {test_case['reason']}")
             elif test_case.get("expected_region"):
                 actual_region = result.get("RegionCode", "UNKNOWN")
@@ -153,7 +153,7 @@ def test_missing_implementations():
 
             if test_case.get("should_fail"):
                 results["correct"].append(name)
-                print(f"  PASS CORRECTLY FAILED")
+                print("  PASS CORRECTLY FAILED")
             else:
                 results["should_pass_but_fail"].append(
                     {
@@ -162,7 +162,7 @@ def test_missing_implementations():
                         "reason": test_case.get("reason", "Should have passed"),
                     }
                 )
-                print(f"  WARN  UNEXPECTED FAILURE")
+                print("  WARN  UNEXPECTED FAILURE")
 
         print()
 
@@ -194,7 +194,7 @@ def analyze_results(results):
     for c in correct:
         print(f"  PASS {c}")
 
-    print(f"\n📊 SUMMARY:")
+    print("\n📊 SUMMARY:")
     print(f"False Positives (hiding bugs): {len(false_positives)}")
     print(f"False Negatives (overcritical): {len(false_negatives)}")
     print(f"Correct: {len(correct)}")

@@ -1,6 +1,12 @@
 from __future__ import annotations
-import os, re, json, yaml, pathlib
-from typing import Dict, Any, Tuple
+
+import json
+import os
+import pathlib
+import re
+from typing import Any, Dict, Tuple
+
+import yaml
 from jsonschema import Draft202012Validator
 
 CACHE_DIR = os.getenv("GMNAP_ETD_CACHE_DIR", "cache/etd")

@@ -8,10 +8,11 @@ Provides comprehensive author profiles with institution data
 import asyncio
 import logging
 import time
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-import aiohttp
 from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import aiohttp
 
 logger = logging.getLogger(__name__)
 
@@ -506,7 +507,7 @@ async def test_openalex_api():
             # Test coauthors
             coauthors = await api.get_coauthors(author.id, limit=5)
             if coauthors:
-                print(f"\nTop coauthors:")
+                print("\nTop coauthors:")
                 for coauthor in coauthors[:3]:
                     print(
                         f"  - {coauthor['display_name']} ({coauthor['collaboration_count']} papers)"

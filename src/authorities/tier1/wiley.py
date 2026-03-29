@@ -10,19 +10,20 @@ License: Requires TDM token
 Daily Quota: 3 requests/second (rate limit)
 """
 
-import aiohttp
 import logging
-import yaml
-from typing import Dict, List, Any, Optional
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import aiohttp
+import yaml
 
 from src.authorities.base import (
-    AuthorityFetcher,
-    FetchStatus,
     AuthorityData,
-    FetchResult,
+    AuthorityFetcher,
     AuthorityTier,
+    FetchResult,
+    FetchStatus,
 )
 
 logger = logging.getLogger(__name__)

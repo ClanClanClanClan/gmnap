@@ -66,8 +66,8 @@ def remove_wrong_sun_mapping():
 
 def test_sun_conversions():
     """Test sun-related conversions."""
-    import sys
     import pathlib
+    import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     # from converter import eng2kor

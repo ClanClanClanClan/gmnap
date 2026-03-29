@@ -8,7 +8,8 @@ Features: 6-tone system, full/ASCII/numeric variants, Vietnamese name order.
 import re
 import unicodedata
 from typing import Any, Dict, List, Optional
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class E5Vietnam(RegionSpec):

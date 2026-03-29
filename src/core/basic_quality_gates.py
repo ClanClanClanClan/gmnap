@@ -3,10 +3,10 @@ Basic Quality Gates for GMNAP V7 Step 1.2
 Simple, working quality checks for basic pipeline validation
 """
 
-import re
-from typing import Dict, List, Any
-from dataclasses import dataclass
 import logging
+import re
+from dataclasses import dataclass
+from typing import Any, Dict, List
 
 
 @dataclass

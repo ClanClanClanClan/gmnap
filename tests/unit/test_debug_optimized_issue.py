@@ -32,7 +32,7 @@ def test_optimized_manager():
 
     # Force load regions
     manager._ensure_regions_loaded()
-    print(f"\nAfter ensure_regions_loaded:")
+    print("\nAfter ensure_regions_loaded:")
     print(f"Registered regions: {len(manager._regions)}")
     print(f"Region codes: {sorted(manager._regions.keys())}")
 

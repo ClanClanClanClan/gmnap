@@ -6,8 +6,10 @@ Minimal V7-compliant stub implementation.
 
 import re
 import unicodedata
-from typing import Dict, Any
-from ...base_enhanced import EnhancedRegionSpec as RegionSpec, RegionRuleError
+from typing import Any, Dict
+
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class F2_SSAAnglophone(RegionSpec):

@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -7,7 +6,6 @@ Test final memory fix for ULTRAFIX Phase 6
 
 import gc
 import sys
-import random
 from pathlib import Path
 
 # Add project root to Python path
@@ -15,8 +13,9 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / "src"))
 
-import psutil
 import os
+
+import psutil
 
 
 def get_memory_mb():
@@ -32,9 +31,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.regions.manager_optimized import RegionManager
 import sys
 from pathlib import Path
+
+from src.regions.manager_optimized import RegionManager
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.rate_limiter import global_rate_limiter
@@ -80,12 +80,12 @@ for i, name in enumerate(test_names):
 
 if memory_points:
     final_leak_rate = memory_points[-1]["leak_rate"]
-    print(f"\n📊 MEMORY TEST RESULTS:")
+    print("\n📊 MEMORY TEST RESULTS:")
     print(f"   Final memory growth: {memory_points[-1]['growth_mb']:.1f} MB")
     print(f"   Final leak rate: {final_leak_rate:.3f} MB/1K ops")
 
     if final_leak_rate < 0.10:
-        print(f"   PASS PASS: Memory leak below 0.1 MB/1K threshold")
+        print("   PASS PASS: Memory leak below 0.1 MB/1K threshold")
     else:
         print(
             f"   FAIL FAIL: Memory leak {final_leak_rate:.3f} exceeds 0.1 MB/1K threshold"

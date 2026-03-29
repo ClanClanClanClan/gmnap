@@ -1,5 +1,7 @@
+import json
+import os
+
 import pytest
-import os, pytest, json
 from cryptography.fernet import Fernet
 
 LIVE = os.getenv("OFFLINE", "1") == "0" and os.getenv("LIVE_AUTH", "0") == "1"

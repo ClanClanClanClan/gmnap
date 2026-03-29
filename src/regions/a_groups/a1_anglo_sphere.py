@@ -156,7 +156,6 @@ class A1_AngloSphere(RegionSpec):
             return name
 
         # Preserve original for comparison
-        original = name
 
         # Handle "Family, Given" format
         if "," in name:

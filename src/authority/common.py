@@ -1,5 +1,7 @@
 from __future__ import annotations
-import json, asyncio
+
+import asyncio
+import json
 from typing import Any, Dict
 
 try:

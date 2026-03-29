@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Test if region-specific processing actually happens."""
 
-import pytest
 import asyncio
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.core.pipeline_v7 import V7Pipeline, PipelineMode
+from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 
 
 @pytest.mark.timeout(30)

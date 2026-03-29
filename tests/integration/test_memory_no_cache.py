@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -7,8 +6,8 @@ This isolates whether the LRU cache is causing memory accumulation
 """
 
 import gc
-import sys
 import random
+import sys
 from pathlib import Path
 
 # Add project root to Python path
@@ -16,8 +15,9 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / "src"))
 
-import psutil
 import os
+
+import psutil
 
 
 def get_memory_mb():
@@ -174,7 +174,7 @@ for i, name in enumerate(test_names):
         print(f"Error at operation {i+1}: {e}")
         break
 
-print(f"\n📊 MEMORY ANALYSIS (NO CACHE, NO SECURITY, NO FASTTEXT):")
+print("\n📊 MEMORY ANALYSIS (NO CACHE, NO SECURITY, NO FASTTEXT):")
 if memory_points:
     print(f"   Total operations: {len(test_names):,}")
     print(f"   Final memory: {memory_points[-1]['memory_mb']:.1f} MB")
@@ -187,7 +187,7 @@ if memory_points:
     no_security_no_fasttext = 0.098  # Without security and FastText
     current_leak = memory_points[-1]["leak_rate"]
 
-    print(f"\n🔍 CACHE OVERHEAD ANALYSIS:")
+    print("\n🔍 CACHE OVERHEAD ANALYSIS:")
     print(f"   Original leak (full system): {original_leak:.3f} MB/1K ops")
     print(f"   No security: {no_security_leak:.3f} MB/1K ops")
     print(f"   No security + no FastText: {no_security_no_fasttext:.3f} MB/1K ops")
@@ -200,20 +200,20 @@ if memory_points:
 
     # Verdict
     if current_leak < 0.01:
-        print(f"\nPASS LEAK ELIMINATED: Cache was the remaining leak source!")
+        print("\nPASS LEAK ELIMINATED: Cache was the remaining leak source!")
         print(f"   Core processing leak: {current_leak:.3f} MB/1K ops (negligible)")
     elif current_leak < no_security_no_fasttext * 0.5:
-        print(f"\n🟡 LEAK SIGNIFICANTLY REDUCED: Cache was major contributor")
+        print("\n🟡 LEAK SIGNIFICANTLY REDUCED: Cache was major contributor")
         print(f"   But core processing still has leak: {current_leak:.3f} MB/1K ops")
     else:
-        print(f"\n🔴 LEAK PERSISTS: Cache not the main source")
+        print("\n🔴 LEAK PERSISTS: Cache not the main source")
         print(
-            f"   Need to investigate RegionDetectionResult object retention or other components"
+            "   Need to investigate RegionDetectionResult object retention or other components"
         )
         print(f"   Remaining leak in core processing: {current_leak:.3f} MB/1K ops")
 
     # Memory leak breakdown
-    print(f"\n📈 MEMORY LEAK BREAKDOWN:")
+    print("\n📈 MEMORY LEAK BREAKDOWN:")
     print(
         f"   Security validation: {(original_leak - no_security_leak):.3f} MB/1K ops ({(original_leak - no_security_leak)/original_leak*100:.1f}%)"
     )
@@ -229,7 +229,7 @@ if memory_points:
 
     # Final cache analysis (should be 0)
     final_cache = manager.get_cache_stats()
-    print(f"\n📈 FINAL CACHE STATE:")
+    print("\n📈 FINAL CACHE STATE:")
     print(f"   Cache size: {final_cache['cache_size']:,} (should be 0)")
     print(f"   Cache misses: {final_cache['cache_misses']:,}")
 else:

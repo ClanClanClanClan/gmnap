@@ -6,8 +6,9 @@ V7 Specification Requirement:
 "CJK Round-Trip – romanise+back-convert; >= 97% match (Dice coefficient after NFC casefold)"
 """
 
-import pytest
 import sys
+
+import pytest
 
 sys.path.insert(0, ".")
 
@@ -164,7 +165,7 @@ class TestCJKRoundTrip:
         """Test overall V7 compliance verification."""
         results = self.roundtrip.verify_v7_compliance()
 
-        print(f"\n=== V7 CJK Round-Trip Compliance ===")
+        print("\n=== V7 CJK Round-Trip Compliance ===")
         print(f"Total tests: {results['total_tests']}")
         print(f"Passed: {results['passed']}")
         print(f"Failed: {results['failed']}")

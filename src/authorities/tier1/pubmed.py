@@ -3,15 +3,16 @@ PubMed Authority Fetcher for V7 compliance.
 Provides access to biomedical literature and author data from NCBI.
 """
 
-import aiohttp
 import logging
 import xml.etree.ElementTree as ET
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
+import aiohttp
 
 from src.authorities.base import (
-    AuthorityFetcher,
     AuthorityData,
+    AuthorityFetcher,
     AuthorityTier,
     FetchResult,
     FetchStatus,

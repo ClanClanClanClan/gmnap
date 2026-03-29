@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """Test with proper name format."""
@@ -44,7 +43,7 @@ for original in test_cases:
             # Step 3: Regional processing
             if region in pipeline.v7_manager.list_regions():
                 processed = pipeline._stage_region_hooks(ingested, region)
-                print(f"    After regional: SUCCESS")
+                print("    After regional: SUCCESS")
             else:
                 print(f"    No processor for {region}")
 

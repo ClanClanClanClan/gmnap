@@ -6,7 +6,8 @@ Covers Portuguese colonial naming patterns in Angola, Mozambique, Cape Verde, Gu
 import re
 from typing import Any, Dict
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class F4_LusophoneAfrica(RegionSpec):

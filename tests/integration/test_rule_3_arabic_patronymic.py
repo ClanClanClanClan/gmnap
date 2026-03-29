@@ -11,15 +11,15 @@ This test verifies that Rule 3 is working correctly in both C3 and C4 regions:
 - Removal from order_key for proper sorting
 """
 
-import os
 
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.regions.c_groups.c3_arabic_levant_nile import C3_ArabicLevantNile
 import sys
 from pathlib import Path
+
+from src.regions.c_groups.c3_arabic_levant_nile import C3_ArabicLevantNile
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.c_groups.c4_arabic_gulf import C4_ArabicGulf
@@ -173,11 +173,11 @@ def test_rule_3_comprehensive():
 
         # Verify expectations
         if should_be_bin_bint and not (c3_is_bin_bint and c4_is_bin_bint):
-            print(f"  WARN  Expected bin/bint detection failed")
+            print("  WARN  Expected bin/bint detection failed")
         elif not should_be_bin_bint and (c3_is_bin_bint or c4_is_bin_bint):
-            print(f"  WARN  Unexpected bin/bint detection")
+            print("  WARN  Unexpected bin/bint detection")
         else:
-            print(f"  PASS Correct bin/bint detection")
+            print("  PASS Correct bin/bint detection")
 
 
 @pytest.mark.timeout(15)
@@ -234,9 +234,9 @@ def test_rule_3_order_key():
         print(f"  Without patronymic: {order_key_without}")
 
         if order_key_with == order_key_without:
-            print(f"  PASS Rule 3 correctly removes patronymic from sorting")
+            print("  PASS Rule 3 correctly removes patronymic from sorting")
         else:
-            print(f"  WARN  Rule 3 may not be working correctly")
+            print("  WARN  Rule 3 may not be working correctly")
 
 
 def main():

@@ -1,6 +1,7 @@
 import sys
+
 sys.path.append('src')
-from converter import kor2eng, _dice
+from converter import _dice, kor2eng
 
 # Test the multi-path selection
 test_korean = "오성준"  # Oh Seong-Joon

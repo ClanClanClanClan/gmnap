@@ -1,4 +1,5 @@
 from typing import List
+
 import pytest
 
 #!/usr/bin/env python3
@@ -9,7 +10,7 @@ Use this to verify edge case fixes work properly.
 
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 sys.path.append(str(Path.cwd()))
 
@@ -151,7 +152,7 @@ def test_region_edge_cases(
 
             if not error_step:
                 try:
-                    key = region.order_key(entry)
+                    region.order_key(entry)
                 except Exception as e:
                     error_step = "order_key"
                     error_msg = str(e)[:100]
@@ -356,9 +357,9 @@ def test_specific_region(region_code: str):
 
         # Check if result matches expectation
         if edge_case["should_pass"]:
-            print(f"   Expected: PASS")
+            print("   Expected: PASS")
         else:
-            print(f"   Expected: FAIL")
+            print("   Expected: FAIL")
 
 
 if __name__ == "__main__":

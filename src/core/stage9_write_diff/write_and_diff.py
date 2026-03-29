@@ -1,8 +1,9 @@
 from __future__ import annotations
-from typing import Any, List, Dict
-from pathlib import Path
-import json
+
 import difflib
+import json
+from pathlib import Path
+from typing import Any, Dict, List
 
 
 def canonical(obj: Any) -> str:

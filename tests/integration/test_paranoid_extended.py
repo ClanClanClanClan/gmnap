@@ -1,7 +1,5 @@
-from pathlib import Path
-from typing import List
-from typing import Optional
 from typing import Any
+
 import pytest
 
 #!/usr/bin/env python3
@@ -10,15 +8,10 @@ Extended Paranoid Test Suite for GMNAP v7
 Tests additional edge cases and attack vectors not covered in the basic paranoid test.
 """
 
+import json
 import sys
 import time
-import threading
-import random
-import json
-import unicodedata
-from typing import Dict, Any, List, Optional
-from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor
+from typing import Dict
 
 # Add src to path
 sys.path.insert(
@@ -60,7 +53,7 @@ class ExtendedParanoidTester:
         """Run all extended paranoid tests."""
         print("🔥 EXTENDED PARANOID HELL TEST SUITE 🔥")
         print("=" * 60)
-        print(f"Testing levels beyond normal paranoia...")
+        print("Testing levels beyond normal paranoia...")
         print("=" * 60)
 
         test_categories = [
@@ -699,7 +692,7 @@ class ExtendedParanoidTester:
             entry = {field: text}
 
             try:
-                result = self.pipeline.process_entry(entry)
+                self.pipeline.process_entry(entry)
 
                 # Check if bidi characters are handled safely
                 if any(
@@ -722,7 +715,7 @@ class ExtendedParanoidTester:
                         self.results["passed"] += 1
                 else:
                     self.results["passed"] += 1
-            except Exception as e:
+            except Exception:
                 self.results["passed"] += 1  # Good if rejected
 
     def _test_zero_width(self, text: str):
@@ -750,7 +743,7 @@ class ExtendedParanoidTester:
                 )
             else:
                 self._record_test_result(True)
-        except Exception as e:
+        except Exception:
             self._record_test_result(True)
 
     def _test_emoji(self, text: str):
@@ -760,7 +753,7 @@ class ExtendedParanoidTester:
         entry = {"CanonicalLatin": text}
 
         try:
-            result = self.pipeline.process_entry(entry)
+            self.pipeline.process_entry(entry)
 
             # Latin field should not contain emoji
             self.results["failed"] += 1
@@ -768,7 +761,7 @@ class ExtendedParanoidTester:
             self.results["emoji_attacks"].append(
                 {"text": text, "issue": "Emoji accepted in Latin field"}
             )
-        except Exception as e:
+        except Exception:
             self.results["passed"] += 1  # Good if rejected
 
     def _test_case_folding_pair(self, original: str, folded: str):
@@ -793,7 +786,7 @@ class ExtendedParanoidTester:
                 )
 
             self.results["passed"] += 1
-        except Exception as e:
+        except Exception:
             self.results["passed"] += 1
 
     def _test_overflow(self, entry: Dict[str, Any]):
@@ -801,7 +794,7 @@ class ExtendedParanoidTester:
         self.results["total_tests"] += 1
 
         try:
-            result = self.pipeline.process_entry(entry)
+            self.pipeline.process_entry(entry)
 
             # If it accepted extreme values, that might be bad
             if "BirthYear" in entry:
@@ -819,7 +812,7 @@ class ExtendedParanoidTester:
                     self.results["passed"] += 1
             else:
                 self.results["passed"] += 1
-        except Exception as e:
+        except Exception:
             self.results["passed"] += 1  # Good if rejected
 
     def _test_serialization(self, entry: Dict[str, Any]):
@@ -844,7 +837,7 @@ class ExtendedParanoidTester:
                 )
             else:
                 self.results["passed"] += 1
-        except Exception as e:
+        except Exception:
             self.results["passed"] += 1
 
     def _test_locale_specific(self, text: str, locale: str):
@@ -855,9 +848,9 @@ class ExtendedParanoidTester:
         entry = {"CanonicalLatin": text}
 
         try:
-            result = self.pipeline.process_entry(entry)
+            self.pipeline.process_entry(entry)
             self.results["passed"] += 1
-        except Exception as e:
+        except Exception:
             # Some texts should fail
             if locale in ["../../../etc/passwd", "';DROP TABLE--"]:
                 self.results["passed"] += 1
@@ -873,7 +866,7 @@ class ExtendedParanoidTester:
 
         start_time = time.time()
         try:
-            result = self.pipeline.process_entry(entry)
+            self.pipeline.process_entry(entry)
             elapsed = time.time() - start_time
 
             if elapsed > 1.0:  # More than 1 second is concerning
@@ -886,7 +879,7 @@ class ExtendedParanoidTester:
                 )
             else:
                 self.results["passed"] += 1
-        except Exception as e:
+        except Exception:
             elapsed = time.time() - start_time
             if elapsed > 1.0:
                 self.results["failed"] += 1
@@ -904,7 +897,7 @@ class ExtendedParanoidTester:
         entry = {"CanonicalLatin": polyglot}
 
         try:
-            result = self.pipeline.process_entry(entry)
+            self.pipeline.process_entry(entry)
 
             # These should all be rejected or sanitized
             self.results["failed"] += 1
@@ -914,7 +907,7 @@ class ExtendedParanoidTester:
             self.record_error(
                 "Polyglot", f"Accepted dangerous polyglot: {polyglot[:50]}"
             )
-        except Exception as e:
+        except Exception:
             self.results["passed"] += 1  # Good if rejected
 
     def _test_resource_bomb(self, bomb: Dict[str, Any]):
@@ -928,9 +921,9 @@ class ExtendedParanoidTester:
                 self.results["passed"] += 1
                 return
 
-            result = self.pipeline.process_entry(bomb)
+            self.pipeline.process_entry(bomb)
             self.results["passed"] += 1
-        except Exception as e:
+        except Exception:
             self.results["passed"] += 1
 
     def record_error(self, context: str, error: str):
@@ -986,7 +979,7 @@ class ExtendedParanoidTester:
         with open("extended_paranoid_results.json", "w", encoding="utf-8") as f:
             json.dump(self.results, f, indent=2, ensure_ascii=False)
 
-        print(f"\nDetailed results saved to: extended_paranoid_results.json")
+        print("\nDetailed results saved to: extended_paranoid_results.json")
 
         # Overall assessment
         print("\n" + "=" * 60)

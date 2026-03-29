@@ -21,15 +21,15 @@ Categories:
     - all: All categories (default)
 """
 
+import argparse
+import datetime
+import json
+import subprocess
 import sys
 import time
-import json
-import argparse
-from pathlib import Path
-from typing import Dict, List, Any, Optional
-import subprocess
-import datetime
 import traceback
+from pathlib import Path
+from typing import Any, Dict, List
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
@@ -86,8 +86,9 @@ class HellTestRunner:
 
     def collect_system_info(self):
         """Collect system information for the report."""
-        import psutil
         import platform
+
+        import psutil
 
         try:
             self.results["system_info"] = {
@@ -437,7 +438,7 @@ class HellTestRunner:
 
         # Summary
         summary = self.results["summary"]
-        print(f"\n📊 OVERALL SUMMARY:")
+        print("\n📊 OVERALL SUMMARY:")
         print(f"   Status: {summary['overall_status']}")
         print(
             f"   Tests: {summary['passed']}/{summary['total_tests']} passed ({summary['pass_rate']:.1f}%)"
@@ -449,7 +450,7 @@ class HellTestRunner:
             print(f"   WARN  CRITICAL FAILURES: {summary['critical_failures']}")
 
         # Category breakdown
-        print(f"\n📂 CATEGORY BREAKDOWN:")
+        print("\n📂 CATEGORY BREAKDOWN:")
         for category, results in self.results["categories"].items():
             status_emoji = {
                 "passed": "PASS",
@@ -468,7 +469,7 @@ class HellTestRunner:
                 print(f"      Failures: {len(results['failures'])}")
 
         # Recommendations
-        print(f"\n💡 RECOMMENDATIONS:")
+        print("\n💡 RECOMMENDATIONS:")
         if not self.results["recommendations"]:
             print("   No specific recommendations.")
         else:
@@ -487,7 +488,7 @@ class HellTestRunner:
                 print()
 
         # System info
-        print(f"\n🖥️  SYSTEM INFO:")
+        print("\n🖥️  SYSTEM INFO:")
         sys_info = self.results["system_info"]
         if "error" not in sys_info:
             print(f"   Platform: {sys_info.get('platform', 'Unknown')}")
@@ -607,7 +608,7 @@ def main():
     results = runner.run(categories=categories)
 
     # Save report
-    report_path = runner.save_report(args.output)
+    runner.save_report(args.output)
 
     # Exit with appropriate code
     if results["summary"]["overall_status"] in ["PASSED"]:

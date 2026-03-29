@@ -4,6 +4,7 @@ V7-compatible RegionManager implementation.
 
 from pathlib import Path
 from typing import Dict, Optional
+
 from .base import RegionBase
 
 

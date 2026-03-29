@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from prometheus_client import Counter, Histogram
 
 harvest_total = Counter("gmnap_harvest_records_total", "Harvested records", "source")

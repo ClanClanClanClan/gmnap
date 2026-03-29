@@ -129,7 +129,7 @@ def test_all_regions():
     total_time = time.time() - start
 
     stats = manager.get_cache_stats()
-    print(f"\n100 identical queries:")
+    print("\n100 identical queries:")
     print(f"  Time: {total_time*1000:.1f}ms total ({total_time*10:.2f}ms average)")
     print(f"  Cache hits: {stats['cache_hits']}")
     print(f"  Cache misses: {stats['cache_misses']}")

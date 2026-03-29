@@ -11,11 +11,11 @@ V7 Quality Gates:
 - Extreme mode: >=0.97 coherence score
 """
 
-import pytest
-import networkx as nx
-from pathlib import Path
-from typing import Dict, Any, List
 import sys
+from pathlib import Path
+
+import networkx as nx
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -25,7 +25,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.graph_coherence.scorer import GraphCoherenceScorer, GraphCoherenceResult
+from src.core.graph_coherence.scorer import GraphCoherenceScorer
 
 
 class TestV7GraphCoherence:

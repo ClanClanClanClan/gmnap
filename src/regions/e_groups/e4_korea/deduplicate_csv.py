@@ -75,8 +75,8 @@ def deduplicate_rr_syllable_map():
 
 def backup_files():
     """Create backups before modification."""
-    import shutil
     import datetime
+    import shutil
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 

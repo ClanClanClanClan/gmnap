@@ -3,13 +3,13 @@ Real Compliance Tracker - Step 2.2
 Measures actual working functionality, not placeholders
 """
 
+import logging
 import time
-from typing import Dict, List, Any
 from dataclasses import dataclass
 from datetime import datetime
-import logging
+from typing import Any, Dict, List
 
-from .pipeline_v7 import V7Pipeline, PipelineMode
+from .pipeline_v7 import PipelineMode, V7Pipeline
 from .v7_quality_gates import V7QualityGates
 
 

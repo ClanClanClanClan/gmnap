@@ -737,7 +737,7 @@ class C2_PersianTajik(RegionSpec):
         variants = []
 
         root = zadeh_info.get("zadeh_root", "")
-        zadeh_type = zadeh_info.get("zadeh_type", "")
+        zadeh_info.get("zadeh_type", "")
         current_suffix = zadeh_info.get("zadeh_suffix", "")
 
         if not root:

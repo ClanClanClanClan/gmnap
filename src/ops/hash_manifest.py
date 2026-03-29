@@ -1,5 +1,9 @@
 from __future__ import annotations
-import hashlib, os, pathlib, json
+
+import hashlib
+import json
+import os
+import pathlib
 
 
 def sha256_file(path: str) -> str:

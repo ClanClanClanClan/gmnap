@@ -29,7 +29,7 @@ for hangul, roman, weight, context, pos in mappings:
         print(f"  ❌ Linter failed: {result.stdout.strip()}")
         continue
 
-    print(f"  ✅ Linter passed")
+    print("  ✅ Linter passed")
 
     # Test conversion for known cases
     if roman == "shik":

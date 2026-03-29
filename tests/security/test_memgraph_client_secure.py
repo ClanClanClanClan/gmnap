@@ -1,11 +1,10 @@
-import pytest
-
-import os
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.memgraph_client_secure import SecureMemgraphClient, SecureMemgraphConfig
+from src.core.memgraph_client_secure import SecureMemgraphClient
 
 
 @pytest.mark.timeout(15)

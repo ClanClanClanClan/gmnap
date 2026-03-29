@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Debug segmentation of jung-containing names."""
 
-import sys
 import pathlib
+import sys
+
 sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
 
-from segment import segment, LEXICON
+from segment import LEXICON, segment
+
 
 def debug_segmentation(token):
     """Debug how a token is segmented."""

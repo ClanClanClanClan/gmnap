@@ -1,9 +1,8 @@
-import pytest
 
 #!/usr/bin/env python3
 """Minimal test - just the idempotency function"""
-import json
 import hashlib
+import json
 
 VOLATILE_KEYS = {"ProcessedAt", "ProcessingLatencyMs", "_debug", "_trace_id", "_meta"}
 

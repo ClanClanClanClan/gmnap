@@ -4,9 +4,9 @@ Real integration testing for authority sources to get 3+ working sources
 """
 
 import asyncio
-from datetime import datetime
-from typing import Dict, Any
 import logging
+from datetime import datetime
+from typing import Any, Dict
 
 from ..authorities.base import AuthorityFetcher, FetchStatus
 from ..authorities.tier0.crossref import CrossrefFetcher
@@ -326,7 +326,7 @@ class ORCIDFetcher(AuthorityFetcher):
         self.requires_auth = False
 
     async def fetch(self, query: str):
-        from ..authorities.base import FetchResult, FetchStatus, AuthorityData
+        from ..authorities.base import AuthorityData, FetchResult, FetchStatus
 
         # Mock successful response for common test names
         test_names = ["Einstein, Albert", "Gauss, Carl Friedrich", "Euler, Leonhard"]
@@ -362,7 +362,7 @@ class ArXivFetcher(AuthorityFetcher):
         self.requires_auth = False
 
     async def fetch(self, query: str):
-        from ..authorities.base import FetchResult, FetchStatus, AuthorityData
+        from ..authorities.base import AuthorityData, FetchResult, FetchStatus
 
         # Mock successful response
         data = AuthorityData(
@@ -392,7 +392,7 @@ class DBLPFetcher(AuthorityFetcher):
         self.requires_auth = False
 
     async def fetch(self, query: str):
-        from ..authorities.base import FetchResult, FetchStatus, AuthorityData
+        from ..authorities.base import AuthorityData, FetchResult, FetchStatus
 
         # Mock successful response with rich data
         data = AuthorityData(

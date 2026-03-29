@@ -2,12 +2,13 @@ import pytest
 
 #!/usr/bin/env python3
 """Test cache performance by running pipeline twice"""
+import json
 import sys
 import tempfile
-import yaml
-import json
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
@@ -15,9 +16,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 import sys
 from pathlib import Path
+
+from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.config import GMNAPConfig

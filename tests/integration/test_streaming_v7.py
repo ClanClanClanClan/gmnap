@@ -1,13 +1,11 @@
-import pytest
 
 #!/usr/bin/env python3
 """
 Test V7 Streaming Pipeline Implementation
 """
 
-import sys
 import asyncio
-import time
+import sys
 import traceback
 from pathlib import Path
 
@@ -21,8 +19,8 @@ async def test_basic_streaming():
 
     try:
         from src.core.streaming_v7 import (
-            V7StreamingPipeline,
             StreamingConfig,
+            V7StreamingPipeline,
             test_data_generator,
         )
 
@@ -40,7 +38,7 @@ async def test_basic_streaming():
 
         # Validate results
         if metrics.entries_ingested >= 50 and metrics.entries_processed > 0:
-            print(f"PASS Basic streaming successful:")
+            print("PASS Basic streaming successful:")
             print(f"   Ingested: {metrics.entries_ingested}")
             print(f"   Processed: {metrics.entries_processed}")
             print(f"   Stored: {metrics.entries_stored}")
@@ -63,8 +61,8 @@ async def test_performance_targets():
 
     try:
         from src.core.streaming_v7 import (
-            benchmark_streaming_performance,
             StreamingConfig,
+            benchmark_streaming_performance,
         )
 
         # Performance test with larger dataset
@@ -79,7 +77,7 @@ async def test_performance_targets():
         perf = benchmark_results["performance_results"]
         quality = benchmark_results["quality_assessment"]
 
-        print(f"PASS Performance benchmark completed:")
+        print("PASS Performance benchmark completed:")
         print(
             f"   Throughput: {perf['wall_clock_throughput_per_second']:.1f} entries/sec"
         )
@@ -136,12 +134,12 @@ async def test_database_integration():
     print("\n🧪 TESTING: Database integration with streaming")
 
     try:
+        from src.core.memgraph_client import MemgraphClient
         from src.core.streaming_v7 import (
-            V7StreamingPipeline,
             StreamingConfig,
+            V7StreamingPipeline,
             test_data_generator,
         )
-        from src.core.memgraph_client import MemgraphClient
 
         # Count initial database entries
         db_client = MemgraphClient(username="", password="", use_mock=False)
@@ -161,7 +159,7 @@ async def test_database_integration():
 
         entries_added = final_count - initial_count
 
-        print(f"PASS Database integration results:")
+        print("PASS Database integration results:")
         print(f"   Database entries before: {initial_count}")
         print(f"   Database entries after: {final_count}")
         print(f"   Entries added: {entries_added}")
@@ -190,8 +188,8 @@ async def test_concurrent_streaming():
 
     try:
         from src.core.streaming_v7 import (
-            V7StreamingPipeline,
             StreamingConfig,
+            V7StreamingPipeline,
             test_data_generator,
         )
 
@@ -218,7 +216,7 @@ async def test_concurrent_streaming():
         avg_throughput = sum(r["throughput"] for r in results) / len(results)
         min_success_rate = min(r["success_rate"] for r in results)
 
-        print(f"PASS Concurrent streaming results:")
+        print("PASS Concurrent streaming results:")
         print(f"   Instances: {len(results)}")
         print(f"   Total processed: {total_processed}")
         print(f"   Average throughput: {avg_throughput:.1f} entries/sec")
@@ -243,7 +241,7 @@ async def test_error_handling():
     print("\n🧪 TESTING: Error handling and recovery")
 
     try:
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig
+        from src.core.streaming_v7 import StreamingConfig, V7StreamingPipeline
 
         async def error_prone_data_generator():
             """Generator that includes some problematic entries."""
@@ -271,7 +269,7 @@ async def test_error_handling():
         # Analyze error handling
         error_rate = (metrics.entries_failed / metrics.entries_ingested) * 100
 
-        print(f"PASS Error handling results:")
+        print("PASS Error handling results:")
         print(f"   Total ingested: {metrics.entries_ingested}")
         print(f"   Successfully processed: {metrics.entries_processed}")
         print(f"   Failed: {metrics.entries_failed}")

@@ -6,10 +6,12 @@ Supports RR strict, RR common (international usage), and McCune-Reischauer.
 """
 
 from __future__ import annotations
+
 import json
 from pathlib import Path
-from typing import Dict, Any
-from .romanizer import KoreanNameParser, ContextAwareRomanizer, load_resources
+from typing import Any, Dict
+
+from .romanizer import ContextAwareRomanizer, KoreanNameParser, load_resources
 
 # V7 spec constants
 REGION_CODE = "E4"

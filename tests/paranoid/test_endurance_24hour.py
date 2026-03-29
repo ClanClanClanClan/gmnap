@@ -17,25 +17,21 @@ Tests system stability over extended periods to find:
 
 import gc
 import os
-import psutil
-import resource
-import signal
+import random
+import string
 import sys
 import threading
 import time
-import tracemalloc
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-import json
-import random
-import string
+from typing import Any, Dict
+
+import psutil
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.core.security_validator import SecurityValidator
 from src.core.globalid import GlobalIDGenerator
+from src.core.security_validator import SecurityValidator
 from src.core.unicode_handler import UnicodeNormalizer
 from src.regions.manager import RegionManager
 
@@ -198,7 +194,7 @@ class TestEndurance24Hour:
                     )
 
                 # Validate string
-                result = self.validator.validate_string(
+                self.validator.validate_string(
                     test_str, f"endurance_{iteration}"
                 )
 
@@ -230,7 +226,7 @@ class TestEndurance24Hour:
                 )
 
         report = monitor.report()
-        print(f"\nEndurance Report:")
+        print("\nEndurance Report:")
         print(f"  Runtime: {report['runtime_hours']:.2f} hours")
         print(f"  Operations: {report['total_operations']:,}")
         print(f"  Ops/sec: {report['ops_per_second']:.2f}")
@@ -327,7 +323,7 @@ class TestEndurance24Hour:
         report = monitor.report()
         report["total_thread_operations"] = total_operations
 
-        print(f"\nConcurrent Load Report:")
+        print("\nConcurrent Load Report:")
         print(f"  Runtime: {report['runtime_hours']:.2f} hours")
         print(f"  Total operations: {total_operations:,}")
         print(
@@ -362,7 +358,7 @@ class TestEndurance24Hour:
                     big_strings = []
                     for _ in range(100):
                         big_strings.append("X" * (1024 * 1024))  # 1MB strings
-                        result = self.validator.validate_string(
+                        self.validator.validate_string(
                             big_strings[-1][:100], "memory_test"
                         )
                     del big_strings
@@ -416,7 +412,7 @@ class TestEndurance24Hour:
             time.sleep(0.01)
 
         report = monitor.report()
-        print(f"\nResource Exhaustion Report:")
+        print("\nResource Exhaustion Report:")
         print(f"  Runtime: {report['runtime_hours']:.2f} hours")
         print(f"  Exhaustion attempts: {exhaustion_tests}")
         print(f"  Errors handled: {len(monitor.metrics['errors'])}")
@@ -425,7 +421,7 @@ class TestEndurance24Hour:
         # System should handle resource exhaustion gracefully
         assert (
             report["degradation_events"] < 50
-        ), f"System unstable under resource pressure"
+        ), "System unstable under resource pressure"
 
     @pytest.mark.timeout(15)
     def test_cache_overflow_24h(self):
@@ -450,7 +446,7 @@ class TestEndurance24Hour:
                 cache_hits += 1
 
             try:
-                result = self.validator.validate_string(text, "cache_test")
+                self.validator.validate_string(text, "cache_test")
 
                 # Force cache pressure with large strings occasionally
                 if random.random() < 0.05:
@@ -466,7 +462,7 @@ class TestEndurance24Hour:
                 monitor.metrics["errors"].append(str(e))
 
         report = monitor.report()
-        print(f"\nCache Overflow Report:")
+        print("\nCache Overflow Report:")
         print(f"  Runtime: {report['runtime_hours']:.2f} hours")
         print(f"  Unique entries: {unique_count:,}")
         print(f"  Cache hits (simulated): {cache_hits:,}")
@@ -532,7 +528,7 @@ class TestEndurance24Hour:
                 pass
 
         report = monitor.report()
-        print(f"\nLog Growth Report:")
+        print("\nLog Growth Report:")
         print(f"  Runtime: {report['runtime_hours']:.2f} hours")
         print(f"  Log events: {log_events}")
         print(f"  Total events: {sum(log_events.values()):,}")
@@ -585,7 +581,7 @@ class TestEndurance24Hour:
             last_10_avg = sum(b["avg_ms"] for b in performance_buckets[-10:]) / 10
             degradation_percent = ((last_10_avg - first_10_avg) / first_10_avg) * 100
 
-            print(f"\nPerformance Degradation Report:")
+            print("\nPerformance Degradation Report:")
             print(f"  Runtime: {monitor.report()['runtime_hours']:.2f} hours")
             print(f"  Initial performance: {first_10_avg:.3f}ms")
             print(f"  Final performance: {last_10_avg:.3f}ms")
@@ -628,7 +624,7 @@ class TestEndurance24Hour:
             stress_duration = min(
                 10, (end_time - time.time()) / 2
             )  # 10 seconds or remaining/2
-            stress_end = time.time() + stress_duration
+            time.time() + stress_duration
             stress_start = time.time()
 
             # Apply stress
@@ -686,7 +682,7 @@ class TestEndurance24Hour:
             sum(recovery_times) / len(recovery_times) if recovery_times else 0
         )
 
-        print(f"\nStress Recovery Report:")
+        print("\nStress Recovery Report:")
         print(f"  Runtime: {report['runtime_hours']:.2f} hours")
         print(f"  Stress periods: {len(stress_periods)}")
         print(f"  Average recovery time: {avg_recovery:.2f} seconds")

@@ -5,27 +5,20 @@ Tests system behavior under sustained load, resource exhaustion,
 and extreme conditions over extended periods.
 """
 
-import asyncio
 import gc
 import random
 import tempfile
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timedelta
 from pathlib import Path
 from queue import Empty, Queue
-from typing import Any, Dict, List
-from unittest.mock import Mock, patch
 
 import psutil
 import pytest
-import yaml
 
 from src.core.config import GMNAPConfig
 from src.core.globalid import GlobalIDGenerator
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
-from src.core.unicode_handler import UnicodeNormalizer
 from src.utils.cache import CacheManager
 from src.utils.database import DatabaseManager
 
@@ -294,12 +287,12 @@ class TestLongRunningStress:
                             "BirthYear": 1950 + (local_count % 100),
                         }
                         global_id = generator.generate(entry)
-                        assert global_id is not None, f"GlobalID generation failed"
+                        assert global_id is not None, "GlobalID generation failed"
 
                     elif operation == "unicode":
                         test_text = f"Test{local_count:06d}García, José"
                         normalized = handler.normalize(test_text)
-                        assert normalized is not None, f"Unicode normalization failed"
+                        assert normalized is not None, "Unicode normalization failed"
 
                     elif operation == "mixed":
                         # Combined operation
@@ -308,7 +301,7 @@ class TestLongRunningStress:
                         if normalized:
                             entry = {"CanonicalNative": normalized}
                             global_id = generator.generate(entry)
-                            assert global_id is not None, f"Combined operation failed"
+                            assert global_id is not None, "Combined operation failed"
 
                     local_count += 1
 
@@ -474,7 +467,7 @@ class TestMemoryPressureEndurance:
             gc.collect()
             self.monitor.stop()
 
-        summary = self.monitor.get_summary()
+        self.monitor.get_summary()
 
         # Cache should have handled memory pressure
         assert (
@@ -549,7 +542,7 @@ class TestDatabaseStressEndurance:
                         )
 
                     elif operation == "select":
-                        result = worker_db.execute(
+                        worker_db.execute(
                             "SELECT COUNT(*) FROM stress_test WHERE worker_id = ?",
                             (worker_id,),
                         ).fetchone()

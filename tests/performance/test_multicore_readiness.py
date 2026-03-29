@@ -1,4 +1,5 @@
 from typing import Any
+
 import pytest
 
 #!/usr/bin/env python3
@@ -6,12 +7,12 @@ import pytest
 Comprehensive test of multi-core parallelization readiness
 """
 
-import sys
-import time
 import concurrent.futures
 import multiprocessing
+import sys
+import time
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -104,7 +105,7 @@ def test_multicore_processing():
     total_time = end_time - start_time
     avg_batch_time = sum(r["processing_time"] for r in results) / len(results)
 
-    print(f"\nMulticore processing results:")
+    print("\nMulticore processing results:")
     print(
         f"Total processed: {total_processed}/{total_entries} ({100*total_processed/total_entries:.1f}%)"
     )
@@ -264,7 +265,7 @@ def test_stress_concurrent_load():
     duration = end_time - start_time
     throughput = processed_count / duration
 
-    print(f"Stress test results:")
+    print("Stress test results:")
     print(f"Workers: {num_workers}")
     print(f"Processed: {processed_count}/{total_expected} ({success_rate:.1%})")
     print(f"Errors: {len(errors)}")

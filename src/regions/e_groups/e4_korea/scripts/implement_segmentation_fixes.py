@@ -83,7 +83,7 @@ for hangul, roman, weight in segmentation_fixes:
                     updated_count += 1
                 break
 
-print(f"\nSegmentation fixes:")
+print("\nSegmentation fixes:")
 print(f"- Added: {added_count} new mappings")
 print(f"- Updated: {updated_count} weights")
 print(f"- Total rows: {len(rows)}")

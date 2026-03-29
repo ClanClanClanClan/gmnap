@@ -3,7 +3,11 @@
 Analyze validation failures systematically to identify patterns
 """
 
-import yaml, unicodedata, sys, pathlib
+import pathlib
+import sys
+import unicodedata
+
+import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 # from converter import eng2kor, kor2eng
@@ -68,7 +72,7 @@ for k, v in data.items():
             }
         )
 
-print(f"=== FAILURE ANALYSIS ===")
+print("=== FAILURE ANALYSIS ===")
 print(f"Total test cases: {total_cases}")
 print(f"Eng→Kor failures: {len(eng_to_kor_failures)}")
 print(f"Roundtrip failures: {len(roundtrip_failures)}")
@@ -77,7 +81,7 @@ print(
     f"Success rate: {(total_cases - len(eng_to_kor_failures) - len(roundtrip_failures))/total_cases*100:.1f}%"
 )
 
-print(f"\n=== ENG→KOR FAILURE PATTERNS ===")
+print("\n=== ENG→KOR FAILURE PATTERNS ===")
 # Group by surname
 surname_failures = {}
 for f in eng_to_kor_failures:
@@ -97,7 +101,7 @@ for surname, failures in sorted_surnames[:10]:
     for f in failures[:3]:  # Show first 3 examples
         print(f"  {f['input']} → got:{f['got']} expected:{f['expected']}")
 
-print(f"\n=== ROUNDTRIP FAILURE EXAMPLES ===")
+print("\n=== ROUNDTRIP FAILURE EXAMPLES ===")
 for f in roundtrip_failures[:10]:
     print(
         f"{f['name']}: {f['input']} → {f['korean']} → {f['got_romanization']} (dice: {f['dice_score']:.3f})"

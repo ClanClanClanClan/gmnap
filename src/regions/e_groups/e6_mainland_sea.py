@@ -5,7 +5,8 @@ Implements Thai RTGS, Khmer UNGEGN, Lao MOICT romanization
 """
 
 from typing import Any, Dict
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class E6MainlandSEA(RegionSpec):

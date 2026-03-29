@@ -3,11 +3,11 @@ V7 Pipeline Fixed - Handles None values and edge cases properly.
 """
 
 import asyncio
-import time
-from typing import Dict, List, Any
 import logging
+import time
+from typing import Any, Dict, List
 
-from src.core.pipeline_v7_complete import V7PipelineComplete, PipelineMode
+from src.core.pipeline_v7_complete import PipelineMode, V7PipelineComplete
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ class V7PipelineFixed(V7PipelineComplete):
         """
         Stage 1: Ingest with proper sanitization.
         """
-        start_time = time.time()
+        time.time()
         logger.info(f"Stage 1: Ingesting {len(entries)} entries")
 
         # Sanitize all entries first

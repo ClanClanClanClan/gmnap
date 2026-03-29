@@ -7,11 +7,11 @@ import asyncio
 import json
 import logging
 import time
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional, AsyncGenerator, Tuple
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from pathlib import Path
+from typing import Any, AsyncGenerator, Dict, List, Optional, Tuple
 
 from src.core.memgraph_client import MemgraphClient
 from src.regions.manager import RegionManager

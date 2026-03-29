@@ -1,4 +1,5 @@
 import pytest
+
 from src.regions.b_groups.b1_east_slavic import translit
 
 

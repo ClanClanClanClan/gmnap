@@ -1,6 +1,3 @@
-import unittest
-from typing import List
-from typing import Any
 import pytest
 
 pytest.skip("Test needs major refactoring", allow_module_level=True)
@@ -9,25 +6,24 @@ ULTRATHINK Perfect Coverage Test Suite for V7 Compliance
 Comprehensive testing at perfection level
 """
 
-import pytest
 import asyncio
-import json
 import hashlib
-import time
-from pathlib import Path
-from typing import Dict, List, Any
-from unittest.mock import Mock, patch
-import sys
+import json
 import os
+import sys
+import time
+from unittest.mock import patch
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../"))
 
-from src.core.pipeline_v7 import V7Pipeline, PipelineMode
-from src.regions.manager_optimized import RegionManager
+from src.analytics.duckdb_analytics import DuckDBAnalytics
+from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 from src.core.security_validator import SecurityValidator
 from src.quality.gates import QualityGates
-from src.analytics.duckdb_analytics import DuckDBAnalytics
+from src.regions.manager_optimized import RegionManager
 
 
 class TestV7PerfectCoverage:
@@ -222,7 +218,7 @@ class TestSecurityValidation(TestV7PerfectCoverage):
         for malicious in malicious_inputs:
             entry = {"CanonicalNative": malicious, "GlobalID": "TEST"}
             result = security_validator.validate(entry)
-            assert result["is_valid"] == False or result.get("sanitized", False)
+            assert result["is_valid"] is False or result.get("sanitized", False)
 
     @pytest.mark.timeout(15)
     def test_xss_prevention(self, security_validator):
@@ -237,7 +233,7 @@ class TestSecurityValidation(TestV7PerfectCoverage):
         for xss in xss_attempts:
             entry = {"CanonicalNative": xss, "GlobalID": "TEST"}
             result = security_validator.validate(entry)
-            assert result["is_valid"] == False or result.get("sanitized", False)
+            assert result["is_valid"] is False or result.get("sanitized", False)
 
     @pytest.mark.timeout(15)
     def test_path_traversal_prevention(self, security_validator):
@@ -252,7 +248,7 @@ class TestSecurityValidation(TestV7PerfectCoverage):
         for traversal in traversal_attempts:
             entry = {"CanonicalNative": traversal, "GlobalID": "TEST"}
             result = security_validator.validate(entry)
-            assert result["is_valid"] == False or result.get("sanitized", False)
+            assert result["is_valid"] is False or result.get("sanitized", False)
 
     @pytest.mark.timeout(15)
     def test_unicode_attacks(self, security_validator):
@@ -268,7 +264,7 @@ class TestSecurityValidation(TestV7PerfectCoverage):
             entry = {"CanonicalNative": attack, "GlobalID": "TEST"}
             result = security_validator.validate(entry)
             # Should either reject or sanitize
-            assert result["is_valid"] == False or result.get("sanitized", False)
+            assert result["is_valid"] is False or result.get("sanitized", False)
 
 
 class TestQualityGates(TestV7PerfectCoverage):
@@ -301,7 +297,7 @@ class TestQualityGates(TestV7PerfectCoverage):
         ]
 
         start = time.time()
-        result = await pipeline.process_batch(test_data)
+        await pipeline.process_batch(test_data)
         elapsed = time.time() - start
 
         # Check performance gates

@@ -1,5 +1,3 @@
-from typing import List
-import pytest
 
 #!/usr/bin/env python3
 """

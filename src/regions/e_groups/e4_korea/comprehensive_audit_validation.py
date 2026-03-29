@@ -5,10 +5,10 @@ Validates that everything claimed in the audit responses actually works
 """
 
 import hashlib
-import subprocess
 import os
-from pathlib import Path
+import subprocess
 from datetime import datetime
+from pathlib import Path
 
 
 def test_audit_findings():
@@ -87,7 +87,7 @@ def test_audit_findings():
             SystematicImprovementFrameworkV2,
         )
 
-        framework = SystematicImprovementFrameworkV2()
+        SystematicImprovementFrameworkV2()
         print("   ✓ Framework v2 loads and initializes")
         results["tests_passed"] += 1
     except Exception as e:
@@ -179,7 +179,7 @@ def test_audit_findings():
         results["failed_tests"].append("Integration readiness")
 
     # Final results
-    print(f"\\n=== AUDIT VALIDATION RESULTS ===")
+    print("\\n=== AUDIT VALIDATION RESULTS ===")
     print(f"Tests run: {results['tests_run']}")
     print(f"Tests passed: {results['tests_passed']}")
     print(f"Success rate: {results['tests_passed']/results['tests_run']*100:.1f}%")

@@ -5,10 +5,7 @@ Tests with actual problematic mathematician names, real API response patterns,
 and data that has caused failures in similar systems.
 """
 
-import json
-import unicodedata
 from pathlib import Path
-from unittest.mock import Mock, patch
 
 import pytest
 

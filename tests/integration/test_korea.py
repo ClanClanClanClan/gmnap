@@ -1,13 +1,14 @@
-import yaml
-import pytest
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.regions.e_groups.e4_korea.processor import E4KoreanProcessor
+import pytest
+import yaml
 
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 # Load test data
 import os
+
+from src.regions.e_groups.e4_korea.processor import E4KoreanProcessor
 
 data_file = os.path.join(os.path.dirname(__file__), "../../data/korean.yaml")
 if os.path.exists(data_file):

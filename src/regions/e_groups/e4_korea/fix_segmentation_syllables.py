@@ -4,8 +4,8 @@ Add missing syllables to fix segmentation issues.
 """
 
 import csv
-import subprocess
 import json
+import subprocess
 from datetime import datetime
 
 # Missing syllables causing segmentation issues
@@ -71,8 +71,8 @@ def add_missing_syllables():
 
 def test_segmentation_fixes():
     """Test if segmentation is fixed."""
-    import sys
     import pathlib
+    import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     # from converter import eng2kor
