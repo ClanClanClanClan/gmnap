@@ -2,7 +2,8 @@
 """Check actual conversions"""
 
 import sys
-sys.path.append('src')
+
+sys.path.append("src")
 
 from v5.converter_with_backoff import convert_with_backoff
 

@@ -1,0 +1,92 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "name": "gmnap-v7-write-diff",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "gmnap-new-entries-spike",
+          "title": "New entries spike (>10k/10m)",
+          "condition": "A",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "datasourceUid": "prometheus",
+              "model": {
+                "expr": "increase(gmnap_write_diff_added_total[10m]) > 10000",
+                "interval": "1m"
+              }
+            }
+          ],
+          "for": "0m",
+          "labels": {
+            "severity": "warning",
+            "service": "gmnap"
+          },
+          "annotations": {
+            "summary": "Write&Diff noticed >10k new entries in 10 minutes."
+          }
+        },
+        {
+          "uid": "gmnap-deletes-spike",
+          "title": "Deletes spike (>1000/10m)",
+          "condition": "A",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "datasourceUid": "prometheus",
+              "model": {
+                "expr": "increase(gmnap_write_diff_removed_total[10m]) > 1000",
+                "interval": "1m"
+              }
+            }
+          ],
+          "for": "0m",
+          "labels": {
+            "severity": "critical",
+            "service": "gmnap"
+          },
+          "annotations": {
+            "summary": "Write&Diff saw >1000 deletes in 10 minutes."
+          }
+        },
+        {
+          "uid": "gmnap-modified-spike",
+          "title": "Modified entries spike (>5000/10m)",
+          "condition": "A",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "datasourceUid": "prometheus",
+              "model": {
+                "expr": "increase(gmnap_write_diff_modified_total[10m]) > 5000",
+                "interval": "1m"
+              }
+            }
+          ],
+          "for": "0m",
+          "labels": {
+            "severity": "warning",
+            "service": "gmnap"
+          },
+          "annotations": {
+            "summary": "Write&Diff saw >5000 modifications in 10 minutes."
+          }
+        }
+      ]
+    }
+  ]
+}

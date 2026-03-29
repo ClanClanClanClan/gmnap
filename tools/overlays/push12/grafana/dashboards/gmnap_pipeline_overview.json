@@ -1,0 +1,62 @@
+{
+  "uid": "gmnap-pipeline-overview",
+  "title": "GMNAP V7 \u2014 Pipeline Overview",
+  "timezone": "browser",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Stage durations",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(gmnap_stage_duration_seconds_bucket[5m])) by (le,stage))"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Throughput (entries/sec)",
+      "targets": [
+        {
+          "expr": "gmnap_pipeline_entries_per_sec"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Idempotency diff bytes",
+      "targets": [
+        {
+          "expr": "gmnap_idempotency_diff_bytes"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Stage 10 last success age (s)",
+      "targets": [
+        {
+          "expr": "time() - gmnap_stage10_report_last_success"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "DB apply queries",
+      "targets": [
+        {
+          "expr": "rate(gmnap_db_apply_queries_total[5m])"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Write&Diff changed entries",
+      "targets": [
+        {
+          "expr": "gmnap_write_diff_changed_entries"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39
+}

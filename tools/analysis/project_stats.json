@@ -1,0 +1,27 @@
+{
+  "regions": {
+    "implemented": 8,
+    "total": 43
+  },
+  "authorities": {
+    "implemented": 5,
+    "total": 25
+  },
+  "linguistic_rules": {
+    "implemented": 0,
+    "total": 34
+  },
+  "tests": {
+    "count": 0,
+    "passed": 0
+  },
+  "code_quality": {
+    "lines": 0,
+    "files": 0
+  },
+  "compliance": {
+    "regions": 18.6,
+    "authorities": 20.0,
+    "linguistic_rules": 0.0
+  }
+}

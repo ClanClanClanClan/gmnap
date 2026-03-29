@@ -1,0 +1,38 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "name": "gmnap-v7-idempotency",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "gmnap-idem-nonzero",
+          "title": "Idempotency diff bytes non-zero",
+          "condition": "A",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "datasourceUid": "prometheus",
+              "model": {
+                "expr": "gmnap_idempotency_diff_bytes > 0",
+                "interval": "1m"
+              }
+            }
+          ],
+          "for": "0m",
+          "labels": {
+            "severity": "critical",
+            "service": "gmnap"
+          },
+          "annotations": {
+            "summary": "Stage 11 idempotency gate failed (diff bytes > 0)."
+          }
+        }
+      ]
+    }
+  ]
+}

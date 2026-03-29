@@ -10,44 +10,35 @@ from pathlib import Path
 
 def fix_region_file(file_path: Path):
     """Fix imports and inheritance in a region file."""
-    
-    with open(file_path, 'r') as f:
+
+    with open(file_path, "r") as f:
         content = f.read()
-    
+
     # Fix the import statement
     content = re.sub(
-        r'from src\.regions\.base import BaseRegionHandler, RegionRuleError',
-        'from ..base import RegionSpec, RegionRuleError',
-        content
-    )
-    
-    # Fix the class inheritance
-    content = re.sub(
-        r'class (\w+)\(BaseRegionHandler\):',
-        r'class \1(RegionSpec):',
-        content
-    )
-    
-    # Fix territories parameter (not used in RegionSpec)
-    content = re.sub(
-        r',\s*territories=\[.*?\]',
-        '',
+        r"from src\.regions\.base import BaseRegionHandler, RegionRuleError",
+        "from ..base import RegionSpec, RegionRuleError",
         content,
-        flags=re.DOTALL
     )
-    
+
+    # Fix the class inheritance
+    content = re.sub(r"class (\w+)\(BaseRegionHandler\):", r"class \1(RegionSpec):", content)
+
+    # Fix territories parameter (not used in RegionSpec)
+    content = re.sub(r",\s*territories=\[.*?\]", "", content, flags=re.DOTALL)
+
     # Write back
-    with open(file_path, 'w') as f:
+    with open(file_path, "w") as f:
         f.write(content)
-    
+
     print(f"✅ Fixed: {file_path}")
 
 
 def main():
     """Fix all generated region files."""
-    
+
     regions_dir = Path(__file__).parent.parent / "src" / "regions"
-    
+
     # List of generated files to fix
     files_to_fix = [
         "c_groups/c5_arabic_maghreb.py",
@@ -70,7 +61,7 @@ def main():
         "special/r0_residual_latin_ascii.py",
         "special/z0_quarantine.py",
     ]
-    
+
     for file_path in files_to_fix:
         full_path = regions_dir / file_path
         if full_path.exists():

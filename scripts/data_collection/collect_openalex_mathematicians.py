@@ -31,10 +31,9 @@ class OpenAlexCollector:
         self.base_url = "https://api.openalex.org"
         self.email = email
         self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': f'GMNAP-DataCollector (mailto:{email})',
-            'Accept': 'application/json'
-        })
+        self.session.headers.update(
+            {"User-Agent": f"GMNAP-DataCollector (mailto:{email})", "Accept": "application/json"}
+        )
 
     def search_authors(self, query: str = "mathematics", max_results: int = 10000) -> List[Dict]:
         """
@@ -61,31 +60,25 @@ class OpenAlexCollector:
             # OpenAlex polite pool requires email in query params
             # Using broader search strategy to avoid 403 errors
             params = {
-                'filter': 'display_name.search:mathematics',  # Broader search
-                'per-page': per_page,
-                'page': page,
-                'select': 'id,display_name,last_known_institutions,works_count,cited_by_count,topics',
-                'mailto': self.email  # Polite pool access
+                "filter": "display_name.search:mathematics",  # Broader search
+                "per-page": per_page,
+                "page": page,
+                "select": "id,display_name,last_known_institutions,works_count,cited_by_count,topics",
+                "mailto": self.email,  # Polite pool access
             }
 
-            response = self.session.get(
-                f"{self.base_url}/authors",
-                params=params
-            )
+            response = self.session.get(f"{self.base_url}/authors", params=params)
 
             if response.status_code == 403:
                 print(f"⚠️  Access forbidden (403). Trying alternative search method...")
                 # Fallback: simple search without topic filter
                 params_fallback = {
-                    'search': query,
-                    'per-page': per_page,
-                    'page': page,
-                    'mailto': self.email
+                    "search": query,
+                    "per-page": per_page,
+                    "page": page,
+                    "mailto": self.email,
                 }
-                response = self.session.get(
-                    f"{self.base_url}/authors",
-                    params=params_fallback
-                )
+                response = self.session.get(f"{self.base_url}/authors", params=params_fallback)
 
             if response.status_code != 200:
                 print(f"⚠️  Request failed: {response.status_code}")
@@ -96,7 +89,7 @@ class OpenAlexCollector:
                 break
 
             data = response.json()
-            results = data.get('results', [])
+            results = data.get("results", [])
 
             if not results:
                 print("No more results")
@@ -109,8 +102,8 @@ class OpenAlexCollector:
             time.sleep(0.1)
 
             # Check if we have more pages
-            meta = data.get('meta', {})
-            if page > meta.get('per_page', 0):
+            meta = data.get("meta", {})
+            if page > meta.get("per_page", 0):
                 break
 
         authors = authors[:max_results]
@@ -124,35 +117,32 @@ class OpenAlexCollector:
         Returns:
             Standardized profile dict
         """
-        display_name = author.get('display_name')
+        display_name = author.get("display_name")
         if not display_name:
             return None
 
         # Extract last known institution
-        institutions = author.get('last_known_institutions', [])
+        institutions = author.get("last_known_institutions", [])
         affiliations = []
 
         for inst in institutions:
-            country_code = inst.get('country_code')
-            inst_name = inst.get('display_name')
+            country_code = inst.get("country_code")
+            inst_name = inst.get("display_name")
 
             if country_code or inst_name:
-                affiliations.append({
-                    'institution': inst_name,
-                    'country_code': country_code
-                })
+                affiliations.append({"institution": inst_name, "country_code": country_code})
 
         # Extract topics (to verify mathematics)
-        topics = [t.get('display_name') for t in author.get('topics', [])[:3]]
+        topics = [t.get("display_name") for t in author.get("topics", [])[:3]]
 
         return {
-            'openalex_id': author.get('id'),
-            'name': display_name,
-            'affiliations': affiliations,
-            'works_count': author.get('works_count', 0),
-            'citations': author.get('cited_by_count', 0),
-            'topics': topics,
-            'source': 'openalex'
+            "openalex_id": author.get("id"),
+            "name": display_name,
+            "affiliations": affiliations,
+            "works_count": author.get("works_count", 0),
+            "citations": author.get("cited_by_count", 0),
+            "topics": topics,
+            "source": "openalex",
         }
 
     def collect_batch(self, max_authors: int = 10000) -> List[Dict]:
@@ -174,7 +164,7 @@ class OpenAlexCollector:
 
         for i, author in enumerate(raw_authors):
             profile = self.enrich_author(author)
-            if profile and profile.get('affiliations'):
+            if profile and profile.get("affiliations"):
                 profiles.append(profile)
 
             if (i + 1) % 500 == 0:
@@ -191,21 +181,21 @@ class OpenAlexCollector:
         # Country statistics
         country_counts = {}
         for profile in profiles:
-            for affiliation in profile.get('affiliations', []):
-                country = affiliation.get('country_code', 'Unknown')
+            for affiliation in profile.get("affiliations", []):
+                country = affiliation.get("country_code", "Unknown")
                 country_counts[country] = country_counts.get(country, 0) + 1
 
         data = {
-            'metadata': {
-                'source': 'openalex',
-                'total_profiles': len(profiles),
-                'collection_date': time.strftime('%Y-%m-%d'),
-                'country_distribution': country_counts
+            "metadata": {
+                "source": "openalex",
+                "total_profiles": len(profiles),
+                "collection_date": time.strftime("%Y-%m-%d"),
+                "country_distribution": country_counts,
             },
-            'profiles': profiles
+            "profiles": profiles,
         }
 
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
         print(f"✅ Saved to {output_path}")
@@ -213,9 +203,9 @@ class OpenAlexCollector:
 
 def main():
     """Collect mathematician profiles from OpenAlex."""
-    print("="*80)
+    print("=" * 80)
     print("OPENALEX MATHEMATICIAN DATA COLLECTION")
-    print("="*80)
+    print("=" * 80)
     print()
 
     # Initialize collector
@@ -230,16 +220,16 @@ def main():
     collector.save_profiles(profiles, output_path)
 
     # Statistics
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("COLLECTION COMPLETE")
-    print("="*80)
+    print("=" * 80)
     print(f"Total profiles: {len(profiles)}")
 
     # Country distribution
     country_counts = {}
     for profile in profiles:
-        for affiliation in profile.get('affiliations', []):
-            country = affiliation.get('country_code', 'Unknown')
+        for affiliation in profile.get("affiliations", []):
+            country = affiliation.get("country_code", "Unknown")
             country_counts[country] = country_counts.get(country, 0) + 1
 
     print("\nTop 10 Countries:")
@@ -247,7 +237,7 @@ def main():
         print(f"  {country}: {count}")
 
     # Top cited
-    top_cited = sorted(profiles, key=lambda x: x.get('citations', 0), reverse=True)[:10]
+    top_cited = sorted(profiles, key=lambda x: x.get("citations", 0), reverse=True)[:10]
     print("\nTop 10 Most Cited:")
     for i, profile in enumerate(top_cited, 1):
         print(f"  {i}. {profile['name']} ({profile.get('citations', 0)} citations)")
@@ -256,5 +246,5 @@ def main():
     print(f"Data saved to: {output_path}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

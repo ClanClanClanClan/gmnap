@@ -43,20 +43,17 @@ class ComprehensiveGenealogyHarvester:
         self.fr_theses = FrThesesOAI(
             base_url="http://www.theses.fr/oai/thesesfr/",
             rate_limit=1.0,
-            set_spec="ddc:510"  # Mathematics Dewey classification
+            set_spec="ddc:510",  # Mathematics Dewey classification
         )
 
         # US dissertations (Crossref)
-        self.us_crossref = UsCrossrefAPI(
-            mailto="gmnap@research.example.com",
-            rate_limit=2.0
-        )
+        self.us_crossref = UsCrossrefAPI(mailto="gmnap@research.example.com", rate_limit=2.0)
 
         self.results = {
             "timestamp": datetime.now().isoformat(),
             "sources": {},
             "statistics": {},
-            "errors": []
+            "errors": [],
         }
 
     async def harvest_wikidata_p184(self, limit: int = 10000) -> Dict[str, Any]:
@@ -121,8 +118,8 @@ class ComprehensiveGenealogyHarvester:
                         params={"query": query, "format": "json"},
                         headers={
                             "User-Agent": "GMNAP-Genealogy/1.0 (research purposes; https://github.com/gmnap)",
-                            "Accept": "application/sparql-results+json"
-                        }
+                            "Accept": "application/sparql-results+json",
+                        },
                     )
                     response.raise_for_status()
                     data = response.json()
@@ -143,18 +140,22 @@ class ComprehensiveGenealogyHarvester:
                     degree = binding.get("degreeLabel", {}).get("value")
 
                     if student and advisor and student_label and advisor_label:
-                        relationships.append({
-                            "student": student_label,
-                            "student_wikidata": student,
-                            "advisor": advisor_label,
-                            "advisor_wikidata": advisor,
-                            "start_time": start_time,
-                            "institution": institution,
-                            "degree": degree,
-                            "source": "wikidata_p184"
-                        })
+                        relationships.append(
+                            {
+                                "student": student_label,
+                                "student_wikidata": student,
+                                "advisor": advisor_label,
+                                "advisor_wikidata": advisor,
+                                "start_time": start_time,
+                                "institution": institution,
+                                "degree": degree,
+                                "source": "wikidata_p184",
+                            }
+                        )
 
-                print(f"  ✅ Collected {len(bindings)} relationships (total: {len(relationships):,})")
+                print(
+                    f"  ✅ Collected {len(bindings)} relationships (total: {len(relationships):,})"
+                )
                 offset += current_batch
 
                 # Rate limiting - Wikidata requests max 1 req/second
@@ -168,23 +169,25 @@ class ComprehensiveGenealogyHarvester:
 
         # Save checkpoint
         wikidata_file = self.output_dir / "wikidata_p184.json"
-        with open(wikidata_file, 'w') as f:
-            json.dump({
-                "source": "wikidata_p184",
-                "count": len(relationships),
-                "relationships": relationships
-            }, f, indent=2)
+        with open(wikidata_file, "w") as f:
+            json.dump(
+                {
+                    "source": "wikidata_p184",
+                    "count": len(relationships),
+                    "relationships": relationships,
+                },
+                f,
+                indent=2,
+            )
 
         print(f"\n✅ Wikidata P184: {len(relationships):,} relationships")
         print(f"   Saved to: {wikidata_file}")
 
-        return {
-            "count": len(relationships),
-            "relationships": relationships,
-            "errors": errors
-        }
+        return {"count": len(relationships), "relationships": relationships, "errors": errors}
 
-    async def harvest_connector(self, connector, name: str, target: int = 5000, **kwargs) -> Dict[str, Any]:
+    async def harvest_connector(
+        self, connector, name: str, target: int = 5000, **kwargs
+    ) -> Dict[str, Any]:
         """Harvest from a thesis connector using async iterator."""
         print("=" * 80)
         print(f"HARVESTING {name.upper()} THESES")
@@ -209,7 +212,7 @@ class ComprehensiveGenealogyHarvester:
                 # Save checkpoint every 1000 records
                 if count % 1000 == 0:
                     checkpoint_file = self.output_dir / f"{name}_checkpoint_{count}.json"
-                    with open(checkpoint_file, 'w') as f:
+                    with open(checkpoint_file, "w") as f:
                         json.dump({"count": count, "records": records}, f, indent=2)
                     print(f"  ✅ Checkpoint: {count:,} records")
 
@@ -220,12 +223,8 @@ class ComprehensiveGenealogyHarvester:
 
             # Save final results
             final_file = self.output_dir / f"{name}_harvest.json"
-            with open(final_file, 'w') as f:
-                json.dump({
-                    "source": name,
-                    "count": len(records),
-                    "records": records
-                }, f, indent=2)
+            with open(final_file, "w") as f:
+                json.dump({"source": name, "count": len(records), "records": records}, f, indent=2)
 
             print(f"\n✅ {name.upper()}: {len(records):,} records")
             print(f"   Saved to: {final_file}")
@@ -235,16 +234,10 @@ class ComprehensiveGenealogyHarvester:
             print(f"❌ {error_msg}")
             errors.append(error_msg)
 
-        return {
-            "count": len(records),
-            "records": records,
-            "errors": errors
-        }
+        return {"count": len(records), "records": records, "errors": errors}
 
     async def run_comprehensive_harvest(
-        self,
-        wikidata_limit: int = 10000,
-        thesis_target: int = 5000
+        self, wikidata_limit: int = 10000, thesis_target: int = 5000
     ):
         """
         Run comprehensive harvest from all sources in parallel.
@@ -272,7 +265,7 @@ class ComprehensiveGenealogyHarvester:
             self.harvest_wikidata_p184(limit=wikidata_limit),
             self.harvest_connector(self.fr_theses, "french", thesis_target),
             self.harvest_connector(self.us_crossref, "us_crossref", thesis_target, rows=100),
-            return_exceptions=True
+            return_exceptions=True,
         )
 
         # Aggregate results
@@ -296,10 +289,7 @@ class ComprehensiveGenealogyHarvester:
                 else:
                     total_records += count
 
-                self.results["sources"][name] = {
-                    "count": count,
-                    "errors": errors
-                }
+                self.results["sources"][name] = {"count": count, "errors": errors}
                 all_errors.extend(errors)
 
         # Final statistics
@@ -308,15 +298,17 @@ class ComprehensiveGenealogyHarvester:
             "total_thesis_records": total_records,
             "total_advisor_relationships": total_relationships,
             "total_combined": total_records + total_relationships,
-            "sources_succeeded": len([s for s in self.results["sources"].values() if "error" not in s]),
+            "sources_succeeded": len(
+                [s for s in self.results["sources"].values() if "error" not in s]
+            ),
             "sources_failed": len([s for s in self.results["sources"].values() if "error" in s]),
-            "total_errors": len(all_errors)
+            "total_errors": len(all_errors),
         }
         self.results["errors"] = all_errors
 
         # Save summary report
         summary_file = self.output_dir / "harvest_summary.json"
-        with open(summary_file, 'w') as f:
+        with open(summary_file, "w") as f:
             json.dump(self.results, f, indent=2)
 
         # Print final summary
@@ -327,7 +319,9 @@ class ComprehensiveGenealogyHarvester:
         print(f"  Thesis records collected: {total_records:,}")
         print(f"  Advisor relationships: {total_relationships:,}")
         print(f"  Total combined: {total_records + total_relationships:,}")
-        print(f"\n✅ Sources succeeded: {self.results['statistics']['sources_succeeded']}/{total_sources}")
+        print(
+            f"\n✅ Sources succeeded: {self.results['statistics']['sources_succeeded']}/{total_sources}"
+        )
         print(f"❌ Sources failed: {self.results['statistics']['sources_failed']}/{total_sources}")
         print(f"⚠️  Total errors: {len(all_errors)}")
         print(f"\n📁 Output directory: {self.output_dir}")
@@ -345,10 +339,7 @@ async def main():
     # - 10,000 Wikidata P184 relationships
     # - 5,000 records from each of 4 thesis sources
     # - Total target: 30,000+ records
-    await harvester.run_comprehensive_harvest(
-        wikidata_limit=10000,
-        thesis_target=5000
-    )
+    await harvester.run_comprehensive_harvest(wikidata_limit=10000, thesis_target=5000)
 
 
 if __name__ == "__main__":

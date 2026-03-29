@@ -1,0 +1,10 @@
+
+report:
+  publisher: "ETH Zürich"
+  project_name: "Global Name Authority — MathLineage"
+  artefacts:
+    include_attribution: true
+    include_archive_manifest: true
+archive:
+  method: "local_zip"   # or "sftp"
+  target_dir: "archive" # final directory for zips

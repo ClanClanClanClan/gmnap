@@ -6,15 +6,15 @@ Fix all regional processor issues found in testing.
 import sys
 import re
 
-sys.path.insert(0, 'src')
+sys.path.insert(0, "src")
 
 
 def fix_e1_chinese_validation():
     """Fix E1 Chinese name validation to handle both native and romanized properly."""
-    
+
     # The issue is that Chinese names with 3+ characters are being rejected
     # when they should be allowed for compound surnames
-    
+
     content = """
     def validate(self, entry: Dict[str, Any]) -> None:
         \"\"\"Validate entry according to E1 rules.\"\"\"
@@ -44,13 +44,13 @@ def fix_e1_chinese_validation():
             if not self._is_valid_pinyin(canonical_latin):
                 raise RegionRuleError(f"Invalid pinyin format: {canonical_latin}")
     """
-    
+
     print("Fixed E1 Chinese validation to allow compound surnames up to 6 characters")
 
 
 def fix_e3_japanese_validation():
     """Fix E3 Japanese validation to handle various name lengths."""
-    
+
     content = """
     def validate(self, entry: Dict[str, Any]) -> None:
         \"\"\"Validate entry according to E3 rules.\"\"\"
@@ -79,13 +79,13 @@ def fix_e3_japanese_validation():
             if not self._is_valid_romanization(canonical_latin):
                 raise RegionRuleError(f"Invalid romanization format: {canonical_latin}")
     """
-    
+
     print("Fixed E3 Japanese validation to allow historical names up to 8 characters")
 
 
 def fix_c4_arabic_title_validation():
     """Fix C4 to allow single-word titles and names."""
-    
+
     content = """
     def validate(self, entry: Dict[str, Any]) -> None:
         \"\"\"Validate entry according to C4 rules.\"\"\"
@@ -129,16 +129,16 @@ def fix_c4_arabic_title_validation():
                 if not self._has_valid_characters(canonical):
                     raise RegionRuleError(f"Invalid characters in name: {canonical}")
     """
-    
+
     print("Fixed C4 Arabic validation to allow single-word titles and tribal names")
 
 
 def fix_a2_portuguese_validation():
     """Fix A2 to handle Portuguese names properly."""
-    
+
     # The issue is likely with "da Silva, João" pattern
     # A2 needs to recognize Portuguese particles better
-    
+
     content = """
     # In the particle detection, ensure Portuguese particles are included:
     self.particles = {
@@ -148,16 +148,16 @@ def fix_a2_portuguese_validation():
         'slavic': {'z', 'ze', 'zu'}
     }
     """
-    
+
     print("Fixed A2 to include Portuguese particles (da, dos, das, do)")
 
 
 if __name__ == "__main__":
     print("Analyzing fixes needed for regional processors...\n")
-    
+
     fix_e1_chinese_validation()
     fix_e3_japanese_validation()
     fix_c4_arabic_title_validation()
     fix_a2_portuguese_validation()
-    
+
     print("\nNote: These are the fixes that need to be applied to the actual files.")

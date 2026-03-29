@@ -1,0 +1,18 @@
+
+*** a/src/core/pipeline_v7.py
+--- b/src/core/pipeline_v7.py
+@@
+-from typing import Any, Dict, List
++from typing import Any, Dict, List
++from src.pipeline.stage2_detect_region import stage2_detect_region
++from src.pipeline.stage3_region_hooks import stage3_region_hooks
+@@
+-        for entry in batch:
++        for entry in batch:
+             processed = self._stage0_to_3(entry)
+-            processed = self._stage5_to_10(processed)
++            processed = stage2_detect_region(processed)
++            processed = stage3_region_hooks(processed)
++            processed = self._stage5_to_10(processed)
+             out.append(processed)
+         return out

@@ -1,0 +1,11 @@
+
+*** a/src/core/pipeline_v7.py
+--- b/src/core/pipeline_v7.py
+@@
+-from src.pipeline.stage10_report import generate_report
++from src.pipeline.stage10_report import generate_report
+@@
+-        metrics = {"batch_size": len(batch), **m9}
+-        report_dir, report_json = generate_report(batch, metrics=metrics, snapshot_dir=snapshot_dir, shortform_clusters=clusters)
++        metrics = {"batch_size": len(batch), **m9}
++        report_dir, report_json = generate_report(batch, metrics=metrics, snapshot_dir=snapshot_dir, shortform_clusters=clusters)
