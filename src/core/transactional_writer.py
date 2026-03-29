@@ -1,8 +1,10 @@
 from __future__ import annotations
-from typing import List, Dict, Any
-from .db_pool import BoltPool
-from ..ops.metrics import WRITE_LATENCY, WRITE_ERRORS, WRITES_TOTAL
+
 import time
+from typing import Any, Dict, List
+
+from ..ops.metrics import WRITE_ERRORS, WRITE_LATENCY, WRITES_TOTAL
+from .db_pool import BoltPool
 
 CREATE_NODE = """
 MERGE (m:Mathematician {global_id: $GlobalID})

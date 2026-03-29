@@ -18,14 +18,16 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / "src"))
 
-import psutil
 import sys
 from pathlib import Path
 
+import psutil
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.streaming_pipeline_v7 import V7StreamingPipeline, V7StreamConfig
 import sys
 from pathlib import Path
+
+from src.core.streaming_pipeline_v7 import V7StreamConfig, V7StreamingPipeline
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.manager_optimized import RegionManager
@@ -180,7 +182,7 @@ def main():
         )
 
         # Comparison
-        print(f"\n📈 COMPARISON:")
+        print("\n📈 COMPARISON:")
         print(f"   Old approach: ~{old_memory:.1f} MB growth")
         print(f"   V7 streaming: ~{v7_memory:.1f} MB growth (constant)")
         if old_memory > 0:

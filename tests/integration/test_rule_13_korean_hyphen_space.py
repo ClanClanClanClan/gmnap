@@ -11,7 +11,6 @@ This test verifies that Rule 13 is working correctly in E4 region:
 - Normalization of spacing patterns
 """
 
-import os
 
 import sys
 from pathlib import Path
@@ -144,11 +143,11 @@ def test_rule_13_comprehensive():
 
         # Verify expectations
         if expected_type == "hyphenated" and hyphenated:
-            print(f"  PASS Correctly detected as hyphenated")
+            print("  PASS Correctly detected as hyphenated")
         elif expected_type == "spaced" and spaced:
-            print(f"  PASS Correctly detected as spaced")
+            print("  PASS Correctly detected as spaced")
         else:
-            print(f"  WARN  Detection may not be accurate")
+            print("  WARN  Detection may not be accurate")
 
         # Check if expected variant was generated
         variant_strings = [v["str"] for v in spacing_variants]
@@ -188,9 +187,9 @@ def test_rule_13_edge_cases():
         print(f"  Spacing variants: {spacing_variants}")
 
         if not spacing_variants:
-            print(f"  PASS Correctly generated no spacing variants")
+            print("  PASS Correctly generated no spacing variants")
         else:
-            print(f"  WARN  Unexpected spacing variants generated")
+            print("  WARN  Unexpected spacing variants generated")
 
 
 @pytest.mark.timeout(15)
@@ -219,9 +218,9 @@ def test_rule_13_normalization():
         print(f"  Normalized: '{normalized}'")
 
         if normalized == expected:
-            print(f"  PASS Correct normalization")
+            print("  PASS Correct normalization")
         else:
-            print(f"  WARN  Normalization may need adjustment")
+            print("  WARN  Normalization may need adjustment")
 
 
 def main():

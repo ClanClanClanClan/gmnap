@@ -8,12 +8,11 @@ import json
 import shutil
 import tempfile
 import time
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
-import zstandard as zstd
 
 from src.utils.cache import CacheManager
 
@@ -323,7 +322,6 @@ class TestCacheManager:
         data = {"test": "data"}
 
         # Mock Path.replace to fail (this is the atomic operation)
-        original_replace = Path.replace
 
         def mock_replace(self, target):
             raise OSError("Simulated atomic operation failure")
@@ -331,12 +329,12 @@ class TestCacheManager:
         with patch.object(Path, "replace", mock_replace):
             # Should handle the error gracefully and return False
             result = self.cache.set(key, data)
-            assert result == False
+            assert result is False
 
         # Should not leave any files since the atomic operation failed
         cache_key = self.cache._generate_cache_key("default", key)
         cache_file = self.cache._get_cache_path(cache_key, "default")
-        temp_file = cache_file.with_suffix(".tmp")
+        cache_file.with_suffix(".tmp")
 
         assert not cache_file.exists()
         # Temp file might still exist since replace failed, but that's ok
@@ -361,7 +359,6 @@ class TestCacheManager:
     def test_cache_concurrent_access(self):
         """Test concurrent cache access."""
         import concurrent.futures
-        import threading
 
         data = {"test": "data"}
         results = []
@@ -389,13 +386,13 @@ class TestCacheManager:
 
         # Should return False but not raise CacheError since it's not imported
         result = invalid_cache.set("test", {"data": "test"})
-        assert result == False
+        assert result is False
 
         # Test with permission errors
         with patch("builtins.open", side_effect=PermissionError("Permission denied")):
             # Should return False for permission errors
             result = self.cache.set("test", {"data": "test"})
-            assert result == False
+            assert result is False
 
     def test_cache_cleanup_expired(self):
         """Test cleanup of expired entries."""

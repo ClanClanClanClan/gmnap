@@ -10,16 +10,12 @@ designed to catch vulnerabilities that normal testing would miss.
 WARNING: These tests contain actual attack payloads and malicious input.
 """
 
-import pytest
+import sys
 import threading
 import time
-import gc
-import os
-import tempfile
-import sqlite3
 from pathlib import Path
-from unittest.mock import patch, Mock
-import sys
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "src"))
@@ -28,14 +24,16 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.regions.manager_optimized import RegionManager
 import sys
 from pathlib import Path
 
+from src.regions.manager_optimized import RegionManager
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 import sys
 from pathlib import Path
+
+from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.config import GMNAPConfig
@@ -417,7 +415,7 @@ class TestInjectionHell:
                 # Check normalization occurred
                 import unicodedata
 
-                normalized_result = unicodedata.normalize("NFC", result_str)
+                unicodedata.normalize("NFC", result_str)
                 # Result should be in normalized form
 
             except Exception as e:
@@ -615,7 +613,7 @@ class TestInjectionHell:
                     processing_time < 5.0
                 ), f"ReDoS detected: {processing_time}s for pattern length {len(pattern)}"
 
-            except Exception as e:
+            except Exception:
                 processing_time = time.time() - start_time
                 assert processing_time < 5.0, f"ReDoS in exception: {processing_time}s"
 
@@ -708,7 +706,7 @@ class TestInjectionHell:
                 start_time = time.perf_counter()
 
                 try:
-                    result = region_manager.detect_region(entry)
+                    region_manager.detect_region(entry)
                 except Exception:
                     pass  # We only care about timing
 
@@ -748,7 +746,7 @@ class TestAdvancedSecurityScenarios:
 
         for malicious_input in malicious_inputs:
             try:
-                result = manager.detect_region(malicious_input)
+                manager.detect_region(malicious_input)
 
                 # Verify internal state wasn't corrupted
                 assert hasattr(manager, "_regions"), "Internal state corrupted"

@@ -8,7 +8,8 @@ Features: Devanagari script, patronymic patterns, caste/community indicators, ho
 import re
 from typing import Any, Dict, List, Optional
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class D1_SouthAsiaHindiBelt(RegionSpec):

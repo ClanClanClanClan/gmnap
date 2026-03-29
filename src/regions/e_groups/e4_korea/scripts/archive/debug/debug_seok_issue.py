@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Debug the 석 → 섞 conversion issue."""
 
-import sys
 import pathlib
+import sys
+
 sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
 
 from converter import eng2kor, kor2eng
+
 
 def test_seok_conversions():
     """Test various seok-related conversions."""
@@ -26,9 +28,9 @@ def test_seok_conversions():
         
         # Also test specific characters
         if "석" in result:
-            print(f"  Contains 석 (correct)")
+            print("  Contains 석 (correct)")
         elif "섞" in result:
-            print(f"  Contains 섞 (WRONG!)")
+            print("  Contains 섞 (WRONG!)")
     
     print("\nChecking syllable mappings...")
     # Check what romanizations map to 석 and 섞

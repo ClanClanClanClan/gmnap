@@ -8,9 +8,9 @@ Collects 10,000+ records from STAR repository for genealogy pilot.
 import asyncio
 import json
 import sys
-from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Any
+from pathlib import Path
+from typing import Any, Dict, List
 
 # Add project to path if running as script
 if __name__ == "__main__":
@@ -248,7 +248,7 @@ class FrHarvester:
         duration = (end - start).total_seconds()
         duration_min = duration / 60
 
-        print(f"📊 STATISTICS:")
+        print("📊 STATISTICS:")
         print(f"  Total records: {self.stats['total_records']:,}")
         print(
             f"  Records with creators: {self.stats['records_with_creators']:,} "
@@ -265,7 +265,7 @@ class FrHarvester:
         )
         print()
 
-        print(f"⏱️  PERFORMANCE:")
+        print("⏱️  PERFORMANCE:")
         print(f"  Duration: {duration_min:.1f} minutes ({duration:.0f} seconds)")
         print(f"  Rate: {self.stats['total_records']/duration:.1f} records/second")
         print()
@@ -277,7 +277,7 @@ class FrHarvester:
             else 0
         )
         estimated_edges = self.stats["records_with_advisors"] * avg_advisors
-        print(f"🔗 EDGE ESTIMATION:")
+        print("🔗 EDGE ESTIMATION:")
         print(f"  Average advisors per thesis: {avg_advisors:.2f}")
         print(f"  Estimated DOCTORAL_ADVISOR edges: {estimated_edges:,.0f}")
         print()

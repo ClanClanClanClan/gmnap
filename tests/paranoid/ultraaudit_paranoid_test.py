@@ -6,14 +6,11 @@ ULTRAAUDIT: Paranoid Hell-Level V7 Compliance Test
 Brutally honest assessment of actual V7 implementation vs requirements
 """
 
-import sys
-import json
 import asyncio
-import random
+import sys
 import time
-import traceback
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Any, Dict, List
 
 # Add src to path (adjusted for new location in tests/paranoid/)
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
@@ -38,22 +35,9 @@ class V7ComplianceAuditor:
 
         # TEST 1: Can it handle V7 schema?
         try:
-            from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig
+            from src.core.streaming_v7 import StreamingConfig, V7StreamingPipeline
 
             # V7 requires specific fields - do we validate them?
-            v7_required_fields = [
-                "GlobalID",
-                "CanonicalLatin",
-                "CanonicalNative",
-                "BirthYear",
-                "DeathYear",
-                "Field",
-                "Subfield",
-                "Institution",
-                "Country",
-                "Source",
-            ]
-
             # Check if pipeline validates schema
             config = StreamingConfig(batch_size=10)
             async with V7StreamingPipeline(config) as pipeline:
@@ -62,7 +46,7 @@ class V7ComplianceAuditor:
                     yield {"invalid": "data", "no_global_id": True}
 
                 try:
-                    metrics = await pipeline.process_stream(invalid_data())
+                    await pipeline.process_stream(invalid_data())
                     # If this succeeds without validation, it's NOT V7 compliant
                     tests.append(
                         (
@@ -99,7 +83,7 @@ class V7ComplianceAuditor:
             start = time.time()
             config = StreamingConfig(batch_size=100, parallel_workers=8)
             async with V7StreamingPipeline(config) as pipeline:
-                metrics = await pipeline.process_stream(stress_data())
+                await pipeline.process_stream(stress_data())
             duration = time.time() - start
 
             throughput = 10000 / duration
@@ -394,26 +378,26 @@ class V7ComplianceAuditor:
         print("🎯 BRUTAL TRUTH SUMMARY")
         print("=" * 80)
 
-        print(f"\n📊 TEST COVERAGE:")
+        print("\n📊 TEST COVERAGE:")
         print(f"   Total Requirements: {total_tests}")
         print(f"   Actually Tested: {actual_tested} ({coverage:.1f}% coverage)")
         print(f"   Not Tested/Implemented: {not_tested}")
 
-        print(f"\n📊 TEST RESULTS (of those actually tested):")
+        print("\n📊 TEST RESULTS (of those actually tested):")
         print(f"   Passed: {passed_tests}/{actual_tested} ({real_pass_rate:.1f}%)")
         print(f"   Failed: {failed_tests}/{actual_tested}")
 
-        print(f"\n🔥 PARANOID HELL LEVEL ASSESSMENT:")
+        print("\n🔥 PARANOID HELL LEVEL ASSESSMENT:")
         if coverage < 50:
             print(f"   FAIL NOT PARANOID - Only {coverage:.1f}% coverage")
-            print(f"   FAIL Most critical features NOT TESTED")
+            print("   FAIL Most critical features NOT TESTED")
         elif coverage < 80:
             print(f"   WARN SOMEWHAT PARANOID - {coverage:.1f}% coverage")
-            print(f"   WARN Major gaps in testing")
+            print("   WARN Major gaps in testing")
         else:
             print(f"   PASS PARANOID - {coverage:.1f}% coverage")
 
-        print(f"\n💀 FALSE CLAIMS DETECTED:")
+        print("\n💀 FALSE CLAIMS DETECTED:")
         false_claims = [
             "FAIL 'Fully V7 compliant' - Missing 50%+ of requirements",
             "FAIL 'Production ready' - No auth, no connection pooling, no disaster recovery",
@@ -426,7 +410,7 @@ class V7ComplianceAuditor:
         for claim in false_claims:
             print(f"   {claim}")
 
-        print(f"\n🎯 REAL V7 COMPLIANCE GRADE:")
+        print("\n🎯 REAL V7 COMPLIANCE GRADE:")
         if real_pass_rate >= 90 and coverage >= 80:
             grade = "A"
         elif real_pass_rate >= 80 and coverage >= 70:
@@ -439,8 +423,8 @@ class V7ComplianceAuditor:
             grade = "F"
 
         print(f"   Grade: {grade}")
-        print(f"   Reality: V7 PARTIALLY IMPLEMENTED")
-        print(f"   Production Readiness: NO - Critical gaps exist")
+        print("   Reality: V7 PARTIALLY IMPLEMENTED")
+        print("   Production Readiness: NO - Critical gaps exist")
 
 
 async def main():

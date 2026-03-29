@@ -3,15 +3,16 @@
 Analyze which syllables are missing from the lexicon causing conversion failures.
 """
 
-import sys
-import pathlib
 import json
+import pathlib
+import sys
 from collections import Counter
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
 
-from syllable_lexicon import LEXICON
 from segment import segment
+from syllable_lexicon import LEXICON
+
 
 def analyze_failed_names():
     """Load and analyze names that failed to convert."""
@@ -38,7 +39,7 @@ def analyze_failed_names():
     if len(null_failures) > 10:
         print(f"  ... and {len(null_failures) - 10} more")
     
-    print(f"\nPotential missing syllables:")
+    print("\nPotential missing syllables:")
     syllable_counts = Counter(syllable_issues)
     for syl, count in syllable_counts.most_common():
         print(f"  {syl}: {count} occurrences")

@@ -17,11 +17,12 @@ V7 SPEC COMPLIANCE:
 - distinct_features: ISO 259 romanisation; optional niqqud
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Set
+import re
+from typing import Any, Dict, List, Set
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class C6_HebrewDiaspora(RegionSpec):
@@ -57,7 +58,7 @@ class C6_HebrewDiaspora(RegionSpec):
             canonical_order="Given Family",
             romanisation_standards=["ISO 259"],
         )
-        self.logger = logging.getLogger(f"gmnap.regions.C6")
+        self.logger = logging.getLogger("gmnap.regions.C6")
 
         # Load Hebrew linguistic resources
         self.hebrew_patterns = self._load_hebrew_patterns()
@@ -67,7 +68,7 @@ class C6_HebrewDiaspora(RegionSpec):
         self.place_indicators = self._load_place_indicators()
         self.diaspora_patterns = self._load_diaspora_patterns()
 
-        self.logger.info(f"C6 Hebrew & Diaspora processor initialized")
+        self.logger.info("C6 Hebrew & Diaspora processor initialized")
 
     def _load_hebrew_patterns(self) -> Dict[str, List[str]]:
         """Load Hebrew name patterns."""
@@ -594,7 +595,7 @@ class C6_HebrewDiaspora(RegionSpec):
                 tradition_scores[tradition.replace("_surnames", "")] = score
 
         # Check diaspora patterns
-        name_lower = name.lower()
+        name.lower()
         for pattern_group, patterns in self.diaspora_patterns.items():
             tradition_name = pattern_group.replace("_adaptations", "").replace("_", "_")
             if tradition_name not in tradition_scores:

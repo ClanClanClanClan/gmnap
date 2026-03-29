@@ -11,7 +11,7 @@ from urllib.parse import quote
 
 import aiohttp
 
-from .base import AuthorityFetcher, AuthorityData, FetchStatus, FetchResult
+from .base import AuthorityData, AuthorityFetcher, FetchResult, FetchStatus
 
 logger = logging.getLogger(__name__)
 
@@ -77,8 +77,9 @@ class CrossrefV7Fetcher(AuthorityFetcher):
         """
         # Use external cache if available
         try:
-            from .cache import AuthorityCache
             from pathlib import Path
+
+            from .cache import AuthorityCache
 
             cache = AuthorityCache(Path("cache/authority"))
 
@@ -287,7 +288,7 @@ class CrossrefV7Fetcher(AuthorityFetcher):
                 )
 
             # Parse the first work to get author data
-            first_work = works[0]
+            works[0]
             authority_data = self.parse_response({"works": works, "query": query})
 
             return FetchResult(

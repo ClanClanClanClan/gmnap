@@ -3,7 +3,11 @@
 Patch D: N-best validation with tolerance for multiple valid romanizations
 """
 
-import yaml, unicodedata, sys, pathlib
+import pathlib
+import sys
+import unicodedata
+
+import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 # from converter import eng2kor, kor2eng

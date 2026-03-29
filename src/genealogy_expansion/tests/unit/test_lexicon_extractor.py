@@ -1,4 +1,4 @@
-from pipeline.extract import init, extract_from_text_blob
+from pipeline.extract import extract_from_text_blob, init
 
 
 def test_basic_fr_window():

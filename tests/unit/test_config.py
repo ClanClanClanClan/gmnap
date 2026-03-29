@@ -5,22 +5,17 @@ Unit tests for configuration management.
 import json
 import os
 from pathlib import Path
-from unittest.mock import mock_open, patch
+from unittest.mock import patch
 
 import pytest
 import yaml
 
 from src.core.config import (
-    APIConfig,
-    CacheConfig,
     ConfigurationManager,
     DatabaseConfig,
     Environment,
     GMNAPConfig,
-    MonitoringConfig,
     ProcessingConfig,
-    SecurityConfig,
-    UnicodeConfig,
     ValidationConfig,
     get_config,
     set_config_path,
@@ -58,11 +53,11 @@ class TestGMNAPConfig:
         assert config.environment == Environment.DEVELOPMENT
         assert config.database.type == "duckdb"
         assert config.processing.batch_size == 1000
-        assert config.unicode.handle_ligatures == True
-        assert config.validation.strict_mode == False
+        assert config.unicode.handle_ligatures is True
+        assert config.validation.strict_mode is False
         assert config.monitoring.log_level == "INFO"
         assert config.cache.cache_dir == "./cache"
-        assert config.security.enable_input_validation == True
+        assert config.security.enable_input_validation is True
         assert config.api.timeout_seconds == 30
 
     def test_config_to_dict(self):
@@ -84,7 +79,7 @@ class TestGMNAPConfig:
         assert config.database.path == "./test.db"
         assert config.processing.batch_size == 500
         assert config.processing.max_workers == 2
-        assert config.unicode.handle_ligatures == False
+        assert config.unicode.handle_ligatures is False
 
     def test_nested_config_objects(self):
         """Test nested configuration objects."""
@@ -177,8 +172,8 @@ class TestConfigurationManager:
         assert config.database.path == "/prod/db.sqlite"
         assert config.processing.batch_size == 2000
         assert config.processing.max_workers == 8
-        assert config.unicode.handle_ligatures == False
-        assert config.validation.strict_mode == True
+        assert config.unicode.handle_ligatures is False
+        assert config.validation.strict_mode is True
         assert config.cache.max_cache_size_mb == 2048
         assert config.regions_enabled == ["north_america", "europe", "asia"]
 
@@ -187,10 +182,10 @@ class TestConfigurationManager:
         manager = ConfigurationManager()
 
         # Boolean
-        assert manager._parse_env_value("true") == True
-        assert manager._parse_env_value("false") == False
-        assert manager._parse_env_value("True") == True
-        assert manager._parse_env_value("FALSE") == False
+        assert manager._parse_env_value("true") is True
+        assert manager._parse_env_value("false") is False
+        assert manager._parse_env_value("True") is True
+        assert manager._parse_env_value("FALSE") is False
 
         # Integer
         assert manager._parse_env_value("123") == 123

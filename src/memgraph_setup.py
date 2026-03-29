@@ -3,12 +3,14 @@
 Memgraph setup for V7 compliance - Academic genealogy graph database.
 """
 
-import sys
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass
-import docker
-from neo4j import GraphDatabase
 import logging
+import sys
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
+from neo4j import GraphDatabase
+
+import docker
 
 logger = logging.getLogger(__name__)
 

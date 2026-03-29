@@ -57,7 +57,7 @@ with open("resources/rr_syllable_map.csv", "w", encoding="utf-8", newline="") as
     writer = csv.writer(f)
     writer.writerows(rows)
 
-print(f"\nSummary:")
+print("\nSummary:")
 print(f"- Removed {removed_count} incorrect mappings")
 print(f"- Modified {modified_count} mappings")
 print(f"- Total rows: {len(rows)}")

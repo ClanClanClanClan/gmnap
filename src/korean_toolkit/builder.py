@@ -3,10 +3,10 @@ Korean Builder Module - Consolidates build scripts
 Replaces: build_*.py scripts
 """
 
-import json
 import csv
+import json
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 
 class KoreanBuilder:

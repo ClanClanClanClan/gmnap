@@ -5,24 +5,17 @@ Tests configuration management, environment variable injection, path traversal,
 credential exposure, and all scenarios that could compromise system security.
 """
 
-import gc
-import json
 import os
-import random
-import string
 import tempfile
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from queue import Empty, Queue
-from unittest.mock import Mock, mock_open, patch
+from unittest.mock import patch
 
 import psutil
 import pytest
 import yaml
-
-from src.core.config import GMNAPConfig
 
 
 class TestConfigurationSecurity:

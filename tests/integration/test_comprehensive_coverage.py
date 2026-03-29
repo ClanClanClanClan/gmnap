@@ -16,26 +16,26 @@ This test suite aims for thorough coverage of:
 - Sorting consistency
 """
 
-import sys
-import time
 import threading
+import time
+
 import pytest
 
 pytest.skip("Test needs major refactoring", allow_module_level=True)
 
-import random
 import json
 import os
+import random
 import sqlite3
-from typing import Dict, List, Any, Tuple
 from collections import defaultdict
-
-# sys.path.insert(0, 'src')
 
 # from src.core.pipeline import GMNAPPipeline
 # from src.core.database import GMNAPDatabase
 # from src.v7_compat import v7_manager, load_working_processors
 from src.regions.base import RegionRuleError
+
+# sys.path.insert(0, 'src')
+
 
 
 class ComprehensiveTestSuite:
@@ -419,7 +419,7 @@ class ComprehensiveTestSuite:
                     if self._is_non_latin_script(name):
                         entry = {"CanonicalNative": name}
 
-                    processed = adapter.process_entry(entry)
+                    adapter.process_entry(entry)
 
                     if should_pass:
                         self.results["passed"] += 1
@@ -889,7 +889,7 @@ class ComprehensiveTestSuite:
             self.pipeline.process_entry(test_entry)
 
         # Check database
-        stats = self.pipeline.database.get_stats()
+        self.pipeline.database.get_stats()
 
         # Should have deduplicated
         # Search for our specific entry
@@ -1013,7 +1013,7 @@ class ComprehensiveTestSuite:
                     if self._is_non_latin_script(name):
                         entry = {"CanonicalNative": name}
 
-                    processed = adapter.process_entry(entry)
+                    adapter.process_entry(entry)
 
                     # Just check it processes without error
                     self.results["passed"] += 1
@@ -1089,7 +1089,7 @@ class ComprehensiveTestSuite:
             # Check consistency
             unique_results = set(results.values())
             if len(unique_results) == 1:
-                print(f"    ✓ Consistent behavior across regions")
+                print("    ✓ Consistent behavior across regions")
             else:
                 print(f"    WARN  Inconsistent behavior: {results}")
                 self.record_warning(

@@ -6,15 +6,13 @@ HELL-LEVEL STRESS TESTING for GMNAP v7
 Tests everything that could possibly break, fail, or cause problems.
 """
 
-import sys
 import gc
+import sys
 import time
-import threading
 import traceback
-import unicodedata
 from concurrent.futures import ThreadPoolExecutor
+
 import psutil
-import os
 
 sys.path.insert(0, "src")
 
@@ -42,11 +40,11 @@ class HellTester:
         print("\n🔥 HELL TEST 1: Interface Compliance")
 
         try:
-            from src.regions.base import RegionSpec
             from src.regions.a_groups.a3_nordic_baltic import A3NordicBalticProcessor
             from src.regions.a_groups.a4_oceania import A4OceaniaProcessor
             from src.regions.a_groups.a5_caribbean import A5CaribbeanProcessor
             from src.regions.b_groups.b3_greek import B3GreekProcessor
+            from src.regions.base import RegionSpec
 
             processors = [
                 A3NordicBalticProcessor(),
@@ -60,7 +58,7 @@ class HellTester:
                 if not isinstance(processor, RegionSpec):
                     self.record_failure(
                         f"{processor.code}_inheritance",
-                        f"Does not inherit from RegionSpec",
+                        "Does not inherit from RegionSpec",
                     )
 
                 # Test required methods exist with correct signatures
@@ -498,7 +496,7 @@ class HellTester:
             processor.clean(entry)
             processor.augment(entry)
             processor.validate(entry)
-            key = processor.order_key(entry)
+            processor.order_key(entry)
 
             end_time = time.time()
             duration = end_time - start_time
@@ -568,7 +566,7 @@ class HellTester:
         print("🔥 HELL-LEVEL TESTING COMPLETE")
         print("🔥" * 60)
 
-        print(f"\n📊 STATISTICS:")
+        print("\n📊 STATISTICS:")
         print(f"   Total tests run: {self.tests_run}")
         print(f"   Total duration: {total_duration:.1f}s")
         print(f"   Tests per second: {self.tests_run/total_duration:.1f}")

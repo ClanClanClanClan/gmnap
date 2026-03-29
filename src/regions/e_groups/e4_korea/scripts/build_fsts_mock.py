@@ -4,7 +4,9 @@ Mock FST builder for environments where PyNini is not available.
 Creates placeholder FST files and fallback lookup tables.
 """
 
-import csv, pathlib, json
+import csv
+import json
+import pathlib
 
 
 def build_mock_fsts():

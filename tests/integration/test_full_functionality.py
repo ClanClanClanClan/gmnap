@@ -7,8 +7,6 @@ Test full V7 functionality
 import asyncio
 import os
 import sys
-import json
-from pathlib import Path
 
 os.environ["GMNAP_TEST_MODE"] = "true"
 sys.path.insert(0, ".")
@@ -26,39 +24,35 @@ async def test_authority_apis():
         try:
             from src.authorities.crossref import CrossrefAPI
 
-            print(f"✓ Crossref: Import successful")
+            print("✓ Crossref: Import successful")
         except Exception as e:
             print(f"✗ Crossref: {e}")
 
         # Test OpenAlex
         try:
-            from src.authorities.openalex import OpenAlexAPI
 
-            print(f"✓ OpenAlex: Import successful")
+            print("✓ OpenAlex: Import successful")
         except Exception as e:
             print(f"✗ OpenAlex: {e}")
 
         # Test ORCID
         try:
-            from src.authorities.orcid import ORCIDAPI
 
-            print(f"✓ ORCID: Import successful")
+            print("✓ ORCID: Import successful")
         except Exception as e:
             print(f"✗ ORCID: {e}")
 
         # Test ArXiv
         try:
-            from src.authorities.arxiv import ArXivAPI
 
-            print(f"✓ ArXiv: Import successful")
+            print("✓ ArXiv: Import successful")
         except Exception as e:
             print(f"✗ ArXiv: {e}")
 
         # Test Math Genealogy
         try:
-            from src.authorities.mathgenealogy import MathGenealogyAPI
 
-            print(f"✓ Math Genealogy: Import successful")
+            print("✓ Math Genealogy: Import successful")
         except Exception as e:
             print(f"✗ Math Genealogy: {e}")
 
@@ -80,7 +74,7 @@ async def test_authority_apis():
             )
             print(f"✓ Crossref: Found {len(results)} results for Terence Tao")
     except asyncio.TimeoutError:
-        print(f"✗ Crossref: Timeout after 5 seconds")
+        print("✗ Crossref: Timeout after 5 seconds")
     except Exception as e:
         print(f"✗ Crossref: {e}")
 
@@ -122,7 +116,7 @@ def test_pipeline_functionality():
         if canonical1 == canonical2:
             print(f"✓ Idempotency: Perfect match ({len(canonical1)} bytes)")
         else:
-            print(f"✗ Idempotency: Mismatch!")
+            print("✗ Idempotency: Mismatch!")
     except Exception as e:
         print(f"✗ Idempotency: {e}")
 
@@ -131,7 +125,7 @@ def test_pipeline_functionality():
         from src.pipeline.stage7_tag_short_forms import tag_short_forms
 
         for entry in test_entries:
-            tagged = tag_short_forms(entry)
+            tag_short_forms(entry)
         print(f"✓ Short Forms: Tagged {len(test_entries)} entries")
     except Exception as e:
         print(f"✗ Short Forms: {e}")
@@ -143,10 +137,10 @@ def test_memgraph_integration():
     print("\n=== TESTING MEMGRAPH INTEGRATION ===")
 
     try:
-        from src.core.memgraph_integration import MemgraphClient, GraphNode
+        from src.core.memgraph_integration import GraphNode, MemgraphClient
 
         # Create client (should use mock in test mode)
-        client = MemgraphClient()
+        MemgraphClient()
         print("✓ Memgraph client created")
 
         # Create test node
@@ -174,7 +168,7 @@ def test_streaming_pipeline():
         from src.core.streaming_pipeline import StreamingConfig, StreamingPipeline
 
         config = StreamingConfig(chunk_size=100)
-        pipeline = StreamingPipeline(config)
+        StreamingPipeline(config)
         print(f"✓ Streaming pipeline created (chunk size: {config.chunk_size})")
 
         # Test configuration

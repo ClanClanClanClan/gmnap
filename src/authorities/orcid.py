@@ -7,12 +7,13 @@ Provides authoritative researcher identifiers
 
 import asyncio
 import logging
-import time
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-import aiohttp
-from dataclasses import dataclass, field
 import re
+import time
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import aiohttp
 
 logger = logging.getLogger(__name__)
 
@@ -650,7 +651,7 @@ async def test_orcid_api():
             # Get full record
             person = await api.get_person(orcids[0])
             if person:
-                print(f"\nPerson details:")
+                print("\nPerson details:")
                 print(f"  ORCID: {person.orcid}")
                 print(f"  Name: {person.canonical_name}")
                 print(f"  Credit name: {person.credit_name}")

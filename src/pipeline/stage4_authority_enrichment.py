@@ -6,8 +6,9 @@ Simplified implementation with real Crossref API integration
 
 import asyncio
 import logging
-from typing import Dict, List, Any, Tuple
 from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
 import yaml
 
 logger = logging.getLogger(__name__)

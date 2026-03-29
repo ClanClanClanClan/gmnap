@@ -8,15 +8,15 @@ Generate comprehensive test report for GMNAP.
 Analyzes test results, coverage, performance metrics, and generates HTML report.
 """
 
-import json
-import xml.etree.ElementTree as ET
-from pathlib import Path
 import argparse
+import json
+import statistics
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 from datetime import datetime
-from typing import Dict, List, Any, Optional
-import statistics
+from pathlib import Path
+from typing import Any, Dict
 
 
 class TestReportGenerator:
@@ -635,7 +635,7 @@ class TestReportGenerator:
         print("Generating comprehensive test report...")
 
         # Run tests and collect data
-        test_results = self.run_tests_with_reporting()
+        self.run_tests_with_reporting()
 
         # Parse test results
         test_files = {
@@ -738,7 +738,7 @@ def main():
         # Print summary
         summary = generator.report_data["summary"]
         if summary.get("total_tests", 0) > 0:
-            print(f"\n📊 Summary:")
+            print("\n📊 Summary:")
             print(f"   Total Tests: {summary['total_tests']}")
             print(f"   Passed: {summary['passed_tests']}")
             print(f"   Failed: {summary['failed_tests']}")
@@ -750,7 +750,7 @@ def main():
                 )
                 sys.exit(1)
             else:
-                print(f"\n🎉 All tests passed!")
+                print("\n🎉 All tests passed!")
 
     except Exception as e:
         print(f"FAIL Error generating test report: {e}")

@@ -1,5 +1,7 @@
 from __future__ import annotations
-import json, math
+
+import json
+import math
 from typing import Any
 
 VOLATILE_KEYS = {"ProcessedAt", "ProcessingLatencyMs", "_debug", "_trace_id", "_meta"}

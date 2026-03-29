@@ -4,12 +4,11 @@ Security tests for authentication and authorization
 Tests JWT tokens, RBAC, and security edge cases
 """
 
-import pytest
-import asyncio
-import time
-from datetime import datetime, timedelta
 import sys
+import time
 from pathlib import Path
+
+import pytest
 
 # Add source to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -18,18 +17,18 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.auth import AuthenticationManager, SessionManager
 import sys
 from pathlib import Path
+
+from src.core.auth import AuthenticationManager, SessionManager
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.authorization import (
     AuthorizationManager,
     Permission,
-    Role,
     User,
-    require_permission,
     require_any_permission,
+    require_permission,
 )
 
 

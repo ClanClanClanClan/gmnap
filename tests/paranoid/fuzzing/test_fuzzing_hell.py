@@ -11,20 +11,20 @@ that manual testing would miss.
 WARNING: These tests generate massive amounts of random data and may take time.
 """
 
-import pytest
+import gc
 import random
 import string
+import sys
+import time
 import unicodedata
 from pathlib import Path
-import sys
-from typing import List, Dict, Set, Tuple, Any
-import itertools
-import time
-import gc
+
+import pytest
 
 try:
-    from hypothesis import given, strategies as st, settings, Verbosity
-    from hypothesis.strategies import text, integers, lists, composite
+    from hypothesis import Verbosity, given, settings
+    from hypothesis import strategies as st
+    from hypothesis.strategies import composite, integers, lists, text
 
     HYPOTHESIS_AVAILABLE = True
 except ImportError:

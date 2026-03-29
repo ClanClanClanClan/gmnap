@@ -3,16 +3,17 @@ Performance Benchmarker - Step 2.3
 Real performance measurement with 100 entries and V7 projections
 """
 
-import time
-import psutil
-import os
 import gc
-from typing import Dict, List, Any
+import logging
+import os
+import time
 from dataclasses import dataclass
 from datetime import datetime
-import logging
+from typing import Any, Dict, List
 
-from .pipeline_v7 import V7Pipeline, PipelineMode
+import psutil
+
+from .pipeline_v7 import PipelineMode, V7Pipeline
 from .v7_quality_gates import V7QualityGates
 
 

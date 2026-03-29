@@ -10,17 +10,18 @@ License: Open access via Crossref
 Daily Quota: Unlimited (Crossref open API, polite usage)
 """
 
-import aiohttp
 import logging
-from typing import Dict, List, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import aiohttp
 
 from src.authorities.base import (
-    AuthorityFetcher,
-    FetchStatus,
     AuthorityData,
-    FetchResult,
+    AuthorityFetcher,
     AuthorityTier,
+    FetchResult,
+    FetchStatus,
 )
 
 logger = logging.getLogger(__name__)

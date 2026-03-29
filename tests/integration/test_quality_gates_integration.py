@@ -9,20 +9,19 @@ Tests the complete quality gates pipeline with real-world data scenarios,
 focusing on system-level behavior and cross-gate interactions.
 """
 
-import pytest
 import asyncio
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Any
-from unittest.mock import Mock, patch
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 try:
-    from src.core.quality_gates import EnhancedQualityGates, ValidationResult
     from src.core.pipeline_v7 import V7Pipeline
+    from src.core.quality_gates import EnhancedQualityGates, ValidationResult
     from src.regions.manager import RegionManager
 except ImportError as e:
     pytest.skip(f"Quality gates components not available: {e}", allow_module_level=True)
@@ -507,7 +506,7 @@ async def test_quality_gates_full_integration():
     total_entries = len(results)
     passed_entries = sum(1 for r in results.values() if r["passed"])
 
-    print(f"\nQuality Gates Integration Results:")
+    print("\nQuality Gates Integration Results:")
     print(f"Total entries tested: {total_entries}")
     print(f"Entries passed: {passed_entries}")
     print(f"Pass rate: {100 * passed_entries / total_entries:.1f}%")

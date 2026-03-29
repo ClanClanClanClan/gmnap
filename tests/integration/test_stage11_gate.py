@@ -6,8 +6,8 @@ Stage 11 Idempotency Gate Test
 Tests 0-byte idempotency requirement for V7 compliance
 """
 
-import json
 import hashlib
+import json
 import sys
 from pathlib import Path
 
@@ -181,7 +181,6 @@ def test_hash_stability():
         "Tags": ["test", "stability", "v7"],
     }
 
-    expected_hash = "4d7a7c8b9e5f2a1b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b"
 
     # Get actual hash
     actual_hash = get_hash(test_data)

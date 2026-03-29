@@ -31,11 +31,12 @@ Output: {
 }
 """
 
-import fasttext
-import numpy as np
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
-from datetime import datetime
+
+import fasttext
+import numpy as np
 
 
 class RegionalClassifierV5:
@@ -195,7 +196,7 @@ if __name__ == "__main__":
     if result["abstained"]:
         print(f"  Reason: {result['abstain_reason']}")
 
-    print(f"\nTop-3:")
+    print("\nTop-3:")
     for i, pred in enumerate(result["topk"][:3], 1):
         print(f"  {i}. {pred['region']:4s} {pred['p']:.1%}")
 

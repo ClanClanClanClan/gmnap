@@ -9,20 +9,13 @@ import random
 import tempfile
 import threading
 import time
-import unicodedata
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from queue import Empty, Queue
-from typing import Any, Dict, List, Set, Tuple
-from unittest.mock import Mock, patch
 
 import pytest
 
-from src.core.errors import RegionError, ValidationError
 from src.core.unicode_handler import UnicodeNormalizer
-from src.regions.a_groups.a1_anglo_sphere import A1_AngloSphere
-from src.regions.base import RegionRuleError, RegionSpec
-from src.regions.manager import RegionDetectionResult, RegionManager
+from src.regions.manager import RegionManager
 
 
 class TestRegionDetectionAccuracy:

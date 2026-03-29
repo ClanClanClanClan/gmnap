@@ -1,8 +1,11 @@
 from __future__ import annotations
-import asyncio, os
+
+import asyncio
+import os
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List
-from ..ops.metrics import POOL_IN_USE, POOL_AVAIL
+
+from ..ops.metrics import POOL_AVAIL, POOL_IN_USE
 
 try:
     from neo4j import AsyncGraphDatabase  # type: ignore

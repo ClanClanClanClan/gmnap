@@ -8,11 +8,11 @@ Korean Converter v6 - GMNAP E4 Regional Module
 - Self-contained with no external dependencies
 """
 
+import logging
 import os
 import sys
-import logging
-from typing import Optional
 from pathlib import Path
+from typing import Optional
 
 # Add the src directory to Python path for imports
 E4_ROOT = Path(__file__).parent

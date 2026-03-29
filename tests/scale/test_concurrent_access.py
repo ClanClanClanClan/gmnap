@@ -1,5 +1,7 @@
+import subprocess
+import sys
+
 import pytest
-import subprocess, sys
 
 
 @pytest.mark.timeout(15)

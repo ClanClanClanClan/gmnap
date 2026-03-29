@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Callable, List, Dict, Tuple
+
 import json
+from typing import Callable, Dict, List, Tuple
 
 VOLATILE_KEYS = {"ProcessedAt", "ProcessingLatencyMs", "_debug", "_trace_id", "_meta"}
 

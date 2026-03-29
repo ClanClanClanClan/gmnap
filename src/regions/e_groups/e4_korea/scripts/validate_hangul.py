@@ -3,10 +3,11 @@
 Validation script that compares against Hangul variants in the dataset
 """
 
-import yaml
-import unicodedata
 import sys
+import unicodedata
 from pathlib import Path
+
+import yaml
 
 # Add src directory to path
 E4_ROOT = Path(__file__).parent.parent
@@ -129,7 +130,7 @@ def validate_accuracy():
         (round_trip_successes / total_tested * 100) if total_tested > 0 else 0
     )
 
-    print(f"\n📈 RESULTS:")
+    print("\n📈 RESULTS:")
     print(f"📊 Total entries with Hangul variants: {has_hangul_variant}")
     print(f"📊 Total tested: {total_tested}")
     print(f"✅ Successful conversions: {successful_conversions}")
@@ -139,14 +140,14 @@ def validate_accuracy():
 
     # Show compliance status
     if round_trip_rate >= 97.0:
-        print(f"✅ GMNAP v6.1 COMPLIANT (≥97% required)")
+        print("✅ GMNAP v6.1 COMPLIANT (≥97% required)")
     else:
-        print(f"❌ Below GMNAP v6.1 requirement (≥97% required)")
+        print("❌ Below GMNAP v6.1 requirement (≥97% required)")
 
     # Show some failures for debugging
     failures = [r for r in detailed_results if not r["conversion_success"]]
     if failures:
-        print(f"\n❌ First 5 conversion failures:")
+        print("\n❌ First 5 conversion failures:")
         for i, fail in enumerate(failures[:5]):
             print(f"  {i+1}. {fail['key']}: '{fail['canonical_latin']}' -> None")
 

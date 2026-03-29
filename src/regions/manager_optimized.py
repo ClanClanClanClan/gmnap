@@ -34,9 +34,10 @@ except ImportError:
         "fasttext not available - ML detection disabled, using rules-based detection only"
     )
 
-from src.core.unicode_handler import UnicodeNormalizer
-from src.core.security_validator import SecurityValidator, SecurityError
 from src.core.cache.sized_lru import SizedLRU
+from src.core.security_validator import SecurityError, SecurityValidator
+from src.core.unicode_handler import UnicodeNormalizer
+
 from .base import REGION_CODES, RegionSpec, get_region_for_territory
 
 # Token extraction and word-boundary utilities for systematic pattern matching
@@ -2208,7 +2209,7 @@ def _score_priority_rules(
     tokens = _latin_tokens(name)
     if not tokens:
         return (None, 0.0, {"reason": "no_tokens"})
-    tset = set(tokens)
+    set(tokens)
     name_l = " ".join(tokens)
 
     # Build set of ALL known given name fragments across all regions
@@ -2425,7 +2426,8 @@ def get_fasttext_model(config_dir: Path = Path("./config")):
 
         if model_path.exists():
             # Suppress fasttext C++ warning by redirecting stderr
-            import sys, os
+            import os
+            import sys
 
             old_stderr = sys.stderr
             try:
@@ -2548,7 +2550,9 @@ class RegionManager:
         Caches in-memory for performance. Each signal has: id, region, subregion, kind,
         field, value, regex, weight, priority, gates (optional).
         """
-        import os, json, glob
+        import glob
+        import json
+        import os
 
         if RegionManager.SIGNALS_CACHE is not None:
             return RegionManager.SIGNALS_CACHE
@@ -3119,7 +3123,7 @@ class RegionManager:
             loop = asyncio.get_running_loop()
             # If we're already in async context, can't use run_until_complete
             # Create a task instead
-            task = loop.create_task(self._detect_region_uncached_async(sanitized_entry))
+            loop.create_task(self._detect_region_uncached_async(sanitized_entry))
             # For sync calls from async context, we need to handle differently
             # For now, fall back to sync-only detection
             result = self._detect_region_uncached_sync(sanitized_entry)

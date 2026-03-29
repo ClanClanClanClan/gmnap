@@ -3,11 +3,11 @@ Rate limiting implementation for GMNAP pipeline security.
 Prevents DoS attacks and resource exhaustion.
 """
 
+import threading
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple, Any
-import threading
+from typing import Any, Dict, Optional, Tuple
 
 
 @dataclass

@@ -18,10 +18,11 @@ Usage:
     lineage = enricher.get_lineage('GMN-ABC123', max_depth=10)
 """
 
-import os
 import logging
-from typing import Optional, Dict, Any
+import os
 from datetime import datetime, timedelta
+from typing import Any, Dict, Optional
+
 import requests
 from neo4j import GraphDatabase
 

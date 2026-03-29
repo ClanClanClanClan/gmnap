@@ -6,16 +6,17 @@ Enterprise-grade monitoring and health management for 99.9% uptime
 
 import json
 import logging
-import time
+import queue
 import threading
+import time
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Callable
 from enum import Enum
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional
+
 import psutil
-import queue
 
 
 class HealthStatus(Enum):
@@ -415,7 +416,7 @@ class ProductionMonitor:
 
         # Calculate throughput
         current_time = time.time()
-        minute_ago = current_time - 60
+        current_time - 60
         recent_requests = sum(1 for t in self.response_times if current_time - t <= 60)
 
         throughput_metric = HealthMetric(

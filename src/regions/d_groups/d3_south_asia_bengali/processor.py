@@ -11,11 +11,12 @@ HELL-LEVEL TESTED:
 - Hindu vs Muslim naming conventions in Bengali context
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Set
+import re
+from typing import Any, Dict, List, Set
 
-from ...base_enhanced import EnhancedRegionSpec as RegionSpec, RegionRuleError
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class D3_SouthAsiaBengali(RegionSpec):
@@ -60,7 +61,7 @@ class D3_SouthAsiaBengali(RegionSpec):
         self.surname_patterns = self._load_surname_patterns()
         self.place_indicators = self._load_place_indicators()
 
-        self.logger.info(f"D3 South Asia Bengali processor initialized")
+        self.logger.info("D3 South Asia Bengali processor initialized")
 
     def _load_bengali_patterns(self) -> Dict[str, List[str]]:
         """Load Bengali name patterns for both Hindu and Muslim traditions."""
@@ -499,7 +500,7 @@ class D3_SouthAsiaBengali(RegionSpec):
         romanized_name = self._romanize_bengali(canonical)
 
         # Extract name components
-        components = self._extract_bengali_components(romanized_name, tradition)
+        self._extract_bengali_components(romanized_name, tradition)
 
         # Add metadata
         entry["RegionCode"] = self.REGION_CODE

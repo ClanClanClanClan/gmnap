@@ -75,7 +75,7 @@ def main():
     # Get baseline
     baseline_passes = test_independent()
     print(f"\nBaseline: {baseline_passes}/165 passes ({baseline_passes/165*100:.1f}%)")
-    print(f"Target: 155+ passes (94%+)")
+    print("Target: 155+ passes (94%+)")
     print(f"Need to fix: {155 - baseline_passes} more cases\n")
 
     # Add weights one by one
@@ -87,7 +87,7 @@ def main():
     # Final test
     print("\n🔍 Running final test...")
     final_passes = test_independent()
-    print(f"\n=== FINAL RESULTS ===")
+    print("\n=== FINAL RESULTS ===")
     print(f"Started at: {baseline_passes}/165 ({baseline_passes/165*100:.1f}%)")
     print(f"Achieved: {final_passes}/165 ({final_passes/165*100:.1f}%)")
     print(f"Improvement: +{final_passes - baseline_passes} cases")

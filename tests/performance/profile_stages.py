@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """Profile pipeline stages to identify bottlenecks"""
 
+import json
 import sys
 import tempfile
-import yaml
-import json
 from pathlib import Path
-from datetime import datetime
+
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 from src.core.config import GMNAPConfig
+from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 
 
 def profile_pipeline_stages():

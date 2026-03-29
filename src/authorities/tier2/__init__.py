@@ -5,18 +5,18 @@ Generated from universal template engine for rapid deployment.
 Tier-2 sources provide supplementary authority data with moderate confidence.
 """
 
-from .wikidata import WikidataFetcher
-from .hal import HALFetcher
-from .narcis import NARCISFetcher
-from .scielo import SciELOFetcher
-from .ethos import EThOSFetcher
 from .cern_cds import CERN_CDSFetcher
-from .google_scholar import GoogleScholarFetcher
 from .cnki import CNKIFetcher
+from .ethos import EThOSFetcher
+from .google_scholar import GoogleScholarFetcher
+from .hal import HALFetcher
 from .j_stage import JStageFetcher
 from .jstor import JSTORFetcher
+from .narcis import NARCISFetcher
 from .proquest import ProQuestFetcher
+from .scielo import SciELOFetcher
 from .tel import TELFetcher
+from .wikidata import WikidataFetcher
 
 __all__ = [
     "WikidataFetcher",

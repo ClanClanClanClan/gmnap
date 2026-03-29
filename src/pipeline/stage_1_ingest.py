@@ -3,14 +3,15 @@ GMNAP v7.0 Pipeline Stage 1: Data Ingestion
 Handles data ingestion from various sources and formats.
 """
 
-from typing import Dict, Any, List, Union, Iterator
 import json
 import logging
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
 import csv
 from pathlib import Path
+
 from ..core.errors import IngestionError
 from ..core.security_validator import SecurityValidator
 from ..validation.schema import SchemaValidator

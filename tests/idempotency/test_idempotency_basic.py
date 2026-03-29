@@ -1,10 +1,10 @@
-import pytest
-
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.idempotency import canonical_batch_bytes, assert_identical
+from src.core.idempotency import assert_identical, canonical_batch_bytes
 
 
 @pytest.mark.timeout(15)

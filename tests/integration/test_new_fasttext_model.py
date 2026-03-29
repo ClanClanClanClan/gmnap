@@ -50,7 +50,7 @@ def test_new_fasttext_model():
         ("Olá meu amigo, como está você?", "Portuguese", "G1"),
     ]
 
-    print(f"\nDirect FastText Language Detection:")
+    print("\nDirect FastText Language Detection:")
     for text, expected_lang, expected_region in test_texts:
         try:
             predictions = manager._lang_detector.predict(text, k=3)
@@ -62,7 +62,7 @@ def test_new_fasttext_model():
             print(f"  {text[:30]:32} -> ERROR: {e}")
 
     # Test with actual names
-    print(f"\nName-based Detection:")
+    print("\nName-based Detection:")
     test_names = [
         ("Jean Dupont", "A2"),
         ("José García", "G1"),

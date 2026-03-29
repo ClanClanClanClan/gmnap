@@ -4,9 +4,10 @@ import pytest
 """Test idempotency of V7 pipeline."""
 
 import asyncio
-from src.core.pipeline_v7 import V7Pipeline, PipelineMode
 import hashlib
 import json
+
+from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 
 
 @pytest.mark.timeout(15)

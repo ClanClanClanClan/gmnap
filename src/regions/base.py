@@ -9,8 +9,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional
 
-from .security import SecurityError, secure_validate_entry, secure_clean_name
-from .validation_rules import regional_validator, ValidationResult
+from .security import SecurityError, secure_clean_name, secure_validate_entry
+from .validation_rules import ValidationResult, regional_validator
 
 logger = logging.getLogger(__name__)
 
@@ -204,7 +204,6 @@ class RegionSpec(ABC):
         # Normalize quotation marks and apostrophes
         quote_map = {
             """: "'", """: "'",  # Curly single quotes → straight
-            '"': '"',
             '"': '"',  # Curly double quotes → straight
             "‚": ",",
             "„": '"',  # German/Eastern European quotes
@@ -665,7 +664,7 @@ class RegionSpec(ABC):
         """
         try:
             # Store original for debugging
-            original = entry.copy()
+            entry.copy()
 
             # Step 1: Normalize unicode and whitespace
             entry = self.normalize_whitespace_characters(entry)

@@ -1,7 +1,8 @@
 from __future__ import annotations
-import os
+
 import logging
-from typing import Dict, Any
+import os
+from typing import Any, Dict
 
 try:
     import requests  # type: ignore

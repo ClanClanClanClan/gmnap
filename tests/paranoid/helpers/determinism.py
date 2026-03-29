@@ -1,4 +1,5 @@
-import json, hashlib
+import hashlib
+import json
 
 
 def canonicalize_entries(entries):

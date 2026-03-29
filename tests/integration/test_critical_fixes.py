@@ -46,7 +46,7 @@ def test_security_sanitization():
             sanitization_passed = False
 
     if sanitization_passed:
-        print(f"PASS SECURITY SANITIZATION: PASSED - No dangerous patterns in metadata")
+        print("PASS SECURITY SANITIZATION: PASSED - No dangerous patterns in metadata")
         print(f"   Input: {malicious_entry['CanonicalLatin']}")
         print(f"   Output metadata: {result.metadata}")
 

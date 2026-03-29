@@ -1,4 +1,3 @@
-from typing import List
 import pytest
 
 #!/usr/bin/env python3
@@ -10,8 +9,8 @@ Tests all fixes implemented during ULTRAFIX phase
 import json
 import sys
 import traceback
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 # Add project root to Python path
 project_root = Path(__file__).parent

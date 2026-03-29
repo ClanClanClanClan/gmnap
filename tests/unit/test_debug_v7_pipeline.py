@@ -7,8 +7,9 @@ Debug v7 mathematician classification in pipeline.
 
 import sys
 import tempfile
-import yaml
 from pathlib import Path
+
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -16,14 +17,16 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.pipeline_v6 import GMNAPPipeline
 import sys
 from pathlib import Path
 
+from src.core.pipeline_v6 import GMNAPPipeline
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.config import GMNAPConfig
 import sys
 from pathlib import Path
+
+from src.core.config import GMNAPConfig
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import os

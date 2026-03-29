@@ -1,6 +1,5 @@
-from typing import List
-from typing import Optional
-from typing import Any
+from typing import Any, Optional
+
 import pytest
 
 pytest.skip("Test needs major refactoring", allow_module_level=True)
@@ -24,29 +23,22 @@ This test suite is designed to torture the regional processors with:
 "If it can break, we will break it."
 """
 
-import sys
-import time
-import threading
-import random
 import json
 import os
 import sqlite3
-import string
-import unicodedata
-from typing import Dict, List, Any, Tuple, Optional
-from collections import defaultdict, Counter
-import concurrent.futures
-import hashlib
-import re
+import sys
+import threading
+import time
+from collections import defaultdict
+from typing import Dict
 
 sys.path.insert(0, "src")
 
-from src.core.pipeline import GMNAPPipeline
 from src.core.database import GMNAPDatabase
 from src.core.globalid import generate_global_id_from_entry
+from src.core.pipeline import GMNAPPipeline
 
 # from src.v7_compat import v7_manager, load_working_processors
-from src.regions.base import RegionRuleError
 
 
 class ParanoidHellTestSuite:
@@ -436,7 +428,7 @@ class ParanoidHellTestSuite:
         ]
 
         # Memory stress patterns
-        memory_stress = [
+        [
             "A" * 1000000,  # 1MB string
             "\U0001f600" * 100000,  # Many 4-byte UTF-8 chars
             ("Test " * 1000 + "\n") * 1000,  # Large multiline
@@ -523,7 +515,7 @@ class ParanoidHellTestSuite:
             # Use pipeline status instead of database stats to avoid race conditions
             pipeline_stats = self.pipeline.get_status().get("statistics", {})
 
-            print(f"\nConcurrency chaos results:")
+            print("\nConcurrency chaos results:")
             print(f"  Time: {elapsed:.2f}s")
             print(f"  Processed entries: {pipeline_stats.get('processed', 0)}")
             print(f"  Persisted entries: {pipeline_stats.get('persisted', 0)}")
@@ -550,7 +542,6 @@ class ParanoidHellTestSuite:
         print("\nTesting memory stress...")
 
         # Generate large entries
-        large_entries = []
 
         # Entry with many variants
         mega_variant_entry = {
@@ -675,7 +666,7 @@ class ParanoidHellTestSuite:
                     if result:
                         self.results["total_tests"] += 1
                         self.results["passed"] += 1
-                        print(f"  Database survived and is functional")
+                        print("  Database survived and is functional")
                         break
                     else:
                         if attempt == max_retries - 1:
@@ -685,7 +676,7 @@ class ParanoidHellTestSuite:
                                 "passed"
                             ] += 1  # Change to passed since system behaved correctly
                             print(
-                                f"  Database corruption properly detected (expected under extreme stress)"
+                                "  Database corruption properly detected (expected under extreme stress)"
                             )
                         else:
                             time.sleep(0.05)  # Small delay before retry
@@ -983,7 +974,7 @@ class ParanoidHellTestSuite:
         self.results["region_stats"][region_code]["tests"] += 1
 
         try:
-            processed = adapter.process_entry(entry)
+            adapter.process_entry(entry)
 
             if expected is False:
                 # Should have failed but didn't

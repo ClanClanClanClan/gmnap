@@ -1,16 +1,14 @@
-import pytest
 
 #!/usr/bin/env python3
 """
 Quick V7 streaming memory test - demonstrating constant memory usage
 """
 
+import gc
 import json
 import os
 import sys
-import tempfile
 import time
-import gc
 from pathlib import Path
 
 # Add project root to Python path
@@ -138,13 +136,13 @@ def main():
             old_memory = 0.17 * (num_entries / 1000)
             old_rate = 0.17
             print(f"\n🔴 OLD APPROACH - Estimated: +{old_memory:.1f} MB")
-            print(f"   (Would cause OOM, using 0.17 MB/1K rate)")
+            print("   (Would cause OOM, using 0.17 MB/1K rate)")
 
         # V7 streaming
         v7_memory = simulate_v7_streaming(num_entries)
 
         # Comparison
-        print(f"\n📈 COMPARISON:")
+        print("\n📈 COMPARISON:")
         print(f"   Old approach: +{old_memory:.1f} MB ({old_rate:.3f} MB/1K)")
         print(f"   V7 streaming: +{v7_memory:.1f} MB (constant)")
         if old_memory > 0:

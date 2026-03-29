@@ -3,8 +3,8 @@
 
 import csv
 import json
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 # Load existing mappings
 existing_mappings = defaultdict(set)  # roman -> set of hangul
@@ -104,7 +104,7 @@ for (exp, act), count in sorted(low_dice_patterns.items(), key=lambda x: -x[1])[
         if row and row["hangul"] == exp:
             print(f"    Current mapping: {row['roman']} (weight={row['weight']})")
 
-print(f"\n\n=== SUMMARY ===")
+print("\n\n=== SUMMARY ===")
 print(f"Safe to add without conflicts: {len(safe_to_add)} mappings")
 for h, r, p in safe_to_add:
     print(f"  - {r}→{h} (pos={p})")

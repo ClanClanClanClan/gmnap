@@ -1,4 +1,5 @@
 import pytest
+
 from src.analytics.duckdb_analytics import DuckDBAnalytics
 
 

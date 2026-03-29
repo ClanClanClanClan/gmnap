@@ -3,19 +3,19 @@ Comprehensive test suite for all 33 GMNAP regions.
 Tests functionality, edge cases, and security for each region.
 """
 
-import pytest
-from pathlib import Path
-from typing import Dict, Any, List
 import sys
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import os
 
 os.environ["GMNAP_TEST_MODE"] = "true"
-from src.regions.manager import RegionManager
 import sys
 from pathlib import Path
+
+from src.regions.manager import RegionManager
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.base import RegionRuleError
@@ -210,7 +210,7 @@ class TestAllRegions:
                     region.clean(entry)
 
                     # Should not crash and should maintain GlobalID
-                    assert entry["GlobalID"] == "test", f"GlobalID changed"
+                    assert entry["GlobalID"] == "test", "GlobalID changed"
                     region_results.append((case_name, "PASS"))
                 except Exception as e:
                     region_results.append((case_name, f"FAIL: {str(e)[:30]}"))
@@ -219,7 +219,7 @@ class TestAllRegions:
             results[region_code] = (passed, len(edge_cases), region_results)
 
         # Report results
-        print(f"\n Edge Case Results:")
+        print("\n Edge Case Results:")
         all_passed = True
         for region_code, (passed, total, details) in results.items():
             if passed == total:
@@ -272,7 +272,7 @@ class TestAllRegions:
             results[region_code] = (blocked, len(attack_vectors), region_results)
 
         # Report results
-        print(f"\n Security Test Results:")
+        print("\n Security Test Results:")
         all_secure = True
         for region_code, (blocked, total, details) in results.items():
             if blocked == total:
@@ -322,7 +322,7 @@ class TestAllRegions:
             results[region_code] = (passed, len(unicode_tests))
 
         # Report summary
-        print(f"\n Unicode Normalization Results:")
+        print("\n Unicode Normalization Results:")
         for region_code, (passed, total) in results.items():
             status = "PASS" if passed == total else "WARN"
             print(f"{status} {region_code}: {passed}/{total} unicode tests passed")
@@ -346,7 +346,7 @@ class TestAllRegions:
                 results[region_code] = f"ERROR: {str(e)[:30]}"
 
         # Report results
-        print(f"\n Validation Method Results:")
+        print("\n Validation Method Results:")
         passed = sum(1 for r in results.values() if r == "PASS")
         print(f"Overall: {passed}/33 regions have working validation")
 
@@ -385,7 +385,7 @@ class TestAllRegions:
                 results[region_code] = f"ERROR: {str(e)[:30]}"
 
         # Report results
-        print(f"\n Augmentation Method Results:")
+        print("\n Augmentation Method Results:")
         passed = sum(1 for r in results.values() if r == "PASS")
         print(f"Overall: {passed}/33 regions have working augmentation")
 
@@ -429,7 +429,7 @@ class TestRegionalPerformance:
             results[region_code] = entries_per_second
 
         # Report results
-        print(f"\n Performance Results (entries/second):")
+        print("\n Performance Results (entries/second):")
         sorted_results = sorted(results.items(), key=lambda x: x[1], reverse=True)
 
         for region_code, speed in sorted_results[:5]:

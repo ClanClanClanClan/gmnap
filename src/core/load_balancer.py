@@ -8,13 +8,13 @@ import asyncio
 import json
 import logging
 import random
-import time
 import threading
+import time
 from collections import deque
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
-from enum import Enum
 
 
 class ServiceLevel(Enum):

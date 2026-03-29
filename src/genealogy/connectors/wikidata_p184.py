@@ -6,9 +6,10 @@ Designed for mass harvesting of academic genealogy relationships from Wikidata.
 """
 
 import asyncio
-import httpx
-from typing import AsyncIterator, Dict, Any, Optional
 from dataclasses import dataclass
+from typing import Any, AsyncIterator, Dict, Optional
+
+import httpx
 
 SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import Any, Callable, List, Dict
-from src.core.sb_booster import PipelineService, BoosterConfig, AggConfig
+
+from typing import Any, Callable, Dict, List
+
+from src.core.sb_booster import AggConfig, BoosterConfig, PipelineService
 
 
 def build_small_batch_service(

@@ -4,7 +4,6 @@ Integration tests for the GMNAP pipeline.
 Tests end-to-end pipeline execution with all components working together.
 """
 
-import asyncio
 import tempfile
 from pathlib import Path
 from unittest.mock import AsyncMock, Mock, patch
@@ -12,7 +11,6 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 import yaml
 
-from src.authorities.tier0.openalex import OpenAlexFetcher
 from src.core.config import GMNAPConfig
 from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 from src.regions.a_groups.a1_anglo_sphere import A1_AngloSphere
@@ -517,7 +515,7 @@ class TestPipelineIntegration:
         # Check that checkpoints were saved
         checkpoint_dir = Path(self.config.cache.cache_dir) / "checkpoints"
         if checkpoint_dir.exists():
-            checkpoint_files = list(checkpoint_dir.glob("*_checkpoint.json"))
+            list(checkpoint_dir.glob("*_checkpoint.json"))
             # May or may not have checkpoints depending on implementation
 
     @pytest.mark.asyncio
@@ -549,7 +547,7 @@ class TestPipelineIntegration:
         invalid_config.processing.batch_size = -1  # Invalid
 
         with pytest.raises(ValueError):
-            pipeline = GMNAPPipeline(invalid_config, PipelineMode.QUICK)
+            GMNAPPipeline(invalid_config, PipelineMode.QUICK)
             # Configuration validation should catch this
 
     @pytest.mark.asyncio

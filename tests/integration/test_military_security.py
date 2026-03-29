@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -104,7 +103,7 @@ for attack, description in all_attacks:
                 f"FAIL PASSED: {description} -> {result.region_code} via {result.detection_method}"
             )
 
-    except Exception as e:
+    except Exception:
         # Exception means it was caught (good)
         blocked += 1
         print(f"PASS BLOCKED: {description} (exception)")
@@ -113,7 +112,7 @@ for attack, description in all_attacks:
 security_rate = blocked / total if total > 0 else 0
 vulnerability_rate = passed / total if total > 0 else 0
 
-print(f"\n📊 MILITARY SECURITY RESULTS:")
+print("\n📊 MILITARY SECURITY RESULTS:")
 print(f"  Total attacks tested: {total}")
 print(f"  Attacks blocked: {blocked}")
 print(f"  Attacks passed through: {passed}")
@@ -134,12 +133,12 @@ else:
     grade = "F (Failed)"
     status = "🔴 NOT SECURE"
 
-print(f"\n🎯 SECURITY ASSESSMENT:")
+print("\n🎯 SECURITY ASSESSMENT:")
 print(f"  Security Grade: {grade}")
 print(f"  Status: {status}")
 
 # Test legitimate names to ensure low false positives
-print(f"\n🧪 TESTING LEGITIMATE NAMES (False Positive Check):")
+print("\n🧪 TESTING LEGITIMATE NAMES (False Positive Check):")
 
 legitimate_names = [
     "Smith, John",
@@ -171,26 +170,26 @@ for name in legitimate_names:
         else:
             print(f"PASS LEGITIMATE: {name} -> {result.region_code}")
 
-    except Exception as e:
+    except Exception:
         false_positives += 1
         print(f"FAIL FALSE POSITIVE: {name} (exception)")
 
 fp_rate = false_positives / len(legitimate_names)
-print(f"\n📈 FALSE POSITIVE ANALYSIS:")
+print("\n📈 FALSE POSITIVE ANALYSIS:")
 print(f"  False positive rate: {fp_rate:.1%}")
 
 if vulnerability_rate <= 0.01 and fp_rate <= 0.05:
-    print(f"\n🎉 SUCCESS: Military-grade security achieved!")
+    print("\n🎉 SUCCESS: Military-grade security achieved!")
     print(f"   PASS Attack success rate: {vulnerability_rate:.1%} (target: <1%)")
     print(f"   PASS False positive rate: {fp_rate:.1%} (target: <5%)")
-    print(f"   🚀 Ready for enterprise deployment!")
+    print("   🚀 Ready for enterprise deployment!")
 elif vulnerability_rate <= 0.05:
-    print(f"\nWARN  GOOD: Significant security improvement")
+    print("\nWARN  GOOD: Significant security improvement")
     print(f"   PASS Attack success rate: {vulnerability_rate:.1%}")
     print(f"   📊 False positive rate: {fp_rate:.1%}")
-    print(f"   🔧 Minor tuning needed for military grade")
+    print("   🔧 Minor tuning needed for military grade")
 else:
-    print(f"\nFAIL NEEDS WORK: Security still insufficient")
+    print("\nFAIL NEEDS WORK: Security still insufficient")
     print(f"   WARN  Attack success rate: {vulnerability_rate:.1%} (target: <1%)")
     print(f"   📊 False positive rate: {fp_rate:.1%}")
-    print(f"   🔨 Requires additional security measures")
+    print("   🔨 Requires additional security measures")

@@ -1,4 +1,7 @@
-import pynini as pn, pathlib, unicodedata
+import pathlib
+import unicodedata
+
+import pynini as pn
 
 tsv = pathlib.Path("resources/loanword_en2kor.tsv").read_text().splitlines()
 pairs = [(k.strip(), v.strip()) for k, v, *_ in (l.split("\t") for l in tsv)]

@@ -7,16 +7,12 @@ that could cause memory exhaustion or inefficient memory usage.
 
 import asyncio
 import gc
-import random
-import string
 import tempfile
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from queue import Empty, Queue
-from typing import Any, Dict, List
-from unittest.mock import AsyncMock, Mock, patch
+from typing import Any, Dict
+from unittest.mock import Mock, patch
 
 import psutil
 import pytest

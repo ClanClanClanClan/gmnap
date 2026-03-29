@@ -1,6 +1,9 @@
 from __future__ import annotations
-import time, contextlib
-from .metrics import STAGE_DURATION, PIPELINE_THROUGHPUT
+
+import contextlib
+import time
+
+from .metrics import PIPELINE_THROUGHPUT, STAGE_DURATION
 
 
 @contextlib.contextmanager

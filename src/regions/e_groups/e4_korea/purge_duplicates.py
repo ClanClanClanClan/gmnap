@@ -1,4 +1,6 @@
-import csv, unicodedata as ud, pathlib
+import csv
+import pathlib
+import unicodedata as ud
 
 rows, best = [], {}
 for row in csv.reader(open("resources/rr_syllable_map.csv")):

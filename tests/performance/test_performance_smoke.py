@@ -5,10 +5,10 @@ import pytest
 Performance smoke test - basic performance checks
 """
 
-import sys
-from pathlib import Path
-import time
 import os
+import sys
+import time
+from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))

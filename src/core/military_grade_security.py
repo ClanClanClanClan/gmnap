@@ -3,12 +3,12 @@ Military-Grade Security Validator for GMNAP v7
 Designed to achieve <1% attack success rate (enterprise standard)
 """
 
-import re
 import html
-import urllib.parse
-import unicodedata
-from typing import Any, Dict, List, Tuple
 import logging
+import re
+import unicodedata
+import urllib.parse
+from typing import Any, Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 

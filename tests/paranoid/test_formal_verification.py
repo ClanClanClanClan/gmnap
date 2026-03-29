@@ -13,23 +13,20 @@ Mathematical proofs and invariants to verify system correctness:
 - Mathematical correctness proofs
 """
 
-import functools
-import hashlib
-import itertools
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, List, Set, Tuple
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from hypothesis import assume, given, strategies as st, settings
+from hypothesis import given, settings
+from hypothesis import strategies as st
 from hypothesis.stateful import (
-    RuleBasedStateMachine,
     Bundle,
-    rule,
+    RuleBasedStateMachine,
     invariant,
-    precondition,
+    rule,
 )
 
 # Formal specifications as mathematical properties

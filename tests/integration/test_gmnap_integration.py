@@ -54,10 +54,10 @@ def test_converter_v6_integration():
         print(f"    -> Accuracy: {accuracy:.3f}")
 
         if korean_result and accuracy >= 0.97:
-            print(f"    PASS PASSED")
+            print("    PASS PASSED")
             successful += 1
         else:
-            print(f"    FAIL FAILED")
+            print("    FAIL FAILED")
 
     print(
         f"\n📊 Integration test results: {successful}/{total} ({successful/total*100:.1f}%)"

@@ -1,6 +1,11 @@
 from __future__ import annotations
+
+import json
+import os
+import pathlib
 from typing import Dict, List, Tuple
-import duckdb, json, os, pathlib
+
+import duckdb
 
 # from ..ops.metrics import WRITE_DIFF_CHANGED_ENTRIES  # placeholder import for consistency
 
@@ -52,7 +57,7 @@ def stage5_duckdb(
         JOIN d ON e.CanonicalLatin = d.CanonicalLatin AND coalesce(e.BirthYear, -1) = coalesce(d.BirthYear, -1)
         ORDER BY e.CanonicalLatin, e.BirthYear, e.GlobalID
     """)
-    dup_rows = con.fetchall()
+    con.fetchall()
     collisions = 0
     seen = {}
     out = []

@@ -9,6 +9,7 @@ Features: Armenian script detection, patronymic variants, diaspora adaptations.
 import re
 import unicodedata
 from typing import Any, Dict, List, Optional
+
 from ...base_enhanced import EnhancedRegionSpec as RegionSpec
 
 
@@ -46,11 +47,6 @@ class C7_Armenian(RegionSpec):
                 "meaning": "son/descendant of",
                 "region": "Western",
                 "frequency": "medium",
-            },
-            "-yan": {
-                "meaning": "son/descendant of",
-                "region": "Eastern",
-                "frequency": "high",
             },
             # Regional variations
             "-jyan": {

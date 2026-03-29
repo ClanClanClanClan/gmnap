@@ -5,10 +5,10 @@ Rule-of-thumb heuristics are encoded in SUSPECT().
 """
 
 import csv
-import unicodedata as U
+import json
 import pathlib
 import re
-import json
+import unicodedata as U
 
 RR = pathlib.Path(__file__).parents[1] / "resources" / "rr_syllable_map.csv"
 suspects = []

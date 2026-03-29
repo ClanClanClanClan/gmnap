@@ -7,10 +7,10 @@ Supports both lookup (existing DB) and generate (new data) modes.
 
 import json
 import logging
-from pathlib import Path
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 # Import GMNAP components
 from src.core.global_id import global_id
@@ -82,7 +82,7 @@ class PersonIDMatcher:
             data = json.load(f)
 
         edges = data.get("edges", [])
-        metadata = data.get("metadata", {})
+        data.get("metadata", {})
 
         print(f"Loaded {len(edges):,} edges")
         print()
@@ -202,16 +202,15 @@ class PersonIDMatcher:
         """
         # For now, we don't have birth/death years from thesis metadata
         # Use thesis year to estimate birth year for disambiguation
-        birth_year_estimate = None
 
         if thesis_year:
             # Rough estimation:
             # - Student: typically 25-35 at PhD, so birth ~thesis_year - 30
             # - Advisor: typically 40-60 at supervision, so birth ~thesis_year - 50
             if is_student:
-                birth_year_estimate = thesis_year - 30
+                thesis_year - 30
             else:
-                birth_year_estimate = thesis_year - 50
+                thesis_year - 50
 
         # Generate GlobalID
         # NOTE: For pilot, we use birth_year_estimate=None to avoid incorrect data
@@ -228,15 +227,15 @@ class PersonIDMatcher:
         """Print matching statistics."""
         print("📊 MATCHING STATISTICS:")
         print()
-        print(f"  Edges:")
+        print("  Edges:")
         print(f"    Total edges processed: {self.stats['total_edges']:,}")
         print()
-        print(f"  Persons:")
+        print("  Persons:")
         print(f"    Unique persons: {self.stats['unique_persons']:,}")
         print(f"    Students: {self.stats['students_processed']:,}")
         print(f"    Advisors: {self.stats['advisors_processed']:,}")
         print()
-        print(f"  GlobalIDs:")
+        print("  GlobalIDs:")
         print(f"    New IDs generated: {self.stats['ids_generated']:,}")
         print(f"    Existing IDs reused: {self.stats['ids_reused']:,}")
         if self.stats["ids_generated"] + self.stats["ids_reused"] > 0:
@@ -251,7 +250,7 @@ class PersonIDMatcher:
         # Top persons by edge count
         if self.name_to_id:
             # Count occurrences in reverse lookup
-            name_counts = defaultdict(int)
+            defaultdict(int)
             # Note: This is simplified - in practice we'd track this during matching
             print(f"  Total unique canonical names: {len(self.name_to_id):,}")
 
@@ -303,7 +302,7 @@ class PersonIDMatcher:
         print(f"   Total edges: {len(edges):,}")
         print(f"   Unique persons: {len(self.name_to_id):,}")
         if include_summary:
-            print(f"   Person summary included")
+            print("   Person summary included")
 
 
 def main():

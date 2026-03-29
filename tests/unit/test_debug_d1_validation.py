@@ -7,8 +7,9 @@ Debug D1 validation issues.
 
 import sys
 import tempfile
-import yaml
 from pathlib import Path
+
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -16,14 +17,16 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.pipeline_v6 import GMNAPPipeline
 import sys
 from pathlib import Path
 
+from src.core.pipeline_v6 import GMNAPPipeline
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.config import GMNAPConfig
 import sys
 from pathlib import Path
+
+from src.core.config import GMNAPConfig
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.d_groups.d1_south_asia_hindi_belt import D1_SouthAsiaHindiBelt
@@ -57,7 +60,7 @@ def test_d1_validation():
 
             # Test validation
             region.validate(test_entry)
-            print(f"PASS Validation: PASSED")
+            print("PASS Validation: PASSED")
 
         except Exception as e:
             print(f"FAIL Error: {e}")
@@ -93,7 +96,7 @@ def test_d1_pipeline():
 
         try:
             result = pipeline.run(tmpdir)
-            print(f"\n=== Pipeline Result ===")
+            print("\n=== Pipeline Result ===")
             print(f"Success: {result.successful_entries}/{result.total_entries}")
             print(f"Failed: {result.failed_entries}")
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import sys
+
 sys.path.insert(0, 'src')
-from converter import _rr2han
 from context_lookup import apply_context
+from converter import _rr2han
 from preprocess import tokenise
 from segment import segment
 

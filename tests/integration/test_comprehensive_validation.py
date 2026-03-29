@@ -1,5 +1,5 @@
-from typing import List
 from typing import Any
+
 import pytest
 
 #!/usr/bin/env python3
@@ -8,11 +8,11 @@ Comprehensive validation test suite for GMNAP.
 Tests security, schema, linguistic, and data quality validation.
 """
 
-import sys
-import logging
-from pathlib import Path
-from typing import Dict, Any, List
 import json
+import logging
+import sys
+from pathlib import Path
+from typing import Dict
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -21,24 +21,28 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.security_validator import security_validator, SecurityError
 import sys
 from pathlib import Path
 
+from src.core.security_validator import SecurityError, security_validator
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import sys
+from pathlib import Path
+
 from src.validation.schema import SchemaValidator
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.validation.data_quality import data_quality_validator
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.validation_rules import regional_validator
-import sys
-from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.linguistic.rules_engine import LinguisticRulesEngine
@@ -520,7 +524,7 @@ class ValidationTestSuite:
 
         try:
             # Try to validate the entry
-            validated = self.security.validate_entry(test["input"])
+            self.security.validate_entry(test["input"])
 
             if test["should_pass"]:
                 logger.info(f"✓ {test['name']}")
@@ -704,7 +708,7 @@ class ValidationTestSuite:
         # Save results to file
         with open("validation_test_results.json", "w") as f:
             json.dump(self.results, f, indent=2)
-        logger.info(f"\nResults saved to validation_test_results.json")
+        logger.info("\nResults saved to validation_test_results.json")
 
 
 if __name__ == "__main__":

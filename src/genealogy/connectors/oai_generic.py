@@ -9,10 +9,11 @@ Reusable for 80% of global thesis repositories.
 """
 
 import asyncio
-import aiohttp
 import xml.etree.ElementTree as ET
-from typing import AsyncIterator, Dict, Any, List, Optional
 from dataclasses import dataclass
+from typing import Any, AsyncIterator, Dict, List, Optional
+
+import aiohttp
 
 NS_OAI = "{http://www.openarchives.org/OAI/2.0/}"
 NS_DC = "{http://purl.org/dc/elements/1.1/}"

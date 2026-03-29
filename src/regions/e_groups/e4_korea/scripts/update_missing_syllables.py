@@ -3,9 +3,10 @@
 Update missing syllables based on validation failures
 """
 
-import yaml
 import csv
 from pathlib import Path
+
+import yaml
 
 E4_ROOT = Path(__file__).parent.parent
 

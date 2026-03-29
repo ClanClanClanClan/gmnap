@@ -6,20 +6,15 @@ to break the system. Uses property-based testing and deliberate attacks.
 """
 
 import json
-import random
-import string
-import struct
 import tempfile
 import time
 import unicodedata
 from pathlib import Path
-from typing import Any, Dict, List
 
 import pytest
-import yaml
-from hypothesis import assume, given, settings
+from hypothesis import given, settings
 from hypothesis import strategies as st
-from hypothesis.strategies import binary, dictionaries, floats, integers, lists, text
+from hypothesis.strategies import binary, dictionaries, floats, integers, text
 
 from src.core.config import GMNAPConfig
 from src.core.globalid import GlobalIDGenerator, validate_global_id
@@ -422,7 +417,7 @@ class TestInputFuzzing:
                 if global_id:
                     assert validate_global_id(
                         global_id
-                    ), f"Invalid GlobalID from normalization attack"
+                    ), "Invalid GlobalID from normalization attack"
 
             except Exception as e:
                 # Should handle gracefully

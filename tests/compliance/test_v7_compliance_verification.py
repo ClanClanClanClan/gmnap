@@ -11,14 +11,14 @@ documentation discrepancies discovered during ULTRACHECK audit.
 This suite verifies actual implementation against documented compliance claims.
 """
 
-import pytest
 import asyncio
-import sys
-import inspect
-from pathlib import Path
-from typing import Dict, List, Tuple, Any
-from unittest.mock import Mock, patch
 import importlib.util
+import inspect
+import sys
+from pathlib import Path
+from typing import Any, Dict, List
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
@@ -127,7 +127,7 @@ class V7ComplianceVerifier:
 
             # For stage 11, check the specific method name
             if stage_number == 11:
-                specific_method = f"_stage_11_idempotency_check"
+                specific_method = "_stage_11_idempotency_check"
                 if hasattr(self.pipeline, specific_method):
                     result["implemented"] = True
                     result["evidence"].append(f"Method {specific_method} exists")
@@ -386,7 +386,7 @@ class TestV7ComplianceVerification:
         assert result[
             "implemented"
         ], f"Quality gates not implemented: {result['evidence']}"
-        assert result["gate_count"] > 0, f"No quality gate validators found"
+        assert result["gate_count"] > 0, "No quality gate validators found"
 
         verifier.verification_results["quality_gates"] = result
 
@@ -463,7 +463,7 @@ class TestV7ComplianceVerification:
         assert "implementation_evidence" in report
         assert report["verification_summary"]["total_features_tested"] > 0
 
-        print(f"\nCompliance Verification Report Generated:")
+        print("\nCompliance Verification Report Generated:")
         print(
             f"Features tested: {report['verification_summary']['total_features_tested']}"
         )

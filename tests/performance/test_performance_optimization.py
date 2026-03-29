@@ -5,12 +5,12 @@ import pytest
 Test performance improvements with optimized RegionManager.
 """
 
-import time
-import tempfile
-from pathlib import Path
-import yaml
-
 import sys
+import tempfile
+import time
+from pathlib import Path
+
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -18,9 +18,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 import sys
 from pathlib import Path
+
+from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.config import GMNAPConfig
@@ -116,6 +117,7 @@ def main():
 
         # Reset import
         import importlib
+
         import src.regions.manager
 
         importlib.reload(src.regions.manager)

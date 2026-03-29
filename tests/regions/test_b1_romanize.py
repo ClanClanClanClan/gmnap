@@ -1,10 +1,10 @@
-import pytest
-
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.regions.b_groups.b1_romanize import romanize_cyrillic, canonical_family_given
+from src.regions.b_groups.b1_romanize import canonical_family_given, romanize_cyrillic
 
 
 @pytest.mark.timeout(15)

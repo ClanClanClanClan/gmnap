@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Analyze which mathematician names regressed after adding English syllables."""
 
-import subprocess
 import json
+import subprocess
+
 
 def get_failures():
     """Get current failures from mathematician dataset."""
@@ -46,7 +47,7 @@ def main():
     
     # Get current failures
     failures = get_failures()
-    print(f"\nFirst 5 mathematician failures:")
+    print("\nFirst 5 mathematician failures:")
     for name, error_type, detail in failures[:5]:
         print(f"  {name}: {error_type} - {detail}")
     

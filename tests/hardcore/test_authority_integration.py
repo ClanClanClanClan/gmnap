@@ -11,19 +11,13 @@ import random
 import socket
 import ssl
 import tempfile
-import threading
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timedelta
 from pathlib import Path
-from queue import Empty, Queue
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
 from src.authorities.base import (
-    AuthorityData,
-    AuthorityFetcher,
     FetchStatus,
     QuotaManager,
 )

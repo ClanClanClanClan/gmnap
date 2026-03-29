@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import Awaitable, Callable, Any, List, Tuple
-from ..ops.metrics import TX_SUCCESS, TX_ROLLBACK
+
+from typing import Any, Awaitable, Callable, List, Tuple
+
+from ..ops.metrics import TX_ROLLBACK, TX_SUCCESS
 
 Operation = Callable[[Any], Awaitable[Any]]  # receives tx/session-like
 

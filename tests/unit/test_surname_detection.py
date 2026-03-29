@@ -411,7 +411,7 @@ def test_surname_patterns():
             else:
                 print(f"  FAIL Expected {expected_region}, found in {found_in}")
         else:
-            print(f"  FAIL Not found in any region patterns")
+            print("  FAIL Not found in any region patterns")
 
         print()
 

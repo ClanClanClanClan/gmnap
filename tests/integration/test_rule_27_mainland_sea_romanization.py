@@ -11,9 +11,9 @@ This test verifies that Rule 27 is working correctly in E6 region:
 - Proper variant generation
 """
 
-import os
 import sys
 from pathlib import Path
+
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -73,9 +73,9 @@ def test_rule_27_thai_rtgs():
         romanized = processor._romanize_thai_rtgs(thai_char)
         print(f"  {thai_char} -> {romanized} (expected: {expected_roman.capitalize()})")
         if romanized.lower() == expected_roman:
-            print(f"    PASS Correct")
+            print("    PASS Correct")
         else:
-            print(f"    WARN  May need adjustment")
+            print("    WARN  May need adjustment")
     print()
 
 
@@ -187,9 +187,9 @@ def test_rule_27_script_detection():
         print(f"  Detected: {detected_script}")
 
         if detected_script == expected_script:
-            print(f"  PASS Correct script detection")
+            print("  PASS Correct script detection")
         else:
-            print(f"  WARN  Script detection needs adjustment")
+            print("  WARN  Script detection needs adjustment")
         print()
 
 
@@ -244,16 +244,16 @@ def test_rule_27_comprehensive():
         print(f"  Generated variants: {expected_variants}")
 
         if script == test_case["expected_script"]:
-            print(f"  PASS Correct script detection")
+            print("  PASS Correct script detection")
         else:
             print(
                 f"  WARN  Script detection: expected {test_case['expected_script']}, got {script}"
             )
 
         if expected_variants:
-            print(f"  PASS Romanization variant generated")
+            print("  PASS Romanization variant generated")
         else:
-            print(f"  WARN  No romanization variant generated")
+            print("  WARN  No romanization variant generated")
 
 
 @pytest.mark.timeout(15)
@@ -282,9 +282,9 @@ def test_rule_27_order_key():
 
         # Order key should be ASCII for consistent sorting
         if order_key and all(ord(c) < 128 for c in order_key if c.isalpha()):
-            print(f"  PASS Order key is ASCII-compatible")
+            print("  PASS Order key is ASCII-compatible")
         else:
-            print(f"  WARN  Order key may contain non-ASCII characters")
+            print("  WARN  Order key may contain non-ASCII characters")
 
 
 def main():

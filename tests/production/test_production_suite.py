@@ -12,38 +12,32 @@ backup/restore, and deployment readiness.
 Created: 2025-09-17
 """
 
-import asyncio
-import concurrent.futures
 import gc
 import json
 import os
 import pickle
-import psutil
-import pytest
 import random
-import shutil
-import signal
-import string
 import sys
 import tempfile
 import threading
 import time
 import tracemalloc
-from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
-from unittest.mock import patch, MagicMock
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, patch
+
+import psutil
+import pytest
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.core.pipeline_v7 import V7Pipeline, PipelineMode
+from src.core.cache_manager import CacheManager
+from src.core.pipeline_v7 import PipelineMode, V7Pipeline
+from src.quality.gates import QualityGates
 from src.regions.manager import RegionManager
 from src.regions.manager_optimized import RegionManager as OptimizedRegionManager
-from src.authorities.enricher import AuthorityEnricher
-from src.core.cache_manager import CacheManager
-from src.quality.gates import QualityGates
 
 
 @dataclass
@@ -299,7 +293,7 @@ class ProductionTestSuite:
                         # Test region detection
                         names = ["Kim Min-su", "John Smith", "李明", "محمد علي"]
                         name = random.choice(names)
-                        result = manager.detect_region({"CanonicalLatin": name})
+                        manager.detect_region({"CanonicalLatin": name})
 
                     elif op_type == "process":
                         # Test processing
@@ -308,11 +302,11 @@ class ProductionTestSuite:
                             "GlobalID": f"CONC-{worker_id:03d}-{i:05d}",
                         }
                         # Simulate processing
-                        result = manager.detect_region(entry)
+                        manager.detect_region(entry)
 
                     else:  # cache
                         # Test cache operations
-                        cache_key = f"worker_{worker_id}_key_{i}"
+                        pass
                         # Simulate cache access
 
                     with lock:
@@ -642,7 +636,7 @@ class ProductionTestSuite:
             # Restore from backup
             try:
                 # Restore cache
-                restored_cache = CacheManager(cache_dir=tmpdir / "cache_restored")
+                CacheManager(cache_dir=tmpdir / "cache_restored")
 
                 with open(cache_backup, "rb") as f:
                     restored_data = pickle.load(f)
@@ -760,7 +754,7 @@ class ProductionTestSuite:
         # 5. Check quality gates
         try:
             gates = QualityGates()
-            gate_result = gates.check_all(
+            gates.check_all(
                 {"entries": test_batch, "metrics": {"processed_entries": 1}}
             )
             checks_passed.append("Quality gates")

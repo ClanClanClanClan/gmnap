@@ -13,18 +13,15 @@ Simulates network failures and distributed system issues:
 - Byzantine network behavior
 """
 
-import asyncio
-import random
-import socket
-import threading
-import time
 import queue
+import random
+import sys
+import time
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Callable
-import sys
+from typing import Any, Dict, List
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -466,7 +463,7 @@ class TestNetworkPartition:
             time.sleep(0.01)
 
         # Count leaders before partition
-        leaders_before = sum(1 for n in nodes.values() if n.role == "leader")
+        sum(1 for n in nodes.values() if n.role == "leader")
 
         # Create partition that could cause split-brain
         # Majority: [node_0, node_1, node_2] | Minority: [node_3, node_4]
@@ -659,7 +656,7 @@ class TestNetworkPartition:
         assert not node1.send("node_0", {"test": "backward"})  # Should fail
 
         # This can cause interesting consensus issues
-        print(f"Asymmetric partition: Forward works, backward blocked")
+        print("Asymmetric partition: Forward works, backward blocked")
 
     @pytest.mark.timeout(15)
     def test_partial_partition(self):

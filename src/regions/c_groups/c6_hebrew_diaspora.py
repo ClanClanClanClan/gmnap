@@ -5,7 +5,8 @@ Implements Hebrew script and romanization patterns
 """
 
 from typing import Any, Dict
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class C6HebrewDiaspora(RegionSpec):

@@ -1,10 +1,13 @@
 from __future__ import annotations
-import os, time, threading
+
+import os
+import threading
+import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 # Expert solution: Import rolling gates
-from src.quality.gates_rolling import RollingGates, GateLimits
+from src.quality.gates_rolling import GateLimits, RollingGates
 
 
 @dataclass

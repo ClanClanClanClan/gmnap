@@ -10,7 +10,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 Test V7 module imports to verify all components are working.
 """
 
-import sys
 import warnings
 
 warnings.filterwarnings("ignore")

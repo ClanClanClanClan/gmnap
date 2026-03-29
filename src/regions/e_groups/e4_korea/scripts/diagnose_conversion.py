@@ -45,14 +45,14 @@ def diagnose(name):
                 surname_result = first_output(pn.accep(syl.lower()) @ conv.ROM2_SURNAME)
                 print(f"     Surname FST: {surname_result}")
             except:
-                print(f"     Surname FST: None")
+                print("     Surname FST: None")
 
             # Check given FST
             try:
                 given_result = first_output(pn.accep(syl.lower()) @ conv.ROM2_GIVEN)
                 print(f"     Given FST: {given_result}")
             except:
-                print(f"     Given FST: None")
+                print("     Given FST: None")
 
     # Final conversion
     result = conv.eng2kor(name)

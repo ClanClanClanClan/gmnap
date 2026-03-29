@@ -1,7 +1,11 @@
 from __future__ import annotations
-import os, pathlib, zipfile
+
+import os
+import pathlib
+import zipfile
 from typing import Optional
-from .metrics import ARCHIVE_UPLOADS_SUCCEEDED, ARCHIVE_UPLOADS_FAILED
+
+from .metrics import ARCHIVE_UPLOADS_FAILED, ARCHIVE_UPLOADS_SUCCEEDED
 
 
 def zip_dir(src_dir: str, out_zip: str) -> str:
@@ -38,7 +42,9 @@ def archive_snapshot(
     # Optional SFTP upload
     if method == "sftp":
         try:
-            import os, paramiko  # type: ignore
+            import os
+
+            import paramiko  # type: ignore
 
             host = os.getenv("SFTP_HOST")
             user = os.getenv("SFTP_USER")

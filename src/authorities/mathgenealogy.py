@@ -7,8 +7,9 @@ Tier-1 authority source: Academic genealogy data
 import asyncio
 import logging
 import re
-from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
+
 import aiohttp
 from bs4 import BeautifulSoup
 

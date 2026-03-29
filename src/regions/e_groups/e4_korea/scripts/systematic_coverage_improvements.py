@@ -93,7 +93,7 @@ for hangul, roman, weight in systematic_mappings:
         print(f"  ADDED: {roman} → {hangul} (weight: {weight})")
         added_count += 1
 
-print(f"\nSystematic coverage improvements:")
+print("\nSystematic coverage improvements:")
 print(f"- Added: {added_count} systematic mappings")
 print(f"- Updated: {updated_count} existing mappings")
 print(f"- Total rows: {len(rows)}")

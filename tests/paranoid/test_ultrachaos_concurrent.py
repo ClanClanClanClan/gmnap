@@ -5,25 +5,22 @@ ULTRA-CHAOS Concurrency Testing
 Find race conditions, deadlocks, and concurrent access issues
 """
 
-import pytest
-import threading
-import multiprocessing
 import asyncio
 import random
-import time
-import gc
-import weakref
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
-from threading import Lock, RLock, Semaphore, Event, Barrier
-from queue import Queue, Empty
 import signal
 import sys
+import threading
+import time
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from pathlib import Path
+from threading import Event, Lock
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.core.security_validator import SecurityValidator
 from src.core.globalid import GlobalIDGenerator
+from src.core.security_validator import SecurityValidator
 from src.core.unicode_handler import UnicodeNormalizer
 from src.utils.cache import CacheManager
 
@@ -376,7 +373,7 @@ class TestUltraChaosConcurrent:
 
         race_detected = actual_counter != expected_counter
 
-        print(f"Race condition test:")
+        print("Race condition test:")
         print(f"  Expected counter: {expected_counter}")
         print(f"  Actual counter: {actual_counter}")
         print(f"  Race conditions detected: {race_detected}")

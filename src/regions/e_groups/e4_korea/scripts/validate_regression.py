@@ -3,8 +3,11 @@
 Exit‑0 if no regression, non‑zero otherwise.
 """
 
-import json, sys, yaml
+import json
+import sys
 from pathlib import Path
+
+import yaml
 
 # Add src to path for converter import
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -12,7 +15,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 
 def norm(s):  # same as make_locks.py
-    import unicodedata, re
+    import re
+    import unicodedata
 
     s = unicodedata.normalize("NFKC", s).casefold()
     return re.sub(r"\W+", "", s)

@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Debug how jung is tokenized and converted."""
 
-import sys
 import pathlib
+import sys
+
 sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
 
-from converter import eng2kor, tokenise, segment
+from converter import eng2kor, segment, tokenise
 from lookup import rom2han
+
 
 def debug_jung_conversion(name):
     """Debug step by step conversion."""

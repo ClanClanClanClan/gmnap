@@ -100,7 +100,7 @@ for hangul, roman, weight in case_and_surname_fixes:
         print(f"  ADDED: {roman} → {hangul} (weight: {weight})")
         added_count += 1
 
-print(f"\nCase sensitivity & surname fixes:")
+print("\nCase sensitivity & surname fixes:")
 print(f"- Added: {added_count} new mappings")
 print(f"- Updated: {updated_count} existing mappings")
 print(f"- Total rows: {len(rows)}")

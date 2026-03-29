@@ -3,10 +3,11 @@
 Trace the conversion process to understand how syllables are processed
 """
 import sys
+
 sys.path.append('src')
+from converter import _rr2han_pos
 from preprocess import tokenise
 from segment import segment
-from converter import _rr2han_pos
 
 # Test case: Lee, Chung-Wei -> 이청위
 test_name = "Lee, Chung-Wei"

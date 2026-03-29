@@ -1,6 +1,4 @@
-from typing import List
 from typing import Any
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -10,13 +8,12 @@ Tests all implemented components with extreme edge cases
 
 import asyncio
 import json
+import random
 import sys
 import time
 import traceback
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
-import random
-import string
+from typing import Dict
 
 # Add source to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -25,9 +22,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.pipeline_v7 import V7Pipeline
 import sys
 from pathlib import Path
+
+from src.core.pipeline_v7 import V7Pipeline
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.manager_optimized import RegionManager
@@ -418,7 +416,7 @@ class HellLevelValidator:
                             )
                         }
                     ]
-                    result = await self.pipeline._stage_0_input_validation(entries)
+                    await self.pipeline._stage_0_input_validation(entries)
 
                     # Attack blocked = test passed
                     results.append(
@@ -481,8 +479,9 @@ class HellLevelValidator:
 
         # Test 2: Memory stability
         print("  Testing memory stability...")
-        import psutil
         import os
+
+        import psutil
 
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss / 1024 / 1024  # MB
@@ -696,7 +695,7 @@ async def main():
             emoji = "PASS" if status == "COMPLIANT" else "FAIL"
             print(f"  {emoji} {component}: {status}")
 
-        print(f"\nDetailed report saved to: hell_level_validation_report.json")
+        print("\nDetailed report saved to: hell_level_validation_report.json")
 
     except Exception as e:
         print(f"\nFAIL FATAL ERROR: {e}")

@@ -4,9 +4,9 @@ Replaces 166+ individual scripts with unified interface
 """
 
 from .analyzer import KoreanAnalyzer
+from .builder import KoreanBuilder
 from .fixer import KoreanFixer
 from .validator import KoreanValidator
-from .builder import KoreanBuilder
 
 __version__ = "1.0.0"
 __all__ = ["KoreanAnalyzer", "KoreanFixer", "KoreanValidator", "KoreanBuilder"]

@@ -1,4 +1,6 @@
-import logging, logging.config, pathlib
+import logging
+import logging.config
+import pathlib
 
 p = pathlib.Path("config/logging.ini")
 if p.exists():

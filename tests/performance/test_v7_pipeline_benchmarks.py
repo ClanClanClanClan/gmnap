@@ -9,18 +9,19 @@ Implements comprehensive performance metrics collection and regression detection
 for all V7 pipeline stages to ensure production readiness and compliance.
 """
 
-import pytest
 import asyncio
-import time
-import sys
-import psutil
-import statistics
-from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
 import json
+import statistics
+import sys
+import time
 import tracemalloc
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List
+
+import psutil
+import pytest
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
@@ -168,7 +169,7 @@ class V7PipelineBenchmark:
                     # Simulate stage execution based on stage number
                     await self._execute_stage(stage_number, entry.copy())
                     success_count += 1
-                except Exception as e:
+                except Exception:
                     error_count += 1
 
             end_time = time.perf_counter()
@@ -255,7 +256,7 @@ class V7PipelineBenchmark:
     async def _stage_3_augmentation(self, entry: Dict[str, Any]):
         """Stage 3: Data Augmentation"""
         # Simulate augmentation
-        region = entry.get("DetectedRegion", "A1")
+        entry.get("DetectedRegion", "A1")
         entry["RegionalExtras"] = {"region_confidence": 0.95}
         await asyncio.sleep(0.002)
 
@@ -580,7 +581,7 @@ class TestV7PipelineBenchmarks:
         start_time = time.perf_counter()
 
         # Process all entries through a representative stage
-        metrics = await benchmark.benchmark_stage(
+        await benchmark.benchmark_stage(
             2, "DataCleaning", test_data, iterations=1
         )
 
@@ -705,7 +706,7 @@ async def test_generate_performance_report():
     with open(report_file, "w") as f:
         json.dump(report, f, indent=2)
 
-    print(f"\nPerformance Report Generated:")
+    print("\nPerformance Report Generated:")
     print(f"Stages tested: {report['stages_tested']}")
     print(f"Total average time: {report['overall_metrics']['total_avg_time']:.2f}ms")
     print(f"Performance grade: {report['overall_metrics']['performance_grade']}")

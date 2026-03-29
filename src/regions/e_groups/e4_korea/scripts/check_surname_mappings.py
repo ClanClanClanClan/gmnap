@@ -3,12 +3,14 @@
 Check how problematic surname romanizations are currently mapped
 """
 
-import sys, pathlib
+import pathlib
+import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
+from preprocess import tokenise
+
 # from converter import eng2kor
 from segment import segment
-from preprocess import tokenise
 
 # Problem surnames identified
 problem_surnames = {
@@ -35,7 +37,7 @@ for surname, mapping in problem_surnames.items():
     print(f"  Segmentation: {segments}")
 
 # Test a few specific failing cases
-print(f"\n=== SPECIFIC FAILING CASES ===")
+print("\n=== SPECIFIC FAILING CASES ===")
 test_cases = ["Chun, Youngsup", "Chang, Bum-Hee", "Paek, Yong-Ho", "Pak, Hyeong-Ju"]
 
 for case in test_cases:

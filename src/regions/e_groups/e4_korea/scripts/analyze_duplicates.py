@@ -48,7 +48,7 @@ def analyze_romanization_duplicates():
         else:
             variant_duplicates.append((hangul, roman, rows))
 
-    print(f"📊 Analysis Results:")
+    print("📊 Analysis Results:")
     print(f"  • True duplicates (identical): {len(true_duplicates)}")
     print(
         f"  • Variant duplicates (different weights/context): {len(variant_duplicates)}"
@@ -56,7 +56,7 @@ def analyze_romanization_duplicates():
 
     # Show true duplicates (safe to remove)
     if true_duplicates:
-        print(f"\n✅ TRUE DUPLICATES (safe to remove):")
+        print("\n✅ TRUE DUPLICATES (safe to remove):")
         for hangul, roman, rows in true_duplicates[:10]:
             print(f"  {hangul},{roman} - {len(rows)} identical entries")
             for line_num, row in rows:
@@ -64,7 +64,7 @@ def analyze_romanization_duplicates():
 
     # Show variant duplicates (intentional - keep all)
     if variant_duplicates:
-        print(f"\n⚠️  VARIANT DUPLICATES (intentional - keep all):")
+        print("\n⚠️  VARIANT DUPLICATES (intentional - keep all):")
         for hangul, roman, rows in variant_duplicates[:5]:
             print(f"  {hangul},{roman} - {len(rows)} different variants")
             for line_num, row in rows:
@@ -75,13 +75,13 @@ def analyze_romanization_duplicates():
     # Summary and recommendation
     total_removable = sum(len(rows) - 1 for _, _, rows in true_duplicates)
 
-    print(f"\n🎯 RECOMMENDATION:")
+    print("\n🎯 RECOMMENDATION:")
     print(f"  • Remove {total_removable} true duplicate entries")
     print(
         f"  • Keep all {len(variant_duplicates)} variant duplicates (they serve different purposes)"
     )
     print(
-        f"  • This will reduce false 'duplicate' warnings while preserving functionality"
+        "  • This will reduce false 'duplicate' warnings while preserving functionality"
     )
 
     return true_duplicates

@@ -1,6 +1,4 @@
-from typing import List
-from typing import Any
-import pytest
+from typing import Any, List
 
 #!/usr/bin/env python3
 """
@@ -12,12 +10,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 GMNAP V7 Full Pipeline Integration Test
 Tests the complete 12-stage pipeline with real Crossref data
 """
-import asyncio
 import json
-import sys
 import time
-from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Dict, Tuple
 
 # Test data: Famous mathematicians
 TEST_MATHEMATICIANS = [
@@ -92,7 +87,7 @@ class V7PipelineIntegration:
         # Stage 3: Region Hooks
         print("\n[Stage 3] Region Hooks")
         batch = self.stage3_region_hooks(batch)
-        print(f"  ✓ Applied region processing")
+        print("  ✓ Applied region processing")
 
         # Stage 4: Authority Enrichment (REAL CROSSREF DATA!)
         print("\n[Stage 4] Authority Enrichment")
@@ -105,7 +100,7 @@ class V7PipelineIntegration:
         # Stage 5: Collision Analytics
         print("\n[Stage 5] Collision Analytics")
         batch = self.stage5_collision_analytics(batch)
-        print(f"  ✓ Analyzed for collisions")
+        print("  ✓ Analyzed for collisions")
 
         # Stage 6: Graph Consistency
         print("\n[Stage 6] Graph Consistency")
@@ -118,26 +113,26 @@ class V7PipelineIntegration:
         # Stage 7: Tag Short Forms
         print("\n[Stage 7] Tag Short Forms")
         batch = self.stage7_tag_shortforms(batch)
-        print(f"  ✓ Tagged short forms")
+        print("  ✓ Tagged short forms")
 
         # Stage 8: Global Validate
         print("\n[Stage 8] Global Validate")
         try:
             batch, val_metrics = self.stage8_global_validate(batch, config["mode"])
             all_metrics["validation"] = val_metrics
-            print(f"  ✓ Validation passed")
+            print("  ✓ Validation passed")
         except Exception as e:
             print(f"  ⚠ Validation warnings: {str(e)[:50]}")
 
         # Stage 9: Write & Diff
         print("\n[Stage 9] Write & Diff")
         batch = self.stage9_write_diff(batch)
-        print(f"  ✓ Prepared for writing")
+        print("  ✓ Prepared for writing")
 
         # Stage 10: Report
         print("\n[Stage 10] Report")
-        report = self.stage10_report(batch, all_metrics)
-        print(f"  ✓ Generated report")
+        self.stage10_report(batch, all_metrics)
+        print("  ✓ Generated report")
 
         # Stage 11: Idempotency Check
         print("\n[Stage 11] Idempotency Check")

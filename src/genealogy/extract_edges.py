@@ -7,10 +7,10 @@ Filters institutions, creates student-advisor pairs with metadata.
 
 import json
 import re
-from pathlib import Path
-from typing import List, Dict, Any
 from collections import Counter
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List
 
 
 class EdgeExtractor:
@@ -69,7 +69,7 @@ class EdgeExtractor:
         records = data.get("records", [])
         if not records:
             records = data.get("sample_records", [])
-        metadata = data.get("metadata", {})
+        data.get("metadata", {})
 
         print(f"Loaded {len(records):,} records")
         print()
@@ -234,7 +234,7 @@ class EdgeExtractor:
         """Print extraction statistics."""
         print("📊 EXTRACTION STATISTICS:")
         print()
-        print(f"  Input:")
+        print("  Input:")
         print(f"    Total records: {stats['total_records']:,}")
         if stats["total_records"] > 0:
             print(
@@ -242,9 +242,9 @@ class EdgeExtractor:
                 f"({stats['records_with_edges']/stats['total_records']*100:.1f}%)"
             )
         else:
-            print(f"    Records with edges: 0 (no records loaded)")
+            print("    Records with edges: 0 (no records loaded)")
         print()
-        print(f"  Edges:")
+        print("  Edges:")
         print(f"    Raw edges extracted: {stats['total_edges_raw']:,}")
         print(
             f"    Filtered out (institutions): {stats['filtered_out_institutions']:,}"
@@ -258,7 +258,7 @@ class EdgeExtractor:
         # Confidence distribution
         if edges:
             confidences = [e["confidence"] for e in edges]
-            print(f"  Confidence Distribution:")
+            print("  Confidence Distribution:")
             print(f"    Min: {min(confidences):.2f}")
             print(f"    Max: {max(confidences):.2f}")
             print(f"    Mean: {sum(confidences)/len(confidences):.2f}")
@@ -272,13 +272,13 @@ class EdgeExtractor:
         years = [e["thesis_year"] for e in edges if e["thesis_year"]]
         if years:
             year_counts = Counter(years)
-            print(f"  Temporal Coverage:")
+            print("  Temporal Coverage:")
             print(f"    Year range: {min(years)} - {max(years)}")
             print(
                 f"    Records with years: {len(years):,}/{len(edges):,} "
                 f"({len(years)/len(edges)*100:.1f}%)"
             )
-            print(f"    Top years:")
+            print("    Top years:")
             for year, count in year_counts.most_common(5):
                 print(f"      {year}: {count:,} edges")
             print()
@@ -286,7 +286,7 @@ class EdgeExtractor:
         # Top advisors
         if edges:
             advisor_counts = Counter(e["advisor_raw"] for e in edges)
-            print(f"  Top Advisors (by edge count):")
+            print("  Top Advisors (by edge count):")
             for i, (advisor, count) in enumerate(advisor_counts.most_common(10), 1):
                 print(f"    {i:2d}. {advisor[:40]:40s} ({count:,} students)")
             print()

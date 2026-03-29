@@ -77,8 +77,8 @@ def fix_ri_mappings():
 
 def test_ri_conversions():
     """Test ri-related conversions."""
-    import sys
     import pathlib
+    import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     # from converter import eng2kor

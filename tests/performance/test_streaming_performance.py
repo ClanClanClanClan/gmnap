@@ -10,10 +10,10 @@ Demonstrates bounded memory usage and scalability improvements.
 import sys
 import tempfile
 import time
+from pathlib import Path
+
 import psutil
 import yaml
-from pathlib import Path
-from datetime import datetime
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -22,14 +22,16 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 import sys
 from pathlib import Path
 
+from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.streaming_pipeline import StreamingPipeline, StreamingConfig
 import sys
 from pathlib import Path
+
+from src.core.streaming_pipeline import StreamingConfig, StreamingPipeline
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.config import GMNAPConfig
@@ -199,7 +201,7 @@ def run_performance_comparison():
         print("-" * 40)
 
         # Test regular pipeline
-        print(f"🔄 Regular Pipeline...")
+        print("🔄 Regular Pipeline...")
         try:
             regular_result = test_pipeline_performance(GMNAPPipeline, size, config)
             results[f"regular_{size}"] = regular_result
@@ -219,7 +221,7 @@ def run_performance_comparison():
             results[f"regular_{size}"] = regular_result
 
         # Test streaming pipeline
-        print(f"🌊 Streaming Pipeline...")
+        print("🌊 Streaming Pipeline...")
         try:
             streaming_config = StreamingConfig(
                 chunk_size=min(100, size // 2),  # Adaptive chunk size
@@ -256,7 +258,7 @@ def run_performance_comparison():
                 streaming_result["memory_increase_mb"], 1
             )
 
-            print(f"\n📈 Comparison:")
+            print("\n📈 Comparison:")
             print(f"  Speed improvement: {speed_improvement:.2f}x")
             print(f"  Memory efficiency: {memory_improvement:.2f}x better")
 
@@ -297,7 +299,7 @@ def run_performance_comparison():
                 )
 
     # Performance projection
-    print(f"\n🎯 EXTRAPOLATION TO 1M ENTRIES:")
+    print("\n🎯 EXTRAPOLATION TO 1M ENTRIES:")
 
     # Find best performing streaming result
     best_streaming = None
@@ -318,13 +320,13 @@ def run_performance_comparison():
         )
 
         if projected_time_minutes <= 30:
-            print(f"  🎉 MEETS PERFORMANCE TARGET! (<=30 min)")
+            print("  🎉 MEETS PERFORMANCE TARGET! (<=30 min)")
         else:
             print(
                 f"  WARN  Still {projected_time_minutes/30:.1f}x slower than 30min target"
             )
     else:
-        print(f"  FAIL No successful streaming runs to extrapolate from")
+        print("  FAIL No successful streaming runs to extrapolate from")
 
     return results
 

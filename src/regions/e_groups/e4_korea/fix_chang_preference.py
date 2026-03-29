@@ -77,8 +77,8 @@ def fix_chang_mappings():
 
 def test_chang_conversions():
     """Test chang-related conversions."""
-    import sys
     import pathlib
+    import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     # from converter import eng2kor

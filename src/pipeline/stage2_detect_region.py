@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from typing import Dict, Tuple
+
 from ..regions.script_detect import primary_script
 
 # Minimal deterministic mapping based on script – refined later by overlays/affiliations.

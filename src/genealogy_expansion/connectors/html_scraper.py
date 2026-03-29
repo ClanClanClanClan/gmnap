@@ -1,7 +1,10 @@
 from __future__ import annotations
-import aiohttp
+
 from typing import Any, AsyncIterator, Dict, Optional
+
+import aiohttp
 from bs4 import BeautifulSoup
+
 from .base import BaseConnector
 
 

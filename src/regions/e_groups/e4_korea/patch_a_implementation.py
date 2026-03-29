@@ -10,9 +10,10 @@ Based on executive opinion:
 """
 
 import csv
-import yaml
 import shutil
 from datetime import datetime
+
+import yaml
 
 
 def analyze_suk_seok_mappings():
@@ -165,7 +166,7 @@ def apply_weight_recalibrations(targets, dry_run=True):
 
 def validate_patch_a_impact(dry_run=True):
     """Validate the expected impact of Patch A"""
-    print(f"\\n📊 PATCH A IMPACT VALIDATION")
+    print("\\n📊 PATCH A IMPACT VALIDATION")
 
     if dry_run:
         print("DRY RUN - Predicted impact:")
@@ -190,7 +191,7 @@ def main():
     print("=" * 70)
 
     # Analysis phase
-    mappings = analyze_suk_seok_mappings()
+    analyze_suk_seok_mappings()
     targets = identify_recalibration_targets()
 
     # Loanword back-off update

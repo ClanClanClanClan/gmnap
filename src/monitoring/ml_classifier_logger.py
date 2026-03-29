@@ -17,10 +17,10 @@ Usage:
 
 import json
 import logging
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, Optional
 from collections import defaultdict, deque
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, Optional
 
 
 class MLClassifierLogger:
@@ -455,11 +455,11 @@ if __name__ == "__main__":
             f"Accuracy: {analysis['accuracy']:.1%} (n={analysis['accuracy_sample_size']})"
         )
 
-    print(f"\nModel versions:")
+    print("\nModel versions:")
     for version, count in analysis["model_versions"].items():
         print(f"  {version}: {count}")
 
-    print(f"\nLabel policies:")
+    print("\nLabel policies:")
     for policy, count in analysis["label_policies"].items():
         print(f"  {policy}: {count}")
 

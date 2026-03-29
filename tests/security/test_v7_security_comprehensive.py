@@ -6,11 +6,11 @@ V7 Comprehensive Security Testing Framework
 Tests all security requirements from V7 specification
 """
 
-import pytest
-import re
-from pathlib import Path
-from typing import Dict, Any, List, Set
 import sys
+from pathlib import Path
+from typing import Any, Dict, List
+
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -23,9 +23,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import os
 
 os.environ["GMNAP_TEST_MODE"] = "true"
-from src.regions.manager import RegionManager
 import sys
 from pathlib import Path
+
+from src.regions.manager import RegionManager
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.base import RegionRuleError

@@ -10,20 +10,16 @@ possible Korean name format, and every attack vector specific to Korean.
 This is the ultimate Korean name processing validation.
 """
 
-import pytest
-import unicodedata
-import itertools
-from pathlib import Path
 import sys
-from typing import List, Dict, Tuple, Set
-import re
-import random
+from pathlib import Path
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "src"))
 
-from src.regions.manager_optimized import RegionManager
 from src.regions.e_groups.e4_korea.processor import E4KoreanProcessor
+from src.regions.manager_optimized import RegionManager
 
 
 class TestKoreanDetectionHell:
@@ -75,7 +71,6 @@ class TestKoreanDetectionHell:
                 "손": ["Son", "Sohn"],
                 "양": ["Yang"],
                 "배": ["Bae", "Pae"],
-                "조": ["Cho", "Jo"],
                 "백": ["Baek", "Paek", "Back"],
                 "허": ["Heo", "Hur", "Ho"],
                 "유": ["Yoo", "Yu", "Ryu"],
@@ -522,7 +517,7 @@ class TestKoreanDetectionHell:
                         )
 
                 # Check for proper Unicode handling (no crashes)
-                result_str = str(result)
+                str(result)
 
             except Exception as e:
                 unicode_errors.append(
@@ -714,7 +709,7 @@ class TestKoreanDetectionHell:
                     else:
                         detection_results["other"] += 1
 
-                except Exception as e:
+                except Exception:
                     detection_results["error"] += 1
 
         total_tests = (

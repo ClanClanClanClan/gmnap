@@ -1,6 +1,11 @@
-import yaml, unicodedata, sys
+import sys
+import unicodedata
+
+import yaml
+
 sys.path.append('src')
 from converter import eng2kor, kor2eng
+
 
 def norm(s): 
     # Remove punctuation and normalize for fair comparison

@@ -3,7 +3,10 @@
 Deep analysis of diverse dataset romanization patterns
 """
 
-import yaml, sys, os
+import os
+import sys
+
+import yaml
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 # from converter import eng2kor, kor2eng
@@ -115,9 +118,9 @@ for name, rom, expected, actual, exp_len, act_len in length_issues[:10]:
 
     # Try to identify segmentation issues
     if act_len > exp_len:
-        print(f"    Issue: Over-segmentation")
+        print("    Issue: Over-segmentation")
     else:
-        print(f"    Issue: Under-segmentation")
+        print("    Issue: Under-segmentation")
 
 # Specific pattern extraction for fixes
 print("\n5. TARGETED FIXES NEEDED")

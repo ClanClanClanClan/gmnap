@@ -117,7 +117,7 @@ def calculate_dice(str1, str2):
 
 def categorize_failures(failures):
     """Categorize failures by type and pattern"""
-    print(f"\\n📊 FAILURE CATEGORIZATION")
+    print("\\n📊 FAILURE CATEGORIZATION")
 
     categories = {
         "conversion_failed": [],
@@ -146,7 +146,7 @@ def categorize_failures(failures):
 
 def analyze_low_dice_patterns(low_dice_cases):
     """Analyze patterns in low dice coefficient cases"""
-    print(f"\\n🎯 LOW DICE PATTERN ANALYSIS")
+    print("\\n🎯 LOW DICE PATTERN ANALYSIS")
 
     patterns = {
         "park_pak": 0,
@@ -184,7 +184,7 @@ def analyze_low_dice_patterns(low_dice_cases):
 
 def suggest_specific_fixes(patterns, failures):
     """Suggest specific weight adjustments based on patterns"""
-    print(f"\\n🔧 SPECIFIC FIXES NEEDED")
+    print("\\n🔧 SPECIFIC FIXES NEEDED")
 
     fixes = []
 
@@ -218,11 +218,11 @@ def suggest_specific_fixes(patterns, failures):
     # Look at conversion failures
     conversion_failures = [f for f in failures if f["issue"] == "conversion_failed"]
     if len(conversion_failures) > 0:
-        print(f"\\nConversion failures need new mappings:")
+        print("\\nConversion failures need new mappings:")
         for case in conversion_failures[:5]:
             print(f"  {case['name']} → {case['expected']}")
 
-    print(f"\\nRecommended weight adjustments:")
+    print("\\nRecommended weight adjustments:")
     total_impact = 0
     for fix in fixes:
         hangul, roman, weight = fix["mapping"]
@@ -246,7 +246,7 @@ def main():
 
     if "low_dice" in categories:
         patterns = analyze_low_dice_patterns(categories["low_dice"])
-        fixes = suggest_specific_fixes(patterns, failures)
+        suggest_specific_fixes(patterns, failures)
 
     print("\\n" + "=" * 60)
     print("NEXT STEPS")

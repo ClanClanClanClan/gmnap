@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -17,12 +16,13 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / "src"))
 
-import psutil
 import sys
 from pathlib import Path
 
+import psutil
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.streaming_pipeline_v7 import V7StreamingPipeline, V7StreamConfig
+from src.core.streaming_pipeline_v7 import V7StreamConfig, V7StreamingPipeline
 
 
 def get_memory_mb():
@@ -53,7 +53,7 @@ def main():
 
             # Create test dataset
             input_file = tmpdir / f"test_{num_entries}.jsonl"
-            print(f"Creating dataset...")
+            print("Creating dataset...")
 
             with open(input_file, "w") as f:
                 for i in range(num_entries):
@@ -143,7 +143,7 @@ def main():
             }
             results.append(result)
 
-            print(f"\nPASS Results:")
+            print("\nPASS Results:")
             print(f"   Chunks: {chunk_count}")
             print(f"   Time: {processing_time:.1f}s ({result['rate']:.0f} entries/s)")
             print(f"   Max memory growth: {max_memory:.1f} MB")
@@ -182,7 +182,7 @@ def main():
     print("V7 approach: ~150 MB constant (regardless of size)")
     print("\nFor 1 million entries:")
     print(f"  Old: {0.17 * 1000:.0f} MB")
-    print(f"  V7: ~150 MB")
+    print("  V7: ~150 MB")
     print(f"  Savings: {(0.17 * 1000 - 150):.0f} MB (memory saved)")
 
 

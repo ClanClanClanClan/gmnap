@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import List, Dict, Any
+
 import hashlib
+from typing import Any, Dict, List
+
 from .canonical_json import to_canonical_bytes
 
 

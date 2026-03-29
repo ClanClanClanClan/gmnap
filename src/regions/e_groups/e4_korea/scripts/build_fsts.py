@@ -1,4 +1,7 @@
-import csv, pathlib, pynini as pn
+import csv
+import pathlib
+
+import pynini as pn
 
 
 def build(csv_path, roman_first=True):

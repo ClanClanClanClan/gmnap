@@ -14,7 +14,8 @@ import re
 import unicodedata
 from typing import Any, Dict, List, Optional
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class G1_LatinAmerica(RegionSpec):

@@ -3,9 +3,9 @@ Strict Quality Gates Enforcement for GMNAP V7
 Implements blocking quality gates that prevent deployment if not met.
 """
 
-from typing import List, Dict, Any, Tuple
-from collections import Counter
 import logging
+from collections import Counter
+from typing import Any, Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -241,7 +241,7 @@ class StrictQualityGates:
             )
         else:
             if results["blocked"]:
-                logger.error(f"❌ Quality gates BLOCKED processing:")
+                logger.error("❌ Quality gates BLOCKED processing:")
                 for failure in results["failures"]:
                     logger.error(f"   {failure}")
                 raise QualityGateBlockedException(
@@ -249,7 +249,7 @@ class StrictQualityGates:
                     results,
                 )
             else:
-                logger.warning(f"⚠️  Quality gates passed with warnings:")
+                logger.warning("⚠️  Quality gates passed with warnings:")
                 for warning in results["warnings"]:
                     logger.warning(f"   {warning}")
 

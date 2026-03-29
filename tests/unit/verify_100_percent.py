@@ -4,8 +4,10 @@ Verify that we achieved 100% validation and check the specific entries.
 """
 
 import asyncio
+
 from test_v7_pipeline_stages import V7StageValidator
-from src.core.pipeline_v7 import V7Pipeline, PipelineMode
+
+from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 
 
 async def verify_100_percent():

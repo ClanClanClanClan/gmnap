@@ -8,12 +8,11 @@ Tests V7 Stage 11 requirement: "Rerun pipeline; diff; assert identical"
 V7 Quality Gate: idempotent_diff_bytes_max: 0
 """
 
-import pytest
-import tempfile
+import sys
 import time
 from pathlib import Path
-from typing import Dict, Any, List
-import sys
+
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -181,7 +180,7 @@ class TestV7IdempotencyCompliance:
         # Generate compliance report
         compliance_report = self.checker.generate_compliance_report(region_results)
 
-        print(f"\nIdempotency compliance summary:")
+        print("\nIdempotency compliance summary:")
         print(f"  Total regions tested: {compliance_report['summary']['total_tests']}")
         print(f"  Passing regions: {compliance_report['summary']['passing_tests']}")
         print(f"  Pass rate: {compliance_report['summary']['pass_rate']:.1%}")
@@ -325,7 +324,7 @@ class TestV7IdempotencyCompliance:
 
         assert (
             result.is_identical
-        ), f"Complex data serialization should be deterministic"
+        ), "Complex data serialization should be deterministic"
         assert (
             result.diff_bytes == 0
         ), f"V7 requirement: 0 diff bytes, got {result.diff_bytes}"

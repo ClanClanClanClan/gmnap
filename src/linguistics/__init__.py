@@ -13,6 +13,6 @@ try:
     ]
 except ImportError:
     # If RoundTripValidator doesn't exist, just import the functions
-    from .roundtrip import roundtrip_score, dice, romanise, back_convert
+    from .roundtrip import back_convert, dice, romanise, roundtrip_score
 
     __all__ = ["roundtrip_score", "dice", "romanise", "back_convert"]

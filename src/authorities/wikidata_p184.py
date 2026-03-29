@@ -5,10 +5,11 @@ Fetches doctoral advisor relationships from Wikidata.
 """
 
 import logging
-import aiohttp
-from typing import Dict, List, Any, Optional, Tuple
-from datetime import datetime, timedelta
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
+
+import aiohttp
 
 logger = logging.getLogger(__name__)
 

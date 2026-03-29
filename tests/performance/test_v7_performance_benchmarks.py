@@ -13,15 +13,14 @@ V7 Performance Requirements:
 - Warm cache runtime per 1M min: Quick 35min, Full 70min
 """
 
-import pytest
-import time
-import psutil
-import os
-from pathlib import Path
-from typing import Dict, Any, List, Optional
-import sys
 import json
+import sys
+import time
 from datetime import datetime
+from pathlib import Path
+
+import psutil
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent

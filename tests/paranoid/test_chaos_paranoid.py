@@ -1,5 +1,6 @@
+import os
+
 import pytest
-import os, time, pytest
 
 
 def _simulate_fault_env():

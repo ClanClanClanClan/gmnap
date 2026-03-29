@@ -4,27 +4,20 @@ Monitors resource usage, execution time, and memory patterns.
 """
 
 import gc
-import random
-import string
-import tempfile
 import threading
 import time
 import tracemalloc
 from contextlib import contextmanager
-from pathlib import Path
-from typing import Any, Callable, Dict, List
-from unittest.mock import patch
+from typing import Any, Dict
 
 import psutil
 import pytest
 
 from src.core.unicode_handler import (
     UnicodeNormalizer,
-    generate_name_variants,
-    normalize_name,
 )
 from src.utils.database import DatabaseConfig, DatabaseManager
-from src.validation.schema import SchemaValidator, validate_entry
+from src.validation.schema import SchemaValidator
 
 
 class PerformanceProfiler:
@@ -603,8 +596,8 @@ class TestConcurrentPerformance:
                 for i in range(iterations):
                     text = f"García{worker_id}_{i}, José María{i}"
                     normalized = normalizer.normalize(text)
-                    variants = normalizer.generate_variants(normalized)
-                    script = normalizer.detect_primary_script(normalized)
+                    normalizer.generate_variants(normalized)
+                    normalizer.detect_primary_script(normalized)
 
                     with lock:
                         results["processed"] += 1
@@ -735,7 +728,7 @@ class TestResourceExhaustionScenarios:
             for i in range(10000):
                 text = f"Test{i % 1000}, User{i % 1000}"
                 normalized = normalizer.normalize(text)
-                script = normalizer.detect_primary_script(normalized)
+                normalizer.detect_primary_script(normalized)
 
         # CPU-intensive validation
         base_entry = {

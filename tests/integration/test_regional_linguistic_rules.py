@@ -5,11 +5,10 @@ Comprehensive test suite for regional linguistic rules and processing.
 Tests that each region correctly handles its specific linguistic patterns.
 """
 
-import pytest
-from pathlib import Path
-from typing import Dict, Any, List, Tuple
 import sys
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import os
@@ -648,7 +647,7 @@ class TestAfricanRegions:
                 if "contains" in expectations and expectations["contains"] in result:
                     results.append((input_name, "PASS"))
                 else:
-                    results.append((input_name, f"Missing expected content"))
+                    results.append((input_name, "Missing expected content"))
             except Exception as e:
                 results.append((input_name, f"ERROR: {str(e)[:30]}"))
 
@@ -709,7 +708,7 @@ class TestLatinAmericanRegions:
             except Exception as e:
                 results.append((input_name, f"ERROR: {str(e)[:30]}"))
 
-        print(f"\n📝 G1 Latin America Linguistic Rules Test:")
+        print("\n📝 G1 Latin America Linguistic Rules Test:")
         passed = sum(1 for _, r in results if r == "PASS")
         print(f"Results: {passed}/{len(test_cases)} tests passed")
 

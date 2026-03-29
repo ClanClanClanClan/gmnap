@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Dict, Any
+
+from typing import Any, Dict
 
 
 def temporal_validate(edge: Dict[str, Any]) -> Dict[str, Any]:

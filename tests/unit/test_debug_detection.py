@@ -17,9 +17,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import os
 
 os.environ["GMNAP_TEST_MODE"] = "true"
-from src.regions.manager import RegionManager
 import sys
 from pathlib import Path
+
+from src.regions.manager import RegionManager
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.config import GMNAPConfig
@@ -39,7 +40,7 @@ def test_detection():
     """Test region detection for problem names."""
 
     # Create manager
-    config = GMNAPConfig()
+    GMNAPConfig()
     manager = RegionManager(Path("./config"))
 
     print("Testing region detection...\n")

@@ -42,7 +42,6 @@ def test_analytics_module():
         print(f"WARN DuckDBAnalytics module not found (optional): {e}")
         # Try alternative location
         try:
-            from src.core.analytics import DuckDBAnalytics
 
             print("PASS Found DuckDBAnalytics in alternative location")
             return True
@@ -234,8 +233,9 @@ def test_analytics_performance():
         import os
 
         os.environ["DUCKDB_MEMORY_ONLY"] = "1"
-        import duckdb
         import time
+
+        import duckdb
 
         conn = duckdb.connect(":memory:")
 

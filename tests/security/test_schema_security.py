@@ -4,17 +4,10 @@ Tests against injection attacks, malformed data, and edge cases.
 """
 
 import json
-import os
-import random
-import string
-import tempfile
-from pathlib import Path
-from typing import Any, Dict, List
-from unittest.mock import mock_open, patch
 
 import pytest
 
-from src.validation.schema import SchemaValidator, validate_entry, validate_yaml_file
+from src.validation.schema import SchemaValidator
 
 
 @pytest.mark.security
@@ -89,7 +82,7 @@ class TestSchemaSecurityValidation:
         for payload in injection_test_payloads["path_traversal"]:
             try:
                 # Should not allow path traversal
-                validator = SchemaValidator(str(temp_dir / payload))
+                SchemaValidator(str(temp_dir / payload))
                 # If it doesn't crash, that's fine, but should not access outside files
             except (FileNotFoundError, ValueError, OSError):
                 # Expected for invalid paths

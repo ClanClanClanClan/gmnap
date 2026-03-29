@@ -13,7 +13,8 @@ import re
 import unicodedata
 from typing import Any, Dict, List, Optional, Set
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class A2_WesternEurope(RegionSpec):
@@ -453,7 +454,7 @@ class A2_WesternEurope(RegionSpec):
 
     def _generate_single_surname_variants(self, name: str) -> List[str]:
         """Generate variants with single surname from dual surname."""
-        if not ", " in name:
+        if ", " not in name:
             return []
 
         family, given = name.split(", ", 1)

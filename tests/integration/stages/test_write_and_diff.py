@@ -1,8 +1,8 @@
-import pytest
-
-import os, json, shutil
+import os
 import sys
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.pipeline.stage9_write_and_diff import write_and_diff

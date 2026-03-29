@@ -75,8 +75,8 @@ def fix_jung_mappings():
 
 def test_jung_conversions():
     """Test jung-related conversions."""
-    import sys
     import pathlib
+    import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     # from converter import eng2kor

@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -18,7 +17,6 @@ print("\n=== TESTING AUTHORITY IMPORTS ===")
 
 # Test Crossref
 try:
-    from src.authorities.crossref import CrossrefAPI
 
     print("✓ Crossref: Import successful")
 except Exception as e:
@@ -26,7 +24,6 @@ except Exception as e:
 
 # Test OpenAlex
 try:
-    from src.authorities.openalex import OpenAlexAPI
 
     print("✓ OpenAlex: Import successful")
 except Exception as e:
@@ -34,7 +31,6 @@ except Exception as e:
 
 # Test ORCID
 try:
-    from src.authorities.orcid import ORCIDAPI
 
     print("✓ ORCID: Import successful")
 except Exception as e:
@@ -42,7 +38,6 @@ except Exception as e:
 
 # Test ArXiv
 try:
-    from src.authorities.arxiv import ArXivAPI
 
     print("✓ ArXiv: Import successful")
 except Exception as e:
@@ -50,7 +45,6 @@ except Exception as e:
 
 # Test Math Genealogy
 try:
-    from src.authorities.mathgenealogy import MathGenealogyAPI
 
     print("✓ Math Genealogy: Import successful")
 except Exception as e:
@@ -60,7 +54,6 @@ print("\n=== TESTING PIPELINE IMPORTS ===")
 
 # Test Region Detection
 try:
-    from src.pipeline.stage2_detect_region import detect_region
 
     print("✓ Region Detection: Import successful")
 except Exception as e:
@@ -68,7 +61,6 @@ except Exception as e:
 
 # Test Idempotency
 try:
-    from src.pipeline.stage11_idempotency_gate import _canonical_bytes
 
     print("✓ Idempotency: Import successful")
 except Exception as e:
@@ -76,7 +68,6 @@ except Exception as e:
 
 # Test Short Forms
 try:
-    from src.pipeline.stage7_tag_short_forms import tag_short_forms
 
     print("✓ Short Forms: Import successful")
 except Exception as e:
@@ -86,7 +77,6 @@ print("\n=== TESTING MEMGRAPH IMPORTS ===")
 
 # Test Memgraph
 try:
-    from src.core.memgraph_integration import MemgraphClient, GraphNode
 
     print("✓ Memgraph: Import successful")
 except Exception as e:
@@ -96,7 +86,6 @@ print("\n=== TESTING STREAMING IMPORTS ===")
 
 # Test Streaming
 try:
-    from src.core.streaming_pipeline import StreamingConfig, StreamingPipeline
 
     print("✓ Streaming: Import successful")
 except Exception as e:

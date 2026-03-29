@@ -4,12 +4,9 @@ Quality gate tests for GMNAP system requirements.
 Tests critical system requirements, performance targets, and quality thresholds.
 """
 
-import gc
 import tempfile
 import time
-from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, Set
 
 import psutil
 import pytest
@@ -18,7 +15,6 @@ import yaml
 from src.core.config import GMNAPConfig
 from src.core.globalid import GlobalIDGenerator, validate_global_id
 from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
-from src.core.unicode_handler import UnicodeNormalizer
 from src.regions.manager import RegionManager
 from src.validation.schema import SchemaValidator
 
@@ -532,12 +528,6 @@ class TestValidationQualityGates:
         assert not is_valid, "Inconsistent birth/death years should be invalid"
 
         # Test name consistency
-        name_mismatch_entry = {
-            "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
-            "UpdatedAt": "2025-01-01T00:00:00Z",
-            "CanonicalLatin": "Smith, John",
-            "CanonicalNative": "Different, Name",  # Different from Latin
-        }
 
         # Note: This might be valid if native/latin can differ
         # The test would depend on specific validation rules

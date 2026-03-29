@@ -9,26 +9,26 @@ Provides statistical validation and edge case coverage for performance regressio
 detection in the GMNAP v7 pipeline system.
 """
 
-import pytest
 import asyncio
-import time
-import statistics
 import json
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
-from dataclasses import dataclass
-from collections import defaultdict
+import statistics
 import sys
+import time
+from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 try:
+    from authorities.base import AuthorityFetcher, QuotaManager
     from src.core.pipeline_v7 import V7Pipeline
     from src.core.quality_gates import EnhancedQualityGates
     from src.regions.manager import RegionManager
-    from authorities.base import QuotaManager, AuthorityFetcher
 except ImportError as e:
     pytest.skip(f"Pipeline components not available: {e}", allow_module_level=True)
 
@@ -443,7 +443,7 @@ class TestPerformanceRegressionHarness:
         for _ in range(20):
             await harness.measure_operation("regression_test", fast_operation)
 
-        baseline = harness.establish_baseline("regression_test", num_samples=15)
+        harness.establish_baseline("regression_test", num_samples=15)
 
         # Now simulate performance regression
         async def slow_operation():
@@ -616,8 +616,9 @@ class TestGMNAPPerformanceIntegration:
     async def test_region_manager_performance(self, harness):
         """Test region manager loading performance"""
         try:
-            from src.regions.manager import RegionManager
             from pathlib import Path as PathlibPath
+
+            from src.regions.manager import RegionManager
 
             # Measure region manager initialization
             await harness.measure_operation(

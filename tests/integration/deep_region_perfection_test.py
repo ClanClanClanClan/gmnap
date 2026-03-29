@@ -10,7 +10,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from src.regions.manager_optimized import RegionManager
-import traceback
 
 
 def deep_test_region(region_code, test_cases):

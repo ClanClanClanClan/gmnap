@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """Test Korean converter with graceful pynini handling"""

@@ -1,5 +1,3 @@
-from typing import List
-from typing import Any
 import pytest
 
 #!/usr/bin/env python3
@@ -35,15 +33,12 @@ This test ensures the PRIMARY security module is thoroughly tested.
 SecurityValidator has 93 dangerous patterns that were previously UNTESTED in production.
 """
 
-import sys
 import time
-import unicodedata
-from typing import Dict, List, Any
 import unittest
 
 # Import the PRIMARY security validator (not SecurityFilter)
 try:
-    from src.core.security_validator import SecurityValidator, SecurityError
+    from src.core.security_validator import SecurityError, SecurityValidator
 except ImportError as e:
     print(f"Import error: {e}")
     print("Make sure you're running from the correct directory")

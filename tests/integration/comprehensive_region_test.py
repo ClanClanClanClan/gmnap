@@ -124,8 +124,8 @@ def test_comprehensive_coverage():
             )
 
     # Summary by region
-    print(f"\n📊 REGIONAL PERFORMANCE SUMMARY:")
-    print(f"=" * 60)
+    print("\n📊 REGIONAL PERFORMANCE SUMMARY:")
+    print("=" * 60)
 
     for region_code in sorted(results.keys()):
         region_results = results[region_code]
@@ -143,21 +143,21 @@ def test_comprehensive_coverage():
         )
 
         if success_rate < 1.0:
-            print(f"    Issues:")
+            print("    Issues:")
             for r in region_results:
                 if not r["success"]:
                     print(
                         f"      • {r['name']} -> {r['detected']} (method: {r['method']})"
                     )
 
-    print(f"\n🎯 OVERALL PERFORMANCE:")
+    print("\n🎯 OVERALL PERFORMANCE:")
     print(f"  Total tests: {total_tests}")
     print(f"  Successful detections: {successful_detections}")
     print(f"  Overall accuracy: {successful_detections/total_tests:.1%}")
     print(f"  Regions tested: {len(results)}/19 implemented")
 
     # Coverage analysis
-    print(f"\n🌍 COVERAGE ANALYSIS:")
+    print("\n🌍 COVERAGE ANALYSIS:")
     implemented_regions = manager.get_implemented_regions()
     print(
         f"  Implemented regions: {len(implemented_regions)}/37 ({len(implemented_regions)/37:.1%})"

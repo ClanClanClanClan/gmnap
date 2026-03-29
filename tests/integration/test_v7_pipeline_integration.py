@@ -1,4 +1,3 @@
-from typing import Optional
 import pytest
 
 #!/usr/bin/env python3
@@ -9,9 +8,9 @@ This script tests that the V7Pipeline implementation works correctly
 with the reorganized v7.0 compliant directory structure.
 """
 
-import sys
 import asyncio
 import logging
+import sys
 from pathlib import Path
 
 # Add project root to path
@@ -25,7 +24,7 @@ def test_v7_pipeline_imports():
     print("Testing V7Pipeline imports...")
 
     try:
-        from src.core.pipeline_v7 import V7Pipeline, PipelineMode
+        from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 
         print("  PASS Core pipeline imports successful")
     except ImportError as e:
@@ -94,7 +93,7 @@ async def test_v7_pipeline_instantiation():
     print("\n Testing V7Pipeline instantiation...")
 
     try:
-        from src.core.pipeline_v7 import V7Pipeline, PipelineMode
+        from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 
         # Test each pipeline mode
         modes = [PipelineMode.QUICK, PipelineMode.FULL, PipelineMode.EXTREME]
@@ -122,7 +121,7 @@ async def test_v7_pipeline_config_stage():
     print("\n Testing V7Pipeline Stage 0 (Config)...")
 
     try:
-        from src.core.pipeline_v7 import V7Pipeline, PipelineMode
+        from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 
         pipeline = V7Pipeline(mode=PipelineMode.QUICK)
 
@@ -148,7 +147,7 @@ async def test_v7_pipeline_basic_processing():
     print("\n Testing V7Pipeline basic processing...")
 
     try:
-        from src.core.pipeline_v7 import V7Pipeline, PipelineMode
+        from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 
         # Create a pipeline in QUICK mode for testing
         pipeline = V7Pipeline(mode=PipelineMode.QUICK)

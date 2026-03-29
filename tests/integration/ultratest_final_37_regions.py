@@ -8,12 +8,12 @@ ULTRATEST FINAL: Test ALL 37 regions from V7 spec.
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Any, Dict
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.regions.base import RegionRuleError, REGION_CODES
+from src.regions.base import RegionRuleError
 
 
 class UltraFinalRegionTester:

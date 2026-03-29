@@ -11,8 +11,8 @@ When ML classifier abstains (confidence < threshold), use fallback strategies:
 Based on expert guidance and integration contract.
 """
 
-from typing import Dict, Optional, Tuple
 from collections import namedtuple
+from typing import Dict, Optional, Tuple
 
 DetectionResult = namedtuple(
     "DetectionResult", ["region_code", "confidence", "detection_method", "metadata"]
@@ -255,7 +255,7 @@ if __name__ == "__main__":
     print("\nML Result (Abstained):")
     print(f"  Abstained: {abstained_result['abstained']}")
     print(f"  Reason: {abstained_result['abstain_reason']}")
-    print(f"  Top-3 candidates:")
+    print("  Top-3 candidates:")
     for cand in abstained_result["topk"]:
         print(f"    {cand['region']}: {cand['p']:.3f}")
 

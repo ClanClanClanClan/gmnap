@@ -5,30 +5,31 @@ Predictive analytics, real-time insights, and intelligent decision support
 
 import json
 import logging
-import numpy as np
-from collections import deque, defaultdict
+import statistics
+import uuid
+from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import List, Dict, Any, Optional, Tuple, Callable
 from enum import Enum
-import uuid
-import statistics
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+import numpy as np
 
 # ML and analytics imports (graceful fallback)
 try:
-    from sklearn.ensemble import RandomForestRegressor, IsolationForest
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import mean_absolute_error, r2_score
     import pandas as pd
+    from sklearn.ensemble import IsolationForest, RandomForestRegressor
+    from sklearn.metrics import mean_absolute_error, r2_score
+    from sklearn.model_selection import train_test_split
+    from sklearn.preprocessing import StandardScaler
 
     ML_AVAILABLE = True
 except ImportError:
     ML_AVAILABLE = False
 
 try:
-    import plotly.graph_objects as go
     import plotly.express as px
+    import plotly.graph_objects as go
     from plotly.subplots import make_subplots
 
     PLOTTING_AVAILABLE = True
@@ -153,7 +154,7 @@ class PredictiveAnalyticsEngine:
             "alerts_triggered": 0,
         }
 
-        self.logger.info(f"PredictiveAnalyticsEngine initialized")
+        self.logger.info("PredictiveAnalyticsEngine initialized")
         if not ML_AVAILABLE:
             self.logger.warning(
                 "scikit-learn not available. Predictive features will be limited."
@@ -527,7 +528,7 @@ class PredictiveAnalyticsEngine:
             train_predictions = model.predict(X_train_scaled)
             test_predictions = model.predict(X_test_scaled)
 
-            train_mae = mean_absolute_error(y_train, train_predictions)
+            mean_absolute_error(y_train, train_predictions)
             test_mae = mean_absolute_error(y_test, test_predictions)
             test_r2 = r2_score(y_test, test_predictions)
 
@@ -807,7 +808,7 @@ class PredictiveAnalyticsEngine:
 
             if avg_utilization > 80:  # High utilization
                 # Predict when capacity will be exceeded
-                prediction = await self.predict_metric(
+                await self.predict_metric(
                     metric_name, 240
                 )  # 4 hours ahead
 

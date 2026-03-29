@@ -1,10 +1,12 @@
-import os, pytest
+import os
+
+import pytest
 from overlays.authority_live.src.authority.live_adapters import (
-    Crossref_Thesis,
-    Wikidata_P184,
-    OAI_University,
-    HAL,
     GND,
+    HAL,
+    Crossref_Thesis,
+    OAI_University,
+    Wikidata_P184,
     zbMATH_Open,
 )
 

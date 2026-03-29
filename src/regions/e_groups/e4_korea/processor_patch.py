@@ -1,9 +1,10 @@
 from __future__ import annotations
+
 from .korean_v7_profile import KoreanV7Profile
 
 
 def process_v7_korean_name(native: str, base_processor) -> str:
-    prof = KoreanV7Profile()
+    KoreanV7Profile()
     r = base_processor.romanizer
     std_prev, hyp_prev, alias_prev, ov_prev = (
         r.standard,

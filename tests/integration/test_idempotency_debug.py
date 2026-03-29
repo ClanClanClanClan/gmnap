@@ -1,11 +1,9 @@
-import pytest
 
 #!/usr/bin/env python3
 """
 Quick idempotency test to debug non-deterministic behavior.
 """
 
-import json
 import asyncio
 import sys
 from pathlib import Path

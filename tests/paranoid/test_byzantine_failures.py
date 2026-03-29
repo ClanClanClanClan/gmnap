@@ -16,14 +16,13 @@ Tests system resilience against Byzantine failures where components can:
 import hashlib
 import json
 import random
-import threading
+import sys
 import time
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Set, Tuple
-import sys
+from typing import Any, Dict, List, Optional, Set
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -326,17 +325,17 @@ class TestByzantineFailures:
 
         # Check what honest nodes received
         # From Byzantine node - should be modified
-        byzantine_msgs = [
+        [
             msg for msg in nodes[0].sent_messages if msg.sender == "node_3"
         ]
-        honest_msgs = [msg for msg in nodes[3].sent_messages if msg.sender == "node_0"]
+        [msg for msg in nodes[3].sent_messages if msg.sender == "node_0"]
 
         # Byzantine node should have lied
         assert len(nodes[3].sent_messages) > 0
         for msg in nodes[3].sent_messages:
             if "value" in msg.content:
                 # Liar inverts boolean values
-                assert msg.content["value"] == False or msg.content != {
+                assert msg.content["value"] is False or msg.content != {
                     "value": True,
                     "data": "correct",
                 }
@@ -363,14 +362,14 @@ class TestByzantineFailures:
         assert msg1.content != msg2.content or msg2.content != msg3.content
 
         # Colluder gets special treatment
-        assert msg1.content.get("special") == True if msg1 else False
-        assert msg2.content.get("special") == False if msg2 else False
+        assert msg1.content.get("special") is True if msg1 else False
+        assert msg2.content.get("special") is False if msg2 else False
 
     @pytest.mark.timeout(15)
     def test_silent_byzantine_failure(self):
         """Test Byzantine node that selectively stops responding"""
         byzantine = ByzantineNode("byzantine", ByzantineType.SILENT)
-        honest = ByzantineNode("honest", ByzantineType.HONEST)
+        ByzantineNode("honest", ByzantineType.HONEST)
 
         # Byzantine node drops ~40% of messages
         messages_sent = 0

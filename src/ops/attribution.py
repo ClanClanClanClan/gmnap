@@ -1,9 +1,9 @@
 from __future__ import annotations
+
 from .spec_loader import load_specs
 
 SPDX = {
     "CC0": "CC0-1.0",
-    "CC‑BY": "CC-BY-4.0",
     "CC‑BY": "CC-BY-4.0",
     "Mixed": "Custom",
     "Subscription": "Proprietary",

@@ -6,7 +6,9 @@ Features: Latin script, historical variants, period-specific naming
 """
 
 from typing import Any, Dict
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class H1_Historical(RegionSpec):

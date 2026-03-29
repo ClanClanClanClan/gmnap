@@ -3,11 +3,11 @@
 Tests for enhanced quality gates
 """
 
-import pytest
-import asyncio
-from datetime import datetime, timedelta
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
+
+import pytest
 
 # Add source to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -17,16 +17,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.quality_gates import (
-    EnhancedQualityGates,
-    ValidationResult,
-    SchemaValidator,
-    RoundtripValidator,
+    AuthorityValidator,
     CoherenceValidator,
-    DuplicateDetector,
-    PerformanceMonitor,
     CompletenessChecker,
     ConsistencyVerifier,
-    AuthorityValidator,
+    DuplicateDetector,
+    EnhancedQualityGates,
+    RoundtripValidator,
+    SchemaValidator,
 )
 
 

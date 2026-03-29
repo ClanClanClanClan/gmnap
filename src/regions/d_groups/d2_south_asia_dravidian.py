@@ -5,7 +5,8 @@ Implements Tamil and other Dravidian language patterns
 """
 
 from typing import Any, Dict
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class D2SouthAsiaDravidian(RegionSpec):

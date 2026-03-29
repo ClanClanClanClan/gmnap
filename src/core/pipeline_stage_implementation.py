@@ -5,9 +5,9 @@ Real implementation of additional pipeline stages for V7 compliance
 
 import asyncio
 import hashlib
-from datetime import datetime
-from typing import Dict, Any
 import logging
+from datetime import datetime
+from typing import Any, Dict
 
 from ..authorities.base import AuthorityFetcher, FetchStatus
 from ..authorities.tier0.crossref import CrossrefFetcher
@@ -317,7 +317,7 @@ class PipelineStageImplementor:
     def _validate_global_id_format(self, global_id: str) -> bool:
         """Validate GlobalID format"""
         # Basic format check - can be customized
-        return len(global_id) >= 3 and not " " in global_id
+        return len(global_id) >= 3 and " " not in global_id
 
     def _validate_region_country_consistency(self, region: str, country: str) -> bool:
         """Check if region and country are consistent"""

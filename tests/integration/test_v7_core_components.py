@@ -34,17 +34,18 @@ def test_regional_manager():
         import os
 
         os.environ["GMNAP_TEST_MODE"] = "true"
-        from src.regions.manager import RegionManager
         from pathlib import Path
 
+        from src.regions.manager import RegionManager
+
         manager = RegionManager(Path("./config"))
-        print(f"PASS RegionManager initialized")
+        print("PASS RegionManager initialized")
 
         # Test loading a few regions
         test_regions = ["A1", "B1", "C1"]
         for region_code in test_regions:
             try:
-                region = manager.get_region(region_code)
+                manager.get_region(region_code)
                 print(f"  PASS Region {region_code} loaded")
             except Exception as e:
                 print(f"  FAIL Failed to load region {region_code}: {e}")
@@ -118,8 +119,8 @@ def test_idempotency_gate():
     """Test Stage 11 idempotency gate"""
     try:
         # Test basic idempotency concept
-        import json
         import hashlib
+        import json
 
         def get_hash(data):
             """Get deterministic hash of data"""
@@ -153,13 +154,13 @@ def test_security_validator():
 
         # Test with safe input
         safe_entry = {"CanonicalLatin": "Smith, John"}
-        result = validator.validate_entry(safe_entry)
+        validator.validate_entry(safe_entry)
         print("PASS Security validation works for safe input")
 
         # Test with malicious input (should be sanitized/rejected)
         malicious_entry = {"CanonicalLatin": "<script>alert('xss')</script>"}
         try:
-            result = validator.validate_entry(malicious_entry)
+            validator.validate_entry(malicious_entry)
             print("PASS Security validation handled malicious input")
         except Exception:
             print("PASS Security validation rejected malicious input (expected)")

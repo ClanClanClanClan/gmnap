@@ -1,10 +1,13 @@
 from __future__ import annotations
-import asyncio, json
-from typing import Dict, Any, List
+
+import asyncio
+import json
+from typing import Any, Dict, List
+
 from connectors.base import load_sources
+from connectors.html_scraper import HtmlConnector
 from connectors.oai_pmh import OaiPmhConnector
 from connectors.rest_json import RestJsonConnector
-from connectors.html_scraper import HtmlConnector
 from connectors.sources.generic_mapper import map_oai_dc_xml
 
 

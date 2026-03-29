@@ -9,7 +9,9 @@ Features: Sinhala script, Tamil coordination, initial patterns, Ge names.
 import re
 import unicodedata
 from typing import Any, Dict, List, Optional
-from ...base_enhanced import EnhancedRegionSpec as RegionSpec, RegionRuleError
+
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class D5_Sinhala(RegionSpec):

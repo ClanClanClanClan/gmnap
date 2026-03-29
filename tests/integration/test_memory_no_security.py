@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -7,8 +6,8 @@ This isolates the core detection logic to find the real memory leak source
 """
 
 import gc
-import sys
 import random
+import sys
 from pathlib import Path
 
 # Add project root to Python path
@@ -16,8 +15,9 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / "src"))
 
-import psutil
 import os
+
+import psutil
 
 
 def get_memory_mb():
@@ -30,7 +30,6 @@ print("🔥 ULTRAFIX PHASE 4: TESTING WITHOUT SECURITY VALIDATION")
 print("=" * 60)
 
 # Temporary patch to disable security validation
-import src.regions.manager_optimized as manager_module
 import sys
 from pathlib import Path
 
@@ -168,7 +167,7 @@ for i, name in enumerate(test_names):
         print(f"Error at operation {i+1}: {e}")
         break
 
-print(f"\n📊 MEMORY ANALYSIS (NO SECURITY VALIDATION):")
+print("\n📊 MEMORY ANALYSIS (NO SECURITY VALIDATION):")
 if memory_points:
     print(f"   Total operations: {len(test_names):,}")
     print(f"   Final memory: {memory_points[-1]['memory_mb']:.1f} MB")
@@ -180,7 +179,7 @@ if memory_points:
     current_leak = memory_points[-1]["leak_rate"]
     security_overhead = original_leak - current_leak
 
-    print(f"\n🔍 SECURITY OVERHEAD ANALYSIS:")
+    print("\n🔍 SECURITY OVERHEAD ANALYSIS:")
     print(f"   Original leak (with security): {original_leak:.3f} MB/1K ops")
     print(f"   Current leak (no security): {current_leak:.3f} MB/1K ops")
     print(
@@ -189,22 +188,22 @@ if memory_points:
 
     # Verdict
     if current_leak < 0.01:
-        print(f"\nPASS LEAK ISOLATED: Security validation was the primary source!")
+        print("\nPASS LEAK ISOLATED: Security validation was the primary source!")
         print(f"   Core detection leak: {current_leak:.3f} MB/1K ops (negligible)")
     elif security_overhead > current_leak:
         print(
-            f"\n🟡 LEAK PARTIALLY ISOLATED: Security validation was major contributor"
+            "\n🟡 LEAK PARTIALLY ISOLATED: Security validation was major contributor"
         )
         print(f"   But core detection still has leak: {current_leak:.3f} MB/1K ops")
     else:
-        print(f"\n🔴 LEAK NOT ISOLATED: Core detection is the main source")
+        print("\n🔴 LEAK NOT ISOLATED: Core detection is the main source")
         print(
-            f"   Need to investigate FastText model, caching, or RegionDetectionResult retention"
+            "   Need to investigate FastText model, caching, or RegionDetectionResult retention"
         )
 
     # Final cache analysis
     final_cache = manager.get_cache_stats()
-    print(f"\n📈 FINAL CACHE STATE:")
+    print("\n📈 FINAL CACHE STATE:")
     print(
         f"   Cache size: {final_cache['cache_size']:,}/{final_cache['cache_max_size']:,}"
     )

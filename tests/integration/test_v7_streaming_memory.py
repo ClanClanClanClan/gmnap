@@ -18,12 +18,13 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / "src"))
 
-import psutil
 import sys
 from pathlib import Path
 
+import psutil
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.streaming_pipeline_v7 import V7StreamingPipeline, V7StreamConfig
+from src.core.streaming_pipeline_v7 import V7StreamConfig, V7StreamingPipeline
 
 
 def get_memory_mb():
@@ -176,7 +177,7 @@ def test_streaming_memory():
         print("V7 approach: ~150 MB constant (regardless of size)")
         print("\nMemory usage for 1M entries:")
         print(f"  Old approach: {0.17 * 1000:.0f} MB")
-        print(f"  V7 approach: ~150 MB")
+        print("  V7 approach: ~150 MB")
         print(f"  Improvement: {(0.17 * 1000) / 150:.0f}x less memory!")
 
 

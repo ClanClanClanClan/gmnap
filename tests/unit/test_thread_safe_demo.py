@@ -5,10 +5,9 @@ import pytest
 Demonstrate thread-safe processing with fresh instances
 """
 
-import sys
-import threading
-import time
 import concurrent.futures
+import sys
+import time
 from pathlib import Path
 
 # Add src to path

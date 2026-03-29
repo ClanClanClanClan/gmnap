@@ -7,16 +7,17 @@ Processes data in 8,000-entry chunks with constant memory usage
 import gc
 import json
 import logging
-import psutil
 import os
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional
-import time
 
-from src.regions.manager_optimized import RegionManager
-from src.core.security_validator import security_validator
+import psutil
+
 from src.core.globalid import GlobalIDGenerator
+from src.core.security_validator import security_validator
+from src.regions.manager_optimized import RegionManager
 from src.validation.schema import SchemaValidator
 
 logger = logging.getLogger(__name__)
@@ -354,7 +355,7 @@ def main():
     if args.merge:
         pipeline.merge_output_chunks(args.merge_output)
 
-    print(f"\n✅ Processing complete!")
+    print("\n✅ Processing complete!")
     print(f"   Total entries: {stats['total_entries']:,}")
     print(f"   Successful: {stats['successful_entries']:,}")
     print(f"   Failed: {stats['failed_entries']:,}")

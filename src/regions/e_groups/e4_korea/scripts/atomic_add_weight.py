@@ -5,14 +5,14 @@ Implements the production protocol for safe weight addition.
 """
 
 import csv
-import sys
+import fcntl
 import os
 import shutil
-import fcntl
-import tempfile
 import subprocess
-from pathlib import Path
+import sys
+import tempfile
 from datetime import datetime
+from pathlib import Path
 
 
 class ProductionError(Exception):

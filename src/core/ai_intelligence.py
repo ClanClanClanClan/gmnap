@@ -5,18 +5,18 @@ Machine learning powered name disambiguation and analysis
 
 import logging
 import pickle
-from dataclasses import dataclass
-from typing import List, Dict, Any, Optional, Tuple
-from collections import defaultdict
 import re
+from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 # ML and NLP imports (graceful fallback if not available)
 try:
-    from sklearn.feature_extraction.text import TfidfVectorizer
     from sklearn.cluster import DBSCAN
-    from sklearn.metrics.pairwise import cosine_similarity
     from sklearn.decomposition import TruncatedSVD
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.metrics.pairwise import cosine_similarity
 
     SKLEARN_AVAILABLE = True
 except ImportError:

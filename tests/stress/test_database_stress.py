@@ -4,21 +4,16 @@ Tests memory pressure, failover, corruption, and edge cases.
 """
 
 import gc
-import os
 import random
-import shutil
 import sqlite3
-import tempfile
 import threading
 import time
-from pathlib import Path
-from typing import Any, Dict, List
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import psutil
 import pytest
 
-from src.utils.database import DatabaseConfig, DatabaseManager, create_database_manager
+from src.utils.database import DatabaseConfig, DatabaseManager
 
 
 @pytest.mark.stress
@@ -206,7 +201,7 @@ class TestDatabaseStressTests:
 
         # Should handle corruption gracefully
         try:
-            with DatabaseManager(config) as db:
+            with DatabaseManager(config):
                 # Might succeed if it recreates the file
                 pass
         except sqlite3.DatabaseError:
@@ -245,7 +240,7 @@ class TestDatabaseStressTests:
 
                 # Should handle disk full error gracefully
                 try:
-                    inserted = db.insert_initial_stats([entry])
+                    db.insert_initial_stats([entry])
                     # If it succeeds, that's fine too
                 except sqlite3.OperationalError as e:
                     assert "disk is full" in str(e)
@@ -332,7 +327,7 @@ class TestDatabaseStressTests:
 
                 # This might timeout or fail due to lock
                 try:
-                    inserted = db2.insert_initial_stats([entry])
+                    db2.insert_initial_stats([entry])
                 except sqlite3.OperationalError as e:
                     assert "locked" in str(e).lower()
 
@@ -580,7 +575,7 @@ class TestDatabaseFailoverScenarios:
         )
 
         try:
-            with DatabaseManager(config) as db:
+            with DatabaseManager(config):
                 # Should fail due to permissions
                 pytest.fail("Should have failed due to permissions")
         except (PermissionError, OSError, sqlite3.OperationalError):
@@ -628,7 +623,7 @@ class TestDatabaseFailoverScenarios:
 
                 # Should handle I/O error gracefully
                 try:
-                    inserted = db.insert_initial_stats(entries)
+                    db.insert_initial_stats(entries)
                 except sqlite3.OperationalError as e:
                     assert "I/O error" in str(e)
 
@@ -779,7 +774,7 @@ class TestDatabaseIntegrationStress:
             try:
                 with DatabaseManager(config) as db:
                     for i in range(20):
-                        stats = db.get_statistics()
+                        db.get_statistics()
                         with lock:
                             results["reads"] += 1
 

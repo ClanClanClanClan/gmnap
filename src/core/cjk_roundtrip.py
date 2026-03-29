@@ -9,9 +9,9 @@ This module implements romanization and back-conversion for Chinese, Japanese, a
 names with verification using Dice coefficient scoring.
 """
 
-import unicodedata
-from typing import Dict, Tuple, Optional, List
 import logging
+import unicodedata
+from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -190,7 +190,6 @@ class CJKRoundTrip:
             "함": "Ham",
             "변": "Byun",
             "염": "Yeom",
-            "양": "Yang",
             "천": "Chun",
             "길": "Gil",
             "추": "Chu",

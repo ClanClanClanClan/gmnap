@@ -289,8 +289,6 @@ class C1TurkicProcessor(RegionSpec):
             # Turkish
             "oğlu": "son of",
             "kızı": "daughter of",
-            # Azerbaijani
-            "oğlu": "son of",
             "qızı": "daughter of",
             # Uzbek
             "o'g'li": "son of",

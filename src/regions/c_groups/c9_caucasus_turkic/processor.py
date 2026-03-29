@@ -9,7 +9,9 @@ Soviet-era Russian influences, and Turkic naming elements.
 import re
 import unicodedata
 from typing import Any, Dict, List, Optional
-from ...base_enhanced import EnhancedRegionSpec as RegionSpec, RegionRuleError
+
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class C9_CaucasusTurkic(RegionSpec):

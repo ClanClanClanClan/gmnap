@@ -19,7 +19,8 @@ import re
 import unicodedata
 from typing import Any, Dict, List, Optional
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class D4_PakistanUrdu(RegionSpec):
@@ -1073,7 +1074,7 @@ class D4_PakistanUrdu(RegionSpec):
             return False
 
         # Check for common Urdu name vocabulary
-        has_name_vocab = any(word in text for word in self.urdu_name_vocabulary)
+        any(word in text for word in self.urdu_name_vocabulary)
 
         # Check for valid word boundaries (spaces between words)
         words = text.split()

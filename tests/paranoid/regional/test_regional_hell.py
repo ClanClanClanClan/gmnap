@@ -10,14 +10,12 @@ edge case, ambiguous input, and adversarial example.
 The goal is to find every possible misclassification scenario.
 """
 
-import pytest
-import itertools
-import random
-import unicodedata
-from pathlib import Path
 import sys
-from typing import List, Dict, Tuple
-from collections import defaultdict, Counter
+import unicodedata
+from collections import Counter, defaultdict
+from pathlib import Path
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "src"))

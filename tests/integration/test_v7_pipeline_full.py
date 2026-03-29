@@ -1,6 +1,3 @@
-from typing import List
-from typing import Any
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -12,18 +9,16 @@ import asyncio
 import json
 import sys
 import time
-from pathlib import Path
-from typing import Dict, List, Any
 from datetime import datetime
+from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.core.pipeline_v7_complete import V7Pipeline, V7PipelineConfig
-from src.core.v7_idempotency import V7IdempotencyChecker, create_idempotency_report
 from src.core.quality_gates import EnhancedQualityGates
+from src.core.v7_idempotency import V7IdempotencyChecker
 from src.regions.manager import RegionManager
-from src.core.memgraph_client import MemgraphClient
 
 
 class V7IntegrationTest:
@@ -254,7 +249,7 @@ class V7IntegrationTest:
         }
 
         if result.is_idempotent:
-            print(f"PASS Idempotency passed (0-byte difference)")
+            print("PASS Idempotency passed (0-byte difference)")
         else:
             print(f"FAIL Idempotency failed ({result.byte_difference} byte difference)")
             if result.differences:
@@ -325,7 +320,7 @@ class V7IntegrationTest:
 
         # Measure performance
         start_time = time.time()
-        processed = await self.pipeline.process_batch(test_entries)
+        await self.pipeline.process_batch(test_entries)
         elapsed = time.time() - start_time
 
         entries_per_second = len(test_entries) / elapsed if elapsed > 0 else 0
@@ -441,7 +436,7 @@ class V7IntegrationTest:
         # Process and track stages
         try:
             # Process through pipeline
-            result = await self.pipeline.process_batch([test_entry])
+            await self.pipeline.process_batch([test_entry])
 
             # Check pipeline metrics for stage execution
             if hasattr(self.pipeline, "metrics"):

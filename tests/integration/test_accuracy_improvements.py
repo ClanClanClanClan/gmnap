@@ -82,7 +82,7 @@ def test_accuracy_improvements():
     accuracy = correct_predictions / len(test_cases)
     improvement_rate = len(improvements) / 3  # 3 target cases
 
-    print(f"\n📊 ACCURACY RESULTS:")
+    print("\n📊 ACCURACY RESULTS:")
     print(f"   Current: {correct_predictions}/{len(test_cases)} = {accuracy:.1%}")
     print(f"   Target fixes: {len(improvements)}/3 = {improvement_rate:.1%}")
     print(f"   Improved cases: {improvements}")
@@ -91,19 +91,19 @@ def test_accuracy_improvements():
     previous_accuracy = 0.70
     improvement = accuracy - previous_accuracy
 
-    print(f"\n📈 IMPROVEMENT ANALYSIS:")
+    print("\n📈 IMPROVEMENT ANALYSIS:")
     print(f"   Previous accuracy: {previous_accuracy:.1%}")
     print(f"   Current accuracy: {accuracy:.1%}")
     print(f"   Improvement: {improvement:+.1%}")
 
     if accuracy >= 0.85:
-        print(f"   🎉 TARGET ACHIEVED: >=85% accuracy")
+        print("   🎉 TARGET ACHIEVED: >=85% accuracy")
     elif accuracy >= 0.80:
-        print(f"   🎯 EXCELLENT: >=80% accuracy")
+        print("   🎯 EXCELLENT: >=80% accuracy")
     elif improvement > 0:
-        print(f"   📈 PROGRESS: Accuracy improved")
+        print("   📈 PROGRESS: Accuracy improved")
     else:
-        print(f"   WARN  No improvement detected")
+        print("   WARN  No improvement detected")
 
     return {
         "accuracy": accuracy,
@@ -118,7 +118,7 @@ def test_accuracy_improvements():
 def test_specific_fixes():
     """Test the specific fixes we implemented."""
 
-    print(f"\n\n🔧 TESTING SPECIFIC FIXES:")
+    print("\n\n🔧 TESTING SPECIFIC FIXES:")
     print("-" * 40)
 
     manager = RegionManager()
@@ -163,7 +163,7 @@ def test_specific_fixes():
 
             # Debug why it failed
             if result.region_code == "A1" and result.confidence == 0.1:
-                print(f"   🔍 Still falling back to A1 default - investigating...")
+                print("   🔍 Still falling back to A1 default - investigating...")
 
                 # Test language detection directly
                 lang_result = manager._detect_by_language(entry)
@@ -172,7 +172,7 @@ def test_specific_fixes():
                         f"   Language detection: {lang_result.region_code} ({lang_result.confidence:.3f})"
                     )
                 else:
-                    print(f"   Language detection: None")
+                    print("   Language detection: None")
 
 
 def main():
@@ -181,7 +181,7 @@ def main():
     results = test_accuracy_improvements()
     test_specific_fixes()
 
-    print(f"\n" + "=" * 60)
+    print("\n" + "=" * 60)
     print("🧠 ULTRATHINK PHASE 3: ACCURACY TEST COMPLETE")
     print("=" * 60)
 
@@ -191,7 +191,7 @@ def main():
         print(f"📈 PROGRESS: {results['improvement']:+.1%} improvement achieved")
         print(f"   Need {0.85 - results['accuracy']:.1%} more for 85% target")
     else:
-        print(f"WARN  No improvement detected - fixes may need refinement")
+        print("WARN  No improvement detected - fixes may need refinement")
 
     return results
 

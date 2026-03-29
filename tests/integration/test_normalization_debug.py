@@ -44,7 +44,7 @@ for original in test_cases:
         a1_adapter = v7_manager.get_adapter("A1")
         test_entry = {"CanonicalLatin": ascii_safe}
         result = a1_adapter.validate(test_entry)
-        print(f"  A1 validation: ✓ PASS")
+        print("  A1 validation: ✓ PASS")
     except Exception as e:
         print(f"  A1 validation: ✗ FAIL - {e}")
 
@@ -57,8 +57,8 @@ for original in test_cases:
         print(f"  Full pipeline: ✗ FAIL - {e}")
 
     # Debug character codes
-    print(f"  Character analysis:")
+    print("  Character analysis:")
     for i, char in enumerate(ascii_safe):
         print(f"    [{i}] '{char}' = U+{ord(char):04X}")
         if ord(char) > 127:
-            print(f"         ^^^ NON-ASCII!")
+            print("         ^^^ NON-ASCII!")

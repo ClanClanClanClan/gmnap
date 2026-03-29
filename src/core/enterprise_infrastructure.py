@@ -7,18 +7,18 @@ Ties together all production infrastructure components for 99.9% uptime
 import asyncio
 import json
 import logging
-import time
 import threading
+import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
-from dataclasses import dataclass
 
-from .production_monitor import ProductionMonitor
-from .recovery_system import AutoRecoverySystem
 from .load_balancer import LoadBalancer
 from .military_grade_security import (
     MilitaryGradeSecurityValidator as MilitaryGradeSecurity,
 )
+from .production_monitor import ProductionMonitor
+from .recovery_system import AutoRecoverySystem
 
 
 @dataclass
@@ -384,7 +384,7 @@ class EnterpriseInfrastructure:
             # Security validation
             if self.security:
                 try:
-                    security_result = self.security.validate_entry(request_data)
+                    self.security.validate_entry(request_data)
                     # If no exception, request is safe
                 except Exception as e:
                     # Security threat detected
@@ -488,7 +488,7 @@ class EnterpriseInfrastructure:
 
             # Log final statistics
             uptime = time.time() - self.startup_time
-            self.logger.info(f"📊 Final Statistics:")
+            self.logger.info("📊 Final Statistics:")
             self.logger.info(f"   Uptime: {uptime:.2f} seconds")
             self.logger.info(f"   Requests processed: {self.total_requests_processed}")
             self.logger.info(f"   Errors handled: {self.total_errors_handled}")

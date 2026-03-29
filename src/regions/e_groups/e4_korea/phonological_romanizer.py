@@ -4,7 +4,7 @@ Implements proper Revised Romanization of Korean (RR) rules
 Based on linguistic principles rather than lookup tables
 """
 
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
 
 
 class KoreanPhonologicalRomanizer:

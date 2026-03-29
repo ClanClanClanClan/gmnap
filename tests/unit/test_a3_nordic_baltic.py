@@ -10,8 +10,9 @@ Tests cover:
 - Special sorting rules
 """
 
+from typing import Any, Dict
+
 import pytest
-from typing import Dict, Any
 
 from src.regions.a_groups.a3_nordic_baltic import A3NordicBalticProcessor
 from src.regions.base import RegionRuleError
@@ -49,7 +50,7 @@ class TestA3NordicBaltic:
         processor.augment(entry)
         processor.validate(entry)
 
-        assert entry["RegionalExtras"]["is_patronymic"] == True
+        assert entry["RegionalExtras"]["is_patronymic"] is True
         assert entry["RegionalExtras"]["patronymic_root"] == "Magnús"
         assert entry["RegionalExtras"]["patronymic_type"] == "son"
         assert entry["FamilyNameType"] == "patronymic"
@@ -66,7 +67,7 @@ class TestA3NordicBaltic:
         processor.augment(entry)
         processor.validate(entry)
 
-        assert entry["RegionalExtras"]["is_patronymic"] == True
+        assert entry["RegionalExtras"]["is_patronymic"] is True
         assert entry["RegionalExtras"]["patronymic_root"] == "Guðmunds"
         assert entry["RegionalExtras"]["patronymic_type"] == "daughter"
         assert entry["FamilyNameType"] == "patronymic"
@@ -82,7 +83,7 @@ class TestA3NordicBaltic:
 
         assert entry["RegionalExtras"]["given_name"] == "Ólafur"
         assert entry["RegionalExtras"]["family_name"] == "Sigurðsson"
-        assert entry["RegionalExtras"]["is_patronymic"] == True
+        assert entry["RegionalExtras"]["is_patronymic"] is True
 
     @pytest.mark.timeout(15)
     def test_patronymic_sorting(self, processor):
@@ -168,7 +169,7 @@ class TestA3NordicBaltic:
         processor.augment(entry)
         processor.validate(entry)
 
-        assert entry["RegionalExtras"]["gender_inflected"] == True
+        assert entry["RegionalExtras"]["gender_inflected"] is True
         assert entry["RegionalExtras"]["gender"] == "female"
         assert entry["RegionalExtras"]["male_form"] == "Kazlauskis"
 
@@ -181,7 +182,7 @@ class TestA3NordicBaltic:
         processor.augment(entry)
         processor.validate(entry)
 
-        assert entry["RegionalExtras"]["gender_inflected"] == True
+        assert entry["RegionalExtras"]["gender_inflected"] is True
         assert entry["RegionalExtras"]["gender"] == "female"
         assert entry["RegionalExtras"]["male_form"] == "Kazlauskus"
 

@@ -4,10 +4,10 @@ Real implementation of 3 core V7 quality gates with genuine logic
 """
 
 import hashlib
-from typing import Dict, List, Any, Set
+import logging
 from dataclasses import dataclass
 from datetime import datetime
-import logging
+from typing import Any, Dict, List, Set
 
 
 @dataclass
@@ -727,8 +727,9 @@ class V7QualityGates:
         errors = []
 
         # Current memory measurement
-        import psutil
         import os
+
+        import psutil
 
         process = psutil.Process(os.getpid())
         current_rss_mb = process.memory_info().rss / 1024 / 1024

@@ -1,13 +1,15 @@
+import json
+import os
+import sys
+from pathlib import Path
+
 import pytest
 
-import os, json, shutil
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.pipeline.stage9_write_and_diff import write_and_diff
-import sys
-from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.pipeline.stage10_report import generate_report

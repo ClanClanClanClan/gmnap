@@ -25,21 +25,19 @@ for every implemented region.
 """
 
 import logging
+import statistics
+import sys
 import time
 import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
-import sys
-import statistics
-import difflib
+from typing import Any, Dict, List, Optional, Set
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from src.regions.manager_optimized import RegionManager
-from src.regions.base import RegionRuleError
 from src.core.unicode_handler import UnicodeNormalizer
+from src.regions.manager_optimized import RegionManager
 
 logger = logging.getLogger(__name__)
 
@@ -725,7 +723,7 @@ class V7RegionalPipelineTester:
         Returns:
             RegionalTestResult with SEA roundtrip validation results
         """
-        print(f"🌏 Testing Thai/Khmer/Lao romanization roundtrip...")
+        print("🌏 Testing Thai/Khmer/Lao romanization roundtrip...")
         start_time = time.perf_counter()
 
         # Test cases for SEA scripts
@@ -845,7 +843,7 @@ class V7RegionalPipelineTester:
                 print(f"    Error: {pipeline_result.error_message}")
 
         # Test critical linguistic rules for each region
-        print(f"\n📋 Testing linguistic rules for each region...")
+        print("\n📋 Testing linguistic rules for each region...")
         critical_rules = [2, 3, 11, 13, 15, 17, 18]  # Most important rules to test
 
         for region_code in sorted(self.implemented_regions):
@@ -863,7 +861,7 @@ class V7RegionalPipelineTester:
                     )
 
         # Test CJK round-trip for applicable regions
-        print(f"\n🔄 Testing CJK round-trip accuracy...")
+        print("\n🔄 Testing CJK round-trip accuracy...")
         cjk_regions = ["E1", "E3", "E4"]
         for region_code in cjk_regions:
             if region_code in self.implemented_regions:
@@ -879,7 +877,7 @@ class V7RegionalPipelineTester:
                     print(f"    {status}")
 
         # Test SEA roundtrip
-        print(f"\n🌏 Testing Thai/Khmer/Lao roundtrip...")
+        print("\n🌏 Testing Thai/Khmer/Lao roundtrip...")
         sea_result = self.test_thai_khmer_lao_roundtrip()
         results["sea_roundtrip_test"] = sea_result
         status = "PASS PASS" if sea_result.success else "FAIL FAIL"

@@ -6,8 +6,8 @@ Detects conflicts, duplicates, and safety violations.
 
 import csv
 import sys
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 
 class WeightLinter:
@@ -26,7 +26,7 @@ class WeightLinter:
                     hangul = row[0]
                     roman = row[1]
                     weight = row[2] if len(row) > 2 else "0.0"
-                    context = row[3] if len(row) > 3 else ""
+                    row[3] if len(row) > 3 else ""
                     pos = row[4] if len(row) > 4 else ""
 
                     try:
@@ -94,7 +94,7 @@ class WeightLinter:
                         )
 
             if conflicts:
-                issues.append(f"CONFLICTS with existing mappings:")
+                issues.append("CONFLICTS with existing mappings:")
                 for c in conflicts:
                     issues.append(f"  - {c}")
 

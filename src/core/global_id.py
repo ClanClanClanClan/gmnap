@@ -7,10 +7,11 @@ V7 Specification:
 """
 
 from __future__ import annotations
-import hashlib
+
 import base64
+import hashlib
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 

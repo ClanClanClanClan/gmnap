@@ -3,16 +3,17 @@ import pytest
 #!/usr/bin/env python3
 """Hell-level security testing for GMNAP v7."""
 
+import sys
 import tempfile
-import yaml
 from pathlib import Path
+
+import yaml
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.pipeline_v6 import GMNAPPipeline
-import sys
-from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.config import GMNAPConfig
@@ -72,10 +73,9 @@ def test_security_hell():
         # Track what gets through
         blocked = []
         passed = []
-        errors = []
 
         try:
-            result = pipeline.run(tmpdir)
+            pipeline.run(tmpdir)
 
             # Check output
             output_file = Path("./cache/output/evil_inputs.yaml")

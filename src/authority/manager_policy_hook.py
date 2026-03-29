@@ -1,5 +1,7 @@
 from __future__ import annotations
-from typing import Dict, Any
+
+from typing import Any, Dict
+
 from .merge_authority_data import merge_authority_fragments
 from .policy import ConflictPolicy
 

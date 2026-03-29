@@ -3,9 +3,14 @@
 Atomic weight addition with subprocess isolation to avoid module caching.
 """
 
-import os, sys, shutil, subprocess, fcntl, time
-from pathlib import Path
+import fcntl
+import os
+import shutil
+import subprocess
+import sys
+import time
 from datetime import datetime
+from pathlib import Path
 
 
 class ProductionError(Exception):
@@ -132,7 +137,7 @@ print('Park:', converter.eng2kor('Park'))""",
         print(f"\n✅ Successfully added: {roman} → {hangul}")
 
     except Exception:
-        print(f"\n⚠️  Rolling back changes...")
+        print("\n⚠️  Rolling back changes...")
         shutil.copy(csv_backup, csv_path)
         if fst_backup.exists():
             shutil.rmtree("models", ignore_errors=True)

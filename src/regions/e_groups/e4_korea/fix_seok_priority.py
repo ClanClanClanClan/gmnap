@@ -5,8 +5,8 @@ since 섞 should map to sseok (or some other variant).
 """
 
 import csv
-import subprocess
 import shutil
+import subprocess
 from datetime import datetime
 
 
@@ -24,7 +24,7 @@ def remove_wrong_seok_mapping():
     filepath = "resources/rr_syllable_map.csv"
 
     # Backup first
-    backup_path = backup_file(filepath)
+    backup_file(filepath)
 
     # Read all mappings
     mappings = []
@@ -54,8 +54,8 @@ def remove_wrong_seok_mapping():
 
 def test_seok_conversion():
     """Test if seok converts correctly."""
-    import sys
     import pathlib
+    import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     # from converter import eng2kor

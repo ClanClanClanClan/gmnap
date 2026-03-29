@@ -6,7 +6,8 @@ PIPELINE_LATENCY = "pipeline_latency"
 PIPELINE_LAT_P95 = "pipeline_latency_p95"
 
 try:
-    from prometheus_client import Counter as _PCounter, Gauge as _PGauge
+    from prometheus_client import Counter as _PCounter
+    from prometheus_client import Gauge as _PGauge
 except Exception:  # pragma: no cover
     _PCounter = _PGauge = None
 

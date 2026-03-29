@@ -7,8 +7,8 @@ import sys
 
 sys.path.insert(0, "src")
 
-from src.core.pipeline_v6 import GMNAPPipeline
 from src.core.config import GMNAPConfig
+from src.core.pipeline_v6 import GMNAPPipeline
 
 
 @pytest.mark.timeout(15)

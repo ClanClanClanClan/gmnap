@@ -3,8 +3,8 @@
 
 import json
 import sys
+from collections import Counter, defaultdict
 from pathlib import Path
-from collections import defaultdict, Counter
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -22,10 +22,10 @@ def analyze_failures():
     for category, data in results["results_by_category"].items():
         all_failures.extend(data.get("failures", []))
 
-    print(f"=== INDEPENDENT DATASET FAILURE ANALYSIS ===")
+    print("=== INDEPENDENT DATASET FAILURE ANALYSIS ===")
     print(f"Total failures: {len(all_failures)}")
     print(f"Current accuracy: {results['overall_accuracy']:.2f}%")
-    print(f"Target: 94%+ (155+ passes from 165 total)\n")
+    print("Target: 94%+ (155+ passes from 165 total)\n")
 
     # Group failures by issue type
     by_issue = defaultdict(list)
@@ -80,7 +80,7 @@ def analyze_failures():
             for i, (e, a) in enumerate(zip(expected, actual)):
                 if e != a:
                     # Find the romanization that produced this
-                    name_parts = f["name"].replace(",", "").lower().split()
+                    f["name"].replace(",", "").lower().split()
                     position = "surname" if i == 0 else "given"
                     substitutions[(e, a, position)] += 1
 

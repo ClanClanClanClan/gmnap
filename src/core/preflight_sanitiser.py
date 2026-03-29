@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Dict, Any
+
+from typing import Any, Dict
 
 _REGION_ALIAS = {"A1": "a1_anglo_sphere", "E4": "e4_korea"}
 

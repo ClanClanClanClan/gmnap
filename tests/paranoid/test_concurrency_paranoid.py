@@ -1,5 +1,8 @@
+import multiprocessing as mp
+import threading
+import time
+
 import pytest
-import threading, multiprocessing as mp, time, pytest
 
 
 class SharedRegionStub:

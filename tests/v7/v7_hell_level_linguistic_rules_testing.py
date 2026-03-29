@@ -32,28 +32,22 @@ Each rule has:
 STATUS: Ready for all 34 rules, including unimplemented ones.
 """
 
-import asyncio
 import logging
-import random
-import re
-import statistics
+import sys
 import time
 import unicodedata
-from collections import defaultdict, Counter
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
-import sys
+from typing import Any, Dict, List, Optional
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import pytest
-import hypothesis
-from hypothesis import given, strategies as st, settings, HealthCheck
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
-from src.regions.manager_optimized import RegionManager
 from src.core.unicode_handler import UnicodeNormalizer
+from src.regions.manager_optimized import RegionManager
 
 logger = logging.getLogger(__name__)
 
@@ -366,7 +360,7 @@ class V7LinguisticRulesHellTester:
     def _generate_rule_test_cases(self, rule_id: int) -> List[LinguisticRuleTestCase]:
         """Generate comprehensive test cases for a specific rule."""
 
-        rule_info = self.v7_rules[rule_id]
+        self.v7_rules[rule_id]
         test_cases = []
 
         # Generate different categories of tests

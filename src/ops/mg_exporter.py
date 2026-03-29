@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 import asyncio
-from ..ops.metrics import MEMGRAPH_NODES, MEMGRAPH_EDGES
+
 from ..core.db_pool import BoltPool
+from ..ops.metrics import MEMGRAPH_EDGES, MEMGRAPH_NODES
 
 
 async def _probe_once(pool: BoltPool) -> None:

@@ -1,8 +1,11 @@
 from __future__ import annotations
-import os, socket
+
+import os
+import socket
 from dataclasses import dataclass
 from typing import Optional
-from neo4j import GraphDatabase, Driver
+
+from neo4j import Driver, GraphDatabase
 
 
 @dataclass

@@ -1,5 +1,5 @@
 from typing import List
-from typing import Any
+
 import pytest
 
 #!/usr/bin/env python3
@@ -8,14 +8,12 @@ ULTRATHINK: Thread Safety Audit - Expose and Fix Race Conditions
 Test the actual thread safety issues identified in regional processors.
 """
 
+import concurrent.futures
 import sys
 import threading
 import time
-import concurrent.futures
 from pathlib import Path
-from typing import Dict, List, Any
-import random
-import json
+from typing import Dict
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -114,7 +112,7 @@ class ThreadSafetyTester:
         if hasattr(region, "_processed_entries"):
             region._processed_entries.clear()
 
-        print(f"Initial cache state cleared")
+        print("Initial cache state cleared")
 
         # Start concurrent workers
         start_time = time.time()
@@ -171,7 +169,7 @@ class ThreadSafetyTester:
             all_errors.extend(r["errors"])
 
         if all_errors:
-            print(f"\nFAIL ERRORS DETECTED:")
+            print("\nFAIL ERRORS DETECTED:")
             for error in all_errors[:5]:  # Show first 5 errors
                 print(f"  {error}")
             if len(all_errors) > 5:
@@ -181,7 +179,7 @@ class ThreadSafetyTester:
         cache_size_variations = len(set(final_cache_sizes)) > 1
         if cache_size_variations:
             print(
-                f"WARN RACE CONDITION DETECTED: Threads reported different cache sizes"
+                "WARN RACE CONDITION DETECTED: Threads reported different cache sizes"
             )
 
         if total_errors > 0:
@@ -189,16 +187,16 @@ class ThreadSafetyTester:
                 f"FAIL THREAD SAFETY FAILED: {total_errors} errors during concurrent processing"
             )
         elif cache_size_variations:
-            print(f"WARN THREAD SAFETY QUESTIONABLE: Cache inconsistencies detected")
+            print("WARN THREAD SAFETY QUESTIONABLE: Cache inconsistencies detected")
         else:
-            print(f"PASS THREAD SAFETY PASSED: No obvious issues detected")
+            print("PASS THREAD SAFETY PASSED: No obvious issues detected")
 
         return total_errors == 0 and not cache_size_variations
 
     @pytest.mark.timeout(15)
     def test_cache_race_conditions(self):
         """Specifically test for cache race conditions."""
-        print(f"\n🧪 TESTING CACHE RACE CONDITIONS")
+        print("\n🧪 TESTING CACHE RACE CONDITIONS")
 
         region = self.manager.get_region("A1")
         if not region:
@@ -262,12 +260,12 @@ class ThreadSafetyTester:
                     print(f"  {error}")
             return False
         else:
-            print(f"WARN No cache errors detected (may still have race conditions)")
+            print("WARN No cache errors detected (may still have race conditions)")
             return True
 
     def demonstrate_manager_instance_sharing(self):
         """Show that the manager returns the same instance to all threads."""
-        print(f"\n🧪 DEMONSTRATING INSTANCE SHARING PROBLEM")
+        print("\n🧪 DEMONSTRATING INSTANCE SHARING PROBLEM")
 
         def get_region_instance(thread_id: int):
             region = self.manager.get_region("A1")
@@ -297,12 +295,12 @@ class ThreadSafetyTester:
 
         if same_region and same_cache:
             print(
-                f"FAIL CONFIRMED: All threads share the SAME region instance and cache"
+                "FAIL CONFIRMED: All threads share the SAME region instance and cache"
             )
-            print(f"   This WILL cause race conditions in multi-threaded processing")
+            print("   This WILL cause race conditions in multi-threaded processing")
             return True
         else:
-            print(f"PASS Threads get different instances (safer)")
+            print("PASS Threads get different instances (safer)")
             return False
 
 

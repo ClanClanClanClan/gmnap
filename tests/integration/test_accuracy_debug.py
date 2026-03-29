@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """Debug accuracy test failures"""

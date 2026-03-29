@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import List, Dict, Any
+
 from pathlib import Path
+from typing import Any, Dict, List
 
 try:
     import yaml  # type: ignore

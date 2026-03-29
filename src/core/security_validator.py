@@ -3,11 +3,11 @@ Central security validation for GMNAP pipeline.
 Prevents XSS, SQL injection, command injection, and other attacks.
 """
 
+import logging
 import os
 import re
 import unicodedata
 from typing import Any, Dict
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -615,14 +615,13 @@ class SecurityValidator:
             SecurityError: If encoded attack patterns detected
         """
         # Check for URL encoding
-        url_decode_count = 0
         if "%" in text:
             import urllib.parse
 
             try:
                 decoded = urllib.parse.unquote(text)
                 if decoded != text:
-                    url_decode_count = text.count("%")
+                    text.count("%")
                     # Check if decoded version contains attacks
                     self.validate_string(decoded, f"{context}_url_decoded")
             except SecurityError:
@@ -742,7 +741,7 @@ class SecurityValidator:
         # Check for low character diversity
         if len(text) > 20:  # Only check longer strings
             unique_chars = len(set(text))
-            diversity_ratio = unique_chars / len(text)
+            unique_chars / len(text)
 
             # Flag very low diversity that could cause hash collision attacks
             # But allow legitimate test data (like 150 A's for name testing, 1000 B's for general)

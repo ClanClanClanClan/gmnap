@@ -5,7 +5,8 @@ Implements Sinhala script with UN 2003 transliteration
 """
 
 from typing import Any, Dict
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class D5Sinhala(RegionSpec):

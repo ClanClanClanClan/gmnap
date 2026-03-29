@@ -1,4 +1,7 @@
-import yaml, hashlib, pathlib
+import hashlib
+import pathlib
+
+import yaml
 
 for f in ["data/korean.yaml", "data/korean_diverse_test.yaml"]:
     p = pathlib.Path(f)

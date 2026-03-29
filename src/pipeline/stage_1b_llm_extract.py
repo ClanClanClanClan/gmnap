@@ -3,14 +3,14 @@ GMNAP v7.0 Pipeline Stage 1b: LLM Extraction for ETD
 Handles LLM-based extraction for Electronic Theses and Dissertations.
 """
 
-from typing import Dict, Any, List, Optional
-import re
 import logging
+import re
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
-from ..core.errors import ExtractionError
 from ..core.ai_intelligence import AIIntelligence
+from ..core.errors import ExtractionError
 
 
 class LLMExtractETDStage:

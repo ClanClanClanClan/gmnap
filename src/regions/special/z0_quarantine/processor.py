@@ -6,7 +6,9 @@ Features: Secure processing of problematic names
 """
 
 from typing import Any, Dict
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class Z0_Quarantine(RegionSpec):

@@ -6,6 +6,7 @@ Analyze remaining failure patterns to prioritize next improvements.
 import json
 from collections import Counter, defaultdict
 
+
 def analyze_remaining_failures():
     """Analyze the remaining diverse dataset failures."""
     with open('data/diverse_failures.json', 'r', encoding='utf-8') as f:
@@ -94,7 +95,7 @@ def analyze_fst_preferences():
             for line in lines:
                 print(f"  {line}")
         else:
-            print(f"  No direct mappings found")
+            print("  No direct mappings found")
 
 def suggest_fixes():
     """Suggest specific fixes based on analysis."""

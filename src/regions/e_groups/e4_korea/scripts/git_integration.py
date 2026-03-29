@@ -6,8 +6,8 @@ Implements tagging, pre-commit hooks, and CI/CD readiness.
 
 import subprocess
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 
 def run_command(cmd, check=True, capture_output=True):
@@ -46,7 +46,7 @@ def create_green_tag():
         tag_name = f"krp-green-{timestamp}"
         tag_message = f"Green baseline: {math_line} (commit {commit})"
 
-        result = run_command(f'git tag -a {tag_name} -m "{tag_message}"')
+        run_command(f'git tag -a {tag_name} -m "{tag_message}"')
 
         print(f"🏷️  Created tag: {tag_name}")
         print(f"📊 Performance: {math_line}")

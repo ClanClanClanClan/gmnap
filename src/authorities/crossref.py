@@ -8,11 +8,12 @@ import asyncio
 import json
 import logging
 import time
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-from urllib.parse import quote_plus
-import aiohttp
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+from urllib.parse import quote_plus
+
+import aiohttp
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +102,7 @@ class CrossrefAPI:
         await self._rate_limit()
 
         # Build query
-        query_name = quote_plus(name)
+        quote_plus(name)
         url = f"{self.BASE_URL}/works"
         params = {
             "query.author": name,

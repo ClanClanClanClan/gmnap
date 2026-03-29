@@ -34,7 +34,7 @@ removed_count = 0
 for i in range(len(rows) - 1, -1, -1):  # Iterate backwards to safely remove
     row = rows[i]
     if len(row) >= 2 and row[0] == "박" and row[1] == "baek":
-        print(f"  REMOVED: 박 → baek (was interfering with Baek surnames)")
+        print("  REMOVED: 박 → baek (was interfering with Baek surnames)")
         rows.pop(i)
         removed_count += 1
 
@@ -77,7 +77,7 @@ for hangul, roman, weight in compound_fixes:
         print(f"  ADDED: {hangul} → {roman} (weight: {weight})")
         added_count += 1
 
-print(f"\nInterference fixes:")
+print("\nInterference fixes:")
 print(f"- Removed: {removed_count} problematic mappings")
 print(f"- Updated: {updated_count} existing mappings")
 print(f"- Added: {added_count} new mappings")

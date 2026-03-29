@@ -5,23 +5,25 @@ True production-ready monitoring with comprehensive metrics, real-time dashboard
 
 import json
 import logging
-import psutil
-import socket
 import smtplib
+import socket
 import threading
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+
+import psutil
 
 try:
     from email.mime.text import MimeText
 except ImportError:
     # Fallback for different Python versions
     from email.message import EmailMessage as MimeText
+
+import sqlite3
+from collections import defaultdict, deque
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from collections import deque, defaultdict
-import sqlite3
 
 logger = logging.getLogger(__name__)
 
@@ -604,8 +606,8 @@ This is an automated alert from the V7 GMNAP monitoring system.
         threshold: float,
     ) -> None:
         """Send webhook alert notification (Slack, Discord, etc.)."""
-        import urllib.request
         import urllib.parse
+        import urllib.request
 
         alert_data = {
             "text": f"🚨 V7 GMNAP ALERT [{level.upper()}]",

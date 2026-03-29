@@ -11,8 +11,9 @@ Tests cover:
 - Mononym handling
 """
 
+from typing import Any, Dict
+
 import pytest
-from typing import Dict, Any
 
 from src.regions.a_groups.a4_oceania import A4OceaniaProcessor
 from src.regions.base import RegionRuleError
@@ -141,7 +142,7 @@ class TestA4Oceania:
         processor.validate(entry)
 
         assert entry["RegionalExtras"]["name_type"] == "polynesian"
-        assert entry["RegionalExtras"]["has_particle"] == True
+        assert entry["RegionalExtras"]["has_particle"] is True
         assert entry["RegionalExtras"]["particle"] == "Te"
 
     @pytest.mark.timeout(15)
@@ -170,7 +171,7 @@ class TestA4Oceania:
         processor.augment(entry)
         processor.validate(entry)
 
-        assert entry["RegionalExtras"]["has_particle"] == True
+        assert entry["RegionalExtras"]["has_particle"] is True
         assert entry["RegionalExtras"]["particle"] == "O"
         assert entry["RegionalExtras"]["name_type"] == "polynesian"
 
@@ -183,7 +184,7 @@ class TestA4Oceania:
         processor.augment(entry)
         processor.validate(entry)
 
-        assert entry["RegionalExtras"]["has_particle"] == True
+        assert entry["RegionalExtras"]["has_particle"] is True
         assert entry["RegionalExtras"]["particle"] == "Ngāti"
 
     @pytest.mark.timeout(15)

@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import List, Dict, Any
+
+from typing import Any, Dict, List
 
 
 def extract_edges_from_entries(entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

@@ -98,7 +98,7 @@ for hangul, roman, weight in final_tuning:
                     updated_count += 1
                 break
 
-print(f"\nFinal tuning results:")
+print("\nFinal tuning results:")
 print(f"- Added: {added_count} new mappings")
 print(f"- Updated: {updated_count} weights")
 print(f"- Total rows: {len(rows)}")

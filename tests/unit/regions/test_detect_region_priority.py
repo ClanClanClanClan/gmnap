@@ -1,4 +1,5 @@
 import pytest
+
 from src.regions.manager_optimized import RegionManager
 
 CASES = [

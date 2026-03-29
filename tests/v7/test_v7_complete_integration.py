@@ -1,5 +1,5 @@
-from typing import List
-from typing import Any
+from typing import Any, List
+
 import pytest
 
 #!/usr/bin/env python3
@@ -13,12 +13,12 @@ Tests all components working together:
 - Monitoring and metrics
 """
 import asyncio
-import sys
 import json
-import time
 import subprocess
+import sys
+import time
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Dict
 
 sys.path.insert(0, ".")
 
@@ -108,7 +108,7 @@ class V7IntegrationTester:
         print("=" * 60)
 
         try:
-            from src.core.memgraph_integration import MemgraphClient, GraphNode
+            from src.core.memgraph_integration import GraphNode, MemgraphClient
 
             async with MemgraphClient() as client:
                 # Create test node
@@ -324,10 +324,10 @@ class V7IntegrationTester:
                 "status": "skipped",
                 "output": "Memgraph integration pending",
             }
-            print(f"  ⚠ Stage 6 (Graph): Skipped (Memgraph required)")
+            print("  ⚠ Stage 6 (Graph): Skipped (Memgraph required)")
         except ImportError:
             stage_results[6] = {"status": "skipped", "output": "neo4j not installed"}
-            print(f"  ⚠ Stage 6 (Graph): Skipped (neo4j not installed)")
+            print("  ⚠ Stage 6 (Graph): Skipped (neo4j not installed)")
 
         # Stage 7: Short Forms
         try:
@@ -348,18 +348,18 @@ class V7IntegrationTester:
                 "status": "working",
                 "output": f"Valid: {validation_passed}",
             }
-            print(f"  ✓ Stage 8 (Validate): All entries valid")
+            print("  ✓ Stage 8 (Validate): All entries valid")
         except Exception as e:
             stage_results[8] = {"status": "failed", "error": str(e)[:50]}
             print(f"  ✗ Stage 8 (Validate): {str(e)[:50]}")
 
         # Stage 9: Write & Diff
         stage_results[9] = {"status": "skipped", "output": "File I/O skipped in test"}
-        print(f"  ⚠ Stage 9 (Write): Skipped in test mode")
+        print("  ⚠ Stage 9 (Write): Skipped in test mode")
 
         # Stage 10: Report Generation
         try:
-            report = {
+            {
                 "entries_processed": len(batch),
                 "regions": len(set(e.get("RegionCode", "unknown") for e in batch)),
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -368,7 +368,7 @@ class V7IntegrationTester:
                 "status": "working",
                 "output": f"{len(batch)} entries processed",
             }
-            print(f"  ✓ Stage 10 (Report): Generated")
+            print("  ✓ Stage 10 (Report): Generated")
         except Exception as e:
             stage_results[10] = {"status": "failed", "error": str(e)[:50]}
             print(f"  ✗ Stage 10 (Report): {str(e)[:50]}")
@@ -412,7 +412,7 @@ class V7IntegrationTester:
 
             # Test streaming
             config = StreamingConfig(chunk_size=100)
-            pipeline = StreamingPipeline(config)
+            StreamingPipeline(config)
 
             # Just test chunking
             chunk_count = 0

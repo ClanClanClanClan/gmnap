@@ -7,9 +7,9 @@ Production-safe duplicate cleanup with backup and validation.
 import csv
 import shutil
 import sys
-from pathlib import Path
 from collections import defaultdict
 from datetime import datetime
+from pathlib import Path
 
 
 def analyze_duplicates(csv_path="resources/rr_syllable_map.csv"):

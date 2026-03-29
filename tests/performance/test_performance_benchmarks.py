@@ -3,10 +3,10 @@ import pytest
 #!/usr/bin/env python3
 """Performance benchmark tests"""
 
-import sys
-from pathlib import Path
-import time
 import os
+import sys
+import time
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 os.environ["GMNAP_TEST_MODE"] = "true"
@@ -33,14 +33,15 @@ def test_processing_speed():
 @pytest.mark.timeout(15)
 def test_memory_usage():
     """Test memory usage is reasonable"""
-    import psutil
     import os
+
+    import psutil
 
     process = psutil.Process(os.getpid())
     initial_memory = process.memory_info().rss / 1024 / 1024  # MB
 
     # Simulate loading large dataset
-    large_data = ["x" * 1000 for _ in range(10000)]
+    ["x" * 1000 for _ in range(10000)]
 
     final_memory = process.memory_info().rss / 1024 / 1024  # MB
     memory_increase = final_memory - initial_memory

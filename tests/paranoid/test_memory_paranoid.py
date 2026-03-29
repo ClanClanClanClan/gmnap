@@ -1,5 +1,7 @@
+import gc
+import time
+
 import pytest
-import gc, time, pytest
 
 try:
     import psutil

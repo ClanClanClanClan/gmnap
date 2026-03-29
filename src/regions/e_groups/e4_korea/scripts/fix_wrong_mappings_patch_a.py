@@ -37,22 +37,22 @@ for row in rows:
         if hangul == "숰" and roman == "suk":
             # Wrong mapping: 숰,suk should be 석,suk (most common)
             new_rows.append(["석", "suk"])
-            print(f"  FIXED: 숰,suk → 석,suk")
+            print("  FIXED: 숰,suk → 석,suk")
             fixes_applied += 1
         elif hangul == "큔" and roman == "kyun":
             # Wrong mapping: 큔,kyun should be 균,kyun
             new_rows.append(["균", "kyun"])
-            print(f"  FIXED: 큔,kyun → 균,kyun")
+            print("  FIXED: 큔,kyun → 균,kyun")
             fixes_applied += 1
         elif hangul == "괔" and roman == "gwak":
             # Wrong mapping: 괔,gwak should be 곽,gwak
             new_rows.append(["곽", "gwak"])
-            print(f"  FIXED: 괔,gwak → 곽,gwak")
+            print("  FIXED: 괔,gwak → 곽,gwak")
             fixes_applied += 1
         elif hangul == "윸" and roman == "yuk":
             # Wrong mapping: 윸,yuk should be 육,yuk
             new_rows.append(["육", "yuk"])
-            print(f"  FIXED: 윸,yuk → 육,yuk")
+            print("  FIXED: 윸,yuk → 육,yuk")
             fixes_applied += 1
         else:
             # Keep unchanged

@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from fastapi import FastAPI
 from neo4j import GraphDatabase
-from .schema import LineageResponse, LineagePath
+
+from .schema import LineagePath, LineageResponse
 
 app = FastAPI()
 

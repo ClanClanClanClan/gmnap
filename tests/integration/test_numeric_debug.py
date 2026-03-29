@@ -24,7 +24,7 @@ print("Testing numeric name...")
 result = manager.detect_region({"name": 123})
 print(f"Result: region_code={result.region_code}, confidence={result.confidence}")
 print(f"Metadata: {result.metadata}")
-print(f"Expected: Z0 with error metadata")
+print("Expected: Z0 with error metadata")
 print(f"Test passes: {result.region_code == 'Z0' and 'error' in result.metadata}")
 
 # Let's see what happens with string "123"

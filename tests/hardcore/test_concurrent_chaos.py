@@ -5,18 +5,16 @@ Tests data integrity under extreme concurrent load, race conditions,
 and chaos engineering scenarios.
 """
 
-import asyncio
 import gc
 import random
-import sqlite3
 import tempfile
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from queue import Empty, Queue
-from threading import Barrier, Lock
-from unittest.mock import Mock, patch
+from threading import Barrier
+from unittest.mock import patch
 
 import psutil
 import pytest
@@ -104,7 +102,7 @@ class TestConcurrentGlobalIDGeneration:
 
         # Verify collision handling worked correctly
         collision_ids = [gid for gid in all_results if "--" in gid]
-        base_ids = [gid for gid in all_results if "--" not in gid]
+        [gid for gid in all_results if "--" not in gid]
 
         # Should have some collisions from duplicate entries
         assert (
@@ -275,7 +273,7 @@ class TestConcurrentGlobalIDGeneration:
         unique_ids = set(global_ids)
         assert len(unique_ids) == len(
             global_ids
-        ), f"Memory corruption caused duplicate GlobalIDs"
+        ), "Memory corruption caused duplicate GlobalIDs"
 
 
 class TestConcurrentCacheAccess:
@@ -718,7 +716,6 @@ class TestChaosEngineering:
             yaml.dump(entries, f)
 
         # Inject random failures
-        original_methods = {}
 
         def inject_random_failure(method_name, original_method):
             """Inject random failures into method calls."""

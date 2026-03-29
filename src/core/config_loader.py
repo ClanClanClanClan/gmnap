@@ -1,6 +1,10 @@
 from __future__ import annotations
-import os, yaml, json
-from typing import Dict, Any
+
+import json
+import os
+from typing import Any, Dict
+
+import yaml
 
 
 def load_specs(paths=("specs_v7.yaml", "v7.0.yaml")) -> Dict[str, Any]:

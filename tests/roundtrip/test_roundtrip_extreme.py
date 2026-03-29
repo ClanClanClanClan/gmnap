@@ -1,5 +1,7 @@
+import csv
+
 import pytest
-import csv, pathlib, pytest
+
 from src.linguistics.roundtrip import roundtrip_score
 
 

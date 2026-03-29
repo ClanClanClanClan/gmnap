@@ -6,25 +6,25 @@ Comprehensive REST/GraphQL API with webhook support and plugin architecture
 import json
 import logging
 import time
-from datetime import datetime, timedelta
-from dataclasses import dataclass, asdict
-from typing import List, Dict, Any, Optional
-from enum import Enum
 import uuid
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 # FastAPI imports (graceful fallback)
 try:
     from fastapi import (
+        BackgroundTasks,
+        Depends,
         FastAPI,
         HTTPException,
-        Depends,
-        BackgroundTasks,
         Request,
         Response,
     )
-    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.responses import JSONResponse
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
     from pydantic import BaseModel, Field, validator
 
     FASTAPI_AVAILABLE = True
@@ -490,8 +490,8 @@ class EnterpriseAPI:
 
     def _generate_webhook_signature(self, payload: Dict[str, Any], secret: str) -> str:
         """Generate webhook signature for security"""
-        import hmac
         import hashlib
+        import hmac
 
         payload_str = json.dumps(payload, sort_keys=True)
         signature = hmac.new(

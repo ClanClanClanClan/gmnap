@@ -5,7 +5,8 @@ Implements Armenian script and Hübschmann-Meillet romanization
 """
 
 from typing import Any, Dict
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class C7Armenian(RegionSpec):

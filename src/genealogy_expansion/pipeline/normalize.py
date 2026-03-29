@@ -1,6 +1,9 @@
 from __future__ import annotations
-import re, yaml
-from typing import Dict, Any
+
+import re
+from typing import Any, Dict
+
+import yaml
 
 
 def load_yaml(path: str) -> dict:

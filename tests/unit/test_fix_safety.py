@@ -1,18 +1,16 @@
-from pathlib import Path
-import pytest
 
 #!/usr/bin/env python3
 """Test if proposed fixes would break any currently working mathematician names"""
 
-import yaml
-import sys
-import pathlib
 import json
+import pathlib
+import sys
+
+import yaml
 
 # Add the src directory to the path
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent / "src"))
 # NOTE: converter module not available, using E4 Korean processor instead
-from src.regions.e_groups.e4_korea.processor import E4KoreanProcessor
 
 # Proposed fixes from the auto-fix analysis
 PROPOSED_FIXES = {
@@ -61,9 +59,9 @@ def main():
     # Load auto-fix report if exists
     try:
         with open("auto_fix_final_report.json", "r", encoding="utf-8") as f:
-            auto_fix_report = json.load(f)
+            json.load(f)
     except:
-        auto_fix_report = None
+        pass
 
     print(
         f"\nTesting {len(PROPOSED_FIXES)} proposed fixes on {len(math_data)} mathematician names"
@@ -118,7 +116,7 @@ def main():
                                     "fix": f"{surname} -> {new_first}",
                                 }
                             )
-            except Exception as e:
+            except Exception:
                 currently_broken += 1
 
     # Report results
@@ -126,13 +124,13 @@ def main():
     print("SAFETY ANALYSIS RESULTS")
     print("=" * 80)
 
-    print(f"\nCurrent mathematician dataset status:")
+    print("\nCurrent mathematician dataset status:")
     print(
         f"  Working correctly: {currently_working} ({currently_working/len(math_data)*100:.1f}%)"
     )
     print(f"  Broken: {currently_broken} ({currently_broken/len(math_data)*100:.1f}%)")
 
-    print(f"\nImpact of proposed fixes:")
+    print("\nImpact of proposed fixes:")
     print(f"  Would fix: {len(would_fix)} names")
     print(f"  Would break: {len(conflicts)} names")
     print(f"  Net improvement: {len(would_fix) - len(conflicts)} names")
@@ -175,16 +173,16 @@ def main():
     # For diverse dataset (from auto-fix report)
     div_reward = 11.67  # From the auto-fix analysis
 
-    print(f"\nMathematician Dataset:")
+    print("\nMathematician Dataset:")
     print(f"  Risk: {math_risk:.2f}% ({len(conflicts)} names would break)")
     print(f"  Reward: {math_reward:.2f}% ({len(would_fix)} names would be fixed)")
     print(f"  Net: {math_reward - math_risk:+.2f}%")
 
-    print(f"\nDiverse Dataset:")
-    print(f"  Risk: 0% (not part of mathematician dataset)")
+    print("\nDiverse Dataset:")
+    print("  Risk: 0% (not part of mathematician dataset)")
     print(f"  Reward: +{div_reward:.2f}% accuracy improvement")
 
-    print(f"\nOverall Assessment:")
+    print("\nOverall Assessment:")
     total_risk = math_risk
     total_reward = (math_reward + div_reward) / 2  # Average improvement
 

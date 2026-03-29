@@ -13,7 +13,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import Any, Dict, List, Tuple
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -412,14 +412,14 @@ def test_process_string():
             engine = MutationEngine(source_file, test_file)
             results = engine.run_mutation_testing(sample_size=10)
 
-            print(f"\nMutation Testing Results:")
+            print("\nMutation Testing Results:")
             print(f"  Mutations applied: {results['mutations_applied']}")
             print(f"  Mutations killed: {results['mutations_killed']}")
             print(f"  Mutations survived: {results['mutations_survived']}")
             print(f"  Mutation score: {results['mutation_score']:.1f}%")
 
             if results["survived_details"]:
-                print(f"\n  Survived mutations (test gaps):")
+                print("\n  Survived mutations (test gaps):")
                 for survivor in results["survived_details"]:
                     print(f"    - {survivor['description']}")
 
@@ -452,20 +452,20 @@ def run_mutation_testing_on_project():
     print("=" * 60)
     print(f"Source: {source_file}")
     print(f"Tests: {test_file}")
-    print(f"\nResults:")
+    print("\nResults:")
     print(f"  Mutations applied: {results['mutations_applied']}")
     print(f"  Mutations killed: {results['mutations_killed']} PASS")
     print(f"  Mutations survived: {results['mutations_survived']} FAIL")
     print(f"  Mutation score: {results['mutation_score']:.1f}%")
 
     if results["mutation_score"] < 80:
-        print(f"\nWARN WARNING: Low mutation score indicates weak tests!")
-        print(f"  Your tests are not catching enough bugs.")
+        print("\nWARN WARNING: Low mutation score indicates weak tests!")
+        print("  Your tests are not catching enough bugs.")
     else:
-        print(f"\nPASS Good mutation score! Tests are effective.")
+        print("\nPASS Good mutation score! Tests are effective.")
 
     if results["survived_details"]:
-        print(f"\nSurvived mutations (areas needing better tests):")
+        print("\nSurvived mutations (areas needing better tests):")
         for i, survivor in enumerate(results["survived_details"][:10]):
             print(f"  {i+1}. {survivor['description']}")
 

@@ -2,13 +2,11 @@
 Unit tests for pipeline components.
 """
 
-import asyncio
 from datetime import datetime
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import patch
 
 import pytest
 
-from src.core.errors import RetryableError, ValidationError
 from src.core.pipeline import (
     DataIngestionStage,
     Pipeline,

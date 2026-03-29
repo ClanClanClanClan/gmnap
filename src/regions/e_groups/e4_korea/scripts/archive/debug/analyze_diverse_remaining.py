@@ -1,5 +1,8 @@
-import yaml, pathlib
+import pathlib
 import sys
+
+import yaml
+
 sys.path.append('src')
 from converter import eng2kor
 

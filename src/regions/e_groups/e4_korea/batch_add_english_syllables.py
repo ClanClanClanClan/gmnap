@@ -5,8 +5,8 @@ These are reversible by keeping a record of what was added.
 """
 
 import csv
-import subprocess
 import json
+import subprocess
 from datetime import datetime
 
 # English name syllables and their Korean mappings
@@ -86,8 +86,8 @@ def add_english_syllables():
 
 def test_english_names():
     """Test English name conversions."""
-    import sys
     import pathlib
+    import sys
 
     sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
     # from converter import eng2kor

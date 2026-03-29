@@ -5,7 +5,8 @@ Implements North African Arabic naming patterns with French influence
 """
 
 from typing import Any, Dict
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class C5ArabicMaghreb(RegionSpec):

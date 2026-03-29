@@ -4,10 +4,11 @@ Resource monitoring for production safety bounds.
 Tests memory and runtime limits during FST builds.
 """
 
-import psutil
 import subprocess
-import time
 import sys
+import time
+
+import psutil
 
 
 def monitor_fst_build():
@@ -68,7 +69,7 @@ def monitor_validation():
     start_time = time.time()
 
     try:
-        result = subprocess.run(
+        subprocess.run(
             ["python3", "scripts/validate.py"],
             capture_output=True,
             text=True,

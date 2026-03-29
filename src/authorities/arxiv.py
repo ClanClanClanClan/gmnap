@@ -7,8 +7,9 @@ Tier-0 authority source: Open access, no rate limits
 import asyncio
 import logging
 import xml.etree.ElementTree as ET
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
 import aiohttp
 
 logger = logging.getLogger(__name__)

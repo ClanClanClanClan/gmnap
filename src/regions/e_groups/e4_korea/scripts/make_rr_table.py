@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import csv, pathlib
+import csv
+import pathlib
 
 BASE, L, V, T = 0xAC00, 19, 21, 28
 LEADS = [

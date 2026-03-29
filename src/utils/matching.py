@@ -1,7 +1,9 @@
 from __future__ import annotations
-import unicodedata, re
+
+import re
+import unicodedata
 from difflib import SequenceMatcher
-from typing import Optional, Tuple, Dict, Any, List
+from typing import Any, Dict, List, Optional, Tuple
 
 
 def normalize_name(s: str) -> str:

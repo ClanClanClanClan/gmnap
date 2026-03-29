@@ -1,12 +1,13 @@
 from __future__ import annotations
-from typing import Dict, Any, List
-import asyncio
 
-from .openalex_adapter import OpenAlexAdapter
+import asyncio
+from typing import Any, Dict, List
+
 from .crossref_thesis_adapter import CrossrefThesisAdapter
+from .oai_university_adapter import OAIUniversityAdapter
+from .openalex_adapter import OpenAlexAdapter
 from .orcid_etd_adapter import ORCIDETDAdapter
 from .wikidata_p184_adapter import WikidataP184Adapter
-from .oai_university_adapter import OAIUniversityAdapter
 
 try:
     from .merge_authority_data import merge_authority_fragments  # provided in Push 3

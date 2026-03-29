@@ -3,7 +3,10 @@
 Surgical analysis of remaining eng→kor failures for targeted fixes
 """
 
-import yaml, sys, pathlib
+import pathlib
+import sys
+
+import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
 # from converter import eng2kor
@@ -78,12 +81,12 @@ for f in failures:
         else:
             categories["complex"].append(f)
 
-print(f"\n=== FAILURE CATEGORIES ===")
+print("\n=== FAILURE CATEGORIES ===")
 for cat_name, cat_failures in categories.items():
     print(f"{cat_name}: {len(cat_failures)} cases")
 
 # Focus on the most fixable categories first
-print(f"\n=== SYSTEMATIC FAILURES (Single character differences) ===")
+print("\n=== SYSTEMATIC FAILURES (Single character differences) ===")
 systematic_patterns = {}
 for f in categories["systematic"]:
     got = f["got"]
@@ -109,7 +112,7 @@ for pattern, cases in sorted_patterns[:10]:
             f"    {case['name']}: {case['input']} → got:{case['got']} exp:{case['expected']}"
         )
 
-print(f"\n=== NONE RESULT FAILURES (Complete conversion failures) ===")
+print("\n=== NONE RESULT FAILURES (Complete conversion failures) ===")
 none_patterns = {}
 for f in categories["none_result"]:
     tokens = f["tokens"]
@@ -130,7 +133,7 @@ for seg, cases in sorted_none[:10]:
     for case in cases[:2]:
         print(f"    {case['name']}: {case['input']}")
 
-print(f"\n=== SURGICAL FIX RECOMMENDATIONS ===")
+print("\n=== SURGICAL FIX RECOMMENDATIONS ===")
 print("🎯 HIGH IMPACT, LOW RISK:")
 
 # Recommend specific surgical fixes

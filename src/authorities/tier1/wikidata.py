@@ -6,15 +6,16 @@ Licence: CC0
 Daily Quota: Unlimited (reasonable use)
 """
 
-from typing import Dict, Any, Optional
+import logging
+from typing import Any, Dict, Optional
+
 from src.authorities.base import (
-    AuthorityFetcher,
     AuthorityData,
-    FetchResult,
+    AuthorityFetcher,
     AuthorityTier,
+    FetchResult,
 )
 from src.authorities.templates.authority_engine import UniversalFetcher
-import logging
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,4 @@
-import os, pytest
+import os
 
 import pytest
 

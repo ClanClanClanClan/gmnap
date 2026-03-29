@@ -9,8 +9,9 @@ Verifies that all fixes have been applied and system is 100% v7 compliant.
 
 import sys
 import tempfile
-import yaml
 from pathlib import Path
+
+import yaml
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -19,17 +20,19 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import sys
+from pathlib import Path
+
 from src.core.pipeline_v6 import GMNAPPipeline
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.config import GMNAPConfig
-import sys
-from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.security_validator import SecurityValidator, SecurityError
+from src.core.security_validator import SecurityError, SecurityValidator
 
 
 @pytest.mark.timeout(15)
@@ -60,7 +63,7 @@ def test_phase1_security_100():
     for attack, attack_type in attacks:
         total_tests += 1
         try:
-            validated = validator.validate_string(attack, context="test")
+            validator.validate_string(attack, context="test")
             print(f"FAIL FAILED: {attack_type} passed through")
         except SecurityError:
             tests_passed += 1
@@ -167,7 +170,7 @@ def test_phase2_classification_100():
         pipeline = GMNAPPipeline(config)
 
         try:
-            result = pipeline.run(tmpdir)
+            pipeline.run(tmpdir)
 
             # Check classifications
             output_files = list(Path(config.cache.cache_dir).glob("output/*.yaml"))

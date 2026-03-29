@@ -5,13 +5,13 @@ Orchestrates multiple authority APIs based on runtime mode and tier
 """
 
 import asyncio
+import hashlib
 import json
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-from pathlib import Path
 from dataclasses import dataclass, field
-import hashlib
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ class AuthoritySourceManager:
 
     def _initialize_sources(self):
         """Initialize authority sources based on configuration"""
-        runtime = self.config.get("runtime", {})
+        self.config.get("runtime", {})
         authorities = self.config.get("authorities", {})
 
         # Always initialize tier-0 sources
@@ -612,7 +612,7 @@ async def test_authority_manager():
             )
 
     # Show stats
-    logger.info(f"\nStatistics:")
+    logger.info("\nStatistics:")
     stats = manager.get_stats()
     for key, value in stats.items():
         logger.info(f"  {key}: {value}")

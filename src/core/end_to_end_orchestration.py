@@ -3,16 +3,16 @@ End-to-End Orchestration Integration - Step 4.2
 Complete integration of all V7 components into working orchestration system
 """
 
+import logging
 import time
 from datetime import datetime
-from typing import Dict, List, Any
-import logging
+from typing import Any, Dict, List
 
-from .pipeline_v7 import V7Pipeline, PipelineMode
-from .v7_quality_gates import V7QualityGates
+from ..regions.manager import RegionManager
 from .authority_source_integration import AuthoritySourceIntegrator
 from .pipeline_stage_implementation import PipelineStageImplementor
-from ..regions.manager import RegionManager
+from .pipeline_v7 import PipelineMode, V7Pipeline
+from .v7_quality_gates import V7QualityGates
 
 
 class EndToEndOrchestrator:

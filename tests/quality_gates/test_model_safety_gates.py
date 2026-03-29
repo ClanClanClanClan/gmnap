@@ -9,9 +9,11 @@ This test enforces the expert's hard requirements for any new regional detection
 Run this test before deploying any new model to production.
 """
 
-import pytest
 from pathlib import Path
-from src.ml.model_gate import evaluate, gate, EvalReport
+
+import pytest
+
+from src.ml.model_gate import EvalReport, evaluate, gate
 from src.regions.hybrid_classifier import HybridRegionClassifier
 
 # Baseline performance from v4 hybrid (validated 2025-11-01)
@@ -161,7 +163,7 @@ def test_candidate_model_deployment_gate():
 
         pytest.fail(failure_msg)
 
-    print(f"\n✅ Model safety gate: PASSED")
+    print("\n✅ Model safety gate: PASSED")
     print(f"   Candidate: {candidate_eval.overall:.1%}")
     print(f"   Baseline: {baseline_eval.overall:.1%}")
 

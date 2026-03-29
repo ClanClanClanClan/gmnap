@@ -1,11 +1,17 @@
 from __future__ import annotations
-from typing import Dict, List, Tuple, Any
-import os, json, pathlib, hashlib, datetime
+
+import datetime
+import hashlib
+import json
+import os
+import pathlib
+from typing import Any, Dict, List, Tuple
+
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from ..ops.yaml_deterministic import canonicalise_entry, dump_yaml_deterministic
 from ..ops.diff_utils import compute_entry_diffs
 from ..ops.metrics import WRITE_DIFF_CHANGED_ENTRIES
+from ..ops.yaml_deterministic import canonicalise_entry, dump_yaml_deterministic
 
 
 def _batch_hash(batch: List[Dict]) -> str:
@@ -114,7 +120,7 @@ def _generate_sql_changelog(
     ]
     for gid, d in (diff.get("changed") or {}).items():
         sets = []
-        after = idx_new.get(gid, {})
+        idx_new.get(gid, {})
         for k, v in (d.get("changed") or {}).items():
             if k in scalar_props:
                 val = v["to"]

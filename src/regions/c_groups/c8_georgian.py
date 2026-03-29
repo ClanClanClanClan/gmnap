@@ -5,7 +5,8 @@ Implements Georgian script and ISO 9984 transliteration
 """
 
 from typing import Any, Dict
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class C8Georgian(RegionSpec):

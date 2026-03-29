@@ -3,12 +3,14 @@
 Analyze current Diverse dataset failures to identify remaining patterns
 """
 import sys
+
 sys.path.append('src')
-from converter import eng2kor
 import json
 
 # Read diverse dataset
 import yaml
+from converter import eng2kor
+
 with open('data/korean_diverse_test.yaml', 'r') as f:
     diverse_data = yaml.safe_load(f)
 
@@ -54,4 +56,4 @@ for i, failure in enumerate(current_failures[:10]):  # Show first 10
 with open('data/current_diverse_failures.json', 'w') as f:
     json.dump(current_failures, f, indent=2, ensure_ascii=False)
 
-print(f"Full failure list saved to data/current_diverse_failures.json")
+print("Full failure list saved to data/current_diverse_failures.json")

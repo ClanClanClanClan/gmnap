@@ -34,14 +34,14 @@ from src.authorities.base import AuthorityData, AuthorityFetcher, QuotaManager
 from src.authorities.cache import AuthorityCache
 from src.core.config import GMNAPConfig
 from src.core.globalid import GlobalIDGenerator
-from src.core.security_validator import security_validator, SecurityError
+from src.core.security_validator import SecurityError, security_validator
 from src.core.unicode_handler import UnicodeNormalizer
 from src.linguistic import LinguisticRulesEngine
 from src.regions.base import RegionRuleError
 from src.regions.manager import RegionManager
 from src.utils.database import DatabaseManager
-from src.validation.schema import SchemaValidator
 from src.validation.data_quality import data_quality_validator
+from src.validation.schema import SchemaValidator
 
 logger = logging.getLogger(__name__)
 
@@ -1492,7 +1492,7 @@ class GMNAPPipeline:
                             orig_str = json.dumps(orig_clean, sort_keys=True)
                             check_str = json.dumps(check_clean, sort_keys=True)
                             if orig_str != check_str:
-                                logger.error(f"JSON serialization difference detected")
+                                logger.error("JSON serialization difference detected")
                                 logger.error(f"Orig JSON length: {len(orig_str)}")
                                 logger.error(f"Check JSON length: {len(check_str)}")
                             else:
@@ -1500,7 +1500,7 @@ class GMNAPPipeline:
                                     "JSON serializations match - file/count difference"
                                 )
 
-                    metrics.errors.append(f"Pipeline is not idempotent (hash mismatch)")
+                    metrics.errors.append("Pipeline is not idempotent (hash mismatch)")
                     self._metrics.validation_errors.append("Idempotency check failed")
 
         except Exception as e:
@@ -1854,7 +1854,6 @@ class GMNAPPipeline:
     def _validate_roundtrip(self) -> None:
         """Validate round-trip for deterministic scripts."""
         deterministic_scripts = ["CJK", "Thai", "Khmer", "Lao"]
-        required_accuracy = 0.97
 
         try:
             for canonical_latin, entry in self._entries.items():

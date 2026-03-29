@@ -18,11 +18,12 @@ V7 SPEC COMPLIANCE:
 - distinct_features: Ben... prefixes; French transliteration
 """
 
-import re
 import logging
-from typing import Dict, Any, List, Set
+import re
+from typing import Any, Dict, List, Set
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class C5_ArabicMaghreb(RegionSpec):
@@ -61,7 +62,7 @@ class C5_ArabicMaghreb(RegionSpec):
             canonical_order="Given Family",
             romanisation_standards=["ISO 233-2"],
         )
-        self.logger = logging.getLogger(f"gmnap.regions.C5")
+        self.logger = logging.getLogger("gmnap.regions.C5")
 
         # Load Maghrebi Arabic resources
         self.maghrebi_patterns = self._load_maghrebi_patterns()
@@ -71,7 +72,7 @@ class C5_ArabicMaghreb(RegionSpec):
         self.place_indicators = self._load_place_indicators()
         self.french_influences = self._load_french_influences()
 
-        self.logger.info(f"C5 Arabic Maghreb processor initialized")
+        self.logger.info("C5 Arabic Maghreb processor initialized")
 
     def _load_maghrebi_patterns(self) -> Dict[str, List[str]]:
         """Load Maghrebi Arabic name patterns."""

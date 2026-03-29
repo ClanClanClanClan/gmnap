@@ -2,7 +2,8 @@
 """Analyze patterns in diverse dataset failures."""
 
 import json
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
+
 
 def analyze_failures():
     # Load failures data

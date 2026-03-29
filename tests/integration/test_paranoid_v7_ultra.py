@@ -1,7 +1,3 @@
-from typing import Dict
-from typing import List
-from typing import Optional
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -32,26 +28,16 @@ Tests are organized by paranoia level:
 """
 
 import asyncio
-import concurrent.futures
-import gc
 import hashlib
-import itertools
-import json
-import multiprocessing
 import os
 import random
-import resource
-import string
 import sys
 import tempfile
 import threading
 import time
-import traceback
 import unicodedata
-from collections import defaultdict
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+
 import psutil
 
 # Add project root to path
@@ -60,23 +46,23 @@ sys.path.insert(0, str(project_root))
 
 # Import everything we need to test
 try:
-    from src.core.pipeline_v6 import PipelineV6
-    from src.core.config import ConfigurationManager
-    from src.core.errors import *
-    from src.core.globalid import GlobalIDGenerator
-    from src.core.security_validator import SecurityValidator
-    from src.regions.manager_optimized import RegionManager
     from src.authorities.cache import AuthorityCache
-    from src.core.database import DatabaseManager
-    from src.validation.schema import SchemaValidator
-
-    # Import all regions
-    from src.regions.a_groups.a1_anglo_sphere import A1AngloSphere
-    from src.regions.e_groups.e4_korea.processor import KoreanProcessor
 
     # Authority sources
     from src.authorities.tier0.orcid import ORCIDFetcher
     from src.authorities.tier1.dblp import DBLPFetcher
+    from src.core.config import ConfigurationManager
+    from src.core.database import DatabaseManager
+    from src.core.errors import *
+    from src.core.globalid import GlobalIDGenerator
+    from src.core.pipeline_v6 import PipelineV6
+    from src.core.security_validator import SecurityValidator
+
+    # Import all regions
+    from src.regions.a_groups.a1_anglo_sphere import A1AngloSphere
+    from src.regions.e_groups.e4_korea.processor import KoreanProcessor
+    from src.regions.manager_optimized import RegionManager
+    from src.validation.schema import SchemaValidator
 
     IMPORTS_OK = True
 except ImportError as e:
@@ -910,7 +896,7 @@ class UltraParanoidV7Tester:
             pipeline = PipelineV6()
 
             try:
-                result = pipeline.process_entry(entry)
+                pipeline.process_entry(entry)
                 # Should handle circular refs gracefully
                 return True
             except RecursionError:
@@ -1029,7 +1015,7 @@ class UltraParanoidV7Tester:
 
             for exploit in exploits:
                 # Should detect potential security issues
-                result = validator.is_safe(exploit)
+                validator.is_safe(exploit)
                 # Validator should be cautious with these
 
             return True
@@ -1364,7 +1350,7 @@ class UltraParanoidV7Tester:
 
             for handler in handlers:
                 try:
-                    decoded = test_bytes.decode("utf-8", errors=handler)
+                    test_bytes.decode("utf-8", errors=handler)
                     if handler == "strict":
                         return False  # Should have failed
                 except UnicodeDecodeError:
@@ -1538,7 +1524,7 @@ class UltraParanoidV7Tester:
                 db.query("SELECT 1")
             except ConnectionError:
                 db.reconnect()
-                result = db.query("SELECT 1")
+                db.query("SELECT 1")
                 return True
 
             return False
@@ -1769,7 +1755,7 @@ class UltraParanoidV7Tester:
 
             for entry in ambiguous_entries:
                 try:
-                    result = pipeline.process_entry(entry)
+                    pipeline.process_entry(entry)
                     # Should handle ambiguous states
                 except:
                     pass  # Acceptable to reject

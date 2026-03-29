@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Verify the environment is set up correctly for ground-zero recovery."""
 
-import sys
 import subprocess
+import sys
 
 
 def check_pynini():
@@ -79,7 +79,7 @@ def main():
         if math_diff <= 5 and div_diff <= 5:
             print("\n✅ Baseline matches expected values (within tolerance)")
         else:
-            print(f"\n⚠️  Baseline differs from expected:")
+            print("\n⚠️  Baseline differs from expected:")
             print(f"  Math difference: {math_diff}")
             print(f"  Diverse difference: {div_diff}")
 

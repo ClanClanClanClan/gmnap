@@ -13,13 +13,13 @@ Tests every single region for:
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Any, Dict, List
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.regions.manager_optimized import RegionManager
 from src.regions.base import RegionRuleError
+from src.regions.manager_optimized import RegionManager
 
 
 class UltraRegionTester:
@@ -121,7 +121,6 @@ class UltraRegionTester:
         }
 
         for region_code, region in regions.items():
-            success = True
 
             # Pick appropriate test entry based on region
             if region_code.startswith("A") or region_code.startswith("G"):
@@ -151,7 +150,6 @@ class UltraRegionTester:
             except Exception as e:
                 print(f"FAIL {region_code}: Processing error - {e}")
                 results[region_code] = False
-                success = False
                 self.results["errors"].append(
                     {
                         "region": region_code,

@@ -8,7 +8,8 @@ Features: Arabic script, tribal prefixes (Al-), patronymic patterns, royal title
 import re
 from typing import Any, Dict, List, Optional
 
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class C4_ArabicGulf(RegionSpec):

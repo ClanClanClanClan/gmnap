@@ -5,7 +5,8 @@ Implements Sub-Saharan Africa with French naming influence
 """
 
 from typing import Any, Dict
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class F1SSAFrancophone(RegionSpec):

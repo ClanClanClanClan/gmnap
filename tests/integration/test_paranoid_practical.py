@@ -1,5 +1,3 @@
-from typing import List
-from typing import Any
 import pytest
 
 #!/usr/bin/env python3
@@ -10,17 +8,11 @@ This implements thorough paranoid testing that actually works with the current c
 Tests every aspect with extreme thoroughness while being practical about what exists.
 """
 
-import asyncio
-import json
 import os
-import random
-import string
 import sys
 import time
-import unicodedata
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Set, Any
 
 # Add project root to path
 project_root = Path(__file__).parent
@@ -28,12 +20,12 @@ sys.path.insert(0, str(project_root))
 
 # Import what we can test
 try:
-    from src.core.security_validator import security_validator, SecurityError
-    from src.core.globalid import GlobalIDGenerator
-    from src.regions.manager_optimized import RegionManager
-    from src.core.unicode_handler import UnicodeNormalizer
-    from src.validation.schema import SchemaValidator
     from src.authorities.cache import AuthorityCache
+    from src.core.globalid import GlobalIDGenerator
+    from src.core.security_validator import SecurityError, security_validator
+    from src.core.unicode_handler import UnicodeNormalizer
+    from src.regions.manager_optimized import RegionManager
+    from src.validation.schema import SchemaValidator
 
     IMPORTS_OK = True
 except ImportError as e:
@@ -398,7 +390,7 @@ class PracticalParanoidTester:
         ]
 
         for s in security_unicode:
-            normalized = normalizer.normalize(s)
+            normalizer.normalize(s)
             self.test(
                 f"Security Unicode: {repr(s)}",
                 True,  # Should handle
@@ -415,7 +407,7 @@ class PracticalParanoidTester:
         for seq in invalid_sequences:
             try:
                 s = seq.decode("utf-8", errors="replace")
-                normalized = normalizer.normalize(s)
+                normalizer.normalize(s)
                 self.test(
                     f"Invalid Unicode: {repr(seq)}",
                     True,
@@ -601,7 +593,7 @@ class PracticalParanoidTester:
         for key, data, source in invalid_tests:
             try:
                 cache.set(key, data, source)
-                result = cache.get(key, source)
+                cache.get(key, source)
                 self.test(
                     f"Invalid input: {key}, {data}, {source}",
                     True,
@@ -637,7 +629,7 @@ class PracticalParanoidTester:
 
             for korean_name in korean_names:
                 romanized = converter.romanize(korean_name)
-                back_to_korean = converter.koreanize(romanized)
+                converter.koreanize(romanized)
                 accuracy = converter.round_trip_accuracy(korean_name, is_korean=True)
 
                 self.test(

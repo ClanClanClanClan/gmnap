@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-import sys
 import os
+import sys
+
 import pytest
 
 # Try to import segment, skip if not available

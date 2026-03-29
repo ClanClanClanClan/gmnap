@@ -1,11 +1,10 @@
+import os
+
 import pytest
-import os, pytest
+
 from src.authorities.manager import (
     MathSciNet_HTML,
     Scopus,
-    Dimensions,
-    ProQuest_ETD,
-    Google_Scholar,
 )
 
 LIVE = os.getenv("OFFLINE", "1") == "0" and os.getenv("LIVE_AUTH", "0") == "1"

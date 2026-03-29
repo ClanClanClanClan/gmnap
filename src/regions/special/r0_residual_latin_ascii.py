@@ -5,7 +5,8 @@ Implements Catch-all for unmapped territories
 """
 
 from typing import Any, Dict
-from ..base import RegionSpec, RegionRuleError
+
+from ..base import RegionRuleError, RegionSpec
 
 
 class R0ResidualLatinASCII(RegionSpec):

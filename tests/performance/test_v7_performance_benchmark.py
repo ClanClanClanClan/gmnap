@@ -19,26 +19,25 @@ import asyncio
 import concurrent.futures
 import json
 import logging
-import multiprocessing
 import os
 import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 os.environ["GMNAP_TEST_MODE"] = "true"
 
-import pytest
 import psutil
+import pytest
 
+from src.authorities.enricher import AuthorityEnricher
+from src.core.global_id import reset_collision_tracking
+from src.core.memgraph_client import MemgraphClient
 from src.core.pipeline_v7 import PipelineV7
 from src.regions.manager_optimized import RegionManager
-from src.authorities.enricher import AuthorityEnricher
-from src.core.global_id import generate_global_id, reset_collision_tracking
-from src.core.memgraph_client import MemgraphClient
 
 logger = logging.getLogger(__name__)
 
@@ -177,7 +176,7 @@ class V7PerformanceBenchmark:
                 time.sleep(0.1)
 
         monitor_thread = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-        monitor_future = monitor_thread.submit(monitor_resources)
+        monitor_thread.submit(monitor_resources)
 
         # Run pipeline stages
         start_time = time.perf_counter()
@@ -449,7 +448,7 @@ class TestV7Performance:
         print(
             f"\nProjected time for 1M entries: {metrics.projected_time_1m:.1f} minutes"
         )
-        print(f"V7 Quick requirement: <=35 minutes")
+        print("V7 Quick requirement: <=35 minutes")
         print(f"Status: {'PASS PASS' if metrics.meets_v7_quick else 'FAIL FAIL'}")
 
     @pytest.mark.slow

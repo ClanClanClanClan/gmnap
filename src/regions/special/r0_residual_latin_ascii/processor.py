@@ -6,7 +6,9 @@ Features: ASCII-only Latin script
 """
 
 from typing import Any, Dict
-from ...base_enhanced import RegionRuleError, EnhancedRegionSpec as RegionSpec
+
+from ...base_enhanced import EnhancedRegionSpec as RegionSpec
+from ...base_enhanced import RegionRuleError
 
 
 class R0_ResidualLatinAscii(RegionSpec):

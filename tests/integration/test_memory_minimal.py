@@ -1,4 +1,3 @@
-import pytest
 
 #!/usr/bin/env python3
 """
@@ -7,8 +6,8 @@ This creates RegionDetectionResult objects without any region logic to isolate o
 """
 
 import gc
-import sys
 import random
+import sys
 from pathlib import Path
 
 # Add project root to Python path
@@ -16,8 +15,9 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / "src"))
 
-import psutil
 import os
+
+import psutil
 
 
 def get_memory_mb():
@@ -108,7 +108,7 @@ for i, name in enumerate(test_names):
         print(f"Error at operation {i+1}: {e}")
         break
 
-print(f"\n📊 MEMORY ANALYSIS (MINIMAL OBJECT CREATION):")
+print("\n📊 MEMORY ANALYSIS (MINIMAL OBJECT CREATION):")
 if memory_points:
     print(f"   Total operations: {len(test_names):,}")
     print(f"   Final memory: {memory_points[-1]['memory_mb']:.1f} MB")
@@ -119,7 +119,7 @@ if memory_points:
     core_processing_leak = 0.094  # From previous test
     current_leak = memory_points[-1]["leak_rate"]
 
-    print(f"\n🔍 OBJECT CREATION ANALYSIS:")
+    print("\n🔍 OBJECT CREATION ANALYSIS:")
     print(f"   Core processing leak: {core_processing_leak:.3f} MB/1K ops")
     print(f"   Minimal object creation: {current_leak:.3f} MB/1K ops")
     print(
@@ -129,34 +129,34 @@ if memory_points:
     # Verdict
     if current_leak < 0.01:
         print(
-            f"\nPASS NO OBJECT LEAK: RegionDetectionResult objects are properly collected"
+            "\nPASS NO OBJECT LEAK: RegionDetectionResult objects are properly collected"
         )
-        print(f"   The leak must be in complex region processing logic")
+        print("   The leak must be in complex region processing logic")
     elif current_leak >= core_processing_leak * 0.8:
         print(
-            f"\n🔴 OBJECT RETENTION ISSUE: RegionDetectionResult objects not being collected"
+            "\n🔴 OBJECT RETENTION ISSUE: RegionDetectionResult objects not being collected"
         )
         print(
-            f"   This suggests a reference retention problem in the dataclass or metadata"
+            "   This suggests a reference retention problem in the dataclass or metadata"
         )
     else:
-        print(f"\n🟡 PARTIAL OBJECT LEAK: Some object retention + processing overhead")
+        print("\n🟡 PARTIAL OBJECT LEAK: Some object retention + processing overhead")
 
     # Final analysis
-    print(f"\n📈 LEAK SOURCE ANALYSIS:")
+    print("\n📈 LEAK SOURCE ANALYSIS:")
     if current_leak < 0.01:
         print(
-            f"   -> The leak is in region processing logic (script analysis, pattern matching, etc.)"
+            "   -> The leak is in region processing logic (script analysis, pattern matching, etc.)"
         )
         print(
-            f"   -> Check _analyze_scripts, _enhance_detection_with_patterns, or region loading"
+            "   -> Check _analyze_scripts, _enhance_detection_with_patterns, or region loading"
         )
     elif current_leak >= 0.05:
-        print(f"   -> The leak is in RegionDetectionResult object retention")
-        print(f"   -> Check for circular references or metadata dictionary growth")
+        print("   -> The leak is in RegionDetectionResult object retention")
+        print("   -> Check for circular references or metadata dictionary growth")
     else:
         print(
-            f"   -> Mixed: Both object retention and processing logic contributing to leak"
+            "   -> Mixed: Both object retention and processing logic contributing to leak"
         )
 else:
     print("🔴 TEST FAILED: No memory measurements taken")

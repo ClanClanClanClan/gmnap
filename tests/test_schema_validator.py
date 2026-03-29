@@ -1,4 +1,5 @@
 import pytest
+
 from src.validation.schema_validator import V7SchemaValidator
 
 

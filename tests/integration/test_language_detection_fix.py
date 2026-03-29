@@ -56,7 +56,7 @@ def test_language_detection_directly():
             print(f"  {name:15} -> ERROR: {e}")
 
     # Test through region detection
-    print(f"\nRegion Detection with Language:")
+    print("\nRegion Detection with Language:")
     for name in test_names:
         entry = {"name": name}
         result = manager.detect_region(entry, internal=True)
@@ -69,7 +69,7 @@ def test_language_detection_directly():
 def check_fasttext_model():
     """Check what FastText model is loaded."""
 
-    print(f"\n🔍 FASTTEXT MODEL INFO:")
+    print("\n🔍 FASTTEXT MODEL INFO:")
     print("-" * 30)
 
     manager = RegionManager()
