@@ -64,7 +64,7 @@ gmnap = "gmnap.cli.main:main"
 gmnap-pipeline = "gmnap.core.pipeline_v7:cli_main"
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
 extend-exclude = '''
