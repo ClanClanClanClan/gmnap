@@ -141,3 +141,5 @@ logs/
 /tools/charts/
 /tools/monitoring/
 config/authority_api_keys.yaml
+__pycache__/
+*.pyc
