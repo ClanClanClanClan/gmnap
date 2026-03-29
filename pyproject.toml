@@ -84,7 +84,7 @@ extend-exclude = '''
 line-length = 88
 
 [tool.ruff.lint]
-ignore = ["E402", "E722", "F821", "E741", "F601", "F811", "F402", "F403", "F401"]
+ignore = ["E402", "E722", "F821", "E741", "F601", "F811", "F402", "F403", "F401", "E721"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
