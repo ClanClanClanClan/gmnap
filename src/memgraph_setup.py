@@ -8,9 +8,8 @@ import sys
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from neo4j import GraphDatabase
-
 import docker
+from neo4j import GraphDatabase
 
 logger = logging.getLogger(__name__)
 
