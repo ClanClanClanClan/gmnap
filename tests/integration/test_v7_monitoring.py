@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 V7 Monitoring System Test Suite

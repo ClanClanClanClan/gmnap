@@ -139,9 +139,7 @@ def test_instantiation():
         from src.core.memgraph_integration import GraphNode, MemgraphClient
 
         MemgraphClient()
-        GraphNode(
-            global_id="test-001", canonical_latin="Test, User", region_code="A1"
-        )
+        GraphNode(global_id="test-001", canonical_latin="Test, User", region_code="A1")
         print("✓ MemgraphClient + GraphNode")
         results["success"] += 1
     except Exception as e:

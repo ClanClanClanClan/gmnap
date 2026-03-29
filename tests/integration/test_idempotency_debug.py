@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Quick idempotency test to debug non-deterministic behavior.

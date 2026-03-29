@@ -325,9 +325,7 @@ class TestByzantineFailures:
 
         # Check what honest nodes received
         # From Byzantine node - should be modified
-        [
-            msg for msg in nodes[0].sent_messages if msg.sender == "node_3"
-        ]
+        [msg for msg in nodes[0].sent_messages if msg.sender == "node_3"]
         [msg for msg in nodes[3].sent_messages if msg.sender == "node_0"]
 
         # Byzantine node should have lied

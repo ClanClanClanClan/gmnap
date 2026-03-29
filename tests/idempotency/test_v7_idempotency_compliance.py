@@ -322,9 +322,7 @@ class TestV7IdempotencyCompliance:
             data_processing_pipeline, complex_data
         )
 
-        assert (
-            result.is_identical
-        ), "Complex data serialization should be deterministic"
+        assert result.is_identical, "Complex data serialization should be deterministic"
         assert (
             result.diff_bytes == 0
         ), f"V7 requirement: 0 diff bytes, got {result.diff_bytes}"

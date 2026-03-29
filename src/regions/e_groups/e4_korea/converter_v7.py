@@ -30,6 +30,7 @@ except ImportError:
     _converter = FallbackKoreanConverter()
     eng2kor = _converter.eng2kor
     kor2eng = _converter.kor2eng
+
     def eng2kor_nbest(name, n=3):
         return [_converter.eng2kor(name)]  # Simple single result for now
 

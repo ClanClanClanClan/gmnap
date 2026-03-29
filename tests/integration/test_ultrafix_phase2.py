@@ -1,8 +1,8 @@
-
 #!/usr/bin/env python3
 """
 Test ULTRAFIX Phase 2 - FastText language detection fix
 """
+
 import sys
 from pathlib import Path
 

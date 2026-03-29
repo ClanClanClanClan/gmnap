@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Test ULTRAFIX Phase 4 - Memory leak fix validation

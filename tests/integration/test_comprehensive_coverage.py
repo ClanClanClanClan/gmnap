@@ -37,7 +37,6 @@ from src.regions.base import RegionRuleError
 # sys.path.insert(0, 'src')
 
 
-
 class ComprehensiveTestSuite:
     """Comprehensive test suite for all regional processors."""
 

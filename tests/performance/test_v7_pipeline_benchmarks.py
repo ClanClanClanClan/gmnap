@@ -581,9 +581,7 @@ class TestV7PipelineBenchmarks:
         start_time = time.perf_counter()
 
         # Process all entries through a representative stage
-        await benchmark.benchmark_stage(
-            2, "DataCleaning", test_data, iterations=1
-        )
+        await benchmark.benchmark_stage(2, "DataCleaning", test_data, iterations=1)
 
         end_time = time.perf_counter()
         total_time = end_time - start_time

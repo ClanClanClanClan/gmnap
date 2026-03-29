@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 ULTRA-PARANOID V7 TESTING SYSTEM
