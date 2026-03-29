@@ -1,0 +1,25 @@
+apiVersion: v2
+name: gmnap
+description: Global Mathematician Name Processing system with Korean V5 support
+type: application
+version: 6.1.0
+appVersion: "v6.1-korea"
+
+maintainers:
+  - name: GMNAP Team
+    email: gmnap@example.com
+
+keywords:
+  - mathematics
+  - names
+  - korean
+  - romanization
+  - nlp
+
+home: https://github.com/example/gmnap
+sources:
+  - https://github.com/example/gmnap
+
+annotations:
+  category: NLP
+  licenses: MIT

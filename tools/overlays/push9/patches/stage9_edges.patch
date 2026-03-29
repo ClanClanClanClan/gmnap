@@ -1,0 +1,17 @@
+
+*** a/src/pipeline/stage9_write_and_diff.py
+--- b/src/pipeline/stage9_write_and_diff.py
+@@
+-from ..ops.diff_utils import compute_entry_diffs
++from ..ops.diff_utils import compute_entry_diffs
++from ..db.changelog_expand import generate_changelogs_expanded
+@@
+-    # 4) Render diff HTML and SQL changelog
++    # 4) Render diff HTML and SQL changelog
+     _render_html_diff(templates_dir, out_dir, diff_payload, run_hash)
+     _generate_sql_changelog(out_dir, diff_payload, new_entries)
++    # 4b) Expanded changelog with arrays and edges (Advisors/Students/etc.)
++    try:
++        generate_changelogs_expanded(str(out_dir), new_entries)
++    except Exception:
++        pass

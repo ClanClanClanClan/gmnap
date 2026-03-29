@@ -1,0 +1,16 @@
+{
+  "grade": "A",
+  "perfect": false,
+  "issues": [],
+  "warnings": [],
+  "metrics": {
+    "regions_working": "34/37",
+    "complex_idempotency": 1.0,
+    "attack_blocking": 1.0,
+    "all_regions_idempotent": 1.0,
+    "memory_safe": true,
+    "race_safe": true,
+    "variant_controlled": true,
+    "recovery_works": true
+  }
+}

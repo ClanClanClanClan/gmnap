@@ -1,0 +1,19 @@
+
+*** a/src/core/pipeline_v7.py
+--- b/src/core/pipeline_v7.py
+@@
+-from src.pipeline.stage5_collision_analytics import ensure_unique_global_ids
++try:
++    from src.pipeline.stage5_duckdb_analytics import stage5_duckdb
++    _HAS_DUCKDB = True
++except Exception:
++    from src.pipeline.stage5_collision_analytics import ensure_unique_global_ids
++    _HAS_DUCKDB = False
+@@
+-        out, m5 = ensure_unique_global_ids(out)
++        if _HAS_DUCKDB:
++            out, m5, edges_csv = stage5_duckdb(out)
++        else:
++            out, m5 = ensure_unique_global_ids(out)
+         out, m6 = enforce_graph_coherence_gate(out)
+         return out

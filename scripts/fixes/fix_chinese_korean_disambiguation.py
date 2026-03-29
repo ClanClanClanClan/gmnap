@@ -8,18 +8,23 @@ Solution: Add competitive scoring to prioritize Chinese when both match
 import re
 from pathlib import Path
 
+
 def fix_chinese_korean_disambiguation():
-    pipeline_path = Path("/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/src/gmnap/core/pipeline.py")
-    
+    pipeline_path = Path(
+        "/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/src/gmnap/core/pipeline.py"
+    )
+
     print("🔧 Fixing Chinese-Korean surname disambiguation...")
-    
+
     # Read current pipeline
-    with open(pipeline_path, 'r') as f:
+    with open(pipeline_path, "r") as f:
         content = f.read()
-    
+
     # Find the location after Chinese surname scoring
-    chinese_scoring_pattern = r"if has_chinese_surname:\n            scores\['E1'\] \+= 7  # Very strong indicator"
-    
+    chinese_scoring_pattern = (
+        r"if has_chinese_surname:\n            scores\['E1'\] \+= 7  # Very strong indicator"
+    )
+
     if re.search(chinese_scoring_pattern, content):
         # Add Chinese-Korean disambiguation logic after Chinese scoring
         disambiguation_code = """
@@ -40,17 +45,20 @@ def fix_chinese_korean_disambiguation():
             elif has_korean_given_strong and not has_chinese_given_strong:  
                 scores['E4'] += 3  # Boost Korean for Korean given names
                 scores['E1'] = max(0, scores['E1'] - 2)  # Reduce Chinese score"""
-        
+
         # Insert the disambiguation logic after Chinese surname scoring
-        content = re.sub(chinese_scoring_pattern, chinese_scoring_pattern + disambiguation_code, content)
+        content = re.sub(
+            chinese_scoring_pattern, chinese_scoring_pattern + disambiguation_code, content
+        )
         print("   ✅ Added Chinese-Korean disambiguation logic")
-    
+
     # Write fixed pipeline
-    with open(pipeline_path, 'w') as f:
+    with open(pipeline_path, "w") as f:
         f.write(content)
-    
+
     print("✅ Chinese-Korean disambiguation fixed!")
     print("   Yang, Lei should now go to E1 (Chinese) instead of E4 (Korean)")
+
 
 if __name__ == "__main__":
     fix_chinese_korean_disambiguation()

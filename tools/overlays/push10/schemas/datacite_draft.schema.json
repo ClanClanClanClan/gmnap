@@ -1,0 +1,79 @@
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DataCite Minimal Draft",
+  "type": "object",
+  "required": ["doi", "creators", "titles", "publisher", "publicationYear", "types", "descriptions", "schemaVersion"],
+  "properties": {
+    "doi": { "type": "string" },
+    "creators": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "nameType": { "type": "string" },
+          "name": { "type": "string" }
+        }
+      }
+    },
+    "titles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "publisher": { "type": "string" },
+    "publicationYear": { "type": "integer" },
+    "types": {
+      "type": "object",
+      "required": ["resourceTypeGeneral"],
+      "properties": {
+        "resourceTypeGeneral": { "type": "string" },
+        "resourceType": { "type": "string" }
+      }
+    },
+    "descriptions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["description", "descriptionType"],
+        "properties": {
+          "descriptionType": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "schemaVersion": { "type": "string" },
+    "relatedIdentifiers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "relationType": { "type": "string" },
+          "relationTypeGeneral": { "type": "string" },
+          "relatedIdentifierType": { "type": "string" },
+          "relatedIdentifier": { "type": "string" }
+        }
+      }
+    },
+    "rightsList": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rights": { "type": "string" },
+          "rightsUri": { "type": "string" }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

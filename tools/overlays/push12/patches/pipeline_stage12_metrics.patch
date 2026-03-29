@@ -1,0 +1,46 @@
+
+*** a/src/core/pipeline_v7.py
+--- b/src/core/pipeline_v7.py
+@@
+-from src.pipeline.stage7_shortforms import compute_short_form_clusters
+-from src.pipeline.stage9_write_and_diff import write_and_diff
+-from src.pipeline.stage9_changelog_extend import append_edges_to_changelog
+-from src.pipeline.stage10_report import generate_report
+-from src.pipeline.stage11_idempotency_check import idempotency_check
++from src.pipeline.stage7_shortforms import compute_short_form_clusters
++from src.pipeline.stage9_write_and_diff import write_and_diff
++from src.pipeline.stage9_changelog_extend import append_edges_to_changelog
++from src.pipeline.stage10_report import generate_report
++from src.pipeline.stage11_idempotency_check import idempotency_check
++from src.ops.pipeline_metrics import stage_timer
+@@
+-        batch, clusters = compute_short_form_clusters(batch)
++        with stage_timer("stage7_shortforms", entries=len(batch)):
++            batch, clusters = compute_short_form_clusters(batch)
+@@
+-        batch, m9, snapshot_dir = write_and_diff(batch, out_base=os.getenv("GMNAP_SNAPSHOT_DIR","snapshots"))
++        with stage_timer("stage9_write_and_diff", entries=len(batch)):
++            batch, m9, snapshot_dir = write_and_diff(batch, out_base=os.getenv("GMNAP_SNAPSHOT_DIR","snapshots"))
+@@
+-        append_edges_to_changelog(snapshot_dir, batch)
++        with stage_timer("stage9_changelog_extend", entries=len(batch)):
++            append_edges_to_changelog(snapshot_dir, batch)
+@@
+-            try:
+-                asyncio.get_event_loop().run_until_complete(apply_latest_changelog(snapshot_dir))
+-            except RuntimeError:
+-                # If not in an event loop, run a fresh one
+-                asyncio.run(apply_latest_changelog(snapshot_dir))
++            with stage_timer("db_apply", entries=len(batch)):
++                try:
++                    asyncio.get_event_loop().run_until_complete(apply_latest_changelog(snapshot_dir))
++                except RuntimeError:
++                    asyncio.run(apply_latest_changelog(snapshot_dir))
+@@
+-        report_dir, report_json = generate_report(batch, metrics=metrics, snapshot_dir=snapshot_dir, shortform_clusters=clusters, specs=specs)
++        with stage_timer("stage10_report", entries=len(batch)):
++            report_dir, report_json = generate_report(batch, metrics=metrics, snapshot_dir=snapshot_dir, shortform_clusters=clusters, specs=specs)
+@@
+-        _, m11 = idempotency_check(batch, snapshot_dir=snapshot_dir, out_base=os.getenv("GMNAP_SNAPSHOT_DIR","snapshots"), mode=os.getenv("GMNAP_IDEMPOTENCY_MODE","shuffled"), strict=os.getenv("GMNAP_IDEMPOTENCY_STRICT","1")=="1", gate_max=gate_max)
++        with stage_timer("stage11_idempotency", entries=len(batch)):
++            _, m11 = idempotency_check(batch, snapshot_dir=snapshot_dir, out_base=os.getenv("GMNAP_SNAPSHOT_DIR","snapshots"), mode=os.getenv("GMNAP_IDEMPOTENCY_MODE","shuffled"), strict=os.getenv("GMNAP_IDEMPOTENCY_STRICT","1")=="1", gate_max=gate_max)

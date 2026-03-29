@@ -5,25 +5,25 @@ Fix missing scripts parameter in generated region files.
 
 # Map regions to their script types
 REGION_SCRIPTS = {
-    "C5": ["Arabic", "Latin"],     # Arabic Maghreb (Arabic with French influence)
-    "C6": ["Hebrew", "Latin"],     # Hebrew & Diaspora
-    "C7": ["Armenian", "Latin"],   # Armenian
-    "C8": ["Georgian", "Latin"],   # Georgian
+    "C5": ["Arabic", "Latin"],  # Arabic Maghreb (Arabic with French influence)
+    "C6": ["Hebrew", "Latin"],  # Hebrew & Diaspora
+    "C7": ["Armenian", "Latin"],  # Armenian
+    "C8": ["Georgian", "Latin"],  # Georgian
     "C9": ["Latin", "Cyrillic", "Arabic"],  # Caucasus-Turkic (mixed)
-    "D2": ["Tamil", "Latin"],      # South Asia - Dravidian
-    "D3": ["Bengali", "Latin"],    # South Asia - Bengali
-    "D4": ["Arabic", "Latin"],     # Pakistan & Urdu
-    "D5": ["Sinhala", "Latin"],    # Sinhala
-    "E5": ["Latin"],               # Vietnam (uses Latin script)
-    "E6": ["Thai", "Latin"],       # Mainland SEA
-    "E7": ["Latin"],               # Maritime SEA (mostly Latin)
-    "F1": ["Latin"],               # SSA - Francophone
-    "F2": ["Latin"],               # SSA - Anglophone
-    "F3": ["Ge'ez", "Latin"],      # Horn of Africa
-    "F4": ["Latin"],               # Lusophone Africa
-    "H1": ["Latin"],               # Historical (pre-1850)
-    "R0": ["Latin"],               # Residual Latin-ASCII
-    "Z0": ["Latin"],               # Quarantine
+    "D2": ["Tamil", "Latin"],  # South Asia - Dravidian
+    "D3": ["Bengali", "Latin"],  # South Asia - Bengali
+    "D4": ["Arabic", "Latin"],  # Pakistan & Urdu
+    "D5": ["Sinhala", "Latin"],  # Sinhala
+    "E5": ["Latin"],  # Vietnam (uses Latin script)
+    "E6": ["Thai", "Latin"],  # Mainland SEA
+    "E7": ["Latin"],  # Maritime SEA (mostly Latin)
+    "F1": ["Latin"],  # SSA - Francophone
+    "F2": ["Latin"],  # SSA - Anglophone
+    "F3": ["Ge'ez", "Latin"],  # Horn of Africa
+    "F4": ["Latin"],  # Lusophone Africa
+    "H1": ["Latin"],  # Historical (pre-1850)
+    "R0": ["Latin"],  # Residual Latin-ASCII
+    "Z0": ["Latin"],  # Quarantine
 }
 
 # File paths to fix
@@ -55,29 +55,29 @@ from pathlib import Path
 
 def fix_region_file(region_code: str, file_path: Path, scripts: list):
     """Fix a single region file to add scripts parameter."""
-    
-    with open(file_path, 'r') as f:
+
+    with open(file_path, "r") as f:
         content = f.read()
-    
+
     # Find the super().__init__ call and add scripts parameter
     pattern = r'(super\(\).__init__\(\s*code="{}".*?yaml_files=\[\].*?)(\s*\))'.format(region_code)
-    
+
     scripts_str = repr(scripts)
-    replacement = r'\1,\n            scripts={}\2'.format(scripts_str)
-    
+    replacement = r"\1,\n            scripts={}\2".format(scripts_str)
+
     content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-    
-    with open(file_path, 'w') as f:
+
+    with open(file_path, "w") as f:
         f.write(content)
-    
+
     print(f"✅ Fixed {region_code}: {file_path} with scripts={scripts}")
 
 
 def main():
     """Fix all generated region files."""
-    
+
     base_dir = Path(__file__).parent.parent
-    
+
     for region_code, relative_path in FILES_TO_FIX.items():
         file_path = base_dir / relative_path
         if file_path.exists():

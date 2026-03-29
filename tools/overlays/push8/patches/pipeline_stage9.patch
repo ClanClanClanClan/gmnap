@@ -1,0 +1,21 @@
+
+*** a/src/core/pipeline_v7.py
+--- b/src/core/pipeline_v7.py
+@@
+-from typing import Any, Dict, List
++from typing import Any, Dict, List
++from src.pipeline.stage9_write_and_diff import write_snapshot, diff_snapshots, generate_sql_changelog
+@@
+-        for entry in batch:
++        for entry in batch:
+             processed = self._stage0_to_3(entry)
+             processed = self._stage5_to_10(processed)
+             out.append(processed)
+-        return out
++        # Stage 9: Write & Diff
++        snapshot_dir = write_snapshot(out, out_root=os.getenv("GMNAP_SNAPSHOT_DIR","out/yaml"))
++        prev = os.getenv("GMNAP_PREV_SNAPSHOT_DIR")
++        if prev:
++            diff = diff_snapshots(prev, snapshot_dir)
++            generate_sql_changelog(prev, snapshot_dir)
++        return out

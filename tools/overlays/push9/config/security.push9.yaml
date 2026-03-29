@@ -1,0 +1,19 @@
+
+auth:
+  free_tier:
+    hashcash_bits: 18
+    rpm: 60
+  paid_tier:
+    rpm: 10000
+    jwt:
+      algorithm: HS256
+      secret_env: GMNAP_JWT_SECRET   # or provide GMNAP_JWT_PUBLIC_PEM for RS256
+rate_limit:
+  backend: "auto"    # "redis" if REDIS_URL set, else in-memory
+audit:
+  path: "logs/audit.log"
+  hmac_env: "AUDIT_HMAC_KEY"
+headers:
+  hashcash: "X-Hashcash"
+  authorization: "Authorization"
+security_headers: true

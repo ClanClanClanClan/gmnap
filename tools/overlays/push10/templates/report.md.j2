@@ -1,0 +1,42 @@
+
+# GMNAP V7 — Stage 10 Report
+
+**Run**: `{{ run_hash }}`  
+**Generated (UTC)**: {{ date_utc }}  
+**Snapshot**: `{{ snapshot_dir }}`
+
+---
+
+## Summary
+- Entries: **{{ counts.entries }}**
+- Regions represented: **{{ counts.regions }}**
+
+## Quality Gates (Spec‑driven)
+| Gate | Value | Threshold | Pass |
+|---|---:|---:|:---:|
+| Graph coherence | {{ metrics.get('graph_coherence', metrics.get('coherence', 0.0)) }} | {{ gates.graph_coherence.min }} | {{ "✅" if gates.graph_coherence.pass else "❌" }} |
+| Round‑trip script rate | {{ metrics.get('roundtrip_script_rate', metrics.get('cjk_roundtrip_rate', 1.0)) }} | {{ gates.roundtrip_script_rate.min }} | {{ "✅" if gates.roundtrip_script_rate.pass else "❌" }} |
+| Idempotent diff bytes | {{ metrics.get('idempotent_diff_bytes', 0) }} | ≤ {{ gates.idempotent_diff_bytes.max }} | {{ "✅" if gates.idempotent_diff_bytes.pass else "❌" }} |
+
+## Regions (counts)
+{% for region, count in regions.items() %}- {{ region }}: {{ count }}
+{% endfor %}
+
+## Authority sources used (top)
+{% for name, count in authorities.items() %}- {{ name }} — {{ count }}
+{% endfor %}
+
+## Top short forms
+{% for s, c in shortform_top %}- “{{ s }}” — {{ c }}
+{% else %}
+_No short forms recorded._
+{% endfor %}
+
+---
+
+Artifacts:
+- `entries.yaml`, `entries.json`, `diff.html`, `changelog.cypher`
+- `archive_manifest.json`, `doi_draft.json`, `ATTRIBUTION.txt`
+- This file: `report.md` and machine summary `report.json`
+
+_Stage 10 fulfils V7 spec: Markdown metrics, DOI draft (DataCite), and snapshot archiving._

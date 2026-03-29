@@ -7,18 +7,21 @@ Fix ~10 tests: titles (Dr. Smith), symbols (Smith@gmail), numbers (Smith2), etc.
 import re
 from pathlib import Path
 
+
 def add_edge_case_validation():
-    pipeline_path = Path("/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/src/gmnap/core/pipeline.py")
-    
+    pipeline_path = Path(
+        "/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/src/gmnap/core/pipeline.py"
+    )
+
     print("🔧 Adding edge case validation for malformed names...")
-    
+
     # Read current pipeline
-    with open(pipeline_path, 'r') as f:
+    with open(pipeline_path, "r") as f:
         content = f.read()
-    
+
     # Find the beginning of the _detect_region_by_name_pattern function
     function_start_pattern = r"def _detect_region_by_name_pattern\(self, name: str\) -> str:\n        \"\"\"Detect region based on Latin name patterns\.\"\"\"\n        if not name:\n            return 'R0'\n            \n        name_lower = name\.lower\(\)"
-    
+
     if re.search(function_start_pattern, content, re.DOTALL):
         # Add validation logic right after the initial checks
         validation_code = """def _detect_region_by_name_pattern(self, name: str) -> str:
@@ -59,16 +62,17 @@ def add_edge_case_validation():
             words = name.split()
             if len(words) < 2:
                 raise ValueError(f"Name must contain both surname and given name: {name}")"""
-        
+
         content = re.sub(function_start_pattern, validation_code, content, flags=re.DOTALL)
         print("   ✅ Added comprehensive edge case validation")
-    
+
     # Write fixed pipeline
-    with open(pipeline_path, 'w') as f:
+    with open(pipeline_path, "w") as f:
         f.write(content)
-    
+
     print("✅ Edge case validation added!")
     print("   Names with titles, numbers, symbols should now be properly rejected")
+
 
 if __name__ == "__main__":
     add_edge_case_validation()

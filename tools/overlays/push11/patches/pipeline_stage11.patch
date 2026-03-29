@@ -1,0 +1,21 @@
+
+*** a/src/core/pipeline_v7.py
+--- b/src/core/pipeline_v7.py
+@@
+-from src.pipeline.stage10_report import generate_report
++from src.pipeline.stage10_report import generate_report
++from src.pipeline.stage11_idempotency_check import idempotency_check
++from src.ops.spec_loader import load_specs, get_quality_gates
+@@
+-        # Stage 10 (Report) — hardened
+-        metrics = {"batch_size": len(batch), **m9}
+-        report_dir, report_json = generate_report(batch, metrics=metrics, snapshot_dir=snapshot_dir, shortform_clusters=clusters, specs=specs)
++        # Stage 10 (Report) — hardened
++        metrics = {"batch_size": len(batch), **m9}
++        report_dir, report_json = generate_report(batch, metrics=metrics, snapshot_dir=snapshot_dir, shortform_clusters=clusters, specs=specs)
++        # Stage 11 (IdempotencyCheck) — 0-byte gate
++        specs = load_specs()
++        gates = get_quality_gates(specs)
++        gate_max = int(gates.get("idempotent_diff_bytes_max", 0) or 0)
++        _, m11 = idempotency_check(batch, snapshot_dir=snapshot_dir, out_base=os.getenv("GMNAP_SNAPSHOT_DIR","snapshots"), mode=os.getenv("GMNAP_IDEMPOTENCY_MODE","shuffled"), strict=os.getenv("GMNAP_IDEMPOTENCY_STRICT","1")=="1", gate_max=gate_max)
++        metrics.update(m11)

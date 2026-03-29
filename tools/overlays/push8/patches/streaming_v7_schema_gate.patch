@@ -1,0 +1,16 @@
+
+*** a/src/core/streaming_v7.py
+--- b/src/core/streaming_v7.py
+@@
+-from typing import Any, Dict, Optional
++from typing import Any, Dict, Optional
++from src.pipeline.stage8_global_validate import global_validate
+@@
+-        # existing processing...
++        # existing processing...
++        # Stage 8 GlobalValidate gate (schema + round-trip + coherence re-gate) before writes
++        try:
++            _, _m8 = global_validate(batch, mode=os.getenv("GMNAP_RUNTIME_MODE","Quick"))
++        except Exception as e:
++            self.metrics.errors_total.labels(stage="8", reason="global_validate").inc()
++            raise

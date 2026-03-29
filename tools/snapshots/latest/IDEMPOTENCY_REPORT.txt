@@ -1,0 +1,4 @@
+GMNAP V7 — Stage 11 IdempotencyCheck
+mode: self
+diff_bytes: 0
+len_run_a: 17, len_run_b: 17

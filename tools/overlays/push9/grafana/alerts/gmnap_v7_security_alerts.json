@@ -1,0 +1,65 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "name": "gmnap-v7-security",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "gmnap-401-spike",
+          "title": "AuthN failures spike",
+          "condition": "A",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 900,
+                "to": 0
+              },
+              "datasourceUid": "prometheus",
+              "model": {
+                "expr": "rate(gmnap_authn_failed_total[15m]) > 5",
+                "interval": "1m"
+              }
+            }
+          ],
+          "for": "5m",
+          "labels": {
+            "severity": "warning",
+            "service": "gmnap"
+          },
+          "annotations": {
+            "summary": "AuthN failures > 5/min over 15 min window."
+          }
+        },
+        {
+          "uid": "gmnap-429-surge",
+          "title": "Rate-limit drops surge",
+          "condition": "A",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 900,
+                "to": 0
+              },
+              "datasourceUid": "prometheus",
+              "model": {
+                "expr": "rate(gmnap_rate_limit_dropped_total[15m]) > 10",
+                "interval": "1m"
+              }
+            }
+          ],
+          "for": "10m",
+          "labels": {
+            "severity": "critical",
+            "service": "gmnap"
+          },
+          "annotations": {
+            "summary": "Excessive 429s indicate abuse or misconfigured clients."
+          }
+        }
+      ]
+    }
+  ]
+}
