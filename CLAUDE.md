@@ -1,151 +1,164 @@
 # GMNAP v7 Current Development Status
-*Last Updated: 2025-08-02*
+*Last Updated: 2026-03-25*
 
-## 🎯 **CURRENT ACHIEVEMENT: 100% Classification Accuracy**
+## 🎯 System State (Honest Assessment)
 
-**System State**: Production-ready for pilot programs (≤1,000 entries)  
-**Classification**: 100% accuracy for 29 test mathematicians  
-**Security**: 100% protection against injection attacks  
-**Regional Coverage**: 11/37 regions implemented (29.7%)  
-**Performance**: 57 min/1M entries (1.9x slower than 30-min target)
+**Pipeline**: 12-stage pipeline (stages 0–8 async, 9–11 sync) — all stages wired and executing
+**Regional Coverage**: 37/37 regions fully implemented (100%)
+**Linguistic Rules**: 34 implemented (10 core normalisation + 17 regional validation + 7 region-specific)
+**Security**: Injection attack blocking validated
+**Performance**: ~3,000 entries/sec at 100K+ scale OFFLINE mode (measured); ~5.4 min/1M actual. See benchmark table below.
+**Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
+**Authority Enrichment**: 9 of 14 sources with real HTTP calls; 2 gated behind API keys; 3 deferred. DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms.
+**Region Config**: 37/37 YAML config files auto-loaded via lazy `ensure_yaml_loaded()` in base class
+**API Server**: FastAPI server with `/healthz`, `/readyz`, `/api/v1/query`, `/api/v1/lineage`, `/api/v1/process`, `/metrics`
+**CLI**: `query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve`
+**Diaspora Detection**: Implemented — uses `config/diaspora.yaml` date ranges
+**Region Overlay Map**: Spec §2a wired — sub-national overrides (CH-FR, IN-HN, etc.)
+**Testing**: 718+ tests (unit + integration + API + GDPR + region + batch + retry + stage isolation)
+**Test Fixtures**: 1,500 entries across all 37 regions
 
-## 📊 **Honest Production Assessment**
+---
 
-### ✅ **What Actually Works:**
-- **Classification**: Perfect accuracy for implemented regions
-- **Security**: All injection attacks blocked (SQL, XSS, path traversal, etc.)
-- **Core Pipeline**: 10-stage processing fully functional
-- **Implemented Regions** (11 total):
-  - A1 Anglo Sphere, A2 Western Europe
-  - B1 East Slavic, B2 South Slavic Central
-  - C2 Persian Tajik, C3 Arabic Levant Nile, C4 Arabic Gulf
-  - D1 South Asia Hindi Belt
-  - E1 Sinophone Mainland, E3 Japan
-  - G1 Latin America
+## ✅ What Actually Works
 
-### ⚠️ **Critical Limitations:**
-1. **Unimplemented Regions** (26/37 = 70.3% missing):
-   - A3-A5, B3, C1, C5-C9, D2-D5, E2, E4-E7, F1-F4, H1, R0, Z0
-   - System detects these regions but can't process them correctly
+### Pipeline (12 stages)
+All stages execute in sequence with real code:
+- Stage 0: Config/credential validation
+- Stage 1: Unicode normalisation (NFC→NFKD→fold→NFC)
+- Stage 1b: LLM thesis extraction (graceful fallback if unavailable)
+- Stage 2: Region detection (FastText + script + diaspora overlay + region overlay map)
+- Stage 3: Region hooks (clean→augment→validate→order_key per region)
+- Stage 4: Authority enrichment (9 adapters with real HTTP; DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms)
+- Stage 5: Collision analytics (DuckDB + in-memory fallback)
+- Stage 6: Graph consistency (Bayesian coherence, optional Memgraph)
+- Stage 7: Short-form tagging (initials clustering)
+- Stage 8: Schema validation (v2.0, configurable: advisory/quarantine/reject)
+- Stage 9: Write & Diff (YAML snapshots, SQL/Cypher changelogs)
+- Stage 10-11: Report generation (DOI draft, SFTP archive, ATTRIBUTION.txt), idempotency check
 
-2. **Performance Issues**:
-   - 1.9x slower than enterprise target
-   - Multiple FastText model loads causing slowdown
-   - Recommended max: 1,000 entries per batch
+### API Server (`src/api/server.py`)
+- FastAPI with rate limiting (60/min free, 10K/min paid Bearer)
+- `GET /healthz`, `GET /readyz`, `GET /metrics` (Prometheus)
+- `GET /api/v1/query?name=...` — name lookup
+- `GET /api/v1/lineage/{id}?depth=3` — genealogy
+- `POST /api/v1/process` — batch processing
+- Start with: `gmnap serve --port 8080`
 
-3. **False Region Claims**:
-   - Korean (E4), Polish (B2), German (A2) partially detected but not fully implemented
-   - Script detection claims support for unimplemented regions
+### Region Processors (37 regions, 240-450 lines each)
+All regions have full `clean()`, `augment()`, `validate()`, `order_key()`:
+- A1-A5, B1-B3, C1-C9, D1-D5, E1-E7, F1-F4, G1, H1, R0, Z0
+- 37/37 YAML config files in `config/regions/`
+- C1 processor loads `config/script_switch.yaml` for Kazakh/Uzbek reform schedules
+- Region overlay map (spec §2a) wired for sub-national detection
+- Diaspora overlay wired for cross-border mathematician detection
 
-## 🔧 **Immediate Performance Fix Available**
+### Quality Gates (8 gates)
+All 8 V7 quality gates implemented with mode-specific thresholds.
 
-Replace the RegionManager with the optimized version:
-```python
-# In src/core/pipeline_v6.py, change:
-from src.regions.manager import RegionManager
-# To:
-from src.regions.manager_optimized import RegionManager
+### GDPR Compliance
+- GDPR_DATA field marking, birth year decade-masking
+- ShadowNode conversion (`--drop-personal` flag) via `src/core/gdpr.py`
+- Source scrubbing (GoogleScholar, ProQuest, CNKI)
 
-# This provides:
-# - Singleton FastText model (prevents multiple loads)
-# - Detection result caching
-# - Only loads actually implemented regions
-# - Expected improvement: 30-50% faster
-```
+### Cache System
+- Zstandard compression, 60-day TTL, 50GB max, LRU eviction
+- Thread-safe, per-file locks, bad JSON quarantine
 
-## 📋 **Development Priorities**
+---
 
-### **1. Performance Optimization (HIGH PRIORITY)**
-- [ ] Deploy `manager_optimized.py` to production
-- [ ] Add batch processing for large datasets
-- [ ] Implement async processing pipeline
-- [ ] Target: Achieve 30 min/1M entries
+## 🔴 Known Limitations (Be Honest About These)
 
-### **2. Fix False Region Claims (HIGH PRIORITY)**
-- [ ] Restrict detection to `IMPLEMENTED_REGIONS` set
-- [ ] Return proper "unsupported region" errors
-- [ ] Update tests to reflect actual capabilities
+### Authority Enrichment: 9 of 14 Sources Have Real HTTP Code
 
-### **3. Complete Priority Regions (MEDIUM PRIORITY)**
-Based on mathematician populations:
-- [ ] E4 Korea - High research output
-- [ ] A3 Nordic/Baltic - Historical contributions
-- [ ] B3 Greek - Mathematical heritage
-- [ ] C1 Turkish - Growing community
-- [ ] E2 Traditional Chinese - Taiwan/Hong Kong
+| Source | Tier | Status |
+|--------|------|--------|
+| OpenAlex | 0 | ✅ WORKING (httpx, /authors endpoint) |
+| Crossref | 0 | ✅ WORKING (httpx, /works?query.author=) |
+| ORCID_ETD | 0 | ✅ WORKING (httpx, /expanded-search) |
+| Crossref_Thesis | 0 | ✅ WORKING (httpx, type=dissertation filter) |
+| HAL | 1 | ✅ WORKING (httpx, archives-ouvertes.fr) |
+| GND | 1 | ✅ WORKING (httpx, lobid.org, OFFLINE guard) |
+| Wikidata_P184 | 1 | ✅ WORKING (httpx, SPARQL P184/P185, OFFLINE guard) |
+| OAI_University | 1 | ✅ WORKING (httpx, BASE API, OFFLINE guard) |
+| zbMATH_Open | 1 | ✅ WORKING (httpx, api.zbmath.org) |
+| MathSciNet | 2 | ⚠️ STUB (needs AMS subscription — see docs/AUTHORITY_ACCESS.md) |
+| Scopus | 2 | ⚠️ GATED (needs SCOPUS_API_KEY — free at dev.elsevier.com) |
+| Dimensions | 2 | ⚠️ GATED (needs DIMENSIONS_API_KEY — free at app.dimensions.ai) |
+| ProQuest | 3 | 🔴 DEFERRED (requires institutional proxy access) |
+| GoogleScholar | 3 | 🔴 DEFERRED (ToS — opt-in via --force-extreme + YES_I_ACCEPT_GS_TOS) |
 
-## 🏭 **Production Deployment Guide**
+**CRITICAL**: `OFFLINE=1` is the default for tier 1+ sources. Set `OFFLINE=0` for full enrichment.
+Tier 0 sources (OpenAlex, Crossref, ORCID, Crossref_Thesis) call APIs directly.
 
-### **✅ READY FOR:**
-- Research institutions with ≤1,000 mathematicians
-- Pilot programs and proof-of-concepts
-- Academic department databases
-- Regional mathematician registries (for implemented regions)
+### YAML Config: All 37 Regions Auto-Loaded
+37/37 YAML config files exist and are auto-loaded via lazy `ensure_yaml_loaded()` in base class.
+`_apply_yaml_overrides()` merges YAML keys onto processor attributes before first hook call.
 
-### **❌ NOT READY FOR:**
-- Enterprise-scale deployments (1M+ entries)
-- Global coverage requirements
-- Real-time processing needs
-- Production systems requiring 99.9% uptime
+### Performance (Measured 2026-03-29)
+Benchmarks run OFFLINE mode (GMNAP_NO_NETWORK=1), Python 3.12, Apple M1.
+Realistic diverse data: 37 regions, unique (name, year) pairs, 100% output retained (no dedup collapse).
+| Batch Size | Elapsed | Entries/sec | Projected 1M | Peak RSS | Retained |
+|------------|---------|-------------|--------------|----------|----------|
+| 1,000 | 1.5s | 688/s | 24 min | 0.32 GB | 100% |
+| 10,000 | 16.2s | 616/s | 27 min | 0.36 GB | 100% |
+| 100,000 | 30.7s | 3,256/s | 5.1 min | 0.71 GB | 100% |
+| 1,000,000 | 325.8s | 3,069/s | 5.4 min | 3.41 GB | 100% |
 
-## 📊 **True Compliance Status**
+Run with: `PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000,100000,1000000`
 
-| Component | Target | Actual | Status |
-|-----------|---------|---------|---------|
-| Security | 100% | 100% | ✅ COMPLIANT |
-| Classification | 100% | 100% | ✅ COMPLIANT |
-| Regional Coverage | 100% | 29.7% | ❌ NOT COMPLIANT |
-| Performance | 30 min/1M | 57 min/1M | ⚠️ SLOW |
-| V7 Features | 100% | 58.3% | ⚠️ PARTIAL |
+**Optimisations applied** (cumulative 75x speedup from original baseline):
+1. Pre-compiled jsonschema validator (stage 8: 90% → <0.1%)
+2. Singleton authority adapters (eliminates per-call httpx.AsyncClient creation)
+3. Single-pass canonicalisation for stages 9-11 (eliminates 5x redundant deep-sort)
+4. Hash-based idempotency (replaces full serialisation + byte-diff)
+5. Skip per-entry YAML files for batches >10K (JSON-only output)
 
-## 🚀 **Quick Start Commands**
+Live enrichment (OFFLINE=0) will be slower due to API rate limits.
 
+---
+
+## 📊 Testing
+
+- **718+ tests passing** (unit + integration + API + GDPR + retry + batch + stage isolation)
+- **1,500 test fixtures** across all 37 regions
+- SEA roundtrip: Thai RTGS, Khmer UNGEGN, Lao MOICT 2019
+- Snapshot rollback: git revert coherence validated
+- 2M synthetic stress test available (`make stress`)
+- CI runs: unit, property, integration, hardcore, secret scan, cost guard
+
+---
+
+## 🔧 Production Deployment
+
+### CLI
 ```bash
-# Test current capabilities
-python3 test_v7_100_percent_compliance.py
-
-# Check production readiness
-python3 realistic_production_test.py
-
-# Debug region loading
-python3 test_debug_regional_coverage.py
-
-# See which regions are actually implemented
-python3 -c "from src.regions.manager_optimized import RegionManager; print(RegionManager.IMPLEMENTED_REGIONS)"
+gmnap serve --port 8080          # Start API server
+gmnap query "Euler, Leonhard"    # Single name lookup
+gmnap process input.json --mode full  # Batch processing
+gmnap validate input.json        # Schema validation only
+gmnap sources                    # List authority sources
+gmnap regions                    # List supported regions
 ```
 
-## 💡 **Key Technical Insights**
+### Docker Compose
+```bash
+docker compose up -d             # Memgraph + nginx + GMNAP API
+curl localhost/healthz            # Via nginx
+curl localhost:8080/healthz       # Direct
+```
 
-1. **Architecture is solid** - Clean region-based design works well
-2. **Surname detection works** - 100% accuracy proves the approach
-3. **Performance fixable** - Singleton pattern + caching will help
-4. **Coverage is the gap** - Need to implement 26 more regions
+### Environment Variables
+```bash
+GMNAP_SCHEMA_STRICT=0   # 0=advisory, 1=quarantine, 2=reject
+OFFLINE=1                # Cache-only (default)
+PIPELINE_MODE=quick      # quick/full/extreme
+GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
+```
 
-## 🎯 **Path to Production Scale**
+---
 
-### **Phase 1: Performance (1-2 weeks)**
-- Deploy optimized RegionManager
-- Add result caching layer
-- Implement batch processing
-- Target: 30 min/1M entries
+## ❌ DO NOT Claim
 
-### **Phase 2: Coverage (3-4 months)**
-- Implement priority regions (E4, A3, B3, C1, E2)
-- Test with real mathematician data
-- Target: 50% regional coverage
-
-### **Phase 3: Scale (2-3 months)**
-- Async processing pipeline
-- Distributed architecture
-- API layer for cloud deployment
-- Target: Enterprise-ready system
-
-## ⚠️ **Important Notes**
-
-- **Do NOT claim** 100% V7 compliance - we're at 58.3%
-- **Do NOT deploy** for enterprise scale without optimization
-- **Do NOT advertise** support for unimplemented regions
-- **DO focus on** performance optimization first
-- **DO test thoroughly** with realistic data volumes
-
-**Status**: Excellent pilot system, not yet enterprise-ready. Perfect classification for what's implemented, but needs optimization and expanded coverage for production scale.
+- ❌ "14 authority sources fully working" — 9 have real HTTP code; 2 need API keys; 3 deferred
+- ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly

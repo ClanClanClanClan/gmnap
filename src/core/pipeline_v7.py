@@ -81,8 +81,12 @@ except ImportError:
 
 # Log unavailable optional modules once at import time
 _logger = logging.getLogger(__name__)
-for _name, _obj in [("MemgraphOps", MemgraphOps), ("QualityGatesEnforcer", QualityGatesEnforcer),
-                     ("authority_enrich", authority_enrich), ("etd_extractor", etd_extractor)]:
+for _name, _obj in [
+    ("MemgraphOps", MemgraphOps),
+    ("QualityGatesEnforcer", QualityGatesEnforcer),
+    ("authority_enrich", authority_enrich),
+    ("etd_extractor", etd_extractor),
+]:
     if _obj is None:
         _logger.info("Optional module unavailable: %s", _name)
 

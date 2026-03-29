@@ -14,6 +14,7 @@ import concurrent.futures
 BASE_URL = "http://localhost:8080"
 DB_URI = "bolt://localhost:7688"
 
+
 class TestResults:
     def __init__(self):
         self.passed = []
@@ -57,7 +58,8 @@ def run_tests():
 
     # Get sample data
     with driver.session() as s:
-        sample_result = s.run("""
+        sample_result = s.run(
+            """
             MATCH (student:Person)-[:DOCTORAL_ADVISOR]->(advisor:Person)
             RETURN
                 student.global_id as student_id,
@@ -65,15 +67,16 @@ def run_tests():
                 advisor.global_id as advisor_id,
                 advisor.canonical_name as advisor_name
             LIMIT 5
-        """)
+        """
+        )
         sample_data = list(sample_result)
 
     print(f"Found {len(sample_data)} sample relationships for testing\n")
-    print("="*70)
+    print("=" * 70)
 
     # 1. Health Endpoints
     print("\n1. HEALTH & BASIC ENDPOINTS")
-    print("-"*70)
+    print("-" * 70)
 
     try:
         r = requests.get(f"{BASE_URL}/healthz")
@@ -103,7 +106,7 @@ def run_tests():
 
     # 2. Stats Endpoint
     print("\n2. GENEALOGY STATS ENDPOINT")
-    print("-"*70)
+    print("-" * 70)
 
     try:
         r = requests.get(f"{BASE_URL}/genealogy/stats")
@@ -112,8 +115,10 @@ def run_tests():
         assert data["status"] == "ok"
         assert data["statistics"]["persons"] > 0
         assert data["statistics"]["relationships"] > 0
-        results.add_pass("stats_basic",
-            f"Persons: {data['statistics']['persons']}, Edges: {data['statistics']['relationships']}")
+        results.add_pass(
+            "stats_basic",
+            f"Persons: {data['statistics']['persons']}, Edges: {data['statistics']['relationships']}",
+        )
     except Exception as e:
         results.add_fail("stats_basic", e)
 
@@ -123,8 +128,10 @@ def run_tests():
         dist = data["statistics"]["confidence_distribution"]
         assert "high" in dist and "medium" in dist and "low" in dist
         total = dist["high"] + dist["medium"] + dist["low"]
-        results.add_pass("stats_confidence",
-            f"High: {dist['high']}, Medium: {dist['medium']}, Low: {dist['low']}")
+        results.add_pass(
+            "stats_confidence",
+            f"High: {dist['high']}, Medium: {dist['medium']}, Low: {dist['low']}",
+        )
     except Exception as e:
         results.add_fail("stats_confidence", e)
 
@@ -140,7 +147,7 @@ def run_tests():
 
     # 3. Lineage Endpoint
     print("\n3. LINEAGE ENDPOINT (ANCESTORS)")
-    print("-"*70)
+    print("-" * 70)
 
     if not sample_data:
         results.add_skip("lineage_tests", "No sample data")
@@ -168,7 +175,9 @@ def run_tests():
             results.add_fail("lineage_with_depth", e)
 
         try:
-            r = requests.get(f"{BASE_URL}/genealogy/lineage/{student_id}", params={"max_depth": 100})
+            r = requests.get(
+                f"{BASE_URL}/genealogy/lineage/{student_id}", params={"max_depth": 100}
+            )
             data = r.json()
             assert data["depth"] <= 50
             results.add_pass("lineage_max_depth_limit", f"Capped at {data['depth']}")
@@ -186,7 +195,7 @@ def run_tests():
 
     # 4. Descendants Endpoint
     print("\n4. DESCENDANTS ENDPOINT (STUDENTS)")
-    print("-"*70)
+    print("-" * 70)
 
     if not sample_data:
         results.add_skip("descendants_tests", "No sample data")
@@ -202,7 +211,9 @@ def run_tests():
             results.add_fail("descendants_basic", e)
 
         try:
-            r = requests.get(f"{BASE_URL}/genealogy/descendants/{advisor_id}", params={"max_depth": 2})
+            r = requests.get(
+                f"{BASE_URL}/genealogy/descendants/{advisor_id}", params={"max_depth": 2}
+            )
             assert r.status_code == 200
             data = r.json()
             assert data["depth"] == 2
@@ -212,7 +223,7 @@ def run_tests():
 
     # 5. Data Integrity
     print("\n5. DATA INTEGRITY")
-    print("-"*70)
+    print("-" * 70)
 
     if sample_data:
         try:
@@ -223,7 +234,9 @@ def run_tests():
                 assert "length" in path
                 assert "nodes" in path
                 assert len(path["nodes"]) == path["length"] + 1
-                results.add_pass("path_structure", f"Path length: {path['length']}, nodes: {len(path['nodes'])}")
+                results.add_pass(
+                    "path_structure", f"Path length: {path['length']}, nodes: {len(path['nodes'])}"
+                )
         except Exception as e:
             results.add_fail("path_structure", e)
 
@@ -240,9 +253,10 @@ def run_tests():
 
     # 6. Performance Tests
     print("\n6. PERFORMANCE TESTS")
-    print("-"*70)
+    print("-" * 70)
 
     try:
+
         def make_request():
             return requests.get(f"{BASE_URL}/genealogy/stats")
 
@@ -266,8 +280,7 @@ def run_tests():
         max_time = max(times)
         assert avg_time < 0.5
         assert max_time < 2.0
-        results.add_pass("response_consistency",
-            f"Avg: {avg_time:.3f}s, Max: {max_time:.3f}s")
+        results.add_pass("response_consistency", f"Avg: {avg_time:.3f}s, Max: {max_time:.3f}s")
     except Exception as e:
         results.add_fail("response_consistency", e)
 
@@ -284,7 +297,7 @@ def run_tests():
 
     # 7. Error Handling
     print("\n7. ERROR HANDLING")
-    print("-"*70)
+    print("-" * 70)
 
     if sample_data:
         try:
@@ -306,7 +319,7 @@ def run_tests():
 
     # 8. Database Consistency
     print("\n8. CROSS-VALIDATION WITH DATABASE")
-    print("-"*70)
+    print("-" * 70)
 
     if sample_data:
         try:
@@ -314,17 +327,22 @@ def run_tests():
             api_paths = r.json()["paths"]
 
             with driver.session() as s:
-                db_result = s.run("""
+                db_result = s.run(
+                    """
                     MATCH (s:Person {global_id: $id})
                     MATCH path = (s)-[:DOCTORAL_ADVISOR*1..1]->(advisor)
                     RETURN length(path) as len, [n IN nodes(path) | n.global_id] as ids
-                """, id=student_id)
+                """,
+                    id=student_id,
+                )
                 db_paths = list(db_result)
 
             if len(db_paths) > 0:
                 assert len(api_paths) == len(db_paths)
-                results.add_pass("database_consistency",
-                    f"API paths: {len(api_paths)}, DB paths: {len(db_paths)}")
+                results.add_pass(
+                    "database_consistency",
+                    f"API paths: {len(api_paths)}, DB paths: {len(db_paths)}",
+                )
         except Exception as e:
             results.add_fail("database_consistency", e)
 
@@ -336,12 +354,12 @@ def run_tests():
 
 
 if __name__ == "__main__":
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("COMPREHENSIVE GENEALOGY API TEST SUITE")
-    print("="*70)
+    print("=" * 70)
     print(f"Base URL: {BASE_URL}")
     print(f"Database: {DB_URI}")
-    print("="*70)
+    print("=" * 70)
 
     success = run_tests()
 

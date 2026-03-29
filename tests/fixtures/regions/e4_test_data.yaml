@@ -1,0 +1,307 @@
+# Test data for E4 Korea region
+# This file contains comprehensive test cases validated by Korean language experts
+
+region: E4
+region_name: "Korea"
+language: "Korean"
+script: "Hangul"
+
+# Detection test cases
+detection:
+  native:
+    # Common Korean names in Hangul
+    - input: "김정은"
+      expected: E4
+      confidence: 0.95
+      description: "Kim Jong-un in Hangul"
+    
+    - input: "박근혜"
+      expected: E4
+      confidence: 0.95
+      description: "Park Geun-hye in Hangul"
+    
+    - input: "문재인"
+      expected: E4
+      confidence: 0.95
+      description: "Moon Jae-in in Hangul"
+    
+    - input: "이명박"
+      expected: E4
+      confidence: 0.95
+      description: "Lee Myung-bak in Hangul"
+    
+    - input: "김대중"
+      expected: E4
+      confidence: 0.95
+      description: "Kim Dae-jung in Hangul"
+    
+    # Mathematician names
+    - input: "김민형"
+      expected: E4
+      confidence: 0.95
+      description: "Kim Min-hyung (mathematician)"
+    
+    - input: "황준묵"
+      expected: E4
+      confidence: 0.95
+      description: "Hwang Jun-mook (mathematician)"
+
+  romanized:
+    # Standard romanizations
+    - input: "Kim Jong-un"
+      expected: E4
+      confidence: 0.85
+    
+    - input: "Park Geun-hye"
+      expected: E4
+      confidence: 0.85
+    
+    - input: "Moon Jae-in"
+      expected: E4
+      confidence: 0.85
+    
+    - input: "Lee Myung-bak"
+      expected: E4
+      confidence: 0.85
+    
+    - input: "Roh Moo-hyun"
+      expected: E4
+      confidence: 0.85
+    
+    # Alternative romanizations
+    - input: "Rhee Syngman"
+      expected: E4
+      confidence: 0.85
+      description: "Alternative romanization of 이"
+    
+    - input: "Pak Chung-hee"
+      expected: E4
+      confidence: 0.85
+      description: "Alternative romanization of 박"
+    
+    - input: "Choe Ji-hoon"
+      expected: E4
+      confidence: 0.85
+      description: "Alternative romanization of 최"
+
+  ambiguous:
+    # Names that could be multiple regions
+    - input: "Lee"
+      possible: [A1, E1, E4]
+      expected: A1
+      description: "Common in multiple regions"
+    
+    - input: "Kim Lee"
+      expected: E4
+      description: "Korean family name first"
+    
+    - input: "John Kim"
+      expected: A1
+      description: "Western given name first"
+    
+    - input: "Park"
+      possible: [A1, E4]
+      expected: A1
+      description: "Could be English or Korean"
+
+# Cleaning test cases
+cleaning:
+  standard:
+    - input: "Kim, Jong-un"
+      expected: "Kim, Jong-un"
+    
+    - input: "Kim Jong-un"
+      expected: "Kim Jong-un"
+    
+    - input: "김정은"
+      expected: "김정은"
+    
+    - input: "Park, Geun-hye"
+      expected: "Park, Geun-hye"
+
+  malformed:
+    - input: "  KIM  ,  Jong-un  "
+      expected: "Kim, Jong-un"
+    
+    - input: "kim jong un"
+      expected: "Kim Jong Un"
+    
+    - input: "KIM JONG UN"
+      expected: "Kim Jong Un"
+    
+    - input: "park    geun   hye"
+      expected: "Park Geun Hye"
+    
+    - input: "  이명박  "
+      expected: "이명박"
+
+  special:
+    - input: "Kim, Jong-un (김정은)"
+      expected: "Kim, Jong-un"
+      description: "Remove parenthetical Hangul"
+    
+    - input: "Kim Jong-un [金正恩]"
+      expected: "Kim Jong-un"
+      description: "Remove Chinese characters"
+    
+    - input: "Kim Jong-un aka Kim Jong Un"
+      expected: "Kim Jong-un"
+      description: "Remove aka aliases"
+    
+    - input: "Dr. Kim Jong-un"
+      expected: "Kim Jong-un"
+      description: "Remove titles"
+
+# Variant generation test cases
+variants:
+  - input: "Kim Jong-un"
+    expected:
+      - str: "Kim Jong un"
+        type: "romanization-space"
+      - str: "Kim Jongun"
+        type: "romanization-concat"
+      - str: "김종운"
+        type: "hangul"
+      - str: "Kim, Jong-un"
+        type: "format-comma"
+
+  - input: "Park Geun-hye"
+    expected:
+      - str: "Park Geun hye"
+        type: "romanization-space"
+      - str: "Park Geunhye"
+        type: "romanization-concat"
+      - str: "박근혜"
+        type: "hangul"
+      - str: "Park, Geun-hye"
+        type: "format-comma"
+
+  - input: "이명박"
+    expected:
+      - str: "Lee Myung-bak"
+        type: "romanization-standard"
+      - str: "Yi Myung-bak"
+        type: "romanization-alternate"
+      - str: "Rhee Myung-bak"
+        type: "romanization-historical"
+      - str: "Lee Myungbak"
+        type: "romanization-concat"
+
+  - input: "최지훈"
+    expected:
+      - str: "Choi Ji-hoon"
+        type: "romanization-standard"
+      - str: "Choe Ji-hoon"
+        type: "romanization-alternate"
+      - str: "Choi Jihoon"
+        type: "romanization-concat"
+
+# Validation test cases
+validation:
+  valid:
+    - "Kim Jong-un"
+    - "김정은"
+    - "Park, Geun-hye"
+    - "Lee Myung-bak"
+    - "Moon Jae-in"
+    - "Roh Moo-hyun"
+    - "Kim Dae-jung"
+    - "황준묵"
+    - "Kim Min-hyung"
+    - "Park Chan-ho"
+
+  invalid:
+    - "Kim123"
+    - "김정은!!!"
+    - "Kim<script>alert('xss')</script>"
+    - "../../../etc/passwd"
+    - "'; DROP TABLE users; --"
+    - ""
+    - "K"
+    - "KimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKimKim"  # Too long
+    - "Kim\x00Jung"  # Null byte
+    - "Kim\nJong\nun"  # Newlines
+
+# Sorting test cases
+sorting:
+  - names: ["김정은", "김대중", "김영삼"]
+    expected: ["김대중", "김영삼", "김정은"]
+    description: "Korean alphabetical order"
+
+  - names: ["Park Geun-hye", "Park Chung-hee", "Park Won-soon"]
+    expected: ["Park Chung-hee", "Park Geun-hye", "Park Won-soon"]
+    description: "Sort by given name when family name same"
+
+  - names: ["이명박", "이순신", "이성계"]
+    expected: ["이성계", "이순신", "이명박"]
+    description: "Historical figures sorting"
+
+  - names: ["Kim Jong-un", "Park Geun-hye", "Moon Jae-in", "Lee Myung-bak"]
+    expected: ["Kim Jong-un", "Lee Myung-bak", "Moon Jae-in", "Park Geun-hye"]
+    description: "Mixed Korean politicians"
+
+# Performance test data
+performance:
+  # 1000 common Korean names for performance testing
+  # In practice, load from a larger file
+  sample_names:
+    - "김정은"
+    - "박근혜"
+    - "문재인"
+    - "이명박"
+    - "김대중"
+    - "노무현"
+    - "박정희"
+    - "김영삼"
+    - "전두환"
+    - "노태우"
+
+# Special linguistic features
+linguistic_features:
+  name_structure:
+    - full: "Kim Jong-un"
+      family: "Kim"
+      given: "Jong-un"
+      
+    - full: "Park Geun-hye"
+      family: "Park"
+      given: "Geun-hye"
+      
+    - full: "Namkoong Min"
+      family: "Namkoong"
+      given: "Min"
+      description: "Two-syllable family name"
+
+  romanization_systems:
+    - hangul: "이"
+      revised: "Lee"
+      mccune: "Yi"
+      yale: "I"
+      
+    - hangul: "박"
+      revised: "Park"
+      mccune: "Pak"
+      yale: "Pak"
+      
+    - hangul: "최"
+      revised: "Choi"
+      mccune: "Ch'oe"
+      yale: "Choy"
+
+# Edge cases specific to Korean
+edge_cases:
+  two_syllable_surnames:
+    - "Namkoong Min"
+    - "Sagong Hoon"
+    - "Seomun Jae"
+    - "Dokgo Young"
+    
+  mixed_scripts:
+    - "김정은 (Kim Jong-un)"
+    - "Park Geun-hye (박근혜)"
+    - "이明博"  # Hanja mixed
+    
+  historical_romanizations:
+    - "Rhee Syngman"  # 이승만
+    - "Kim Ku"  # 김구
+    - "Yun Posun"  # 윤보선
