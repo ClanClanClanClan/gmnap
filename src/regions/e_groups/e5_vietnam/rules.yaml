@@ -1,0 +1,177 @@
+# E5 Vietnam Region Processing Rules
+# Vietnamese tonal system with Latin script processing rules
+
+schema_version: "7.0"
+region_code: "E5"
+region_name: "Vietnam"
+
+# Vietnamese linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 4
+    name: "Vietnamese Tone Handling"
+    description: "6-tone system with full/ASCII/numeric variants generation"
+    implementation: "vietnamese_tone_processing"
+    
+  - id: 65
+    name: "Vietnamese Diacritical Processing"
+    description: "Handle Vietnamese tone marks and special characters (á, à, ả, ã, ạ, ă, â, ê, ô, ơ, ư)"
+    implementation: "vietnamese_diacritical_processing"
+    
+  - id: 66
+    name: "Vietnamese Name Order"
+    description: "Family-Given order with proper Vietnamese name structure"
+    implementation: "vietnamese_name_order_processing"
+    
+  - id: 67
+    name: "Vietnamese Title Normalization"
+    description: "Remove common Vietnamese titles and honorifics"
+    implementation: "vietnamese_title_processing"
+
+# Vietnamese specific processing rules
+processing_rules:
+  vietnamese_script_handling:
+    enabled: true
+    primary_scripts: ["Latin"]
+    character_set: "Vietnamese_Latin_Extended"
+    diacritical_marks: "preserve_all_tones"
+    unicode_normalization: "NFC"
+    mixed_script_support: false
+    
+  vietnamese_tonal_system:
+    enabled: true
+    tone_count: 6
+    tone_marks:
+      tone_1: "ngang" # level tone (no mark)
+      tone_2: "sắc"   # rising tone (á)
+      tone_3: "huyền" # falling tone (à) 
+      tone_4: "hỏi"   # dip tone (ả)
+      tone_5: "ngã"   # creaky tone (ã)
+      tone_6: "nặng"  # drop tone (ạ)
+    vowel_systems:
+      basic_vowels: ["a", "e", "i", "o", "u", "y"]
+      compound_vowels: ["ă", "â", "ê", "ô", "ơ", "ư"]
+    tone_variant_generation: true
+    ascii_variant_generation: true
+    numeric_tone_variants: true
+    
+  vietnamese_regional_patterns:
+    enabled: true
+    territories: ["VN"]
+    dialects:
+      northern: "Hanoi_standard"
+      central: "Hue_dialect"
+      southern: "Saigon_dialect"
+    family_given_order: true
+    
+  vietnamese_phonetics:
+    enabled: true
+    consonant_clusters: "preserve_vietnamese_phonology"
+    vowel_harmony: "maintain_tonal_patterns"
+    syllable_structure: "CV_CVC_patterns"
+    phoneme_inventory: "standard_vietnamese"
+    
+  vietnamese_family_names:
+    enabled: true
+    common_surnames: ["Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Huỳnh", "Phan", "Vũ", "Võ", "Đặng"]
+    compound_surnames: ["Nguyễn Văn", "Trần Thị", "Lê Minh"]
+    regional_variations: "preserve_local_patterns"
+    historical_names: "preserve_classical_elements"
+    
+  vietnamese_given_names:
+    enabled: true
+    generation_patterns: false # Less common in Vietnamese
+    gender_conventions: "preserve_traditional_distinctions"
+    meaning_based_names: ["Anh", "Minh", "Hùng", "Lan", "Hoa", "Mai"]
+    modern_trends: "document_contemporary_patterns"
+    syllable_combinations: "preserve_phonetic_harmony"
+    
+  vietnamese_tone_processing:
+    enabled: true
+    description: "Rule 4: Vietnamese Tone Handling with full/ASCII/numeric variants"
+    variant_types:
+      full_tone: "preserve_all_diacritics"
+      ascii_variant: "remove_all_tone_marks"
+      numeric_variant: "append_tone_numbers"
+    tone_restoration: "common_name_patterns"
+    compound_vowel_handling: "preserve_vietnamese_orthography"
+    
+  vietnamese_title_handling:
+    enabled: true
+    family_terms: ["Ông", "Bà", "Cô", "Chú", "Anh", "Chị", "Em"]
+    professional_titles: ["Tiến sĩ", "Tiến sỹ", "Bác sĩ", "Giáo sư", "Thầy", "Cô"]
+    english_titles: ["Dr", "Dr.", "Prof", "Prof.", "Mr", "Mr.", "Mrs", "Mrs.", "Ms", "Ms."]
+    removal_strategy: "strip_from_beginning_and_end"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    vietnamese_structure: "preserve_traditional_order"
+    middle_names: "preserve_when_present"
+    generation_markers: "document_when_relevant"
+    nickname_handling: "preserve_as_variants"
+    
+  script_validation:
+    script_requirement: "Latin_Vietnamese_Extended"
+    validate_vietnamese_orthography: true
+    allow_mixed_case: true
+    diacritical_validation: "strict_vietnamese_rules"
+    character_validity: "vietnamese_unicode_ranges"
+    
+  cultural_elements:
+    enabled: true
+    confucian_values: ["Hiếu", "Thành", "Tín", "Nghĩa", "Lễ"]
+    buddhist_influences: ["Phật", "Pháp", "Từ", "Bi", "Trí"]
+    nature_elements: ["Sơn", "Hà", "Biển", "Rừng", "Hoa", "Trăng"]
+    historical_references: "preserve_cultural_significance"
+    
+  historical_periods:
+    enabled: true
+    ly_dynasty: "preserve_classical_elements"
+    tran_dynasty: "maintain_historical_patterns"
+    le_dynasty: "court_naming_traditions"
+    nguyen_dynasty: "imperial_influences"
+    modern_era: "contemporary_naming_trends"
+    
+  geographic_elements:
+    enabled: true
+    preserve_origin_indicators: true
+    regional_markers: true
+    province_references: ["Hà Nội", "Thành phố Hồ Chí Minh", "Đà Nẵng", "Hải Phòng"]
+    river_references: ["Sông Hồng", "Sông Mekong", "Sông Đồng Nai"]
+    mountain_references: ["Fansipan", "Hoàng Liên Sơn", "Trường Sơn"]
+    
+  linguistic_features:
+    enabled: true
+    vietnamese_phonetic_patterns: true
+    tonal_considerations: "preserve_in_all_variants"
+    syllable_boundaries: "maintain_vietnamese_structure"
+    sound_symbolism: "preserve_cultural_associations"
+    
+  modern_adaptations:
+    enabled: true
+    international_names: "adapt_to_vietnamese_phonology"
+    western_influences: "document_adoption_patterns"
+    technology_influences: "document_digital_age_patterns"
+    globalization_effects: "preserve_cultural_identity"
+
+# Quality thresholds for E5
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  vietnamese_tone_detection_accuracy: 0.92
+  ascii_conversion_accuracy: 0.95
+  tone_restoration_accuracy: 0.85
+  diacritical_handling_accuracy: 0.93
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_tone_marks: "preserve_as_single"
+  ambiguous_pronunciations: "prefer_northern_standard"
+  unknown_syllable_combinations: "preserve_with_warning"
+  script_conflicts: "prefer_vietnamese_orthography"
+  mixed_script_validation: "reject_non_latin"

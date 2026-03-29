@@ -2,4 +2,4 @@
 
 from .processor import A5CaribbeanProcessor
 
-__all__ = ['A5CaribbeanProcessor']
+__all__ = ["A5CaribbeanProcessor"]

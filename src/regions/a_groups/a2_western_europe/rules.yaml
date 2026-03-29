@@ -1,0 +1,87 @@
+# A2 Western Europe Region Processing Rules  
+# Specialized rules for Western European naming patterns
+
+schema_version: "7.0"
+region_code: "A2"
+region_name: "Western Europe"
+
+# Western Europe linguistic rules
+linguistic_rules:
+  - id: 1
+    name: "Iberian Dual Surname Split"
+    description: "stop-words yield primary and secondary surnames"
+    implementation: "iberian_surname_processing"
+    
+  - id: 15
+    name: "Germanic Particles"
+    description: "von/van/de dropped (except d')"
+    implementation: "particle_processing"
+    
+  - id: 17
+    name: "Iberian Honorific Strip"
+    description: "Dr., D., Dª removed"
+    implementation: "honorific_removal"
+    
+  - id: 22
+    name: "French d' particle"
+    description: "retained in order_key"
+    implementation: "french_particle_handling"
+    
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+
+# Western Europe specific processing rules
+processing_rules:
+  iberian_surnames:
+    enabled: true
+    dual_surname_detection: true
+    stop_words: ["y", "i", "e", "de", "del", "da", "do", "dos", "das"]
+    primary_secondary_split: true
+    
+  germanic_particles:
+    enabled: true
+    particles: ["von", "van", "de", "der", "den", "zu", "zur"]
+    drop_from_order_key: true
+    preserve_in_display: true
+    exceptions: ["d'"]  # French d' is retained
+    
+  french_particles:
+    enabled: true
+    particles: ["d'", "de", "du", "des", "le", "la", "les"]
+    special_handling: "d' retained in order_key"
+    
+  iberian_honorifics:
+    enabled: true
+    remove_titles: ["Dr.", "D.", "Dª", "Dra.", "Prof.", "Ing."]
+    normalization: "strip_and_store"
+    
+  diacritic_handling:
+    preserve_original: true
+    create_ascii_variants: true
+    normalization_form: "NFC"
+    
+  name_patterns:
+    comma_separation: "Family, Given"
+    multiple_given_names: "preserve_all"
+    compound_surnames: "detect_and_preserve"
+    
+  script_validation:
+    script_requirement: "Latin_Extended"
+    allow_diacritics: true
+    validate_language_specific: true
+
+# Quality thresholds for A2
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  particle_detection_accuracy: 0.9
+  surname_split_accuracy: 0.85
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_particles: "preserve_as_surname_part"
+  ambiguous_surnames: "prefer_compound_form"
+  missing_diacritics: "accept_with_variants"

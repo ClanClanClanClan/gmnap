@@ -20,14 +20,12 @@ print(f"Original variant rows: {len(rows)}")
 # Add stronger roundtrip preferences
 new_variants = [
     # Fix jeong→jong issue (strongest roundtrip preference)
-    ("정", "jeong", "SURNAME_0"),    # Prefer jeong for 정 in surnames
-    
-    # Fix yi/lee consistency  
-    ("이", "yi", "SURNAME_0"),       # Prefer yi for 이 in surnames
-    
+    ("정", "jeong", "SURNAME_0"),  # Prefer jeong for 정 in surnames
+    # Fix yi/lee consistency
+    ("이", "yi", "SURNAME_0"),  # Prefer yi for 이 in surnames
     # Fix foreign element consistency
-    ("계", "gye", "FOREIGN_0"),      # Prefer gye for foreign 계
-    ("래", "rae", "FOREIGN_0"),      # Prefer rae for foreign 래
+    ("계", "gye", "FOREIGN_0"),  # Prefer gye for foreign 계
+    ("래", "rae", "FOREIGN_0"),  # Prefer rae for foreign 래
 ]
 
 # Add new variant mappings
@@ -48,7 +46,7 @@ print("✅ Added roundtrip preference variants!")
 
 # Show current jeong/jong variants
 print(f"\nCurrent 정 variants:")
-jeong_variants = [row for row in rows if len(row) >= 2 and row[0] == '정']
+jeong_variants = [row for row in rows if len(row) >= 2 and row[0] == "정"]
 for h, r, *tag in jeong_variants:
     tag_str = tag[0] if tag else ""
     print(f"  {h},{r},{tag_str}")

@@ -1,0 +1,36 @@
+# A1 Anglo-Sphere Region Configuration
+# Core Anglo-Sphere: US, GB, CA, AU, NZ, IE, Caribbean territories
+
+schema_version: "7.0"
+region_code: "A1"
+region_name: "Core Anglo-Sphere"
+
+# Regional characteristics
+iso_territories: [US, GB, CA, AU, NZ, IE, AG, AI, BB, BM, BS, DM, GD, GY, JM,
+                  KN, LC, MS, TC, TT, VC, VG, VI, GU, AS, MP, UM, FK]
+primary_scripts: ["Latin ASCII"]
+distinct_features: "Middle initials; generational suffixes"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: false
+romanisation_standards: []
+
+# Regional processing rules
+processing_rules:
+  middle_initial_handling: true
+  generational_suffix_processing: true
+  ascii_only_validation: true
+  comma_separation_standard: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95

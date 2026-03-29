@@ -27,26 +27,22 @@ with open("resources/rr_syllable_map.csv", encoding="utf8") as f:
 weighted_mappings = {
     # suk ambiguity: 석 more common in surnames, 숙 more common in given names
     ("석", "suk"): -0.223,  # 80% frequency in surnames
-    ("숙", "suk"): 0.981,   # 20% frequency (alternative)
-    
-    # cheong ambiguity: 정 for surnames, 청 for given names  
+    ("숙", "suk"): 0.981,  # 20% frequency (alternative)
+    # cheong ambiguity: 정 for surnames, 청 for given names
     ("정", "cheong"): -0.511,  # 60% frequency in surnames
-    ("청", "cheong"): 0.916,   # 40% frequency
-    
+    ("청", "cheong"): 0.916,  # 40% frequency
     # Common unambiguous mappings should have weight 0
     ("균", "kyun"): 0.0,
     ("곽", "gwak"): 0.0,
     ("곽", "kwak"): 0.0,
     ("육", "yuk"): 0.0,
     ("어", "eoh"): 0.0,
-    
     # High-frequency surname mappings (negative weight = preferred)
-    ("김", "kim"): -1.609,   # Very common
+    ("김", "kim"): -1.609,  # Very common
     ("이", "lee"): -1.386,
     ("박", "park"): -1.099,
     ("정", "jung"): -0.916,
     ("정", "jeong"): -0.693,
-    
     # Common given name syllables
     ("민", "min"): -0.357,
     ("호", "ho"): -0.288,
@@ -69,7 +65,7 @@ for row in rows:
         hangul, roman = row[0], row[1]
         key = (hangul, roman)
         existing_mappings.add(key)
-        
+
         # Check if we have a weight for this mapping
         if key in weighted_mappings:
             weight = weighted_mappings[key]

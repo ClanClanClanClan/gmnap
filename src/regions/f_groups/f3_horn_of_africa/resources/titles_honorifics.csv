@@ -1,0 +1,55 @@
+category,title,script,meaning,context,remove_in_clean
+religious_orthodox,Abba,latin,father,Ethiopian Orthodox priest,yes
+religious_orthodox,Abune,latin,our father,Ethiopian Orthodox patriarch,yes
+religious_orthodox,Etchege,latin,administrator,Ethiopian Orthodox church admin,yes
+religious_orthodox,Memhir,latin,teacher,Ethiopian Orthodox teacher,yes
+religious_orthodox,Debtera,latin,scholar,Ethiopian Orthodox scholar,yes
+religious_orthodox,Qes,latin,priest,Ethiopian Orthodox priest,yes
+religious_orthodox,Alaka,latin,elder,Ethiopian Orthodox elder,yes
+religious_orthodox,Gebez,latin,treasurer,Ethiopian Orthodox treasurer,yes
+religious_orthodox,Liqe,latin,chief,Ethiopian Orthodox chief,yes
+religious_orthodox,Nebura,latin,leopard of,Ethiopian Orthodox title,yes
+religious_orthodox,Aqabe,latin,guardian,Ethiopian Orthodox guardian,yes
+religious_islamic,Sheikh,latin,elder,Islamic religious leader,yes
+religious_islamic,Imam,latin,leader,Islamic prayer leader,yes
+religious_islamic,Ustad,latin,teacher,Islamic teacher,yes
+religious_islamic,Qadi,latin,judge,Islamic judge,yes
+religious_islamic,Mullah,latin,teacher,Islamic scholar,yes
+religious_islamic,Haji,latin,pilgrim,completed hajj,yes
+religious_islamic,Hajia,latin,female pilgrim,completed hajj female,yes
+religious_islamic,Ustaz,latin,master,Islamic master,yes
+religious_islamic,Alfa,latin,scholar,Islamic scholar,yes
+religious_islamic,Amir,latin,commander,Islamic commander,yes
+religious_islamic,Sharif,latin,noble,descendant of Prophet,yes
+academic,Professor,latin,professor,academic title,yes
+academic,Dr,latin,doctor,doctoral degree,yes
+academic,Prof,latin,professor,abbreviated professor,yes
+academic,Daktora,latin,doctor,doctor (Amharic),yes
+academic,Professore,latin,professor,professor (Italian),yes
+academic,Dottore,latin,doctor,doctor (Italian),yes
+social_traditional,Ato,latin,mister,traditional Ethiopian Mr,yes
+social_traditional,Weizero,latin,madam,traditional Ethiopian Mrs,yes
+social_traditional,Lij,latin,child/young noble,Ethiopian noble title,yes
+social_traditional,Ras,latin,head/duke,high Ethiopian noble,yes
+social_traditional,Dejazmach,latin,commander,Ethiopian military noble,yes
+social_traditional,Fitawrari,latin,vanguard leader,Ethiopian military title,yes
+social_traditional,Grazmach,latin,left wing commander,Ethiopian military,yes
+social_traditional,Kenyazmach,latin,right wing commander,Ethiopian military,yes
+social_traditional,Balambaras,latin,fortress commander,Ethiopian military,yes
+social_modern,Mr,latin,mister,modern English title,yes
+social_modern,Mrs,latin,missus,modern English title,yes
+social_modern,Ms,latin,miss,modern English title,yes
+social_modern,Miss,latin,miss,modern English title,yes
+social_modern,Sir,latin,sir,English honorific,yes
+social_modern,Madam,latin,madam,English honorific,yes
+social_modern,Doctor,latin,doctor,English academic,yes
+colonial_italian,Signor,latin,mister,Italian Mr (Eritrea),yes
+colonial_italian,Signora,latin,madam,Italian Mrs (Eritrea),yes
+colonial_italian,Signorina,latin,miss,Italian Miss (Eritrea),yes
+colonial_italian,Commendatore,latin,commander,Italian honor (Eritrea),yes
+colonial_italian,Ingegnere,latin,engineer,Italian engineer,yes
+clan_somali,Boqor,latin,king,Somali clan king,yes
+clan_somali,Garaad,latin,elder,Somali clan elder,yes
+clan_somali,Ugaas,latin,chief,Somali clan chief,yes
+clan_somali,Islan,latin,sultan,Somali sultan,yes
+clan_somali,Malaaq,latin,elder,Somali elder,yes

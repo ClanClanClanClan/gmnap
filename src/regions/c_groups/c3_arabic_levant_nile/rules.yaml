@@ -1,0 +1,110 @@
+# C3 Arabic Levant-Nile Region Processing Rules
+# Specialized rules for Arabic Levantine and Egyptian naming patterns
+
+schema_version: "7.0"
+region_code: "C3"
+region_name: "Arabic Levant-Nile"
+
+# Arabic Levant-Nile linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 33
+    name: "Arabic Script Processing"
+    description: "Handle Arabic script with proper joining, contextual forms, and diacritics"
+    implementation: "arabic_script_processing"
+    
+  - id: 34
+    name: "Levantine Dialect Variations"
+    description: "Process Levantine Arabic dialect-specific name patterns"
+    implementation: "levantine_dialect_processing"
+
+# Arabic Levant-Nile specific processing rules
+processing_rules:
+  arabic_script_handling:
+    enabled: true
+    script_type: "Arabic"
+    joining_behavior: "contextual"
+    normalization_form: "NFKC"
+    handle_diacritics: "optional"
+    right_to_left: true
+    
+  levantine_patterns:
+    enabled: true
+    territories: ["SY", "LB", "JO", "PS"]
+    dialect_specific_particles: ["أبو", "ابن", "بن", "آل"]
+    levantine_surnames: ["الشامي", "الحلبي", "المقدسي"]
+    preserve_regional_variants: true
+    
+  egyptian_patterns:
+    enabled: true
+    territories: ["EG"]
+    egyptian_specific_patterns: ["المصري", "الاسكندراني", "القاهري"]
+    nile_delta_variants: true
+    upper_egypt_patterns: true
+    
+  sudanese_patterns:
+    enabled: true
+    territories: ["SD"]
+    tribal_affiliations: ["دار", "بني", "أولاد"]
+    sudanese_specific_handling: true
+    
+  arabic_transliteration:
+    enabled: true
+    primary_standard: "ALA-LC Arabic"
+    alternative_standards: ["BGN-PCGN", "ISO 233-2"]
+    preserve_original: true
+    create_variants: true
+    handle_hamza: "contextual"
+    handle_ayn: "apostrophe_or_backtick"
+    
+  compound_surnames:
+    enabled: true
+    arabic_compound_patterns: ["عبد", "أبو", "ابن", "بن", "آل"]
+    preserve_compound_structure: true
+    handle_definite_article: "preserve_al"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    multiple_given_names: "preserve_all"
+    tribal_names: "preserve_as_middle"
+    religious_titles: "preserve_in_extras"
+    patronymic_chains: "preserve_genealogy"
+    
+  script_validation:
+    script_requirement: "Arabic"
+    validate_joining_context: true
+    validate_right_to_left: true
+    allow_latin_transliterations: true
+    
+  diacritic_handling:
+    preserve_original: true
+    create_undiacritized_variants: true
+    normalization_form: "NFKC"
+    handle_tanwin: true
+    handle_sukun: true
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    handle_arabic_digits: true
+    modern_standard_arabic: "preferred"
+    regional_variations: "accepted"
+
+# Quality thresholds for C3
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  arabic_script_detection_accuracy: 0.92
+  transliteration_accuracy: 0.88
+  dialect_recognition_accuracy: 0.85
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"
+  unknown_dialect_patterns: "accept_with_standard_processing"

@@ -51,21 +51,21 @@ with open("src/context_lookup.py", "r", encoding="utf8") as f:
     content = f.read()
 
 # Find the insertion point (after name_specific dict)
-insertion_point = content.find('    # Specific name-based corrections')
+insertion_point = content.find("    # Specific name-based corrections")
 if insertion_point == -1:
     print("ERROR: Could not find insertion point in context_lookup.py")
     exit(1)
 
 # Insert the enhanced patterns right after the comment
-lines = content.split('\n')
+lines = content.split("\n")
 new_lines = []
 inserted = False
 
 for line in lines:
     new_lines.append(line)
-    if '# Specific name-based corrections' in line and not inserted:
+    if "# Specific name-based corrections" in line and not inserted:
         # Insert the enhanced patterns
-        new_lines.extend(enhanced_patterns.split('\n'))
+        new_lines.extend(enhanced_patterns.split("\n"))
         inserted = True
 
 if not inserted:
@@ -76,7 +76,7 @@ if not inserted:
 # Find the name_specific lookup section and add high_impact_patterns lookup
 lookup_insertion = -1
 for i, line in enumerate(new_lines):
-    if 'full_name_key in name_specific:' in line:
+    if "full_name_key in name_specific:" in line:
         lookup_insertion = i
         break
 
@@ -90,19 +90,19 @@ if lookup_insertion > 0:
         "        target_syl, replacement = high_impact_patterns[full_name_key]",
         "        if romanization.lower() == target_syl:",
         "            return replacement",
-        ""
+        "",
     ]
-    
+
     new_lines = new_lines[:lookup_insertion] + high_impact_lookup + new_lines[lookup_insertion:]
 
 # Write enhanced file
 with open("src/context_lookup.py", "w", encoding="utf8") as f:
-    f.write('\n'.join(new_lines))
+    f.write("\n".join(new_lines))
 
 print("✅ Context engine enhanced!")
 print("\n=== ENHANCEMENTS ADDED ===")
 print("1. High-impact patterns for specific failure cases")
-print("2. Position-aware jung/jun disambiguation") 
+print("2. Position-aware jung/jun disambiguation")
 print("3. Segmentation improvements (over/under-segmentation)")
 print("4. Surname correction patterns")
 print("5. Compound syllable handling")
@@ -110,12 +110,7 @@ print("\nExpected improvement: +8-10 cases targeting 95.4%!")
 
 # Test a few cases to verify
 print("\n=== TESTING ENHANCED PATTERNS ===")
-test_cases = [
-    "Huh, Junghan",
-    "Moon, Suk-Ja", 
-    "An, Jong-Chol",
-    "Yook, Ji-Sun"
-]
+test_cases = ["Huh, Junghan", "Moon, Suk-Ja", "An, Jong-Chol", "Yook, Ji-Sun"]
 
 print("These cases should now convert correctly:")
 for case in test_cases:

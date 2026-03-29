@@ -1,0 +1,21 @@
+country_to_lang:
+  FR: fr
+  ES: es
+  PT: pt
+  DE: de
+  IT: it
+  PL: pl
+  TR: tr
+  GR: el
+  SE: sv
+  NO: no
+  DK: da
+  FI: fi
+  US: en
+  CA: en
+  GB: en
+  IE: en
+  JP: ja
+  KR: ko
+  TW: zh
+  HK: zh

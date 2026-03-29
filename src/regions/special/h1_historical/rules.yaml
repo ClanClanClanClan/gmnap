@@ -1,0 +1,74 @@
+# H1 Historical Region Processing Rules
+# Linguistic rules for pre-1850 historical names
+
+schema_version: "7.0"
+region_code: "H1"
+region_name: "Historical (≤ 1850)"
+
+# Historical linguistic rules
+linguistic_rules:
+  - id: 25
+    name: "Greek Ancient Names"
+    description: "Latinised canonical; excluded from modern collisions"
+    implementation: "latinization_priority"
+    
+  - id: 34
+    name: "Round-trip Determinism"
+    description: "Reciprocal transform restores original CanonicalLatin exactly"
+    implementation: "bidirectional_conversion"
+
+# Historical-specific processing rules
+processing_rules:
+  name_patterns:
+    epithets_allowed: true
+    latinization_preferred: true
+    archaic_forms_preserved: true
+    mixed_scripts_supported: true
+    
+  epithet_handling:
+    # Common historical epithets
+    recognized_epithets: 
+      - "the Great"
+      - "the Elder"  
+      - "the Younger"
+      - "Minor"
+      - "Major"
+      - "Senior"
+      - "Junior"
+    epithet_placement: "suffix"
+    include_in_order_key: false
+    
+  latinization:
+    greek_to_latin: true
+    preserve_original_greek: true
+    use_scholarly_conventions: true
+    # e.g., Αριστοτέλης → Aristoteles
+    
+  script_handling:
+    primary_preference: "Latin"
+    preserve_source_script: true
+    normalize_diacritics: false  # Preserve historical accuracy
+    
+  validation_rules:
+    time_period_check: true
+    max_birth_year: 1850
+    allow_estimated_dates: true
+    require_death_date: false
+    
+  normalization:
+    unicode_form: "NFKC"  # More aggressive normalization for historical texts
+    case_handling: "title_case"
+    preserve_archaic_ligatures: true
+
+# Quality thresholds for historical names
+quality_thresholds:
+  time_period_accuracy: 0.8
+  latinization_confidence: 0.7
+  epithet_detection_confidence: 0.6
+  
+# Error handling
+error_handling:
+  unknown_epithet: "preserve"
+  conflicting_scripts: "prefer_latin"
+  missing_time_data: "accept_with_warning"
+  archaic_character: "normalize_minimally"

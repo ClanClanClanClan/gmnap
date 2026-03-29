@@ -1,0 +1,38 @@
+# A3 Nordic-Baltic Region Configuration
+# Nordic-Baltic: DK, NO, SE, FI, IS, FO, AX, EE, LV, LT
+
+schema_version: "7.0"
+region_code: "A3"
+region_name: "Nordic-Baltic"
+
+# Regional characteristics
+iso_territories: [DK, NO, SE, FI, IS, FO, AX, EE, LV, LT]
+primary_scripts: ["Latin with diacritics"]
+distinct_features: "Icelandic patronymic system"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: false
+romanisation_standards: []
+
+# Regional processing rules
+processing_rules:
+  icelandic_patronymic_handling: true
+  scandinavian_diacritics: true
+  baltic_name_patterns: true
+  nordic_compound_names: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  diacritic_validation: true
+  patronymic_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  patronymic_detection_accuracy: 0.9

@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gmnap-genealogy-kit"
+version = "0.1.0"
+description = "GMNAP Global Genealogy Kit"
+readme = "README_SUPERPLAN_GLOBAL.md"
+requires-python = ">=3.9"
+dependencies = [
+  "fastapi>=0.111",
+  "uvicorn>=0.30",
+  "aiohttp>=3.9",
+  "beautifulsoup4>=4.12",
+  "lxml>=5.2",
+  "pydantic>=2.7",
+  "neo4j>=5.25",
+  "prometheus-client>=0.20",
+  "PyMuPDF>=1.24",
+  "python-dateutil>=2.9",
+  "rapidfuzz>=3.9",
+  "pyyaml>=6.0",
+  "tenacity>=9.0",
+]

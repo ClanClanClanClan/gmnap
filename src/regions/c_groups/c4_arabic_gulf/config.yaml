@@ -1,0 +1,39 @@
+# C4 Arabic Gulf Region Configuration
+# Arabic Gulf: SA, AE, QA, BH, KW, OM, IQ, YE
+
+schema_version: "7.0"
+region_code: "C4"
+region_name: "Arabic Gulf"
+
+# Regional characteristics
+iso_territories: [SA, AE, QA, BH, KW, OM, IQ, YE]
+primary_scripts: ["Arabic"]
+distinct_features: "Gulf dialects; tribal surnames; compound patronymics"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: false
+romanisation_standards: ["ALA-LC Arabic", "BGN-PCGN", "ISO 233-2"]
+
+# Regional processing rules
+processing_rules:
+  arabic_script_handling: true
+  gulf_dialect_processing: true
+  tribal_surname_handling: true
+  arabic_transliteration: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  arabic_script_validation: true
+  tribal_pattern_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  arabic_script_detection_accuracy: 0.92
+  transliteration_accuracy: 0.88

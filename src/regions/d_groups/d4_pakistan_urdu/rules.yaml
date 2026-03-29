@@ -1,0 +1,206 @@
+# D4 Pakistan Urdu Region Processing Rules
+# Specialized rules for Urdu naming patterns
+
+schema_version: "7.0"
+region_code: "D4"
+region_name: "Pakistan Urdu"
+
+# Urdu linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 32
+    name: "Arabic Script Processing"
+    description: "Handle Arabic script with proper contextual forms, diacritics, and RTL"
+    implementation: "arabic_script_processing"
+    
+  - id: 49
+    name: "Urdu Language Processing"
+    description: "Process Urdu-specific patterns, Persian influences, and regional variations"
+    implementation: "urdu_language_processing"
+    
+  - id: 50
+    name: "Islamic Naming Traditions"
+    description: "Handle Islamic naming conventions, patronymics, and religious elements"
+    implementation: "islamic_naming_processing"
+
+# Urdu specific processing rules
+processing_rules:
+  urdu_script_handling:
+    enabled: true
+    script_type: "Arabic"
+    reading_direction: "right_to_left"
+    normalization_form: "NFKC"
+    handle_contextual_forms: "preserve_traditional"
+    handle_diacritics: "preserve_when_present"
+    handle_kashida: "preserve_emphasis"
+    
+  pakistan_regional_patterns:
+    enabled: true
+    territories: ["PK", "IN"]
+    punjab_patterns: true
+    sindh_patterns: true
+    balochistan_patterns: true
+    khyber_pakhtunkhwa_patterns: true
+    karachi_mohajir_patterns: true
+    
+  punjab_patterns:
+    enabled: true
+    punjabi_urdu_mixing: true
+    sikh_convert_surnames: ["خان", "چوہدری"]
+    agricultural_communities: ["جٹ", "گجر", "راجپوت"]
+    urban_patterns: ["لاہوری", "فیصل آبادی"]
+    
+  sindh_patterns:
+    enabled: true
+    sindhi_urdu_influences: true
+    sindhi_surnames: ["شاہ", "میمن", "خوجہ"]
+    karachi_patterns: ["کراچوی", "علوی"]
+    rural_sindh_patterns: true
+    
+  balochistan_patterns:
+    enabled: true
+    baloch_tribal_names: ["بگٹی", "مری", "مینگل"]
+    pashtun_influences: ["خان", "خٹک", "یوسف زئی"]
+    brahui_patterns: true
+    
+  khyber_pakhtunkhwa_patterns:
+    enabled: true
+    pashtun_tribal_system: ["خان", "خٹک", "یوسف زئی", "آفریدی"]
+    tribal_lineages: true
+    frontier_patterns: true
+    
+  mohajir_patterns:
+    enabled: true
+    pre_partition_origins: ["دہلوی", "لکھنوی", "حیدرآبادی"]
+    intellectual_families: ["علوی", "رضوی", "قریشی"]
+    urdu_speaking_communities: true
+    
+  islamic_naming_traditions:
+    enabled: true
+    patronymic_systems: ["بن", "ابن", "ولد"]
+    matronymic_systems: ["بنت", "ابنہ"]
+    tribal_affiliations: ["قریشی", "انصاری", "ہاشمی"]
+    sufi_lineages: ["چشتی", "سہروردی", "قادری"]
+    
+  religious_titles:
+    enabled: true
+    scholarly_titles: ["مولوی", "مولانا", "علامہ", "مفتی"]
+    sufi_titles: ["پیر", "خواجہ", "شاہ", "بابا"]
+    descendant_titles: ["سید", "شریف", "میر"]
+    hajj_titles: ["حاجی", "حاجیہ"]
+    
+  persian_influences:
+    enabled: true
+    persian_loanwords: "preserve_classical"
+    court_titles: ["میرزا", "نواب", "بیگم", "خان"]
+    poetic_names: ["غالب", "اقبال", "فیض"]
+    administrative_titles: ["دیوان", "وزیر"]
+    
+  urdu_transliteration:
+    enabled: true
+    primary_standard: "ALA-LC Urdu"
+    alternative_standards: ["ISO 233", "BGN-PCGN"]
+    preserve_original: true
+    create_variants: true
+    handle_aspirates: "distinguish"
+    handle_retroflex: "preserve_distinctions"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    islamic_given_names: "preserve_arabic_forms"
+    compound_names: "preserve_components"
+    religious_names: "preserve_devotional_elements"
+    poetic_names: "preserve_literary_heritage"
+    
+  script_validation:
+    script_requirement: "Arabic_or_Latin"
+    validate_urdu_orthography: true
+    allow_arabic_original: true
+    allow_latin_transliterations: true
+    mixed_script_tolerance: "moderate"
+    
+  caste_community_patterns:
+    enabled: true
+    convert_communities:
+      rajput_converts: ["راجپوت", "چوہان", "راٹھور"]
+      jat_converts: ["جٹ", "گجر", "چوہدری"]
+      brahmin_converts: ["شیخ", "صدیقی"]
+      
+    ashraf_communities:
+      sayyid: ["سید", "رضوی", "نقوی", "گیلانی"]
+      sheikh: ["شیخ", "صدیقی", "فاروقی", "عثمانی"]
+      mughal: ["مغل", "چغتائی", "تیموری"]
+      pathan: ["پٹھان", "خان", "یوسف زئی"]
+      
+    ajlaf_communities:
+      occupational: ["جولاہا", "درزی", "لوہار", "کمہار"]
+      service_castes: ["بھنگی", "چمار", "دوم"]
+      
+  regional_dialects:
+    enabled: true
+    standard_urdu: "delhi_lucknow_base"
+    regional_variations:
+      punjabi_urdu: true
+      sindhi_urdu: true
+      pashto_influenced: true
+      balochi_influenced: true
+      
+  literary_traditions:
+    enabled: true
+    classical_poets: ["غالب", "میر", "سودا", "انیس"]
+    modern_writers: ["اقبال", "فیض", "منٹو", "قرۃ العین"]
+    literary_surnames: ["ادیب", "شاعر", "مصنف"]
+    
+  occupational_surnames:
+    enabled: true
+    traditional_occupations: ["کمہار", "لوہار", "سنار", "درزی"]
+    administrative_titles: ["چوہدری", "زمیندار", "جاگیردار"]
+    religious_occupations: ["امام", "خطیب", "موذن"]
+    
+  geographic_markers:
+    enabled: true
+    preserve_origin_indicators: true
+    city_surnames: ["کراچوی", "لاہوری", "دہلوی", "لکھنوی"]
+    regional_markers: ["پنجابی", "سندھی", "بلوچ", "پختون"]
+    river_names: ["سندھ", "راوی", "چناب"]
+    
+  historical_patterns:
+    enabled: true
+    pre_islamic_conversions: "document_carefully"
+    mughal_period_names: true
+    british_period_adaptations: true
+    post_partition_changes: true
+    
+  linguistic_features:
+    enabled: true
+    urdu_phonetic_patterns: true
+    persian_phonetic_adaptations: true
+    arabic_phonetic_preservation: true
+    regional_pronunciations: "document_variations"
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    handle_arabic_numerals: true
+    classical_forms: "preserve_traditional"
+    modern_simplifications: "accepted"
+
+# Quality thresholds for D4
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  urdu_script_detection_accuracy: 0.89
+  transliteration_accuracy: 0.86
+  islamic_pattern_recognition: 0.88
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"
+  unknown_tribal_patterns: "accept_with_standard_processing"
+  script_conflicts: "prefer_arabic_original"

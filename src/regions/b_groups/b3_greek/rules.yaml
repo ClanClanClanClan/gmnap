@@ -1,0 +1,94 @@
+# B3 Greek Region Processing Rules
+# Specialized rules for Greek naming patterns
+
+schema_version: "7.0"
+region_code: "B3"
+region_name: "Greek"
+
+# Greek linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 27
+    name: "Greek Transliteration"
+    description: "ELOT 743, ISO 843, and BGN-PCGN transliteration standards"
+    implementation: "greek_transliteration_processing"
+    
+  - id: 28
+    name: "Monotonic-Polytonic Normalization"
+    description: "Handle both monotonic and polytonic Greek text"
+    implementation: "greek_orthography_normalization"
+
+# Greek specific processing rules
+processing_rules:
+  greek_script_processing:
+    enabled: true
+    primary_script: "Greek"
+    monotonic_form: "preferred"
+    polytonic_support: true
+    normalization_form: "NFC"
+    
+  greek_transliteration:
+    enabled: true
+    primary_standard: "ELOT 743"
+    alternative_standards: ["ISO 843", "BGN-PCGN"]
+    create_variants: true
+    handle_digraphs: true
+    preserve_greek_original: true
+    
+  monotonic_polytonic_handling:
+    enabled: true
+    convert_polytonic_to_monotonic: true
+    preserve_accent_information: true
+    handle_diaeresis: true
+    breathing_mark_processing: true
+    
+  cypriot_variants:
+    enabled: true
+    territory_specific: ["CY"]
+    dialect_awareness: true
+    turkish_cypriot_handling: false
+    greek_cypriot_patterns: true
+    
+  patronymic_patterns:
+    enabled: true
+    greek_patronymic_endings: ["ου", "άκης", "όπουλος", "ίδης"]
+    female_adaptations: ["ου", "άκη", "οπούλου", "ίδου"]
+    preserve_gender_variants: true
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    multiple_given_names: "preserve_all"
+    hyphenated_names: "standard_handling"
+    particle_handling: "minimal"
+    
+  script_validation:
+    script_requirement: "Greek"
+    allow_latin_transliterations: true
+    validate_greek_specific: true
+    mixed_script_tolerance: "transliteration_only"
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    normalization_form: "NFC"
+    handle_final_sigma: true
+    accent_normalization: "monotonic_preferred"
+
+# Quality thresholds for B3
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  transliteration_accuracy: 0.92
+  greek_script_detection_accuracy: 0.9
+  orthography_normalization_accuracy: 0.88
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  mixed_orthography: "prefer_monotonic"
+  ambiguous_transliterations: "prefer_elot743"
+  unknown_greek_patterns: "accept_with_variants"

@@ -1,0 +1,39 @@
+# D1 South Asia Hindi Belt Region Configuration
+# Hindi Belt: Northern and Central India
+
+schema_version: "7.0"
+region_code: "D1"
+region_name: "South Asia Hindi Belt"
+
+# Regional characteristics
+iso_territories: [IN]
+primary_scripts: ["Devanagari", "Latin"]
+distinct_features: "Devanagari script; Hindi-Urdu continuum; patronymic traditions"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["ALA-LC Devanagari", "ISO 15919", "IAST", "Harvard-Kyoto"]
+
+# Regional processing rules
+processing_rules:
+  devanagari_script_handling: true
+  hindi_urdu_processing: true
+  patronymic_suffix_handling: true
+  regional_dialect_processing: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: true
+  devanagari_script_validation: true
+  hindi_pattern_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  devanagari_script_detection_accuracy: 0.90
+  transliteration_accuracy: 0.87

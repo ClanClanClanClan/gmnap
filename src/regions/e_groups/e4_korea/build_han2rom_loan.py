@@ -1,6 +1,7 @@
-import pynini as pn, pathlib, csv, itertools, unicodedata
+import pynini as pn, pathlib, unicodedata
+
 tsv = pathlib.Path("resources/loanword_en2kor.tsv").read_text().splitlines()
-pairs = [(k.strip(),v.strip()) for k,v,*_ in (l.split("\t") for l in tsv)]
+pairs = [(k.strip(), v.strip()) for k, v, *_ in (l.split("\t") for l in tsv)]
 # Build ENG→KOR (already done), now KOR→ENG:
 han2rom = pn.Fst()
 for eng, han in pairs:

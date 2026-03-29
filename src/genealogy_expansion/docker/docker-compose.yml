@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  graph:
+    image: memgraph/memgraph:latest
+    container_name: gmnap-graph
+    ports: ["7687:7687","7445:7445"]
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    container_name: gmnap-api
+    command: uvicorn api.server:app --host 0.0.0.0 --port 8080
+    ports: ["8080:8080"]
+    depends_on: [graph]

@@ -1,0 +1,43 @@
+# H1 Historical Region Configuration
+# For names from ≤ 1850 period with mixed scripts and Latinized forms
+
+schema_version: "7.0"
+region_code: "H1" 
+region_name: "Historical (≤ 1850)"
+
+# Region specifications from v7.0 specs
+iso_territories: ["GLOBAL_PRE_1850"]
+primary_scripts: ["Mixed"]
+distinct_features: "Latinised names; epithets"
+
+# Processing configuration
+processing_config:
+  # Historical names often have epithets and Latinized forms
+  allow_epithets: true
+  latinization_priority: true
+  mixed_script_handling: true
+  
+  # Lenient validation for historical variations
+  validation_strictness: "lenient"
+  allow_archaic_forms: true
+  preserve_original_spelling: true
+
+# Weight configurations for regional detection
+weights:
+  time_period_match: 0.4      # Strong indicator if birth/death ≤ 1850
+  script_mixing: 0.3          # Mixed scripts common in historical records
+  latinization_patterns: 0.2  # Latinized forms frequent
+  epithet_presence: 0.1       # Epithets like "the Great", "Minor", etc.
+
+# Quality thresholds
+quality_thresholds:
+  minimum_confidence: 0.3     # Lower threshold for historical names
+  script_detection_confidence: 0.5
+  time_period_confidence: 0.8
+
+# Error handling for historical data
+error_handling:
+  missing_birth_year: "estimate_from_context"
+  unknown_script: "preserve_original"
+  mixed_script_conflict: "prioritize_latin"
+  archaic_character: "normalize_to_modern"

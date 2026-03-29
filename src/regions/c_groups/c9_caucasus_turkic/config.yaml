@@ -1,0 +1,39 @@
+# C9 Caucasus Turkic Region Configuration
+# Caucasus Turkic: Smaller Turkic communities in Caucasus region
+
+schema_version: "7.0"
+region_code: "C9"
+region_name: "Caucasus Turkic"
+
+# Regional characteristics
+iso_territories: [AD]  # Andorra as placeholder - this represents smaller Turkic communities
+primary_scripts: ["Latin", "Cyrillic"]
+distinct_features: "Caucasus Turkic dialects; mixed script traditions; mountain community patterns"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["ALA-LC Turkic", "ISO 9", "BGN-PCGN"]
+
+# Regional processing rules
+processing_rules:
+  caucasus_turkic_handling: true
+  mixed_script_processing: true
+  turkic_transliteration: true
+  mountain_community_patterns: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  script_consistency_validation: true
+  turkic_pattern_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  script_detection_accuracy: 0.85
+  transliteration_accuracy: 0.83

@@ -1,0 +1,80 @@
+# A5 Dutch/French Caribbean Region Processing Rules
+# Specialized rules for Caribbean/Creole naming patterns
+
+schema_version: "7.0"
+region_code: "A5"
+region_name: "Dutch/French Caribbean"
+
+# Caribbean linguistic rules
+linguistic_rules:
+  - id: 22
+    name: "French d' particle"
+    description: "retained in order_key"
+    implementation: "french_particle_handling"
+    
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+
+# Caribbean specific processing rules
+processing_rules:
+  creole_particles:
+    enabled: true
+    french_particles: ["d'", "de", "du", "des", "le", "la", "les"]
+    dutch_particles: ["van", "de", "den", "der"]
+    creole_specific: ["ti", "gwo", "bel"]
+    apostrophe_handling: "preserve_and_normalize"
+    
+  french_caribbean:
+    enabled: true
+    territories: ["MQ", "GF", "GP", "RE", "YT", "PM"]
+    particle_retention: "d' always retained"
+    diacritic_preservation: true
+    colonial_surnames: true
+    
+  dutch_caribbean:
+    enabled: true
+    territories: ["CW", "SX", "BQ"]
+    papiamento_influences: true
+    dutch_particles: "standard_handling"
+    compound_surnames: true
+    
+  apostrophe_handling:
+    enabled: true
+    normalize_curly_quotes: true
+    preserve_in_names: true
+    validate_placement: true
+    creole_specific_patterns: true
+    
+  name_patterns:
+    comma_separation: "Family, Given"
+    multiple_given_names: "preserve_all"
+    hyphenated_names: "preserve_structure"
+    particle_preservation: "region_specific"
+    
+  script_validation:
+    script_requirement: "Latin"
+    allow_diacritics: true
+    allow_apostrophes: true
+    validate_creole_specific: true
+    
+  diacritic_handling:
+    preserve_original: true
+    create_ascii_variants: true
+    normalization_form: "NFC"
+    french_specific: true
+
+# Quality thresholds for A5
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  particle_detection_accuracy: 0.9
+  apostrophe_handling_accuracy: 0.88
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_apostrophes: "normalize_to_standard"
+  ambiguous_particles: "prefer_retention"
+  unknown_creole_patterns: "accept_with_variants"

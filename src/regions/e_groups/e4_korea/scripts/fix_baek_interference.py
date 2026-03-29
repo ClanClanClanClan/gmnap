@@ -38,16 +38,14 @@ for i in range(len(rows) - 1, -1, -1):  # Iterate backwards to safely remove
 # Add compound fixes
 compound_fixes = [
     # Compound given names with stronger weights
-    ("수진", "soojin", "-1.0"),   # soojin → 수진 (stronger compound)
-    ("연주", "yeonju", "-1.0"),   # yeonju → 연주 (stronger compound)
-    
+    ("수진", "soojin", "-1.0"),  # soojin → 수진 (stronger compound)
+    ("연주", "yeonju", "-1.0"),  # yeonju → 연주 (stronger compound)
     # Try alternative approach for 제이 → j
-    ("제", "j", "-0.8"),         # Make 제 → "j" stronger (experimental)
-    
+    ("제", "j", "-0.8"),  # Make 제 → "j" stronger (experimental)
     # Additional compound patterns
-    ("형찬", "hyeongchan", "-0.8"), # hyeongchan → 형찬
-    ("재호", "jaeho", "-0.8"),      # jaeho → 재호
-    ("박진", "baekjin", "-0.8"),    # baekjin → 박진
+    ("형찬", "hyeongchan", "-0.8"),  # hyeongchan → 형찬
+    ("재호", "jaeho", "-0.8"),  # jaeho → 재호
+    ("박진", "baekjin", "-0.8"),  # baekjin → 박진
 ]
 
 added_count = 0
@@ -68,7 +66,7 @@ for hangul, roman, weight in compound_fixes:
                 updated_count += 1
             found = True
             break
-    
+
     if not found:
         rows.append([hangul, roman, weight])
         print(f"  ADDED: {hangul} → {roman} (weight: {weight})")
@@ -88,9 +86,9 @@ with open("resources/rr_syllable_map.csv", "w", encoding="utf8", newline="") as 
 
 print("\n✅ Baek interference & compound issues addressed!")
 print("\n=== EXPECTED FIXES ===")
-print("- Removed 박 → 'baek' mapping (no more Baek surname conflicts)")  
+print("- Removed 박 → 'baek' mapping (no more Baek surname conflicts)")
 print("- Stronger 수진 → 'soojin' (-1.0) compound")
-print("- Stronger 연주 → 'yeonju' (-1.0) compound") 
+print("- Stronger 연주 → 'yeonju' (-1.0) compound")
 print("- Enhanced 제 → 'j' (-0.8) for initials")
 print("- Added missing compounds for Baek surname names")
 print("\nTarget: Fix compound segmentation and Baek surnames → +8-15 cases!")

@@ -22,7 +22,7 @@ filtered_rows = []
 removed_count = 0
 
 for h, r in rows:
-    if h == '뮹' and r.lower() == 'myung':
+    if h == "뮹" and r.lower() == "myung":
         print(f"REMOVING wrong mapping: {h},{r}")
         removed_count += 1
     else:
@@ -30,7 +30,7 @@ for h, r in rows:
 
 # Add correct mapping
 print(f"ADDING correct mapping: 명,myung")
-filtered_rows.append(('명', 'myung'))
+filtered_rows.append(("명", "myung"))
 
 print(f"Removed {removed_count} wrong mappings")
 print(f"Added 1 correct mapping")
@@ -49,8 +49,8 @@ print(f"\nVerifying myung mappings:")
 with open("resources/rr_syllable_map.csv", encoding="utf8") as f:
     new_lookup = {r.lower(): h for h, r in csv.reader(f)}
 
-myung_result = new_lookup.get('myung')
-myeong_result = new_lookup.get('myeong')
-print(f"  myung → {myung_result}")  
+myung_result = new_lookup.get("myung")
+myeong_result = new_lookup.get("myeong")
+print(f"  myung → {myung_result}")
 print(f"  myeong → {myeong_result}")
 print(f"  Match: {'✅' if myung_result == myeong_result == '명' else '❌'}")

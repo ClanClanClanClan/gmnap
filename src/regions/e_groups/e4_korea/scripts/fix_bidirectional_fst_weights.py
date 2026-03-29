@@ -28,29 +28,24 @@ existing_mappings = {(row[0], row[1]) for row in rows if len(row) >= 2}
 # These ensure han2rom FST prefers the same romanizations as rom2han FST
 bidirectional_fixes = [
     # FOREIGN NAME FIXES (strongest weights)
-    ("계", "kai", "-1.5"),      # 계 → "kai" not "gye" (for Kai-Lai)
-    ("래", "lai", "-1.5"),      # 래 → "lai" not "rae" (for Kai-Lai)
-    
+    ("계", "kai", "-1.5"),  # 계 → "kai" not "gye" (for Kai-Lai)
+    ("래", "lai", "-1.5"),  # 래 → "lai" not "rae" (for Kai-Lai)
     # SURNAME PREFERENCE FIXES
-    ("정", "jeong", "-1.0"),    # 정 → "jeong" not "jung" (surname preference)
-    ("이", "ri", "-1.2"),       # 이 → "ri" not "lee" (when used as Ri surname)
-    
+    ("정", "jeong", "-1.0"),  # 정 → "jeong" not "jung" (surname preference)
+    ("이", "ri", "-1.2"),  # 이 → "ri" not "lee" (when used as Ri surname)
     # GIVEN NAME FIXES
-    ("준", "jun", "-0.8"),      # 준 → "jun" not "jung" (for SeongJoon)
-    
-    # INITIAL FIXES  
-    ("제이", "j", "-1.0"),      # 제이 → "j" not "je i" (for initials)
-    
+    ("준", "jun", "-0.8"),  # 준 → "jun" not "jung" (for SeongJoon)
+    # INITIAL FIXES
+    ("제이", "j", "-1.0"),  # 제이 → "j" not "je i" (for initials)
     # COMPOUND PRESERVATION
-    ("성준", "seongjoon", "-0.8"), # Preserve compound: 성준 → "seongjoon" not "seong jun"
+    ("성준", "seongjoon", "-0.8"),  # Preserve compound: 성준 → "seongjoon" not "seong jun"
     ("민정", "minjeong", "-0.8"),  # Preserve compound: 민정 → "minjeong" not "min jeong"
-    ("영철", "youngchul", "-0.8"), # Preserve compound: 영철 → "youngchul" not "young chul"
-    
+    ("영철", "youngchul", "-0.8"),  # Preserve compound: 영철 → "youngchul" not "young chul"
     # ADDITIONAL REVERSE PREFERENCES
-    ("계래", "kailai", "-1.0"),    # Compound: 계래 → "kailai" not "gye rae"
-    ("여정", "yojong", "-0.6"),    # 여정 → "yojong" not "yeo jeong"
-    ("춘향", "chunhyang", "-0.6"), # 춘향 → "chunhyang" not "cheon hyang"
-    ("미중", "mijung", "-0.6"),    # 미중 → "mijung" not "mi jung"
+    ("계래", "kailai", "-1.0"),  # Compound: 계래 → "kailai" not "gye rae"
+    ("여정", "yojong", "-0.6"),  # 여정 → "yojong" not "yeo jeong"
+    ("춘향", "chunhyang", "-0.6"),  # 춘향 → "chunhyang" not "cheon hyang"
+    ("미중", "mijung", "-0.6"),  # 미중 → "mijung" not "mi jung"
 ]
 
 print(f"Current rows: {len(rows)}")
@@ -72,10 +67,14 @@ for hangul, roman, weight in bidirectional_fixes:
                     new_weight = float(weight)
                     if new_weight < old_weight:  # More negative = stronger
                         rows[i] = [hangul, roman, weight]
-                        print(f"  UPDATED REVERSE: {hangul} → {roman} (weight: {old_weight} → {weight})")
+                        print(
+                            f"  UPDATED REVERSE: {hangul} → {roman} (weight: {old_weight} → {weight})"
+                        )
                         updated_count += 1
                     else:
-                        print(f"  KEPT REVERSE: {hangul} → {roman} (existing {old_weight} >= new {weight})")
+                        print(
+                            f"  KEPT REVERSE: {hangul} → {roman} (existing {old_weight} >= new {weight})"
+                        )
                 else:
                     rows[i] = [hangul, roman, weight]
                     print(f"  UPDATED REVERSE: {hangul} → {roman} (added weight: {weight})")
@@ -97,7 +96,7 @@ print("\n✅ Bidirectional FST alignment complete!")
 print("\n=== REVERSE PREFERENCE FIXES ===")
 print("Han2rom FST will now prefer:")
 print("- 계 → 'kai' (not 'gye') for foreign names")
-print("- 래 → 'lai' (not 'rae') for foreign names") 
+print("- 래 → 'lai' (not 'rae') for foreign names")
 print("- 정 → 'jeong' (not 'jung') for surnames")
 print("- 이 → 'ri' (not 'lee') when used as Ri surname")
 print("- 준 → 'jun' (not 'jung') for given names")

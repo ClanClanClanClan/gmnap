@@ -4,74 +4,73 @@ South Asia - Bengali (D3) regional processor.
 Implements Bengali script with frequent script switching
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 from ..base import RegionSpec, RegionRuleError
 
 
 class D3SouthAsiaBengali(RegionSpec):
     """Handler for D3 - South Asia - Bengali."""
-    
+
     def __init__(self):
         super().__init__(
-            code="D3",
-            yaml_files=[],  # TODO: Add actual YAML files,
-            scripts=['Bengali', 'Latin']
+            code="D3", yaml_files=[], scripts=["Bengali", "Latin"]  # TODO: Add actual YAML files,
         )
-        
+
     def clean(self, name: str) -> str:
         """Clean and normalize South Asia - Bengali name."""
         # Basic cleaning - to be enhanced with specific rules
         name = name.strip()
-        
+
         # Normalize whitespace
         import re
-        name = re.sub(r'\s+', ' ', name)
-        
+
+        name = re.sub(r"\s+", " ", name)
+
         return name
-    
+
     def augment(self, entry: Dict[str, Any]) -> None:
         """Augment entry with D3-specific data."""
         # Add region code
         entry["RegionCode"] = self.code
-        
+
         canonical = entry.get("CanonicalLatin", "")
         if not canonical:
             return
-        
+
         # Extract components
         components = self._extract_components(canonical)
-        
+
         # Add to RegionalExtras
         if "RegionalExtras" not in entry:
             entry["RegionalExtras"] = {}
-        
+
         entry["RegionalExtras"].update(components)
-    
+
     def validate(self, entry: Dict[str, Any]) -> None:
         """Validate D3 name requirements."""
         canonical = entry.get("CanonicalLatin", "")
         if not canonical:
             raise RegionRuleError("Missing CanonicalLatin")
-        
+
         # Basic validation - to be enhanced
         if len(canonical) < 3:
             raise RegionRuleError("Name too short")
-    
+
     def order_key(self, entry: Dict[str, Any]) -> str:
         """Generate sort key for D3 names."""
         canonical = entry.get("CanonicalLatin", "")
-        
+
         # Simple sort by family name
         if ", " in canonical:
             family = canonical.split(", ")[0]
             return family.lower()
-        
+
         return canonical.lower()
-    
+
     def _extract_components(self, name: str) -> Dict[str, Any]:
         """Extract name components."""
         components = {}
-        
+
         if ", " in name:
             parts = name.split(", ", 1)
             components["family_name"] = parts[0].strip()
@@ -85,5 +84,5 @@ class D3SouthAsiaBengali(RegionSpec):
             else:
                 components["family_name"] = name.strip()
                 components["given_name"] = ""
-        
+
         return components

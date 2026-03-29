@@ -10,7 +10,6 @@ License: Requires TDM token
 Daily Quota: 3 requests/second (rate limit)
 """
 
-import asyncio
 import aiohttp
 import logging
 import yaml
@@ -19,8 +18,11 @@ from datetime import datetime
 from pathlib import Path
 
 from src.authorities.base import (
-    AuthorityFetcher, FetchStatus, AuthorityData,
-    FetchResult, AuthorityTier
+    AuthorityFetcher,
+    FetchStatus,
+    AuthorityData,
+    FetchResult,
+    AuthorityTier,
 )
 
 logger = logging.getLogger(__name__)
@@ -55,20 +57,20 @@ class WileyFetcher(AuthorityFetcher):
     def _load_api_key(self, config: Optional[Dict[str, Any]]) -> str:
         """Load Wiley API key from config or file."""
         # Try config first
-        if config and 'api_key' in config:
-            return config['api_key']
+        if config and "api_key" in config:
+            return config["api_key"]
 
         # Try loading from YAML file
         try:
-            keys_file = Path('config/authority_api_keys.yaml')
+            keys_file = Path("config/authority_api_keys.yaml")
             if keys_file.exists():
                 with open(keys_file) as f:
                     keys_config = yaml.safe_load(f)
-                    return keys_config.get('wiley', {}).get('api_key', '')
+                    return keys_config.get("wiley", {}).get("api_key", "")
         except Exception as e:
             logger.warning(f"Could not load Wiley API key from file: {e}")
 
-        return ''
+        return ""
 
     async def fetch(self, identifier: str) -> FetchResult:
         """
@@ -86,9 +88,7 @@ class WileyFetcher(AuthorityFetcher):
 
             if not results or len(results) == 0:
                 return FetchResult(
-                    status=FetchStatus.NOT_FOUND,
-                    source=self.service,
-                    query=identifier
+                    status=FetchStatus.NOT_FOUND, source=self.service, query=identifier
                 )
 
             # Parse results to extract author information
@@ -96,28 +96,22 @@ class WileyFetcher(AuthorityFetcher):
 
             if not author_data:
                 return FetchResult(
-                    status=FetchStatus.NOT_FOUND,
-                    source=self.service,
-                    query=identifier
+                    status=FetchStatus.NOT_FOUND, source=self.service, query=identifier
                 )
 
             return FetchResult(
-                status=FetchStatus.SUCCESS,
-                source=self.service,
-                query=identifier,
-                data=author_data
+                status=FetchStatus.SUCCESS, source=self.service, query=identifier, data=author_data
             )
 
         except Exception as e:
             logger.error(f"Wiley fetch error: {e}")
             return FetchResult(
-                status=FetchStatus.ERROR,
-                source=self.service,
-                query=identifier,
-                error=str(e)
+                status=FetchStatus.ERROR, source=self.service, query=identifier, error=str(e)
             )
 
-    async def _search_author_crossref(self, author_name: str, max_results: int = 20) -> List[Dict[str, Any]]:
+    async def _search_author_crossref(
+        self, author_name: str, max_results: int = 20
+    ) -> List[Dict[str, Any]]:
         """
         Search for Wiley publications by author via Crossref API.
 
@@ -133,23 +127,23 @@ class WileyFetcher(AuthorityFetcher):
 
         # Crossref query: filter by Wiley member and author
         params = {
-            'query.author': author_name,
-            'filter': f'member:{self.wiley_member_id}',  # Wiley
-            'rows': max_results,
-            'select': 'DOI,title,author,published,container-title,type,subject'
+            "query.author": author_name,
+            "filter": f"member:{self.wiley_member_id}",  # Wiley
+            "rows": max_results,
+            "select": "DOI,title,author,published,container-title,type,subject",
         }
 
-        headers = {
-            'User-Agent': 'GMNAP/1.0 (mailto:research@example.com)'
-        }
+        headers = {"User-Agent": "GMNAP/1.0 (mailto:research@example.com)"}
 
         try:
             url = f"{self.crossref_url}/works"
             async with self._session.get(url, params=params, headers=headers) as response:
                 if response.status == 200:
                     data = await response.json()
-                    items = data.get('message', {}).get('items', [])
-                    logger.info(f"Wiley (via Crossref): Found {len(items)} works for '{author_name}'")
+                    items = data.get("message", {}).get("items", [])
+                    logger.info(
+                        f"Wiley (via Crossref): Found {len(items)} works for '{author_name}'"
+                    )
                     return items
                 else:
                     logger.warning(f"Wiley/Crossref search failed with status {response.status}")
@@ -158,7 +152,9 @@ class WileyFetcher(AuthorityFetcher):
             logger.error(f"Wiley/Crossref search error: {e}")
             return []
 
-    def _parse_author_data(self, query_name: str, works: List[Dict[str, Any]]) -> Optional[AuthorityData]:
+    def _parse_author_data(
+        self, query_name: str, works: List[Dict[str, Any]]
+    ) -> Optional[AuthorityData]:
         """
         Parse Wiley/Crossref works to extract author information.
 
@@ -181,34 +177,42 @@ class WileyFetcher(AuthorityFetcher):
         # Process each work
         for work in works:
             # Extract authors and affiliations
-            authors = work.get('author', [])
+            authors = work.get("author", [])
             for author in authors:
-                if 'affiliation' in author:
-                    for aff in author['affiliation']:
-                        if 'name' in aff:
-                            affiliations.add(aff['name'])
+                if "affiliation" in author:
+                    for aff in author["affiliation"]:
+                        if "name" in aff:
+                            affiliations.add(aff["name"])
 
             # Extract subjects
-            if 'subject' in work:
-                for subject in work['subject']:
+            if "subject" in work:
+                for subject in work["subject"]:
                     subjects.add(subject)
 
             # Extract DOI
-            if 'DOI' in work:
-                dois.add(work['DOI'])
+            if "DOI" in work:
+                dois.add(work["DOI"])
 
             # Extract publication info
-            pub_date = work.get('published', {})
+            pub_date = work.get("published", {})
             pub_year = None
-            if 'date-parts' in pub_date and pub_date['date-parts']:
-                pub_year = pub_date['date-parts'][0][0] if pub_date['date-parts'][0] else None
+            if "date-parts" in pub_date and pub_date["date-parts"]:
+                pub_year = pub_date["date-parts"][0][0] if pub_date["date-parts"][0] else None
 
             pub = {
-                'title': work.get('title', [''])[0] if isinstance(work.get('title'), list) else work.get('title', ''),
-                'doi': work.get('DOI', ''),
-                'year': pub_year,
-                'journal': work.get('container-title', [''])[0] if isinstance(work.get('container-title'), list) else work.get('container-title', ''),
-                'type': work.get('type', '')
+                "title": (
+                    work.get("title", [""])[0]
+                    if isinstance(work.get("title"), list)
+                    else work.get("title", "")
+                ),
+                "doi": work.get("DOI", ""),
+                "year": pub_year,
+                "journal": (
+                    work.get("container-title", [""])[0]
+                    if isinstance(work.get("container-title"), list)
+                    else work.get("container-title", "")
+                ),
+                "type": work.get("type", ""),
             }
             publications.append(pub)
 
@@ -219,21 +223,18 @@ class WileyFetcher(AuthorityFetcher):
             canonical_name=query_name,
             name_variants=[],
             affiliations=[
-                {'institution': aff}
-                for aff in list(affiliations)[:5]  # Top 5 affiliations
+                {"institution": aff} for aff in list(affiliations)[:5]  # Top 5 affiliations
             ],
-            identifiers={
-                'DOI': list(dois)[0] if dois else None
-            },
+            identifiers={"DOI": list(dois)[0] if dois else None},
             msc_codes=[],  # Wiley doesn't provide MSC codes directly
             metadata={
-                'publications': publications[:10],  # Top 10 publications
-                'subjects': list(subjects)[:20],  # Top 20 subjects
-                'work_count': len(works)
+                "publications": publications[:10],  # Top 10 publications
+                "subjects": list(subjects)[:20],  # Top 20 subjects
+                "work_count": len(works),
             },
             confidence_score=self._calculate_confidence(works, affiliations, dois),
             fetch_timestamp=datetime.now(),
-            personal_data_scrubbed=True
+            personal_data_scrubbed=True,
         )
 
         return authority_data
@@ -283,19 +284,19 @@ class WileyFetcher(AuthorityFetcher):
         Returns:
             AuthorityData object
         """
-        items = response.get('message', {}).get('items', [])
+        items = response.get("message", {}).get("items", [])
 
         if not items:
             return None
 
         # Use query name or first author
         canonical_name = "Unknown"
-        if items and 'author' in items[0]:
-            authors = items[0]['author']
+        if items and "author" in items[0]:
+            authors = items[0]["author"]
             if authors:
                 author = authors[0]
-                given = author.get('given', '')
-                family = author.get('family', '')
+                given = author.get("given", "")
+                family = author.get("family", "")
                 canonical_name = f"{given} {family}".strip()
 
         return self._parse_author_data(canonical_name, items)

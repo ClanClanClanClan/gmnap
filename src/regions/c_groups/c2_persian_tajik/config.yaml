@@ -1,0 +1,39 @@
+# C2 Persian-Tajik Region Configuration
+# Persian-Tajik: IR, AF, TJ
+
+schema_version: "7.0"
+region_code: "C2"
+region_name: "Persian-Tajik"
+
+# Regional characteristics
+iso_territories: [IR, AF, TJ]
+primary_scripts: ["Persian", "Cyrillic"]
+distinct_features: "Persian script; Tajik Cyrillic; compound surnames"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["ALA-LC Persian", "BGN-PCGN", "ISO 233-3"]
+
+# Regional processing rules
+processing_rules:
+  persian_script_handling: true
+  tajik_cyrillic_processing: true
+  persian_transliteration: true
+  compound_surname_handling: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  persian_script_validation: true
+  mixed_script_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  script_detection_accuracy: 0.9
+  transliteration_accuracy: 0.88

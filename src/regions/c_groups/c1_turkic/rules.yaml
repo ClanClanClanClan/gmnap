@@ -1,0 +1,101 @@
+# C1 Turkic Region Processing Rules
+# Specialized rules for Turkic naming patterns
+
+schema_version: "7.0"
+region_code: "C1"
+region_name: "Turkic"
+
+# Turkic linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 29
+    name: "Turkic Vowel Harmony"
+    description: "Process vowel harmony patterns in Turkic names"
+    implementation: "turkic_vowel_harmony_processing"
+    
+  - id: 30
+    name: "Turkic Script Variants"
+    description: "Handle Latin/Cyrillic script variants for Turkic languages"
+    implementation: "turkic_script_processing"
+
+# Turkic specific processing rules
+processing_rules:
+  turkic_script_handling:
+    enabled: true
+    latin_territories: ["TR", "AZ"]
+    cyrillic_territories: ["KZ", "KG", "UZ", "TM", "TJ"]
+    mixed_script_support: true
+    script_preference_by_territory: true
+    
+  vowel_harmony_processing:
+    enabled: true
+    front_vowels: ["e", "i", "ö", "ü", "э", "и", "ө", "ү"]
+    back_vowels: ["a", "ı", "o", "u", "а", "ы", "о", "у"]
+    harmony_validation: true
+    pattern_recognition: true
+    
+  latin_script_handling:
+    enabled: true
+    territories: ["TR", "AZ"]
+    turkish_specific_chars: ["ç", "ğ", "ı", "ş", "ö", "ü", "Ç", "Ğ", "I", "İ", "Ş", "Ö", "Ü"]
+    azerbaijani_specific_chars: ["ə", "Ə"]
+    normalization_form: "NFC"
+    
+  cyrillic_script_handling:
+    enabled: true
+    territories: ["KZ", "KG", "UZ", "TM", "TJ"]
+    kazakh_specific: ["ә", "ғ", "қ", "ң", "ө", "ұ", "ү", "һ"]
+    kyrgyz_specific: ["ң", "ө", "ү"]
+    uzbek_specific: ["ғ", "қ", "ҳ"]
+    turkmen_specific: ["ä", "ň", "ö", "ş", "ü", "ý", "ž"]
+    
+  transliteration_handling:
+    enabled: true
+    latin_to_cyrillic: true
+    cyrillic_to_latin: true
+    preserve_original: true
+    create_variants: true
+    territory_specific_rules: true
+    
+  patronymic_patterns:
+    enabled: true
+    turkic_patronymic_suffixes: ["oğlu", "oğul", "қызы", "кызы", "уулу", "гызы"]
+    gender_specific_handling: true
+    preserve_in_extras: true
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    multiple_given_names: "preserve_all"
+    clan_names: "preserve_as_middle"
+    tribal_affiliations: "handle_as_particles"
+    
+  script_validation:
+    mixed_scripts: true
+    territory_based_validation: true
+    validate_vowel_harmony: true
+    validate_turkic_specific_chars: true
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    normalization_form: "NFC"
+    handle_script_transitions: true
+
+# Quality thresholds for C1
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  script_detection_accuracy: 0.9
+  transliteration_accuracy: 0.88
+  vowel_harmony_accuracy: 0.85
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  mixed_script_conflicts: "prefer_territory_default"
+  vowel_harmony_violations: "accept_with_warning"
+  unknown_turkic_patterns: "accept_with_variants"

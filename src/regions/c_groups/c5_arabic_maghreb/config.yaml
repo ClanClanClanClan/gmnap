@@ -1,0 +1,39 @@
+# C5 Arabic Maghreb Region Configuration
+# Arabic Maghreb: MA, DZ, TN, LY, MR
+
+schema_version: "7.0"
+region_code: "C5"
+region_name: "Arabic Maghreb"
+
+# Regional characteristics
+iso_territories: [MA, DZ, TN, LY, MR]
+primary_scripts: ["Arabic"]
+distinct_features: "Maghrebi dialects; Berber influences; French colonial surnames"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: false
+romanisation_standards: ["ALA-LC Arabic", "BGN-PCGN", "ISO 233-2"]
+
+# Regional processing rules
+processing_rules:
+  arabic_script_handling: true
+  maghrebi_dialect_processing: true
+  berber_influence_handling: true
+  french_colonial_patterns: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  arabic_script_validation: true
+  maghrebi_pattern_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  arabic_script_detection_accuracy: 0.92
+  transliteration_accuracy: 0.88

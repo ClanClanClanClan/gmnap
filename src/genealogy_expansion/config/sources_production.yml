@@ -1,0 +1,137 @@
+# GMNAP Genealogy Expansion - Production Source Configuration
+# Based on expert kit (Oct 30, 2025)
+#
+# Deployment Strategy: 4-wave rollout (P0-P3)
+# - P0: FR only (23 countries via French colonies, ~50K edges)
+# - P1: +ES, +DE (~150K edges)
+# - P2: +BR, +US (~250K edges)
+# - P3: All sources (~350K edges)
+
+FR_THESIS:
+  enabled: true  # P0 wave
+  legal_blocked: false
+  type: oai_pmh
+  country: FR
+  language: fr
+  # PRODUCTION URL: Research actual French thesis portal OAI-PMH endpoint
+  # Candidates: theses.fr, sudoc.fr, HAL
+  base_url: "https://www.theses.fr/oai"  # VERIFY THIS URL
+  set: "theses"
+  metadata_prefix: "oai_dc"
+  advisor_locale: fr
+  degree_hints: ["thèse","doctorat"]
+  trust:
+    source_weight: National_Thesis_Portal  # See scoring.yml
+    prefer_structured_roles: true
+    committee_terms: ["rapporteur","examinateur","jury"]
+
+ES_TESEO:
+  enabled: false  # P1 wave (enable after FR validated)
+  legal_blocked: false
+  type: oai_pmh
+  country: ES
+  language: es
+  # PRODUCTION URL: Spanish thesis portal
+  # Candidate: teseo.educacion.gob.es
+  base_url: "https://www.educacion.gob.es/teseo/oai/request"  # VERIFY THIS URL
+  metadata_prefix: "oai_dc"
+  advisor_locale: es
+  degree_hints: ["doctorado"]
+  trust:
+    source_weight: National_Thesis_Portal
+
+DE_OPUS_NET:
+  enabled: false  # P1 wave
+  legal_blocked: false
+  type: oai_pmh
+  country: DE
+  language: de
+  # PRODUCTION URL: German institutional repository network
+  # Note: May need multiple endpoints for different universities
+  base_url: "https://opus.bibliothek.kit.edu/oai/request"  # EXAMPLE - NEED NETWORK LIST
+  metadata_prefix: "oai_dc"
+  advisor_locale: de
+  degree_hints: ["dr.rer.nat.","dr.phil.","promotion"]
+  trust:
+    source_weight: Institutional_IR
+
+US_CROSSREF_IR:
+  enabled: false  # P2 wave
+  legal_blocked: false
+  type: rest_json
+  country: US
+  language: en
+  # PRODUCTION URL: Crossref API (dissertations)
+  base_url: "https://api.crossref.org/works"  # VERIFIED
+  params:
+    filter: "type:dissertation"
+    rows: 100
+  advisor_locale: en
+  degree_hints: ["phd","doctor of philosophy"]
+  trust:
+    source_weight: Crossref_Dissertation
+
+BR_BDTD:
+  enabled: false  # P2 wave
+  legal_blocked: false
+  type: oai_pmh
+  country: BR
+  language: pt
+  # PRODUCTION URL: Brazilian thesis portal
+  # Verified: bdtd.ibict.br
+  base_url: "http://bdtd.ibict.br/vufind/OAI/Server"  # VERIFY THIS URL
+  metadata_prefix: "oai_dc"
+  advisor_locale: pt
+  degree_hints: ["doutorado"]
+  trust:
+    source_weight: National_Thesis_Portal
+
+# Additional sources for future waves (P3+)
+
+UK_ETHOS:
+  enabled: false  # P3 wave
+  legal_blocked: false
+  type: oai_pmh
+  country: GB
+  language: en
+  # British Library thesis portal
+  base_url: "https://ethos.bl.uk/OAI"  # RESEARCH URL
+  metadata_prefix: "oai_dc"
+  advisor_locale: en
+  trust:
+    source_weight: National_Thesis_Portal
+
+AU_TROVE:
+  enabled: false  # P3 wave
+  legal_blocked: false
+  type: rest_json
+  country: AU
+  language: en
+  # National Library of Australia
+  base_url: "https://api.trove.nla.gov.au/v3/result"  # RESEARCH API
+  advisor_locale: en
+  trust:
+    source_weight: National_Library
+
+CA_THESES:
+  enabled: false  # P3 wave
+  legal_blocked: false
+  type: oai_pmh
+  country: CA
+  language: en
+  # Library and Archives Canada
+  base_url: "https://www.bac-lac.gc.ca/oai/oai2"  # RESEARCH URL
+  advisor_locale: en
+  trust:
+    source_weight: National_Thesis_Portal
+
+# PRODUCTION DEPLOYMENT CHECKLIST:
+#
+# [ ] Verify all base_urls are correct and accessible
+# [ ] Test OAI-PMH endpoints with ListIdentifiers
+# [ ] Configure rate limiting per source (avoid 403/429 errors)
+# [ ] Set up monitoring for source availability
+# [ ] Enable P0 sources only for initial deployment
+# [ ] Validate edge extraction on sample records
+# [ ] Monitor data quality metrics (confidence scores)
+# [ ] Progressively enable P1, P2, P3 waves

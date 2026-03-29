@@ -1,0 +1,150 @@
+# C6 Hebrew Diaspora Region Processing Rules
+# Specialized rules for Hebrew and Jewish diaspora naming patterns
+
+schema_version: "7.0"
+region_code: "C6"
+region_name: "Hebrew Diaspora"
+
+# Hebrew Diaspora linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 34
+    name: "Hebrew Script Processing"
+    description: "Handle Hebrew script with proper right-to-left reading, niqqud, and contextual forms"
+    implementation: "hebrew_script_processing"
+    
+  - id: 37
+    name: "Jewish Diaspora Patterns"
+    description: "Process Jewish diaspora naming patterns including Ashkenazi, Sephardic, and Mizrahi traditions"
+    implementation: "diaspora_surname_processing"
+
+# Hebrew Diaspora specific processing rules
+processing_rules:
+  hebrew_script_handling:
+    enabled: true
+    script_type: "Hebrew"
+    reading_direction: "right_to_left"
+    normalization_form: "NFKC"
+    handle_niqqud: "optional"
+    handle_cantillation: "strip"
+    final_forms: "preserve_contextual"
+    
+  diaspora_patterns:
+    enabled: true
+    territories: ["IL"]
+    global_diaspora_support: true
+    ashkenazi_patterns: true
+    sephardic_patterns: true
+    mizrahi_patterns: true
+    
+  ashkenazi_patterns:
+    enabled: true
+    regions: ["Eastern_Europe", "Central_Europe", "Russia"]
+    yiddish_influences: true
+    germanic_surname_patterns: ["berg", "stein", "baum", "thal"]
+    slavic_surname_patterns: ["ski", "wicz", "ovich"]
+    patronymic_endings: ["son", "sohn", "zon"]
+    occupational_surnames: ["Schneider", "Goldschmidt", "Rabinowitz"]
+    
+  sephardic_patterns:
+    enabled: true
+    regions: ["Spain", "Portugal", "Ottoman_Empire", "North_Africa"]
+    ladino_influences: true
+    spanish_surname_patterns: ["ez", "es", "is"]
+    portuguese_patterns: ["ez", "es"]
+    arabic_influences: true
+    ottoman_period_names: true
+    
+  mizrahi_patterns:
+    enabled: true
+    regions: ["Middle_East", "North_Africa", "Central_Asia"]
+    arabic_surname_patterns: true
+    persian_influences: true
+    aramaic_elements: true
+    babylonian_traditions: true
+    
+  israeli_patterns:
+    enabled: true
+    territories: ["IL"]
+    hebrew_revival_names: true
+    biblical_name_restoration: true
+    zionist_era_hebraization: true
+    sabra_generation_patterns: true
+    
+  patronymic_traditions:
+    enabled: true
+    hebrew_patronymics: ["בן", "בת", "אבן"]
+    aramaic_patronymics: ["בר"]
+    preserve_genealogical_chains: true
+    handle_matronymics: true
+    
+  hebrew_transliteration:
+    enabled: true
+    primary_standard: "ALA-LC Hebrew"
+    alternative_standards: ["ISO 259", "BGN-PCGN"]
+    preserve_original: true
+    create_variants: true
+    handle_final_forms: "contextual"
+    handle_dagesh: "optional"
+    handle_aleph_ayin: "distinguish"
+    
+  religious_elements:
+    enabled: true
+    preserve_religious_titles: ["רב", "ר'", "הרב"]
+    kohen_levi_markers: ["כהן", "לוי", "הלוי"]
+    preserve_in_extras: true
+    rabbinical_titles: "preserve_separately"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    multiple_given_names: "preserve_all"
+    hebrew_given_names: "preserve_original"
+    diaspora_surnames: "preserve_origin_markers"
+    compound_surnames: "preserve_structure"
+    
+  script_validation:
+    script_requirement: "Hebrew_or_Latin"
+    validate_right_to_left: true
+    allow_hebrew_original: true
+    allow_latin_transliterations: true
+    mixed_script_tolerance: "high"
+    
+  diaspora_geographic_markers:
+    preserve_origin_indicators: true
+    ashkenazi_geographic: ["Berliner", "Warshauer", "Krakauer"]
+    sephardic_geographic: ["Toledano", "Cordobes", "Sarajevo"]
+    mizrahi_geographic: ["Baghdadi", "Teherani", "Halabi"]
+    
+  hebraization_patterns:
+    modern_hebrew_adaptations: true
+    biblical_name_restoration: ["Avraham", "Yitzchak", "Yaakov"]
+    zionist_hebraization: ["Davar", "Aretz", "Shalom"]
+    occupational_hebraization: true
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    handle_hebrew_numerals: true
+    biblical_hebrew: "preferred"
+    modern_hebrew_forms: "accepted"
+    yiddish_transliterations: "preserve_with_note"
+
+# Quality thresholds for C6
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  hebrew_script_detection_accuracy: 0.9
+  transliteration_accuracy: 0.88
+  diaspora_pattern_recognition: 0.82
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"
+  unknown_diaspora_patterns: "accept_with_hebrew_processing"
+  mixed_script_conflicts: "prefer_hebrew_original"

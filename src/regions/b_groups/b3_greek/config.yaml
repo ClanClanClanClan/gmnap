@@ -1,0 +1,39 @@
+# B3 Greek Region Configuration
+# Greek: GR, CY
+
+schema_version: "7.0"
+region_code: "B3"
+region_name: "Greek"
+
+# Regional characteristics
+iso_territories: [GR, CY]
+primary_scripts: ["Greek"]
+distinct_features: "Monotonic/polytonic Greek; transliteration variants"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: false
+romanisation_standards: ["ELOT 743", "ISO 843", "BGN-PCGN"]
+
+# Regional processing rules
+processing_rules:
+  greek_script_handling: true
+  monotonic_polytonic_processing: true
+  greek_transliteration: true
+  cypriot_greek_variants: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  greek_script_validation: true
+  transliteration_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  transliteration_accuracy: 0.92
+  greek_script_detection_accuracy: 0.9

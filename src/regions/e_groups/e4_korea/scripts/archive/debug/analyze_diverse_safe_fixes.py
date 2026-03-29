@@ -3,7 +3,6 @@
 Analyze Diverse failures to find safe improvement patterns
 that won't break Math or Independent performance
 """
-import json
 
 # Current Diverse failures from the analysis
 diverse_failures = [

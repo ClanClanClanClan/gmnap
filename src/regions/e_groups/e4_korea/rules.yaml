@@ -1,0 +1,71 @@
+# E4 Korea Regional Processing Rules
+# Linguistic rules specific to Korean name processing
+
+schema_version: "7.0"
+region_code: "E4"
+region_name: "Korea"
+
+# Core linguistic rules for Korean names
+linguistic_rules:
+  - id: 13
+    name: "Korean Hyphen/Space"
+    description: "Handle hyphen/space variation in Korean names; order_key collapsed"
+    implementation: "variant_set"
+    
+  - id: 11
+    name: "CJK Round-Trip"
+    description: "Romanise+back-convert; ≥97% match (Dice coefficient after NFC casefold)"
+    implementation: "bidirectional_conversion"
+    target_accuracy: 0.97
+
+# Korean-specific processing rules
+processing_rules:
+  romanization:
+    system: "Revised Romanization (2000)"
+    alternative_systems: ["McCune-Reischauer", "Yale"]
+    
+  script_handling:
+    primary_script: "Hangul"
+    secondary_script: "Hanja"
+    romanization_required: true
+    
+  name_patterns:
+    hyphen_space_equivalence: true
+    surname_first: true
+    given_name_hyphenation: "preserve"
+    
+  validation_rules:
+    min_length: 2
+    max_length: 50
+    allowed_scripts: ["Hangul", "Hanja", "Latin"]
+    forbidden_characters: ["数", "字", "號"] # Chinese-specific characters
+    
+  normalization:
+    unicode_form: "NFC"
+    case_handling: "preserve"
+    whitespace_normalization: "single_space"
+    
+# Romanization mapping configuration
+romanization_config:
+  syllable_map: "resources/rr_syllable_map.csv"
+  variant_map: "resources/variant_map.csv"
+  common_tokens: "resources/common_tokens.csv"
+  loanword_mappings: "resources/loanword_en2kor.tsv"
+  
+# Quality thresholds
+quality_thresholds:
+  round_trip_accuracy: 0.97
+  romanization_confidence: 0.85
+  script_detection_confidence: 0.90
+  
+# Error handling
+error_handling:
+  unknown_syllable: "passthrough"
+  invalid_character: "reject"
+  conversion_failure: "fallback_to_latin"
+  
+# Performance settings
+performance:
+  cache_conversions: true
+  batch_processing: true
+  max_conversion_attempts: 3

@@ -1,0 +1,39 @@
+# E3 Japan Region Configuration
+# Japan: Kanji, Hiragana, Katakana naming systems
+
+schema_version: "7.0"
+region_code: "E3"
+region_name: "Japan"
+
+# Regional characteristics
+iso_territories: [JP]
+primary_scripts: ["Kanji", "Hiragana", "Katakana", "Latin"]
+distinct_features: "Japanese scripts (Kanji/Hiragana/Katakana); family-given order; post-2020 romanization order changes; generation names"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["Hepburn", "Kunrei-shiki", "Nihon-shiki"]
+
+# Regional processing rules
+processing_rules:
+  japanese_script_handling: true
+  post_2020_order_rule: true
+  kanji_hiragana_katakana_processing: true
+  japanese_romanization: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  japanese_script_validation: true
+  romanization_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  japanese_script_detection_accuracy: 0.95
+  romanization_accuracy: 0.90

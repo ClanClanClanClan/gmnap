@@ -1,0 +1,79 @@
+# A4 Oceania Island States Region Processing Rules
+# Specialized rules for Oceania/Pacific Island naming patterns
+
+schema_version: "7.0"
+region_code: "A4"
+region_name: "Oceania Island States"
+
+# Oceania linguistic rules
+linguistic_rules:
+  - id: 31
+    name: "Pacific Macron Restore"
+    description: "macronised Māori/Samoan/Tongan forms"
+    implementation: "macron_restoration"
+    
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+
+# Oceania specific processing rules
+processing_rules:
+  polynesian_macrons:
+    enabled: true
+    restore_macrons: true
+    languages: ["maori", "samoan", "tongan", "hawaiian", "tahitian"]
+    macron_chars: ["ā", "ē", "ī", "ō", "ū", "Ā", "Ē", "Ī", "Ō", "Ū"]
+    ascii_variants: true
+    
+  melanesian_patterns:
+    enabled: true
+    papua_new_guinea: "tok_pisin_influences"
+    solomon_islands: "colonial_surnames"
+    vanuatu: "ni_vanuatu_patterns"
+    fiji: "fijian_traditional_names"
+    
+  micronesian_conventions:
+    enabled: true
+    marshall_islands: true
+    caroline_islands: true
+    gilbert_islands: true
+    nauru: "nauruan_patterns"
+    
+  french_territories:
+    enabled: true
+    new_caledonia: "kanak_names"
+    french_polynesia: "tahitian_patterns"
+    preserve_french_particles: true
+    
+  name_patterns:
+    comma_separation: "Family, Given"
+    multiple_given_names: "preserve_all"
+    traditional_names: "preserve_structure"
+    colonial_influences: "detect_and_preserve"
+    
+  script_validation:
+    script_requirement: "Latin_Macrons"
+    allow_macrons: true
+    validate_polynesian_specific: true
+    allow_apostrophes: true
+    
+  macron_handling:
+    preserve_original: true
+    create_ascii_variants: true
+    normalization_form: "NFC"
+    restoration_accuracy_threshold: 0.8
+
+# Quality thresholds for A4
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  macron_restoration_accuracy: 0.9
+  traditional_name_handling: 0.85
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_macrons: "preserve_ascii_variant"
+  ambiguous_restoration: "prefer_conservative"
+  unknown_traditional_patterns: "accept_with_variants"

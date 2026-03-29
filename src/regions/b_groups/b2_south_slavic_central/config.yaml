@@ -1,0 +1,38 @@
+# B2 South-Slavic & Central Europe Region Configuration
+# Central Europe: BG, RS, ME, HR, SI, BA, MK, PL, CZ, SK, HU, RO, AL, XK
+
+schema_version: "7.0"
+region_code: "B2"
+region_name: "South-Slavic & Central Europe"
+
+# Regional characteristics
+iso_territories: [BG, RS, ME, HR, SI, BA, MK, PL, CZ, SK, HU, RO, AL, XK]
+primary_scripts: ["Latin", "Cyrillic"]
+distinct_features: "Gaj alphabet; Hungarian name-order flip"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: []
+
+# Regional processing rules
+processing_rules:
+  hungarian_name_order_handling: true
+  gaj_alphabet_processing: true
+  south_slavic_patterns: true
+  central_european_conventions: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  mixed_script_validation: true
+  hungarian_order_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  name_order_detection_accuracy: 0.9

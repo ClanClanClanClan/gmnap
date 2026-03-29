@@ -1,0 +1,39 @@
+# C1 Turkic Region Configuration
+# Turkic: TR, AZ, KZ, KG, UZ, TM, TJ
+
+schema_version: "7.0"
+region_code: "C1"
+region_name: "Turkic"
+
+# Regional characteristics
+iso_territories: [TR, AZ, KZ, KG, UZ, TM, TJ]
+primary_scripts: ["Latin", "Cyrillic"]
+distinct_features: "Mixed Latin/Cyrillic scripts; vowel harmony patterns"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["ALA-LC Turkish", "ISO 9 Cyrillic", "BGN-PCGN"]
+
+# Regional processing rules
+processing_rules:
+  turkic_script_handling: true
+  latin_cyrillic_mixed: true
+  vowel_harmony_processing: true
+  turkic_transliteration: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  mixed_script_validation: true
+  turkic_pattern_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  script_detection_accuracy: 0.9
+  transliteration_accuracy: 0.88

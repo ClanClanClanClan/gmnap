@@ -1,0 +1,39 @@
+# C6 Hebrew Diaspora Region Configuration
+# Hebrew Diaspora: IL, Global Jewish communities
+
+schema_version: "7.0"
+region_code: "C6"
+region_name: "Hebrew Diaspora"
+
+# Regional characteristics
+iso_territories: [IL]
+primary_scripts: ["Hebrew", "Latin"]
+distinct_features: "Hebrew script; diaspora surnames; patronymic traditions"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: true
+romanisation_standards: ["ALA-LC Hebrew", "ISO 259", "BGN-PCGN"]
+
+# Regional processing rules
+processing_rules:
+  hebrew_script_handling: true
+  diaspora_surname_processing: true
+  hebrew_transliteration: true
+  patronymic_traditions: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  hebrew_script_validation: true
+  diaspora_pattern_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  hebrew_script_detection_accuracy: 0.9
+  transliteration_accuracy: 0.88

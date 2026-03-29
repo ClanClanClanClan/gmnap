@@ -1,0 +1,39 @@
+# C3 Arabic Levant-Nile Region Configuration
+# Arabic Levant-Nile: SY, LB, JO, PS, EG, SD
+
+schema_version: "7.0"
+region_code: "C3"
+region_name: "Arabic Levant-Nile"
+
+# Regional characteristics
+iso_territories: [SY, LB, JO, PS, EG, SD]
+primary_scripts: ["Arabic"]
+distinct_features: "Levantine dialects; Egyptian variations; compound surnames"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: false
+romanisation_standards: ["ALA-LC Arabic", "BGN-PCGN", "ISO 233-2"]
+
+# Regional processing rules
+processing_rules:
+  arabic_script_handling: true
+  levantine_dialect_processing: true
+  egyptian_variations: true
+  arabic_transliteration: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+  arabic_script_validation: true
+  regional_dialect_validation: true
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95
+  arabic_script_detection_accuracy: 0.92
+  transliteration_accuracy: 0.88

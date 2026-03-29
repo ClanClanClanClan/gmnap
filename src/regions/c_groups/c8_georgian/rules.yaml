@@ -1,0 +1,155 @@
+# C8 Georgian Region Processing Rules
+# Specialized rules for Georgian naming patterns
+
+schema_version: "7.0"
+region_code: "C8"
+region_name: "Georgian"
+
+# Georgian linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 40
+    name: "Georgian Script Processing"
+    description: "Handle Georgian script (Mkhedruli, Asomtavruli, Nuskhuri) with proper forms"
+    implementation: "georgian_script_processing"
+    
+  - id: 41
+    name: "Georgian Patronymic Patterns"
+    description: "Process Georgian patronymic and regional naming patterns"
+    implementation: "georgian_patronymic_processing"
+
+# Georgian specific processing rules
+processing_rules:
+  georgian_script_handling:
+    enabled: true
+    script_type: "Georgian"
+    reading_direction: "left_to_right"
+    normalization_form: "NFKC"
+    primary_script: "Mkhedruli"  # Modern Georgian
+    historical_scripts: ["Asomtavruli", "Nuskhuri"]
+    handle_case_variants: true
+    
+  georgian_patronymics:
+    enabled: true
+    traditional_suffixes: ["-ძე", "-შვილი"]  # -dze, -shvili (son of)
+    regional_suffixes: ["-ანი", "-უნი", "-ური"]  # Regional family markers
+    noble_suffixes: ["-ბატონი", "-ჩხაიძე"]  # Noble family markers
+    preserve_suffix_variations: true
+    
+  regional_variations:
+    enabled: true
+    territories: ["GE"]
+    
+    kartli_patterns:
+      region: "Central Georgia"
+      traditional_surnames: true
+      noble_family_patterns: ["-ბაგრატიონი", "-ერისთავი"]
+      
+    kakheti_patterns:
+      region: "Eastern Georgia"
+      wine_region_surnames: true
+      tribal_affiliations: ["-ალასანია", "-ტელიანი"]
+      
+    svaneti_patterns:
+      region: "Northwestern Georgia"
+      mountain_clan_names: true
+      ancient_family_patterns: ["-დადიანი", "-გელოვანი"]
+      
+    samegrelo_patterns:
+      region: "Western Georgia"
+      mingrelian_influences: true
+      historical_principality_names: true
+      
+    adjara_patterns:
+      region: "Southwestern Georgia"
+      ottoman_period_influences: "limited"
+      preserve_georgian_forms: true
+      
+    abkhazia_patterns:
+      region: "Northwestern Georgia"
+      abkhazian_georgian_patterns: true
+      complex_ethnic_markers: true
+      
+  georgian_transliteration:
+    enabled: true
+    primary_standard: "ALA-LC Georgian"
+    alternative_standards: ["ISO 9984", "BGN-PCGN"]
+    preserve_original: true
+    create_variants: true
+    handle_georgian_palatalization: true
+    aspirated_consonants: "distinguish"
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    georgian_given_names: "preserve_original"
+    patronymic_surnames: "preserve_with_suffix"
+    compound_surnames: "preserve_structure"
+    noble_titles: "preserve_in_extras"
+    
+  script_validation:
+    script_requirement: "Georgian_or_Latin"
+    validate_georgian_orthography: true
+    allow_georgian_original: true
+    allow_latin_transliterations: true
+    mixed_script_tolerance: "moderate"
+    
+  historical_patterns:
+    enabled: true
+    medieval_georgian_names: true
+    soviet_georgian_adaptations: true
+    russian_influence_patterns: true
+    post_independence_revivals: true
+    
+  religious_elements:
+    enabled: true
+    christian_orthodox_traditions: true
+    saint_name_patterns: true
+    monastic_surnames: ["-მცხეთელი", "-ბოდბელი"]
+    preserve_religious_markers: true
+    
+  clan_family_patterns:
+    enabled: true
+    ancient_georgian_clans: true
+    principality_families: ["-ერისთავი", "-მთავარი"]
+    merchant_family_names: true
+    artisan_surnames: true
+    
+  geographic_markers:
+    enabled: true
+    preserve_origin_indicators: true
+    city_origin_markers: ["-თბილისელი", "-ქუთაისელი", "-ბათუმელი"]
+    regional_markers: ["-კართლელი", "-კახელი", "-სვანი"]
+    village_indicators: ["-ური", "-ელი", "-ანი"]
+    
+  linguistic_adaptations:
+    enabled: true
+    handle_consonant_clusters: true
+    georgian_phonetic_patterns: true
+    vowel_harmony_considerations: false  # Georgian doesn't have vowel harmony
+    
+  orthography_handling:
+    preserve_original: true
+    create_transliterated_variants: true
+    handle_georgian_numerals: true
+    modern_georgian_forms: "preferred"
+    historical_orthographic_variants: "preserve_with_note"
+
+# Quality thresholds for C8
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  georgian_script_detection_accuracy: 0.88
+  transliteration_accuracy: 0.85
+  patronymic_recognition_accuracy: 0.82
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_transliterations: "prefer_ala_lc"
+  unknown_regional_patterns: "accept_with_standard_processing"
+  script_mixing_conflicts: "prefer_georgian_original"

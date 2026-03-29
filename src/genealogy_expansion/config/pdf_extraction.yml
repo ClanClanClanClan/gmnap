@@ -1,0 +1,8 @@
+enabled: false
+engine: "gpt-4o-mini"
+monthly_cost_cap_chf: 40
+max_pages: 400
+trigger_when:
+  missing_advisor: true
+  roles_ambiguous: true
+  low_confidence_below: 0.75

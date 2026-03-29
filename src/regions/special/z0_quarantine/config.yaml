@@ -1,0 +1,56 @@
+# Z0 Quarantine Region Configuration
+# For entries with detector confidence < 50% that require isolation
+
+schema_version: "7.0"
+region_code: "Z0" 
+region_name: "Quarantine"
+
+# Region specifications from v7.0 specs
+iso_territories: []  # No specific territories
+primary_scripts: []  # No specific scripts
+distinct_features: "Detector confidence < 50 %"
+
+# Processing configuration
+processing_config:
+  # Quarantine processing - minimal and safe
+  quarantine_mode: true
+  minimal_processing: true
+  safety_first: true
+  
+  # Strict isolation and logging
+  isolate_from_main_pipeline: true
+  extensive_logging: true
+  human_review_required: false
+
+# Weight configurations for quarantine detection
+weights:
+  low_detector_confidence: 0.8   # Primary indicator
+  processing_failures: 0.1       # Multiple processing failures
+  security_concerns: 0.1         # Security validation failures
+
+# Quality thresholds (quarantine-specific)
+quality_thresholds:
+  maximum_confidence: 0.49      # Must be < 50% to qualify for quarantine
+  security_risk_tolerance: 0.0   # Zero tolerance for security risks
+  processing_error_threshold: 3  # Max processing attempts
+
+# Quarantine-specific settings
+quarantine_config:
+  auto_release_threshold: 0.7    # Confidence needed to exit quarantine
+  max_quarantine_duration_days: 30
+  review_interval_hours: 24
+  escalation_threshold: 0.1      # Escalate if confidence drops below 10%
+  
+# Safety and security settings
+safety_config:
+  strict_validation: true
+  security_scanning: true
+  content_filtering: true
+  rate_limiting: true
+  
+# Error handling for quarantined entries
+error_handling:
+  processing_failure: "log_and_quarantine_longer"
+  security_violation: "permanent_quarantine"
+  confidence_drop: "extend_quarantine"
+  validation_error: "human_review_required"

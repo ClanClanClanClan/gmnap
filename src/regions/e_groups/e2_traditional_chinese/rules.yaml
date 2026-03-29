@@ -1,0 +1,240 @@
+# E2 Traditional Chinese Region Processing Rules
+# Specialized rules for Traditional Chinese naming patterns
+
+schema_version: "7.0"
+region_code: "E2"
+region_name: "Traditional Chinese"
+
+# Traditional Chinese linguistic rules
+linguistic_rules:
+  - id: 16
+    name: "Unicode Fold Exceptions"  
+    description: "Ligatures decomposed; ß/ẞ → ss/SS; tonos=oxia"
+    implementation: "unicode_normalization"
+    
+  - id: 57
+    name: "Traditional Chinese Processing"
+    description: "Handle Traditional Chinese characters with proper variant forms and classical structures"
+    implementation: "traditional_chinese_processing"
+    
+  - id: 58
+    name: "Multiple Romanization Systems"
+    description: "Process Wade-Giles, Tongyong, Zhuyin, and Jyutping romanization systems"
+    implementation: "multi_romanization_processing"
+    
+  - id: 59
+    name: "Bilingual Name Processing"
+    description: "Handle Chinese-English and Chinese-Portuguese bilingual names"
+    implementation: "bilingual_name_processing"
+    
+  - id: 60
+    name: "Generation Name Traditions"
+    description: "Process traditional generation naming patterns (輩分字)"
+    implementation: "generation_name_processing"
+
+# Traditional Chinese specific processing rules
+processing_rules:
+  traditional_chinese_handling:
+    enabled: true
+    script_type: "Han"
+    character_set: "Traditional"
+    normalization_form: "NFKC"
+    handle_variants: "preserve_traditional"
+    simplified_fallback: "none"
+    character_variant_processing: "full_traditional_support"
+    
+  taiwan_regional_patterns:
+    enabled: true
+    territories: ["TW"]
+    romanization_preference: "Tongyong"
+    script_preference: "Bopomofo"
+    character_variants: "Traditional"
+    official_systems: ["Zhuyin", "Tongyong Pinyin"]
+    
+  hong_kong_patterns:
+    enabled: true
+    territories: ["HK"]
+    romanization_preference: "Jyutping"
+    script_preference: "Cantonese"
+    character_variants: "Traditional"
+    colonial_influence: "English"
+    bilingual_patterns: true
+    english_surnames: ["Wong", "Lee", "Chan", "Lam", "Cheung"]
+    
+  macau_patterns:
+    enabled: true
+    territories: ["MO"]
+    romanization_preference: "Portuguese"
+    script_preference: "Cantonese"
+    character_variants: "Traditional"
+    colonial_influence: "Portuguese"
+    bilingual_patterns: true
+    portuguese_surnames: ["Silva", "Santos", "Pereira", "Oliveira"]
+    
+  cantonese_processing:
+    enabled: true
+    territories: ["HK", "MO"]
+    jyutping_romanization: true
+    cantonese_tones: "preserve_in_romanization"
+    cantonese_specific_characters: true
+    yale_romanization_support: true
+    
+  traditional_chinese_families:
+    enabled: true
+    common_surnames: ["陳", "林", "黃", "張", "李", "王", "吳", "劉", "蔡", "楊"]
+    compound_surnames: ["歐陽", "太史", "端木", "上官", "司馬", "東方", "獨孤", "南宮", "西門"]
+    taiwan_specific: ["許", "鄭", "謝", "郭", "洪", "邱", "曾", "廖", "賴", "徐"]
+    hk_specific: ["魏", "孫", "梁", "馬", "施", "盧", "金", "鍾", "邵", "胡"]
+    historical_families: "preserve_traditional_forms"
+    
+  generation_naming_traditions:
+    enabled: true
+    generation_characters: ["世", "代", "昭", "穆", "永", "言", "孝", "思", "維", "則"]
+    classical_patterns: ["天", "地", "玄", "黃", "宇", "宙", "洪", "荒", "日", "月"]
+    poetic_sequences: ["盈", "昃", "辰", "宿", "列", "張", "寒", "來", "暑", "往"]
+    family_genealogy: "preserve_generational_order"
+    
+  bilingual_name_processing:
+    enabled: true
+    chinese_english_patterns: true
+    chinese_portuguese_patterns: true
+    script_mixing_tolerance: "high"
+    bilingual_order_variations: true
+    western_given_chinese_family: true
+    chinese_given_western_family: true
+    
+  romanization_systems:
+    enabled: true
+    wade_giles:
+      enabled: true
+      apostrophe_handling: "preserve"
+      aspirate_marks: "distinguish"
+      tone_notation: "numbers"
+      
+    tongyong_pinyin:
+      enabled: true
+      taiwan_standard: true
+      tone_marks: "diacritical"
+      syllable_separation: "standard"
+      
+    zhuyin_bopomofo:
+      enabled: true
+      taiwan_phonetic: true
+      tone_marks: "superscript"
+      character_combinations: "standard"
+      
+    jyutping:
+      enabled: true
+      cantonese_standard: true
+      tone_numbers: "final_position"
+      yale_compatibility: true
+      
+  traditional_chinese_transliteration:
+    enabled: true
+    primary_standards: ["Wade-Giles", "Tongyong", "Jyutping"]
+    preserve_original: true
+    create_variants: true
+    handle_polyphonic_characters: "context_dependent"
+    traditional_pronunciation_rules: true
+    
+  name_patterns:
+    canonical_order: "Family, Given"
+    traditional_given_names: "preserve_character_meanings"
+    generational_markers: "preserve_family_sequences"
+    courtesy_names: "document_when_present"
+    art_names: "preserve_literary_tradition"
+    temple_names: "preserve_religious_context"
+    
+  script_validation:
+    script_requirement: "Han_or_Latin"
+    validate_traditional_orthography: true
+    allow_traditional_chinese_original: true
+    allow_romanizations: true
+    mixed_script_tolerance: "high"
+    bopomofo_support: true
+    
+  colonial_influence_patterns:
+    enabled: true
+    hong_kong_english:
+      surnames: ["Wong", "Lee", "Chan", "Lam", "Cheung", "Ng", "Ho", "Yu"]
+      given_names: ["John", "Mary", "David", "Susan", "Michael", "Grace"]
+      title_handling: ["Sir", "Dame", "Hon"]
+      
+    macau_portuguese:
+      surnames: ["Silva", "Santos", "Pereira", "Oliveira", "Costa", "Rodrigues"]
+      given_names: ["José", "Maria", "António", "Ana", "Manuel", "Teresa"]
+      baptismal_names: true
+      
+  cultural_elements:
+    enabled: true
+    confucian_values: ["仁", "義", "禮", "智", "信"]
+    buddhist_influences: ["慈", "悲", "智", "慧", "覺"]
+    taoist_elements: ["道", "德", "玄", "真", "自然"]
+    feng_shui_considerations: ["吉", "祥", "順", "和"]
+    
+  historical_periods:
+    enabled: true
+    imperial_names: "preserve_classical_elements"
+    republican_period: "document_westernization"
+    japanese_period_taiwan: "document_colonial_influences"
+    british_period_hk: "preserve_colonial_names"
+    portuguese_period_macau: "preserve_lusitanian_influences"
+    
+  occupational_elements:
+    enabled: true
+    traditional_occupations: ["農", "工", "商", "學"]
+    modern_professions: ["醫", "師", "工程", "科技"]
+    academic_titles: ["博士", "教授", "學者", "研究"]
+    
+  geographic_elements:
+    enabled: true
+    preserve_origin_indicators: true
+    taiwan_markers: ["台", "臺", "北", "南", "中", "東"]
+    hk_markers: ["港", "九", "新", "沙", "元"]
+    macau_markers: ["澳", "氹", "路", "環"]
+    mainland_origins: ["京", "滬", "穗", "深"]
+    
+  linguistic_features:
+    enabled: true
+    traditional_chinese_phonetics: true
+    cantonese_phonetic_patterns: true
+    taiwanese_phonetic_patterns: true
+    tone_preservation: "maintain_in_romanization"
+    character_composition: "preserve_radical_meanings"
+    
+  literary_traditions:
+    enabled: true
+    classical_literature: ["詩", "經", "史", "集"]
+    modern_writers: ["魯迅", "胡適", "徐志摩", "林語堂"]
+    poetic_names: ["詩", "詞", "賦", "歌"]
+    calligraphy_traditions: ["書", "法", "墨", "筆"]
+    
+  religious_elements:
+    enabled: true
+    buddhist_names: ["佛", "法", "僧", "禪", "淨"]
+    taoist_names: ["道", "仙", "真", "玄", "虛"]
+    confucian_names: ["聖", "賢", "君", "子", "德"]
+    christian_adaptations: "preserve_baptismal_names"
+    
+  orthography_handling:
+    preserve_original: true
+    create_romanized_variants: true
+    handle_traditional_punctuation: true
+    variant_character_support: "comprehensive"
+    classical_forms: "preserve_scholarly_usage"
+
+# Quality thresholds for E2
+quality_thresholds:
+  confidence_threshold: 0.7
+  processing_accuracy: 0.95
+  traditional_chinese_detection_accuracy: 0.95
+  romanization_accuracy: 0.90
+  bilingual_pattern_recognition: 0.85
+
+# Error handling
+error_handling:
+  invalid_characters: "reject"
+  malformed_compounds: "preserve_as_single"
+  ambiguous_romanizations: "prefer_dominant_system"
+  unknown_generation_patterns: "accept_with_standard_processing"
+  script_conflicts: "prefer_traditional_chinese_original"

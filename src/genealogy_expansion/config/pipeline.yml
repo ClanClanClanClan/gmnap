@@ -1,0 +1,29 @@
+batch_sizes:
+  ingest: 200
+  normalize: 500
+  extract: 300
+  fuse: 1000
+  load: 1000
+
+timeouts:
+  http_connect_seconds: 10
+  http_read_seconds: 30
+  pdf_fetch_seconds: 45
+
+concurrency:
+  country_workers: 4
+  per_source_workers: 2
+  max_global_workers: 16
+
+rate_limits:
+  default_rps: 2
+  national_portal_rps: 1
+  aggregator_rps: 2
+
+robots:
+  respect: true
+  abort_on_disallow: true
+
+legal:
+  stop_on_tos_violation: true
+  log_tos: true

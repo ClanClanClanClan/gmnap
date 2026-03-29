@@ -1,0 +1,73 @@
+ethnicity,gender,name,frequency,meaning,script
+amhara,male,Abebe,high,flower,ethiopic
+amhara,male,Bekele,high,he has grown,ethiopic
+amhara,male,Desta,medium,joy,ethiopic
+amhara,male,Haile,high,strength,ethiopic
+amhara,male,Tadesse,medium,he has been renewed,ethiopic
+amhara,male,Yohannes,high,John,ethiopic
+amhara,male,Mesfin,medium,dignitary,ethiopic
+amhara,male,Tekle,high,plant,ethiopic
+amhara,female,Almaz,high,diamond,ethiopic
+amhara,female,Birtukan,medium,orange,ethiopic
+amhara,female,Desta,medium,joy,ethiopic
+amhara,female,Hanna,high,grace,ethiopic
+amhara,female,Meron,high,mercy,ethiopic
+amhara,female,Seble,medium,harvest,ethiopic
+amhara,female,Tigist,high,patience,ethiopic
+amhara,female,Worknesh,medium,you are gold,ethiopic
+tigray,male,Gebrehiwot,high,servant of life,ethiopic
+tigray,male,Meles,high,he has returned,ethiopic
+tigray,male,Aregawi,medium,old man,ethiopic
+tigray,male,Berhe,medium,he has illuminated,ethiopic
+tigray,male,Kiros,medium,Cyrus,ethiopic
+tigray,male,Hagos,medium,joy,ethiopic
+tigray,male,Tsehaye,medium,sun,ethiopic
+tigray,female,Letekidan,medium,covenant,ethiopic
+tigray,female,Hiwot,high,life,ethiopic
+tigray,female,Senait,medium,Monday,ethiopic
+tigray,female,Meron,high,mercy,ethiopic
+tigray,female,Rahel,high,Rachel,ethiopic
+tigray,female,Tsehay,medium,sun,ethiopic
+tigray,female,Almaz,high,diamond,ethiopic
+oromo,male,Addisu,medium,new,latin
+oromo,male,Gemechu,medium,beautiful,latin
+oromo,male,Hundessa,low,hundred,latin
+oromo,male,Lemma,medium,prosperity,latin
+oromo,male,Nagessa,low,king,latin
+oromo,male,Tolossa,medium,survivor,latin
+oromo,male,Wayessa,low,my vision,latin
+oromo,female,Adanech,medium,she has saved,latin
+oromo,female,Chaltu,high,precious,latin
+oromo,female,Fantu,medium,desire,latin
+oromo,female,Gemechu,medium,beautiful,latin
+oromo,female,Hirut,medium,finding,latin
+oromo,female,Kebebush,low,honored,latin
+oromo,female,Meskerem,high,September,latin
+afar,male,Ahmed,high,praised,latin
+afar,male,Ali,high,elevated,latin
+afar,male,Hassan,high,handsome,latin
+afar,male,Ibrahim,high,Abraham,latin
+afar,male,Mahmoud,medium,praised,latin
+afar,male,Omar,high,life,latin
+afar,male,Yusuf,high,Joseph,latin
+afar,female,Aisha,high,alive,latin
+afar,female,Fatima,high,captivating,latin
+afar,female,Halima,medium,gentle,latin
+afar,female,Khadija,high,premature,latin
+afar,female,Maryam,high,Mary,latin
+afar,female,Sahra,high,desert,latin
+afar,female,Zeinab,medium,fragrant plant,latin
+somali_ethiopian,male,Abdullahi,high,servant of God,latin
+somali_ethiopian,male,Ahmed,high,praised,latin
+somali_ethiopian,male,Hassan,high,handsome,latin
+somali_ethiopian,male,Mohamed,high,praised,latin
+somali_ethiopian,male,Omar,high,life,latin
+somali_ethiopian,male,Yusuf,high,Joseph,latin
+somali_ethiopian,male,Abdi,high,servant,latin
+somali_ethiopian,female,Amina,high,trustworthy,latin
+somali_ethiopian,female,Fatima,high,captivating,latin
+somali_ethiopian,female,Halima,medium,gentle,latin
+somali_ethiopian,female,Sahra,high,desert,latin
+somali_ethiopian,female,Khadija,high,premature,latin
+somali_ethiopian,female,Maryam,high,Mary,latin
+somali_ethiopian,female,Zahra,medium,flower,latin

@@ -1,0 +1,9 @@
+{
+  "김정은": "Kim Jung-eun",
+  "이순신": {
+    "rr_common": "Lee Sun-sin",
+    "rr_strict": "I Sun-sin",
+    "mr": "Yi Sun-sin"
+  },
+  "세종대왕": "King Sejong"
+}

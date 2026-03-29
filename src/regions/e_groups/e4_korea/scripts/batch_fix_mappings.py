@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Batch fix mappings to resolve failures."""
-import csv
 import shutil
 import subprocess
 from datetime import datetime
@@ -8,11 +7,11 @@ from datetime import datetime
 # Mappings to add (that don't conflict if we use proper positions)
 mappings_to_add = [
     # For dice score fixes
-    ("순", "sun", "1.0", "", "G"),      # Yu, Gwan-Sun
-    ("병", "byung", "1.0", "", "G"),    # Lee, Byung-Hun  
-    ("헌", "hun", "1.0", "", "G"),      # Lee, Byung-Hun
+    ("순", "sun", "1.0", "", "G"),  # Yu, Gwan-Sun
+    ("병", "byung", "1.0", "", "G"),  # Lee, Byung-Hun
+    ("헌", "hun", "1.0", "", "G"),  # Lee, Byung-Hun
     # For no_conversion fixes (if not conflicting)
-    ("여", "yuh", "1.0", "", "G"),      # Youn, Yuh-Jung
+    ("여", "yuh", "1.0", "", "G"),  # Youn, Yuh-Jung
 ]
 
 # Create backup
@@ -26,7 +25,7 @@ print(f"Created backup: {backup_path}")
 added = 0
 skipped = 0
 
-with open(csv_path, 'a', encoding='utf-8') as f:
+with open(csv_path, "a", encoding="utf-8") as f:
     for hangul, roman, weight, context, pos in mappings_to_add:
         # Simple add - let's trust our analysis
         f.write(f"\n{hangul},{roman},{weight},{context},{pos}")
@@ -37,8 +36,7 @@ print(f"\nAdded {added} mappings")
 
 # Rebuild FSTs
 print("\nRebuilding FSTs...")
-result = subprocess.run(["python3", "scripts/build_fsts_multi.py"],
-                       capture_output=True, text=True)
+result = subprocess.run(["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True)
 if result.returncode == 0:
     print("✓ FSTs rebuilt")
 else:
@@ -60,8 +58,9 @@ test_names = [
 ]
 
 import sys
-sys.path.insert(0, 'src')
-import converter
+
+sys.path.insert(0, "src")
+# import converter
 
 passed = 0
 for name, expected in test_names:
@@ -76,8 +75,9 @@ print(f"\nPassed {passed}/{len(test_names)} tests")
 
 # Check for regressions
 print("\nChecking for regressions...")
-reg_result = subprocess.run(["python3", "scripts/validate_regression.py"],
-                           capture_output=True, text=True)
+reg_result = subprocess.run(
+    ["python3", "scripts/validate_regression.py"], capture_output=True, text=True
+)
 if reg_result.returncode != 0:
     print("⚠️  REGRESSIONS DETECTED!")
     print("Rolling back...")
