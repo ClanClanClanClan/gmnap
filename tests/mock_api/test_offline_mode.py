@@ -95,7 +95,9 @@ class MockCrossrefAPI:
                         "author": [
                             {
                                 "given": name.split(", ")[1] if ", " in name else name,
-                                "family": name.split(", ")[0] if ", " in name else "Unknown",
+                                "family": (
+                                    name.split(", ")[0] if ", " in name else "Unknown"
+                                ),
                                 "ORCID": "http://orcid.org/0000-0003-1234-5678",
                             }
                         ],
@@ -130,8 +132,12 @@ class MockORCIDAPI:
             "orcid-identifier": {"uri": f"https://orcid.org/{orcid}", "path": orcid},
             "person": {
                 "name": {
-                    "given-names": {"value": name.split(", ")[1] if ", " in name else name},
-                    "family-name": {"value": name.split(", ")[0] if ", " in name else "Unknown"},
+                    "given-names": {
+                        "value": name.split(", ")[1] if ", " in name else name
+                    },
+                    "family-name": {
+                        "value": name.split(", ")[0] if ", " in name else "Unknown"
+                    },
                 },
                 "biography": {"content": "Test biography"},
                 "researcher-urls": {"researcher-url": []},
@@ -162,8 +168,12 @@ class MockAPIServer:
     def setup_test_data(self):
         """Set up common test data."""
         # Add OpenAlex responses
-        self.openalex.add_person_response("Smith, John", "A1234567890", "0000-0003-1234-5678")
-        self.openalex.add_person_response("García, María", "A2345678901", "0000-0002-5678-9012")
+        self.openalex.add_person_response(
+            "Smith, John", "A1234567890", "0000-0003-1234-5678"
+        )
+        self.openalex.add_person_response(
+            "García, María", "A2345678901", "0000-0002-5678-9012"
+        )
         self.openalex.add_not_found_response("Nonexistent, Person")
 
         # Add Crossref responses
@@ -223,7 +233,9 @@ class TestOfflineMode:
         with patch("src.authorities.tier0.openalex.OpenAlexFetcher") as mock_class:
             mock_instance = Mock()
             mock_instance.fetch = AsyncMock(
-                return_value=Mock(status=Mock(value="not_found"), error_message="Person not found")
+                return_value=Mock(
+                    status=Mock(value="not_found"), error_message="Person not found"
+                )
             )
             mock_class.return_value = mock_instance
 
@@ -242,7 +254,9 @@ class TestOfflineMode:
             mock_instance.fetch = AsyncMock(
                 side_effect=[
                     Exception("Rate limit exceeded"),
-                    Mock(status=Mock(value="success"), data=Mock(source_id="A1234567890")),
+                    Mock(
+                        status=Mock(value="success"), data=Mock(source_id="A1234567890")
+                    ),
                 ]
             )
             mock_class.return_value = mock_instance
@@ -327,7 +341,9 @@ class TestOfflineMode:
             mock_instance = Mock()
             mock_instance.quota_manager = quota_manager
             mock_instance.fetch = AsyncMock(
-                return_value=Mock(status=Mock(value="success"), data=Mock(source_id="A1234567890"))
+                return_value=Mock(
+                    status=Mock(value="success"), data=Mock(source_id="A1234567890")
+                )
             )
             mock_class.return_value = mock_instance
 
@@ -377,7 +393,9 @@ class TestOfflineMode:
         """Test timeout simulation with mock."""
         with patch("src.authorities.tier0.openalex.OpenAlexFetcher") as mock_class:
             mock_instance = Mock()
-            mock_instance.fetch = AsyncMock(side_effect=asyncio.TimeoutError("Request timeout"))
+            mock_instance.fetch = AsyncMock(
+                side_effect=asyncio.TimeoutError("Request timeout")
+            )
             mock_class.return_value = mock_instance
 
             fetcher = mock_class()
@@ -391,7 +409,9 @@ class TestOfflineMode:
         with patch("src.authorities.tier0.openalex.OpenAlexFetcher") as mock_class:
             mock_instance = Mock()
             mock_instance.fetch = AsyncMock(
-                return_value=Mock(status=Mock(value="error"), error_message="Malformed response")
+                return_value=Mock(
+                    status=Mock(value="error"), error_message="Malformed response"
+                )
             )
             mock_class.return_value = mock_instance
 
@@ -417,7 +437,9 @@ class TestOfflineMode:
         with patch("src.authorities.tier0.openalex.OpenAlexFetcher") as mock_class:
             mock_instance = Mock()
             mock_instance.fetch = AsyncMock(
-                return_value=Mock(status=Mock(value="success"), data=Mock(source_id="A1234567890"))
+                return_value=Mock(
+                    status=Mock(value="success"), data=Mock(source_id="A1234567890")
+                )
             )
             mock_class.return_value = mock_instance
 

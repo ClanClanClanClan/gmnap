@@ -271,7 +271,9 @@ class RegionalProcessingTester:
 
         # Calculate score
         total_possible = len(self.regions)
-        score = (self.results["passed"] / total_possible) * 100 if total_possible > 0 else 0
+        score = (
+            (self.results["passed"] / total_possible) * 100 if total_possible > 0 else 0
+        )
 
         # Summary
         print("\n" + "=" * 70)

@@ -21,7 +21,12 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
-from src.authorities.base import AuthorityData, AuthorityFetcher, FetchStatus, QuotaManager
+from src.authorities.base import (
+    AuthorityData,
+    AuthorityFetcher,
+    FetchStatus,
+    QuotaManager,
+)
 from src.authorities.tier0.openalex import OpenAlexFetcher
 
 
@@ -82,7 +87,9 @@ class TestAuthorityQuotaManagement:
             # Test concurrent quota acquisition
             tasks = []
             for i in range(20):
-                task = asyncio.create_task(self.quota_manager.acquire_quota(test_service, 1))
+                task = asyncio.create_task(
+                    self.quota_manager.acquire_quota(test_service, 1)
+                )
                 tasks.append(task)
 
             results = await asyncio.gather(*tasks)
@@ -112,7 +119,9 @@ class TestAuthorityQuotaManagement:
             assert stats_before[test_service]["used"] == 5
 
             # Create new quota manager (simulate restart)
-            new_quota_manager = QuotaManager(self.source_manifest, Path("/tmp/test_quota"))
+            new_quota_manager = QuotaManager(
+                self.source_manifest, Path("/tmp/test_quota")
+            )
 
             # Should have restored usage
             stats_after = new_quota_manager.get_usage_stats()
@@ -133,14 +142,18 @@ class TestAuthorityQuotaManagement:
             # Create many concurrent tasks that try to exhaust quota
             tasks = []
             for i in range(20):  # More than quota (10)
-                task = asyncio.create_task(self.quota_manager.acquire_quota(test_service, 1))
+                task = asyncio.create_task(
+                    self.quota_manager.acquire_quota(test_service, 1)
+                )
                 tasks.append(task)
 
             results = await asyncio.gather(*tasks)
 
             # Only 10 should succeed
             successful = sum(1 for r in results if r)
-            assert successful == 10, f"Only 10 requests should succeed, got {successful}"
+            assert (
+                successful == 10
+            ), f"Only 10 requests should succeed, got {successful}"
 
             # Verify final usage
             remaining = self.quota_manager.get_remaining_quota(test_service)
@@ -199,7 +212,9 @@ class TestNetworkFailureRecovery:
         async def run_test():
             with patch("aiohttp.ClientSession.get") as mock_get:
                 # Mock SSL failure
-                mock_get.side_effect = ssl.SSLError("SSL certificate verification failed")
+                mock_get.side_effect = ssl.SSLError(
+                    "SSL certificate verification failed"
+                )
 
                 result = await self.fetcher.fetch("test mathematician")
 
@@ -312,7 +327,10 @@ class TestNetworkFailureRecovery:
                 result = await self.fetcher.fetch("test mathematician")
 
                 # Should eventually succeed or give up gracefully
-                assert result.status in [FetchStatus.NOT_FOUND, FetchStatus.NETWORK_ERROR]
+                assert result.status in [
+                    FetchStatus.NOT_FOUND,
+                    FetchStatus.NETWORK_ERROR,
+                ]
 
 
 class TestAPIDataCorruption:
@@ -449,7 +467,10 @@ class TestAPIDataCorruption:
 
                 # Should have reasonable timeout
                 assert elapsed < 10.0, f"Request took too long: {elapsed:.2f}s"
-                assert result.status in [FetchStatus.NOT_FOUND, FetchStatus.NETWORK_ERROR]
+                assert result.status in [
+                    FetchStatus.NOT_FOUND,
+                    FetchStatus.NETWORK_ERROR,
+                ]
 
         asyncio.run(run_test())
 
@@ -471,7 +492,9 @@ class TestAPIDataCorruption:
                 # Run multiple concurrent requests
                 tasks = []
                 for i in range(10):
-                    task = asyncio.create_task(self.fetcher.fetch(f"test mathematician {i}"))
+                    task = asyncio.create_task(
+                        self.fetcher.fetch(f"test mathematician {i}")
+                    )
                     tasks.append(task)
 
                 results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -480,12 +503,14 @@ class TestAPIDataCorruption:
                 successful = sum(
                     1
                     for r in results
-                    if isinstance(r, type(results[0])) and r.status == FetchStatus.NOT_FOUND
+                    if isinstance(r, type(results[0]))
+                    and r.status == FetchStatus.NOT_FOUND
                 )
                 failed = sum(
                     1
                     for r in results
-                    if isinstance(r, type(results[0])) and r.status == FetchStatus.NETWORK_ERROR
+                    if isinstance(r, type(results[0]))
+                    and r.status == FetchStatus.NETWORK_ERROR
                 )
 
                 assert successful + failed == 10, "All requests should complete"

@@ -107,9 +107,7 @@ def fix_import_errors(errors):
                     addition = f"\n# Added for tests\n{name} = None\n"
                 elif name[0].islower():
                     # Function
-                    addition = (
-                        f'\ndef {name}(*args, **kwargs):\n    """Stub function"""\n    pass\n'
-                    )
+                    addition = f'\ndef {name}(*args, **kwargs):\n    """Stub function"""\n    pass\n'
                 else:
                     # Class
                     addition = f'\nclass {name}:\n    """Stub class"""\n    def __init__(self, *args, **kwargs):\n        pass\n'
@@ -152,7 +150,9 @@ def fix_attribute_errors(errors):
                             for j in range(i + 1, len(lines)):
                                 if lines[j].strip() and not lines[j].startswith(" "):
                                     # End of class, insert before
-                                    lines.insert(j - 1, f"    def {attr}(self, *args, **kwargs):")
+                                    lines.insert(
+                                        j - 1, f"    def {attr}(self, *args, **kwargs):"
+                                    )
                                     lines.insert(j, f'        """Stub for {attr}"""')
                                     lines.insert(j + 1, "        pass")
                                     lines.insert(j + 2, "")

@@ -62,7 +62,9 @@ def train_optimized_model():
     print(f"  wordNgrams={params['wordNgrams']} (was 2) - Trigram features")
     print(f"  dim={params['dim']} (was 100) - Larger embeddings")
     print(f"  loss='{params['loss']}' (was 'softmax') - Better for imbalanced classes")
-    print(f"  minn={params['minn']}, maxn={params['maxn']} (was 3-6) - Optimized for names")
+    print(
+        f"  minn={params['minn']}, maxn={params['maxn']} (was 3-6) - Optimized for names"
+    )
     print()
 
     print("Training...")
@@ -123,10 +125,14 @@ def train_optimized_model():
             correct += 1
 
         status = "✅" if is_correct else "❌"
-        print(f"  {status} {name:20s} → {region} ({confidence:.3f}) [expected: {expected}]")
+        print(
+            f"  {status} {name:20s} → {region} ({confidence:.3f}) [expected: {expected}]"
+        )
 
     print()
-    print(f"Sample test accuracy: {correct}/{len(test_names)} = {correct/len(test_names)*100:.1f}%")
+    print(
+        f"Sample test accuracy: {correct}/{len(test_names)} = {correct/len(test_names)*100:.1f}%"
+    )
     print()
 
     print("=" * 80)

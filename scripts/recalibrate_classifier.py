@@ -41,7 +41,9 @@ def recalibrate_name_classifier():
             name.count(" "),  # Word count
             name.count("-"),  # Hyphen count
             sum(1 for c in name if c.isupper()),  # Capital count
-            1 if any(c in name for c in ["kim", "lee", "park", "choi"]) else 0,  # Common surname
+            (
+                1 if any(c in name for c in ["kim", "lee", "park", "choi"]) else 0
+            ),  # Common surname
         ]
 
         # Label: 1 if conversion successful, 0 otherwise
@@ -101,7 +103,10 @@ def recalibrate_name_classifier():
                     sum(1 for c in name if c.isupper()),
                     (
                         1
-                        if any(c.lower() in name.lower() for c in ["kim", "lee", "park", "choi"])
+                        if any(
+                            c.lower() in name.lower()
+                            for c in ["kim", "lee", "park", "choi"]
+                        )
                         else 0
                     ),
                 ]

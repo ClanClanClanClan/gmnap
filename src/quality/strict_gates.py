@@ -44,7 +44,9 @@ class StrictQualityGates:
             self.thresholds["max_error_rate"] = 0.005  # 0.5% in production
             self.thresholds["min_validation_score"] = 0.98  # 98% in production
 
-    def check_duplicate_global_ids(self, entries: List[Dict[str, Any]]) -> Tuple[bool, float, str]:
+    def check_duplicate_global_ids(
+        self, entries: List[Dict[str, Any]]
+    ) -> Tuple[bool, float, str]:
         """Check for duplicate GlobalIDs."""
         if not entries:
             return True, 0.0, "No entries to check"
@@ -62,7 +64,9 @@ class StrictQualityGates:
 
         return passed, duplicate_rate, message
 
-    def check_error_rate(self, entries: List[Dict[str, Any]]) -> Tuple[bool, float, str]:
+    def check_error_rate(
+        self, entries: List[Dict[str, Any]]
+    ) -> Tuple[bool, float, str]:
         """Check validation error rate."""
         if not entries:
             return True, 0.0, "No entries to check"
@@ -71,13 +75,13 @@ class StrictQualityGates:
         error_rate = errors / len(entries)
 
         passed = error_rate <= self.thresholds["max_error_rate"]
-        message = (
-            f"Error rate: {error_rate:.3%} (threshold: {self.thresholds['max_error_rate']:.3%})"
-        )
+        message = f"Error rate: {error_rate:.3%} (threshold: {self.thresholds['max_error_rate']:.3%})"
 
         return passed, error_rate, message
 
-    def check_authority_coverage(self, entries: List[Dict[str, Any]]) -> Tuple[bool, float, str]:
+    def check_authority_coverage(
+        self, entries: List[Dict[str, Any]]
+    ) -> Tuple[bool, float, str]:
         """Check authority source coverage."""
         if not entries:
             return True, 0.0, "No entries to check"
@@ -90,7 +94,9 @@ class StrictQualityGates:
 
         return passed, coverage, message
 
-    def check_graph_coherence(self, entries: List[Dict[str, Any]]) -> Tuple[bool, float, str]:
+    def check_graph_coherence(
+        self, entries: List[Dict[str, Any]]
+    ) -> Tuple[bool, float, str]:
         """Check graph coherence scores."""
         if not entries:
             return True, 0.5, "No entries to check"
@@ -120,7 +126,9 @@ class StrictQualityGates:
 
         entries_per_second = len(entries) / runtime_seconds
         minutes_per_million = (
-            (1000000 / entries_per_second / 60) if entries_per_second > 0 else float("inf")
+            (1000000 / entries_per_second / 60)
+            if entries_per_second > 0
+            else float("inf")
         )
 
         passed = minutes_per_million <= self.thresholds["max_runtime_per_million"]
@@ -141,7 +149,9 @@ class StrictQualityGates:
 
         return passed, score, message
 
-    def check_collision_rate(self, entries: List[Dict[str, Any]]) -> Tuple[bool, float, str]:
+    def check_collision_rate(
+        self, entries: List[Dict[str, Any]]
+    ) -> Tuple[bool, float, str]:
         """Check collision detection rate."""
         if not entries:
             return True, 0.0, "No entries to check"
@@ -186,7 +196,10 @@ class StrictQualityGates:
             ("error_rate", self.check_error_rate(entries)),
             ("authority_coverage", self.check_authority_coverage(entries)),
             ("graph_coherence", self.check_graph_coherence(entries)),
-            ("runtime_performance", self.check_runtime_performance(entries, runtime_seconds)),
+            (
+                "runtime_performance",
+                self.check_runtime_performance(entries, runtime_seconds),
+            ),
             ("collision_rate", self.check_collision_rate(entries)),
         ]
 
@@ -196,7 +209,11 @@ class StrictQualityGates:
 
         # Process results
         for gate_name, (passed, score, message) in checks:
-            results["gates"][gate_name] = {"passed": passed, "score": score, "message": message}
+            results["gates"][gate_name] = {
+                "passed": passed,
+                "score": score,
+                "message": message,
+            }
             results["scores"][gate_name] = score
 
             if not passed:
@@ -211,20 +228,25 @@ class StrictQualityGates:
 
         # Calculate overall score
         if results["scores"]:
-            results["overall_score"] = sum(results["scores"].values()) / len(results["scores"])
+            results["overall_score"] = sum(results["scores"].values()) / len(
+                results["scores"]
+            )
         else:
             results["overall_score"] = 0.0
 
         # Log results
         if results["passed"]:
-            logger.info(f"✅ All quality gates PASSED (score: {results['overall_score']:.2f})")
+            logger.info(
+                f"✅ All quality gates PASSED (score: {results['overall_score']:.2f})"
+            )
         else:
             if results["blocked"]:
                 logger.error(f"❌ Quality gates BLOCKED processing:")
                 for failure in results["failures"]:
                     logger.error(f"   {failure}")
                 raise QualityGateBlockedException(
-                    f"Quality gates failed: {len(results['failures'])} blocking issues", results
+                    f"Quality gates failed: {len(results['failures'])} blocking issues",
+                    results,
                 )
             else:
                 logger.warning(f"⚠️  Quality gates passed with warnings:")

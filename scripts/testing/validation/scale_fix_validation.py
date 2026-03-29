@@ -88,7 +88,9 @@ async def test_streaming_executor(batch_size: int):
             "duration_sec": round(duration, 2),
             "entries_per_sec": round(metrics["eps"], 1),
             "time_for_1m_min": (
-                round((1_000_000 / metrics["eps"]) / 60, 1) if metrics["eps"] > 0 else float("inf")
+                round((1_000_000 / metrics["eps"]) / 60, 1)
+                if metrics["eps"] > 0
+                else float("inf")
             ),
             "success_rate_pct": round(metrics["success_rate"] * 100, 1),
             "gate_decision": gate_decision,
@@ -220,7 +222,9 @@ async def main():
 
     # Analyze results
     successful_tests = [r for r in results if r.get("status") == "success"]
-    performance_tests = [r for r in results if "entries_per_sec" in r and r["status"] == "success"]
+    performance_tests = [
+        r for r in results if "entries_per_sec" in r and r["status"] == "success"
+    ]
 
     print(f"\n📊 VALIDATION SUMMARY")
     print("=" * 60)
@@ -230,7 +234,9 @@ async def main():
 
     if performance_tests:
         print(f"\n🎯 PERFORMANCE RESULTS:")
-        print("Size      | Approach           | Speed (e/s) | 1M Time (min) | Success Rate | Gates")
+        print(
+            "Size      | Approach           | Speed (e/s) | 1M Time (min) | Success Rate | Gates"
+        )
         print("-" * 90)
 
         for test in performance_tests:
@@ -263,7 +269,9 @@ async def main():
             and r["gate_decision"]["ok"]
         ]
 
-        print(f"\n✅ Production Ready Tests: {len(production_ready)}/{len(performance_tests)}")
+        print(
+            f"\n✅ Production Ready Tests: {len(production_ready)}/{len(performance_tests)}"
+        )
 
         if production_ready:
             print("   Scale fixes successfully implemented!")

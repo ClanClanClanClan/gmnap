@@ -13,17 +13,47 @@ from auto_fix_system import PatternAnalyzer, FixGenerator, LearningSystem, Safet
 # These are representative failures from the diverse dataset
 test_failures = [
     # From the auto_fix_system.py demo
-    {"name": "Chun_Baekjin", "expected": "천백진", "actual": "전백진", "type": "eng→kor"},
-    {"name": "Cheong_Munho", "expected": "정문호", "actual": "청문호", "type": "eng→kor"},
+    {
+        "name": "Chun_Baekjin",
+        "expected": "천백진",
+        "actual": "전백진",
+        "type": "eng→kor",
+    },
+    {
+        "name": "Cheong_Munho",
+        "expected": "정문호",
+        "actual": "청문호",
+        "type": "eng→kor",
+    },
     {"name": "Yom_Ha-Rim", "expected": "염하림", "actual": "욤하림", "type": "eng→kor"},
-    {"name": "Yum_Young-Tae", "expected": "염영태", "actual": "윰영태", "type": "eng→kor"},
-    {"name": "Pae_Soonjung", "expected": "배순정", "actual": "패순정", "type": "eng→kor"},
+    {
+        "name": "Yum_Young-Tae",
+        "expected": "염영태",
+        "actual": "윰영태",
+        "type": "eng→kor",
+    },
+    {
+        "name": "Pae_Soonjung",
+        "expected": "배순정",
+        "actual": "패순정",
+        "type": "eng→kor",
+    },
     {"name": "Boo_Kyungmin", "expected": "부경민", "actual": None, "type": "eng→kor"},
     {"name": "Jee_Sungmin", "expected": "지성민", "actual": None, "type": "eng→kor"},
     # Additional common failures based on patterns
     {"name": "Um_Jinhwan", "expected": "엄진환", "actual": "움진환", "type": "eng→kor"},
-    {"name": "Eom_Soohyun", "expected": "엄수현", "actual": "이옴수현", "type": "eng→kor"},
-    {"name": "Shim_Changmin", "expected": "심창민", "actual": "심장민", "type": "eng→kor"},
+    {
+        "name": "Eom_Soohyun",
+        "expected": "엄수현",
+        "actual": "이옴수현",
+        "type": "eng→kor",
+    },
+    {
+        "name": "Shim_Changmin",
+        "expected": "심창민",
+        "actual": "심장민",
+        "type": "eng→kor",
+    },
     {
         "name": "Sim_Donghyun",
         "expected": "심동현",
@@ -38,15 +68,40 @@ test_failures = [
     },  # Actually works
     {"name": "Roh_Taewoo", "expected": "노태우", "actual": "로태우", "type": "eng→kor"},
     {"name": "No_Moohyun", "expected": "노무현", "actual": None, "type": "eng→kor"},
-    {"name": "Kwak_Dongsu", "expected": "곽동수", "actual": "콱동수", "type": "eng→kor"},
+    {
+        "name": "Kwak_Dongsu",
+        "expected": "곽동수",
+        "actual": "콱동수",
+        "type": "eng→kor",
+    },
     {"name": "Gwak_Hyunmo", "expected": "곽현모", "actual": None, "type": "eng→kor"},
     {"name": "Moon_Sukja", "expected": "문숙자", "actual": "문석자", "type": "eng→kor"},
-    {"name": "Ri_Young-Chul", "expected": "이영철", "actual": "리영철", "type": "eng→kor"},
+    {
+        "name": "Ri_Young-Chul",
+        "expected": "이영철",
+        "actual": "리영철",
+        "type": "eng→kor",
+    },
     # More diverse dataset specific failures
-    {"name": "Ban_Ki-moon", "expected": "반기문", "actual": "반키문", "type": "eng→kor"},
-    {"name": "Chin_Dohyung", "expected": "진도형", "actual": "친도형", "type": "eng→kor"},
+    {
+        "name": "Ban_Ki-moon",
+        "expected": "반기문",
+        "actual": "반키문",
+        "type": "eng→kor",
+    },
+    {
+        "name": "Chin_Dohyung",
+        "expected": "진도형",
+        "actual": "친도형",
+        "type": "eng→kor",
+    },
     {"name": "Jin_Sungho", "expected": "진성호", "actual": None, "type": "eng→kor"},
-    {"name": "Paik_Namjune", "expected": "백남준", "actual": "패익남준", "type": "eng→kor"},
+    {
+        "name": "Paik_Namjune",
+        "expected": "백남준",
+        "actual": "패익남준",
+        "type": "eng→kor",
+    },
     {"name": "Yeom_Taekyung", "expected": "염태경", "actual": None, "type": "eng→kor"},
     {"name": "Youm_Jisun", "expected": "염지선", "actual": None, "type": "eng→kor"},
 ]

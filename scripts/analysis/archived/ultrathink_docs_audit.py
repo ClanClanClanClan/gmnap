@@ -140,7 +140,9 @@ class UltrathinkDocsAuditor:
 
             self.results["by_folder"][folder]["count"] += 1
             self.results["by_folder"][folder]["size"] += size
-            self.results["by_folder"][folder]["files"].append({"name": filepath.name, "size": size})
+            self.results["by_folder"][folder]["files"].append(
+                {"name": filepath.name, "size": size}
+            )
 
         except Exception as e:
             print(f"Error analyzing {filepath}: {e}")
@@ -149,7 +151,9 @@ class UltrathinkDocsAuditor:
         """Find duplicate files by content hash"""
         for file_hash, files in self.hash_map.items():
             if len(files) > 1:
-                self.results["duplicates"].append({"hash": file_hash[:8], "files": files})
+                self.results["duplicates"].append(
+                    {"hash": file_hash[:8], "files": files}
+                )
 
     def categorize_documents(self):
         """Categorize documents by type and relevance"""
@@ -246,7 +250,9 @@ class UltrathinkDocsAuditor:
 
         # Empty files
         if self.results["empty"]:
-            print(f"  ⚠️ {len(self.results['empty'])} empty files found - should be removed")
+            print(
+                f"  ⚠️ {len(self.results['empty'])} empty files found - should be removed"
+            )
 
         # Korean processor specific
         korean_files = self.results["categories"].get("Korean", [])

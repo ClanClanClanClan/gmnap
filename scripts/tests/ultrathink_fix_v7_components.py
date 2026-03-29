@@ -151,7 +151,10 @@ def fix_deployment_manager():
         content = deployment_file.read_text()
 
         # Fix validate_for_deployment to not require metrics
-        if "def validate_for_deployment(self, entries: List" in content and ", metrics:" in content:
+        if (
+            "def validate_for_deployment(self, entries: List" in content
+            and ", metrics:" in content
+        ):
             content = content.replace(
                 "def validate_for_deployment(self, entries: List[Dict[str, Any]], metrics: Dict[str, Any]) -> bool:",
                 "def validate_for_deployment(self, entries: List[Dict[str, Any]], metrics: Dict[str, Any] = None) -> bool:",
@@ -172,7 +175,9 @@ def fix_pipeline_data_output():
 
         # Check if pipeline_data is being returned
         if "pipeline_data" not in content or "GraphCoherence" not in content:
-            print("⚠️ Pipeline needs to be updated to return pipeline_data with GraphCoherence")
+            print(
+                "⚠️ Pipeline needs to be updated to return pipeline_data with GraphCoherence"
+            )
             # This would require more complex modifications
     else:
         print("⚠️ Pipeline file not found")

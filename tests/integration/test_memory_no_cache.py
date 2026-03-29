@@ -138,7 +138,9 @@ for _ in range(50000):
 
 memory_points = []
 
-print("Testing memory usage every 10K operations (NO CACHE, NO SECURITY, NO FASTTEXT)...")
+print(
+    "Testing memory usage every 10K operations (NO CACHE, NO SECURITY, NO FASTTEXT)..."
+)
 for i, name in enumerate(test_names):
     try:
         result = manager.detect_region({"name": name})
@@ -205,7 +207,9 @@ if memory_points:
         print(f"   But core processing still has leak: {current_leak:.3f} MB/1K ops")
     else:
         print(f"\n🔴 LEAK PERSISTS: Cache not the main source")
-        print(f"   Need to investigate RegionDetectionResult object retention or other components")
+        print(
+            f"   Need to investigate RegionDetectionResult object retention or other components"
+        )
         print(f"   Remaining leak in core processing: {current_leak:.3f} MB/1K ops")
 
     # Memory leak breakdown

@@ -14,7 +14,21 @@ sys.path.append(str(project_root))
 from src.regions.manager import RegionManager
 
 # Remaining problematic regions
-REMAINING_REGIONS = ["A3", "A4", "A5", "B3", "C1", "C5", "C6", "C7", "C8", "E6", "E7", "F1", "F3"]
+REMAINING_REGIONS = [
+    "A3",
+    "A4",
+    "A5",
+    "B3",
+    "C1",
+    "C5",
+    "C6",
+    "C7",
+    "C8",
+    "E6",
+    "E7",
+    "F1",
+    "F3",
+]
 
 
 def debug_specific_region_failures():
@@ -23,7 +37,10 @@ def debug_specific_region_failures():
 
     # Key edge cases to test
     edge_cases = [
-        {"name": "Tab character", "test": {"CanonicalLatin": "Test\tName", "GlobalID": "tab"}},
+        {
+            "name": "Tab character",
+            "test": {"CanonicalLatin": "Test\tName", "GlobalID": "tab"},
+        },
         {
             "name": "Newline character",
             "test": {"CanonicalLatin": "Test\nName", "GlobalID": "newline"},
@@ -31,7 +48,11 @@ def debug_specific_region_failures():
         {"name": "Single char", "test": {"CanonicalLatin": "X", "GlobalID": "single"}},
         {
             "name": "Empty Latin",
-            "test": {"CanonicalLatin": "", "CanonicalNative": "Test", "GlobalID": "empty"},
+            "test": {
+                "CanonicalLatin": "",
+                "CanonicalNative": "Test",
+                "GlobalID": "empty",
+            },
         },
     ]
 
@@ -77,9 +98,15 @@ if __name__ == "__main__":
     print("\n" + "=" * 60)
     print("📊 FAILURE PATTERN ANALYSIS:")
 
-    tab_failures = [r for r, f in patterns.items() if any("Tab" in fail[0] for fail in f)]
-    newline_failures = [r for r, f in patterns.items() if any("Newline" in fail[0] for fail in f)]
-    empty_failures = [r for r, f in patterns.items() if any("Empty" in fail[0] for fail in f)]
+    tab_failures = [
+        r for r, f in patterns.items() if any("Tab" in fail[0] for fail in f)
+    ]
+    newline_failures = [
+        r for r, f in patterns.items() if any("Newline" in fail[0] for fail in f)
+    ]
+    empty_failures = [
+        r for r, f in patterns.items() if any("Empty" in fail[0] for fail in f)
+    ]
 
     print(f"Tab failures: {len(tab_failures)} regions - {tab_failures}")
     print(f"Newline failures: {len(newline_failures)} regions - {newline_failures}")

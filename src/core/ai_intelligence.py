@@ -85,7 +85,9 @@ class NameIntelligenceEngine:
         self._initialize_patterns()
 
         if not SKLEARN_AVAILABLE:
-            self.logger.warning("scikit-learn not available. Some AI features will be limited.")
+            self.logger.warning(
+                "scikit-learn not available. Some AI features will be limited."
+            )
 
     def _initialize_patterns(self):
         """Initialize cultural name patterns"""
@@ -220,8 +222,12 @@ class NameIntelligenceEngine:
             "has_comma": "," in name,
             "word_count": len(name.split()),
             "has_titles": any(title in name.lower() for title in self.title_patterns),
-            "has_prefixes": any(prefix in name.lower() for prefix in self.common_prefixes),
-            "has_suffixes": any(suffix in name.lower() for suffix in self.common_suffixes),
+            "has_prefixes": any(
+                prefix in name.lower() for prefix in self.common_prefixes
+            ),
+            "has_suffixes": any(
+                suffix in name.lower() for suffix in self.common_suffixes
+            ),
             "has_numbers": bool(re.search(r"\d", name)),
             "has_special_chars": bool(re.search(r"[^\w\s,.-]", name)),
             "length": len(name),
@@ -277,7 +283,9 @@ class NameIntelligenceEngine:
 
         return "unknown"
 
-    async def _find_similar_names(self, name: str, threshold: float = 0.8) -> List[Dict[str, Any]]:
+    async def _find_similar_names(
+        self, name: str, threshold: float = 0.8
+    ) -> List[Dict[str, Any]]:
         """Find similar names using various similarity measures"""
         if not DIFFLIB_AVAILABLE:
             return []
@@ -294,8 +302,12 @@ class NameIntelligenceEngine:
                 "sequence_similarity": difflib.SequenceMatcher(
                     None, name.lower(), known_name.lower()
                 ).ratio(),
-                "jaro_winkler": self._jaro_winkler_similarity(name.lower(), known_name.lower()),
-                "edit_distance": self._normalized_edit_distance(name.lower(), known_name.lower()),
+                "jaro_winkler": self._jaro_winkler_similarity(
+                    name.lower(), known_name.lower()
+                ),
+                "edit_distance": self._normalized_edit_distance(
+                    name.lower(), known_name.lower()
+                ),
             }
 
             # Calculate composite similarity
@@ -364,7 +376,9 @@ class NameIntelligenceEngine:
                 transpositions += 1
             k += 1
 
-        jaro = (matches / len1 + matches / len2 + (matches - transpositions / 2) / matches) / 3
+        jaro = (
+            matches / len1 + matches / len2 + (matches - transpositions / 2) / matches
+        ) / 3
 
         # Winkler modification
         prefix_len = 0
@@ -427,7 +441,9 @@ class NameIntelligenceEngine:
                     score = max(score, 0.8)
                 else:
                     # Check similarity
-                    similarity = difflib.SequenceMatcher(None, name_lower, common_name).ratio()
+                    similarity = difflib.SequenceMatcher(
+                        None, name_lower, common_name
+                    ).ratio()
                     if similarity > 0.6:
                         score = max(score, similarity * 0.5)
 
@@ -638,7 +654,9 @@ class NameIntelligenceEngine:
 
             self.vectorizer = model_data.get("vectorizer")
             self.clustering_model = model_data.get("clustering_model")
-            self.name_frequency_db = defaultdict(int, model_data.get("name_frequency_db", {}))
+            self.name_frequency_db = defaultdict(
+                int, model_data.get("name_frequency_db", {})
+            )
             self.regional_name_db = defaultdict(set)
             for region, names in model_data.get("regional_name_db", {}).items():
                 self.regional_name_db[region] = set(names)
@@ -661,7 +679,9 @@ class EnsembleNameDisambiguator:
         self.weights = {}
         self.logger = logging.getLogger(__name__)
 
-    def add_engine(self, name: str, engine: NameIntelligenceEngine, weight: float = 1.0):
+    def add_engine(
+        self, name: str, engine: NameIntelligenceEngine, weight: float = 1.0
+    ):
         """Add an intelligence engine to the ensemble"""
         self.engines[name] = engine
         self.weights[name] = weight
@@ -703,7 +723,8 @@ class EnsembleNameDisambiguator:
         )
 
         quality_score = (
-            sum(result.quality_score * weight for _, result, weight in results) / total_weight
+            sum(result.quality_score * weight for _, result, weight in results)
+            / total_weight
         )
 
         # Combine suggestions (remove duplicates)
@@ -727,7 +748,10 @@ class EnsembleNameDisambiguator:
         unique_matches = {}
         for match in all_matches:
             key = match["name"]
-            if key not in unique_matches or match["similarity"] > unique_matches[key]["similarity"]:
+            if (
+                key not in unique_matches
+                or match["similarity"] > unique_matches[key]["similarity"]
+            ):
                 unique_matches[key] = match
 
         similarity_matches = sorted(

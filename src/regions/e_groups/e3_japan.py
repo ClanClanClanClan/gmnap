@@ -275,23 +275,31 @@ class E3_Japan(RegionSpec):
             if romanized != canonical:
                 # Update CanonicalLatin to be romanized
                 entry["CanonicalLatin"] = romanized
-                entry["Variants"]["Synthesised"].append({"str": romanized, "type": "romanization"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": romanized, "type": "romanization"}
+                )
 
         # Add hiragana variant if original is kanji
         if self._has_kanji(canonical):
             hiragana = self._to_hiragana(canonical)
             if hiragana != canonical:
-                entry["Variants"]["Synthesised"].append({"str": hiragana, "type": "hiragana"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": hiragana, "type": "hiragana"}
+                )
 
         # Add katakana variant
         if self._has_hiragana(canonical):
             katakana = self._to_katakana(canonical)
             if katakana != canonical:
-                entry["Variants"]["Synthesised"].append({"str": katakana, "type": "katakana"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": katakana, "type": "katakana"}
+                )
 
         # Rule 12: Japanese Post-2020 Order Rule - majority rule for English papers
         if components.get("family_name") and components.get("given_name"):
-            order_variants = self._generate_post_2020_order_variants(canonical, components, entry)
+            order_variants = self._generate_post_2020_order_variants(
+                canonical, components, entry
+            )
             for variant in order_variants:
                 entry["Variants"]["Synthesised"].append(variant)
 
@@ -562,12 +570,16 @@ class E3_Japan(RegionSpec):
                     # Current is Given Family format (pre-2020 style)
                     # Generate Family Given variant (post-2020 style)
                     post_2020_variant = f"{family} {given}"
-                    variants.append({"str": post_2020_variant, "type": "japanese-post-2020-order"})
+                    variants.append(
+                        {"str": post_2020_variant, "type": "japanese-post-2020-order"}
+                    )
                 elif first_word.lower() == family.lower():
                     # Current is Family Given format (post-2020 style)
                     # Generate Given Family variant (pre-2020 style)
                     pre_2020_variant = f"{given} {family}"
-                    variants.append({"str": pre_2020_variant, "type": "japanese-pre-2020-order"})
+                    variants.append(
+                        {"str": pre_2020_variant, "type": "japanese-pre-2020-order"}
+                    )
 
             # Also generate comma-separated canonical format
             if ", " not in canonical:
@@ -588,16 +600,22 @@ class E3_Japan(RegionSpec):
         # If CanonicalNative exists, it should be Japanese
         if canonical_native:
             if not self._is_japanese(canonical_native):
-                raise RegionRuleError(f"CanonicalNative should be Japanese: {canonical_native}")
+                raise RegionRuleError(
+                    f"CanonicalNative should be Japanese: {canonical_native}"
+                )
 
             # Check length - Japanese names are typically 2-4 characters
             if len(canonical_native) < 2 or len(canonical_native) > 6:
-                raise RegionRuleError(f"Japanese name length unusual: {canonical_native}")
+                raise RegionRuleError(
+                    f"Japanese name length unusual: {canonical_native}"
+                )
 
         # If CanonicalLatin exists, it should be romanized
         if canonical_latin:
             if self._is_japanese(canonical_latin):
-                raise RegionRuleError(f"CanonicalLatin should be romanized: {canonical_latin}")
+                raise RegionRuleError(
+                    f"CanonicalLatin should be romanized: {canonical_latin}"
+                )
 
             # Check for valid romanization pattern
             if not self._is_valid_romanization(canonical_latin):

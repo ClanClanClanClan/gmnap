@@ -6,7 +6,9 @@ class TransactionError(Exception):
     pass
 
 
-async def execute_transaction(ops: List[Callable[[], Awaitable[None]]]) -> Tuple[bool, str]:
+async def execute_transaction(
+    ops: List[Callable[[], Awaitable[None]]],
+) -> Tuple[bool, str]:
     try:
         for op in ops:
             await op()

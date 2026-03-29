@@ -26,7 +26,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.enterprise_infrastructure import EnterpriseInfrastructure, InfrastructureConfig
+from src.core.enterprise_infrastructure import (
+    EnterpriseInfrastructure,
+    InfrastructureConfig,
+)
 import sys
 from pathlib import Path
 
@@ -108,7 +111,9 @@ class InfrastructureTestSuite:
             # Verify startup
             if self.infrastructure.running:
                 startup_time = time.time() - test_start
-                print(f"PASS Infrastructure started successfully in {startup_time:.2f}s")
+                print(
+                    f"PASS Infrastructure started successfully in {startup_time:.2f}s"
+                )
 
                 # Check component status
                 status = self.infrastructure.get_infrastructure_status()
@@ -116,11 +121,17 @@ class InfrastructureTestSuite:
 
                 print(f"Components initialized:")
                 print(f"  🛡️  Security: {'PASS' if components['security'] else 'FAIL'}")
-                print(f"  📊 Monitoring: {'PASS' if components['monitoring'] else 'FAIL'}")
+                print(
+                    f"  📊 Monitoring: {'PASS' if components['monitoring'] else 'FAIL'}"
+                )
                 print(f"  🔄 Recovery: {'PASS' if components['recovery'] else 'FAIL'}")
-                print(f"  ⚖️  Load Balancer: {'PASS' if components['load_balancer'] else 'FAIL'}")
+                print(
+                    f"  ⚖️  Load Balancer: {'PASS' if components['load_balancer'] else 'FAIL'}"
+                )
 
-                self._record_test_result("startup", True, f"Started in {startup_time:.2f}s")
+                self._record_test_result(
+                    "startup", True, f"Started in {startup_time:.2f}s"
+                )
             else:
                 print("FAIL Infrastructure failed to start")
                 self._record_test_result("startup", False, "Failed to start")
@@ -167,9 +178,13 @@ class InfrastructureTestSuite:
             # Verify load balancer is functional
             if "load_balancer_status" in status:
                 lb_status = status["load_balancer_status"]
-                print(f"⚖️  Load balancer active - {lb_status['total_endpoints']} endpoints")
+                print(
+                    f"⚖️  Load balancer active - {lb_status['total_endpoints']} endpoints"
+                )
 
-            self._record_test_result("integration", True, "All components integrated successfully")
+            self._record_test_result(
+                "integration", True, "All components integrated successfully"
+            )
 
         except Exception as e:
             print(f"FAIL Component integration test failed: {e}")
@@ -197,7 +212,10 @@ class InfrastructureTestSuite:
                 print(f"WARN  Safe input flagged: {e}")
 
             # Test 2: SQL injection attempt
-            sql_injection = {"name": "'; DROP TABLE users; --", "email": "test@test.com"}
+            sql_injection = {
+                "name": "'; DROP TABLE users; --",
+                "email": "test@test.com",
+            }
             try:
                 result = security.validate_entry(sql_injection)
                 print("FAIL SQL injection attack not detected")
@@ -206,7 +224,10 @@ class InfrastructureTestSuite:
                 self.infrastructure.total_security_blocks += 1
 
             # Test 3: XSS attempt
-            xss_attack = {"name": "<script>alert('xss')</script>", "comment": "normal text"}
+            xss_attack = {
+                "name": "<script>alert('xss')</script>",
+                "comment": "normal text",
+            }
             try:
                 result = security.validate_entry(xss_attack)
                 print("FAIL XSS attack not detected")
@@ -226,7 +247,9 @@ class InfrastructureTestSuite:
             print(f"Security blocks: {self.infrastructure.total_security_blocks}")
 
             self._record_test_result(
-                "security", True, f"Blocked {self.infrastructure.total_security_blocks} attacks"
+                "security",
+                True,
+                f"Blocked {self.infrastructure.total_security_blocks} attacks",
             )
 
         except Exception as e:
@@ -240,7 +263,9 @@ class InfrastructureTestSuite:
 
         if not self.infrastructure or not self.infrastructure.monitor:
             print("FAIL Monitoring system not available")
-            self._record_test_result("monitoring", False, "Monitoring system not available")
+            self._record_test_result(
+                "monitoring", False, "Monitoring system not available"
+            )
             return
 
         try:
@@ -335,7 +360,9 @@ class InfrastructureTestSuite:
 
         if not self.infrastructure or not self.infrastructure.load_balancer:
             print("FAIL Load balancer not available")
-            self._record_test_result("load_balancer", False, "Load balancer not available")
+            self._record_test_result(
+                "load_balancer", False, "Load balancer not available"
+            )
             return
 
         try:
@@ -346,7 +373,9 @@ class InfrastructureTestSuite:
             print(f"Load balancer running: {status['running']}")
             print(f"Strategy: {status['strategy']}")
             print(f"Service level: {status['service_level']}")
-            print(f"Healthy endpoints: {status['healthy_endpoints']}/{status['total_endpoints']}")
+            print(
+                f"Healthy endpoints: {status['healthy_endpoints']}/{status['total_endpoints']}"
+            )
 
             # Test endpoint selection
             endpoint = lb.select_endpoint()
@@ -378,7 +407,9 @@ class InfrastructureTestSuite:
 
         if not self.infrastructure or not self.infrastructure.running:
             print("FAIL Infrastructure not running")
-            self._record_test_result("request_processing", False, "Infrastructure not running")
+            self._record_test_result(
+                "request_processing", False, "Infrastructure not running"
+            )
             return
 
         try:
@@ -424,7 +455,9 @@ class InfrastructureTestSuite:
             print(f"  Security blocks: {stats['security_blocks']}")
 
             self._record_test_result(
-                "request_processing", True, f"Processed {stats['requests_processed']} requests"
+                "request_processing",
+                True,
+                f"Processed {stats['requests_processed']} requests",
             )
 
         except Exception as e:
@@ -453,7 +486,9 @@ class InfrastructureTestSuite:
                 # Check if service level was reduced
                 lb_status = self.infrastructure.load_balancer.get_status()
                 if lb_status["service_level"] != "full":
-                    print(f"PASS Service degradation activated: {lb_status['service_level']}")
+                    print(
+                        f"PASS Service degradation activated: {lb_status['service_level']}"
+                    )
                 else:
                     print("WARN  Service degradation not triggered")
 
@@ -461,7 +496,9 @@ class InfrastructureTestSuite:
             if self.infrastructure.monitor:
                 # Simulate multiple failures
                 for i in range(6):  # More than circuit breaker threshold
-                    self.infrastructure.monitor.record_request(2.0, False)  # Failed requests
+                    self.infrastructure.monitor.record_request(
+                        2.0, False
+                    )  # Failed requests
 
                 print("PASS Circuit breaker failure simulation completed")
 
@@ -510,7 +547,9 @@ class InfrastructureTestSuite:
             duration = end_time - start_time
 
             # Analyze results
-            successful = sum(1 for r in responses if isinstance(r, dict) and "error" not in r)
+            successful = sum(
+                1 for r in responses if isinstance(r, dict) and "error" not in r
+            )
             failed = len(responses) - successful
             throughput = len(requests) / duration
 
@@ -532,7 +571,9 @@ class InfrastructureTestSuite:
             else:
                 print("WARN  Performance under load concerning")
                 self._record_test_result(
-                    "performance", False, f"Only {successful/len(requests)*100:.1f}% success rate"
+                    "performance",
+                    False,
+                    f"Only {successful/len(requests)*100:.1f}% success rate",
                 )
 
         except Exception as e:
@@ -555,7 +596,9 @@ class InfrastructureTestSuite:
             uptime = final_status["uptime_seconds"]
             uptime_percentage = self.infrastructure.get_uptime_percentage()
 
-            print(f"Infrastructure uptime: {uptime:.2f} seconds ({uptime_percentage:.3f}%)")
+            print(
+                f"Infrastructure uptime: {uptime:.2f} seconds ({uptime_percentage:.3f}%)"
+            )
 
             # Shutdown infrastructure
             print("Initiating graceful shutdown...")
@@ -566,8 +609,12 @@ class InfrastructureTestSuite:
             shutdown_duration = time.time() - shutdown_start
 
             if not self.infrastructure.running:
-                print(f"PASS Graceful shutdown completed in {shutdown_duration:.2f} seconds")
-                self._record_test_result("shutdown", True, f"Shutdown in {shutdown_duration:.2f}s")
+                print(
+                    f"PASS Graceful shutdown completed in {shutdown_duration:.2f} seconds"
+                )
+                self._record_test_result(
+                    "shutdown", True, f"Shutdown in {shutdown_duration:.2f}s"
+                )
             else:
                 print("FAIL Graceful shutdown failed - infrastructure still running")
                 self._record_test_result(
@@ -581,7 +628,12 @@ class InfrastructureTestSuite:
     def _record_test_result(self, test_name: str, success: bool, details: str):
         """Record a test result."""
         self.test_results.append(
-            {"test": test_name, "success": success, "details": details, "timestamp": time.time()}
+            {
+                "test": test_name,
+                "success": success,
+                "details": details,
+                "timestamp": time.time(),
+            }
         )
 
     def _generate_test_report(self):

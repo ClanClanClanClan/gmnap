@@ -5,7 +5,9 @@ from cryptography.fernet import Fernet
 LIVE = os.getenv("OFFLINE", "1") == "0" and os.getenv("LIVE_AUTH", "0") == "1"
 EXTREME = os.getenv("FORCE_EXTREME", "0") == "1"
 
-cond = pytest.mark.skipif(not (LIVE and EXTREME), reason="Requires LIVE_AUTH=1 and FORCE_EXTREME=1")
+cond = pytest.mark.skipif(
+    not (LIVE and EXTREME), reason="Requires LIVE_AUTH=1 and FORCE_EXTREME=1"
+)
 
 
 def _gs_cipher():

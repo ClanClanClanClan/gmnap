@@ -119,10 +119,40 @@ class C3_ArabicLevantNile(RegionSpec):
 
         # Rule 2: Arabic al- Article – sun letters for assimilation
         # Sun letters: These letters cause assimilation of the 'l' in 'al-'
-        self.sun_letters = {"ت", "ث", "د", "ذ", "ر", "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ل", "ن"}
+        self.sun_letters = {
+            "ت",
+            "ث",
+            "د",
+            "ذ",
+            "ر",
+            "ز",
+            "س",
+            "ش",
+            "ص",
+            "ض",
+            "ط",
+            "ظ",
+            "ل",
+            "ن",
+        }
 
         # Moon letters: These letters do not cause assimilation
-        self.moon_letters = {"ا", "ب", "ج", "ح", "خ", "ع", "غ", "ف", "ق", "ك", "م", "ه", "و", "ي"}
+        self.moon_letters = {
+            "ا",
+            "ب",
+            "ج",
+            "ح",
+            "خ",
+            "ع",
+            "غ",
+            "ف",
+            "ق",
+            "ك",
+            "م",
+            "ه",
+            "و",
+            "ي",
+        }
 
         # Definite article patterns
         self.definite_articles = {
@@ -269,11 +299,15 @@ class C3_ArabicLevantNile(RegionSpec):
 
         # Add variant without patronymic
         if components.get("patronymic"):
-            without_patronymic = self._generate_no_patronymic_variant(canonical, components)
+            without_patronymic = self._generate_no_patronymic_variant(
+                canonical, components
+            )
             if without_patronymic and without_patronymic != canonical:
                 # Use add_variant for idempotency
                 if hasattr(self, "add_variant"):
-                    self.add_variant(entry, {"str": without_patronymic, "type": "no-patronymic"})
+                    self.add_variant(
+                        entry, {"str": without_patronymic, "type": "no-patronymic"}
+                    )
 
         # Rule 2: Arabic al- Article normalization
         article_info = self._analyze_definite_article(canonical)
@@ -287,7 +321,9 @@ class C3_ArabicLevantNile(RegionSpec):
             if without_article != canonical:
                 # Use add_variant for idempotency
                 if hasattr(self, "add_variant"):
-                    self.add_variant(entry, {"str": without_article, "type": "no-article"})
+                    self.add_variant(
+                        entry, {"str": without_article, "type": "no-article"}
+                    )
                 else:
                     entry["Variants"]["Synthesised"].append(
                         {"str": without_article, "type": "no-article"}
@@ -309,7 +345,10 @@ class C3_ArabicLevantNile(RegionSpec):
                     )
                 else:
                     entry["Variants"]["Synthesised"].append(
-                        {"str": article_info["assimilated_form"], "type": "sun-letter-assimilation"}
+                        {
+                            "str": article_info["assimilated_form"],
+                            "type": "sun-letter-assimilation",
+                        }
                     )
 
         # Rule 32: Ibn/Abu/Um Prefixes – dropped when next token length ≥ 3
@@ -369,7 +408,10 @@ class C3_ArabicLevantNile(RegionSpec):
         """
         for i, word in enumerate(words):
             word_lower = word.lower()
-            if word_lower in self.patronymic_patterns or word in self.patronymic_patterns:
+            if (
+                word_lower in self.patronymic_patterns
+                or word in self.patronymic_patterns
+            ):
                 # Check if this is specifically bin/bint (Rule 3)
                 is_bin_bint = word_lower in ["bin", "ibn", "bint", "بن", "ابن", "بنت"]
 
@@ -411,7 +453,9 @@ class C3_ArabicLevantNile(RegionSpec):
                         following_letter = name[article_idx + len(article)]
 
                         # Determine if sun or moon letter
-                        letter_type = "sun" if following_letter in self.sun_letters else "moon"
+                        letter_type = (
+                            "sun" if following_letter in self.sun_letters else "moon"
+                        )
 
                         # Extract root (without article)
                         root = name[:article_idx] + name[article_idx + len(article) :]
@@ -424,7 +468,11 @@ class C3_ArabicLevantNile(RegionSpec):
                             # e.g., al-shams → ash-shams
                             pass  # Already handled in the original
 
-                        return {"type": letter_type, "root": root, "assimilated_form": assimilated}
+                        return {
+                            "type": letter_type,
+                            "root": root,
+                            "assimilated_form": assimilated,
+                        }
 
         # Check for romanized forms
         romanized_patterns = [
@@ -442,7 +490,9 @@ class C3_ArabicLevantNile(RegionSpec):
                 root = " ".join(root.split())
 
                 # Determine type based on pattern
-                letter_type = "sun" if "sh-" in pattern or "[tdrzsnl]-" in pattern else "moon"
+                letter_type = (
+                    "sun" if "sh-" in pattern or "[tdrzsnl]-" in pattern else "moon"
+                )
 
                 return {"type": letter_type, "root": root, "assimilated_form": name}
 
@@ -500,7 +550,9 @@ class C3_ArabicLevantNile(RegionSpec):
                         variant_words = words[:i] + words[i + 1 :]
                         if variant_words:  # Ensure we don't create empty names
                             variant_name = " ".join(variant_words)
-                            variants.append({"str": variant_name, "type": "prefix-drop"})
+                            variants.append(
+                                {"str": variant_name, "type": "prefix-drop"}
+                            )
 
         return variants
 
@@ -621,7 +673,9 @@ class C3_ArabicLevantNile(RegionSpec):
 
         # SECURITY: Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         # Normalize whitespace first, then check for invalid characters
         canonical = self.normalize_whitespace_characters(canonical)
@@ -671,7 +725,9 @@ class C3_ArabicLevantNile(RegionSpec):
             canonical = components["root_form"]
         else:
             # Fallback to canonical form
-            canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
+            canonical = entry.get("CanonicalLatin", "") or entry.get(
+                "CanonicalNative", ""
+            )
 
         # Extract family and given names
         family = components.get("family_name", "")

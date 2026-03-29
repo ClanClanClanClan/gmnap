@@ -130,7 +130,9 @@ def main():
     print()
 
     # Load test data
-    test_file = Path(__file__).parent.parent.parent / "data" / "ml_training" / "test_split.json"
+    test_file = (
+        Path(__file__).parent.parent.parent / "data" / "ml_training" / "test_split.json"
+    )
     print(f"Loading test data from: {test_file}")
 
     with open(test_file) as f:
@@ -146,7 +148,9 @@ def main():
     print("=" * 80)
     print()
 
-    baseline_results = validate_with_surname_enhancement(test_profiles, use_patterns=False)
+    baseline_results = validate_with_surname_enhancement(
+        test_profiles, use_patterns=False
+    )
 
     print(f"Overall Accuracy: {baseline_results['overall_accuracy']*100:.2f}%")
     print(f"Correct: {baseline_results['correct']}/{baseline_results['total']}")
@@ -156,7 +160,9 @@ def main():
     for region in ["A1", "A2", "G1", "E1", "E3"]:
         if region in baseline_results["region_accuracy"]:
             stats = baseline_results["region_accuracy"][region]
-            print(f"  {region}: {stats['accuracy']*100:.1f}% ({stats['correct']}/{stats['total']})")
+            print(
+                f"  {region}: {stats['accuracy']*100:.1f}% ({stats['correct']}/{stats['total']})"
+            )
     print()
 
     # Validate ENHANCED (with surname patterns)
@@ -165,7 +171,9 @@ def main():
     print("=" * 80)
     print()
 
-    enhanced_results = validate_with_surname_enhancement(test_profiles, use_patterns=True)
+    enhanced_results = validate_with_surname_enhancement(
+        test_profiles, use_patterns=True
+    )
 
     print(f"Overall Accuracy: {enhanced_results['overall_accuracy']*100:.2f}%")
     print(f"Correct: {enhanced_results['correct']}/{enhanced_results['total']}")
@@ -175,7 +183,9 @@ def main():
     for region in ["A1", "A2", "G1", "E1", "E3"]:
         if region in enhanced_results["region_accuracy"]:
             stats = enhanced_results["region_accuracy"][region]
-            print(f"  {region}: {stats['accuracy']*100:.1f}% ({stats['correct']}/{stats['total']})")
+            print(
+                f"  {region}: {stats['accuracy']*100:.1f}% ({stats['correct']}/{stats['total']})"
+            )
     print()
 
     # Calculate improvement
@@ -188,7 +198,9 @@ def main():
     enhanced_acc = enhanced_results["overall_accuracy"] * 100
     improvement = enhanced_acc - baseline_acc
 
-    print(f"Overall Improvement: +{improvement:.2f}pp ({baseline_acc:.2f}% → {enhanced_acc:.2f}%)")
+    print(
+        f"Overall Improvement: +{improvement:.2f}pp ({baseline_acc:.2f}% → {enhanced_acc:.2f}%)"
+    )
     print()
 
     print("Per-Region Improvements:")
@@ -201,7 +213,9 @@ def main():
             enhanced_acc = enhanced_results["region_accuracy"][region]["accuracy"] * 100
             improvement = enhanced_acc - baseline_acc
 
-            status = "✅" if improvement >= 5.0 else ("⚠️" if improvement >= 2.0 else "❌")
+            status = (
+                "✅" if improvement >= 5.0 else ("⚠️" if improvement >= 2.0 else "❌")
+            )
             print(
                 f"  {region}: +{improvement:.1f}pp ({baseline_acc:.1f}% → {enhanced_acc:.1f}%) {status}"
             )
@@ -240,7 +254,9 @@ def main():
         if stats["total"] >= 10:  # Only show regions with 10+ samples
             acc = stats["accuracy"] * 100
             status = "✅" if acc >= 85 else ("⚠️" if acc >= 70 else "❌")
-            print(f"{region}: {acc:.1f}% ({stats['correct']}/{stats['total']}) {status}")
+            print(
+                f"{region}: {acc:.1f}% ({stats['correct']}/{stats['total']}) {status}"
+            )
 
     print()
 

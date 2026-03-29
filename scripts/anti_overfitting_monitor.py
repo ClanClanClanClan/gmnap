@@ -46,7 +46,11 @@ class OverfittingDetector:
                     if matches:
                         self.patterns["full_name_rules"].extend(
                             [
-                                {"file": file_path, "pattern": match, "severity": "HIGH"}
+                                {
+                                    "file": file_path,
+                                    "pattern": match,
+                                    "severity": "HIGH",
+                                }
                                 for match in matches
                             ]
                         )
@@ -197,7 +201,9 @@ class OverfittingDetector:
 
         # Frequency anomalies
         if self.patterns["frequency_anomalies"]:
-            print(f"\n⚠️  Frequency anomalies ({len(self.patterns['frequency_anomalies'])})")
+            print(
+                f"\n⚠️  Frequency anomalies ({len(self.patterns['frequency_anomalies'])})"
+            )
             for anomaly in self.patterns["frequency_anomalies"][:3]:  # Show first 3
                 print(
                     f"  - {anomaly['syllable']}: {anomaly['frequency']:,} (z={anomaly['z_score']:.1f})"
@@ -206,7 +212,9 @@ class OverfittingDetector:
         # Determine severity
         critical_issues = len(self.patterns["full_name_rules"])
         if critical_issues > 0:
-            print(f"\n🚨 RESULT: CRITICAL - {critical_issues} critical overfitting patterns found")
+            print(
+                f"\n🚨 RESULT: CRITICAL - {critical_issues} critical overfitting patterns found"
+            )
             return False
         else:
             print(f"\n⚠️  RESULT: WARNING - {total_issues} potential issues found")
@@ -274,7 +282,9 @@ if __name__ == "__main__":
         help="Source files to check",
     )
     parser.add_argument(
-        "--results-file", default="validation_results.json", help="Validation results file"
+        "--results-file",
+        default="validation_results.json",
+        help="Validation results file",
     )
 
     args = parser.parse_args()

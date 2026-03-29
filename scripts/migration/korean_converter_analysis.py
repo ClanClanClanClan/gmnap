@@ -188,7 +188,9 @@ def analyze_failures(failures):
             # Find relevant mappings
             for i, (char, token) in enumerate(zip(korean_chars, rom_tokens)):
                 relevant_mappings = [
-                    row for row in mappings if row[0] == char or (len(row) > 1 and row[1] == token)
+                    row
+                    for row in mappings
+                    if row[0] == char or (len(row) > 1 and row[1] == token)
                 ]
 
                 if relevant_mappings:

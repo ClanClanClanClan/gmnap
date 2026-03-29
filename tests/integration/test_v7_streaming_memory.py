@@ -121,7 +121,9 @@ def test_streaming_memory():
 
             # Calculate statistics
             max_memory_growth = max(memory_samples) if memory_samples else 0
-            avg_memory_growth = sum(memory_samples) / len(memory_samples) if memory_samples else 0
+            avg_memory_growth = (
+                sum(memory_samples) / len(memory_samples) if memory_samples else 0
+            )
             entries_per_second = num_entries / processing_time
 
             result = {

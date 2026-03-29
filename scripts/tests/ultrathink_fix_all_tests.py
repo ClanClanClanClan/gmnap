@@ -56,8 +56,13 @@ class UltrathinkTestFixer:
                 for pattern, replacement in fixes:
                     if re.search(pattern, content, re.MULTILINE):
                         # Don't add sys.path multiple times
-                        if "sys.path.insert" not in content or "from src." not in pattern:
-                            content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
+                        if (
+                            "sys.path.insert" not in content
+                            or "from src." not in pattern
+                        ):
+                            content = re.sub(
+                                pattern, replacement, content, flags=re.MULTILINE
+                            )
                             modified = True
 
                 # Add sys.path at the beginning if importing from src and not present
@@ -189,7 +194,10 @@ def timeout(seconds=10):
                 'import os\nos.environ["GMNAP_OFFLINE"] = "1"\nfrom src.core.pipeline_v7 import V7Pipeline',
             ),
             # Database connections
-            ("import duckdb", 'import os\nos.environ["DUCKDB_MEMORY_ONLY"] = "1"\nimport duckdb'),
+            (
+                "import duckdb",
+                'import os\nos.environ["DUCKDB_MEMORY_ONLY"] = "1"\nimport duckdb',
+            ),
         ]
 
         files_fixed = 0
@@ -335,7 +343,9 @@ with patch('fasttext.load_model') as mock_fasttext:
             # Add timeout for long-running tests
             if "def test_" in content and "timeout" not in content:
                 content = "import pytest\n\n" + content
-                content = content.replace("def test_", "@pytest.mark.timeout(5)\ndef test_")
+                content = content.replace(
+                    "def test_", "@pytest.mark.timeout(5)\ndef test_"
+                )
 
             with open(security_test, "w") as f:
                 f.write(content)
@@ -411,7 +421,14 @@ env =
 
             try:
                 result = subprocess.run(
-                    [sys.executable, "-m", "pytest", str(test_file), "-xvs", "--tb=short"],
+                    [
+                        sys.executable,
+                        "-m",
+                        "pytest",
+                        str(test_file),
+                        "-xvs",
+                        "--tb=short",
+                    ],
                     capture_output=True,
                     text=True,
                     timeout=5,

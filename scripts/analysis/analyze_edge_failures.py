@@ -14,19 +14,41 @@ from src.regions.manager import RegionManager
 edge_cases = [
     {
         "name": "Both empty",
-        "entry": {"CanonicalLatin": "", "CanonicalNative": "", "GlobalID": "test-empty"},
+        "entry": {
+            "CanonicalLatin": "",
+            "CanonicalNative": "",
+            "GlobalID": "test-empty",
+        },
     },
     {"name": "Missing canonical", "entry": {"GlobalID": "test-missing"}},
-    {"name": "Single character", "entry": {"CanonicalLatin": "A", "GlobalID": "test-single-char"}},
-    {"name": "Single number", "entry": {"CanonicalLatin": "1", "GlobalID": "test-single-num"}},
-    {"name": "Single symbol", "entry": {"CanonicalLatin": ".", "GlobalID": "test-single-symbol"}},
-    {"name": "Just spaces", "entry": {"CanonicalLatin": "   ", "GlobalID": "test-spaces"}},
-    {"name": "Tabs and spaces", "entry": {"CanonicalLatin": "\t  \t", "GlobalID": "test-tabs"}},
+    {
+        "name": "Single character",
+        "entry": {"CanonicalLatin": "A", "GlobalID": "test-single-char"},
+    },
+    {
+        "name": "Single number",
+        "entry": {"CanonicalLatin": "1", "GlobalID": "test-single-num"},
+    },
+    {
+        "name": "Single symbol",
+        "entry": {"CanonicalLatin": ".", "GlobalID": "test-single-symbol"},
+    },
+    {
+        "name": "Just spaces",
+        "entry": {"CanonicalLatin": "   ", "GlobalID": "test-spaces"},
+    },
+    {
+        "name": "Tabs and spaces",
+        "entry": {"CanonicalLatin": "\t  \t", "GlobalID": "test-tabs"},
+    },
     {
         "name": "Emoji in name",
         "entry": {"CanonicalLatin": "Test 😀 Name", "GlobalID": "test-emoji"},
     },
-    {"name": "RTL text", "entry": {"CanonicalLatin": "محمد عبدالله", "GlobalID": "test-rtl"}},
+    {
+        "name": "RTL text",
+        "entry": {"CanonicalLatin": "محمد عبدالله", "GlobalID": "test-rtl"},
+    },
 ]
 
 manager = RegionManager(Path("./config"))

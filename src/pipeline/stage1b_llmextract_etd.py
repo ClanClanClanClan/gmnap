@@ -69,7 +69,9 @@ def extract_from_text(text: str) -> Dict[str, Any]:
     degree_date = find(r"^degree date[:\-]\s*([0-9]{4}(?:-[0-9]{2}){0,2})$") or find(
         r"^year[:\-]\s*([0-9]{4})$"
     )
-    institution = find(r"^institution[:\-]\s*(.+)$") or find(r"^university[:\-]\s*(.+)$")
+    institution = find(r"^institution[:\-]\s*(.+)$") or find(
+        r"^university[:\-]\s*(.+)$"
+    )
 
     payload = {
         "title": title,
@@ -81,5 +83,7 @@ def extract_from_text(text: str) -> Dict[str, Any]:
     ok, err = _validate(payload)
     if not ok:
         raise ValueError(f"ETD extract invalid: {err}")
-    cache.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    cache.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     return payload

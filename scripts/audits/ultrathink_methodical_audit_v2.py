@@ -16,7 +16,11 @@ print("ULTRATHINK METHODICAL AUDIT V2 - TESTING ALL CLAIMS")
 print("=" * 80)
 
 # Test results storage
-audit_results = {"timestamp": time.strftime("%Y-%m-%d %H:%M:%S"), "tests": {}, "summary": {}}
+audit_results = {
+    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+    "tests": {},
+    "summary": {},
+}
 
 
 def test_claim(name: str, test_func, expected=True):
@@ -101,7 +105,15 @@ async def test_authority_sources():
     """Test authority sources functionality"""
     # Test by using the brutal_reality_audit approach
     working_sources = ["Crossref", "ORCID", "arXiv", "MathSciNet"]
-    broken_sources = ["OpenAlex", "ORCIDETD", "CrossrefThesis", "DBLP", "Wikidata", "HAL", "GND"]
+    broken_sources = [
+        "OpenAlex",
+        "ORCIDETD",
+        "CrossrefThesis",
+        "DBLP",
+        "Wikidata",
+        "HAL",
+        "GND",
+    ]
 
     # Based on brutal_reality_audit output, we know 4 work and 7 don't
     return True, f"Working: 4/11 sources (Crossref, ORCID, arXiv, MathSciNet)"
@@ -155,7 +167,10 @@ async def test_quality_gates():
 # ==================== TEST 6: IDEMPOTENCY ====================
 async def test_idempotency():
     """Test if idempotency is actually verified"""
-    from src.core.pipeline_v7_complete_final import V7PipelineCompleteFinal, PipelineMode
+    from src.core.pipeline_v7_complete_final import (
+        V7PipelineCompleteFinal,
+        PipelineMode,
+    )
 
     entries = [
         {
@@ -269,9 +284,15 @@ async def main():
 
     # Calculate summary
     total_tests = len(audit_results["tests"])
-    passed = sum(1 for t in audit_results["tests"].values() if t.get("status") == "PASS")
-    failed = sum(1 for t in audit_results["tests"].values() if t.get("status") == "FAIL")
-    errors = sum(1 for t in audit_results["tests"].values() if t.get("status") == "ERROR")
+    passed = sum(
+        1 for t in audit_results["tests"].values() if t.get("status") == "PASS"
+    )
+    failed = sum(
+        1 for t in audit_results["tests"].values() if t.get("status") == "FAIL"
+    )
+    errors = sum(
+        1 for t in audit_results["tests"].values() if t.get("status") == "ERROR"
+    )
 
     print("\n" + "=" * 80)
     print("ULTRATHINK AUDIT SUMMARY")

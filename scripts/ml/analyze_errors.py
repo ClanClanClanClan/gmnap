@@ -205,12 +205,18 @@ class ErrorAnalyzer:
         return {
             "errors": {
                 "mean": float(np.mean(error_confidences)) if error_confidences else 0,
-                "median": float(np.median(error_confidences)) if error_confidences else 0,
+                "median": (
+                    float(np.median(error_confidences)) if error_confidences else 0
+                ),
                 "std": float(np.std(error_confidences)) if error_confidences else 0,
             },
             "correct": {
-                "mean": float(np.mean(correct_confidences)) if correct_confidences else 0,
-                "median": float(np.median(correct_confidences)) if correct_confidences else 0,
+                "mean": (
+                    float(np.mean(correct_confidences)) if correct_confidences else 0
+                ),
+                "median": (
+                    float(np.median(correct_confidences)) if correct_confidences else 0
+                ),
                 "std": float(np.std(correct_confidences)) if correct_confidences else 0,
             },
             "high_confidence_errors": (
@@ -256,8 +262,12 @@ class ErrorAnalyzer:
                 categories[key].append(error)
 
         # Print summary
-        print(f"\nWithin-group errors (same letter group): {len(categories['within_group'])}")
-        print(f"Cross-group errors (different letter group): {len(categories['cross_group'])}")
+        print(
+            f"\nWithin-group errors (same letter group): {len(categories['within_group'])}"
+        )
+        print(
+            f"Cross-group errors (different letter group): {len(categories['cross_group'])}"
+        )
 
         print("\nMost common cross-group patterns:")
         cross_patterns = [
@@ -273,7 +283,9 @@ class ErrorAnalyzer:
         return {
             "within_group_count": len(categories["within_group"]),
             "cross_group_count": len(categories["cross_group"]),
-            "cross_group_patterns": [{"pattern": p, "count": c} for p, c in cross_patterns[:10]],
+            "cross_group_patterns": [
+                {"pattern": p, "count": c} for p, c in cross_patterns[:10]
+            ],
         }
 
     def top_k_recovery(self) -> Dict:
@@ -292,7 +304,11 @@ class ErrorAnalyzer:
 
             if true_region in topk_regions[:3]:
                 in_top3 += 1
-            if true_region in topk_regions[:5] if len(topk_regions) >= 5 else topk_regions:
+            if (
+                true_region in topk_regions[:5]
+                if len(topk_regions) >= 5
+                else topk_regions
+            ):
                 in_top5 += 1
             if true_region not in topk_regions:
                 not_in_topk += 1
@@ -359,7 +375,9 @@ def main():
         help="Model file",
     )
     parser.add_argument(
-        "--test-data", default="data/ml_training/test_profiles.json", help="Test dataset"
+        "--test-data",
+        default="data/ml_training/test_profiles.json",
+        help="Test dataset",
     )
     parser.add_argument(
         "--output", default="reports/ml/error_analysis.json", help="Output JSON file"

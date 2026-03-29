@@ -40,7 +40,12 @@ def evaluate_model(model, test_file):
     print(f"  Accuracy (P@1): {accuracy:.4f} ({accuracy*100:.2f}%)")
     print(f"  Recall@1: {recall:.4f}")
 
-    return {"n_samples": n_samples, "precision": precision, "recall": recall, "accuracy": accuracy}
+    return {
+        "n_samples": n_samples,
+        "precision": precision,
+        "recall": recall,
+        "accuracy": accuracy,
+    }
 
 
 def test_predictions(model, test_cases):
@@ -55,8 +60,12 @@ def test_predictions(model, test_cases):
         top_prob = probs[0]
 
         status = "✅" if top_pred == expected else "❌"
-        print(f"  {status} {name:30} → {top_pred} ({top_prob:.3f}) [expected: {expected}]")
-        print(f"      Top 3: {', '.join(f'{l}:{p:.2f}' for l, p in zip(labels, probs))}")
+        print(
+            f"  {status} {name:30} → {top_pred} ({top_prob:.3f}) [expected: {expected}]"
+        )
+        print(
+            f"      Top 3: {', '.join(f'{l}:{p:.2f}' for l, p in zip(labels, probs))}"
+        )
 
 
 def main():

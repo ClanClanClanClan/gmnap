@@ -25,7 +25,9 @@ logger = logging.getLogger(__name__)
 
 def pytest_configure(config):
     """Register custom markers."""
-    config.addinivalue_line("markers", "paranoid: marks tests as paranoid/exhaustive tests")
+    config.addinivalue_line(
+        "markers", "paranoid: marks tests as paranoid/exhaustive tests"
+    )
     config.addinivalue_line("markers", "smoke: marks tests as smoke tests")
     config.addinivalue_line("markers", "unit: marks tests as unit tests")
     config.addinivalue_line("markers", "regression: marks tests as regression tests")
@@ -228,7 +230,12 @@ def injection_test_payloads():
             "Smith | nc -l -p 1234 -e /bin/bash",
             "Smith`whoami`",
         ],
-        "format_string": ["Smith %s %x %p", "Smith %n", "Smith %1000000d", "Smith %.*s"],
+        "format_string": [
+            "Smith %s %x %p",
+            "Smith %n",
+            "Smith %1000000d",
+            "Smith %.*s",
+        ],
         "unicode_attacks": [
             "Smith\u0000John",  # Null byte
             "Smith\ufeffJohn",  # BOM
@@ -310,8 +317,12 @@ def performance_monitor():
 
         def assert_faster_than(self, seconds):
             elapsed = self.elapsed()
-            assert elapsed is not None, "Performance monitor not properly started/stopped"
-            assert elapsed < seconds, f"Operation took {elapsed:.3f}s, expected < {seconds}s"
+            assert (
+                elapsed is not None
+            ), "Performance monitor not properly started/stopped"
+            assert (
+                elapsed < seconds
+            ), f"Operation took {elapsed:.3f}s, expected < {seconds}s"
 
     return PerformanceMonitor()
 
@@ -333,7 +344,8 @@ def test_utils():
             if depth == 0:
                 return "leaf"
             return {
-                f"key_{i}": TestUtils.create_nested_dict(depth - 1, width) for i in range(width)
+                f"key_{i}": TestUtils.create_nested_dict(depth - 1, width)
+                for i in range(width)
             }
 
         @staticmethod

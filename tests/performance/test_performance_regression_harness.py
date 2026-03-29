@@ -82,7 +82,9 @@ class StatisticalAnalyzer:
             }
 
         current_mean = statistics.mean(current_samples)
-        current_std = statistics.stdev(current_samples) if len(current_samples) > 1 else 0
+        current_std = (
+            statistics.stdev(current_samples) if len(current_samples) > 1 else 0
+        )
 
         # Calculate percentage change
         percent_change = (
@@ -104,7 +106,8 @@ class StatisticalAnalyzer:
 
         # Regression detection logic
         regression_detected = (
-            percent_change > (self.sensitivity * 100)  # Performance degraded by threshold
+            percent_change
+            > (self.sensitivity * 100)  # Performance degraded by threshold
             and is_significant  # Change is statistically significant
         )
 
@@ -122,7 +125,9 @@ class StatisticalAnalyzer:
             "analysis_timestamp": datetime.now().isoformat(),
         }
 
-    def update_baseline(self, operation: str, samples: List[float]) -> RegressionBaseline:
+    def update_baseline(
+        self, operation: str, samples: List[float]
+    ) -> RegressionBaseline:
         """Update performance baseline with new samples"""
         if len(samples) < 5:
             raise ValueError("Need at least 5 samples to establish baseline")
@@ -133,7 +138,10 @@ class StatisticalAnalyzer:
 
         # Calculate confidence interval (95%)
         margin_of_error = 1.96 * (std_deviation / (len(samples) ** 0.5))
-        confidence_interval = (mean_duration - margin_of_error, mean_duration + margin_of_error)
+        confidence_interval = (
+            mean_duration - margin_of_error,
+            mean_duration + margin_of_error,
+        )
 
         return RegressionBaseline(
             operation=operation,
@@ -172,7 +180,9 @@ class PerformanceRegressionHarness:
                         std_deviation_ms=baseline_data["std_deviation_ms"],
                         percentile_95_ms=baseline_data["percentile_95_ms"],
                         sample_count=baseline_data["sample_count"],
-                        last_updated=datetime.fromisoformat(baseline_data["last_updated"]),
+                        last_updated=datetime.fromisoformat(
+                            baseline_data["last_updated"]
+                        ),
                         confidence_interval=tuple(baseline_data["confidence_interval"]),
                     )
             except Exception as e:
@@ -244,15 +254,21 @@ class PerformanceRegressionHarness:
         self.current_session_metrics.append(metric)
         return metric
 
-    def establish_baseline(self, operation: str, num_samples: int = 20) -> RegressionBaseline:
+    def establish_baseline(
+        self, operation: str, num_samples: int = 20
+    ) -> RegressionBaseline:
         """
         Establish performance baseline for an operation by running multiple samples.
         """
         # Get recent metrics for this operation
-        operation_metrics = [m for m in self.current_session_metrics if m.operation == operation]
+        operation_metrics = [
+            m for m in self.current_session_metrics if m.operation == operation
+        ]
 
         if len(operation_metrics) < num_samples:
-            raise ValueError(f"Need {num_samples} samples, only have {len(operation_metrics)}")
+            raise ValueError(
+                f"Need {num_samples} samples, only have {len(operation_metrics)}"
+            )
 
         # Use the most recent samples
         recent_samples = operation_metrics[-num_samples:]
@@ -275,9 +291,9 @@ class PerformanceRegressionHarness:
             }
 
         # Get recent metrics for this operation
-        recent_metrics = [m for m in self.current_session_metrics if m.operation == operation][
-            -min_samples:
-        ]
+        recent_metrics = [
+            m for m in self.current_session_metrics if m.operation == operation
+        ][-min_samples:]
 
         if len(recent_metrics) < min_samples:
             return {
@@ -320,7 +336,9 @@ class PerformanceRegressionHarness:
                 report["summary"]["operations_tested"] += 1
 
         if performance_changes:
-            report["summary"]["average_performance_change"] = statistics.mean(performance_changes)
+            report["summary"]["average_performance_change"] = statistics.mean(
+                performance_changes
+            )
 
         return report
 
@@ -362,7 +380,9 @@ class TestPerformanceRegressionHarness:
             await asyncio.sleep(delay_ms / 1000)
             return {"processed": 5}
 
-        metric = await harness.measure_operation("test_async", test_operation, delay_ms=50)
+        metric = await harness.measure_operation(
+            "test_async", test_operation, delay_ms=50
+        )
 
         assert metric.operation == "test_async"
         assert metric.duration_ms >= 45  # Should be at least the sleep time
@@ -469,7 +489,9 @@ class TestPerformanceRegressionHarness:
 
         # Check that measurements were recorded
         gate_metrics = [
-            m for m in harness.current_session_metrics if m.operation == "quality_gates_validation"
+            m
+            for m in harness.current_session_metrics
+            if m.operation == "quality_gates_validation"
         ]
 
         assert len(gate_metrics) == 10
@@ -526,7 +548,9 @@ class TestPerformanceRegressionHarness:
         regressed_analysis = analyzer.analyze_regression(baseline, regressed_samples)
 
         assert regressed_analysis["regression_detected"] is True
-        assert regressed_analysis["percent_change"] > 20  # Should be significant increase
+        assert (
+            regressed_analysis["percent_change"] > 20
+        )  # Should be significant increase
         assert regressed_analysis["confidence"] > 0.5
 
     @pytest.mark.asyncio
@@ -611,7 +635,9 @@ class TestGMNAPPerformanceIntegration:
 
             # Verify measurements were taken
             init_metrics = [
-                m for m in harness.current_session_metrics if m.operation == "region_manager_init"
+                m
+                for m in harness.current_session_metrics
+                if m.operation == "region_manager_init"
             ]
             assert len(init_metrics) > 0
 

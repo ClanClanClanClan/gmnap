@@ -8,7 +8,9 @@ import shutil
 from datetime import datetime
 
 # Backup the current file
-backup_name = f"resources/variant_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+backup_name = (
+    f"resources/variant_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+)
 shutil.copy("resources/variant_map.csv", backup_name)
 print(f"Backed up variant_map.csv to: {backup_name}")
 

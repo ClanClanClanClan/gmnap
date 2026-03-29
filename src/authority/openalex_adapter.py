@@ -29,7 +29,9 @@ class OpenAlexAdapter:
                 if r.status_code == 200:
                     data = r.json()
                     # very light: stash a representative token
-                    out["Publications"] = ["openalex:" + str(data.get("meta", {}).get("count", 0))]
+                    out["Publications"] = [
+                        "openalex:" + str(data.get("meta", {}).get("count", 0))
+                    ]
         except Exception:
             pass
         await self.ctx.cache.set_json(key, out)

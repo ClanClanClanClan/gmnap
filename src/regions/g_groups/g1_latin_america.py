@@ -87,7 +87,9 @@ class G1_LatinAmerica(RegionSpec):
 
         # Common compound name patterns
         self.compound_patterns = {
-            "maria": re.compile(r"\bMar[íi]a\s+[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+", re.IGNORECASE),
+            "maria": re.compile(
+                r"\bMar[íi]a\s+[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+", re.IGNORECASE
+            ),
             "jose": re.compile(r"\bJos[eé]\s+[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+", re.IGNORECASE),
             "juan": re.compile(r"\bJuan\s+[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+", re.IGNORECASE),
             "ana": re.compile(r"\bAna\s+[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+", re.IGNORECASE),
@@ -188,7 +190,9 @@ class G1_LatinAmerica(RegionSpec):
         cleaned = titles_pattern.sub("", canonical)
 
         # Remove degrees and generation suffixes
-        suffixes_pattern = re.compile(r"\s+\b(Jr\.?|Sr\.?|Filho|Neto|III?|IV|V)\b", re.IGNORECASE)
+        suffixes_pattern = re.compile(
+            r"\s+\b(Jr\.?|Sr\.?|Filho|Neto|III?|IV|V)\b", re.IGNORECASE
+        )
         cleaned = suffixes_pattern.sub("", cleaned)
 
         # Normalize Unicode for consistent diacritics
@@ -242,17 +246,25 @@ class G1_LatinAmerica(RegionSpec):
                 entry["RegionalExtras"] = {}
 
             entry["RegionalExtras"]["primary_surname"] = surname_components["primary"]
-            entry["RegionalExtras"]["secondary_surname"] = surname_components.get("secondary", "")
+            entry["RegionalExtras"]["secondary_surname"] = surname_components.get(
+                "secondary", ""
+            )
             entry["RegionalExtras"]["given_names"] = surname_components.get("given", "")
 
             # Generate variants using primary surname only
             if surname_components.get("secondary"):
-                primary_only = f"{surname_components['primary']}, {surname_components['given']}"
+                primary_only = (
+                    f"{surname_components['primary']}, {surname_components['given']}"
+                )
                 variants.append({"str": primary_only, "type": "dual-surname-primary"})
 
                 # Generate variant using secondary surname only
-                secondary_only = f"{surname_components['secondary']}, {surname_components['given']}"
-                variants.append({"str": secondary_only, "type": "dual-surname-secondary"})
+                secondary_only = (
+                    f"{surname_components['secondary']}, {surname_components['given']}"
+                )
+                variants.append(
+                    {"str": secondary_only, "type": "dual-surname-secondary"}
+                )
 
         # Handle dual surnames
         if self._is_dual_surname(canonical):
@@ -314,7 +326,9 @@ class G1_LatinAmerica(RegionSpec):
 
         # Check basic name structure
         if not (", " in canonical or " " in canonical):
-            raise RegionRuleError("Invalid name format: must contain family and given names")
+            raise RegionRuleError(
+                "Invalid name format: must contain family and given names"
+            )
 
         # Validate character set
         valid_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -336,7 +350,9 @@ class G1_LatinAmerica(RegionSpec):
             family, given = canonical.split(", ", 1)
             family_parts = family.split()
             if len(family_parts) < 2:
-                self.logger.warning(f"Expected dual surname but found single: {canonical}")
+                self.logger.warning(
+                    f"Expected dual surname but found single: {canonical}"
+                )
 
         # Validate compound names don't have formatting issues
         compound_names = self._extract_compound_names(canonical)
@@ -405,7 +421,9 @@ class G1_LatinAmerica(RegionSpec):
             family, _ = name.split(", ", 1)
             # Check if family part has 2+ substantial words
             family_words = [
-                w for w in family.split() if w.lower() not in self.particles and len(w) > 2
+                w
+                for w in family.split()
+                if w.lower() not in self.particles and len(w) > 2
             ]
             return len(family_words) >= 2
         else:
@@ -429,7 +447,9 @@ class G1_LatinAmerica(RegionSpec):
                 # Maternal surname only (if exists)
                 if len(family_parts) >= 2:
                     maternal = family_parts[-1]
-                    variants.append({"str": f"{maternal}, {given}", "type": "order-swap"})
+                    variants.append(
+                        {"str": f"{maternal}, {given}", "type": "order-swap"}
+                    )
 
         return variants
 
@@ -472,16 +492,23 @@ class G1_LatinAmerica(RegionSpec):
 
         # Brazilian indicators (Portuguese)
         if any(c in name_lower for c in "ãàâõ") or any(
-            pattern in name_lower for pattern in self.country_indicators["BR"]["patterns"][:5]
+            pattern in name_lower
+            for pattern in self.country_indicators["BR"]["patterns"][:5]
         ):
             return "BR"
 
         # Mexican indicators
-        if any(pattern in name_lower for pattern in self.country_indicators["MX"]["patterns"][:5]):
+        if any(
+            pattern in name_lower
+            for pattern in self.country_indicators["MX"]["patterns"][:5]
+        ):
             return "MX"
 
         # Argentinian indicators
-        if any(pattern in name_lower for pattern in self.country_indicators["AR"]["patterns"][:3]):
+        if any(
+            pattern in name_lower
+            for pattern in self.country_indicators["AR"]["patterns"][:3]
+        ):
             return "AR"
 
         # Spanish Caribbean
@@ -603,12 +630,18 @@ class G1_LatinAmerica(RegionSpec):
                 if two_word in self.surname_stop_words:
                     # Found two-word stop-word
                     if i > 0:
-                        return {"primary": " ".join(words[:i]), "secondary": " ".join(words[i:])}
+                        return {
+                            "primary": " ".join(words[:i]),
+                            "secondary": " ".join(words[i:]),
+                        }
 
             # Check for single-word stop-words
             if word_lower in self.surname_stop_words:
                 if i > 0:
-                    return {"primary": " ".join(words[:i]), "secondary": " ".join(words[i:])}
+                    return {
+                        "primary": " ".join(words[:i]),
+                        "secondary": " ".join(words[i:]),
+                    }
 
         # No stop-words found - for dual surnames, assume last word is secondary
         if len(words) == 2:
@@ -634,7 +667,15 @@ class G1_LatinAmerica(RegionSpec):
             Index where surnames begin
         """
         # Common compound given name patterns
-        compound_given_patterns = ["maría del", "maria del", "josé", "jose", "juan", "ana", "luis"]
+        compound_given_patterns = [
+            "maría del",
+            "maria del",
+            "josé",
+            "jose",
+            "juan",
+            "ana",
+            "luis",
+        ]
 
         # If we have a compound given name pattern, find where it ends
         name_lower = " ".join(words).lower()

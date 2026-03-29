@@ -28,7 +28,11 @@ async def test_corrected_format():
 
         # Generate simple entries
         entries = [
-            {"ID": f"test_{i:06d}", "CanonicalNative": "Test User", "Region": "a1_anglo_sphere"}
+            {
+                "ID": f"test_{i:06d}",
+                "CanonicalNative": "Test User",
+                "Region": "a1_anglo_sphere",
+            }
             for i in range(size)
         ]
 
@@ -46,7 +50,9 @@ async def test_corrected_format():
                 metrics = result.get("metrics", {})
 
                 # Extract statistics
-                successful = len([e for e in processed_entries if e.get("Status") == "success"])
+                successful = len(
+                    [e for e in processed_entries if e.get("Status") == "success"]
+                )
                 speed = size / duration
                 success_rate = (successful / size) * 100
 
@@ -63,7 +69,11 @@ async def test_corrected_format():
                 print(f"✅ {speed:>6.0f} e/s ({success_rate:.0f}% success)")
 
             else:
-                result_data = {"size": size, "error": "Unexpected format", "status": "failed"}
+                result_data = {
+                    "size": size,
+                    "error": "Unexpected format",
+                    "status": "failed",
+                }
                 print("❌ Wrong format")
 
             results.append(result_data)
@@ -89,8 +99,12 @@ async def test_corrected_format():
     print(f"Format handling: ✅ CORRECTED")
 
     if successful_tests:
-        avg_speed = sum(r["speed_eps"] for r in successful_tests) / len(successful_tests)
-        avg_success_rate = sum(r["success_rate"] for r in successful_tests) / len(successful_tests)
+        avg_speed = sum(r["speed_eps"] for r in successful_tests) / len(
+            successful_tests
+        )
+        avg_success_rate = sum(r["success_rate"] for r in successful_tests) / len(
+            successful_tests
+        )
 
         print(f"\nPerformance with corrected format:")
         print(f"  Average speed: {avg_speed:.0f} entries/sec")

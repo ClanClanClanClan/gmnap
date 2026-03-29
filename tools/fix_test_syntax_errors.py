@@ -40,7 +40,11 @@ def fix_comment_pass_issue(filepath):
         new_lines = []
         for line in lines:
             # Fix lines with comment and pass on same line
-            if "# MOVED:" in line and "pass" in line and not line.strip().startswith("#"):
+            if (
+                "# MOVED:" in line
+                and "pass" in line
+                and not line.strip().startswith("#")
+            ):
                 # Split comment and pass
                 comment_part = line[: line.rfind("pass")].rstrip()
                 new_lines.append(comment_part + "\n")

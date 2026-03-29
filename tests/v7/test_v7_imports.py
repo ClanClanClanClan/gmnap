@@ -27,9 +27,18 @@ def test_imports():
 
     modules_to_test = [
         # Core modules
-        ("Core: Canonical JSON", "from src.core.canonical_json import to_canonical_bytes"),
-        ("Core: Idempotency", "from src.core.idempotency import batch_hash, assert_identical"),
-        ("Core: Schema Validator", "from src.core.schema_validator import V7SchemaValidator"),
+        (
+            "Core: Canonical JSON",
+            "from src.core.canonical_json import to_canonical_bytes",
+        ),
+        (
+            "Core: Idempotency",
+            "from src.core.idempotency import batch_hash, assert_identical",
+        ),
+        (
+            "Core: Schema Validator",
+            "from src.core.schema_validator import V7SchemaValidator",
+        ),
         ("Core: DB Pool", "from src.core.db_pool import BoltPool"),
         (
             "Core: Transaction Manager",
@@ -37,10 +46,19 @@ def test_imports():
         ),
         # Region management
         ("Regions: Manager", "from src.regions import RegionManager"),
-        ("Regions: Base", "from src.regions.base import RegionSpec as RegionBase, RegionSpec"),
+        (
+            "Regions: Base",
+            "from src.regions.base import RegionSpec as RegionBase, RegionSpec",
+        ),
         # Pipeline stages
-        ("Stage 1b: LLM Extract", "from src.llm.stage1b_llmextract_etd import extract_from_text"),
-        ("Stage 2: Detect Region", "from src.pipeline.stage2_detect_region import detect_region"),
+        (
+            "Stage 1b: LLM Extract",
+            "from src.llm.stage1b_llmextract_etd import extract_from_text",
+        ),
+        (
+            "Stage 2: Detect Region",
+            "from src.pipeline.stage2_detect_region import detect_region",
+        ),
         (
             "Stage 3: Region Hooks",
             "from src.pipeline.stage3_region_hooks import apply_region_hooks",
@@ -61,7 +79,10 @@ def test_imports():
             "Stage 8: Global Validate",
             "from src.pipeline.stage8_global_validate import global_validate",
         ),
-        ("Stage 9: Write & Diff", "from src.pipeline.stage9_write_and_diff import write_and_diff"),
+        (
+            "Stage 9: Write & Diff",
+            "from src.pipeline.stage9_write_and_diff import write_and_diff",
+        ),
         ("Stage 10: Report", "from src.pipeline.stage10_report import generate_report"),
         (
             "Stage 11: Idempotency",
@@ -70,9 +91,15 @@ def test_imports():
         # Operations
         ("Ops: Metrics", "from src.ops.metrics import start_metrics_server"),
         ("Ops: Archive SFTP", "from src.ops.archive_sftp import SFTPArchiver"),
-        ("Ops: DataCite Builder", "from src.ops.datacite_builder import build_datacite_doi"),
+        (
+            "Ops: DataCite Builder",
+            "from src.ops.datacite_builder import build_datacite_doi",
+        ),
         # Security
-        ("Security: Auth Middleware", "from src.security.auth_middleware import APIKeyAuth"),
+        (
+            "Security: Auth Middleware",
+            "from src.security.auth_middleware import APIKeyAuth",
+        ),
     ]
 
     results = []

@@ -34,7 +34,10 @@ if __name__ == "__main__":
         json.dump(batch, f, ensure_ascii=False, indent=2)
 
     rep_dir, payload = generate_report(
-        batch, metrics=metrics, snapshot_dir=snapshot_dir, shortform_clusters={"E. Noether": 2}
+        batch,
+        metrics=metrics,
+        snapshot_dir=snapshot_dir,
+        shortform_clusters={"E. Noether": 2},
     )
     print(rep_dir)
     print(json.dumps(payload, indent=2, ensure_ascii=False))

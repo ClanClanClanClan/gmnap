@@ -10,7 +10,14 @@ except Exception:  # pragma: no cover
     Draft202012Validator = None  # lazy optional
 
 # V7 specification (required keys and a pragmatic, strict-enough validator).
-V7_REQUIRED = ["GlobalID", "CanonicalLatin", "Field", "Source", "LastUpdated", "ValidationStatus"]
+V7_REQUIRED = [
+    "GlobalID",
+    "CanonicalLatin",
+    "Field",
+    "Source",
+    "LastUpdated",
+    "ValidationStatus",
+]
 
 # Types accepted for known fields (conservative where spec is open-ended).
 V7_FIELD_TYPES: Dict[str, Union[type, tuple]] = {
@@ -52,7 +59,8 @@ V7_CONSTRAINTS = {
     "BirthYear": lambda x: isinstance(x, int) and -2000 <= x <= 2100,
     "DeathYear": lambda x: isinstance(x, int) and -2000 <= x <= 2100,
     "Nationality": lambda x: isinstance(x, str) and bool(re.fullmatch(r"[A-Z]{2}", x)),
-    "Gender": lambda x: x in {"M", "F", "X", "U", "male", "female", "nonbinary", "unspecified"},
+    "Gender": lambda x: x
+    in {"M", "F", "X", "U", "male", "female", "nonbinary", "unspecified"},
     "ValidationStatus": lambda x: x in {"verified", "pending", "disputed"},
     "LastUpdated": _is_iso8601,
 }
@@ -109,7 +117,9 @@ class V7SchemaValidator:
         return (len(errors) == 0, errors)
 
     @classmethod
-    def load_default_schema(cls, path: str = "schemas/v7_entry.schema.json") -> "V7SchemaValidator":
+    def load_default_schema(
+        cls, path: str = "schemas/v7_entry.schema.json"
+    ) -> "V7SchemaValidator":
         try:
             with open(path, "r", encoding="utf-8") as f:
                 schema = json.load(f)

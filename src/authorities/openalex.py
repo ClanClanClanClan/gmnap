@@ -140,7 +140,9 @@ class OpenAlexAPI:
                 self.request_count += 1
 
                 if response.status != 200:
-                    logger.warning(f"OpenAlex API returned {response.status} for {name}")
+                    logger.warning(
+                        f"OpenAlex API returned {response.status} for {name}"
+                    )
                     return []
 
                 data = await response.json()
@@ -151,7 +153,9 @@ class OpenAlexAPI:
                         id=item.get("id", ""),
                         orcid=item.get("orcid"),
                         display_name=item.get("display_name", ""),
-                        display_name_alternatives=item.get("display_name_alternatives", []),
+                        display_name_alternatives=item.get(
+                            "display_name_alternatives", []
+                        ),
                         works_count=item.get("works_count", 0),
                         cited_by_count=item.get("cited_by_count", 0),
                         h_index=item.get("summary_stats", {}).get("h_index", 0),
@@ -196,7 +200,9 @@ class OpenAlexAPI:
                 if response.status == 404:
                     return None
                 elif response.status != 200:
-                    logger.warning(f"OpenAlex API returned {response.status} for ORCID {orcid}")
+                    logger.warning(
+                        f"OpenAlex API returned {response.status} for ORCID {orcid}"
+                    )
                     return None
 
                 item = await response.json()
@@ -221,7 +227,9 @@ class OpenAlexAPI:
             logger.error(f"Error fetching ORCID {orcid} from OpenAlex: {e}")
             return None
 
-    async def get_coauthors(self, author_id: str, limit: int = 20) -> List[Dict[str, Any]]:
+    async def get_coauthors(
+        self, author_id: str, limit: int = 20
+    ) -> List[Dict[str, Any]]:
         """
         Get coauthors for an author
 
@@ -270,7 +278,9 @@ class OpenAlexAPI:
 
                 # Sort by collaboration count
                 sorted_coauthors = sorted(
-                    coauthors.values(), key=lambda x: x["collaboration_count"], reverse=True
+                    coauthors.values(),
+                    key=lambda x: x["collaboration_count"],
+                    reverse=True,
                 )
 
                 return sorted_coauthors[:limit]
@@ -353,7 +363,9 @@ class OpenAlexAPI:
             authors = await self.search_authors(name, limit=5)
             if authors:
                 # Take highest confidence match
-                best_match = max(authors, key=lambda a: self._calculate_confidence(name, a))
+                best_match = max(
+                    authors, key=lambda a: self._calculate_confidence(name, a)
+                )
                 if self._calculate_confidence(name, best_match) >= 50:
                     author = best_match
 
@@ -365,7 +377,9 @@ class OpenAlexAPI:
             entry["ExternalIDs"] = []
 
         # Add OpenAlex ID
-        entry["ExternalIDs"].append({"type": "OpenAlex", "value": author.id, "source": "OpenAlex"})
+        entry["ExternalIDs"].append(
+            {"type": "OpenAlex", "value": author.id, "source": "OpenAlex"}
+        )
 
         # Add/update ORCID if found
         if author.orcid and not orcid:

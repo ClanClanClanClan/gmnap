@@ -42,7 +42,10 @@ def generate_test_entries(count: int) -> List[Dict]:
                 "id": f"test_{i:08d}",
                 "CanonicalNative": pattern[0],
                 "Region": pattern[1],
-                "_metadata": {"source": "test_generator", "timestamp": datetime.now().isoformat()},
+                "_metadata": {
+                    "source": "test_generator",
+                    "timestamp": datetime.now().isoformat(),
+                },
             }
         )
 
@@ -118,7 +121,9 @@ def profile_batch_processing(pipeline, batch_sizes: List[int]) -> Dict:
         # Calculate metrics
         entries_per_sec = batch_size / process_time if process_time > 0 else 0
         time_per_entry = process_time / batch_size if batch_size > 0 else 0
-        memory_per_entry = (mem_after - mem_before) / batch_size if batch_size > 0 else 0
+        memory_per_entry = (
+            (mem_after - mem_before) / batch_size if batch_size > 0 else 0
+        )
 
         # Get profiling stats
         s = io.StringIO()
@@ -185,7 +190,9 @@ def identify_bottlenecks(results: Dict) -> Dict:
             # Calculate theoretical maximum throughput
             if m > 0:
                 max_throughput = 1 / m
-                print(f"  📈 Theoretical max throughput: {max_throughput:.0f} entries/sec")
+                print(
+                    f"  📈 Theoretical max throughput: {max_throughput:.0f} entries/sec"
+                )
 
     # Identify common bottleneck functions
     all_profiles = []
@@ -206,7 +213,9 @@ def identify_bottlenecks(results: Dict) -> Dict:
                     function_counts[func] = function_counts.get(func, 0) + 1
 
     # Sort by frequency
-    top_bottlenecks = sorted(function_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+    top_bottlenecks = sorted(function_counts.items(), key=lambda x: x[1], reverse=True)[
+        :5
+    ]
     analysis["bottleneck_functions"] = [f[0] for f in top_bottlenecks]
 
     print("\n  🔥 Top bottleneck functions:")
@@ -354,7 +363,9 @@ def run_1m_performance_test(pipeline, data_file: str) -> Dict:
     results = {}
 
     for batch_size, num_batches in batch_configs:
-        print(f"\n  Testing with {batch_size:,} entry batches ({num_batches} batches)...")
+        print(
+            f"\n  Testing with {batch_size:,} entry batches ({num_batches} batches)..."
+        )
 
         gc.collect()
         tracemalloc.start()
@@ -451,7 +462,9 @@ def main():
         "one_million_test": one_million_results,
     }
 
-    output_file = f"performance_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    output_file = (
+        f"performance_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
     with open(output_file, "w") as f:
         json.dump(all_results, f, indent=2)
 
@@ -462,7 +475,9 @@ def main():
     # Summary
     print("\n📊 SUMMARY:")
     print(f"  • Pipeline initialization: {init_time:.3f}s")
-    print(f"  • Fixed overhead: {bottleneck_analysis.get('fixed_overhead', 'N/A'):.3f}s")
+    print(
+        f"  • Fixed overhead: {bottleneck_analysis.get('fixed_overhead', 'N/A'):.3f}s"
+    )
     print(
         f"  • Scaling factor: {bottleneck_analysis.get('scaling_factor', 0)*1000:.3f}ms per entry"
     )
@@ -490,7 +505,9 @@ def main():
     # Small batch performance
     small_batch_results = {k: v for k, v in batch_results.items() if k <= 50}
     if small_batch_results:
-        worst_small = min(small_batch_results.values(), key=lambda x: x["entries_per_sec"])
+        worst_small = min(
+            small_batch_results.values(), key=lambda x: x["entries_per_sec"]
+        )
         print(f"\n  📦 SMALL BATCH PERFORMANCE:")
         print(
             f"    • Worst case: {worst_small['entries_per_sec']:.0f} entries/sec (batch size {worst_small['batch_size']})"

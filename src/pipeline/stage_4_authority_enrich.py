@@ -74,7 +74,9 @@ class AuthorityEnrichStage:
             for record in processed_data:
                 if record in records_for_enrichment:
                     try:
-                        enriched_record = self._enrich_single_record(record, authority_config)
+                        enriched_record = self._enrich_single_record(
+                            record, authority_config
+                        )
                         enriched_data.append(enriched_record)
                         enrichment_stats["enriched_records"] += 1
                     except Exception as e:
@@ -103,7 +105,9 @@ class AuthorityEnrichStage:
             return context
 
         except Exception as e:
-            raise AuthorityEnrichmentError(f"Stage 4 authority enrichment failed: {str(e)}")
+            raise AuthorityEnrichmentError(
+                f"Stage 4 authority enrichment failed: {str(e)}"
+            )
 
     def _initialize_authority_sources(
         self, authority_config: Dict[str, Any], runtime_profile: str
@@ -131,7 +135,15 @@ class AuthorityEnrichStage:
         # Common authority sources by tier
         tier_sources = {
             "tier0": ["orcid", "scopus", "dblp"],
-            "tier1": ["arxiv", "mathscinet", "zbmath", "wikidata", "gnd", "hal", "researchgate"],
+            "tier1": [
+                "arxiv",
+                "mathscinet",
+                "zbmath",
+                "wikidata",
+                "gnd",
+                "hal",
+                "researchgate",
+            ],
             "tier2": ["google_scholar"],
             "tier3": ["general_web"],
         }
@@ -147,17 +159,23 @@ class AuthorityEnrichStage:
                         tier, source_name, source_config
                     )
                     if authority_source:
-                        self.authority_sources[f"{tier}_{source_name}"] = authority_source
+                        self.authority_sources[f"{tier}_{source_name}"] = (
+                            authority_source
+                        )
 
                         # Initialize rate limiter for this source
                         rate_limit = source_config.get("rate_limit", {})
                         if rate_limit:
                             self.rate_limiters[f"{tier}_{source_name}"] = RateLimiter(
-                                requests_per_second=rate_limit.get("requests_per_second", 1),
+                                requests_per_second=rate_limit.get(
+                                    "requests_per_second", 1
+                                ),
                                 burst_limit=rate_limit.get("burst_limit", 5),
                             )
                 except Exception as e:
-                    logger.warning(f"Failed to initialize {tier}_{source_name}: {str(e)}")
+                    logger.warning(
+                        f"Failed to initialize {tier}_{source_name}: {str(e)}"
+                    )
 
     def _create_authority_source(
         self, tier: str, source_name: str, config: Dict[str, Any]
@@ -193,7 +211,9 @@ class AuthorityEnrichStage:
                     return WikidataAuthority(config)
             elif tier == "tier2":
                 if source_name == "google_scholar":
-                    from ..authorities.tier2.google_scholar import GoogleScholarAuthority
+                    from ..authorities.tier2.google_scholar import (
+                        GoogleScholarAuthority,
+                    )
 
                     return GoogleScholarAuthority(config)
             elif tier == "tier3":
@@ -205,10 +225,14 @@ class AuthorityEnrichStage:
             return None
 
         except ImportError as e:
-            logger.warning(f"Authority source {tier}_{source_name} not available: {str(e)}")
+            logger.warning(
+                f"Authority source {tier}_{source_name} not available: {str(e)}"
+            )
             return None
 
-    def _filter_records_for_enrichment(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _filter_records_for_enrichment(
+        self, data: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Filter records that need authority enrichment"""
         records_for_enrichment = []
 
@@ -330,16 +354,24 @@ class AuthorityEnrichStage:
 
                     # Calculate confidence score for this source
                     confidence_score = self._calculate_confidence_score(
-                        search_terms, authority_data, authority_source.get_confidence_multiplier()
+                        search_terms,
+                        authority_data,
+                        authority_source.get_confidence_multiplier(),
                     )
-                    enrichment_metadata["confidence_scores"][source_id] = confidence_score
+                    enrichment_metadata["confidence_scores"][
+                        source_id
+                    ] = confidence_score
 
                     # Merge high-confidence data into the record
                     if confidence_score >= 0.8:  # High confidence threshold
-                        self._merge_authority_data(enriched_record, authority_data, source_id)
+                        self._merge_authority_data(
+                            enriched_record, authority_data, source_id
+                        )
 
                 # Track source usage statistics
-                if source_id not in self.enrichment_stats.setdefault("authority_sources_used", {}):
+                if source_id not in self.enrichment_stats.setdefault(
+                    "authority_sources_used", {}
+                ):
                     self.enrichment_stats["authority_sources_used"][source_id] = 0
                 self.enrichment_stats["authority_sources_used"][source_id] += 1
 
@@ -390,7 +422,10 @@ class AuthorityEnrichStage:
         return search_terms
 
     def _calculate_confidence_score(
-        self, search_terms: Dict[str, Any], authority_data: Dict[str, Any], source_multiplier: float
+        self,
+        search_terms: Dict[str, Any],
+        authority_data: Dict[str, Any],
+        source_multiplier: float,
     ) -> float:
         """Calculate confidence score for authority source match"""
 
@@ -504,15 +539,16 @@ class AuthorityEnrichStage:
         # Calculate performance metrics
         if enrichment_stats["enrichment_time"] > 0:
             enrichment_stats["records_per_second"] = (
-                enrichment_stats["enriched_records"] / enrichment_stats["enrichment_time"]
+                enrichment_stats["enriched_records"]
+                / enrichment_stats["enrichment_time"]
             )
         else:
             enrichment_stats["records_per_second"] = 0
 
         # Add cache efficiency
-        total_queries = enrichment_stats.get("api_calls_made", 0) + enrichment_stats.get(
-            "cache_hits", 0
-        )
+        total_queries = enrichment_stats.get(
+            "api_calls_made", 0
+        ) + enrichment_stats.get("cache_hits", 0)
         if total_queries > 0:
             enrichment_stats["cache_hit_rate"] = (
                 enrichment_stats.get("cache_hits", 0) / total_queries

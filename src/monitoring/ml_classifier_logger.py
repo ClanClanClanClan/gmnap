@@ -69,7 +69,8 @@ class MLClassifierLogger:
 
         # Set up Python logging
         logging.basicConfig(
-            level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            level=logging.INFO,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         )
         self.logger = logging.getLogger("MLClassifierLogger")
 
@@ -155,9 +156,9 @@ class MLClassifierLogger:
             return
 
         # Compute rolling metrics
-        abstention_rate = sum(1 for p in self.recent_predictions if p["abstained"]) / len(
-            self.recent_predictions
-        )
+        abstention_rate = sum(
+            1 for p in self.recent_predictions if p["abstained"]
+        ) / len(self.recent_predictions)
 
         confidences = [
             p["confidence"]
@@ -181,7 +182,9 @@ class MLClassifierLogger:
             )
 
         # Alert on accuracy (if ground truth available)
-        correct_predictions = [p for p in self.recent_predictions if p["correct"] is not None]
+        correct_predictions = [
+            p for p in self.recent_predictions if p["correct"] is not None
+        ]
         if len(correct_predictions) >= 50:
             accuracy = sum(1 for p in correct_predictions if p["correct"]) / len(
                 correct_predictions
@@ -213,7 +216,9 @@ class MLClassifierLogger:
 
         # Add accuracy if available
         if self.stats["accuracy_count"] > 0:
-            stats["accuracy"] = self.stats["correct_count"] / self.stats["accuracy_count"]
+            stats["accuracy"] = (
+                self.stats["correct_count"] / self.stats["accuracy_count"]
+            )
             stats["accuracy_sample_size"] = self.stats["accuracy_count"]
 
         # Rolling window stats
@@ -225,9 +230,13 @@ class MLClassifierLogger:
                 if p["confidence"] is not None and not p["abstained"]
             ]
 
-            stats["rolling_abstention_rate"] = recent_abstained / len(self.recent_predictions)
+            stats["rolling_abstention_rate"] = recent_abstained / len(
+                self.recent_predictions
+            )
             stats["rolling_avg_confidence"] = (
-                sum(recent_confidences) / len(recent_confidences) if recent_confidences else 0.0
+                sum(recent_confidences) / len(recent_confidences)
+                if recent_confidences
+                else 0.0
             )
             stats["rolling_window_size"] = len(self.recent_predictions)
 
@@ -356,7 +365,11 @@ class MLClassifierMonitor:
         analysis["model_versions"] = dict(analysis["model_versions"])
         analysis["label_policies"] = dict(analysis["label_policies"])
         analysis["region_distribution"] = dict(
-            sorted(analysis["region_distribution"].items(), key=lambda x: x[1], reverse=True)[:10]
+            sorted(
+                analysis["region_distribution"].items(),
+                key=lambda x: x[1],
+                reverse=True,
+            )[:10]
         )  # Top 10 regions
 
         return analysis
@@ -438,7 +451,9 @@ if __name__ == "__main__":
     print(f"Abstention rate: {analysis['abstention_rate']:.1%}")
     print(f"Avg confidence: {analysis['avg_confidence']:.3f}")
     if analysis["accuracy"] is not None:
-        print(f"Accuracy: {analysis['accuracy']:.1%} (n={analysis['accuracy_sample_size']})")
+        print(
+            f"Accuracy: {analysis['accuracy']:.1%} (n={analysis['accuracy_sample_size']})"
+        )
 
     print(f"\nModel versions:")
     for version, count in analysis["model_versions"].items():

@@ -268,12 +268,16 @@ class E1_SinophoneMainland(RegionSpec):
                 if pinyin != canonical:
                     # Update CanonicalLatin to be romanized
                     entry["CanonicalLatin"] = pinyin
-                    entry["Variants"]["Synthesised"].append({"str": pinyin, "type": "pinyin"})
+                    entry["Variants"]["Synthesised"].append(
+                        {"str": pinyin, "type": "pinyin"}
+                    )
 
         # Add traditional character variant
         traditional = self._to_traditional(canonical)
         if traditional != canonical:
-            entry["Variants"]["Synthesised"].append({"str": traditional, "type": "traditional"})
+            entry["Variants"]["Synthesised"].append(
+                {"str": traditional, "type": "traditional"}
+            )
 
     def _extract_components(self, name: str) -> Dict[str, Any]:
         """Extract name components."""
@@ -375,7 +379,9 @@ class E1_SinophoneMainland(RegionSpec):
 
         except ImportError:
             # Fallback to basic mapping if pypinyin not available
-            self.logger.debug("pypinyin not available, using fallback pinyin generation")
+            self.logger.debug(
+                "pypinyin not available, using fallback pinyin generation"
+            )
 
             # Basic character to pinyin mapping (limited but covers common names)
             pinyin_map = {
@@ -471,7 +477,9 @@ class E1_SinophoneMainland(RegionSpec):
 
             # Log if we have unknown characters
             if unknown_chars:
-                self.logger.debug(f"Unknown Chinese characters for pinyin: {unknown_chars}")
+                self.logger.debug(
+                    f"Unknown Chinese characters for pinyin: {unknown_chars}"
+                )
 
             # For Chinese names, format as: Family Given
             if len(result) == 3:  # Common pattern: 1 char family + 2 char given
@@ -538,16 +546,22 @@ class E1_SinophoneMainland(RegionSpec):
         # If CanonicalNative exists, it should be Chinese
         if canonical_native:
             if not self._is_chinese(canonical_native):
-                raise RegionRuleError(f"CanonicalNative should be Chinese: {canonical_native}")
+                raise RegionRuleError(
+                    f"CanonicalNative should be Chinese: {canonical_native}"
+                )
 
             # Check length - Chinese names are typically 2-4 characters
             if len(canonical_native) < 2 or len(canonical_native) > 4:
-                raise RegionRuleError(f"Chinese name length unusual: {canonical_native}")
+                raise RegionRuleError(
+                    f"Chinese name length unusual: {canonical_native}"
+                )
 
         # If CanonicalLatin exists, it should be romanized
         if canonical_latin:
             if self._is_chinese(canonical_latin):
-                raise RegionRuleError(f"CanonicalLatin should be romanized: {canonical_latin}")
+                raise RegionRuleError(
+                    f"CanonicalLatin should be romanized: {canonical_latin}"
+                )
 
             # Check for valid pinyin pattern
             if not self._is_valid_pinyin(canonical_latin):
@@ -606,7 +620,9 @@ class E1_SinophoneMainland(RegionSpec):
 
         return key
 
-    def _validate_cjk_roundtrip(self, canonical_native: str, canonical_latin: str) -> float:
+    def _validate_cjk_roundtrip(
+        self, canonical_native: str, canonical_latin: str
+    ) -> float:
         """
         Rule 11: CJK Round-Trip validation with Dice coefficient.
 
@@ -633,8 +649,12 @@ class E1_SinophoneMainland(RegionSpec):
             reconstructed_cjk = self._pinyin_to_cjk(canonical_latin)
 
             # Step 3: Apply NFC casefold normalization as per V7 spec
-            original_normalized = unicodedata.normalize("NFC", canonical_native.casefold())
-            reconstructed_normalized = unicodedata.normalize("NFC", reconstructed_cjk.casefold())
+            original_normalized = unicodedata.normalize(
+                "NFC", canonical_native.casefold()
+            )
+            reconstructed_normalized = unicodedata.normalize(
+                "NFC", reconstructed_cjk.casefold()
+            )
 
             # Step 4: Calculate Dice coefficient
             dice_score = self._calculate_dice_coefficient(

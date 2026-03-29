@@ -94,7 +94,9 @@ class TestRegionDetectionAccuracy:
             ), f"Unexpected region {detection.region_code} for {name}, expected one of {expected_regions}"
 
             # Should have reasonable confidence
-            assert detection.confidence >= 0.1, f"Low confidence {detection.confidence} for {name}"
+            assert (
+                detection.confidence >= 0.1
+            ), f"Low confidence {detection.confidence} for {name}"
 
     def test_region_detection_by_country(self):
         """Test region detection based on country information."""
@@ -216,24 +218,48 @@ class TestRegionDetectionAccuracy:
                 ["C2", "A1"],
             ),  # Chinese name, US country
             # Ancient/Historical names
-            ({"canonical_name": "Archimedes", "birth_year": -287}, "G1"),  # Ancient Greek
-            ({"canonical_name": "Al-Khwarizmi", "birth_year": 780}, "G2"),  # Medieval Islamic
-            ({"canonical_name": "Fibonacci", "birth_year": 1170}, "G3"),  # Medieval European
+            (
+                {"canonical_name": "Archimedes", "birth_year": -287},
+                "G1",
+            ),  # Ancient Greek
+            (
+                {"canonical_name": "Al-Khwarizmi", "birth_year": 780},
+                "G2",
+            ),  # Medieval Islamic
+            (
+                {"canonical_name": "Fibonacci", "birth_year": 1170},
+                "G3",
+            ),  # Medieval European
             # Stateless/Diaspora
             (
                 {"canonical_name": "Einstein, Albert", "countries": ["DE", "US", "CH"]},
                 ["H1", "H2"],
             ),  # Multiple countries
-            ({"canonical_name": "Refugee, John", "countries": []}, ["H2", "Z0"]),  # No country
+            (
+                {"canonical_name": "Refugee, John", "countries": []},
+                ["H2", "Z0"],
+            ),  # No country
             # Mixed scripts with high confidence
-            ({"canonical_name": "García-李, José-Ming"}, ["H1", "H3"]),  # Mixed Latin-Chinese
-            ({"canonical_name": "Müller-Иванов, Hans-Петр"}, ["H1", "H3"]),  # Mixed Latin-Cyrillic
+            (
+                {"canonical_name": "García-李, José-Ming"},
+                ["H1", "H3"],
+            ),  # Mixed Latin-Chinese
+            (
+                {"canonical_name": "Müller-Иванов, Hans-Петр"},
+                ["H1", "H3"],
+            ),  # Mixed Latin-Cyrillic
             # Transliteration variants
             (
-                {"canonical_name": "Gorbachev, Mikhail", "name_variants": ["Горбачёв, Михаил"]},
+                {
+                    "canonical_name": "Gorbachev, Mikhail",
+                    "name_variants": ["Горбачёв, Михаил"],
+                },
                 ["B1", "E6"],
             ),
-            ({"canonical_name": "Mao, Zedong", "name_variants": ["毛泽东"]}, ["C2", "F1"]),
+            (
+                {"canonical_name": "Mao, Zedong", "name_variants": ["毛泽东"]},
+                ["C2", "F1"],
+            ),
         ]
 
         for entry, expected in edge_cases:
@@ -343,12 +369,16 @@ class TestRegionalRuleValidation:
 
         for entry in valid_entries:
             context = ProcessingContext(
-                region=RegionalGroup.ANGLOPHONE, source_data=entry, metadata=a1_region.metadata
+                region=RegionalGroup.ANGLOPHONE,
+                source_data=entry,
+                metadata=a1_region.metadata,
             )
 
             # Should validate successfully
             is_valid = a1_region.validate(entry, context)
-            assert is_valid, f"Valid A1 entry failed validation: {entry['canonical_name']}"
+            assert (
+                is_valid
+            ), f"Valid A1 entry failed validation: {entry['canonical_name']}"
 
             # Should have no validation errors
             assert (
@@ -361,7 +391,11 @@ class TestRegionalRuleValidation:
             # Non-Latin script
             {"canonical_name": "李明", "CanonicalLatin": "李明", "countries": ["US"]},
             # Mixed scripts
-            {"canonical_name": "Smith, 李明", "CanonicalLatin": "Smith, 李明", "countries": ["US"]},
+            {
+                "canonical_name": "Smith, 李明",
+                "CanonicalLatin": "Smith, 李明",
+                "countries": ["US"],
+            },
             # Invalid name format
             {
                 "canonical_name": "JohnSmith",  # No comma
@@ -380,12 +414,16 @@ class TestRegionalRuleValidation:
 
         for entry in invalid_entries:
             context = ProcessingContext(
-                region=RegionalGroup.ANGLOPHONE, source_data=entry, metadata=a1_region.metadata
+                region=RegionalGroup.ANGLOPHONE,
+                source_data=entry,
+                metadata=a1_region.metadata,
             )
 
             # Should fail validation
             is_valid = a1_region.validate(entry, context)
-            assert not is_valid, f"Invalid A1 entry passed validation: {entry['canonical_name']}"
+            assert (
+                not is_valid
+            ), f"Invalid A1 entry passed validation: {entry['canonical_name']}"
 
             # Should have validation errors
             assert (
@@ -479,9 +517,13 @@ class TestRegionalRuleValidation:
             is_valid = region.is_valid_for_region(name, context)
 
             if should_be_valid:
-                assert is_valid, f"Region {region_code} should accept script for: {name}"
+                assert (
+                    is_valid
+                ), f"Region {region_code} should accept script for: {name}"
             else:
-                assert not is_valid, f"Region {region_code} should reject script for: {name}"
+                assert (
+                    not is_valid
+                ), f"Region {region_code} should reject script for: {name}"
 
 
 class TestRegionalPerformance:
@@ -546,7 +588,9 @@ class TestRegionalPerformance:
         # All detections should be valid
         for detection in detections:
             assert detection.region_code is not None, "Invalid region detection"
-            assert 0.0 <= detection.confidence <= 1.0, f"Invalid confidence: {detection.confidence}"
+            assert (
+                0.0 <= detection.confidence <= 1.0
+            ), f"Invalid confidence: {detection.confidence}"
 
     def test_concurrent_region_processing(self):
         """Test concurrent region processing."""
@@ -573,7 +617,11 @@ class TestRegionalPerformance:
                 try:
                     detection = self.region_manager.detect_region(entry)
                     worker_results.append(
-                        (entry["canonical_name"], detection.region_code, detection.confidence)
+                        (
+                            entry["canonical_name"],
+                            detection.region_code,
+                            detection.confidence,
+                        )
                     )
                 except Exception as e:
                     worker_errors.append((entry["canonical_name"], str(e)))
@@ -589,7 +637,11 @@ class TestRegionalPerformance:
         threads = []
         for i in range(num_workers):
             start_idx = i * entries_per_worker
-            end_idx = (i + 1) * entries_per_worker if i < num_workers - 1 else len(test_entries)
+            end_idx = (
+                (i + 1) * entries_per_worker
+                if i < num_workers - 1
+                else len(test_entries)
+            )
             worker_entries = test_entries[start_idx:end_idx]
 
             thread = threading.Thread(target=region_worker, args=(i, worker_entries))
@@ -620,17 +672,23 @@ class TestRegionalPerformance:
         assert (
             len(worker_results) == num_workers
         ), f"Not all workers completed: {len(worker_results)}"
-        assert len(worker_errors) == 0, f"Errors during concurrent processing: {worker_errors}"
+        assert (
+            len(worker_errors) == 0
+        ), f"Errors during concurrent processing: {worker_errors}"
 
         # Check result consistency
         total_processed = sum(len(results[1]) for results in worker_results)
-        assert total_processed == len(test_entries), f"Not all entries processed: {total_processed}"
+        assert total_processed == len(
+            test_entries
+        ), f"Not all entries processed: {total_processed}"
 
         # All results should be valid
         for worker_id, results_list in worker_results:
             for name, region_code, confidence in results_list:
                 assert region_code is not None, f"Invalid region for {name}"
-                assert 0.0 <= confidence <= 1.0, f"Invalid confidence for {name}: {confidence}"
+                assert (
+                    0.0 <= confidence <= 1.0
+                ), f"Invalid confidence for {name}: {confidence}"
 
     def test_region_processing_memory_efficiency(self):
         """Test memory efficiency of region processing."""
@@ -671,7 +729,9 @@ class TestRegionalPerformance:
         total_memory_growth = final_memory - initial_memory
 
         # Should not use excessive memory
-        assert total_memory_growth < 100, f"Excessive total memory usage: {total_memory_growth}MB"
+        assert (
+            total_memory_growth < 100
+        ), f"Excessive total memory usage: {total_memory_growth}MB"
 
 
 class TestRegionalEdgeCases:
@@ -733,11 +793,23 @@ class TestRegionalEdgeCases:
             # Medieval (G2)
             {"canonical_name": "Al-Khwarizmi", "birth_year": 780, "death_year": 850},
             {"canonical_name": "Fibonacci", "birth_year": 1170, "death_year": 1250},
-            {"canonical_name": "Oresme, Nicole", "birth_year": 1320, "death_year": 1382},
+            {
+                "canonical_name": "Oresme, Nicole",
+                "birth_year": 1320,
+                "death_year": 1382,
+            },
             # Early Modern (G3)
             {"canonical_name": "Newton, Isaac", "birth_year": 1643, "death_year": 1727},
-            {"canonical_name": "Leibniz, Gottfried", "birth_year": 1646, "death_year": 1716},
-            {"canonical_name": "Euler, Leonhard", "birth_year": 1707, "death_year": 1783},
+            {
+                "canonical_name": "Leibniz, Gottfried",
+                "birth_year": 1646,
+                "death_year": 1716,
+            },
+            {
+                "canonical_name": "Euler, Leonhard",
+                "birth_year": 1707,
+                "death_year": 1783,
+            },
         ]
 
         for entry in historical_cases:
@@ -832,7 +904,9 @@ class TestRegionalEdgeCases:
             ), f"No region detected for {entry['canonical_name']}"
 
             # Should have metadata
-            assert detection.metadata is not None, f"No metadata for {entry['canonical_name']}"
+            assert (
+                detection.metadata is not None
+            ), f"No metadata for {entry['canonical_name']}"
 
 
 if __name__ == "__main__":

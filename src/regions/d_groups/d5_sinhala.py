@@ -13,7 +13,9 @@ class D5Sinhala(RegionSpec):
 
     def __init__(self):
         super().__init__(
-            code="D5", yaml_files=[], scripts=["Sinhala", "Latin"]  # TODO: Add actual YAML files,
+            code="D5",
+            yaml_files=[],
+            scripts=["Sinhala", "Latin"],  # TODO: Add actual YAML files,
         )
 
     def clean(self, name: str) -> str:

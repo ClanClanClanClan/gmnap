@@ -29,7 +29,14 @@ class ProjectOrganizer:
         print("🗂️ Organizing scattered files...")
 
         # Create organization directories
-        org_dirs = ["analysis", "debug_tools", "test_results", "reports", "archive", "tools/cli"]
+        org_dirs = [
+            "analysis",
+            "debug_tools",
+            "test_results",
+            "reports",
+            "archive",
+            "tools/cli",
+        ]
 
         for dir_path in org_dirs:
             full_path = self.root / dir_path
@@ -338,7 +345,9 @@ if __name__ == "__main__":
 
         try:
             # Run isort on source code
-            subprocess.run(["isort", "src/", "tests/"], check=False, capture_output=True)
+            subprocess.run(
+                ["isort", "src/", "tests/"], check=False, capture_output=True
+            )
             self.log_change("Optimized imports with isort")
         except FileNotFoundError:
             print("⚠️ isort not found, skipping import optimization")

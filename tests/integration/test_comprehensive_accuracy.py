@@ -77,7 +77,11 @@ test_cases = [
     ({"name": "Silva, Maria"}, "G1", "Portuguese surname"),
     ({"name": "Rodriguez, Carlos"}, "G1", "Latin American surname"),
     # Edge cases and challenging scenarios
-    ({"name": "Kim, Michael"}, "A1", "Cross-cultural name (Korean surname, English given name)"),
+    (
+        {"name": "Kim, Michael"},
+        "A1",
+        "Cross-cultural name (Korean surname, English given name)",
+    ),
     ({"name": "Lee, Christopher"}, "A1", "Cross-cultural name"),
     ({"name": "Wang, David"}, "E1", "Chinese surname with English given name"),
     ({"name": "Al-Smith, Ahmed"}, "C3", "Mixed Arabic-English surname"),
@@ -158,7 +162,9 @@ else:
 
 # Specific issues to address
 low_accuracy_regions = [
-    r for r, stats in results_by_region.items() if stats["correct"] / stats["total"] < 0.8
+    r
+    for r, stats in results_by_region.items()
+    if stats["correct"] / stats["total"] < 0.8
 ]
 
 if low_accuracy_regions:

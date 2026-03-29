@@ -69,7 +69,9 @@ class PerformanceRegressionDetector:
     regressions using baseline comparison and trend analysis.
     """
 
-    def __init__(self, config_dir: Path, alert_thresholds: Optional[Dict[str, float]] = None):
+    def __init__(
+        self, config_dir: Path, alert_thresholds: Optional[Dict[str, float]] = None
+    ):
         self.config_dir = Path(config_dir)
         self.metrics_dir = self.config_dir / "performance" / "metrics"
         self.baselines_dir = self.config_dir / "performance" / "baselines"
@@ -225,7 +227,9 @@ class PerformanceRegressionDetector:
         self.baselines[key] = baseline
         self._save_baseline(baseline)
 
-        logger.info(f"Established baseline for {key}: {baseline_value:.2f} {measurement_unit}")
+        logger.info(
+            f"Established baseline for {key}: {baseline_value:.2f} {measurement_unit}"
+        )
         return baseline
 
     def record_measurement(
@@ -378,7 +382,9 @@ class PerformanceRegressionDetector:
             current_performance = float(np.median(current_values))
 
             # Calculate variance from baseline
-            variance = (current_performance - baseline.baseline_value) / baseline.baseline_value
+            variance = (
+                current_performance - baseline.baseline_value
+            ) / baseline.baseline_value
             variance_percentage = variance * 100
 
             # Check if variance exceeds acceptable threshold
@@ -398,7 +404,9 @@ class PerformanceRegressionDetector:
                     measurements_analyzed=len(current_values),
                     confidence_score=confidence_score,
                     remediation_suggestions=self._generate_remediation_suggestions(
-                        baseline.stage_name, baseline.operation_type, variance_percentage
+                        baseline.stage_name,
+                        baseline.operation_type,
+                        variance_percentage,
                     ),
                 )
 
@@ -457,7 +465,9 @@ class PerformanceRegressionDetector:
             Performance report dictionary
         """
         cutoff_time = datetime.now() - timedelta(hours=hours_back)
-        recent_measurements = [m for m in self.measurements if m.timestamp >= cutoff_time]
+        recent_measurements = [
+            m for m in self.measurements if m.timestamp >= cutoff_time
+        ]
 
         # Group measurements by stage and operation
         performance_data = {}
@@ -483,7 +493,9 @@ class PerformanceRegressionDetector:
                 }
 
         # Recent alerts
-        recent_alerts = [alert for alert in self.active_alerts if alert.timestamp >= cutoff_time]
+        recent_alerts = [
+            alert for alert in self.active_alerts if alert.timestamp >= cutoff_time
+        ]
 
         alert_summary = {
             "total_alerts": len(recent_alerts),
@@ -533,7 +545,9 @@ class PerformanceRegressionDetector:
         cleared_count = measurements_before - len(self.measurements)
 
         if cleared_count > 0:
-            logger.info(f"Cleared {cleared_count} old measurements (keeping {days_to_keep} days)")
+            logger.info(
+                f"Cleared {cleared_count} old measurements (keeping {days_to_keep} days)"
+            )
 
         return cleared_count
 
@@ -542,7 +556,9 @@ class PerformanceRegressionDetector:
 
 
 async def detect_latency_regressions(
-    detector: PerformanceRegressionDetector, stage_name: str, recent_latencies: List[float]
+    detector: PerformanceRegressionDetector,
+    stage_name: str,
+    recent_latencies: List[float],
 ) -> List[RegressionAlert]:
     """
     Convenience function to detect latency regressions for a specific stage
@@ -560,11 +576,14 @@ async def detect_latency_regressions(
         detector.record_measurement(stage_name, "latency", latency)
 
     # Detect regressions
-    return await detector.detect_regressions(stage_name=stage_name, operation_type="latency")
+    return await detector.detect_regressions(
+        stage_name=stage_name, operation_type="latency"
+    )
 
 
 async def establish_v7_pipeline_baselines(
-    detector: PerformanceRegressionDetector, historical_data: Dict[str, Dict[str, List[float]]]
+    detector: PerformanceRegressionDetector,
+    historical_data: Dict[str, Dict[str, List[float]]],
 ) -> Dict[str, PerformanceBaseline]:
     """
     Establish performance baselines for all V7 pipeline stages
@@ -586,7 +605,9 @@ async def establish_v7_pipeline_baselines(
                         stage_name=stage_name,
                         operation_type=operation_type,
                         measurements=measurements,
-                        measurement_unit="ms" if operation_type == "latency" else "ops/sec",
+                        measurement_unit=(
+                            "ms" if operation_type == "latency" else "ops/sec"
+                        ),
                         acceptable_variance=0.15,  # 15% variance threshold
                         metadata={
                             "pipeline_version": "v7",
@@ -631,8 +652,30 @@ if __name__ == "__main__":
                 ],
             },
             "stage_4_authority_lookup": {
-                "latency": [125.8, 127.2, 124.9, 126.5, 125.1, 127.0, 125.7, 126.1, 124.8, 126.3],
-                "throughput": [89.2, 88.9, 89.5, 89.1, 88.8, 89.3, 89.0, 89.4, 88.7, 89.2],
+                "latency": [
+                    125.8,
+                    127.2,
+                    124.9,
+                    126.5,
+                    125.1,
+                    127.0,
+                    125.7,
+                    126.1,
+                    124.8,
+                    126.3,
+                ],
+                "throughput": [
+                    89.2,
+                    88.9,
+                    89.5,
+                    89.1,
+                    88.8,
+                    89.3,
+                    89.0,
+                    89.4,
+                    88.7,
+                    89.2,
+                ],
             },
         }
 
@@ -649,7 +692,9 @@ if __name__ == "__main__":
         detector.record_measurement("stage_1_region_detection", "latency", 46.2)
 
         # Regression measurements (20% slower)
-        detector.record_measurement("stage_1_region_detection", "latency", 55.0)  # 20% regression
+        detector.record_measurement(
+            "stage_1_region_detection", "latency", 55.0
+        )  # 20% regression
         detector.record_measurement("stage_1_region_detection", "latency", 54.8)
         detector.record_measurement("stage_1_region_detection", "latency", 55.2)
 
@@ -665,6 +710,8 @@ if __name__ == "__main__":
 
         # Generate report
         report = await detector.generate_performance_report(hours_back=1)
-        print(f"\nPerformance report: {report['alert_summary']['total_alerts']} total alerts")
+        print(
+            f"\nPerformance report: {report['alert_summary']['total_alerts']} total alerts"
+        )
 
     asyncio.run(demo())

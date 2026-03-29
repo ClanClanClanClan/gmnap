@@ -9,7 +9,9 @@ import shutil
 from datetime import datetime
 
 # Backup the current file
-backup_name = f"resources/rr_syllable_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+backup_name = (
+    f"resources/rr_syllable_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+)
 shutil.copy("resources/rr_syllable_map.csv", backup_name)
 print(f"Backed up to: {backup_name}")
 

@@ -17,7 +17,18 @@ class NameNormalizer:
         """Initialize name normalizer."""
 
         # French particles (lowercase in normalized form)
-        self.french_particles = {"de", "du", "des", "de la", "de l", "d", "le", "la", "les", "l"}
+        self.french_particles = {
+            "de",
+            "du",
+            "des",
+            "de la",
+            "de l",
+            "d",
+            "le",
+            "la",
+            "les",
+            "l",
+        }
 
         # Other European particles
         self.particles = {
@@ -250,9 +261,13 @@ class NameNormalizer:
 
         print(f"📊 NAME COUNTS:")
         print(f"  Unique students (raw): {stats['unique_students_raw']:,}")
-        print(f"  Unique students (normalized): {stats['unique_students_normalized']:,}")
+        print(
+            f"  Unique students (normalized): {stats['unique_students_normalized']:,}"
+        )
         print(f"  Unique advisors (raw): {stats['unique_advisors_raw']:,}")
-        print(f"  Unique advisors (normalized): {stats['unique_advisors_normalized']:,}")
+        print(
+            f"  Unique advisors (normalized): {stats['unique_advisors_normalized']:,}"
+        )
         print()
 
         print(f"📝 NAME FEATURES:")
@@ -308,7 +323,9 @@ def main():
 
     parser = argparse.ArgumentParser(description="Normalize edge names")
     parser.add_argument("--input", required=True, help="Input edges JSON file")
-    parser.add_argument("--output", required=True, help="Output normalized edges JSON file")
+    parser.add_argument(
+        "--output", required=True, help="Output normalized edges JSON file"
+    )
 
     args = parser.parse_args()
 

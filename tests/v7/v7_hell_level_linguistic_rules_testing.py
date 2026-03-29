@@ -754,7 +754,10 @@ class V7LinguisticRulesHellTester:
                 LinguisticRuleTestCase(
                     24,
                     "russian_gost_transliteration",
-                    {"CanonicalLatin": "Ivanov, Vladimir", "CanonicalNative": "Иванов, Владимир"},
+                    {
+                        "CanonicalLatin": "Ivanov, Vladimir",
+                        "CanonicalNative": "Иванов, Владимир",
+                    },
                     "russian_transliteration",
                     region_codes=["B1"],
                 ),
@@ -945,7 +948,10 @@ class V7LinguisticRulesHellTester:
                 LinguisticRuleTestCase(
                     11,
                     "traditional_simplified_mix",
-                    {"CanonicalLatin": "Wang Wei", "CanonicalNative": "王維"},  # Traditional
+                    {
+                        "CanonicalLatin": "Wang Wei",
+                        "CanonicalNative": "王維",
+                    },  # Traditional
                     "cjk_roundtrip",
                     test_category="edge_case",
                     region_codes=["E1"],
@@ -953,7 +959,10 @@ class V7LinguisticRulesHellTester:
                 LinguisticRuleTestCase(
                     11,
                     "very_long_cjk_name",
-                    {"CanonicalLatin": "Aisin-Gioro Puyi", "CanonicalNative": "愛新覺羅溥儀"},
+                    {
+                        "CanonicalLatin": "Aisin-Gioro Puyi",
+                        "CanonicalNative": "愛新覺羅溥儀",
+                    },
                     "cjk_roundtrip",
                     test_category="edge_case",
                     region_codes=["E1"],
@@ -997,7 +1006,9 @@ class V7LinguisticRulesHellTester:
                 LinguisticRuleTestCase(
                     16,
                     "mixed_normalization_forms",
-                    {"CanonicalLatin": "café" + unicodedata.normalize("NFD", "é")},  # Mixed NFC/NFD
+                    {
+                        "CanonicalLatin": "café" + unicodedata.normalize("NFD", "é")
+                    },  # Mixed NFC/NFD
                     "unicode_fold_exceptions",
                     test_category="edge_case",
                     region_codes=["ALL"],
@@ -1034,7 +1045,10 @@ class V7LinguisticRulesHellTester:
                 LinguisticRuleTestCase(
                     11,
                     "cjk_homograph_attack",
-                    {"CanonicalLatin": "Wang Wei", "CanonicalNative": "Ⅰ"},  # Roman numeral I
+                    {
+                        "CanonicalLatin": "Wang Wei",
+                        "CanonicalNative": "Ⅰ",
+                    },  # Roman numeral I
                     "cjk_roundtrip",
                     test_category="adversarial",
                     region_codes=["E1"],
@@ -1042,7 +1056,10 @@ class V7LinguisticRulesHellTester:
                 LinguisticRuleTestCase(
                     11,
                     "cjk_lookalike_attack",
-                    {"CanonicalLatin": "Wang Wei", "CanonicalNative": "工工工"},  # Looks similar
+                    {
+                        "CanonicalLatin": "Wang Wei",
+                        "CanonicalNative": "工工工",
+                    },  # Looks similar
                     "cjk_roundtrip",
                     test_category="adversarial",
                     region_codes=["E1"],
@@ -1156,7 +1173,10 @@ class V7LinguisticRulesHellTester:
                 LinguisticRuleTestCase(
                     15,
                     "particles_performance_stress",
-                    {"CanonicalLatin": "von und zu und von und zu " * 50 + "Habsburg, Franz"},
+                    {
+                        "CanonicalLatin": "von und zu und von und zu " * 50
+                        + "Habsburg, Franz"
+                    },
                     "germanic_particles",
                     test_category="performance",
                     region_codes=["A2"],
@@ -1211,7 +1231,9 @@ class V7LinguisticRulesHellTester:
 
         return results
 
-    def _execute_rule_test(self, rule_id: int, test_case: LinguisticRuleTestCase) -> RuleTestResult:
+    def _execute_rule_test(
+        self, rule_id: int, test_case: LinguisticRuleTestCase
+    ) -> RuleTestResult:
         """Execute a single rule test case."""
 
         start_time = time.perf_counter()
@@ -1295,7 +1317,11 @@ class V7LinguisticRulesHellTester:
             )
 
     def _validate_rule_behavior(
-        self, rule_id: int, test_case: LinguisticRuleTestCase, entry: Dict[str, Any], order_key: str
+        self,
+        rule_id: int,
+        test_case: LinguisticRuleTestCase,
+        entry: Dict[str, Any],
+        order_key: str,
     ) -> bool:
         """Validate that a rule behaved according to v7 specifications."""
 
@@ -1541,7 +1567,9 @@ class V7LinguisticRulesHellTester:
             else 0
         )
         critical_compliance = (
-            summary_stats["critical_rules_passing"] / summary_stats["critical_rules_total"] * 100
+            summary_stats["critical_rules_passing"]
+            / summary_stats["critical_rules_total"]
+            * 100
             if summary_stats["critical_rules_total"] > 0
             else 0
         )
@@ -1587,14 +1615,20 @@ class V7LinguisticRulesHellTester:
             "performance_analysis": {
                 "performance_issues": summary_stats["performance_issues"],
                 "avg_execution_time_ms": (
-                    sum(r.execution_time_ms for results in all_results.values() for r in results)
+                    sum(
+                        r.execution_time_ms
+                        for results in all_results.values()
+                        for r in results
+                    )
                     / total_test_cases
                     if total_test_cases > 0
                     else 0
                 ),
             },
             "security_analysis": {
-                "adversarial_attacks_blocked": summary_stats["adversarial_attacks_blocked"],
+                "adversarial_attacks_blocked": summary_stats[
+                    "adversarial_attacks_blocked"
+                ],
                 "adversarial_attacks_total": summary_stats["adversarial_attacks_total"],
                 "adversarial_block_rate_percent": (
                     summary_stats["adversarial_attacks_blocked"]
@@ -1607,7 +1641,10 @@ class V7LinguisticRulesHellTester:
             "v7_compliance": {
                 "is_compliant": v7_compliant,
                 "compliance_score": (
-                    implementation_rate + critical_compliance + passing_rate + test_success_rate
+                    implementation_rate
+                    + critical_compliance
+                    + passing_rate
+                    + test_success_rate
                 )
                 / 4,
             },
@@ -1630,7 +1667,9 @@ class V7LinguisticRulesHellTester:
         print(
             f"📊 TEST SUCCESS: {test_success_rate:.1f}% ({summary_stats['test_cases_passed']}/{summary_stats['total_test_cases']} test cases)"
         )
-        print(f"⚡ PERFORMANCE: {summary_stats['performance_issues']} slow tests (>100ms)")
+        print(
+            f"⚡ PERFORMANCE: {summary_stats['performance_issues']} slow tests (>100ms)"
+        )
         print(
             f"🛡️ SECURITY: {summary_stats['adversarial_attacks_blocked']}/{summary_stats['adversarial_attacks_total']} adversarial attacks blocked"
         )
@@ -1646,7 +1685,9 @@ def main():
     """Main entry point for hell-level linguistic rules testing."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Hell-Level V7 Linguistic Rules Testing")
+    parser = argparse.ArgumentParser(
+        description="Hell-Level V7 Linguistic Rules Testing"
+    )
     parser.add_argument("--rule", type=int, help="Test specific rule (1-34)")
     parser.add_argument(
         "--implemented-only", action="store_true", help="Test only implemented rules"
@@ -1654,8 +1695,12 @@ def main():
     parser.add_argument(
         "--critical-only", action="store_true", help="Test only critical priority rules"
     )
-    parser.add_argument("--all", action="store_true", help="Run comprehensive hell-level test")
-    parser.add_argument("--fuzz", type=int, help="Run property-based fuzz testing for rule")
+    parser.add_argument(
+        "--all", action="store_true", help="Run comprehensive hell-level test"
+    )
+    parser.add_argument(
+        "--fuzz", type=int, help="Run property-based fuzz testing for rule"
+    )
     parser.add_argument(
         "--category",
         choices=["basic", "edge_case", "adversarial", "unicode", "performance"],
@@ -1666,7 +1711,8 @@ def main():
 
     # Configure logging
     logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
     tester = V7LinguisticRulesHellTester()
@@ -1678,11 +1724,15 @@ def main():
             test_cases = all_test_cases[args.rule]
 
             if args.category:
-                test_cases = [tc for tc in test_cases if tc.test_category == args.category]
+                test_cases = [
+                    tc for tc in test_cases if tc.test_category == args.category
+                ]
 
             results = tester.test_rule_comprehensive(args.rule, test_cases)
             success_count = sum(1 for r in results if r.success)
-            print(f"\nRule {args.rule} Results: {success_count}/{len(results)} tests passed")
+            print(
+                f"\nRule {args.rule} Results: {success_count}/{len(results)} tests passed"
+            )
         else:
             print("FAIL Rule ID must be between 1 and 34")
 

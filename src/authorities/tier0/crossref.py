@@ -90,7 +90,8 @@ class CrossrefFetcher(AuthorityFetcher):
                         works = data["message"]["items"]
                         if not works:
                             return FetchResult(
-                                status=FetchStatus.NOT_FOUND, error_message="No works found"
+                                status=FetchStatus.NOT_FOUND,
+                                error_message="No works found",
                             )
 
                         # Parse author data from works
@@ -115,7 +116,8 @@ class CrossrefFetcher(AuthorityFetcher):
 
                 elif response.status == 404:
                     return FetchResult(
-                        status=FetchStatus.NOT_FOUND, error_message="Author/DOI not found"
+                        status=FetchStatus.NOT_FOUND,
+                        error_message="Author/DOI not found",
                     )
 
                 elif response.status == 429:
@@ -134,7 +136,9 @@ class CrossrefFetcher(AuthorityFetcher):
                     )
 
         except asyncio.TimeoutError:
-            return FetchResult(status=FetchStatus.NETWORK_ERROR, error_message="Request timeout")
+            return FetchResult(
+                status=FetchStatus.NETWORK_ERROR, error_message="Request timeout"
+            )
 
         except Exception as e:
             self.logger.error(f"Fetch error: {e}")
@@ -197,7 +201,10 @@ class CrossrefFetcher(AuthorityFetcher):
         if author_stats:
             best_key = max(
                 author_stats.keys(),
-                key=lambda k: (author_stats[k]["works_count"], self._name_similarity(k, query)),
+                key=lambda k: (
+                    author_stats[k]["works_count"],
+                    self._name_similarity(k, query),
+                ),
             )
             best_author = author_stats[best_key]["author"]
             best_stats = author_stats[best_key]
@@ -205,14 +212,18 @@ class CrossrefFetcher(AuthorityFetcher):
         if not best_author:
             # Create minimal data
             return AuthorityData(
-                source=self.service, source_id=f"crossref_{hash(query)}", canonical_name=query
+                source=self.service,
+                source_id=f"crossref_{hash(query)}",
+                canonical_name=query,
             )
 
         # Build AuthorityData
         author_key = self._get_author_key(best_author)
 
         data = AuthorityData(
-            source=self.service, source_id=f"crossref_{hash(author_key)}", canonical_name=author_key
+            source=self.service,
+            source_id=f"crossref_{hash(author_key)}",
+            canonical_name=author_key,
         )
 
         # Add name variants

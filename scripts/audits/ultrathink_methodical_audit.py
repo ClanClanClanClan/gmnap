@@ -16,7 +16,11 @@ print("ULTRATHINK METHODICAL AUDIT - TESTING ALL CLAIMS")
 print("=" * 80)
 
 # Test results storage
-audit_results = {"timestamp": time.strftime("%Y-%m-%d %H:%M:%S"), "tests": {}, "summary": {}}
+audit_results = {
+    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+    "tests": {},
+    "summary": {},
+}
 
 
 def test_claim(name: str, test_func, expected=True):
@@ -135,7 +139,9 @@ async def test_authority_sources():
             details.append(f"{name}: ❌ Error - {str(e)[:50]}")
 
     total = len(fetchers)
-    return working >= 4, f"Working: {working}/{total}, Broken: {broken}. " + "; ".join(details)
+    return working >= 4, f"Working: {working}/{total}, Broken: {broken}. " + "; ".join(
+        details
+    )
 
 
 # ==================== TEST 3: PERFORMANCE CHEATS ====================
@@ -182,7 +188,10 @@ def test_performance_cheats():
 # ==================== TEST 4: PIPELINE STAGES ====================
 async def test_pipeline_stages():
     """Test if all 12 stages actually execute"""
-    from src.core.pipeline_v7_complete_final import V7PipelineCompleteFinal, PipelineMode
+    from src.core.pipeline_v7_complete_final import (
+        V7PipelineCompleteFinal,
+        PipelineMode,
+    )
 
     # Create test batch
     entries = [
@@ -261,7 +270,10 @@ async def test_pipeline_stages():
 # ==================== TEST 5: QUALITY GATES ====================
 async def test_quality_gates():
     """Test if quality gates are actually enforced"""
-    from src.core.pipeline_v7_complete_final import V7PipelineCompleteFinal, PipelineMode
+    from src.core.pipeline_v7_complete_final import (
+        V7PipelineCompleteFinal,
+        PipelineMode,
+    )
     from src.quality.gates import QualityGateBlockedException
 
     # Create entries that should fail quality gates (duplicates)
@@ -279,7 +291,10 @@ async def test_quality_gates():
         return False, "Quality gates did not block duplicate IDs"
     except QualityGateBlockedException as e:
         # Good! Gates blocked as expected
-        return True, f"Quality gates properly blocked: {len(e.failures)} issues detected"
+        return (
+            True,
+            f"Quality gates properly blocked: {len(e.failures)} issues detected",
+        )
     except Exception as e:
         # Some other error
         return False, f"Unexpected error: {str(e)}"
@@ -288,7 +303,10 @@ async def test_quality_gates():
 # ==================== TEST 6: IDEMPOTENCY ====================
 async def test_idempotency():
     """Test if idempotency is actually verified"""
-    from src.core.pipeline_v7_complete_final import V7PipelineCompleteFinal, PipelineMode
+    from src.core.pipeline_v7_complete_final import (
+        V7PipelineCompleteFinal,
+        PipelineMode,
+    )
 
     entries = [{"CanonicalNative": "김민수", "GlobalID": "IDEM_001"}]
 
@@ -336,7 +354,10 @@ def test_v7_spec_requirements():
     from pathlib import Path
 
     # Check for Bayesian
-    if Path("src/core/stage6_bayesian").exists() or Path("src/stage6_bayesian").exists():
+    if (
+        Path("src/core/stage6_bayesian").exists()
+        or Path("src/stage6_bayesian").exists()
+    ):
         requirements["bayesian_confidence"] = True
 
     # Check for DuckDB
@@ -398,9 +419,15 @@ async def main():
 
     # Calculate summary
     total_tests = len(audit_results["tests"])
-    passed = sum(1 for t in audit_results["tests"].values() if t.get("status") == "PASS")
-    failed = sum(1 for t in audit_results["tests"].values() if t.get("status") == "FAIL")
-    errors = sum(1 for t in audit_results["tests"].values() if t.get("status") == "ERROR")
+    passed = sum(
+        1 for t in audit_results["tests"].values() if t.get("status") == "PASS"
+    )
+    failed = sum(
+        1 for t in audit_results["tests"].values() if t.get("status") == "FAIL"
+    )
+    errors = sum(
+        1 for t in audit_results["tests"].values() if t.get("status") == "ERROR"
+    )
 
     print("\n" + "=" * 80)
     print("ULTRATHINK AUDIT SUMMARY")

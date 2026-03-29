@@ -135,7 +135,9 @@ class ProductionMonitoringSystem:
 
         # Start background tasks
         self._running = True
-        self._flush_thread = threading.Thread(target=self._flush_metrics_worker, daemon=True)
+        self._flush_thread = threading.Thread(
+            target=self._flush_metrics_worker, daemon=True
+        )
         self._collect_thread = threading.Thread(
             target=self._collect_system_metrics_worker, daemon=True
         )
@@ -264,7 +266,9 @@ class ProductionMonitoringSystem:
             metrics.regional_processing_rate = dict(
                 self._regional_stats.get("processing_rates", {})
             )
-            metrics.regional_success_rates = dict(self._regional_stats.get("success_rates", {}))
+            metrics.regional_success_rates = dict(
+                self._regional_stats.get("success_rates", {})
+            )
 
         except Exception as e:
             self.logger.warning(f"Failed to collect some system metrics: {e}")
@@ -339,7 +343,9 @@ class ProductionMonitoringSystem:
                 regional_data = []
                 for metrics in metrics_to_flush:
                     for region_code, rate in metrics.regional_processing_rate.items():
-                        success_rate = metrics.regional_success_rates.get(region_code, 100.0)
+                        success_rate = metrics.regional_success_rates.get(
+                            region_code, 100.0
+                        )
                         regional_data.append(
                             (
                                 metrics.timestamp.isoformat(),
@@ -363,7 +369,9 @@ class ProductionMonitoringSystem:
                         regional_data,
                     )
 
-            self.logger.debug(f"Flushed {len(metrics_to_flush)} metric snapshots to database")
+            self.logger.debug(
+                f"Flushed {len(metrics_to_flush)} metric snapshots to database"
+            )
 
         except Exception as e:
             self.logger.error(f"Failed to flush metrics: {e}")
@@ -542,7 +550,9 @@ class ProductionMonitoringSystem:
         # Webhook notifications
         for webhook_url in self.alert_config.webhook_urls:
             try:
-                self._send_webhook_alert(webhook_url, level, component, message, value, threshold)
+                self._send_webhook_alert(
+                    webhook_url, level, component, message, value, threshold
+                )
             except Exception as e:
                 self.logger.error(f"Failed to send webhook alert to {webhook_url}: {e}")
 
@@ -574,10 +584,14 @@ This is an automated alert from the V7 GMNAP monitoring system.
         msg["From"] = self.alert_config.smtp_username
         msg["To"] = ", ".join(self.alert_config.email_recipients)
 
-        with smtplib.SMTP(self.alert_config.smtp_server, self.alert_config.smtp_port) as server:
+        with smtplib.SMTP(
+            self.alert_config.smtp_server, self.alert_config.smtp_port
+        ) as server:
             if self.alert_config.smtp_username and self.alert_config.smtp_password:
                 server.starttls()
-                server.login(self.alert_config.smtp_username, self.alert_config.smtp_password)
+                server.login(
+                    self.alert_config.smtp_username, self.alert_config.smtp_password
+                )
             server.send_message(msg)
 
     def _send_webhook_alert(
@@ -597,16 +611,22 @@ This is an automated alert from the V7 GMNAP monitoring system.
             "text": f"🚨 V7 GMNAP ALERT [{level.upper()}]",
             "attachments": [
                 {
-                    "color": {"warning": "warning", "error": "danger", "critical": "danger"}.get(
-                        level, "good"
-                    ),
+                    "color": {
+                        "warning": "warning",
+                        "error": "danger",
+                        "critical": "danger",
+                    }.get(level, "good"),
                     "fields": [
                         {"title": "Component", "value": component, "short": True},
                         {"title": "Level", "value": level.upper(), "short": True},
                         {"title": "Message", "value": message, "short": False},
                         {"title": "Value", "value": str(value), "short": True},
                         {"title": "Threshold", "value": str(threshold), "short": True},
-                        {"title": "Time", "value": datetime.now().isoformat(), "short": True},
+                        {
+                            "title": "Time",
+                            "value": datetime.now().isoformat(),
+                            "short": True,
+                        },
                     ],
                 }
             ],

@@ -57,7 +57,9 @@ def demonstrate_cache_race_condition():
                     for key, value in cache.items():
                         # Basic sanity checks
                         if not isinstance(key, str):
-                            print(f"FAIL CORRUPTION: Non-string cache key: {type(key)} = {key}")
+                            print(
+                                f"FAIL CORRUPTION: Non-string cache key: {type(key)} = {key}"
+                            )
                             corruption_found = True
                         if value is None:
                             print(f"FAIL CORRUPTION: None value for key: {key}")
@@ -93,7 +95,9 @@ def demonstrate_cache_race_condition():
     # Check for inconsistencies in cache size observations
     unique_sizes = set(all_cache_sizes)
     if len(unique_sizes) > expected_entries:
-        print(f"FAIL INCONSISTENT CACHE SIZE OBSERVATIONS: {len(unique_sizes)} unique sizes seen")
+        print(
+            f"FAIL INCONSISTENT CACHE SIZE OBSERVATIONS: {len(unique_sizes)} unique sizes seen"
+        )
         corruption_found = True
 
     # Look for specific race condition patterns
@@ -103,7 +107,9 @@ def demonstrate_cache_race_condition():
             cache_size_jumps += 1
 
     if cache_size_jumps > 0:
-        print(f"FAIL CACHE SIZE DECREASES: {cache_size_jumps} instances (indicates race condition)")
+        print(
+            f"FAIL CACHE SIZE DECREASES: {cache_size_jumps} instances (indicates race condition)"
+        )
         corruption_found = True
 
     return corruption_found
@@ -197,7 +203,10 @@ def demonstrate_idempotency_violation():
         region._processed_entries.clear()
 
     # Same entry processed by multiple threads
-    test_entry = {"GlobalID": "idempotency-test", "CanonicalLatin": "Idempotency Test Name"}
+    test_entry = {
+        "GlobalID": "idempotency-test",
+        "CanonicalLatin": "Idempotency Test Name",
+    }
 
     results = []
     idempotency_violated = False

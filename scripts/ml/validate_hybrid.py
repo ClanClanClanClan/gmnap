@@ -43,7 +43,12 @@ def validate_phase1(tier1_data):
             by_region[expected]["correct"] += 1
 
     accuracy = (correct / total) * 100 if total > 0 else 0
-    return {"accuracy": accuracy, "correct": correct, "total": total, "by_region": dict(by_region)}
+    return {
+        "accuracy": accuracy,
+        "correct": correct,
+        "total": total,
+        "by_region": dict(by_region),
+    }
 
 
 def validate_phase2(tier1_data, model_path):
@@ -73,7 +78,12 @@ def validate_phase2(tier1_data, model_path):
             continue
 
     accuracy = (correct / total) * 100 if total > 0 else 0
-    return {"accuracy": accuracy, "correct": correct, "total": total, "by_region": dict(by_region)}
+    return {
+        "accuracy": accuracy,
+        "correct": correct,
+        "total": total,
+        "by_region": dict(by_region),
+    }
 
 
 def validate_hybrid(tier1_data, model_path):
@@ -213,9 +223,19 @@ def main():
         p2_stats = phase2_results["by_region"].get(region, {"correct": 0, "total": 0})
         h_stats = hybrid_results["by_region"].get(region, {"correct": 0, "total": 0})
 
-        p1_acc = (p1_stats["correct"] / p1_stats["total"] * 100) if p1_stats["total"] > 0 else 0
-        p2_acc = (p2_stats["correct"] / p2_stats["total"] * 100) if p2_stats["total"] > 0 else 0
-        h_acc = (h_stats["correct"] / h_stats["total"] * 100) if h_stats["total"] > 0 else 0
+        p1_acc = (
+            (p1_stats["correct"] / p1_stats["total"] * 100)
+            if p1_stats["total"] > 0
+            else 0
+        )
+        p2_acc = (
+            (p2_stats["correct"] / p2_stats["total"] * 100)
+            if p2_stats["total"] > 0
+            else 0
+        )
+        h_acc = (
+            (h_stats["correct"] / h_stats["total"] * 100) if h_stats["total"] > 0 else 0
+        )
 
         best = max(p1_acc, p2_acc)
 
@@ -237,7 +257,9 @@ def main():
     for region, p1, p2, h in sorted(hybrid_wins, key=lambda x: -x[3]):
         best_prev = max(p1, p2)
         improvement = h - best_prev
-        print(f"  🎯 {region}: {h:5.1f}% (P1: {p1:5.1f}%, P2: {p2:5.1f}%, +{improvement:.1f}pp)")
+        print(
+            f"  🎯 {region}: {h:5.1f}% (P1: {p1:5.1f}%, P2: {p2:5.1f}%, +{improvement:.1f}pp)"
+        )
     print()
 
     print(f"HYBRID MATCHES PHASE 1 ({len(phase1_wins)} regions):")
@@ -278,7 +300,9 @@ def main():
     elif hybrid_results["accuracy"] >= 93.0:
         print("✅ GOOD: Hybrid achieves ≥93% accuracy (close to target)")
     else:
-        print(f"⚠️  BELOW TARGET: Hybrid at {hybrid_results['accuracy']:.2f}% (target: 94%)")
+        print(
+            f"⚠️  BELOW TARGET: Hybrid at {hybrid_results['accuracy']:.2f}% (target: 94%)"
+        )
 
     print()
 

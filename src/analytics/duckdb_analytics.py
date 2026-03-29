@@ -167,7 +167,9 @@ class DuckDBAnalytics:
             "unique_names": unique_names,
             "collisions": actual_duplicate_count,  # Report actual GlobalID duplicates, not name collisions
             "duplicates": name_collisions,  # Keep name collisions for suffixing
-            "collision_rate": actual_duplicate_count / len(entries) * 100 if entries else 0,
+            "collision_rate": (
+                actual_duplicate_count / len(entries) * 100 if entries else 0
+            ),
             "status": "analyzed",
         }
 
@@ -184,7 +186,9 @@ class DuckDBAnalytics:
         # Call suffix_duplicates without entries to get list of duplicates
         return self.suffix_duplicates()
 
-    def write_change_log(self, old_rows: List[Dict[str, Any]], new_rows: List[Dict[str, Any]]):
+    def write_change_log(
+        self, old_rows: List[Dict[str, Any]], new_rows: List[Dict[str, Any]]
+    ):
         if self.skipped:
             return "SKIPPED"
         import json
@@ -203,10 +207,14 @@ class DuckDBAnalytics:
                     json.dumps(n[gid]),
                 ],
             )
-            self.conn.execute("INSERT INTO changes(action, GlobalID) VALUES ('INSERT', ?)", [gid])
+            self.conn.execute(
+                "INSERT INTO changes(action, GlobalID) VALUES ('INSERT', ?)", [gid]
+            )
         for gid in sorted(set(o) - set(n)):
             self.conn.execute("DELETE FROM entries WHERE GlobalID=?", [gid])
-            self.conn.execute("INSERT INTO changes(action, GlobalID) VALUES ('DELETE', ?)", [gid])
+            self.conn.execute(
+                "INSERT INTO changes(action, GlobalID) VALUES ('DELETE', ?)", [gid]
+            )
         for gid in sorted(set(o) & set(n)):
             if o[gid] != n[gid]:
                 self.conn.execute(
@@ -223,7 +231,9 @@ class DuckDBAnalytics:
                 )
         return "OK"
 
-    def generate_analytics_report(self, entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def generate_analytics_report(
+        self, entries: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Generate comprehensive analytics report for the entries.
 

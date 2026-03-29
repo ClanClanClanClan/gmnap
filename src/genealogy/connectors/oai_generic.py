@@ -147,7 +147,10 @@ class GenericOaiConnector:
                                 yield parsed
 
                                 # Check max_records limit
-                                if max_records and self.records_harvested >= max_records:
+                                if (
+                                    max_records
+                                    and self.records_harvested >= max_records
+                                ):
                                     return
 
                             except Exception as e:
@@ -163,7 +166,9 @@ class GenericOaiConnector:
                         # Check for resumption token (more results available)
                         token_elem = root.find(f".//{NS_OAI}resumptionToken")
                         resumption_token = (
-                            token_elem.text if token_elem is not None and token_elem.text else None
+                            token_elem.text
+                            if token_elem is not None and token_elem.text
+                            else None
                         )
 
                         if not resumption_token:
@@ -171,7 +176,11 @@ class GenericOaiConnector:
 
                 except aiohttp.ClientError as e:
                     self.errors.append(
-                        {"type": "http_error", "error": str(e), "url": self.config.base_url}
+                        {
+                            "type": "http_error",
+                            "error": str(e),
+                            "url": self.config.base_url,
+                        }
                     )
                     break
                 except ET.ParseError as e:
@@ -207,7 +216,9 @@ class GenericOaiConnector:
 
         def all_values(tag: str) -> List[str]:
             """Get all occurrences of a DC tag."""
-            return [elem.text.strip() for elem in root.findall(f"{NS_DC}{tag}") if elem.text]
+            return [
+                elem.text.strip() for elem in root.findall(f"{NS_DC}{tag}") if elem.text
+            ]
 
         title = first("title")
         creators = all_values("creator")
@@ -253,7 +264,8 @@ class GenericOaiConnector:
 
             # Check if this looks like an institution
             is_institution = any(
-                keyword in contributor_lower for keyword in self.config.institution_keywords
+                keyword in contributor_lower
+                for keyword in self.config.institution_keywords
             )
 
             if not is_institution:

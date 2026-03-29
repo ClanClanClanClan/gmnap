@@ -6,7 +6,9 @@ import re
 import json
 
 # Run test_diverse_dataset.py and capture output
-result = subprocess.run(["python3", "test_diverse_dataset.py"], capture_output=True, text=True)
+result = subprocess.run(
+    ["python3", "test_diverse_dataset.py"], capture_output=True, text=True
+)
 
 output = result.stdout
 
@@ -68,7 +70,11 @@ print(f"Diverse dataset accuracy: {diverse_accuracy}%")
 # Save failures for auto-fix analysis
 with open("diverse_failures.json", "w", encoding="utf-8") as f:
     json.dump(
-        {"accuracy": diverse_accuracy, "total_failures": total_failures, "failures": failures},
+        {
+            "accuracy": diverse_accuracy,
+            "total_failures": total_failures,
+            "failures": failures,
+        },
         f,
         indent=2,
         ensure_ascii=False,
@@ -76,4 +82,6 @@ with open("diverse_failures.json", "w", encoding="utf-8") as f:
 
 print("\nFirst 5 failures:")
 for i, failure in enumerate(failures[:5]):
-    print(f"{i+1}. {failure['name']}: {failure['expected']} → {failure.get('actual', 'None')}")
+    print(
+        f"{i+1}. {failure['name']}: {failure['expected']} → {failure.get('actual', 'None')}"
+    )

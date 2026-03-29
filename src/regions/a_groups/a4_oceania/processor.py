@@ -290,7 +290,8 @@ class A4OceaniaProcessor(RegionSpec):
                 # Check if it's likely a title vs part of name
                 # If followed by a known first name or colonial surname, likely a title
                 if len(words) > 1 and (
-                    words[1] in self.polynesian_first_names or words[1] in self.colonial_surnames
+                    words[1] in self.polynesian_first_names
+                    or words[1] in self.colonial_surnames
                 ):
                     words.pop(0)
                 else:
@@ -332,12 +333,16 @@ class A4OceaniaProcessor(RegionSpec):
         # Add no-macron variant
         no_macron = self._remove_macrons(canonical)
         if no_macron != canonical:
-            entry["Variants"]["Synthesised"].append({"str": no_macron, "type": "no-macron"})
+            entry["Variants"]["Synthesised"].append(
+                {"str": no_macron, "type": "no-macron"}
+            )
 
         # Add ASCII variant
         ascii_variant = self._generate_ascii_variant(canonical)
         if ascii_variant != canonical and ascii_variant != no_macron:
-            entry["Variants"]["Synthesised"].append({"str": ascii_variant, "type": "ascii-lossy"})
+            entry["Variants"]["Synthesised"].append(
+                {"str": ascii_variant, "type": "ascii-lossy"}
+            )
 
     def _extract_components(self, name: str) -> Dict[str, Any]:
         """Extract name components with Oceanic-specific handling."""
@@ -505,7 +510,14 @@ class A4OceaniaProcessor(RegionSpec):
         result = result.replace("ʻ", "'")
 
         # Handle other special characters
-        replacements = {"ç": "c", "Ç": "C", "ñ": "n", "Ñ": "N", """: "'", """: "'", "ʼ": "'"}
+        replacements = {
+            "ç": "c",
+            "Ç": "C",
+            "ñ": "n",
+            "Ñ": "N",
+            """: "'", """: "'",
+            "ʼ": "'",
+        }
 
         for char, ascii_char in replacements.items():
             result = result.replace(char, ascii_char)
@@ -555,7 +567,9 @@ class A4OceaniaProcessor(RegionSpec):
     def _is_valid_oceanic_name(self, name: str) -> bool:
         """Check if name contains valid Oceanic characters."""
         # Allow basic Latin, Polynesian special characters, and common punctuation
-        allowed = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-")
+        allowed = set(
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-"
+        )
         allowed.update(self.allowed_chars)
 
         return all(c in allowed for c in name)

@@ -63,7 +63,9 @@ class ZbMATHFetcher(AuthorityFetcher):
                 return await self._search_by_name(query)
 
         except asyncio.TimeoutError:
-            return FetchResult(status=FetchStatus.NETWORK_ERROR, error_message="Request timeout")
+            return FetchResult(
+                status=FetchStatus.NETWORK_ERROR, error_message="Request timeout"
+            )
 
         except Exception as e:
             self.logger.error(f"Fetch error: {e}")
@@ -93,7 +95,8 @@ class ZbMATHFetcher(AuthorityFetcher):
 
             elif response.status == 404:
                 return FetchResult(
-                    status=FetchStatus.NOT_FOUND, error_message="zbMATH author ID not found"
+                    status=FetchStatus.NOT_FOUND,
+                    error_message="zbMATH author ID not found",
                 )
 
             elif response.status == 429:
@@ -130,7 +133,8 @@ class ZbMATHFetcher(AuthorityFetcher):
                 # Parse search results to extract author data
                 if "result" not in data or not data["result"]:
                     return FetchResult(
-                        status=FetchStatus.NOT_FOUND, error_message="No zbMATH entries found"
+                        status=FetchStatus.NOT_FOUND,
+                        error_message="No zbMATH entries found",
                     )
 
                 # Extract author data from documents
@@ -156,7 +160,9 @@ class ZbMATHFetcher(AuthorityFetcher):
                     error_message=f"HTTP {response.status}: {await response.text()}",
                 )
 
-    def parse_search_results(self, documents: List[Dict[str, Any]], query: str) -> AuthorityData:
+    def parse_search_results(
+        self, documents: List[Dict[str, Any]], query: str
+    ) -> AuthorityData:
         """Parse zbMATH search results to extract author data."""
         # Collect author statistics from documents
         author_stats = {
@@ -178,7 +184,9 @@ class ZbMATHFetcher(AuthorityFetcher):
                 for msc in doc["msc"]:
                     code = msc.get("code", "")
                     if code:
-                        author_stats["msc_codes"][code] = author_stats["msc_codes"].get(code, 0) + 1
+                        author_stats["msc_codes"][code] = (
+                            author_stats["msc_codes"].get(code, 0) + 1
+                        )
 
             # Extract author variants and affiliations from this document
             if "authors" in doc:
@@ -276,7 +284,9 @@ class ZbMATHFetcher(AuthorityFetcher):
         zbmath_id = response.get("id", "")
         name = response.get("name", "")
 
-        data = AuthorityData(source=self.service, source_id=zbmath_id, canonical_name=name)
+        data = AuthorityData(
+            source=self.service, source_id=zbmath_id, canonical_name=name
+        )
 
         # Add name variants if available
         if "variants" in response:
@@ -286,7 +296,9 @@ class ZbMATHFetcher(AuthorityFetcher):
         if "affiliations" in response:
             affiliations = []
             for aff in response["affiliations"][:5]:
-                affiliations.append({"name": aff.get("name", ""), "type": "institution"})
+                affiliations.append(
+                    {"name": aff.get("name", ""), "type": "institution"}
+                )
             data.affiliations = affiliations
 
         # Add research areas as MSC codes

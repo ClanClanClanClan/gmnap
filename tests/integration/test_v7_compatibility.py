@@ -141,7 +141,11 @@ def test_v7_adapter_functionality(manager):
                 print(f"    ✓ Entry has _order_key: {'_order_key' in processed}")
 
                 region_results.append(
-                    {"success": True, "processed_entry": processed, "order_key": order_key}
+                    {
+                        "success": True,
+                        "processed_entry": processed,
+                        "order_key": order_key,
+                    }
                 )
 
             except Exception as e:
@@ -279,7 +283,9 @@ def test_v7_performance(manager):
         total_time = end_time - start_time
         avg_time = total_time / len(test_entries) * 1000  # ms per entry
 
-        print(f"  ✓ Processed {processed_count}/{len(test_entries)} entries in {total_time:.3f}s")
+        print(
+            f"  ✓ Processed {processed_count}/{len(test_entries)} entries in {total_time:.3f}s"
+        )
         print(f"  ✓ Average: {avg_time:.2f}ms per entry")
 
         if avg_time > 50:  # More than 50ms per entry is concerning for v7

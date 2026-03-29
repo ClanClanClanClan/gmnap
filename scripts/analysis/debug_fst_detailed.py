@@ -36,7 +36,9 @@ def debug_fst_conversion(roman_input):
                 for out_token_type in ["utf8", "byte", None]:
                     try:
                         if out_token_type:
-                            paths_iter = shortest.paths(output_token_type=out_token_type)
+                            paths_iter = shortest.paths(
+                                output_token_type=out_token_type
+                            )
                         else:
                             paths_iter = shortest.paths()
 

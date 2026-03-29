@@ -184,7 +184,10 @@ class AuthorityEnricher:
         logger.info(f"  Tier 2: {len(self.fetchers_by_tier[AuthorityTier.TIER_2])}")
 
     async def enrich(
-        self, query: str, tiers: Optional[List[AuthorityTier]] = None, timeout: float = 10.0
+        self,
+        query: str,
+        tiers: Optional[List[AuthorityTier]] = None,
+        timeout: float = 10.0,
     ) -> EnrichmentResult:
         """
         Enrich a query by fetching from multiple authority sources.
@@ -218,7 +221,9 @@ class AuthorityEnricher:
 
         if not fetchers_to_use:
             logger.warning(f"No fetchers available for tiers {tiers}")
-            return EnrichmentResult(query=query, sources_attempted=[], enrichment_time_ms=0)
+            return EnrichmentResult(
+                query=query, sources_attempted=[], enrichment_time_ms=0
+            )
 
         # Create result object
         result = EnrichmentResult(query=query)
@@ -227,7 +232,9 @@ class AuthorityEnricher:
         tasks = []
         for fetcher in fetchers_to_use:
             result.sources_attempted.append(fetcher.service)
-            task = asyncio.create_task(self._fetch_with_timeout(fetcher, query, timeout))
+            task = asyncio.create_task(
+                self._fetch_with_timeout(fetcher, query, timeout)
+            )
             tasks.append((fetcher.service, task))
 
         # Wait for all tasks to complete
@@ -242,8 +249,8 @@ class AuthorityEnricher:
                         # Merge data
                         self._merge_data(result, fetch_result.data)
                 else:
-                    result.sources_failed[service_name] = fetch_result.error_message or str(
-                        fetch_result.status
+                    result.sources_failed[service_name] = (
+                        fetch_result.error_message or str(fetch_result.status)
                     )
 
             except asyncio.TimeoutError:
@@ -254,10 +261,14 @@ class AuthorityEnricher:
 
         # Calculate confidence score based on number of successful sources
         if result.sources_succeeded:
-            result.confidence_score = len(result.sources_succeeded) / len(result.sources_attempted)
+            result.confidence_score = len(result.sources_succeeded) / len(
+                result.sources_attempted
+            )
 
         # Record timing
-        result.enrichment_time_ms = int((datetime.now() - start_time).total_seconds() * 1000)
+        result.enrichment_time_ms = int(
+            (datetime.now() - start_time).total_seconds() * 1000
+        )
 
         # Cache the result
         self.cache[cache_key] = (result, datetime.now())
@@ -288,7 +299,8 @@ class AuthorityEnricher:
             return await asyncio.wait_for(fetcher.fetch(query), timeout=timeout)
         except asyncio.TimeoutError:
             return FetchResult(
-                status=FetchStatus.NETWORK_ERROR, error_message=f"Timeout after {timeout}s"
+                status=FetchStatus.NETWORK_ERROR,
+                error_message=f"Timeout after {timeout}s",
             )
 
     def _merge_data(self, result: EnrichmentResult, data: AuthorityData):
@@ -311,7 +323,9 @@ class AuthorityEnricher:
         result.merged_identifiers.update(data.identifiers)
 
         # Merge affiliations (avoid duplicates)
-        existing_affiliations = {aff.get("name", ""): aff for aff in result.merged_affiliations}
+        existing_affiliations = {
+            aff.get("name", ""): aff for aff in result.merged_affiliations
+        }
 
         for affiliation in data.affiliations:
             aff_name = affiliation.get("name", "")
@@ -356,12 +370,15 @@ class AuthorityEnricher:
         return {
             "total_fetchers": total_fetchers,
             "fetchers_by_tier": {
-                tier.name: len(fetchers) for tier, fetchers in self.fetchers_by_tier.items()
+                tier.name: len(fetchers)
+                for tier, fetchers in self.fetchers_by_tier.items()
             },
             "cache_size": len(self.cache),
             "stats": dict(self.stats),
             "available_sources": [
-                f.service for fetchers in self.fetchers_by_tier.values() for f in fetchers
+                f.service
+                for fetchers in self.fetchers_by_tier.values()
+                for f in fetchers
             ],
         }
 

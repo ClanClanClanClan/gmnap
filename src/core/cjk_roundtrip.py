@@ -564,7 +564,9 @@ class CJKRoundTrip:
 
         return passes, dice_score, back_converted
 
-    def back_convert_with_script(self, romanized: str, script_hint: Optional[str] = None) -> str:
+    def back_convert_with_script(
+        self, romanized: str, script_hint: Optional[str] = None
+    ) -> str:
         """
         Convert romanized text back to CJK script with optional script hint.
 
@@ -702,7 +704,12 @@ class CJKRoundTrip:
             ("田中太郎", "Tanaka Taro"),
         ]
 
-        results = {"total_tests": len(test_cases), "passed": 0, "failed": 0, "details": []}
+        results = {
+            "total_tests": len(test_cases),
+            "passed": 0,
+            "failed": 0,
+            "details": [],
+        }
 
         for original, expected_romanized in test_cases:
             passes, score, back_converted = self.test_round_trip(original)

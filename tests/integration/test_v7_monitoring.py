@@ -43,9 +43,13 @@ async def test_monitoring_basic_functionality():
 
             # Test metric recording
             test_metrics = [
-                PerformanceMetric(MetricType.THROUGHPUT, 100.5, "entries/sec", component="test"),
+                PerformanceMetric(
+                    MetricType.THROUGHPUT, 100.5, "entries/sec", component="test"
+                ),
                 PerformanceMetric(MetricType.LATENCY, 250.0, "ms", component="test"),
-                PerformanceMetric(MetricType.SUCCESS_RATE, 98.5, "percent", component="test"),
+                PerformanceMetric(
+                    MetricType.SUCCESS_RATE, 98.5, "percent", component="test"
+                ),
             ]
 
             for metric in test_metrics:
@@ -57,9 +61,13 @@ async def test_monitoring_basic_functionality():
             print(f"PASS Basic monitoring results:")
             print(f"   Metrics recorded: {len(test_metrics)}")
             print(f"   Current metrics: {len(current)}")
-            print(f"   Throughput: {current.get('throughput', {}).get('value', 'N/A')} entries/sec")
+            print(
+                f"   Throughput: {current.get('throughput', {}).get('value', 'N/A')} entries/sec"
+            )
             print(f"   Latency: {current.get('latency', {}).get('value', 'N/A')} ms")
-            print(f"   Success rate: {current.get('success_rate', {}).get('value', 'N/A')}%")
+            print(
+                f"   Success rate: {current.get('success_rate', {}).get('value', 'N/A')}%"
+            )
 
             # Verify metrics were stored
             if len(current) >= 3:
@@ -110,7 +118,9 @@ async def test_monitoring_alerting():
                 PerformanceMetric(
                     MetricType.THROUGHPUT, 50.0, "entries/sec", component="test"
                 ),  # Too low
-                PerformanceMetric(MetricType.LATENCY, 500.0, "ms", component="test"),  # Too high
+                PerformanceMetric(
+                    MetricType.LATENCY, 500.0, "ms", component="test"
+                ),  # Too high
                 PerformanceMetric(
                     MetricType.SUCCESS_RATE, 85.0, "percent", component="test"
                 ),  # Too low
@@ -147,12 +157,17 @@ async def test_monitoring_integration():
 
     try:
         from src.core.monitoring_v7 import V7MonitoringSystem, MonitoringConfig
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig, test_data_generator
+        from src.core.streaming_v7 import (
+            V7StreamingPipeline,
+            StreamingConfig,
+            test_data_generator,
+        )
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Setup monitoring
             monitor_config = MonitoringConfig(
-                metrics_db_path=Path(temp_dir) / "integration_metrics.db", sample_interval_seconds=1
+                metrics_db_path=Path(temp_dir) / "integration_metrics.db",
+                sample_interval_seconds=1,
             )
             monitor = V7MonitoringSystem(monitor_config)
 
@@ -208,7 +223,9 @@ async def test_monitoring_integration():
             print(f"PASS Integration results:")
             print(f"   Integration duration: {duration:.2f}s")
             print(f"   Streaming processed: {metrics.entries_processed}")
-            print(f"   Streaming throughput: {metrics.average_throughput:.1f} entries/sec")
+            print(
+                f"   Streaming throughput: {metrics.average_throughput:.1f} entries/sec"
+            )
             print(f"   System health status: {health['status']}")
             print(f"   Monitored metrics: {len(health['metrics'])}")
 
@@ -245,7 +262,9 @@ async def test_monitoring_reporting():
         )
 
         with tempfile.TemporaryDirectory() as temp_dir:
-            config = MonitoringConfig(metrics_db_path=Path(temp_dir) / "reporting_metrics.db")
+            config = MonitoringConfig(
+                metrics_db_path=Path(temp_dir) / "reporting_metrics.db"
+            )
 
             monitor = V7MonitoringSystem(config)
 
@@ -257,8 +276,12 @@ async def test_monitoring_reporting():
                 PerformanceMetric(
                     MetricType.THROUGHPUT, 180.0, "entries/sec", component="report_test"
                 ),
-                PerformanceMetric(MetricType.LATENCY, 200.0, "ms", component="report_test"),
-                PerformanceMetric(MetricType.LATENCY, 250.0, "ms", component="report_test"),
+                PerformanceMetric(
+                    MetricType.LATENCY, 200.0, "ms", component="report_test"
+                ),
+                PerformanceMetric(
+                    MetricType.LATENCY, 250.0, "ms", component="report_test"
+                ),
                 PerformanceMetric(
                     MetricType.SUCCESS_RATE, 98.5, "percent", component="report_test"
                 ),
@@ -282,7 +305,9 @@ async def test_monitoring_reporting():
 
             print(f"PASS Reporting results:")
             print(f"   Sample metrics recorded: {len(sample_metrics)}")
-            print(f"   Report period: {report['report_period']['duration_hours']} hours")
+            print(
+                f"   Report period: {report['report_period']['duration_hours']} hours"
+            )
             print(
                 f"   Throughput samples: {report['performance_summary']['throughput']['samples']}"
             )

@@ -3,7 +3,14 @@ from typing import Dict, Any, Tuple, List
 
 
 class V7SchemaValidator:
-    REQUIRED = ["GlobalID", "CanonicalLatin", "Field", "Source", "LastUpdated", "ValidationStatus"]
+    REQUIRED = [
+        "GlobalID",
+        "CanonicalLatin",
+        "Field",
+        "Source",
+        "LastUpdated",
+        "ValidationStatus",
+    ]
     ENUMS = {
         "Gender": {"M", "F", "X", "U"},
         "ValidationStatus": {"verified", "pending", "disputed"},
@@ -43,7 +50,9 @@ class V7SchemaValidator:
         for k, v in entry.items():
             T = self.TYPES.get(k)
             if T and not isinstance(v, T if isinstance(T, type) else T):
-                errs.append(f"{k} must be {T if isinstance(T, type) else [t.__name__ for t in T]}")
+                errs.append(
+                    f"{k} must be {T if isinstance(T, type) else [t.__name__ for t in T]}"
+                )
         for k, (lo, hi) in self.INT_BOUNDS.items():
             if k in entry:
                 val = entry[k]

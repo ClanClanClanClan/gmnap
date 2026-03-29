@@ -57,7 +57,9 @@ class DeploymentManager:
     def _save_version(self, version: str):
         """Save version to file."""
         with open(self.version_file, "w") as f:
-            json.dump({"version": version, "updated": datetime.now().isoformat()}, f, indent=2)
+            json.dump(
+                {"version": version, "updated": datetime.now().isoformat()}, f, indent=2
+            )
 
     def _bump_version(self, bump_type: str = "patch") -> str:
         """
@@ -99,7 +101,12 @@ class DeploymentManager:
         Returns:
             Validation results
         """
-        validation_results = {"passed": True, "checks": {}, "warnings": [], "errors": []}
+        validation_results = {
+            "passed": True,
+            "checks": {},
+            "warnings": [],
+            "errors": [],
+        }
 
         # 1. Check entry count
         entry_count = len(entries)
@@ -129,7 +136,9 @@ class DeploymentManager:
             "passed": coverage_rate > 0.8,  # At least 80% coverage
         }
         if coverage_rate < 0.8:
-            validation_results["warnings"].append(f"Low authority coverage: {coverage_rate:.2%}")
+            validation_results["warnings"].append(
+                f"Low authority coverage: {coverage_rate:.2%}"
+            )
 
         # 4. Check idempotency
         if metrics:
@@ -166,13 +175,17 @@ class DeploymentManager:
 
         # 6. Check graph coherence
         coherence_scores = [e.get("GraphCoherence", 0) for e in entries]
-        avg_coherence = sum(coherence_scores) / len(coherence_scores) if coherence_scores else 0
+        avg_coherence = (
+            sum(coherence_scores) / len(coherence_scores) if coherence_scores else 0
+        )
         validation_results["checks"]["graph_coherence"] = {
             "value": f"{avg_coherence:.3f}",
             "passed": avg_coherence > 0.25,
         }
         if avg_coherence <= 0.25:
-            validation_results["warnings"].append(f"Low average coherence: {avg_coherence:.3f}")
+            validation_results["warnings"].append(
+                f"Low average coherence: {avg_coherence:.3f}"
+            )
 
         return validation_results
 
@@ -202,7 +215,11 @@ class DeploymentManager:
         manifest = {
             "version": version,
             "timestamp": datetime.now().isoformat(),
-            "data": {"entry_count": len(entries), "hash": data_hash, "size_bytes": len(data_str)},
+            "data": {
+                "entry_count": len(entries),
+                "hash": data_hash,
+                "size_bytes": len(data_str),
+            },
             "metrics": {
                 "throughput": metrics.get("entries_per_second", 0),
                 "total_time": metrics.get("duration_seconds", 0),
@@ -258,14 +275,14 @@ class DeploymentManager:
         logger.info(f"Deploying version {new_version}")
 
         # 3. Create manifest
-        manifest = self.create_deployment_manifest(entries, metrics, validation, new_version)
+        manifest = self.create_deployment_manifest(
+            entries, metrics, validation, new_version
+        )
 
         # 4. Archive current production if exists
         current_prod = self.production_dir / "data.json"
         if current_prod.exists():
-            archive_name = (
-                f"v{self.current_version.replace('.', '_')}_{datetime.now():%Y%m%d_%H%M%S}"
-            )
+            archive_name = f"v{self.current_version.replace('.', '_')}_{datetime.now():%Y%m%d_%H%M%S}"
             archive_dir = self.history_dir / archive_name
             archive_dir.mkdir()
             shutil.copy2(current_prod, archive_dir / "data.json")
@@ -375,7 +392,10 @@ class DeploymentManager:
                     target = backup
                     break
             if not target:
-                return {"success": False, "message": f"Version {version} not found in history"}
+                return {
+                    "success": False,
+                    "message": f"Version {version} not found in history",
+                }
         else:
             target = backups[0]  # Latest backup
 

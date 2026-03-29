@@ -135,7 +135,9 @@ async def test_e2e_integration():
     rel_count = check_phase2_genealogy_relationships(test_data["GlobalID"])
     print(f"  Genealogy relationships: {rel_count}")
     if rel_count == 0:
-        print(f"  ⚠️ No genealogy relationships (expected - V7 has no advisor data yet)")
+        print(
+            f"  ⚠️ No genealogy relationships (expected - V7 has no advisor data yet)"
+        )
     else:
         print(f"  ✅ Has {rel_count} advisor relationship(s)")
     print()

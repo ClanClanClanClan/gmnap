@@ -31,4 +31,6 @@ def build_db_config(prefix: str = "MG") -> DBConfig:
     # Normalise TLS schemes
     if tls and uri.startswith("bolt://"):
         uri = uri.replace("bolt://", "bolt+s://", 1)
-    return DBConfig(uri=uri, user=user, password=password, tls=tls, tls_cert=cert, verify=verify)
+    return DBConfig(
+        uri=uri, user=user, password=password, tls=tls, tls_cert=cert, verify=verify
+    )

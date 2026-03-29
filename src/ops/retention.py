@@ -2,7 +2,9 @@ from __future__ import annotations
 import time, pathlib
 
 
-def rotate_snapshots(root: str, keep_days: int = 30, keep_n: int | None = None) -> list[str]:
+def rotate_snapshots(
+    root: str, keep_days: int = 30, keep_n: int | None = None
+) -> list[str]:
     """
     Deletes snapshot directories older than keep_days and keeps at most keep_n most recent.
     Returns list of deleted directory paths.

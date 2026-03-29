@@ -70,7 +70,9 @@ def hell_test(test_name, test_func, expected_failure_rate=0):
         return result
     except Exception as e:
         hell_audit["failures_found"] += 1
-        hell_audit["critical_breaks"].append(f"{test_name}: Test framework crashed - {str(e)}")
+        hell_audit["critical_breaks"].append(
+            f"{test_name}: Test framework crashed - {str(e)}"
+        )
         print(f"💥 TEST FRAMEWORK CRASHED: {e}")
         traceback.print_exc()
         return {"broken": True, "breaks": [f"Test crashed: {e}"]}
@@ -142,7 +144,9 @@ def unicode_apocalypse():
             except Exception as e:
                 crashed += 1
                 if "encoding" not in str(e).lower():  # Encoding errors are expected
-                    breaks.append(f"Unicode {name} U+{char_code:04X} crashed: {str(e)[:100]}")
+                    breaks.append(
+                        f"Unicode {name} U+{char_code:04X} crashed: {str(e)[:100]}"
+                    )
 
     crash_rate = (crashed / tested) * 100 if tested > 0 else 100
 
@@ -203,7 +207,9 @@ def scale_torture():
             if op_time > 1.0:  # 1 second per name is too slow
                 timeouts += 1
                 if timeouts == 1:
-                    breaks.append(f"First timeout at name {i}: {name} took {op_time:.2f}s")
+                    breaks.append(
+                        f"First timeout at name {i}: {name} took {op_time:.2f}s"
+                    )
 
             if result is None:
                 errors += 1
@@ -301,7 +307,8 @@ def concurrent_chaos():
     error_rate = (len(breaks) / 10000) * 100  # 10 threads * 1000 operations each
 
     return {
-        "broken": len(breaks) > 50 or elapsed > 120,  # Should complete in under 2 minutes
+        "broken": len(breaks) > 50
+        or elapsed > 120,  # Should complete in under 2 minutes
         "breaks": breaks,
         "summary": f"10 threads, {10000} total ops, {len(breaks)} errors, {elapsed:.1f}s",
         "success_rate": max(0, 100 - error_rate),
@@ -348,7 +355,9 @@ def memory_destruction():
                     )
 
                 if growth_rate > 0.1:  # More than 0.1MB per 1000 operations
-                    breaks.append(f"Memory leak detected: {growth_rate:.3f} MB per 1K operations")
+                    breaks.append(
+                        f"Memory leak detected: {growth_rate:.3f} MB per 1K operations"
+                    )
 
         except Exception as e:
             breaks.append(f"Memory test crashed at iteration {i}: {str(e)[:50]}")
@@ -358,7 +367,8 @@ def memory_destruction():
     total_growth = final_memory - initial_memory
 
     return {
-        "broken": total_growth > 100 or len(breaks) > 0,  # More than 100MB growth is bad
+        "broken": total_growth > 100
+        or len(breaks) > 0,  # More than 100MB growth is bad
         "breaks": breaks,
         "summary": f"50K ops: {initial_memory:.1f} -> {final_memory:.1f} MB (+{total_growth:.1f} MB)",
         "success_rate": 100 if total_growth < 100 and len(breaks) == 0 else 0,
@@ -449,7 +459,10 @@ def malicious_data_injection():
         except Exception as e:
             # Some crashes might indicate successful attacks
             error_msg = str(e).lower()
-            if any(keyword in error_msg for keyword in ["eval", "exec", "system", "command"]):
+            if any(
+                keyword in error_msg
+                for keyword in ["eval", "exec", "system", "command"]
+            ):
                 breaks.append(
                     f"Attack {i+1} caused suspicious crash: {attack[:30]}... -> {str(e)[:50]}"
                 )
@@ -552,15 +565,20 @@ def data_corruption_scenarios():
                     "Z0",
                 ]:
                     corruption_detected += 1
-                    breaks.append(f"Corruption {i+1} caused invalid region: {result.region_code}")
+                    breaks.append(
+                        f"Corruption {i+1} caused invalid region: {result.region_code}"
+                    )
 
         except Exception as e:
             crashes += 1
             # Some crashes are expected for corrupted data
             if not any(
-                expected in str(e).lower() for expected in ["invalid", "error", "bad", "malformed"]
+                expected in str(e).lower()
+                for expected in ["invalid", "error", "bad", "malformed"]
             ):
-                breaks.append(f"Corruption {i+1} caused unexpected crash: {str(e)[:50]}")
+                breaks.append(
+                    f"Corruption {i+1} caused unexpected crash: {str(e)[:50]}"
+                )
 
     crash_rate = (crashes / len(corrupted_data)) * 100
     hang_rate = (hangs / len(corrupted_data)) * 100
@@ -573,7 +591,9 @@ def data_corruption_scenarios():
     }
 
 
-hell_test("Data Corruption Scenarios", data_corruption_scenarios, expected_failure_rate=30)
+hell_test(
+    "Data Corruption Scenarios", data_corruption_scenarios, expected_failure_rate=30
+)
 
 # FINAL HELL ASSESSMENT
 print("\n" + "=" * 80)
@@ -582,7 +602,9 @@ print("=" * 80)
 
 total_tests = hell_audit["tests_run"]
 total_failures = hell_audit["failures_found"]
-survival_rate = ((total_tests - total_failures) / total_tests * 100) if total_tests > 0 else 0
+survival_rate = (
+    ((total_tests - total_failures) / total_tests * 100) if total_tests > 0 else 0
+)
 
 print(
     f"\n🔥 HELL SURVIVAL RATE: {survival_rate:.1f}% ({total_tests - total_failures}/{total_tests} tests survived)"

@@ -104,7 +104,9 @@ class A2_WesternEurope(RegionSpec):
         }
 
         # Diacritic patterns for validation (including Hungarian ő, ű)
-        self.diacritic_chars = set("áàâäéèêëíìîïóòôöúùûüñçåæøőűÁÀÂÄÉÈÊËÍÌÎÏÓÒÔÖÚÙÛÜÑÇÅÆØŐŰ")
+        self.diacritic_chars = set(
+            "áàâäéèêëíìîïóòôöúùûüñçåæøőűÁÀÂÄÉÈÊËÍÌÎÏÓÒÔÖÚÙÛÜÑÇÅÆØŐŰ"
+        )
 
         # Country-specific validation patterns
         self.country_patterns = {
@@ -116,7 +118,18 @@ class A2_WesternEurope(RegionSpec):
             },
             "DE": {
                 "required_chars": "äöüß",
-                "particles": {"von", "van", "der", "den", "de", "zum", "zur", "am", "im", "zu"},
+                "particles": {
+                    "von",
+                    "van",
+                    "der",
+                    "den",
+                    "de",
+                    "zum",
+                    "zur",
+                    "am",
+                    "im",
+                    "zu",
+                },
             },
             "IT": {
                 "required_chars": "àáéèíìîóòúù",
@@ -168,7 +181,9 @@ class A2_WesternEurope(RegionSpec):
                     if char_code == 127:  # DEL
                         raise RegionRuleError(f"DELETE character in {field}")
                     if char_code in [0x200B, 0x200C, 0x200D, 0xFEFF]:  # Zero-width
-                        raise RegionRuleError(f"Zero-width character in {field}: U+{char_code:04X}")
+                        raise RegionRuleError(
+                            f"Zero-width character in {field}: U+{char_code:04X}"
+                        )
 
         # Get canonical name for processing
         canonical = self.get_canonical_name(entry)
@@ -302,7 +317,9 @@ class A2_WesternEurope(RegionSpec):
                     if ord(c) < 32 or ord(c) > 126 and ord(c) not in range(160, 591)
                 }
                 if dangerous_chars:
-                    raise RegionRuleError(f"Invalid characters: {', '.join(dangerous_chars)}")
+                    raise RegionRuleError(
+                        f"Invalid characters: {', '.join(dangerous_chars)}"
+                    )
                 else:
                     self.logger.warning(f"Non-European characters in name: {canonical}")
 
@@ -310,7 +327,9 @@ class A2_WesternEurope(RegionSpec):
         particles_in_name = self._extract_particles(canonical)
         for particle in particles_in_name:
             if particle.lower() not in self.particles:
-                self.logger.warning(f"Unknown particle '{particle}' in name: {canonical}")
+                self.logger.warning(
+                    f"Unknown particle '{particle}' in name: {canonical}"
+                )
 
         # Check for consistent diacritic usage
         if self._has_inconsistent_diacritics(canonical):
@@ -456,11 +475,15 @@ class A2_WesternEurope(RegionSpec):
         name_lower = name.lower()
 
         # Spanish indicators
-        if any(c in name_lower for c in "ñáéíóúü") and self._is_dual_surname_pattern(name):
+        if any(c in name_lower for c in "ñáéíóúü") and self._is_dual_surname_pattern(
+            name
+        ):
             return "ES"
 
         # Portuguese indicators
-        if any(c in name_lower for c in "ãàâáçéêíóôõúü") and self._is_dual_surname_pattern(name):
+        if any(
+            c in name_lower for c in "ãàâáçéêíóôõúü"
+        ) and self._is_dual_surname_pattern(name):
             return "PT"
 
         # French indicators
@@ -483,7 +506,8 @@ class A2_WesternEurope(RegionSpec):
 
         # Dutch indicators
         if any(
-            p in name_lower for p in ["van ", "der ", "den ", "de ", "het ", "ten ", "ter ", "te "]
+            p in name_lower
+            for p in ["van ", "der ", "den ", "de ", "het ", "ten ", "ter ", "te "]
         ):
             return "NL"
 
@@ -529,9 +553,13 @@ class A2_WesternEurope(RegionSpec):
 
             for word in words:
                 # Check if this word had sharp-s characters
-                original_word_idx = name.find(word.replace("ss", "ß").replace("SS", "ẞ"))
+                original_word_idx = name.find(
+                    word.replace("ss", "ß").replace("SS", "ẞ")
+                )
                 if original_word_idx >= 0:
-                    original_word = name[original_word_idx : original_word_idx + len(word)]
+                    original_word = name[
+                        original_word_idx : original_word_idx + len(word)
+                    ]
                     if "ß" in original_word or "ẞ" in original_word:
                         # This word was affected by sharp-s normalization
                         # Ensure proper case handling
@@ -610,7 +638,9 @@ class A2_WesternEurope(RegionSpec):
 
     def _has_valid_western_european_characters(self, name: str) -> bool:
         """Check if name contains only valid Western European characters (secure)."""
-        valid_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ,-'.")
+        valid_chars = set(
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ,-'."
+        )
         # Add European diacritics (but be specific, not overly broad)
         valid_chars.update(self.diacritic_chars)
 
@@ -618,7 +648,9 @@ class A2_WesternEurope(RegionSpec):
 
     def _get_invalid_characters(self, name: str) -> Set[str]:
         """Get characters that are not in the valid Western European set."""
-        valid_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ,-'.")
+        valid_chars = set(
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ,-'."
+        )
         valid_chars.update(self.diacritic_chars)
         return set(name) - valid_chars
 

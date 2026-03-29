@@ -49,7 +49,11 @@ async def test_streaming_performance():
 
         # Generate test entries
         entries = [
-            {"ID": f"test_{i:08d}", "CanonicalNative": "John Smith", "Region": "a1_anglo_sphere"}
+            {
+                "ID": f"test_{i:08d}",
+                "CanonicalNative": "John Smith",
+                "Region": "a1_anglo_sphere",
+            }
             for i in range(batch_size)
         ]
 
@@ -71,7 +75,9 @@ async def test_streaming_performance():
         time_for_1m = (1_000_000 / entries_per_sec) / 60.0
 
         # Count successes
-        successful = sum(1 for e in processed_entries if e.get("status") != "processing_error")
+        successful = sum(
+            1 for e in processed_entries if e.get("status") != "processing_error"
+        )
         success_rate = successful / batch_size
 
         # Test quality gates

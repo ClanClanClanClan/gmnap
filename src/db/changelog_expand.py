@@ -72,7 +72,9 @@ def generate_edges_cypher(out_dir: pathlib.Path, entries: List[Dict[str, Any]]) 
             else:
                 # (m)-[:ADVISED_BY]->(target)
                 for v in vals:
-                    lines.append(f'MERGE (m:Mathematician {{global_id: "{_esc(gid)}"}});')
+                    lines.append(
+                        f'MERGE (m:Mathematician {{global_id: "{_esc(gid)}"}});'
+                    )
                     lines.append(f'MERGE (n:Mathematician {{global_id: "{_esc(v)}"}});')
                     lines.append(f"MERGE (m)-[:{etype}]->(n);")
     path = out_dir / "changelog_edges.cypher"
@@ -80,7 +82,9 @@ def generate_edges_cypher(out_dir: pathlib.Path, entries: List[Dict[str, Any]]) 
     return str(path)
 
 
-def generate_changelogs_expanded(out_dir: str, entries: List[Dict[str, Any]]) -> List[str]:
+def generate_changelogs_expanded(
+    out_dir: str, entries: List[Dict[str, Any]]
+) -> List[str]:
     p = pathlib.Path(out_dir)
     p.mkdir(parents=True, exist_ok=True)
     a = generate_arrays_cypher(p, entries)

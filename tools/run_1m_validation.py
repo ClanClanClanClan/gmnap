@@ -8,7 +8,11 @@ from src.quality.gates_rolling import RollingGates, GateLimits
 
 def mk(n: int) -> List[Dict[str, Any]]:
     return [
-        {"ID": f"entry{i:08d}", "CanonicalNative": "John Smith", "Region": "a1_anglo_sphere"}
+        {
+            "ID": f"entry{i:08d}",
+            "CanonicalNative": "John Smith",
+            "Region": "a1_anglo_sphere",
+        }
         for i in range(n)
     ]
 
@@ -45,11 +49,17 @@ async def main():
     g.ingest(out)
     dec = g.decision(eps)
 
-    print(json.dumps({"N": N, "seconds": round(dt, 2), "eps": round(eps, 1), **dec}, indent=2))
+    print(
+        json.dumps(
+            {"N": N, "seconds": round(dt, 2), "eps": round(eps, 1), **dec}, indent=2
+        )
+    )
 
     # Status message
     status = "✅ PASS" if dec["ok"] else "❌ FAIL"
-    print(f"\n{status}: {dec['minutes_1m']:.1f} min/1M, {dec['success_rate']:.1%} success rate")
+    print(
+        f"\n{status}: {dec['minutes_1m']:.1f} min/1M, {dec['success_rate']:.1%} success rate"
+    )
 
 
 if __name__ == "__main__":

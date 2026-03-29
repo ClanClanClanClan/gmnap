@@ -71,7 +71,9 @@ for entry, expected_region, description in test_cases:
         if detection_method == "romanization":
             romanization_detected += 1
             if detected_region == expected_region:
-                print(f"PASS {description}: {entry['name']} -> {detected_region} (romanization)")
+                print(
+                    f"PASS {description}: {entry['name']} -> {detected_region} (romanization)"
+                )
                 romanization_correct += 1
             else:
                 print(
@@ -109,10 +111,14 @@ total_non_romanized = len([t for t in test_cases if t[1] is None])
 print(f"\n📊 Romanization Detection Results:")
 print(f"  Romanized names detected: {romanization_detected}/{total_romanized}")
 print(f"  Romanized names correct: {romanization_correct}/{total_romanized}")
-print(f"  Non-romanized falsely affected: {non_romanized_affected}/{total_non_romanized}")
+print(
+    f"  Non-romanized falsely affected: {non_romanized_affected}/{total_non_romanized}"
+)
 
 accuracy = romanization_correct / total_romanized if total_romanized > 0 else 0
-false_positive_rate = non_romanized_affected / total_non_romanized if total_non_romanized > 0 else 0
+false_positive_rate = (
+    non_romanized_affected / total_non_romanized if total_non_romanized > 0 else 0
+)
 
 print(f"\n🎯 Accuracy Metrics:")
 print(f"  Romanization accuracy: {accuracy:.1%}")
@@ -120,7 +126,9 @@ print(f"  False positive rate: {false_positive_rate:.1%}")
 
 # Test specific improvements
 print(f"\n🔍 Specific Improvements:")
-print(f"  'Zhang Wei' -> {manager.detect_region({'name': 'Zhang Wei'}).region_code} (should be E1)")
+print(
+    f"  'Zhang Wei' -> {manager.detect_region({'name': 'Zhang Wei'}).region_code} (should be E1)"
+)
 print(
     f"  'Kim Jong-un' -> {manager.detect_region({'name': 'Kim Jong-un'}).region_code} (should be E4)"
 )

@@ -6,7 +6,9 @@ from ..ops.metrics import SCHEMA_VALIDATION_ERRORS, ROUNDTRIP_FAILURES, PROCESSE
 from ..pipeline.stage6_graph_consistency import enforce_graph_coherence_gate
 
 
-def _load_entry_schema(path: str = "schemas/v7_entry.schema.json") -> Draft202012Validator:
+def _load_entry_schema(
+    path: str = "schemas/v7_entry.schema.json",
+) -> Draft202012Validator:
     with open(path, "r", encoding="utf-8") as f:
         schema = json.load(f)
     return Draft202012Validator(schema)
@@ -34,7 +36,9 @@ def _latinise_basic(native: str) -> str:
     import unicodedata
 
     return "".join(
-        ch for ch in unicodedata.normalize("NFKD", native) if not unicodedata.combining(ch)
+        ch
+        for ch in unicodedata.normalize("NFKD", native)
+        if not unicodedata.combining(ch)
     )
 
 
@@ -78,4 +82,8 @@ def global_validate(
     _, m6 = enforce_graph_coherence_gate(batch, mode=mode)
     if PROCESSED_TOTAL:
         PROCESSED_TOTAL.labels(stage="8").inc()
-    return batch, {"schema_errors": float(errors_total), "roundtrip_failures": float(rt_fail), **m6}
+    return batch, {
+        "schema_errors": float(errors_total),
+        "roundtrip_failures": float(rt_fail),
+        **m6,
+    }

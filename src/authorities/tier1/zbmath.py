@@ -74,7 +74,9 @@ class zbMATHOpenFetcher:
             # Parse and structure results
             structured_results = self._parse_results(results)
 
-            logger.info(f"{class_name}: Found {len(structured_results)} results for '{name}'")
+            logger.info(
+                f"{class_name}: Found {len(structured_results)} results for '{name}'"
+            )
 
             return structured_results
 

@@ -40,7 +40,9 @@ class ProductionLock:
         except IOError:
             # Lock already held by another process
             self.lock_fd.close()
-            raise ProductionError("Another Korean name operation is in progress. Wait and retry.")
+            raise ProductionError(
+                "Another Korean name operation is in progress. Wait and retry."
+            )
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Release lock"""
@@ -94,7 +96,9 @@ class AtomicCSVOperation:
         content = self.csv_path.read_text(encoding="utf8")
 
         # Add new weight
-        new_content = content.rstrip() + f"\n# Safe addition {time.time()}\n{weight_line}\n"
+        new_content = (
+            content.rstrip() + f"\n# Safe addition {time.time()}\n{weight_line}\n"
+        )
 
         # Write to temp file
         self.temp_path.write_text(new_content, encoding="utf8")
@@ -182,7 +186,10 @@ class AtomicFSTRebuild:
                 raise ProductionError(
                     f"FST build incomplete: {fst_file} missing",
                     exit_code=3,
-                    remediation=["Check build script for errors", "Verify CSV data integrity"],
+                    remediation=[
+                        "Check build script for errors",
+                        "Verify CSV data integrity",
+                    ],
                 )
 
         # Atomic replacement of models directory

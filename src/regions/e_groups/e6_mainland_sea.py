@@ -13,7 +13,9 @@ class E6MainlandSEA(RegionSpec):
 
     def __init__(self):
         super().__init__(
-            code="E6", yaml_files=[], scripts=["Thai", "Latin"]  # TODO: Add actual YAML files,
+            code="E6",
+            yaml_files=[],
+            scripts=["Thai", "Latin"],  # TODO: Add actual YAML files,
         )
 
     def clean(self, name: str) -> str:

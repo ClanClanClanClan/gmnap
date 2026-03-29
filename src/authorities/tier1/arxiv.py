@@ -60,7 +60,9 @@ class ArXivFetcher(AuthorityFetcher):
             return await self._search_by_author(query)
 
         except asyncio.TimeoutError:
-            return FetchResult(status=FetchStatus.NETWORK_ERROR, error_message="Request timeout")
+            return FetchResult(
+                status=FetchStatus.NETWORK_ERROR, error_message="Request timeout"
+            )
 
         except Exception as e:
             self.logger.error(f"arXiv fetch error: {e}")
@@ -120,7 +122,10 @@ class ArXivFetcher(AuthorityFetcher):
             root = ET.fromstring(xml_data)
 
             # arXiv uses Atom namespace
-            ns = {"atom": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
+            ns = {
+                "atom": "http://www.w3.org/2005/Atom",
+                "arxiv": "http://arxiv.org/schemas/atom",
+            }
 
             data = AuthorityData(
                 source=self.service,
@@ -162,7 +167,9 @@ class ArXivFetcher(AuthorityFetcher):
                 published = entry.find("atom:published", ns)
                 if published is not None:
                     try:
-                        pub_date = datetime.fromisoformat(published.text.replace("Z", "+00:00"))
+                        pub_date = datetime.fromisoformat(
+                            published.text.replace("Z", "+00:00")
+                        )
                         years.append(pub_date.year)
                         paper["year"] = pub_date.year
                     except:
@@ -190,7 +197,9 @@ class ArXivFetcher(AuthorityFetcher):
                 "years_active": f"{min(years)}-{max(years)}" if years else "",
                 "publication_years": sorted(list(set(years))),
                 "coauthors_count": len(coauthors),
-                "recent_papers": len([p for p in publications if p.get("year", 0) >= 2020]),
+                "recent_papers": len(
+                    [p for p in publications if p.get("year", 0) >= 2020]
+                ),
             }
 
             # Generate name variants from author fields

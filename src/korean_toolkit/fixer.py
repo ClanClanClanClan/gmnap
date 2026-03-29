@@ -292,7 +292,12 @@ class KoreanFixer:
         for hangul, roman in required.items():
             if hangul not in existing:
                 mappings.append(
-                    {"hangul": hangul, "roman": roman, "weight": 1.0, "added_by": "fix_missing"}
+                    {
+                        "hangul": hangul,
+                        "roman": roman,
+                        "weight": 1.0,
+                        "added_by": "fix_missing",
+                    }
                 )
 
         return mappings

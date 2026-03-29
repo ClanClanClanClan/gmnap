@@ -10,11 +10,12 @@ def _canonical_bytes(batch: List[Dict]) -> bytes:
         return {k: v for k, v in e.items() if k not in VOLATILE_KEYS}
 
     ordered = sorted(
-        [scrub(dict(e)) for e in batch], key=lambda e: (e.get("GlobalID", ""), e.get("Source", ""))
+        [scrub(dict(e)) for e in batch],
+        key=lambda e: (e.get("GlobalID", ""), e.get("Source", "")),
     )
-    return json.dumps(ordered, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode(
-        "utf-8"
-    )
+    return json.dumps(
+        ordered, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
 
 
 def enforce_idempotency_gate(

@@ -158,7 +158,9 @@ class AnalyticsCollector:
                 analytics.average_processing_time_ms * (analytics.total_processed - 1)
                 + processing_time_ms
             )
-            analytics.average_processing_time_ms = total_time / analytics.total_processed
+            analytics.average_processing_time_ms = (
+                total_time / analytics.total_processed
+            )
 
             # Edge case tracking
             if edge_case_result is not None:
@@ -183,7 +185,10 @@ class AnalyticsCollector:
                 # Categorize attack types
                 if "dos" in attack_type.lower() or "length" in attack_type.lower():
                     self.security_analytics.dos_attempts_blocked += 1
-                elif any(inj in attack_type.lower() for inj in ["sql", "xss", "command", "script"]):
+                elif any(
+                    inj in attack_type.lower()
+                    for inj in ["sql", "xss", "command", "script"]
+                ):
                     self.security_analytics.injection_attempts_blocked += 1
             else:
                 self.security_analytics.vulnerabilities_detected += 1
@@ -242,7 +247,9 @@ class AnalyticsCollector:
 
             # Update running averages
             if qa.total_entries_processed > 0:
-                qa.data_completeness_score = (qa.data_completeness_score + completeness_score) / 2
+                qa.data_completeness_score = (
+                    qa.data_completeness_score + completeness_score
+                ) / 2
                 qa.accuracy_score = (qa.accuracy_score + accuracy_score) / 2
 
     def record_cjk_roundtrip(self, region_code: str, accuracy: float) -> None:
@@ -273,7 +280,9 @@ class AnalyticsCollector:
             # Keep only last 1000 samples
             for key in self._performance_samples:
                 if len(self._performance_samples[key]) > 1000:
-                    self._performance_samples[key] = self._performance_samples[key][-1000:]
+                    self._performance_samples[key] = self._performance_samples[key][
+                        -1000:
+                    ]
 
     def generate_summary_report(self) -> Dict[str, Any]:
         """Generate comprehensive analytics summary."""
@@ -295,7 +304,10 @@ class AnalyticsCollector:
                     "edge_case_success_rate": (
                         analytics.edge_case_successes
                         / (analytics.edge_case_successes + analytics.edge_case_failures)
-                        if (analytics.edge_case_successes + analytics.edge_case_failures) > 0
+                        if (
+                            analytics.edge_case_successes + analytics.edge_case_failures
+                        )
+                        > 0
                         else 0
                     ),
                 }
@@ -357,7 +369,9 @@ class AnalyticsCollector:
                     ),
                     "completeness_score": self.quality_analytics.data_completeness_score,
                     "accuracy_score": self.quality_analytics.accuracy_score,
-                    "cjk_roundtrip": dict(self.quality_analytics.cjk_roundtrip_accuracy),
+                    "cjk_roundtrip": dict(
+                        self.quality_analytics.cjk_roundtrip_accuracy
+                    ),
                 },
                 "performance": asdict(self.performance_analytics),
             }
@@ -385,7 +399,8 @@ class AnalyticsCollector:
                     [
                         r
                         for r in self.region_analytics.values()
-                        if r.last_active and (datetime.now() - r.last_active).seconds < 300
+                        if r.last_active
+                        and (datetime.now() - r.last_active).seconds < 300
                     ]
                 ),
                 "total_entries_processed": sum(
@@ -405,7 +420,8 @@ class AnalyticsCollector:
                         (
                             code,
                             (
-                                analytics.successful_processed / analytics.total_processed
+                                analytics.successful_processed
+                                / analytics.total_processed
                                 if analytics.total_processed > 0
                                 else 0
                             ),

@@ -159,7 +159,8 @@ class TestGenealogyAPI:
 
         student_id = self.sample_data[0]["student_id"]
         response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": 0}  # Request 0
+            f"{self.base_url}/genealogy/lineage/{student_id}",
+            params={"max_depth": 0},  # Request 0
         )
 
         assert response.status_code == 200
@@ -168,7 +169,9 @@ class TestGenealogyAPI:
 
     def test_lineage_invalid_id(self):
         """Test lineage with non-existent ID"""
-        response = requests.get(f"{self.base_url}/genealogy/lineage/INVALIDXXXXXXXXXXXXXX")
+        response = requests.get(
+            f"{self.base_url}/genealogy/lineage/INVALIDXXXXXXXXXXXXXX"
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -207,7 +210,8 @@ class TestGenealogyAPI:
 
         advisor_id = self.sample_data[0]["advisor_id"]
         response = requests.get(
-            f"{self.base_url}/genealogy/descendants/{advisor_id}", params={"max_depth": 2}
+            f"{self.base_url}/genealogy/descendants/{advisor_id}",
+            params={"max_depth": 2},
         )
 
         assert response.status_code == 200
@@ -216,7 +220,9 @@ class TestGenealogyAPI:
 
     def test_descendants_invalid_id(self):
         """Test descendants with non-existent ID"""
-        response = requests.get(f"{self.base_url}/genealogy/descendants/INVALIDXXXXXXXXXXXXXX")
+        response = requests.get(
+            f"{self.base_url}/genealogy/descendants/INVALIDXXXXXXXXXXXXXX"
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -241,7 +247,8 @@ class TestGenealogyAPI:
 
         # Get descendants from advisor
         descendants = requests.get(
-            f"{self.base_url}/genealogy/descendants/{advisor_id}", params={"max_depth": 1}
+            f"{self.base_url}/genealogy/descendants/{advisor_id}",
+            params={"max_depth": 1},
         ).json()
 
         # Student should appear in advisor's descendants
@@ -377,7 +384,8 @@ class TestGenealogyAPI:
 
         student_id = self.sample_data[0]["student_id"]
         response = requests.get(
-            f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": "abc"}
+            f"{self.base_url}/genealogy/lineage/{student_id}",
+            params={"max_depth": "abc"},
         )
 
         # Should either use default or return error
@@ -401,7 +409,9 @@ class TestGenealogyAPI:
 
             if record:
                 person_id = record["id"]
-                response = requests.get(f"{self.base_url}/genealogy/lineage/{person_id}")
+                response = requests.get(
+                    f"{self.base_url}/genealogy/lineage/{person_id}"
+                )
 
                 assert response.status_code == 200
                 data = response.json()
@@ -422,7 +432,9 @@ class TestGenealogyAPI:
 
             if record:
                 person_id = record["id"]
-                response = requests.get(f"{self.base_url}/genealogy/descendants/{person_id}")
+                response = requests.get(
+                    f"{self.base_url}/genealogy/descendants/{person_id}"
+                )
 
                 assert response.status_code == 200
                 data = response.json()
@@ -444,7 +456,8 @@ class TestGenealogyAPI:
             if record:
                 student_id = record["id"]
                 response = requests.get(
-                    f"{self.base_url}/genealogy/lineage/{student_id}", params={"max_depth": 1}
+                    f"{self.base_url}/genealogy/lineage/{student_id}",
+                    params={"max_depth": 1},
                 )
 
                 assert response.status_code == 200

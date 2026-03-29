@@ -59,11 +59,20 @@ for test_input, description in security_test_cases:
     # Check if this is an attack that should be blocked
     should_block = any(
         keyword in description.lower()
-        for keyword in ["path", "emoji", "symbol", "exe", "script", "javascript", "traversal"]
+        for keyword in [
+            "path",
+            "emoji",
+            "symbol",
+            "exe",
+            "script",
+            "javascript",
+            "traversal",
+        ]
     )
 
     is_blocked = result.region_code == "Z0" and (
-        "quarantine" in result.detection_method or "security-blocked" in result.detection_method
+        "quarantine" in result.detection_method
+        or "security-blocked" in result.detection_method
     )
 
     if should_block:

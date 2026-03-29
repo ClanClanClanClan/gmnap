@@ -47,7 +47,10 @@ def detect_etymology_region(name: str, manager: Any = None) -> str:
     """
     if manager and GMNAP_AVAILABLE:
         # Use GMNAP's existing system
-        entry = {"CanonicalLatin": name, "BirthYear": None}  # Don't use year for detection
+        entry = {
+            "CanonicalLatin": name,
+            "BirthYear": None,
+        }  # Don't use year for detection
 
         try:
             result = manager.detect_region(entry)
@@ -74,7 +77,12 @@ def fallback_etymology_detection(name: str) -> str:
         script = unicodedata.name(char, "").split()[0] if char.strip() else ""
 
         # CJK scripts
-        if "CJK" in script or "HANGUL" in script or "HIRAGANA" in script or "KATAKANA" in script:
+        if (
+            "CJK" in script
+            or "HANGUL" in script
+            or "HIRAGANA" in script
+            or "KATAKANA" in script
+        ):
             if "HANGUL" in script:
                 return "E4"  # Korean
             elif "HIRAGANA" in script or "KATAKANA" in script:
@@ -179,7 +187,9 @@ def relabel_dataset(input_path: Path, output_path: Path, dry_run: bool = False):
 
     for i, profile in enumerate(profiles):
         if (i + 1) % 1000 == 0:
-            print(f"  Progress: {i + 1:,}/{len(profiles):,} ({(i + 1) / len(profiles) * 100:.1f}%)")
+            print(
+                f"  Progress: {i + 1:,}/{len(profiles):,} ({(i + 1) / len(profiles) * 100:.1f}%)"
+            )
 
         name = profile.get("name")
         old_region = profile.get("region")
@@ -209,7 +219,9 @@ def relabel_dataset(input_path: Path, output_path: Path, dry_run: bool = False):
 
     # Show top relabelings
     print("\n[4/5] Top relabelings:")
-    for key, count in sorted(relabel_stats.items(), key=lambda x: x[1], reverse=True)[:15]:
+    for key, count in sorted(relabel_stats.items(), key=lambda x: x[1], reverse=True)[
+        :15
+    ]:
         print(f"    {key:10s} {count:5,} changes")
 
     # Save
@@ -226,7 +238,9 @@ def relabel_dataset(input_path: Path, output_path: Path, dry_run: bool = False):
                 "relabeling": {
                     "method": "etymology_detection",
                     "detector": (
-                        "gmnap_stage2" if GMNAP_AVAILABLE and manager else "fallback_heuristics"
+                        "gmnap_stage2"
+                        if GMNAP_AVAILABLE and manager
+                        else "fallback_heuristics"
                     ),
                     "changes": changes,
                     "unchanged": unchanged,
@@ -243,13 +257,17 @@ def relabel_dataset(input_path: Path, output_path: Path, dry_run: bool = False):
         print(f"  ✅ Saved {len(profiles):,} profiles")
 
     print("\n" + "=" * 80)
-    print(f"RELABELING COMPLETE - {changes:,} changes ({changes / len(profiles) * 100:.1f}%)")
+    print(
+        f"RELABELING COMPLETE - {changes:,} changes ({changes / len(profiles) * 100:.1f}%)"
+    )
     print("=" * 80)
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: python relabel_by_etymology.py <input.json> <output.json> [--dry-run]")
+        print(
+            "Usage: python relabel_by_etymology.py <input.json> <output.json> [--dry-run]"
+        )
         print("\nExample:")
         print(
             "  python relabel_by_etymology.py data/ml_training/train_split.json data/ml_training/train_split_etymo.json"

@@ -175,7 +175,9 @@ class TestV7SpecUltraCompliance:
 
         for entry, expected_region in test_cases:
             detected = pipeline.stage_detect_region(entry)
-            assert detected["detected_region"] is not None, f"Failed to detect region for {entry}"
+            assert (
+                detected["detected_region"] is not None
+            ), f"Failed to detect region for {entry}"
             # Note: Exact region matching would require full implementation
 
         print("✓ V7 DetectRegion stage compliant")
@@ -426,7 +428,8 @@ class TestV7SpecUltraCompliance:
         pipeline = V7Pipeline()
 
         test_entries = [
-            {"CanonicalLatin": f"Test Name {i}", "GlobalID": f"GMN{i:06d}"} for i in range(10)
+            {"CanonicalLatin": f"Test Name {i}", "GlobalID": f"GMN{i:06d}"}
+            for i in range(10)
         ]
 
         times = []
@@ -447,7 +450,9 @@ class TestV7SpecUltraCompliance:
             max_time
         ), f"V7 performance requirement violated: {max_time:.2f}ms max"
 
-        print(f"✓ V7 Performance gate passed: {avg_time:.2f}ms avg, {max_time:.2f}ms max")
+        print(
+            f"✓ V7 Performance gate passed: {avg_time:.2f}ms avg, {max_time:.2f}ms max"
+        )
 
     @pytest.mark.timeout(15)
     def test_quality_gate_memory(self):
@@ -586,7 +591,11 @@ class TestV7SpecUltraCompliance:
         pipeline = V7Pipeline()
 
         for native, latin in test_cases:
-            entry = {"CanonicalNative": native, "CanonicalLatin": latin, "GlobalID": "test"}
+            entry = {
+                "CanonicalNative": native,
+                "CanonicalLatin": latin,
+                "GlobalID": "test",
+            }
 
             # Process and verify roundtrip
             processed = pipeline.process_full_pipeline(entry)
@@ -596,7 +605,9 @@ class TestV7SpecUltraCompliance:
             assert processed["CanonicalLatin"] == latin
 
             # Should be able to match either form
-            assert processed.get("native_to_latin_mapping") is not None or True  # Simplified
+            assert (
+                processed.get("native_to_latin_mapping") is not None or True
+            )  # Simplified
 
         print("✓ CJK roundtrip requirement satisfied")
 
@@ -695,7 +706,10 @@ class TestV7SpecUltraCompliance:
         # Should handle streaming input
         def generate_stream():
             for i in range(100):
-                yield {"CanonicalLatin": f"Stream Test {i}", "GlobalID": f"GMN_STREAM_{i:06d}"}
+                yield {
+                    "CanonicalLatin": f"Stream Test {i}",
+                    "GlobalID": f"GMN_STREAM_{i:06d}",
+                }
 
         results = []
         for result in pipeline.process_stream(generate_stream()):

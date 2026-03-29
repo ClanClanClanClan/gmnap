@@ -143,7 +143,8 @@ def test_safety_on_working_names(fixes, datasets):
                                                 "name": canonical,
                                                 "current_output": current,
                                                 "expected": expected,
-                                                "would_become": new_hangul + expected[1:],
+                                                "would_become": new_hangul
+                                                + expected[1:],
                                                 "fix": f"{rom} → {new_hangul}",
                                                 "dataset": dataset_name,
                                             }
@@ -174,8 +175,12 @@ def main():
     )
     div_failures, div_accuracy, div_total = test_dataset(datasets["diverse"], "diverse")
 
-    print(f"Mathematician dataset: {math_accuracy:.2f}% accuracy ({len(math_failures)} failures)")
-    print(f"Diverse dataset: {div_accuracy:.2f}% accuracy ({len(div_failures)} failures)")
+    print(
+        f"Mathematician dataset: {math_accuracy:.2f}% accuracy ({len(math_failures)} failures)"
+    )
+    print(
+        f"Diverse dataset: {div_accuracy:.2f}% accuracy ({len(div_failures)} failures)"
+    )
 
     # Focus on diverse dataset failures
     all_failures = div_failures  # + math_failures if you want both
@@ -190,7 +195,9 @@ def main():
     print("\n3. Analyzing Failures with Auto-Fix System")
     print("-" * 80)
 
-    analyzed_failures = analyze_fixes_with_confidence(all_failures, analyzer, fix_generator)
+    analyzed_failures = analyze_fixes_with_confidence(
+        all_failures, analyzer, fix_generator
+    )
 
     # Show top 10 highest confidence fixes
     print("\nTop 10 Highest Confidence Fixes:")
@@ -250,7 +257,9 @@ def main():
             print(f"   Would become: {conflict['would_become']} ✗")
             print(f"   Due to fix: {conflict['fix']}")
     else:
-        print("\n✓ No conflicts found - all currently working names would remain correct!")
+        print(
+            "\n✓ No conflicts found - all currently working names would remain correct!"
+        )
 
     # Risk vs Reward Analysis
     print("\n7. Risk vs Reward Analysis")

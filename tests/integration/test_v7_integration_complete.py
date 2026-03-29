@@ -172,7 +172,9 @@ async def test_v7_complete_integration():
             success_checks.append("FAIL Too many failures for edge cases")
 
         # Check 4: Performance adequate
-        if metrics.average_throughput > 1.0:  # At least 1 entry/sec for integration test
+        if (
+            metrics.average_throughput > 1.0
+        ):  # At least 1 entry/sec for integration test
             success_checks.append("PASS Integration performance adequate")
         else:
             success_checks.append("FAIL Integration performance too slow")
@@ -210,15 +212,23 @@ async def test_v7_performance_under_load():
     print("\n TESTING: V7 Performance Under Load")
 
     try:
-        from src.core.streaming_v7 import benchmark_streaming_performance, StreamingConfig
+        from src.core.streaming_v7 import (
+            benchmark_streaming_performance,
+            StreamingConfig,
+        )
 
         # Performance test with production-like configuration
         config = StreamingConfig(
-            batch_size=50, parallel_workers=8, database_batch_size=25, rate_limit_per_second=1000
+            batch_size=50,
+            parallel_workers=8,
+            database_batch_size=25,
+            rate_limit_per_second=1000,
         )
 
         print("   Running performance benchmark...")
-        benchmark_results = await benchmark_streaming_performance(2000, config)  # 2K entries
+        benchmark_results = await benchmark_streaming_performance(
+            2000, config
+        )  # 2K entries
 
         perf = benchmark_results["performance_results"]
         quality = benchmark_results["quality_assessment"]
@@ -227,7 +237,9 @@ async def test_v7_performance_under_load():
         print(
             f"   Entries processed: {benchmark_results['processing_metrics']['entries_processed']}"
         )
-        print(f"   Throughput: {perf['wall_clock_throughput_per_second']:.1f} entries/sec")
+        print(
+            f"   Throughput: {perf['wall_clock_throughput_per_second']:.1f} entries/sec"
+        )
         print(
             f"   Hourly capacity: {perf['wall_clock_throughput_per_second'] * 3600:.0f} entries/hour"
         )

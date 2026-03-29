@@ -32,7 +32,8 @@ except FileNotFoundError as e:
 
     # Check which paths exist
     possible_paths = [
-        Path(__file__).parent / "src/regions/e_groups/e4_korea/resources/rr_syllable_map.csv",
+        Path(__file__).parent
+        / "src/regions/e_groups/e4_korea/resources/rr_syllable_map.csv",
         Path("src/regions/e_groups/e4_korea/resources/rr_syllable_map.csv"),
         Path(
             "/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/src/regions/e_groups/e4_korea/resources/rr_syllable_map.csv"

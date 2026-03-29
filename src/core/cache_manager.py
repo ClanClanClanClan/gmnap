@@ -144,7 +144,11 @@ class CacheManager:
 
     def get_stats(self) -> Dict[str, Any]:
         """Get cache statistics."""
-        stats = {"memory_entries": len(self.cache), "file_entries": 0, "total_size_bytes": 0}
+        stats = {
+            "memory_entries": len(self.cache),
+            "file_entries": 0,
+            "total_size_bytes": 0,
+        }
 
         if self.cache_dir and self.cache_dir.exists():
             cache_files = list(self.cache_dir.rglob("*.cache"))

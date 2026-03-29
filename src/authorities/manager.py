@@ -123,7 +123,9 @@ class AuthoritySourceManager:
                     "priority": 3,
                 }
 
-        logger.info(f"Initialized {len(self.sources)} authority sources for {self.mode} mode")
+        logger.info(
+            f"Initialized {len(self.sources)} authority sources for {self.mode} mode"
+        )
 
     async def _get_api(self, source: str):
         """Get or create API instance for a source"""
@@ -218,7 +220,9 @@ class AuthoritySourceManager:
         except Exception as e:
             logger.warning(f"Failed to save cache for {cache_key}: {e}")
 
-    async def search_single_source(self, name: str, source: str) -> Optional[AuthorityResult]:
+    async def search_single_source(
+        self, name: str, source: str
+    ) -> Optional[AuthorityResult]:
         """
         Search a single authority source
 
@@ -312,7 +316,9 @@ class AuthoritySourceManager:
                                 },
                             )
                             self._save_cache(name, source, result)
-                            self.stats.api_calls["orcid"] = self.stats.api_calls.get("orcid", 0) + 1
+                            self.stats.api_calls["orcid"] = (
+                                self.stats.api_calls.get("orcid", 0) + 1
+                            )
                             return result
 
         except Exception as e:
@@ -321,7 +327,9 @@ class AuthoritySourceManager:
 
         return None
 
-    async def search_all_sources(self, name: str, tier_limit: int = None) -> List[AuthorityResult]:
+    async def search_all_sources(
+        self, name: str, tier_limit: int = None
+    ) -> List[AuthorityResult]:
         """
         Search all available sources up to tier limit
 
@@ -495,7 +503,10 @@ class AuthoritySourceManager:
         return entry
 
     async def batch_enrich(
-        self, entries: List[Dict[str, Any]], max_concurrent: int = 10, progress_callback=None
+        self,
+        entries: List[Dict[str, Any]],
+        max_concurrent: int = 10,
+        progress_callback=None,
     ) -> List[Dict[str, Any]]:
         """
         Enrich multiple entries concurrently
@@ -596,7 +607,9 @@ async def test_authority_manager():
         logger.info(f"  Topics: {len(entry.get('ResearchTopics', []))}")
 
         for source in entry.get("AuthoritySources", []):
-            logger.info(f"    - {source['source']}: {source['confidence']:.1f}% confidence")
+            logger.info(
+                f"    - {source['source']}: {source['confidence']:.1f}% confidence"
+            )
 
     # Show stats
     logger.info(f"\nStatistics:")

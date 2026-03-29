@@ -52,7 +52,8 @@ class Wikidata_P184:
             "data": requests.get(
                 "https://query.wikidata.org/sparql",
                 params={
-                    "query": "SELECT ?p WHERE { ?p wdt:P106 wd:Q170790 . } LIMIT %d" % limit,
+                    "query": "SELECT ?p WHERE { ?p wdt:P106 wd:Q170790 . } LIMIT %d"
+                    % limit,
                     "format": "json",
                 },
                 headers={"User-Agent": "gmnap-v7"},
@@ -151,7 +152,9 @@ class LiveAuthorityAdapters:
                 # Try to fetch from Crossref
                 try:
                     if self.crossref_thesis:
-                        name = entry.get("CanonicalLatin", entry.get("CanonicalNative", ""))
+                        name = entry.get(
+                            "CanonicalLatin", entry.get("CanonicalNative", "")
+                        )
                         if name:
                             result = self.crossref_thesis.query(author=name)
                             if result.get("ok"):
@@ -212,7 +215,9 @@ class HAL:
         return {
             "ok": True,
             "source": self.name,
-            "data": http_json("https://api.archives-ouvertes.fr/search/", q=q, rows=1, fl="docid"),
+            "data": http_json(
+                "https://api.archives-ouvertes.fr/search/", q=q, rows=1, fl="docid"
+            ),
         }
 
 

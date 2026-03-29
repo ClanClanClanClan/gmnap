@@ -65,7 +65,10 @@ def main():
             ("src/pipeline/stage2_detect_region.py", "detect_region"),
             ("src/pipeline/stage3_region_hooks.py", "apply_region_hooks"),
             ("src/pipeline/stage5_collision_analytics.py", "ensure_unique_global_ids"),
-            ("src/pipeline/stage6_graph_consistency.py", "enforce_graph_coherence_gate"),
+            (
+                "src/pipeline/stage6_graph_consistency.py",
+                "enforce_graph_coherence_gate",
+            ),
             ("src/pipeline/stage7_tag_short_forms.py", "tag_short_forms"),
             ("src/pipeline/stage8_global_validate.py", "global_validate"),
             ("src/pipeline/stage9_write_and_diff.py", "write_and_diff"),
@@ -128,7 +131,9 @@ def main():
     print("\n" + "=" * 70)
     print("SUMMARY")
     print("=" * 70)
-    print(f"Checks passed: {passed_checks}/{total_checks} ({100*passed_checks/total_checks:.1f}%)")
+    print(
+        f"Checks passed: {passed_checks}/{total_checks} ({100*passed_checks/total_checks:.1f}%)"
+    )
 
     if failed_items:
         print("\nFAILED ITEMS THAT NEED FIXING:")

@@ -874,7 +874,9 @@ class TestSecurityValidatorPerformance(unittest.TestCase):
         elapsed = time.time() - start
 
         # Should validate 400 strings in under 1 second
-        self.assertLess(elapsed, 1.0, f"Validation too slow: {elapsed:.2f}s for 400 strings")
+        self.assertLess(
+            elapsed, 1.0, f"Validation too slow: {elapsed:.2f}s for 400 strings"
+        )
 
 
 if __name__ == "__main__":

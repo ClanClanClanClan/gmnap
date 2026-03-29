@@ -22,7 +22,9 @@ class UsCrossrefAPI:
         self.sleep = 1.0 / max(rate_limit, 0.1)
         self.session_headers = {"User-Agent": f"GMNAP/1.0 (mailto:{mailto})"}
 
-    async def records(self, rows: int = 100, cursor: str = "*") -> AsyncIterator[Dict[str, Any]]:
+    async def records(
+        self, rows: int = 100, cursor: str = "*"
+    ) -> AsyncIterator[Dict[str, Any]]:
         """
         Fetch dissertation records using Crossref cursor pagination.
 

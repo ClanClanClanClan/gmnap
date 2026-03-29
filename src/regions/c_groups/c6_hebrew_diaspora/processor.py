@@ -313,7 +313,15 @@ class C6_HebrewDiaspora(RegionSpec):
                 "shazar",
                 "ben-gurion",
             },
-            "patronymic_indicators": {"ben", "bat", "bar", "ibn", "iben", "son", "daughter"},
+            "patronymic_indicators": {
+                "ben",
+                "bat",
+                "bar",
+                "ibn",
+                "iben",
+                "son",
+                "daughter",
+            },
         }
 
     def _load_place_indicators(self) -> Dict[str, Set[str]]:
@@ -481,7 +489,9 @@ class C6_HebrewDiaspora(RegionSpec):
             indicators.append(f"places:{place_score:.2f}")
 
         if confidence > 0:
-            self.logger.debug(f"C6 detection: {confidence:.3f} [{', '.join(indicators)}]")
+            self.logger.debug(
+                f"C6 detection: {confidence:.3f} [{', '.join(indicators)}]"
+            )
 
         return min(confidence, 1.0)
 
@@ -569,7 +579,9 @@ class C6_HebrewDiaspora(RegionSpec):
 
     def _detect_jewish_tradition(self, name: str, entry: Dict[str, Any]) -> str:
         """Detect Jewish tradition (Ashkenazi, Sephardic, Mizrahi, Israeli)."""
-        full_text = f"{name} {entry.get('email', '')} {entry.get('affiliation', '')}".lower()
+        full_text = (
+            f"{name} {entry.get('email', '')} {entry.get('affiliation', '')}".lower()
+        )
 
         tradition_scores = {}
 
@@ -680,9 +692,14 @@ class C6_HebrewDiaspora(RegionSpec):
 
         # Check for religious lineage indicators
         name_lower = name.lower()
-        if any(cohen_variant in name_lower for cohen_variant in ["cohen", "kahn", "kohn", "kohen"]):
+        if any(
+            cohen_variant in name_lower
+            for cohen_variant in ["cohen", "kahn", "kohn", "kohen"]
+        ):
             components["lineage"] = "kohen"  # Priestly lineage
-        elif any(levi_variant in name_lower for levi_variant in ["levi", "levy", "levine"]):
+        elif any(
+            levi_variant in name_lower for levi_variant in ["levi", "levy", "levine"]
+        ):
             components["lineage"] = "levi"  # Levite lineage
 
         return components
@@ -754,7 +771,14 @@ class C6_HebrewDiaspora(RegionSpec):
                 "Religious lineage indicators",
                 "Multi-tradition adaptations",
             ],
-            "traditions": ["Ashkenazi", "Sephardic", "Mizrahi", "Israeli", "Ethiopian", "Indian"],
+            "traditions": [
+                "Ashkenazi",
+                "Sephardic",
+                "Mizrahi",
+                "Israeli",
+                "Ethiopian",
+                "Indian",
+            ],
         }
 
     # V7 RegionSpec interface methods (required abstract methods)
@@ -802,11 +826,15 @@ class C6_HebrewDiaspora(RegionSpec):
 
         # SECURITY: Check for dangerous characters first
         if self._has_security_risks(canonical):
-            raise RegionRuleError(f"Name contains dangerous characters: {canonical[:50]}...")
+            raise RegionRuleError(
+                f"Name contains dangerous characters: {canonical[:50]}..."
+            )
 
         # Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         # THEN handle legitimate edge cases
         if len(canonical.strip()) == 1:

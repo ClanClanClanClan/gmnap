@@ -58,7 +58,9 @@ class F2_SSAAnglophone(RegionSpec):
                     if char_code == 127:  # DEL
                         raise RegionRuleError(f"DELETE character in {field}")
                     if char_code in [0x200B, 0x200C, 0x200D, 0xFEFF]:  # Zero-width
-                        raise RegionRuleError(f"Zero-width character in {field}: U+{char_code:04X}")
+                        raise RegionRuleError(
+                            f"Zero-width character in {field}: U+{char_code:04X}"
+                        )
 
         # Security validation first
 
@@ -121,7 +123,9 @@ class F2_SSAAnglophone(RegionSpec):
 
         # Check for valid Unicode categories
         if not self._has_valid_unicode_categories(name_to_validate):
-            raise RegionRuleError(f"Name contains invalid characters: {name_to_validate}")
+            raise RegionRuleError(
+                f"Name contains invalid characters: {name_to_validate}"
+            )
 
     def order_key(self, entry: Dict[str, Any]) -> str:
         """Generate sort key for F2 names."""

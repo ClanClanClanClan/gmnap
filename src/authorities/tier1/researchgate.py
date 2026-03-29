@@ -57,11 +57,14 @@ class ResearchGateFetcher(AuthorityFetcher):
             else:
                 # Real implementation would require web scraping
                 return FetchResult(
-                    status=FetchStatus.NOT_AVAILABLE, error_message="ResearchGate has no public API"
+                    status=FetchStatus.NOT_AVAILABLE,
+                    error_message="ResearchGate has no public API",
                 )
 
         except asyncio.TimeoutError:
-            return FetchResult(status=FetchStatus.NETWORK_ERROR, error_message="Request timeout")
+            return FetchResult(
+                status=FetchStatus.NETWORK_ERROR, error_message="Request timeout"
+            )
 
         except Exception as e:
             self.logger.error(f"ResearchGate fetch error: {e}")
@@ -75,7 +78,9 @@ class ResearchGateFetcher(AuthorityFetcher):
         # Generate mock social networking data
         rg_id = hash(query) % 100000000
 
-        data = AuthorityData(source=self.service, source_id=f"rg_{rg_id}", canonical_name=query)
+        data = AuthorityData(
+            source=self.service, source_id=f"rg_{rg_id}", canonical_name=query
+        )
 
         # Mock social networking metrics
         data.metadata = {
@@ -108,7 +113,9 @@ class ResearchGateFetcher(AuthorityFetcher):
 
         # Mock social connections (ResearchGate specialty)
         data.relationships = {
-            "collaborators": [f"Collab_{hash(query + str(i)) % 1000}" for i in range(3)],
+            "collaborators": [
+                f"Collab_{hash(query + str(i)) % 1000}" for i in range(3)
+            ],
             "co_authors": [f"CoAuth_{hash(query + str(i)) % 1000}" for i in range(5)],
             "institution_colleagues": [
                 f"Colleague_{hash(query + str(i)) % 1000}" for i in range(8)
@@ -119,7 +126,9 @@ class ResearchGateFetcher(AuthorityFetcher):
         data.confidence_score = self.calculate_confidence(data)
 
         return FetchResult(
-            status=FetchStatus.SUCCESS, data=data, raw_response={"mock": True, "query": query}
+            status=FetchStatus.SUCCESS,
+            data=data,
+            raw_response={"mock": True, "query": query},
         )
 
     def calculate_confidence(self, data: AuthorityData) -> float:

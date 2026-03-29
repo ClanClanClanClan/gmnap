@@ -7,7 +7,12 @@ Daily Quota: Unlimited
 """
 
 from typing import Dict, Any, Optional
-from src.authorities.base import AuthorityFetcher, AuthorityData, FetchResult, AuthorityTier
+from src.authorities.base import (
+    AuthorityFetcher,
+    AuthorityData,
+    FetchResult,
+    AuthorityTier,
+)
 from src.authorities.templates.authority_engine import UniversalFetcher
 import logging
 

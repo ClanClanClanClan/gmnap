@@ -179,7 +179,9 @@ def main():
                         if rom in canonical_lower.split("_"):
                             # Check if this is a surname position
                             parts = canonical.split("_")
-                            if parts[0].lower() == rom and not expected.startswith(new_hangul):
+                            if parts[0].lower() == rom and not expected.startswith(
+                                new_hangul
+                            ):
                                 conflicts += 1
                                 conflict_examples.append(
                                     {
@@ -198,14 +200,18 @@ def main():
             break
 
     if conflicts > 0:
-        print(f"\n⚠️  WARNING: {conflicts} working mathematician names might be affected")
+        print(
+            f"\n⚠️  WARNING: {conflicts} working mathematician names might be affected"
+        )
         print("\nExamples of potential conflicts:")
         for ex in conflict_examples:
             print(
                 f"  - {ex['name']}: {ex['current']} → {ex['would_change_to']} (due to {ex['fix']})"
             )
     else:
-        print("\n✓ No conflicts detected - mathematician dataset names would remain correct")
+        print(
+            "\n✓ No conflicts detected - mathematician dataset names would remain correct"
+        )
 
     # Risk vs Reward Analysis
     print("\n\n6. Risk vs Reward Analysis")

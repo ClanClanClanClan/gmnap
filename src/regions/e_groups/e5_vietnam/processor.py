@@ -324,7 +324,11 @@ class E5_Vietnam(RegionSpec):
 
             # Generate numeric tone variant
             numeric_variant = self._generate_numeric_tone_variant(name)
-            if numeric_variant and numeric_variant != name and numeric_variant != ascii_variant:
+            if (
+                numeric_variant
+                and numeric_variant != name
+                and numeric_variant != ascii_variant
+            ):
                 variants.append({"str": numeric_variant, "type": "tone-number"})
         else:
             # If ASCII input, try to generate toned variant if we can identify it
@@ -436,11 +440,15 @@ class E5_Vietnam(RegionSpec):
 
         # SECURITY: Check for dangerous characters first
         if self._has_security_risks(canonical):
-            raise RegionRuleError(f"Name contains dangerous characters: {canonical[:50]}...")
+            raise RegionRuleError(
+                f"Name contains dangerous characters: {canonical[:50]}..."
+            )
 
         # Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         # THEN handle legitimate edge cases
         if len(canonical.strip()) == 1:

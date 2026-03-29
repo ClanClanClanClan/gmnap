@@ -11,12 +11,16 @@ from pathlib import Path
 def run_test_file(test_file):
     """Run a single test file and return results."""
     env = os.environ.copy()
-    env["PYTHONPATH"] = "/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap"
+    env["PYTHONPATH"] = (
+        "/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap"
+    )
 
     cmd = [sys.executable, "-m", "pytest", str(test_file), "--tb=no", "-v"]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, env=env)
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=60, env=env
+        )
         output = result.stdout + result.stderr
 
         # Look for test results in output

@@ -46,7 +46,11 @@ class TestSchemaValidator:
             ],
             "Variants": {
                 "Observed": [
-                    {"str": "Garcia, Jose", "source": "OpenAlex", "accessed": "2025-01-01"}
+                    {
+                        "str": "Garcia, Jose",
+                        "source": "OpenAlex",
+                        "accessed": "2025-01-01",
+                    }
                 ],
                 "Synthesised": [{"str": "Garcia, Jose", "type": "ascii-lossy"}],
             },
@@ -135,7 +139,9 @@ class TestSchemaValidator:
             is_valid, errors = self.validator.validate_file_structure(file_data)
 
             if should_be_valid:
-                assert is_valid, f"Expected valid GlobalID: {global_id}, errors: {errors}"
+                assert (
+                    is_valid
+                ), f"Expected valid GlobalID: {global_id}, errors: {errors}"
             else:
                 assert not is_valid, f"Expected invalid GlobalID: {global_id}"
 
@@ -181,7 +187,9 @@ class TestSchemaValidator:
             is_valid, errors = self.validator.validate_file_structure(file_data)
 
             if should_be_valid:
-                assert is_valid, f"Expected valid birth year: {birth_year}, errors: {errors}"
+                assert (
+                    is_valid
+                ), f"Expected valid birth year: {birth_year}, errors: {errors}"
             else:
                 assert not is_valid, f"Expected invalid birth year: {birth_year}"
 
@@ -210,7 +218,9 @@ class TestSchemaValidator:
             is_valid, errors = self.validator.validate_file_structure(file_data)
 
             if should_be_valid:
-                assert is_valid, f"Expected valid MSC code: {msc_code}, errors: {errors}"
+                assert (
+                    is_valid
+                ), f"Expected valid MSC code: {msc_code}, errors: {errors}"
             else:
                 assert not is_valid, f"Expected invalid MSC code: {msc_code}"
 
@@ -319,7 +329,9 @@ class TestSchemaValidator:
             is_valid, errors = self.validator.validate_file_structure(file_data)
 
             if should_be_valid:
-                assert is_valid, f"Expected valid languages: {languages}, errors: {errors}"
+                assert (
+                    is_valid
+                ), f"Expected valid languages: {languages}, errors: {errors}"
             else:
                 assert not is_valid, f"Expected invalid languages: {languages}"
 
@@ -347,7 +359,9 @@ class TestSchemaValidator:
             is_valid, errors = self.validator.validate_file_structure(file_data)
 
             if should_be_valid:
-                assert is_valid, f"Expected valid confidence: {confidence}, errors: {errors}"
+                assert (
+                    is_valid
+                ), f"Expected valid confidence: {confidence}, errors: {errors}"
             else:
                 assert not is_valid, f"Expected invalid confidence: {confidence}"
 
@@ -360,8 +374,18 @@ class TestSchemaValidator:
             "CanonicalLatin": "Smith, John",
             "CanonicalNative": "Smith, John",
             "NameEvents": [
-                {"type": "marriage", "year": 2010, "from": "John Smith", "to": "John Smith-Jones"},
-                {"type": "legal_change", "year": 2005, "from": "John Doe", "to": "John Smith"},
+                {
+                    "type": "marriage",
+                    "year": 2010,
+                    "from": "John Smith",
+                    "to": "John Smith-Jones",
+                },
+                {
+                    "type": "legal_change",
+                    "year": 2005,
+                    "from": "John Doe",
+                    "to": "John Smith",
+                },
             ],
         }
 
@@ -379,7 +403,9 @@ class TestSchemaValidator:
             "UpdatedAt": "2025-01-01T00:00:00Z",
             "CanonicalLatin": "Smith, John",
             "CanonicalNative": "Smith, John",
-            "AffiliationTimeline": [{"country": "USA", "from": 2010, "to": 2020}],  # Should be US
+            "AffiliationTimeline": [
+                {"country": "USA", "from": 2010, "to": 2020}
+            ],  # Should be US
         }
 
         file_data = {"Smith, John": entry}
@@ -424,13 +450,17 @@ class TestSchemaValidator:
                 "UpdatedAt": "2025-01-01T00:00:00Z",
                 "CanonicalLatin": "Smith, John",
                 "CanonicalNative": "Smith, John",
-                "Variants": {"Synthesised": [{"str": "Smith, J", "type": variant_type}]},
+                "Variants": {
+                    "Synthesised": [{"str": "Smith, J", "type": variant_type}]
+                },
             }
 
             file_data = {"Smith, John": entry}
             is_valid, errors = self.validator.validate_file_structure(file_data)
 
-            assert is_valid, f"Valid variant type failed: {variant_type}, errors: {errors}"
+            assert (
+                is_valid
+            ), f"Valid variant type failed: {variant_type}, errors: {errors}"
 
         # Test invalid type
         entry = {

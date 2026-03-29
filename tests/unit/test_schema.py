@@ -100,7 +100,9 @@ class TestSchemaValidator:
                 "Gender": "male",
                 "GenderProvided": True,
                 "CountryCodes": ["US"],
-                "PrimaryMSC": [{"code": "INVALID", "source": "zbMATH"}],  # Invalid MSC format
+                "PrimaryMSC": [
+                    {"code": "INVALID", "source": "zbMATH"}
+                ],  # Invalid MSC format
                 "Confidence": 95,
                 "Historic": False,
                 "GDPR_DATA": False,
@@ -126,7 +128,9 @@ class TestSchemaValidator:
                 "Gender": "male",
                 "GenderProvided": True,
                 "CountryCodes": ["US"],
-                "AuthorityIDs": {"ORCID": "0000-0000-0000-000X"},  # Invalid ORCID format
+                "AuthorityIDs": {
+                    "ORCID": "0000-0000-0000-000X"
+                },  # Invalid ORCID format
                 "Confidence": 95,
                 "Historic": False,
                 "GDPR_DATA": False,
@@ -231,9 +235,15 @@ class TestSchemaValidator:
                 ],
                 "Variants": {
                     "Observed": [
-                        {"str": "J. C. García", "source": "MathSciNet", "accessed": "2025-07-15"}
+                        {
+                            "str": "J. C. García",
+                            "source": "MathSciNet",
+                            "accessed": "2025-07-15",
+                        }
                     ],
-                    "Synthesised": [{"str": "Garcia Juan Carlos", "type": "ascii-lossy"}],
+                    "Synthesised": [
+                        {"str": "Garcia Juan Carlos", "type": "ascii-lossy"}
+                    ],
                 },
                 "FamilyNameType": "surname",
                 "Gender": "male",
@@ -254,9 +264,15 @@ class TestSchemaValidator:
                 ],
                 "Advisors": ["XYZABCDEFGHIJKLMNOPQRS"],
                 "ShortFormClusters": {"J. C. García": 4, "García": 38},
-                "AuthorityIDs": {"ORCID": "0000-0003-1111-2222", "MathSciNet": "203000"},
+                "AuthorityIDs": {
+                    "ORCID": "0000-0003-1111-2222",
+                    "MathSciNet": "203000",
+                },
                 "Confidence": 96,
-                "RegionalExtras": {"primary_surname": "García", "secondary_surname": "Marín"},
+                "RegionalExtras": {
+                    "primary_surname": "García",
+                    "secondary_surname": "Marín",
+                },
                 "Historic": False,
                 "GDPR_DATA": False,
                 "SourceNote": "zbMATH scrape 2025-07-15",

@@ -251,7 +251,9 @@ class C9_CaucasusTurkic(RegionSpec):
                     if char_code == 127:  # DEL
                         raise RegionRuleError(f"DELETE character in {field}")
                     if char_code in [0x200B, 0x200C, 0x200D, 0xFEFF]:  # Zero-width
-                        raise RegionRuleError(f"Zero-width character in {field}: U+{char_code:04X}")
+                        raise RegionRuleError(
+                            f"Zero-width character in {field}: U+{char_code:04X}"
+                        )
 
         # Security validation first
 
@@ -415,7 +417,8 @@ class C9_CaucasusTurkic(RegionSpec):
         native = entry.get("CanonicalNative", "")
         if native:
             has_cyrillic = any(
-                ord(c) in range(self.cyrillic_range[0], self.cyrillic_range[1] + 1) for c in native
+                ord(c) in range(self.cyrillic_range[0], self.cyrillic_range[1] + 1)
+                for c in native
             )
             has_arabic = any("\u0600" <= c <= "\u06ff" for c in native)
 
@@ -481,7 +484,8 @@ class C9_CaucasusTurkic(RegionSpec):
 
         # Soviet-style surnames
         if any(
-            name_lower.endswith(suffix) for suffix in ["ov", "ova", "yev", "yeva", "ski", "skaya"]
+            name_lower.endswith(suffix)
+            for suffix in ["ov", "ova", "yev", "yeva", "ski", "skaya"]
         ):
             return True
 
@@ -515,7 +519,9 @@ class C9_CaucasusTurkic(RegionSpec):
 
         return None
 
-    def _generate_patronymic_variants(self, name: str, components: Dict[str, Any]) -> List[str]:
+    def _generate_patronymic_variants(
+        self, name: str, components: Dict[str, Any]
+    ) -> List[str]:
         """Generate patronymic spelling variants."""
         variants = []
 
@@ -612,7 +618,9 @@ class C9_CaucasusTurkic(RegionSpec):
 
         # Check for valid Unicode categories
         if not self._has_valid_unicode_categories(name_to_validate):
-            raise RegionRuleError(f"Name contains invalid characters: {name_to_validate}")
+            raise RegionRuleError(
+                f"Name contains invalid characters: {name_to_validate}"
+            )
 
     def _has_valid_unicode_categories(self, text: str) -> bool:
         """Check if text contains only valid Unicode categories."""
@@ -672,7 +680,9 @@ class C9_CaucasusTurkic(RegionSpec):
 
         # Remove diacritics from other chars
         family_clean = "".join(
-            char for char in family_normalized if unicodedata.category(char) != "Mn" or char == "~"
+            char
+            for char in family_normalized
+            if unicodedata.category(char) != "Mn" or char == "~"
         )
 
         return family_clean

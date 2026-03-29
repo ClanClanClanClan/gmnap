@@ -31,7 +31,9 @@ for input_text in test_inputs:
             try:
                 for path in shortest.paths():
                     output_labels = path.olabels
-                    output_str = "".join(chr(label) for label in output_labels if label > 0)
+                    output_str = "".join(
+                        chr(label) for label in output_labels if label > 0
+                    )
                     print(f"  Output: '{output_str}'")
                     break
             except Exception as e:

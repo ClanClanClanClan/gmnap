@@ -201,11 +201,15 @@ class ErrorRecovery:
                 )
 
         elif strategy == RecoveryStrategy.SKIP:
-            logger.warning(f"Skipping item due to error in {context.component}: {error}")
+            logger.warning(
+                f"Skipping item due to error in {context.component}: {error}"
+            )
             raise SkippableError(str(error), original_error=error)
 
         elif strategy == RecoveryStrategy.FAIL_FAST:
-            logger.error(f"Critical error in {context.component}, failing fast: {error}")
+            logger.error(
+                f"Critical error in {context.component}, failing fast: {error}"
+            )
             raise
 
         elif strategy == RecoveryStrategy.FALLBACK:
@@ -213,7 +217,9 @@ class ErrorRecovery:
             return context.metadata.get("fallback_value")
 
         elif strategy == RecoveryStrategy.CIRCUIT_BREAK:
-            logger.error(f"Circuit breaker opened due to error in {context.component}: {error}")
+            logger.error(
+                f"Circuit breaker opened due to error in {context.component}: {error}"
+            )
             raise CircuitBreakerOpenError(
                 f"Circuit breaker open for {context.component}", original_error=error
             )

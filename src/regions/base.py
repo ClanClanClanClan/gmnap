@@ -35,9 +35,9 @@ class RegionSpec(ABC):
     yaml_files: List[str]
     scripts: List[str]
     mixed_scripts: bool = False
-    canonical_order: Literal["Family, Given", "Given Family", "Patronymic", "Mononym"] = (
-        "Family, Given"
-    )
+    canonical_order: Literal[
+        "Family, Given", "Given Family", "Patronymic", "Mononym"
+    ] = "Family, Given"
     romanisation_standards: List[str] = None
 
     def __post_init__(self):
@@ -284,7 +284,9 @@ class RegionSpec(ABC):
                     "source": gender_source,
                     "confidence": "linguistic-marker",
                     "rule_26_validated": True,
-                    "cultural_context": regional_extras.get("likely_country", "unknown"),
+                    "cultural_context": regional_extras.get(
+                        "likely_country", "unknown"
+                    ),
                 }
 
                 # Always mark inferred genders as uncertain for downstream systems
@@ -376,7 +378,9 @@ class RegionSpec(ABC):
 
         try:
             # Test 1: order_key() determinism
-            canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
+            canonical = entry.get("CanonicalLatin", "") or entry.get(
+                "CanonicalNative", ""
+            )
             if canonical:
                 # Call order_key multiple times and verify consistency
                 order_keys = []
@@ -385,7 +389,9 @@ class RegionSpec(ABC):
                         key = self.order_key(entry)
                         order_keys.append(key)
                     except Exception as e:
-                        validation_report["determinism_issues"].append(f"order_key() failed: {e}")
+                        validation_report["determinism_issues"].append(
+                            f"order_key() failed: {e}"
+                        )
                         validation_report["order_key_stability"] = False
 
                 # Check if all order_key calls produced the same result
@@ -440,7 +446,9 @@ class RegionSpec(ABC):
 
         return validation_report
 
-    def _validate_unicode_consistency(self, entry: Dict[str, Any], report: Dict[str, Any]) -> None:
+    def _validate_unicode_consistency(
+        self, entry: Dict[str, Any], report: Dict[str, Any]
+    ) -> None:
         """Validate Unicode normalization consistency."""
         import unicodedata
 
@@ -463,7 +471,9 @@ class RegionSpec(ABC):
                         f"Unicode normalization inconsistency in {field}"
                     )
 
-    def _validate_metadata_stability(self, entry: Dict[str, Any], report: Dict[str, Any]) -> None:
+    def _validate_metadata_stability(
+        self, entry: Dict[str, Any], report: Dict[str, Any]
+    ) -> None:
         """Validate that metadata fields are stable and deterministic."""
         # Check RegionalExtras for stability
         regional_extras = entry.get("RegionalExtras", {})
@@ -484,7 +494,8 @@ class RegionSpec(ABC):
                 value = regional_extras[field]
                 # Check for non-deterministic indicators
                 if isinstance(value, str) and any(
-                    indicator in value.lower() for indicator in ["random", "timestamp", "uuid"]
+                    indicator in value.lower()
+                    for indicator in ["random", "timestamp", "uuid"]
                 ):
                     report["determinism_issues"].append(
                         f"Non-deterministic value in RegionalExtras.{field}: {value}"
@@ -512,7 +523,8 @@ class RegionSpec(ABC):
         ]
 
         has_cjk = any(
-            any(start <= ord(char) <= end for start, end in cjk_ranges) for char in canonical_native
+            any(start <= ord(char) <= end for start, end in cjk_ranges)
+            for char in canonical_native
         )
 
         if not has_cjk:
@@ -610,11 +622,15 @@ class RegionSpec(ABC):
             return "Arabic"
         elif any("\u0900" <= c <= "\u097f" for c in native):
             return "Devanagari"
-        elif any(("\u4e00" <= c <= "\u9fff") or ("\u3400" <= c <= "\u4dbf") for c in native):
+        elif any(
+            ("\u4e00" <= c <= "\u9fff") or ("\u3400" <= c <= "\u4dbf") for c in native
+        ):
             return "CJK"
         elif any("\uac00" <= c <= "\ud7af" for c in native):
             return "Hangul"
-        elif any(("\u3040" <= c <= "\u309f") or ("\u30a0" <= c <= "\u30ff") for c in native):
+        elif any(
+            ("\u3040" <= c <= "\u309f") or ("\u30a0" <= c <= "\u30ff") for c in native
+        ):
             return "Japanese"
         elif any("\u0e00" <= c <= "\u0e7f" for c in native):
             return "Thai"
@@ -694,7 +710,12 @@ class RegionSpec(ABC):
         for field in ["CanonicalLatin", "CanonicalNative", "FamilyName", "GivenName"]:
             if field in entry and entry[field]:
                 # Replace tabs and newlines with spaces
-                entry[field] = entry[field].replace("\t", " ").replace("\n", " ").replace("\r", " ")
+                entry[field] = (
+                    entry[field]
+                    .replace("\t", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
 
                 # Normalize unicode (NFC for consistency)
                 entry[field] = unicodedata.normalize("NFC", entry[field])

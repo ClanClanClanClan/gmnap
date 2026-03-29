@@ -71,7 +71,9 @@ def test_regional_processing() -> Tuple[int, int]:
                     result = region.process(entry)
                     if result.get("CanonicalLatin"):
                         working += 1
-                        print(f"  ✅ {code} ({desc}): {name} → {result['CanonicalLatin']}")
+                        print(
+                            f"  ✅ {code} ({desc}): {name} → {result['CanonicalLatin']}"
+                        )
                     else:
                         print(f"  ❌ {code} ({desc}): No output")
                 else:
@@ -96,7 +98,8 @@ def test_performance() -> Tuple[int, int]:
 
         # Test with batch
         test_data = [
-            {"CanonicalNative": f"Test Name {i}", "GlobalID": f"TEST-{i:04d}"} for i in range(100)
+            {"CanonicalNative": f"Test Name {i}", "GlobalID": f"TEST-{i:04d}"}
+            for i in range(100)
         ]
 
         start = time.time()
@@ -117,7 +120,9 @@ def test_performance() -> Tuple[int, int]:
                 return 15, 15
             else:
                 print(f"  ⚠️ Performance: {entries_per_second:.0f} entries/sec")
-                print(f"  ⚠️ Projected 1M time: {projected_minutes:.1f} min (target: 35 min)")
+                print(
+                    f"  ⚠️ Projected 1M time: {projected_minutes:.1f} min (target: 35 min)"
+                )
                 # Partial credit based on performance
                 score = max(0, int(15 * (35 / projected_minutes)))
                 return score, 15
@@ -208,7 +213,13 @@ def test_deployment() -> Tuple[int, int]:
         manager = DeploymentManager()
 
         # Test deployment validation
-        test_data = [{"CanonicalNative": "Test", "GlobalID": "TEST-001", "CanonicalLatin": "Test"}]
+        test_data = [
+            {
+                "CanonicalNative": "Test",
+                "GlobalID": "TEST-001",
+                "CanonicalLatin": "Test",
+            }
+        ]
 
         # Check if validation works
         is_valid = manager.validate_for_deployment(test_data)
@@ -427,7 +438,9 @@ def test_collision_detection() -> Tuple[int, int]:
         """)
 
         # Insert test data with collision
-        conn.execute("INSERT INTO entries VALUES ('ID1', 'John Smith'), ('ID2', 'John Smith')")
+        conn.execute(
+            "INSERT INTO entries VALUES ('ID1', 'John Smith'), ('ID2', 'John Smith')"
+        )
 
         # Detect collisions
         result = conn.execute("""
@@ -499,7 +512,9 @@ def main():
             results[name] = (0, possible if "possible" in locals() else 10)
 
     # Calculate overall compliance
-    compliance_percentage = (total_score / total_possible * 100) if total_possible > 0 else 0
+    compliance_percentage = (
+        (total_score / total_possible * 100) if total_possible > 0 else 0
+    )
 
     print("\n" + "=" * 80)
     print("FINAL RESULTS")
@@ -523,7 +538,9 @@ def main():
         print(f"{name:<20} {score}/{possible:<7} {status:<15} {percentage:.0f}%")
 
     print("-" * 60)
-    print(f"{'TOTAL':<20} {total_score}/{total_possible:<7} {'':<15} {compliance_percentage:.1f}%")
+    print(
+        f"{'TOTAL':<20} {total_score}/{total_possible:<7} {'':<15} {compliance_percentage:.1f}%"
+    )
 
     print(f"\n🎯 V7 COMPLIANCE: {compliance_percentage:.1f}%")
 

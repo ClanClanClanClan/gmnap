@@ -42,7 +42,9 @@ def get_missing_syllables():
 
         for token in tokens:
             token_lower = token.lower()
-            if token_lower not in existing and token_lower not in [s[0] for s in missing]:
+            if token_lower not in existing and token_lower not in [
+                s[0] for s in missing
+            ]:
                 # Try to find the expected Hangul
                 missing.append((token_lower, ""))  # We'll need to map these manually
 

@@ -61,7 +61,8 @@ def analyze_all_failures():
 
             # Check Dice coefficient
             dice = calculate_dice(
-                eng_name.lower().replace(" ", ""), roundtrip_eng.lower().replace(" ", "")
+                eng_name.lower().replace(" ", ""),
+                roundtrip_eng.lower().replace(" ", ""),
             )
 
             if dice < 0.90:
@@ -118,7 +119,12 @@ def categorize_failures(failures):
     """Categorize failures by type and pattern"""
     print(f"\\n📊 FAILURE CATEGORIZATION")
 
-    categories = {"conversion_failed": [], "roundtrip_failed": [], "low_dice": [], "exception": []}
+    categories = {
+        "conversion_failed": [],
+        "roundtrip_failed": [],
+        "low_dice": [],
+        "exception": [],
+    }
 
     for failure in failures:
         categories[failure["issue"]].append(failure)

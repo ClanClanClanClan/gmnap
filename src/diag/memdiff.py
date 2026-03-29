@@ -19,5 +19,7 @@ class MemDiff:
         for st in stats:
             tb = st.traceback[0] if st.traceback else None
             loc = f"{tb.filename}:{tb.lineno}" if tb else "unknown"
-            lines.append(f"{loc} +{st.size_diff/1024:.1f} KiB in {st.count_diff} allocs")
+            lines.append(
+                f"{loc} +{st.size_diff/1024:.1f} KiB in {st.count_diff} allocs"
+            )
         return lines

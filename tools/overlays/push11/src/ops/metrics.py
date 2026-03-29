@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 try:
-    from prometheus_client import Counter as _PCounter, Gauge as _PGauge, Histogram as _PHist
+    from prometheus_client import (
+        Counter as _PCounter,
+        Gauge as _PGauge,
+        Histogram as _PHist,
+    )
 except Exception:  # pragma: no cover
     _PCounter = _PGauge = _PHist = None
 
@@ -56,7 +60,9 @@ TX_SUCCESS = Counter("gmnap_db_tx_success_total", "Successful DB transactions")
 TX_ROLLBACK = Counter("gmnap_db_tx_rollback_total", "Rolled back DB transactions")
 AUTH_FAILS = Counter("gmnap_auth_fail_total", "Authentication failures")
 AUTH_OK = Counter("gmnap_auth_ok_total", "Authentication successes")
-DB_APPLY_QUERIES = Counter("gmnap_db_apply_queries_total", "Queries applied from changelog")
+DB_APPLY_QUERIES = Counter(
+    "gmnap_db_apply_queries_total", "Queries applied from changelog"
+)
 
 # Stage 10 freshness
 STAGE10_LAST_SUCCESS = Gauge(
@@ -79,4 +85,6 @@ STAGE_DURATION = Histogram(
 PIPELINE_THROUGHPUT = Gauge(
     "gmnap_pipeline_entries_per_sec", "Instantaneous throughput (entries/sec)"
 )
-PIPELINE_LAT_P95 = Gauge("gmnap_pipeline_latency_p95_seconds", "p95 latency per batch (seconds)")
+PIPELINE_LAT_P95 = Gauge(
+    "gmnap_pipeline_latency_p95_seconds", "p95 latency per batch (seconds)"
+)

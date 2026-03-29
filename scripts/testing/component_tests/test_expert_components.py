@@ -24,7 +24,10 @@ def test_normalize_result():
     # Test cases
     test_cases = [
         # List of dicts
-        [{"GlobalID": "A", "status": "success"}, {"GlobalID": "B", "status": "success"}],
+        [
+            {"GlobalID": "A", "status": "success"},
+            {"GlobalID": "B", "status": "success"},
+        ],
         # Dict with results key
         {"results": [{"GlobalID": "C", "status": "success"}], "metrics": {"count": 1}},
         # Single dict
@@ -54,7 +57,10 @@ def test_rolling_gates():
     # Simulate processing batches
     batch1 = [{"GlobalID": f"ID_{i}", "status": "success"} for i in range(1000)]
     batch2 = [
-        {"GlobalID": f"ID_{i}", "status": "success" if i % 10 != 0 else "processing_error"}
+        {
+            "GlobalID": f"ID_{i}",
+            "status": "success" if i % 10 != 0 else "processing_error",
+        }
         for i in range(1000, 2000)
     ]
 
@@ -116,7 +122,9 @@ async def test_performance_simulation():
 
         improvement = (new_eps / old_eps - 1) * 100
 
-        print(f"{size:>10,} | {old_eps:>8.0f} | {new_eps:>8.0f} | {improvement:>+8.1f}%")
+        print(
+            f"{size:>10,} | {old_eps:>8.0f} | {new_eps:>8.0f} | {improvement:>+8.1f}%"
+        )
 
     print("\n🎯 Key Improvements:")
     print("  ✅ Streaming prevents memory cliff failures")

@@ -9,7 +9,11 @@ except Exception:
 
 from src.core.graph_coherence.coherence import betweenness_score
 
-DEFAULT = {"betweenness_weight": 0.6, "authority_weight": 0.4, "authority_reliability": {}}
+DEFAULT = {
+    "betweenness_weight": 0.6,
+    "authority_weight": 0.4,
+    "authority_reliability": {},
+}
 
 
 class BayesCoherence:

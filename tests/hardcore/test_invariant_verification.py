@@ -44,11 +44,20 @@ class TestGlobalIDInvariants:
             # Identical entries
             [{"CanonicalNative": "Smith, John", "BirthYear": 1980}] * 100,
             # Similar entries
-            [{"CanonicalNative": f"Smith, John{i}", "BirthYear": 1980} for i in range(100)],
+            [
+                {"CanonicalNative": f"Smith, John{i}", "BirthYear": 1980}
+                for i in range(100)
+            ],
             # Different birth years
-            [{"CanonicalNative": "Smith, John", "BirthYear": 1980 + i} for i in range(100)],
+            [
+                {"CanonicalNative": "Smith, John", "BirthYear": 1980 + i}
+                for i in range(100)
+            ],
             # Unicode variations
-            [{"CanonicalNative": f"García{i}, José", "BirthYear": 1980} for i in range(100)],
+            [
+                {"CanonicalNative": f"García{i}, José", "BirthYear": 1980}
+                for i in range(100)
+            ],
             # Mixed scripts
             [{"CanonicalNative": f"李{i}明", "BirthYear": 1980} for i in range(100)],
         ]
@@ -99,7 +108,10 @@ class TestGlobalIDInvariants:
 
             # Generate 100 entries that would collide
             for i in range(100):
-                entry = {"CanonicalNative": f"Test{i:03d}, Person", "BirthYear": 1980 + i}
+                entry = {
+                    "CanonicalNative": f"Test{i:03d}, Person",
+                    "BirthYear": 1980 + i,
+                }
                 global_id = self.generator.generate(entry)
                 collision_ids.append(global_id)
 
@@ -134,9 +146,18 @@ class TestGlobalIDInvariants:
             {"CanonicalNative": "A"},  # Single character
             {"CanonicalNative": "A" * 1000},  # Very long name
             {"CanonicalNative": "Smith, John", "BirthYear": None},  # No birth year
-            {"CanonicalNative": "Smith, John", "BirthYear": "invalid"},  # Invalid birth year
-            {"CanonicalNative": "Smith, John", "BirthYear": float("inf")},  # Infinite birth year
-            {"CanonicalNative": "Smith, John", "BirthYear": -999999},  # Ancient birth year
+            {
+                "CanonicalNative": "Smith, John",
+                "BirthYear": "invalid",
+            },  # Invalid birth year
+            {
+                "CanonicalNative": "Smith, John",
+                "BirthYear": float("inf"),
+            },  # Infinite birth year
+            {
+                "CanonicalNative": "Smith, John",
+                "BirthYear": -999999,
+            },  # Ancient birth year
         ]
 
         for entry in edge_cases:
@@ -185,7 +206,9 @@ class TestGlobalIDInvariants:
                 generated_ids.extend(result)
 
         # INVARIANT: No errors should occur
-        assert len(errors) == 0, f"INVARIANT VIOLATED: Concurrent generation errors: {errors}"
+        assert (
+            len(errors) == 0
+        ), f"INVARIANT VIOLATED: Concurrent generation errors: {errors}"
 
         # INVARIANT: All IDs should be unique
         assert len(set(generated_ids)) == len(
@@ -284,7 +307,17 @@ class TestUnicodeNormalizationInvariants:
 
             if normalized is not None:
                 # INVARIANT: No dangerous characters should remain
-                dangerous_chars = ["\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\r", "\n", "\t"]
+                dangerous_chars = [
+                    "\x00",
+                    "\x01",
+                    "\x02",
+                    "\x03",
+                    "\x04",
+                    "\x05",
+                    "\r",
+                    "\n",
+                    "\t",
+                ]
                 for char in dangerous_chars:
                     assert (
                         char not in normalized
@@ -432,8 +465,14 @@ class TestRegionDetectionInvariants:
             {"CanonicalLatin": "Smith, John", "CountryCodes": ["US"]},
             {"CanonicalLatin": "García, José", "CountryCodes": ["ES"]},
             {"CanonicalLatin": "李明", "CountryCodes": ["CN"]},
-            {"CanonicalLatin": "Unknown, Person", "CountryCodes": ["ZZ"]},  # Invalid country
-            {"CanonicalLatin": "Mixed, Script李明", "CountryCodes": ["US"]},  # Mixed scripts
+            {
+                "CanonicalLatin": "Unknown, Person",
+                "CountryCodes": ["ZZ"],
+            },  # Invalid country
+            {
+                "CanonicalLatin": "Mixed, Script李明",
+                "CountryCodes": ["US"],
+            },  # Mixed scripts
             {"CanonicalLatin": "No Country, Person", "CountryCodes": []},  # No country
         ]
 
@@ -515,7 +554,9 @@ class TestPipelineInvariants:
         with patch("src.authorities.tier0.openalex.OpenAlexFetcher") as mock_fetcher:
             mock_instance = Mock()
             mock_instance.fetch = Mock(
-                return_value=Mock(status=Mock(value="not_found"), error_message="Not found")
+                return_value=Mock(
+                    status=Mock(value="not_found"), error_message="Not found"
+                )
             )
             mock_fetcher.return_value = mock_instance
 
@@ -566,7 +607,9 @@ class TestPipelineInvariants:
         with patch("src.authorities.tier0.openalex.OpenAlexFetcher") as mock_fetcher:
             mock_instance = Mock()
             mock_instance.fetch = Mock(
-                return_value=Mock(status=Mock(value="not_found"), error_message="Not found")
+                return_value=Mock(
+                    status=Mock(value="not_found"), error_message="Not found"
+                )
             )
             mock_fetcher.return_value = mock_instance
 
@@ -639,7 +682,9 @@ class TestSystemInvariants:
 
         # Get initial resource state
         initial_objects = len(gc.get_objects())
-        initial_fds = len(os.listdir("/proc/self/fd")) if os.path.exists("/proc/self/fd") else 0
+        initial_fds = (
+            len(os.listdir("/proc/self/fd")) if os.path.exists("/proc/self/fd") else 0
+        )
 
         # Perform operations that could leak resources
         generator = GlobalIDGenerator()
@@ -656,13 +701,17 @@ class TestSystemInvariants:
 
         # Check resource usage
         final_objects = len(gc.get_objects())
-        final_fds = len(os.listdir("/proc/self/fd")) if os.path.exists("/proc/self/fd") else 0
+        final_fds = (
+            len(os.listdir("/proc/self/fd")) if os.path.exists("/proc/self/fd") else 0
+        )
 
         # INVARIANT: Should not have excessive resource growth
         object_growth = final_objects - initial_objects
         fd_growth = final_fds - initial_fds
 
-        assert object_growth < 1000, f"INVARIANT VIOLATED: Excessive object growth: {object_growth}"
+        assert (
+            object_growth < 1000
+        ), f"INVARIANT VIOLATED: Excessive object growth: {object_growth}"
         assert fd_growth < 10, f"INVARIANT VIOLATED: File descriptor leak: {fd_growth}"
 
     def test_invariant_error_handling_consistency(self):

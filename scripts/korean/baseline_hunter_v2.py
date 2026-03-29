@@ -6,7 +6,9 @@ RESULTS = {}
 
 
 def run(cmd, cwd=None, quiet=True):
-    kw = dict(cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    kw = dict(
+        cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
     proc = subprocess.run(cmd, **kw)
     if proc.returncode and not quiet:
         print(f"Command failed: {cmd}")
@@ -17,7 +19,9 @@ def run(cmd, cwd=None, quiet=True):
 
 # Get recent commits
 all_shas = (
-    run("git rev-list --max-count=10 HEAD", cwd=REPO_ROOT, quiet=False).stdout.strip().splitlines()
+    run("git rev-list --max-count=10 HEAD", cwd=REPO_ROOT, quiet=False)
+    .stdout.strip()
+    .splitlines()
 )
 
 print(f"Scanning {len(all_shas)} recent commits...")
@@ -52,7 +56,12 @@ for i, sha in enumerate(all_shas):
         built = False
         for build_script in build_scripts:
             if build_script.exists():
-                if run(f"cd {KOREAN_DIR} && python3 {build_script}", quiet=True).returncode == 0:
+                if (
+                    run(
+                        f"cd {KOREAN_DIR} && python3 {build_script}", quiet=True
+                    ).returncode
+                    == 0
+                ):
                     print(f"  Built models successfully")
                     built = True
                     break
@@ -70,14 +79,17 @@ for i, sha in enumerate(all_shas):
         continue
 
     # Run mathematician test
-    r1 = run(f"cd {KOREAN_DIR} && python3 test_accuracy.py data/korean.yaml", quiet=True)
+    r1 = run(
+        f"cd {KOREAN_DIR} && python3 test_accuracy.py data/korean.yaml", quiet=True
+    )
     if r1.returncode:
         print(f"  Mathematician test failed")
         continue
 
     # Run diverse test
     r2 = run(
-        f"cd {KOREAN_DIR} && python3 test_accuracy.py data/korean_diverse_test.yaml", quiet=True
+        f"cd {KOREAN_DIR} && python3 test_accuracy.py data/korean_diverse_test.yaml",
+        quiet=True,
     )
     if r2.returncode:
         print(f"  Diverse test failed")
@@ -110,7 +122,9 @@ for i, sha in enumerate(all_shas):
         RESULTS[sha] = (m_ok, d_ok)
 
         # Get commit message
-        msg = run(f"git log -1 --pretty=format:'%s' {sha}", cwd=REPO_ROOT).stdout.strip()
+        msg = run(
+            f"git log -1 --pretty=format:'%s' {sha}", cwd=REPO_ROOT
+        ).stdout.strip()
         print(
             f"  Math: {m_ok}/{m_tot} ({100*m_ok/m_tot:.1f}%), Diverse: {d_ok}/{d_tot if d_tot else 0} ({100*d_ok/d_tot if d_tot else 0:.1f}%)"
         )
@@ -127,10 +141,14 @@ run("git stash pop", cwd=REPO_ROOT, quiet=True)
 
 if RESULTS:
     print("\n=== RESULTS SUMMARY ===")
-    sorted_results = sorted(RESULTS.items(), key=lambda kv: (kv[1][0] + kv[1][1]), reverse=True)
+    sorted_results = sorted(
+        RESULTS.items(), key=lambda kv: (kv[1][0] + kv[1][1]), reverse=True
+    )
 
     for sha, (m, d) in sorted_results[:5]:
-        msg = run(f"git log -1 --pretty=format:'%s' {sha}", cwd=REPO_ROOT).stdout.strip()
+        msg = run(
+            f"git log -1 --pretty=format:'%s' {sha}", cwd=REPO_ROOT
+        ).stdout.strip()
         print(f"{sha[:8]}: Math={m}, Diverse={d}, Total={m+d} - {msg}")
 
     best = sorted_results[0]
@@ -141,7 +159,9 @@ if RESULTS:
         "best_sha": best[0],
         "math": best[1][0],
         "div": best[1][1],
-        "all_results": {sha: {"math": m, "diverse": d} for sha, (m, d) in RESULTS.items()},
+        "all_results": {
+            sha: {"math": m, "diverse": d} for sha, (m, d) in RESULTS.items()
+        },
     }
 
     output_file = REPO_ROOT / "baseline_scan.json"

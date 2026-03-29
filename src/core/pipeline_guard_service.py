@@ -59,7 +59,9 @@ class PipelineGuardService:
             return await self._stream_large(entries)
         return await self.agg.submit(entries)
 
-    async def _stream_large(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stream_large(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         out: List[Dict[str, Any]] = []
         chunk = self.cfg.chunk_size_large
         sem = asyncio.Semaphore(self.cfg.inflight_chunks)
@@ -70,12 +72,15 @@ class PipelineGuardService:
                 out.extend(res)
 
         tasks = [
-            asyncio.create_task(_run(entries[i : i + chunk])) for i in range(0, len(entries), chunk)
+            asyncio.create_task(_run(entries[i : i + chunk]))
+            for i in range(0, len(entries), chunk)
         ]
         await asyncio.gather(*tasks)
         return out
 
-    async def _process_impl(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _process_impl(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         # Optional region fast-path
         if (
             self.cfg.enable_region_fastpath
@@ -105,7 +110,11 @@ class PipelineGuardService:
             except Exception as ex:
                 # Convert hard crash into structured error entries for 0% success triage
                 return [
-                    {"GlobalID": e.get("GlobalID"), "status": "processing_error", "error": str(ex)}
+                    {
+                        "GlobalID": e.get("GlobalID"),
+                        "status": "processing_error",
+                        "error": str(ex),
+                    }
                     for e in entries
                 ]
 

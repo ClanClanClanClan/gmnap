@@ -30,7 +30,9 @@ class WikidataClient:
         self.timeout = int(os.getenv("WIKIDATA_TIMEOUT_SEC", "30"))
         self._limiter = asyncio.Semaphore(int(self.rps))  # crude limiter across awaits
 
-    async def get_advisors(self, name: str, birth_year: Optional[int]) -> List[Dict[str, Any]]:
+    async def get_advisors(
+        self, name: str, birth_year: Optional[int]
+    ) -> List[Dict[str, Any]]:
         if not self.enabled:
             return []
 

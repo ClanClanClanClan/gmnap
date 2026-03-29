@@ -1,5 +1,9 @@
 import pytest
-from src.authorities.validators import ensure_orcid, AuthorityInputError, safe_startswith
+from src.authorities.validators import (
+    ensure_orcid,
+    AuthorityInputError,
+    safe_startswith,
+)
 
 
 @pytest.mark.timeout(15)

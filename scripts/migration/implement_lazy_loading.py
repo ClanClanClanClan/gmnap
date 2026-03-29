@@ -77,7 +77,9 @@ def test_current_loading():
         start = time.time()
         result = manager2.detect_region(entry, internal=True)
         detect_time = time.time() - start
-        print(f"  {entry['name']:15} -> {result.region_code} ({detect_time*1000:.1f}ms)")
+        print(
+            f"  {entry['name']:15} -> {result.region_code} ({detect_time*1000:.1f}ms)"
+        )
 
     print(f"  Regions loaded after detection: {len(manager2._regions)}")
 

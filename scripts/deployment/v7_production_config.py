@@ -149,7 +149,11 @@ class V7ProductionDeployment:
 
         # Check 1: Required directories
         total_checks += 1
-        required_dirs = [self.config.config_dir, self.config.cache_dir, self.config.logs_dir]
+        required_dirs = [
+            self.config.config_dir,
+            self.config.cache_dir,
+            self.config.logs_dir,
+        ]
         try:
             for dir_path in required_dirs:
                 Path(dir_path).mkdir(parents=True, exist_ok=True)
@@ -220,7 +224,8 @@ class V7ProductionDeployment:
 
             alert_config = AlertNotificationConfig()
             monitor = ProductionMonitoringSystem(
-                Path(self.config.cache_dir) / "monitoring" / "production.db", alert_config
+                Path(self.config.cache_dir) / "monitoring" / "production.db",
+                alert_config,
             )
             monitor.shutdown()
             checks_passed += 1
@@ -245,7 +250,9 @@ class V7ProductionDeployment:
             self.logger.error("❌ Production environment not ready (critical issues)")
             return False
 
-    def create_startup_script(self, output_path: str = "./start_v7_production.py") -> str:
+    def create_startup_script(
+        self, output_path: str = "./start_v7_production.py"
+    ) -> str:
         """Create production startup script."""
         startup_script = f'''#!/usr/bin/env python3
 """
@@ -369,7 +376,9 @@ if __name__ == "__main__":
         self.logger.info(f"Production startup script created: {output_path}")
         return output_path
 
-    def create_configuration_file(self, output_path: str = "./v7_production.json") -> str:
+    def create_configuration_file(
+        self, output_path: str = "./v7_production.json"
+    ) -> str:
         """Create production configuration file."""
         config_data = {
             {

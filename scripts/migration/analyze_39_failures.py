@@ -111,7 +111,9 @@ def main():
         by_category[f["category"]].append(f)
 
     print("\nFailures by category:")
-    for cat, fails in sorted(by_category.items(), key=lambda x: len(x[1]), reverse=True):
+    for cat, fails in sorted(
+        by_category.items(), key=lambda x: len(x[1]), reverse=True
+    ):
         print(f"  {cat}: {len(fails)} failures")
 
     # Analyze patterns
@@ -135,7 +137,9 @@ def main():
         if len(issues) >= 2:  # Affects multiple names
             impact_romans.append((roman, len(issues), unique_subs, issues))
 
-    for roman, count, subs, issues in sorted(impact_romans, key=lambda x: x[1], reverse=True)[:10]:
+    for roman, count, subs, issues in sorted(
+        impact_romans, key=lambda x: x[1], reverse=True
+    )[:10]:
         print(f"\n'{roman}' affects {count} names:")
         for sub in subs:
             print(f"  Causes {sub[0]}→{sub[1]}")
@@ -161,7 +165,9 @@ def main():
     # Find common two-syllable patterns
     compound_patterns = defaultdict(list)
     for f in failures:
-        input_lower = f["input"].lower().replace(",", "").replace("-", "").replace(" ", "")
+        input_lower = (
+            f["input"].lower().replace(",", "").replace("-", "").replace(" ", "")
+        )
         if f["expected"] and len(f["expected"]) >= 2:
             # Look for two-syllable patterns
             for i in range(len(input_lower) - 1):
@@ -176,7 +182,9 @@ def main():
         print(f"   Expected: {f['expected']}")
         print(f"   Got: {f['got']}")
         if f["char_diffs"]:
-            print(f"   Differences: {', '.join(f'{e}→{g}' for _, e, g in f['char_diffs'])}")
+            print(
+                f"   Differences: {', '.join(f'{e}→{g}' for _, e, g in f['char_diffs'])}"
+            )
 
 
 if __name__ == "__main__":

@@ -100,7 +100,9 @@ async def test_core_functionality():
         print(f"\n📊 SUCCESS RATE: {success_count}/{total_count} = {success_rate:.1f}%")
 
         # We expect at least 70% processing success
-        assert success_rate >= 70, f"Processing success rate too low: {success_rate:.1f}%"
+        assert (
+            success_rate >= 70
+        ), f"Processing success rate too low: {success_rate:.1f}%"
 
         return True
 

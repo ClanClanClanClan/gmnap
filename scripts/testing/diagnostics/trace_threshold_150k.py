@@ -6,7 +6,11 @@ from src.core.pipeline_guard_service import PipelineGuardService, GuardConfig
 
 def mk(n: int) -> List[Dict]:
     return [
-        {"ID": f"entry{i:08d}", "CanonicalNative": "John Smith", "Region": "a1_anglo_sphere"}
+        {
+            "ID": f"entry{i:08d}",
+            "CanonicalNative": "John Smith",
+            "Region": "a1_anglo_sphere",
+        }
         for i in range(n)
     ]
 

@@ -57,7 +57,9 @@ class V7PipelineFixed(V7PipelineComplete):
 
         return entry
 
-    async def _stage_1_ingest(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_1_ingest(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         Stage 1: Ingest with proper sanitization.
         """
@@ -77,7 +79,9 @@ class V7PipelineFixed(V7PipelineComplete):
 
         return result
 
-    async def _stage_3_region_hooks(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_3_region_hooks(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         Stage 3: Apply regional processing with None handling.
         """
@@ -88,7 +92,9 @@ class V7PipelineFixed(V7PipelineComplete):
             # Sanitize before processing
             self._sanitize_entry(entry)
 
-            region_code = entry.get("_detected_region") or entry.get("DetectedRegion") or "XX"
+            region_code = (
+                entry.get("_detected_region") or entry.get("DetectedRegion") or "XX"
+            )
 
             if region_code != "XX":
                 try:
@@ -122,7 +128,9 @@ class V7PipelineFixed(V7PipelineComplete):
                 entry["_region_processed"] = False
 
         self.metrics.stage_timings["stage_3_hooks"] = time.time() - start_time
-        logger.info(f"Stage 3 completed in {self.metrics.stage_timings['stage_3_hooks']:.2f}s")
+        logger.info(
+            f"Stage 3 completed in {self.metrics.stage_timings['stage_3_hooks']:.2f}s"
+        )
 
         return entries
 
@@ -171,7 +179,9 @@ class V7PipelineFixed(V7PipelineComplete):
 
         # Check duplicate external IDs percentage
         if self.metrics.processed_entries > 0:
-            dup_pct = self.metrics.duplicate_external_ids / self.metrics.processed_entries
+            dup_pct = (
+                self.metrics.duplicate_external_ids / self.metrics.processed_entries
+            )
             if dup_pct > self.quality_gates.duplicate_external_id_pct_max:
                 failures.append(
                     f"Duplicate external IDs: {dup_pct:.2%} > {self.quality_gates.duplicate_external_id_pct_max:.2%}"
@@ -179,7 +189,9 @@ class V7PipelineFixed(V7PipelineComplete):
 
         # Check roundtrip rate
         if self.metrics.processed_entries > 0:
-            roundtrip_rate = 1 - (self.metrics.roundtrip_failures / self.metrics.processed_entries)
+            roundtrip_rate = 1 - (
+                self.metrics.roundtrip_failures / self.metrics.processed_entries
+            )
             if roundtrip_rate < self.quality_gates.roundtrip_script_rate_min:
                 failures.append(
                     f"Roundtrip rate: {roundtrip_rate:.2%} < {self.quality_gates.roundtrip_script_rate_min:.2%}"
@@ -188,9 +200,13 @@ class V7PipelineFixed(V7PipelineComplete):
         # Check projected runtime with fixed calculation
         if self.quality_gates.warm_cache_runtime_per_1M_min:
             # Avoid division by zero
-            if self.metrics.processed_entries > 0 and hasattr(self.metrics, "total_time"):
+            if self.metrics.processed_entries > 0 and hasattr(
+                self.metrics, "total_time"
+            ):
                 # Calculate time per million entries
-                time_per_entry = self.metrics.total_time / self.metrics.processed_entries
+                time_per_entry = (
+                    self.metrics.total_time / self.metrics.processed_entries
+                )
                 projected_time = time_per_entry * 1_000_000 / 60  # Convert to minutes
 
                 if projected_time > self.quality_gates.warm_cache_runtime_per_1M_min:

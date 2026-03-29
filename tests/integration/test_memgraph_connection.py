@@ -125,10 +125,14 @@ def test_genealogy_relations(client):
         try:
             success = client.add_genealogy_relation(relation)
             if success:
-                print(f"PASS Added relation: {relation.source_id} -> {relation.target_id}")
+                print(
+                    f"PASS Added relation: {relation.source_id} -> {relation.target_id}"
+                )
                 success_count += 1
             else:
-                print(f"FAIL Failed to add relation: {relation.source_id} -> {relation.target_id}")
+                print(
+                    f"FAIL Failed to add relation: {relation.source_id} -> {relation.target_id}"
+                )
         except Exception as e:
             print(f"FAIL Error adding relation: {e}")
 

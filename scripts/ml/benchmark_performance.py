@@ -55,7 +55,9 @@ def benchmark_model_loading():
     print(f"Loading time: {load_time:.3f} seconds")
 
     model_file_size = (
-        Path("data/ml_training/regional_classifier_v5_etymology.bin").stat().st_size / 1024 / 1024
+        Path("data/ml_training/regional_classifier_v5_etymology.bin").stat().st_size
+        / 1024
+        / 1024
     )
     print(f"Model file size: {model_file_size:.1f} MB")
 
@@ -180,7 +182,11 @@ def benchmark_batch_prediction():
     # Check against target (1000 in 0.5s = 2000/s)
     target_throughput = 2000
     large_batch = results[-1]
-    status = "✅ PASS" if large_batch["throughput_per_second"] >= target_throughput else "⚠️ SLOW"
+    status = (
+        "✅ PASS"
+        if large_batch["throughput_per_second"] >= target_throughput
+        else "⚠️ SLOW"
+    )
 
     print(f"\n  Target: ≥{target_throughput} predictions/second")
     print(f"  Achieved (batch=1000): {large_batch['throughput_per_second']:.1f}/s")
@@ -225,7 +231,8 @@ def benchmark_hybrid_classifier():
 
         method_match = (
             "✅"
-            if expected_method.lower().replace(" ", "_") in result.detection_method.lower()
+            if expected_method.lower().replace(" ", "_")
+            in result.detection_method.lower()
             else "❌"
         )
         print(f"\n  {name:20} {method_match}")
@@ -327,16 +334,26 @@ def main():
         print(f"   Memory: {results['model_loading']['memory_increase_mb']:.1f} MB")
 
         print(f"\n✅ Single Prediction:")
-        print(f"   Mean latency: {results['single_prediction']['mean_latency_ms']:.2f} ms")
-        print(f"   P95 latency: {results['single_prediction']['p95_latency_ms']:.2f} ms")
+        print(
+            f"   Mean latency: {results['single_prediction']['mean_latency_ms']:.2f} ms"
+        )
+        print(
+            f"   P95 latency: {results['single_prediction']['p95_latency_ms']:.2f} ms"
+        )
 
         print(f"\n✅ Batch Throughput (1000):")
         large_batch = results["batch_prediction"][-1]
-        print(f"   Throughput: {large_batch['throughput_per_second']:.1f} predictions/second")
+        print(
+            f"   Throughput: {large_batch['throughput_per_second']:.1f} predictions/second"
+        )
 
         print(f"\n✅ Hybrid Classifier:")
-        print(f"   Init time: {results['hybrid_classifier']['initialization_time_seconds']:.3f}s")
-        print(f"   Mean latency: {results['hybrid_classifier']['mean_latency_ms']:.2f} ms")
+        print(
+            f"   Init time: {results['hybrid_classifier']['initialization_time_seconds']:.3f}s"
+        )
+        print(
+            f"   Mean latency: {results['hybrid_classifier']['mean_latency_ms']:.2f} ms"
+        )
 
         print(f"\n✅ Calibration:")
         print(

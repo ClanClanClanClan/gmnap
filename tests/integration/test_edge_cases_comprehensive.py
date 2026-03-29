@@ -66,7 +66,10 @@ def get_edge_test_cases() -> List[Dict]:
         },
         {
             "name": "Special Characters",
-            "test": {"CanonicalLatin": "José-María de la Cruz", "GlobalID": "edge-special-chars"},
+            "test": {
+                "CanonicalLatin": "José-María de la Cruz",
+                "GlobalID": "edge-special-chars",
+            },
             "should_pass": True,
             "v7_requirement": "International character support",
         },
@@ -94,7 +97,10 @@ def get_edge_test_cases() -> List[Dict]:
         },
         {
             "name": "Hyphenated Name",
-            "test": {"CanonicalLatin": "Anne-Marie Smith-Jones", "GlobalID": "edge-hyphenated"},
+            "test": {
+                "CanonicalLatin": "Anne-Marie Smith-Jones",
+                "GlobalID": "edge-hyphenated",
+            },
             "should_pass": True,
             "v7_requirement": "Compound name support",
         },
@@ -102,7 +108,9 @@ def get_edge_test_cases() -> List[Dict]:
 
 
 @pytest.mark.timeout(15)
-def test_region_edge_cases(region_code: str, manager: RegionManager) -> Tuple[int, int, List[str]]:
+def test_region_edge_cases(
+    region_code: str, manager: RegionManager
+) -> Tuple[int, int, List[str]]:
     """Test edge cases for a specific region."""
     region = manager.get_region(region_code)
     if not region:
@@ -151,7 +159,9 @@ def test_region_edge_cases(region_code: str, manager: RegionManager) -> Tuple[in
             if error_step:
                 if edge_case["should_pass"]:
                     failed += 1
-                    failures.append(f"{edge_case['name']}: FAIL at {error_step} - {error_msg}")
+                    failures.append(
+                        f"{edge_case['name']}: FAIL at {error_step} - {error_msg}"
+                    )
                 else:
                     # Expected to fail
                     passed += 1
@@ -161,7 +171,9 @@ def test_region_edge_cases(region_code: str, manager: RegionManager) -> Tuple[in
                 else:
                     # Should have failed but didn't
                     failed += 1
-                    failures.append(f"{edge_case['name']}: Should have failed but passed")
+                    failures.append(
+                        f"{edge_case['name']}: Should have failed but passed"
+                    )
 
         except Exception as e:
             failed += 1
@@ -218,7 +230,9 @@ def run_comprehensive_test():
         total_passed += passed
         total_failed += failed
 
-        success_rate = (passed / (passed + failed) * 100) if (passed + failed) > 0 else 0
+        success_rate = (
+            (passed / (passed + failed) * 100) if (passed + failed) > 0 else 0
+        )
 
         # Categorize regions
         if success_rate >= 90:
@@ -230,7 +244,9 @@ def run_comprehensive_test():
             problematic_regions.append(region_code)
             status = "FAIL"
 
-        print(f"{status} {region_code}: {passed}/{passed + failed} ({success_rate:.1f}%)")
+        print(
+            f"{status} {region_code}: {passed}/{passed + failed} ({success_rate:.1f}%)"
+        )
 
         # Show failures for problematic regions
         if success_rate < 70 and failures:

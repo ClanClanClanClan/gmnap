@@ -74,13 +74,19 @@ def route(
 
     # High‑confidence short‑circuit
     if r2.confidence >= 0.95:
-        return Result(r2.region, r2.confidence, r2.distribution, method="phase2_highconf")
+        return Result(
+            r2.region, r2.confidence, r2.distribution, method="phase2_highconf"
+        )
     if r1.confidence >= 0.95:
-        return Result(r1.region, r1.confidence, r1.distribution, method="phase1_highconf")
+        return Result(
+            r1.region, r1.confidence, r1.distribution, method="phase1_highconf"
+        )
 
     # Prefer ML in strong regions
     if r2.region in PHASE2_STRONG:
-        return Result(r2.region, r2.confidence, r2.distribution, method="phase2_region_pref")
+        return Result(
+            r2.region, r2.confidence, r2.distribution, method="phase2_region_pref"
+        )
 
     # Prefer Phase‑1 where Latin ambiguity is common
     if r1.region in PHASE1_PREFERRED:
@@ -97,21 +103,31 @@ def route(
             )
             best = max(dist, key=dist.get)
             return Result(best, dist[best], dist, method="hybrid_ibero_multilabel")
-        return Result(r1.region, r1.confidence, r1.distribution, method="phase1_region_pref")
+        return Result(
+            r1.region, r1.confidence, r1.distribution, method="phase1_region_pref"
+        )
 
     # Agreement → pick higher confidence
     if r1.region == r2.region:
         if r2.confidence >= r1.confidence:
-            return Result(r2.region, r2.confidence, r2.distribution, method="agree_phase2_higher")
-        return Result(r1.region, r1.confidence, r1.distribution, method="agree_phase1_higher")
+            return Result(
+                r2.region, r2.confidence, r2.distribution, method="agree_phase2_higher"
+            )
+        return Result(
+            r1.region, r1.confidence, r1.distribution, method="agree_phase1_higher"
+        )
 
     # Fall back: weighted by per‑region calibration if provided
     if phase1_calibration or phase2_calibration:
         c1 = (phase1_calibration or {}).get(r1.region, 0.8) * r1.confidence
         c2 = (phase2_calibration or {}).get(r2.region, 0.8) * r2.confidence
         if c2 >= c1:
-            return Result(r2.region, r2.confidence, r2.distribution, method="calibrated_phase2")
-        return Result(r1.region, r1.confidence, r1.distribution, method="calibrated_phase1")
+            return Result(
+                r2.region, r2.confidence, r2.distribution, method="calibrated_phase2"
+            )
+        return Result(
+            r1.region, r1.confidence, r1.distribution, method="calibrated_phase1"
+        )
 
     # Default tie‑breaker → Phase‑1
     return Result(r1.region, r1.confidence, r1.distribution, method="fallback_phase1")

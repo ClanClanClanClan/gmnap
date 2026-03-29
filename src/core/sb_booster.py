@@ -79,7 +79,11 @@ class _AsyncAgg:
 def _uniform_region(entries: List[dict]) -> Optional[str]:
     if not entries:
         return None
-    r0 = entries[0].get("Region") or entries[0].get("region") or entries[0].get("RegionHint")
+    r0 = (
+        entries[0].get("Region")
+        or entries[0].get("region")
+        or entries[0].get("RegionHint")
+    )
     if not r0:
         return None
     for e in entries[1:]:
@@ -101,7 +105,9 @@ class PipelineService:
     when a uniform Region is supplied for the entire batch.
     """
 
-    def __init__(self, pipeline_ctor: Callable[[], Any], cfg: BoosterConfig | None = None):
+    def __init__(
+        self, pipeline_ctor: Callable[[], Any], cfg: BoosterConfig | None = None
+    ):
         self.cfg = cfg or BoosterConfig()
         self.pipeline = pipeline_ctor()
         # Async microbatch aggregator that targets ~20ms latency
@@ -141,7 +147,9 @@ class PipelineService:
                             self._region_cache[uni] = proc
                     if proc:
                         # fast path: call specialised internal method if available
-                        fn = getattr(self.pipeline, "process_batch_with_processor", None)
+                        fn = getattr(
+                            self.pipeline, "process_batch_with_processor", None
+                        )
                         if callable(fn):
                             return await fn(entries, proc)
         # default

@@ -100,13 +100,19 @@ class WileyFetcher(AuthorityFetcher):
                 )
 
             return FetchResult(
-                status=FetchStatus.SUCCESS, source=self.service, query=identifier, data=author_data
+                status=FetchStatus.SUCCESS,
+                source=self.service,
+                query=identifier,
+                data=author_data,
             )
 
         except Exception as e:
             logger.error(f"Wiley fetch error: {e}")
             return FetchResult(
-                status=FetchStatus.ERROR, source=self.service, query=identifier, error=str(e)
+                status=FetchStatus.ERROR,
+                source=self.service,
+                query=identifier,
+                error=str(e),
             )
 
     async def _search_author_crossref(
@@ -137,7 +143,9 @@ class WileyFetcher(AuthorityFetcher):
 
         try:
             url = f"{self.crossref_url}/works"
-            async with self._session.get(url, params=params, headers=headers) as response:
+            async with self._session.get(
+                url, params=params, headers=headers
+            ) as response:
                 if response.status == 200:
                     data = await response.json()
                     items = data.get("message", {}).get("items", [])
@@ -146,7 +154,9 @@ class WileyFetcher(AuthorityFetcher):
                     )
                     return items
                 else:
-                    logger.warning(f"Wiley/Crossref search failed with status {response.status}")
+                    logger.warning(
+                        f"Wiley/Crossref search failed with status {response.status}"
+                    )
                     return []
         except Exception as e:
             logger.error(f"Wiley/Crossref search error: {e}")
@@ -197,7 +207,9 @@ class WileyFetcher(AuthorityFetcher):
             pub_date = work.get("published", {})
             pub_year = None
             if "date-parts" in pub_date and pub_date["date-parts"]:
-                pub_year = pub_date["date-parts"][0][0] if pub_date["date-parts"][0] else None
+                pub_year = (
+                    pub_date["date-parts"][0][0] if pub_date["date-parts"][0] else None
+                )
 
             pub = {
                 "title": (
@@ -219,11 +231,14 @@ class WileyFetcher(AuthorityFetcher):
         # Build AuthorityData
         authority_data = AuthorityData(
             source=self.service,
-            source_id=list(dois)[0] if dois else f"wiley_{query_name.replace(' ', '_')}",
+            source_id=(
+                list(dois)[0] if dois else f"wiley_{query_name.replace(' ', '_')}"
+            ),
             canonical_name=query_name,
             name_variants=[],
             affiliations=[
-                {"institution": aff} for aff in list(affiliations)[:5]  # Top 5 affiliations
+                {"institution": aff}
+                for aff in list(affiliations)[:5]  # Top 5 affiliations
             ],
             identifiers={"DOI": list(dois)[0] if dois else None},
             msc_codes=[],  # Wiley doesn't provide MSC codes directly
@@ -239,7 +254,9 @@ class WileyFetcher(AuthorityFetcher):
 
         return authority_data
 
-    def _calculate_confidence(self, works: List[Dict], affiliations: set, dois: set) -> float:
+    def _calculate_confidence(
+        self, works: List[Dict], affiliations: set, dois: set
+    ) -> float:
         """
         Calculate confidence score for Wiley data.
 

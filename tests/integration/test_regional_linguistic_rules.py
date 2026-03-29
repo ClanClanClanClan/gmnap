@@ -35,7 +35,10 @@ class TestAngloSphereRegions:
         test_cases = [
             # Test case: (input, expected behavior)
             # Titles should be removed
-            ("Dr. John Smith", {"cleaned": True, "contains": "John Smith", "not_contains": "Dr"}),
+            (
+                "Dr. John Smith",
+                {"cleaned": True, "contains": "John Smith", "not_contains": "Dr"},
+            ),
             (
                 "Professor Jane Doe",
                 {"cleaned": True, "contains": "Jane Doe", "not_contains": "Professor"},
@@ -44,8 +47,14 @@ class TestAngloSphereRegions:
             ("John Smith Jr.", {"cleaned": True, "contains": "John Smith"}),
             ("William Gates III", {"cleaned": True, "contains": "William Gates"}),
             # Middle initials
-            ("John C. Smith", {"cleaned": True, "contains": "John", "contains": "Smith"}),
-            ("Mary A B Smith", {"cleaned": True, "contains": "Mary", "contains": "Smith"}),
+            (
+                "John C. Smith",
+                {"cleaned": True, "contains": "John", "contains": "Smith"},
+            ),
+            (
+                "Mary A B Smith",
+                {"cleaned": True, "contains": "Mary", "contains": "Smith"},
+            ),
             # Irish prefixes
             ("O'Connor", {"cleaned": True, "contains": "O'Connor"}),
             ("McDonald", {"cleaned": True, "contains": "McDonald"}),
@@ -104,7 +113,9 @@ class TestAngloSphereRegions:
             if result != "PASS":
                 print(f"  FAIL {name}: {result}")
 
-        assert passed >= len(test_cases) * 0.8, f"Only {passed}/{len(test_cases)} A1 tests passed"
+        assert (
+            passed >= len(test_cases) * 0.8
+        ), f"Only {passed}/{len(test_cases)} A1 tests passed"
 
     @pytest.mark.timeout(15)
     def test_a2_western_europe_rules(self, region_manager):
@@ -253,7 +264,11 @@ class TestSlavicRegions:
         for input_name, expectations in test_cases:
             if expectations.get("native"):
                 # Test with native script
-                entry = {"CanonicalNative": input_name, "CanonicalLatin": "", "GlobalID": "test"}
+                entry = {
+                    "CanonicalNative": input_name,
+                    "CanonicalLatin": "",
+                    "GlobalID": "test",
+                }
             else:
                 entry = {"CanonicalLatin": input_name, "GlobalID": "test"}
 
@@ -264,7 +279,9 @@ class TestSlavicRegions:
                     if expectations["contains"] in result:
                         results.append((input_name, "PASS"))
                     else:
-                        results.append((input_name, f"Missing '{expectations['contains']}'"))
+                        results.append(
+                            (input_name, f"Missing '{expectations['contains']}'")
+                        )
                 else:
                     results.append((input_name, "PASS"))
             except Exception as e:
@@ -357,7 +374,9 @@ class TestMiddleEastRegions:
                     if expectations["contains"] in result:
                         results.append((input_name, "PASS"))
                     else:
-                        results.append((input_name, f"Missing '{expectations['contains']}'"))
+                        results.append(
+                            (input_name, f"Missing '{expectations['contains']}'")
+                        )
                 else:
                     results.append((input_name, "PASS"))
             except Exception as e:
@@ -454,7 +473,9 @@ class TestSouthAsianRegions:
                     if expectations["contains"] in result:
                         results.append((input_name, "PASS"))
                     else:
-                        results.append((input_name, f"Missing '{expectations['contains']}'"))
+                        results.append(
+                            (input_name, f"Missing '{expectations['contains']}'")
+                        )
                 else:
                     results.append((input_name, "PASS"))
             except Exception as e:
@@ -552,7 +573,9 @@ class TestEastAsianRegions:
                     if expectations["contains"] in result:
                         results.append((input_name, "PASS"))
                     else:
-                        results.append((input_name, f"Missing '{expectations['contains']}'"))
+                        results.append(
+                            (input_name, f"Missing '{expectations['contains']}'")
+                        )
                 else:
                     results.append((input_name, "PASS"))
             except Exception as e:
@@ -666,15 +689,23 @@ class TestLatinAmericanRegions:
                 result = entry.get("CanonicalLatin", "")
 
                 passed = True
-                if "contains" in expectations and expectations["contains"] not in result:
+                if (
+                    "contains" in expectations
+                    and expectations["contains"] not in result
+                ):
                     passed = False
-                if "contains2" in expectations and expectations["contains2"] not in result:
+                if (
+                    "contains2" in expectations
+                    and expectations["contains2"] not in result
+                ):
                     passed = False
 
                 if passed:
                     results.append((input_name, "PASS"))
                 else:
-                    results.append((input_name, f"Missing expected content in '{result}'"))
+                    results.append(
+                        (input_name, f"Missing expected content in '{result}'")
+                    )
             except Exception as e:
                 results.append((input_name, f"ERROR: {str(e)[:30]}"))
 

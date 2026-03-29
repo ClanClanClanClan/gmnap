@@ -33,7 +33,12 @@ class E2_TraditionalChinese(RegionSpec):
             scripts=["Traditional Chinese", "Latin"],
             mixed_scripts=True,  # Can have both Chinese and Latin
             canonical_order="Family Given",  # Chinese order: 李明華
-            romanisation_standards=["Wade-Giles", "Tongyong Pinyin", "Zhuyin", "Jyutping"],
+            romanisation_standards=[
+                "Wade-Giles",
+                "Tongyong Pinyin",
+                "Zhuyin",
+                "Jyutping",
+            ],
         )
 
         # Traditional Chinese character ranges (CJK Ideographs)
@@ -461,7 +466,9 @@ class E2_TraditionalChinese(RegionSpec):
             entry["Variants"]["Synthesised"] = []
 
         # Add romanization variants
-        romanizations = self._generate_romanization_variants(name_to_analyze, components)
+        romanizations = self._generate_romanization_variants(
+            name_to_analyze, components
+        )
         for variant in romanizations:
             entry["Variants"]["Synthesised"].append(variant)
 
@@ -531,7 +538,9 @@ class E2_TraditionalChinese(RegionSpec):
     def _is_chinese_char(self, char: str) -> bool:
         """Check if character is a Chinese ideograph."""
         char_code = ord(char)
-        return any(start <= char_code <= end for start, end in self.traditional_chinese_ranges)
+        return any(
+            start <= char_code <= end for start, end in self.traditional_chinese_ranges
+        )
 
     def _parse_chinese_name(self, name: str) -> tuple[str, str]:
         """Parse Chinese name into family and given components."""
@@ -563,7 +572,9 @@ class E2_TraditionalChinese(RegionSpec):
     def _separate_mixed_script(self, name: str) -> tuple[str, str]:
         """Separate mixed Chinese-Latin name into components."""
         chinese_chars = "".join(c for c in name if self._is_chinese_char(c))
-        latin_chars = "".join(c for c in name if c.isalpha() and ord(c) < 256 or c == " ").strip()
+        latin_chars = "".join(
+            c for c in name if c.isalpha() and ord(c) < 256 or c == " "
+        ).strip()
 
         return chinese_chars, latin_chars
 
@@ -599,7 +610,11 @@ class E2_TraditionalChinese(RegionSpec):
         """Basic Chinese to ASCII conversion (placeholder)."""
         # This is a simplified placeholder - real implementation would need
         # proper Chinese-to-Pinyin conversion tables
-        return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii")
+        return (
+            unicodedata.normalize("NFKD", name)
+            .encode("ascii", "ignore")
+            .decode("ascii")
+        )
 
     def _generate_script_variants(
         self, name: str, components: Dict[str, Any]
@@ -636,7 +651,9 @@ class E2_TraditionalChinese(RegionSpec):
         # Check CanonicalNative for Chinese characters if it's supposed to be Chinese
         if canonical_native and script == "Chinese":
             # More lenient check: require at least some Chinese characters
-            chinese_char_count = sum(1 for c in canonical_native if self._is_chinese_char(c))
+            chinese_char_count = sum(
+                1 for c in canonical_native if self._is_chinese_char(c)
+            )
             total_non_space_chars = sum(
                 1 for c in canonical_native if not c.isspace() and c not in ".,:-"
             )
@@ -662,7 +679,9 @@ class E2_TraditionalChinese(RegionSpec):
             round_trip_score = self._calculate_round_trip_accuracy(
                 canonical_latin, canonical_native
             )
-            if round_trip_score < 0.85:  # Lenient threshold for now (85% instead of 97%)
+            if (
+                round_trip_score < 0.85
+            ):  # Lenient threshold for now (85% instead of 97%)
                 self.logger.debug(
                     f"Low CJK round-trip score: {round_trip_score:.3f} < 0.85 for {canonical_native} / {canonical_latin}"
                 )
@@ -709,7 +728,9 @@ class E2_TraditionalChinese(RegionSpec):
 
         return result
 
-    def _calculate_round_trip_accuracy(self, latin_name: str, native_name: str) -> float:
+    def _calculate_round_trip_accuracy(
+        self, latin_name: str, native_name: str
+    ) -> float:
         """
         V7 Rule 11: CJK Round-Trip validation with Dice coefficient for Traditional Chinese.
 

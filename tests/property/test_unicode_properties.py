@@ -39,7 +39,9 @@ def name_strategy(draw):
     given_name = draw(
         text(
             alphabet=characters(
-                min_codepoint=0x0020, max_codepoint=0x017F, categories=["Lu", "Ll", "Pd", "Po"]
+                min_codepoint=0x0020,
+                max_codepoint=0x017F,
+                categories=["Lu", "Ll", "Pd", "Po"],
             ),
             min_size=1,
             max_size=30,
@@ -78,7 +80,9 @@ def unicode_text_strategy(draw):
 
     return draw(
         text(
-            alphabet=characters(min_codepoint=min_cp, max_codepoint=max_cp), min_size=1, max_size=50
+            alphabet=characters(min_codepoint=min_cp, max_codepoint=max_cp),
+            min_size=1,
+            max_size=50,
         )
     )
 
@@ -88,7 +92,9 @@ def combining_text_strategy(draw):
     """Generate text with combining characters."""
     base_char = draw(characters(min_codepoint=0x0041, max_codepoint=0x005A))  # A-Z
     combining_chars = draw(
-        lists(characters(categories=["Mn", "Mc"]), min_size=0, max_size=5)  # Combining marks
+        lists(
+            characters(categories=["Mn", "Mc"]), min_size=0, max_size=5
+        )  # Combining marks
     )
 
     return base_char + "".join(combining_chars)
@@ -134,7 +140,9 @@ class TestUnicodeNormalizationProperties:
         # Second normalization should be identical
         normalized2 = normalizer.normalize(normalized1)
 
-        assert normalized1 == normalized2, f"Normalization not idempotent: {repr(text_input)}"
+        assert (
+            normalized1 == normalized2
+        ), f"Normalization not idempotent: {repr(text_input)}"
 
     @given(text_input=text(min_size=1, max_size=100))
     @settings(max_examples=200, deadline=None)
@@ -204,7 +212,11 @@ class TestUnicodeNormalizationProperties:
         assert len(normalized) <= len(text_input) * 2  # Generous bound
 
     @given(text_input=problematic_unicode_strategy())
-    @settings(max_examples=100, deadline=None, suppress_health_check=[HealthCheck.filter_too_much])
+    @settings(
+        max_examples=100,
+        deadline=None,
+        suppress_health_check=[HealthCheck.filter_too_much],
+    )
     def test_problematic_unicode_robustness(self, text_input):
         """Test robustness against problematic Unicode."""
         assume(text_input is not None)
@@ -234,7 +246,9 @@ class TestUnicodeNormalizationProperties:
         assert len(variants) == len(set(variants)), f"Duplicate variants: {variants}"
 
         # All variants should be strings
-        assert all(isinstance(v, str) for v in variants), f"Non-string variants: {variants}"
+        assert all(
+            isinstance(v, str) for v in variants
+        ), f"Non-string variants: {variants}"
 
         # Should be reasonable number of variants
         assert len(variants) <= 10, f"Too many variants: {len(variants)}"
@@ -330,7 +344,9 @@ class TestUnicodeNormalizationProperties:
 
         # Should converge to stable result
         final_result = normalizer.normalize(result)
-        assert result == final_result, f"Normalization not stable after {iterations} iterations"
+        assert (
+            result == final_result
+        ), f"Normalization not stable after {iterations} iterations"
 
     @given(text_input=text(min_size=1, max_size=100))
     @settings(max_examples=100, deadline=None)
@@ -371,8 +387,14 @@ class TestUnicodeNormalizationProperties:
         # Should still be a string
         assert isinstance(normalized, str)
 
-    @given(text_input=text(alphabet=characters(categories=["Cc"]), min_size=1, max_size=20))
-    @settings(max_examples=50, deadline=None, suppress_health_check=[HealthCheck.filter_too_much])
+    @given(
+        text_input=text(alphabet=characters(categories=["Cc"]), min_size=1, max_size=20)
+    )
+    @settings(
+        max_examples=50,
+        deadline=None,
+        suppress_health_check=[HealthCheck.filter_too_much],
+    )
     def test_control_character_handling(self, text_input):
         """Test handling of control characters."""
         assume(text_input)
@@ -432,7 +454,13 @@ class TestUnicodeNormalizationRegression:
         """Test specific Arabic cases."""
         normalizer = UnicodeNormalizer()
 
-        test_cases = ["الخوارزمي", "محمد بن موسى", "أبو عبدالله", "ابن سينا", "الفارابي"]
+        test_cases = [
+            "الخوارزمي",
+            "محمد بن موسى",
+            "أبو عبدالله",
+            "ابن سينا",
+            "الفارابي",
+        ]
 
         for text in test_cases:
             normalized = normalizer.normalize(text)

@@ -105,12 +105,16 @@ class QuantumEngine:
         # Validate dependencies
         for dep_id in task.dependencies:
             if dep_id not in self.completed_tasks:
-                self.logger.warning(f"Task {task.task_id} has unresolved dependency: {dep_id}")
+                self.logger.warning(
+                    f"Task {task.task_id} has unresolved dependency: {dep_id}"
+                )
 
         self.task_queue.put(task)
         self.performance_metrics["queue_depth"] = self.task_queue.qsize()
 
-        self.logger.debug(f"Submitted task {task.task_id} with priority {task.priority.name}")
+        self.logger.debug(
+            f"Submitted task {task.task_id} with priority {task.priority.name}"
+        )
         return task.task_id
 
     async def batch_submit(self, tasks: List[ProcessingTask]) -> List[str]:
@@ -196,7 +200,9 @@ class QuantumEngine:
 
             # Execute the task
             loop = asyncio.get_event_loop()
-            result = await loop.run_in_executor(executor, task.processor_func, task.data)
+            result = await loop.run_in_executor(
+                executor, task.processor_func, task.data
+            )
 
             # Record completion
             processing_time = time.time() - start_time
@@ -209,7 +215,9 @@ class QuantumEngine:
             # Update metrics
             self._update_performance_metrics(processing_time)
 
-            self.logger.debug(f"Completed task {task.task_id} in {processing_time:.3f}s")
+            self.logger.debug(
+                f"Completed task {task.task_id} in {processing_time:.3f}s"
+            )
 
         except Exception as e:
             processing_time = time.time() - start_time
@@ -254,7 +262,9 @@ class QuantumEngine:
             try:
                 # Update system metrics
                 self.performance_metrics["cpu_utilization"] = psutil.cpu_percent()
-                self.performance_metrics["memory_utilization"] = psutil.virtual_memory().percent
+                self.performance_metrics["memory_utilization"] = (
+                    psutil.virtual_memory().percent
+                )
 
                 # Log performance stats every 30 seconds
                 if int(time.time()) % 30 == 0:
@@ -351,7 +361,9 @@ class QuantumBatchProcessor:
                 task_id=f"batch_chunk_{i}",
                 data=chunk,
                 priority=priority,
-                processor_func=lambda chunk_data: [processor_func(item) for item in chunk_data],
+                processor_func=lambda chunk_data: [
+                    processor_func(item) for item in chunk_data
+                ],
                 estimated_time=len(chunk) * 0.1,  # Estimate 0.1s per item
             )
             task_id = await self.engine.submit_task(task)

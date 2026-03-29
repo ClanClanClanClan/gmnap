@@ -109,7 +109,9 @@ class EndToEndOrchestrator:
 
             # Stage 3: Regional Processing
             if processed_entry.get("DetectedRegion"):
-                region_processor = self.region_manager.get_region(processed_entry["DetectedRegion"])
+                region_processor = self.region_manager.get_region(
+                    processed_entry["DetectedRegion"]
+                )
                 if region_processor:
                     # Apply regional processing
                     region_processor.clean(processed_entry)
@@ -118,7 +120,9 @@ class EndToEndOrchestrator:
                     self.metrics["stages_executed"] += 1
 
             # Stage 4: Authority Enrichment
-            enriched_entry = await self.stage_implementor.stage_4_authority_enrich(processed_entry)
+            enriched_entry = await self.stage_implementor.stage_4_authority_enrich(
+                processed_entry
+            )
             processed_entry.update(enriched_entry)
             if enriched_entry.get("Stage_4_EnrichmentSources"):
                 self.metrics["authority_enrichments"] += 1
@@ -126,13 +130,17 @@ class EndToEndOrchestrator:
             self.metrics["stages_executed"] += 1
 
             # Stage 6: Generate Short Forms
-            short_form_entry = await self.stage_implementor.stage_6_gen_short_form(processed_entry)
+            short_form_entry = await self.stage_implementor.stage_6_gen_short_form(
+                processed_entry
+            )
             processed_entry.update(short_form_entry)
             processed_entry["ProcessingStages"].append("Stage_6_GenShortForm")
             self.metrics["stages_executed"] += 1
 
             # Stage 8: Global Validation
-            validated_entry = await self.stage_implementor.stage_8_global_validate(processed_entry)
+            validated_entry = await self.stage_implementor.stage_8_global_validate(
+                processed_entry
+            )
             processed_entry.update(validated_entry)
             processed_entry["ProcessingStages"].append("Stage_8_GlobalValidate")
             self.metrics["stages_executed"] += 1
@@ -150,7 +158,9 @@ class EndToEndOrchestrator:
 
         return processed_entry
 
-    async def process_batch(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def process_batch(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """
         Process a batch of entries through the complete pipeline
 
@@ -205,7 +215,12 @@ class EndToEndOrchestrator:
                 "BirthYear": 1879,
                 "Country": "Germany",
             },
-            {"GlobalID": "E2E_002", "Name": "Curie, Marie", "BirthYear": 1867, "Country": "Poland"},
+            {
+                "GlobalID": "E2E_002",
+                "Name": "Curie, Marie",
+                "BirthYear": 1867,
+                "Country": "Poland",
+            },
             {
                 "GlobalID": "E2E_003",
                 "Name": "Turing, Alan",
@@ -240,10 +255,14 @@ class EndToEndOrchestrator:
         successful_entries = [
             e for e in processed_entries if e.get("ProcessingStatus") == "SUCCESS"
         ]
-        failed_entries = [e for e in processed_entries if e.get("ProcessingStatus") == "FAILED"]
+        failed_entries = [
+            e for e in processed_entries if e.get("ProcessingStatus") == "FAILED"
+        ]
 
         # Calculate success metrics
-        success_rate = (len(successful_entries) / len(test_entries)) * 100 if test_entries else 0
+        success_rate = (
+            (len(successful_entries) / len(test_entries)) * 100 if test_entries else 0
+        )
         avg_stages_per_entry = (
             self.metrics["stages_executed"] / len(test_entries) if test_entries else 0
         )
@@ -256,18 +275,24 @@ class EndToEndOrchestrator:
                 "average_per_entry": avg_stages_per_entry,
             },
             "quality_gates": {
-                "gates_run": self.metrics["gates_passed"] + self.metrics["gates_failed"],
+                "gates_run": self.metrics["gates_passed"]
+                + self.metrics["gates_failed"],
                 "gates_passed": self.metrics["gates_passed"],
                 "gates_failed": self.metrics["gates_failed"],
             },
             "authority_sources": {
                 "enrichments_performed": self.metrics["authority_enrichments"],
-                "enrichment_rate": (self.metrics["authority_enrichments"] / len(test_entries))
+                "enrichment_rate": (
+                    self.metrics["authority_enrichments"] / len(test_entries)
+                )
                 * 100,
             },
             "regional_processing": {
                 "detections_performed": self.metrics["regional_detections"],
-                "detection_rate": (self.metrics["regional_detections"] / len(test_entries)) * 100,
+                "detection_rate": (
+                    self.metrics["regional_detections"] / len(test_entries)
+                )
+                * 100,
             },
         }
 
@@ -383,7 +408,9 @@ class EndToEndOrchestrator:
         total_time = end_time - start_time
 
         # Calculate production metrics
-        successful = len([e for e in all_processed if e.get("ProcessingStatus") == "SUCCESS"])
+        successful = len(
+            [e for e in all_processed if e.get("ProcessingStatus") == "SUCCESS"]
+        )
 
         return {
             "production_simulation": {

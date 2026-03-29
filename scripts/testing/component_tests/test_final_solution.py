@@ -133,7 +133,9 @@ async def run_1m_validation():
 
     # Overall assessment
     all_targets_met = all(result["meets_targets"].values())
-    print(f"\n🏆 OVERALL: {'✅ ALL TARGETS MET' if all_targets_met else '❌ TARGETS NOT MET'}")
+    print(
+        f"\n🏆 OVERALL: {'✅ ALL TARGETS MET' if all_targets_met else '❌ TARGETS NOT MET'}"
+    )
 
     if all_targets_met:
         print("🎉 System is PRODUCTION READY!")

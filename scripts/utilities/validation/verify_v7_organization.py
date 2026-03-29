@@ -14,7 +14,11 @@ from typing import Dict, List, Tuple
 class V7OrganizationVerifier:
     def __init__(self, project_root: Path):
         self.project_root = project_root
-        self.results: Dict[str, List[str]] = {"compliance": [], "issues": [], "suggestions": []}
+        self.results: Dict[str, List[str]] = {
+            "compliance": [],
+            "issues": [],
+            "suggestions": [],
+        }
 
     def verify_pipeline_structure(self) -> bool:
         """Verify v7.0 pipeline stages directory structure"""
@@ -88,7 +92,9 @@ class V7OrganizationVerifier:
             full_path = self.project_root / dir_path
             if full_path.exists():
                 file_count = len(list(full_path.glob("*")))
-                self.results["compliance"].append(f"✅ {dir_path} exists with {file_count} files")
+                self.results["compliance"].append(
+                    f"✅ {dir_path} exists with {file_count} files"
+                )
             else:
                 self.results["issues"].append(f"❌ {dir_path} missing")
                 all_dirs_exist = False
@@ -121,7 +127,12 @@ class V7OrganizationVerifier:
             for file in unexpected_files:
                 if not file.endswith((".tar.gz", ".bak")):  # Allow backup files
                     self.results["issues"].append(f"❌ Unexpected file in root: {file}")
-            return len([f for f in unexpected_files if not f.endswith((".tar.gz", ".bak"))]) == 0
+            return (
+                len(
+                    [f for f in unexpected_files if not f.endswith((".tar.gz", ".bak"))]
+                )
+                == 0
+            )
 
     def verify_data_organization(self) -> bool:
         """Verify data directory organization"""
@@ -156,7 +167,9 @@ class V7OrganizationVerifier:
             if item_path.exists():
                 self.results["compliance"].append(f"✅ Config {item} exists")
             else:
-                self.results["suggestions"].append(f"⚠️  Consider creating config/{item}")
+                self.results["suggestions"].append(
+                    f"⚠️  Consider creating config/{item}"
+                )
 
         return True
 

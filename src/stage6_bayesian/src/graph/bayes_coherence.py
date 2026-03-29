@@ -9,7 +9,11 @@ except Exception:
 
 from src.graph_coherence.src.graph.coherence import GraphCoherence
 
-DEFAULT_WEIGHTS = {"betweenness_weight": 0.6, "authority_weight": 0.4, "authority_reliability": {}}
+DEFAULT_WEIGHTS = {
+    "betweenness_weight": 0.6,
+    "authority_weight": 0.4,
+    "authority_reliability": {},
+}
 
 
 class BayesCoherence:

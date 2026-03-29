@@ -79,7 +79,9 @@ class TestValidateCJKRoundtrip:
         back_to_cjk = "John Smith"
 
         with pytest.raises(SecurityError) as exc_info:
-            self.validator.validate_cjk_roundtrip(original, romanized, back_to_cjk, "Latin name")
+            self.validator.validate_cjk_roundtrip(
+                original, romanized, back_to_cjk, "Latin name"
+            )
         assert "Non-CJK text in CJK validation context" in str(exc_info.value)
 
     @pytest.mark.timeout(15)
@@ -129,7 +131,9 @@ class TestValidateCJKRoundtrip:
         back_to_cjk = "王" * 201
 
         with pytest.raises(SecurityError) as exc_info:
-            self.validator.validate_cjk_roundtrip(original, romanized, back_to_cjk, "DoS attempt")
+            self.validator.validate_cjk_roundtrip(
+                original, romanized, back_to_cjk, "DoS attempt"
+            )
         assert "Excessively long CJK conversion" in str(exc_info.value)
 
     @pytest.mark.timeout(15)
@@ -140,7 +144,9 @@ class TestValidateCJKRoundtrip:
         back_to_cjk = "王明"
 
         with pytest.raises(SecurityError) as exc_info:
-            self.validator.validate_cjk_roundtrip(original, romanized, back_to_cjk, "DoS attempt")
+            self.validator.validate_cjk_roundtrip(
+                original, romanized, back_to_cjk, "DoS attempt"
+            )
         assert "Excessively long CJK conversion" in str(exc_info.value)
 
     @pytest.mark.timeout(15)
@@ -381,18 +387,24 @@ class TestValidateEntry:
         entry2 = {"GlobalID": "test-004", "CanonicalLatin": "Test Two"}
 
         # First request should succeed
-        result1 = self.validator.validate_entry(entry1, "First request", enable_rate_limiting=True)
+        result1 = self.validator.validate_entry(
+            entry1, "First request", enable_rate_limiting=True
+        )
         assert result1["valid"] is True
         assert result1["rate_limited"] is False
 
         # Immediate second request should be rate limited
-        result2 = self.validator.validate_entry(entry2, "Second request", enable_rate_limiting=True)
+        result2 = self.validator.validate_entry(
+            entry2, "Second request", enable_rate_limiting=True
+        )
         assert result2["rate_limited"] is True
         assert result2["retry_after"] == 0.1
 
         # Wait and retry
         time.sleep(0.11)
-        result3 = self.validator.validate_entry(entry2, "Third request", enable_rate_limiting=True)
+        result3 = self.validator.validate_entry(
+            entry2, "Third request", enable_rate_limiting=True
+        )
         assert result3["rate_limited"] is False
 
     @pytest.mark.timeout(15)
@@ -402,7 +414,9 @@ class TestValidateEntry:
         entry2 = {"GlobalID": "test-006", "CanonicalLatin": "Test Two"}
 
         # Both rapid requests should succeed with rate limiting disabled
-        result1 = self.validator.validate_entry(entry1, "First request", enable_rate_limiting=False)
+        result1 = self.validator.validate_entry(
+            entry1, "First request", enable_rate_limiting=False
+        )
         result2 = self.validator.validate_entry(
             entry2, "Second request", enable_rate_limiting=False
         )
@@ -413,7 +427,10 @@ class TestValidateEntry:
     @pytest.mark.timeout(15)
     def test_security_error_propagation(self):
         """Test that security errors are properly raised."""
-        entry = {"GlobalID": "test-007", "CanonicalLatin": "Hello\x00World"}  # Null byte
+        entry = {
+            "GlobalID": "test-007",
+            "CanonicalLatin": "Hello\x00World",
+        }  # Null byte
 
         with pytest.raises(SecurityError) as exc_info:
             self.validator.validate_entry(entry, "Malicious entry")
@@ -422,7 +439,11 @@ class TestValidateEntry:
     @pytest.mark.timeout(15)
     def test_cjk_roundtrip_validation_triggered(self):
         """Test that CJK round-trip validation is triggered for CJK text."""
-        entry = {"GlobalID": "test-008", "CanonicalLatin": "Wang Ming", "CanonicalNative": "王明"}
+        entry = {
+            "GlobalID": "test-008",
+            "CanonicalLatin": "Wang Ming",
+            "CanonicalNative": "王明",
+        }
 
         result = self.validator.validate_entry(entry, "CJK entry")
 
@@ -442,7 +463,9 @@ class TestValidateEntry:
         # Should not raise error but add warning
         result = self.validator.validate_entry(entry, "Bad CJK entry")
 
-        assert result["valid"] is False  # Will fail due to null byte in normalize_unicode
+        assert (
+            result["valid"] is False
+        )  # Will fail due to null byte in normalize_unicode
 
     @pytest.mark.timeout(15)
     def test_missing_fields_handled_gracefully(self):
@@ -583,7 +606,9 @@ class TestIntegration:
         # Test long string in CJK validation
         long_cjk = "王" * 201
         with pytest.raises(SecurityError) as exc_info:
-            self.validator.validate_cjk_roundtrip(long_cjk, "Wang" * 201, long_cjk, "DoS test")
+            self.validator.validate_cjk_roundtrip(
+                long_cjk, "Wang" * 201, long_cjk, "DoS test"
+            )
         assert "Excessively long" in str(exc_info.value)
 
         # Test rate limiting in validate_entry

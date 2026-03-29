@@ -105,7 +105,11 @@ class TestV7CJKRoundtrip:
 
         # Chinese Mainland test cases - Simplified Chinese with Pinyin
         chinese_test_cases = [
-            {"CanonicalLatin": "Li, Ming", "CanonicalNative": "李明", "GlobalID": "test_li_ming"},
+            {
+                "CanonicalLatin": "Li, Ming",
+                "CanonicalNative": "李明",
+                "GlobalID": "test_li_ming",
+            },
             {
                 "CanonicalLatin": "Wang, Xiaoli",
                 "CanonicalNative": "王小丽",
@@ -116,10 +120,26 @@ class TestV7CJKRoundtrip:
                 "CanonicalNative": "张伟",
                 "GlobalID": "test_zhang_wei",
             },
-            {"CanonicalLatin": "Liu, Jian", "CanonicalNative": "刘建", "GlobalID": "test_liu_jian"},
-            {"CanonicalLatin": "Chen, Yu", "CanonicalNative": "陈宇", "GlobalID": "test_chen_yu"},
-            {"CanonicalLatin": "Yang, Lei", "CanonicalNative": "杨雷", "GlobalID": "test_yang_lei"},
-            {"CanonicalLatin": "Zhao, Na", "CanonicalNative": "赵娜", "GlobalID": "test_zhao_na"},
+            {
+                "CanonicalLatin": "Liu, Jian",
+                "CanonicalNative": "刘建",
+                "GlobalID": "test_liu_jian",
+            },
+            {
+                "CanonicalLatin": "Chen, Yu",
+                "CanonicalNative": "陈宇",
+                "GlobalID": "test_chen_yu",
+            },
+            {
+                "CanonicalLatin": "Yang, Lei",
+                "CanonicalNative": "杨雷",
+                "GlobalID": "test_yang_lei",
+            },
+            {
+                "CanonicalLatin": "Zhao, Na",
+                "CanonicalNative": "赵娜",
+                "GlobalID": "test_zhao_na",
+            },
             {
                 "CanonicalLatin": "Huang, Qiang",
                 "CanonicalNative": "黄强",
@@ -325,7 +345,9 @@ class TestV7CJKRoundtrip:
                 overall_results.append(results)
 
         if overall_results:
-            avg_accuracy = sum(r["accuracy"] for r in overall_results) / len(overall_results)
+            avg_accuracy = sum(r["accuracy"] for r in overall_results) / len(
+                overall_results
+            )
 
             # Mixed script names should still meet V7 requirement
             assert (
@@ -401,7 +423,9 @@ class TestV7CJKRoundtrip:
                 avg_time < 0.01
             ), f"CJK round-trip too slow for {region_code}: {avg_time:.3f}s per test (expected < 10ms)"
 
-    def _test_roundtrip_accuracy(self, region_code: str, test_cases: List[Dict]) -> Dict[str, Any]:
+    def _test_roundtrip_accuracy(
+        self, region_code: str, test_cases: List[Dict]
+    ) -> Dict[str, Any]:
         """Helper to test round-trip accuracy for a region"""
         region = self.cjk_regions[region_code]
         total_tests = len(test_cases)
@@ -454,7 +478,9 @@ class TestV7CJKRoundtrip:
             # For testing purposes, we'll assume perfect round-trip for basic cases
             # In a full implementation, this would call region-specific conversion methods
 
-            reconstructed_native = original_native  # Placeholder - would be actual conversion
+            reconstructed_native = (
+                original_native  # Placeholder - would be actual conversion
+            )
 
             # Step 3: Calculate Dice coefficient between original and reconstructed native
             accuracy = self.dice_coefficient(original_native, reconstructed_native)

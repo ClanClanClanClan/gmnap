@@ -45,7 +45,13 @@ for name, info in data.items():
         ko = ko_exp  # Use expected for roundtrip test
     elif ko != ko_exp:
         conversion_issues.append(
-            {"name": name, "input": rr, "expected": ko_exp, "actual": ko, "hypos": hypos}
+            {
+                "name": name,
+                "input": rr,
+                "expected": ko_exp,
+                "actual": ko,
+                "hypos": hypos,
+            }
         )
         continue
 

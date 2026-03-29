@@ -74,12 +74,14 @@ def test_model_safety_gate_enforcement():
     """
     # Simulate baseline (current v4 hybrid performance before router integration)
     baseline = EvalReport(
-        overall=0.875, per_class={"A1": 1.0, "A2": 1.0, "B1": 1.0, "E1": 1.0, "E4": 1.0, "G1": 0.0}
+        overall=0.875,
+        per_class={"A1": 1.0, "A2": 1.0, "B1": 1.0, "E1": 1.0, "E4": 1.0, "G1": 0.0},
     )
 
     # Test Case 1: Good candidate (beats baseline by 2.5 pp)
     good_candidate = EvalReport(
-        overall=0.900, per_class={"A1": 1.0, "A2": 1.0, "B1": 1.0, "E1": 1.0, "E4": 1.0, "G1": 0.4}
+        overall=0.900,
+        per_class={"A1": 1.0, "A2": 1.0, "B1": 1.0, "E1": 1.0, "E4": 1.0, "G1": 0.4},
     )
     assert gate(
         good_candidate, baseline, min_gain=0.015
@@ -87,7 +89,8 @@ def test_model_safety_gate_enforcement():
 
     # Test Case 2: Marginal gain (<1.5 pp) - should FAIL
     marginal_candidate = EvalReport(
-        overall=0.880, per_class={"A1": 1.0, "A2": 1.0, "B1": 1.0, "E1": 1.0, "E4": 1.0, "G1": 0.03}
+        overall=0.880,
+        per_class={"A1": 1.0, "A2": 1.0, "B1": 1.0, "E1": 1.0, "E4": 1.0, "G1": 0.03},
     )
     assert not gate(
         marginal_candidate, baseline, min_gain=0.015
@@ -133,7 +136,9 @@ def test_candidate_model_deployment_gate():
     # For now, test that baseline passes its own gate (sanity check)
     candidate_eval = baseline_eval
 
-    passed = gate(candidate_eval, baseline_eval, min_gain=0.0)  # Use 0.0 for baseline vs baseline
+    passed = gate(
+        candidate_eval, baseline_eval, min_gain=0.0
+    )  # Use 0.0 for baseline vs baseline
 
     if not passed:
         failure_msg = f"""
@@ -146,13 +151,13 @@ def test_candidate_model_deployment_gate():
 
         Per-class performance:
         """
-        for cls in set(baseline_eval.per_class.keys()) | set(candidate_eval.per_class.keys()):
+        for cls in set(baseline_eval.per_class.keys()) | set(
+            candidate_eval.per_class.keys()
+        ):
             base_acc = baseline_eval.per_class.get(cls, 0.0)
             cand_acc = candidate_eval.per_class.get(cls, 0.0)
             diff = cand_acc - base_acc
-            failure_msg += (
-                f"\n        {cls}: {cand_acc:.1%} (baseline: {base_acc:.1%}, diff: {diff:+.1%})"
-            )
+            failure_msg += f"\n        {cls}: {cand_acc:.1%} (baseline: {base_acc:.1%}, diff: {diff:+.1%})"
 
         pytest.fail(failure_msg)
 
@@ -169,7 +174,8 @@ def test_v5_fixed_would_be_blocked():
     """
     # v4 baseline
     baseline = EvalReport(
-        overall=0.875, per_class={"A1": 1.0, "A2": 1.0, "B1": 1.0, "E1": 1.0, "E4": 1.0, "G1": 0.0}
+        overall=0.875,
+        per_class={"A1": 1.0, "A2": 1.0, "B1": 1.0, "E1": 1.0, "E4": 1.0, "G1": 0.0},
     )
 
     # v5_FIXED performance (from V5_MODEL_FIX_DEPLOYMENT_SUMMARY_2025_10_31.md)

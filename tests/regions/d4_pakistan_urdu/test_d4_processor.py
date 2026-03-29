@@ -39,7 +39,10 @@ def test_d4_processor():
             "test_name": "Theophoric name with occupational surname",
         },
         # Patronymic patterns
-        {"CanonicalLatin": "Ali bin Muhammad Khan", "test_name": "Explicit patronymic with bin"},
+        {
+            "CanonicalLatin": "Ali bin Muhammad Khan",
+            "test_name": "Explicit patronymic with bin",
+        },
         {
             "CanonicalLatin": "Fatima bint Ahmed Chaudhry",
             "test_name": "Female patronymic with bint",
@@ -53,7 +56,10 @@ def test_d4_processor():
         {"CanonicalLatin": "Asif Ali Zardari", "test_name": "Sindhi clan name"},
         {"CanonicalLatin": "Pervez Musharraf", "test_name": "Simple two-part name"},
         # Regional variations
-        {"CanonicalLatin": "Tariq Mahmood Punjabi", "test_name": "Punjabi regional identifier"},
+        {
+            "CanonicalLatin": "Tariq Mahmood Punjabi",
+            "test_name": "Punjabi regional identifier",
+        },
         {
             "CanonicalLatin": "Prof. Saleem Ahmad Pathan",
             "test_name": "Academic with Pathan tribal identifier",

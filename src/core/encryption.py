@@ -109,7 +109,9 @@ class GMNAPEncryption:
         os.chmod(self.private_key_file, 0o600)
         os.chmod(self.public_key_file, 0o644)
 
-        logger.info(f"Generated RSA key pair: {self.private_key_file}, {self.public_key_file}")
+        logger.info(
+            f"Generated RSA key pair: {self.private_key_file}, {self.public_key_file}"
+        )
 
     def _load_rsa_keys(self):
         """Load RSA keys from files"""
@@ -122,7 +124,9 @@ class GMNAPEncryption:
 
         # Load public key
         with open(self.public_key_file, "rb") as f:
-            self.public_key = serialization.load_pem_public_key(f.read(), backend=default_backend())
+            self.public_key = serialization.load_pem_public_key(
+                f.read(), backend=default_backend()
+            )
 
     def encrypt_data(self, data: Union[str, bytes, Dict[str, Any]]) -> str:
         """
@@ -147,7 +151,9 @@ class GMNAPEncryption:
         iv = os.urandom(16)
 
         # Create cipher
-        cipher = Cipher(algorithms.AES(self.master_key), modes.CBC(iv), backend=default_backend())
+        cipher = Cipher(
+            algorithms.AES(self.master_key), modes.CBC(iv), backend=default_backend()
+        )
 
         # Add padding to plaintext
         plaintext = self._add_padding(plaintext)
@@ -179,7 +185,9 @@ class GMNAPEncryption:
         ciphertext = encrypted_bytes[16:]
 
         # Create cipher
-        cipher = Cipher(algorithms.AES(self.master_key), modes.CBC(iv), backend=default_backend())
+        cipher = Cipher(
+            algorithms.AES(self.master_key), modes.CBC(iv), backend=default_backend()
+        )
 
         # Decrypt
         decryptor = cipher.decryptor()
@@ -206,7 +214,9 @@ class GMNAPEncryption:
         encrypted = self.public_key.encrypt(
             data,
             padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None,
             ),
         )
 
@@ -229,7 +239,9 @@ class GMNAPEncryption:
         decrypted = self.private_key.decrypt(
             encrypted_bytes,
             padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None,
             ),
         )
 
@@ -320,7 +332,11 @@ class GMNAPEncryption:
     def secure_delete_keys(self):
         """Securely delete encryption keys (for testing/reset)"""
 
-        files_to_delete = [self.master_key_file, self.private_key_file, self.public_key_file]
+        files_to_delete = [
+            self.master_key_file,
+            self.private_key_file,
+            self.public_key_file,
+        ]
 
         for file_path in files_to_delete:
             if file_path.exists():

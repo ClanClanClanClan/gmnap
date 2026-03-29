@@ -33,7 +33,12 @@ class E2TraditionalChineseProcessor(RegionSpec):
             scripts=["Traditional Chinese", "Latin"],
             mixed_scripts=True,  # Can have both Chinese and Latin
             canonical_order="Family Given",  # Chinese order: 李明華
-            romanisation_standards=["Wade-Giles", "Tongyong Pinyin", "Zhuyin", "Jyutping"],
+            romanisation_standards=[
+                "Wade-Giles",
+                "Tongyong Pinyin",
+                "Zhuyin",
+                "Jyutping",
+            ],
         )
 
         # Traditional Chinese character ranges (CJK Ideographs)
@@ -438,7 +443,9 @@ class E2TraditionalChineseProcessor(RegionSpec):
             entry["Variants"]["Synthesised"] = []
 
         # Add romanization variants
-        romanizations = self._generate_romanization_variants(name_to_analyze, components)
+        romanizations = self._generate_romanization_variants(
+            name_to_analyze, components
+        )
         for variant in romanizations:
             entry["Variants"]["Synthesised"].append(variant)
 
@@ -508,7 +515,9 @@ class E2TraditionalChineseProcessor(RegionSpec):
     def _is_chinese_char(self, char: str) -> bool:
         """Check if character is a Chinese ideograph."""
         char_code = ord(char)
-        return any(start <= char_code <= end for start, end in self.traditional_chinese_ranges)
+        return any(
+            start <= char_code <= end for start, end in self.traditional_chinese_ranges
+        )
 
     def _parse_chinese_name(self, name: str) -> tuple[str, str]:
         """Parse Chinese name into family and given components."""
@@ -540,7 +549,9 @@ class E2TraditionalChineseProcessor(RegionSpec):
     def _separate_mixed_script(self, name: str) -> tuple[str, str]:
         """Separate mixed Chinese-Latin name into components."""
         chinese_chars = "".join(c for c in name if self._is_chinese_char(c))
-        latin_chars = "".join(c for c in name if c.isalpha() and ord(c) < 256 or c == " ").strip()
+        latin_chars = "".join(
+            c for c in name if c.isalpha() and ord(c) < 256 or c == " "
+        ).strip()
 
         return chinese_chars, latin_chars
 
@@ -576,7 +587,11 @@ class E2TraditionalChineseProcessor(RegionSpec):
         """Basic Chinese to ASCII conversion (placeholder)."""
         # This is a simplified placeholder - real implementation would need
         # proper Chinese-to-Pinyin conversion tables
-        return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii")
+        return (
+            unicodedata.normalize("NFKD", name)
+            .encode("ascii", "ignore")
+            .decode("ascii")
+        )
 
     def _generate_script_variants(
         self, name: str, components: Dict[str, Any]
@@ -611,7 +626,9 @@ class E2TraditionalChineseProcessor(RegionSpec):
         if not self._is_valid_traditional_chinese_name(name_to_check):
             invalid_chars = (
                 set(name_to_check)
-                - set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'")
+                - set(
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'"
+                )
                 - self.allowed_chars
             )
             # Remove valid Chinese characters from invalid set
@@ -624,7 +641,9 @@ class E2TraditionalChineseProcessor(RegionSpec):
         components = entry.get("RegionalExtras", {})
         script = components.get("script")
 
-        if script == "Chinese" and not any(self._is_chinese_char(c) for c in name_to_check):
+        if script == "Chinese" and not any(
+            self._is_chinese_char(c) for c in name_to_check
+        ):
             raise RegionRuleError(
                 "Name marked as Chinese script but contains no Chinese characters"
             )
@@ -642,7 +661,9 @@ class E2TraditionalChineseProcessor(RegionSpec):
     def _is_valid_traditional_chinese_name(self, name: str) -> bool:
         """Check if name contains valid Traditional Chinese characters."""
         # Allow basic Latin, Chinese characters, romanization diacritics, and punctuation
-        allowed = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'")
+        allowed = set(
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'"
+        )
         allowed.update(self.allowed_chars)
 
         for char in name:

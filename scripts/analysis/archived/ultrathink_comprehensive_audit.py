@@ -67,7 +67,8 @@ class UltrathinkAuditor:
 
             print(f"\nTesting {category}...")
             success, stdout, stderr = self.run_command(
-                f"python3 -m pytest {path} -q --tb=no --timeout=2 2>&1 | tail -5", timeout=10
+                f"python3 -m pytest {path} -q --tb=no --timeout=2 2>&1 | tail -5",
+                timeout=10,
             )
 
             if "passed" in stdout:
@@ -124,16 +125,22 @@ for r in results:
     print(r)
 """
 
-        success, stdout, stderr = self.run_command(f'python3 -c "{test_script}"', timeout=10)
+        success, stdout, stderr = self.run_command(
+            f'python3 -c "{test_script}"', timeout=10
+        )
 
         if success and stdout:
             for line in stdout.strip().split("\n"):
                 if "→" in line:
                     if "NO_OUTPUT" in line or "ERROR" in line or "NOT_FOUND" in line:
-                        self.results["broken"][f'region_{line.split(":")[0].strip()}'] = line
+                        self.results["broken"][
+                            f'region_{line.split(":")[0].strip()}'
+                        ] = line
                         print(f"  ❌ {line}")
                     else:
-                        self.results["working"][f'region_{line.split(":")[0].strip()}'] = line
+                        self.results["working"][
+                            f'region_{line.split(":")[0].strip()}'
+                        ] = line
                         print(f"  ✅ {line}")
         else:
             self.results["broken"]["regional_processors"] = stderr or "Failed to test"
@@ -171,7 +178,9 @@ for name, source in sources.items():
         print(f"{name}: ❌ ERROR - {str(e)[:50]}")
 """
 
-        success, stdout, stderr = self.run_command(f'python3 -c "{test_script}"', timeout=10)
+        success, stdout, stderr = self.run_command(
+            f'python3 -c "{test_script}"', timeout=10
+        )
 
         if stdout:
             for line in stdout.strip().split("\n"):
@@ -207,7 +216,9 @@ else:
     print("SQLite: ❌ Database file not found")
 """
 
-        success, stdout, stderr = self.run_command(f'python3 -c "{test_sqlite}"', timeout=5)
+        success, stdout, stderr = self.run_command(
+            f'python3 -c "{test_sqlite}"', timeout=5
+        )
 
         if stdout:
             print(f"  {stdout.strip()}")
@@ -228,7 +239,9 @@ except Exception as e:
     print(f"DuckDB: ❌ {str(e)[:50]}")
 """
 
-        success, stdout, stderr = self.run_command(f'python3 -c "{test_duckdb}"', timeout=5)
+        success, stdout, stderr = self.run_command(
+            f'python3 -c "{test_duckdb}"', timeout=5
+        )
 
         if stdout:
             print(f"  {stdout.strip()}")
@@ -249,7 +262,9 @@ else:
     print(f"Cache: ❌ Got {value} instead of test_value")
 """
 
-        success, stdout, stderr = self.run_command(f'python3 -c "{test_cache}"', timeout=5)
+        success, stdout, stderr = self.run_command(
+            f'python3 -c "{test_cache}"', timeout=5
+        )
 
         if stdout:
             print(f"  {stdout.strip()}")
@@ -277,7 +292,9 @@ except Exception as e:
     print(f"Security Validator: ❌ {str(e)[:50]}")
 """
 
-        success, stdout, stderr = self.run_command(f'python3 -c "{test_security}"', timeout=5)
+        success, stdout, stderr = self.run_command(
+            f'python3 -c "{test_security}"', timeout=5
+        )
 
         if stdout:
             print(f"  {stdout.strip()}")
@@ -295,7 +312,9 @@ except ImportError:
     print("JWT: ❌ Module not installed")
 """
 
-        success, stdout, stderr = self.run_command(f'python3 -c "{test_jwt}"', timeout=5)
+        success, stdout, stderr = self.run_command(
+            f'python3 -c "{test_jwt}"', timeout=5
+        )
 
         if stdout:
             print(f"  {stdout.strip()}")
@@ -328,7 +347,9 @@ except Exception as e:
     print(f"Quality Gates: ❌ {str(e)[:50]}")
 """
 
-        success, stdout, stderr = self.run_command(f'python3 -c "{test_gates}"', timeout=5)
+        success, stdout, stderr = self.run_command(
+            f'python3 -c "{test_gates}"', timeout=5
+        )
 
         if stdout:
             print(f"  {stdout.strip()}")
@@ -360,7 +381,9 @@ async def test():
 asyncio.run(test())
 """
 
-        success, stdout, stderr = self.run_command(f'python3 -c "{test_idempotency}"', timeout=10)
+        success, stdout, stderr = self.run_command(
+            f'python3 -c "{test_idempotency}"', timeout=10
+        )
 
         if stdout:
             for line in stdout.strip().split("\n"):
@@ -420,9 +443,15 @@ asyncio.run(test())
             "working": working_count,
             "broken": broken_count,
             "untested": untested_count,
-            "working_percentage": round(working_count / total * 100, 1) if total > 0 else 0,
-            "broken_percentage": round(broken_count / total * 100, 1) if total > 0 else 0,
-            "untested_percentage": round(untested_count / total * 100, 1) if total > 0 else 0,
+            "working_percentage": (
+                round(working_count / total * 100, 1) if total > 0 else 0
+            ),
+            "broken_percentage": (
+                round(broken_count / total * 100, 1) if total > 0 else 0
+            ),
+            "untested_percentage": (
+                round(untested_count / total * 100, 1) if total > 0 else 0
+            ),
         }
 
         print(f"\n📊 Component Status:")

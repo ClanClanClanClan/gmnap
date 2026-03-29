@@ -79,7 +79,9 @@ class SmartTestConsolidator:
 
         all_tests = list(self.test_root.rglob("test_*.py"))
         all_tests = [
-            t for t in all_tests if "__pycache__" not in str(t) and t not in self.duplicates
+            t
+            for t in all_tests
+            if "__pycache__" not in str(t) and t not in self.duplicates
         ]
 
         name_groups = defaultdict(list)
@@ -94,7 +96,9 @@ class SmartTestConsolidator:
                     hashes.add(self.get_file_hash(f))
 
                 if len(hashes) > 1:
-                    print(f"\n'{name}' exists in multiple locations with DIFFERENT content:")
+                    print(
+                        f"\n'{name}' exists in multiple locations with DIFFERENT content:"
+                    )
                     for f in files:
                         functions = self.extract_test_functions(f)
                         print(f"  - {f} ({len(functions)} test functions)")
@@ -146,7 +150,9 @@ class SmartTestConsolidator:
 
         # Already handled in previous run
         stage_dirs = [
-            d for d in self.test_root.iterdir() if d.is_dir() and d.name.startswith("stage")
+            d
+            for d in self.test_root.iterdir()
+            if d.is_dir() and d.name.startswith("stage")
         ]
 
         if stage_dirs:

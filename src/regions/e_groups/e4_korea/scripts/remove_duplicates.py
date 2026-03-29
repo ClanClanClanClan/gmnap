@@ -72,7 +72,9 @@ def analyze_duplicates(csv_path="resources/rr_syllable_map.csv"):
             print(f"    ❌ Remove: Line {remove_entry[0]} - {remove_entry[1]}")
             cleanup_plan.append(remove_entry[0])
 
-    return sorted(cleanup_plan, reverse=True)  # Remove from end to preserve line numbers
+    return sorted(
+        cleanup_plan, reverse=True
+    )  # Remove from end to preserve line numbers
 
 
 def remove_duplicates_safely(csv_path="resources/rr_syllable_map.csv"):
@@ -105,7 +107,9 @@ def remove_duplicates_safely(csv_path="resources/rr_syllable_map.csv"):
     for line_num in lines_to_remove:
         if 1 <= line_num <= len(all_lines):
             print(f"    🗑️  Removing line {line_num}: {all_lines[line_num-1].strip()}")
-            all_lines.pop(line_num - 1 - removed_count)  # Adjust for already removed lines
+            all_lines.pop(
+                line_num - 1 - removed_count
+            )  # Adjust for already removed lines
             removed_count += 1
 
     # Write cleaned file
@@ -117,7 +121,9 @@ def remove_duplicates_safely(csv_path="resources/rr_syllable_map.csv"):
     # Verify cleanup
     remaining_duplicates = analyze_duplicates(csv_path)
     if remaining_duplicates:
-        print(f"  ⚠️  Still {len(remaining_duplicates)} duplicates found - may need manual review")
+        print(
+            f"  ⚠️  Still {len(remaining_duplicates)} duplicates found - may need manual review"
+        )
         return False
     else:
         print("  ✅ All duplicates successfully removed")

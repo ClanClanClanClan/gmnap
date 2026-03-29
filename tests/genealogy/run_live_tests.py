@@ -81,7 +81,9 @@ def run_tests():
         assert r.status_code == 200
         data = r.json()
         assert data["status"] == "ok"
-        results.add_pass("healthz_endpoint", f"Response time: {r.elapsed.total_seconds():.3f}s")
+        results.add_pass(
+            "healthz_endpoint", f"Response time: {r.elapsed.total_seconds():.3f}s"
+        )
     except Exception as e:
         results.add_fail("healthz_endpoint", e)
 
@@ -164,7 +166,9 @@ def run_tests():
             results.add_fail("lineage_basic", e)
 
         try:
-            r = requests.get(f"{BASE_URL}/genealogy/lineage/{student_id}", params={"max_depth": 3})
+            r = requests.get(
+                f"{BASE_URL}/genealogy/lineage/{student_id}", params={"max_depth": 3}
+            )
             assert r.status_code == 200
             data = r.json()
             assert data["depth"] == 3
@@ -187,7 +191,9 @@ def run_tests():
             assert r.status_code == 200
             data = r.json()
             assert "paths" in data
-            results.add_pass("lineage_invalid_id", f"Returned {len(data['paths'])} paths (empty)")
+            results.add_pass(
+                "lineage_invalid_id", f"Returned {len(data['paths'])} paths (empty)"
+            )
         except Exception as e:
             results.add_fail("lineage_invalid_id", e)
 
@@ -210,7 +216,8 @@ def run_tests():
 
         try:
             r = requests.get(
-                f"{BASE_URL}/genealogy/descendants/{advisor_id}", params={"max_depth": 2}
+                f"{BASE_URL}/genealogy/descendants/{advisor_id}",
+                params={"max_depth": 2},
             )
             assert r.status_code == 200
             data = r.json()
@@ -233,7 +240,8 @@ def run_tests():
                 assert "nodes" in path
                 assert len(path["nodes"]) == path["length"] + 1
                 results.add_pass(
-                    "path_structure", f"Path length: {path['length']}, nodes: {len(path['nodes'])}"
+                    "path_structure",
+                    f"Path length: {path['length']}, nodes: {len(path['nodes'])}",
                 )
         except Exception as e:
             results.add_fail("path_structure", e)
@@ -278,14 +286,18 @@ def run_tests():
         max_time = max(times)
         assert avg_time < 0.5
         assert max_time < 2.0
-        results.add_pass("response_consistency", f"Avg: {avg_time:.3f}s, Max: {max_time:.3f}s")
+        results.add_pass(
+            "response_consistency", f"Avg: {avg_time:.3f}s, Max: {max_time:.3f}s"
+        )
     except Exception as e:
         results.add_fail("response_consistency", e)
 
     if sample_data:
         try:
             start = time.time()
-            r = requests.get(f"{BASE_URL}/genealogy/lineage/{student_id}", params={"max_depth": 20})
+            r = requests.get(
+                f"{BASE_URL}/genealogy/lineage/{student_id}", params={"max_depth": 20}
+            )
             elapsed = time.time() - start
             assert r.status_code == 200
             assert elapsed < 5.0
@@ -307,7 +319,9 @@ def run_tests():
             results.add_fail("default_depth", e)
 
         try:
-            r = requests.get(f"{BASE_URL}/genealogy/lineage/{student_id}", params={"max_depth": -5})
+            r = requests.get(
+                f"{BASE_URL}/genealogy/lineage/{student_id}", params={"max_depth": -5}
+            )
             assert r.status_code == 200
             data = r.json()
             assert data["depth"] >= 1
@@ -321,7 +335,9 @@ def run_tests():
 
     if sample_data:
         try:
-            r = requests.get(f"{BASE_URL}/genealogy/lineage/{student_id}", params={"max_depth": 1})
+            r = requests.get(
+                f"{BASE_URL}/genealogy/lineage/{student_id}", params={"max_depth": 1}
+            )
             api_paths = r.json()["paths"]
 
             with driver.session() as s:

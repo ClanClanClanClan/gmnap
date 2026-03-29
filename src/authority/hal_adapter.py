@@ -14,7 +14,11 @@ class HALAdapter:
         )
 
     async def enrich(self, entry: Dict[str, Any]) -> Dict[str, Any]:
-        q = {"wt": "json", "q": f'authFullName_t:"{entry.get("CanonicalLatin","")}"', "rows": 1}
+        q = {
+            "wt": "json",
+            "q": f'authFullName_t:"{entry.get("CanonicalLatin","")}"',
+            "rows": 1,
+        }
         key = canonical_query_key({"svc": self.name, "q": q})
         cached = await self.ctx.cache.get_json(key)
         if cached is not None:

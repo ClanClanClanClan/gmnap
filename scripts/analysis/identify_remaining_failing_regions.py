@@ -13,20 +13,32 @@ sys.path.append(str(project_root))
 
 # Core edge cases that all regions should handle
 core_edge_cases = [
-    {"name": "Tab character", "test": {"CanonicalLatin": "Test\tName", "GlobalID": "tab"}},
-    {"name": "Newline character", "test": {"CanonicalLatin": "Test\nName", "GlobalID": "newline"}},
+    {
+        "name": "Tab character",
+        "test": {"CanonicalLatin": "Test\tName", "GlobalID": "tab"},
+    },
+    {
+        "name": "Newline character",
+        "test": {"CanonicalLatin": "Test\nName", "GlobalID": "newline"},
+    },
     {"name": "Single char", "test": {"CanonicalLatin": "X", "GlobalID": "single"}},
     {
         "name": "Empty Latin",
         "test": {"CanonicalLatin": "", "CanonicalNative": "Test", "GlobalID": "empty"},
     },
     {"name": "Missing both", "test": {"GlobalID": "missing"}},
-    {"name": "Very long name", "test": {"CanonicalLatin": "A" * 100, "GlobalID": "long"}},
+    {
+        "name": "Very long name",
+        "test": {"CanonicalLatin": "A" * 100, "GlobalID": "long"},
+    },
     {
         "name": "Complex punctuation",
         "test": {"CanonicalLatin": "O'Brien-Smith, Jr.", "GlobalID": "complex"},
     },
-    {"name": "Accented chars", "test": {"CanonicalLatin": "José María", "GlobalID": "accents"}},
+    {
+        "name": "Accented chars",
+        "test": {"CanonicalLatin": "José María", "GlobalID": "accents"},
+    },
 ]
 
 manager = RegionManager(Path("./config"))
@@ -103,7 +115,9 @@ for region_code in all_regions:
                 f"✅ {region_code}: {passes}/{len(core_edge_cases)} ({success_rate:.0f}%) EXCELLENT"
             )
         elif success_rate >= 85:
-            print(f"⚠️ {region_code}: {passes}/{len(core_edge_cases)} ({success_rate:.0f}%) GOOD")
+            print(
+                f"⚠️ {region_code}: {passes}/{len(core_edge_cases)} ({success_rate:.0f}%) GOOD"
+            )
             problematic_regions.append(region_code)
         else:
             print(

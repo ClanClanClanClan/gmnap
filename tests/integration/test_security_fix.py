@@ -68,7 +68,9 @@ for name, expected, description in accuracy_tests:
         print(f"PASS {name} -> {result.region_code} ({description})")
         correct += 1
     else:
-        print(f"FAIL {name} -> {result.region_code} (expected {expected}) - {description}")
+        print(
+            f"FAIL {name} -> {result.region_code} (expected {expected}) - {description}"
+        )
         print(f"   Method: {result.detection_method}, Confidence: {result.confidence}")
 
 print(f"\nAccuracy Results: {correct}/{len(accuracy_tests)} correct")

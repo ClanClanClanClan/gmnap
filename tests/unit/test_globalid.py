@@ -100,7 +100,9 @@ class TestGlobalIDGenerator:
         """Test error when no canonical name provided."""
         entry = {"BirthYear": 1960}
 
-        with pytest.raises(ValueError, match="must have CanonicalNative or CanonicalLatin"):
+        with pytest.raises(
+            ValueError, match="must have CanonicalNative or CanonicalLatin"
+        ):
             self.generator.generate(entry)
 
     def test_unicode_names(self):
@@ -154,7 +156,9 @@ class TestGlobalIDGenerator:
     def test_get_stats(self):
         """Test statistics gathering."""
         # Generate some IDs
-        entries = [{"CanonicalNative": f"Test {i}", "BirthYear": 1950 + i} for i in range(10)]
+        entries = [
+            {"CanonicalNative": f"Test {i}", "BirthYear": 1950 + i} for i in range(10)
+        ]
 
         for entry in entries:
             self.generator.generate(entry)

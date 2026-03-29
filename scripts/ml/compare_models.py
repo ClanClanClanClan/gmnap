@@ -50,7 +50,9 @@ def predict_v4(model_v4: fasttext.FastText._FastText, name: str) -> Tuple[str, f
     return region, confidence
 
 
-def predict_v5(classifier_v5: RegionalClassifierV5, name: str) -> Tuple[str, float, bool]:
+def predict_v5(
+    classifier_v5: RegionalClassifierV5, name: str
+) -> Tuple[str, float, bool]:
     """Predict using v5 model (with calibration and abstention)"""
     result = classifier_v5.predict(name, k=1)
 
@@ -116,7 +118,9 @@ def compute_per_region_metrics(predictions: List[Tuple[str, str]]) -> Dict:
     return metrics
 
 
-def analyze_agreement(v4_preds: List[str], v5_preds: List[str], true_labels: List[str]) -> Dict:
+def analyze_agreement(
+    v4_preds: List[str], v5_preds: List[str], true_labels: List[str]
+) -> Dict:
     """Analyze where v4 and v5 agree/disagree"""
     both_correct = 0
     both_incorrect = 0
@@ -212,14 +216,23 @@ def error_analysis(
                 {"name": name, "predicted": v4, "true": true, "v5_fixed": (v5 == true)}
             )
             if v5 == true:
-                v5_fixed_v4_errors.append({"name": name, "v4_predicted": v4, "true": true})
+                v5_fixed_v4_errors.append(
+                    {"name": name, "v4_predicted": v4, "true": true}
+                )
 
         if v5 != true:
             v5_errors.append(
-                {"name": name, "predicted": v5, "true": true, "v4_correct": (v4 == true)}
+                {
+                    "name": name,
+                    "predicted": v5,
+                    "true": true,
+                    "v4_correct": (v4 == true),
+                }
             )
             if v4 == true:
-                v5_introduced_errors.append({"name": name, "v5_predicted": v5, "true": true})
+                v5_introduced_errors.append(
+                    {"name": name, "v5_predicted": v5, "true": true}
+                )
 
     return {
         "v4_error_count": len(v4_errors),
@@ -235,7 +248,9 @@ def error_analysis(
 def main():
     parser = argparse.ArgumentParser(description="Compare v4 vs v5 models")
     parser.add_argument(
-        "--test-data", default="data/ml_training/test_profiles.json", help="Test dataset JSON file"
+        "--test-data",
+        default="data/ml_training/test_profiles.json",
+        help="Test dataset JSON file",
     )
     parser.add_argument(
         "--model-v4",
@@ -301,7 +316,9 @@ def main():
 
     print(f"  ✅ Predictions complete")
     print(f"     v4: {len(v4_predictions)} predictions")
-    print(f"     v5: {len(v5_predictions)} predictions ({len(v5_abstentions)} abstained)")
+    print(
+        f"     v5: {len(v5_predictions)} predictions ({len(v5_abstentions)} abstained)"
+    )
 
     # Compute metrics
     print("\nComputing metrics...")
@@ -369,7 +386,11 @@ def main():
             "v5_abstained": len(v5_abstentions),
         },
         "models": {
-            "v4": {"file": args.model_v4, "accuracy": v4_accuracy, "label_policy": "affiliation"},
+            "v4": {
+                "file": args.model_v4,
+                "accuracy": v4_accuracy,
+                "label_policy": "affiliation",
+            },
             "v5": {
                 "file": args.model_v5,
                 "accuracy": v5_accuracy,
@@ -379,9 +400,13 @@ def main():
         },
         "comparison": {
             "improvement_pp": improvement_pp,
-            "improvement_pct": (v5_accuracy / v4_accuracy - 1) * 100 if v4_accuracy > 0 else 0,
+            "improvement_pct": (
+                (v5_accuracy / v4_accuracy - 1) * 100 if v4_accuracy > 0 else 0
+            ),
             "winner": (
-                "v5" if v5_accuracy > v4_accuracy else "v4" if v4_accuracy > v5_accuracy else "tie"
+                "v5"
+                if v5_accuracy > v4_accuracy
+                else "v4" if v4_accuracy > v5_accuracy else "tie"
             ),
         },
         "agreement": agreement,
@@ -408,7 +433,9 @@ def main():
     print(f"\n{'Model':<10} {'Accuracy':<12} {'Label Policy':<20} {'Status'}")
     print(f"{'-'*10} {'-'*12} {'-'*20} {'-'*20}")
     print(f"{'v4':<10} {v4_accuracy:<12.2%} {'affiliation':<20} Baseline")
-    print(f"{'v5':<10} {v5_accuracy:<12.2%} {'etymology':<20} +{improvement_pp:.2f}pp improvement")
+    print(
+        f"{'v5':<10} {v5_accuracy:<12.2%} {'etymology':<20} +{improvement_pp:.2f}pp improvement"
+    )
 
     print(
         f"\nVerdict: v5 is {'SIGNIFICANTLY BETTER' if sig_test['significant'] and improvement_pp > 0 else 'BETTER' if improvement_pp > 0 else 'EQUIVALENT'}"

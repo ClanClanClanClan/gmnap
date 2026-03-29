@@ -29,20 +29,32 @@ class V7CompleteIntegrationTest:
 
     def __init__(self):
         self.pipeline = V7PipelineComplete(PipelineMode.QUICK)
-        self.results = {"timestamp": datetime.now().isoformat(), "tests": {}, "summary": {}}
+        self.results = {
+            "timestamp": datetime.now().isoformat(),
+            "tests": {},
+            "summary": {},
+        }
 
     async def test_basic_processing(self):
         """Test basic entry processing."""
         print("\n📝 Testing basic processing...")
 
         test_entries = [
-            {"CanonicalLatin": "John Smith", "CanonicalNative": None, "DetectedRegion": None},
+            {
+                "CanonicalLatin": "John Smith",
+                "CanonicalNative": None,
+                "DetectedRegion": None,
+            },
             {
                 "CanonicalLatin": "Marie Curie",
                 "CanonicalNative": "Maria Skłodowska",
                 "DetectedRegion": None,
             },
-            {"CanonicalLatin": "Kim Min-jun", "CanonicalNative": "김민준", "DetectedRegion": None},
+            {
+                "CanonicalLatin": "Kim Min-jun",
+                "CanonicalNative": "김민준",
+                "DetectedRegion": None,
+            },
         ]
 
         # Process entries
@@ -81,7 +93,10 @@ class V7CompleteIntegrationTest:
             # Empty Latin with native
             {"CanonicalLatin": "", "CanonicalNative": "김민준", "expected_valid": True},
             # Complex hyphenated
-            {"CanonicalLatin": "Jean-Claude Van Damme-O'Connor Jr.", "expected_valid": True},
+            {
+                "CanonicalLatin": "Jean-Claude Van Damme-O'Connor Jr.",
+                "expected_valid": True,
+            },
             # Long name (DoS protection)
             {"CanonicalLatin": "A" * 200, "expected_truncated": True},
         ]
@@ -154,8 +169,16 @@ class V7CompleteIntegrationTest:
             {"CanonicalLatin": "John Smith", "expected_region": "A1"},
             {"CanonicalLatin": "Jean-Pierre Dubois", "expected_region": "A2"},
             {"CanonicalLatin": "Vladimir Petrov", "expected_region": "B1"},
-            {"CanonicalLatin": "김민준", "CanonicalNative": "김민준", "expected_region": "E4"},
-            {"CanonicalLatin": "Zhang Wei", "CanonicalNative": "张伟", "expected_region": "E1"},
+            {
+                "CanonicalLatin": "김민준",
+                "CanonicalNative": "김민준",
+                "expected_region": "E4",
+            },
+            {
+                "CanonicalLatin": "Zhang Wei",
+                "CanonicalNative": "张伟",
+                "expected_region": "E1",
+            },
             {
                 "CanonicalLatin": "Tanaka Taro",
                 "CanonicalNative": "田中太郎",
@@ -185,7 +208,9 @@ class V7CompleteIntegrationTest:
             "total": len(regional_tests),
         }
 
-        print(f"PASS Regional detection: {correct_regions}/{len(regional_tests)} processed")
+        print(
+            f"PASS Regional detection: {correct_regions}/{len(regional_tests)} processed"
+        )
 
         return correct_regions > 0
 
@@ -223,7 +248,9 @@ class V7CompleteIntegrationTest:
             "performance_ratio": entries_per_second / v7_requirement,
         }
 
-        print(f"{'PASS' if passed else 'WARN'} Performance: {entries_per_second:.1f} entries/sec")
+        print(
+            f"{'PASS' if passed else 'WARN'} Performance: {entries_per_second:.1f} entries/sec"
+        )
         print(f"   V7 requirement: {v7_requirement} entries/sec")
         print(f"   Ratio: {entries_per_second/v7_requirement:.1f}x")
 
@@ -275,7 +302,8 @@ class V7CompleteIntegrationTest:
             entry = processed[0]
             # Check for quality gate data
             has_quality_data = (
-                entry.get("Confidence") is not None or entry.get("GraphQualityGates") is not None
+                entry.get("Confidence") is not None
+                or entry.get("GraphQualityGates") is not None
             )
 
         self.results["tests"]["quality_gates"] = {
@@ -331,13 +359,17 @@ class V7CompleteIntegrationTest:
     def generate_summary(self):
         """Generate test summary."""
         total_tests = len(self.results["tests"])
-        passed_tests = sum(1 for t in self.results["tests"].values() if t.get("passed", False))
+        passed_tests = sum(
+            1 for t in self.results["tests"].values() if t.get("passed", False)
+        )
 
         self.results["summary"] = {
             "total_tests": total_tests,
             "passed": passed_tests,
             "failed": total_tests - passed_tests,
-            "success_rate": (passed_tests / total_tests * 100) if total_tests > 0 else 0,
+            "success_rate": (
+                (passed_tests / total_tests * 100) if total_tests > 0 else 0
+            ),
             "v7_compliant": passed_tests >= total_tests - 1,  # Allow 1 failure
         }
 
@@ -366,7 +398,10 @@ class V7CompleteIntegrationTest:
             except Exception as e:
                 print(f"   FAIL Test error: {str(e)[:100]}")
                 test_name = test_func.__name__.replace("test_", "")
-                self.results["tests"][test_name] = {"passed": False, "error": str(e)[:200]}
+                self.results["tests"][test_name] = {
+                    "passed": False,
+                    "error": str(e)[:200],
+                }
 
         # Generate summary
         v7_compliant = self.generate_summary()

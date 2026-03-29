@@ -147,7 +147,9 @@ class GlobalIDGenerator:
 
         # Different person with same base_id - TRUE COLLISION
         logger.warning(f"TRUE GlobalID collision detected for base ID: {base_id}")
-        logger.warning(f"  Existing entries: {list(self._true_collisions[base_id].keys())}")
+        logger.warning(
+            f"  Existing entries: {list(self._true_collisions[base_id].keys())}"
+        )
         logger.warning(f"  New entry: {hash_input}")
 
         # Assign next collision number
@@ -227,11 +229,16 @@ class GlobalIDGenerator:
             1 for entries in self._true_collisions.values() if len(entries) > 1
         )
         total_collisions = sum(
-            sum(collision_nums for collision_nums in entries.values() if collision_nums > 0)
+            sum(
+                collision_nums
+                for collision_nums in entries.values()
+                if collision_nums > 0
+            )
             for entries in self._true_collisions.values()
         )
         max_collision_suffix = max(
-            (max(entries.values()) for entries in self._true_collisions.values()), default=0
+            (max(entries.values()) for entries in self._true_collisions.values()),
+            default=0,
         )
 
         return {

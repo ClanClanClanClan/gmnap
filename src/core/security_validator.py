@@ -169,7 +169,12 @@ class SecurityValidator:
                     pass
 
         # Dangerous control characters (except safe whitespace)
-        self.dangerous_controls = set(range(0, 32)) - {9, 10, 13, 32}  # Allow tab, LF, CR, space
+        self.dangerous_controls = set(range(0, 32)) - {
+            9,
+            10,
+            13,
+            32,
+        }  # Allow tab, LF, CR, space
 
         # Rate limiting tracking
         self.rate_limit_tracker = {}
@@ -229,7 +234,9 @@ class SecurityValidator:
             "ӏ": "l",  # Cyrillic palochka -> Latin l
         }
 
-    def validate_entry(self, entry: Dict[str, Any], context: str = "unknown") -> Dict[str, Any]:
+    def validate_entry(
+        self, entry: Dict[str, Any], context: str = "unknown"
+    ) -> Dict[str, Any]:
         """
         Validate and sanitize an entire entry.
 
@@ -255,7 +262,11 @@ class SecurityValidator:
                     (
                         self.validate_string(item, context=key)
                         if isinstance(item, str)
-                        else self.validate_entry(item) if isinstance(item, dict) else item
+                        else (
+                            self.validate_entry(item)
+                            if isinstance(item, dict)
+                            else item
+                        )
                     )
                     for item in value
                 ]
@@ -279,7 +290,9 @@ class SecurityValidator:
             SecurityError: If string contains dangerous content
         """
         if not isinstance(text, str):
-            raise SecurityError(f"Expected string, got {type(text).__name__} in {context}")
+            raise SecurityError(
+                f"Expected string, got {type(text).__name__} in {context}"
+            )
 
         # Length check first to prevent DoS (V7 requirement)
         # 150-char limit for name fields, 1000 for others
@@ -307,7 +320,9 @@ class SecurityValidator:
                     elif "command" in description.lower():
                         raise SecurityError(f"Command injection detected in {context}")
                     elif "XSS" in description or "script" in description.lower():
-                        raise SecurityError(f"XSS/Script injection detected in {context}")
+                        raise SecurityError(
+                            f"XSS/Script injection detected in {context}"
+                        )
                     else:
                         raise SecurityError(f"{description} detected in {context}")
 
@@ -382,18 +397,37 @@ class SecurityValidator:
 
         if remove_scripts:
             # Remove dangerous keywords
-            dangerous_keywords = ["script", "javascript", "eval", "onclick", "onerror", "onload"]
+            dangerous_keywords = [
+                "script",
+                "javascript",
+                "eval",
+                "onclick",
+                "onerror",
+                "onload",
+            ]
             for keyword in dangerous_keywords:
                 # Case-insensitive replacement
                 result = re.sub(re.escape(keyword), "", result, flags=re.IGNORECASE)
 
         # Remove script tags and their content
-        result = re.sub(r"<script[^>]*>.*?</script>", "", result, flags=re.IGNORECASE | re.DOTALL)
+        result = re.sub(
+            r"<script[^>]*>.*?</script>", "", result, flags=re.IGNORECASE | re.DOTALL
+        )
 
         # Remove dangerous HTML tags
-        dangerous_tags = ["iframe", "object", "embed", "applet", "form", "input", "button"]
+        dangerous_tags = [
+            "iframe",
+            "object",
+            "embed",
+            "applet",
+            "form",
+            "input",
+            "button",
+        ]
         for tag in dangerous_tags:
-            result = re.sub(f"<{tag}[^>]*>.*?</{tag}>", "", result, flags=re.IGNORECASE | re.DOTALL)
+            result = re.sub(
+                f"<{tag}[^>]*>.*?</{tag}>", "", result, flags=re.IGNORECASE | re.DOTALL
+            )
             result = re.sub(f"<{tag}[^>]*/?>", "", result, flags=re.IGNORECASE)
 
         # Escape remaining HTML/XML special characters
@@ -410,7 +444,9 @@ class SecurityValidator:
             result = result.replace(char, replacement)
 
         # Remove any remaining dangerous control characters
-        result = "".join(char for char in result if ord(char) not in self.dangerous_controls)
+        result = "".join(
+            char for char in result if ord(char) not in self.dangerous_controls
+        )
 
         # Truncate to 200 chars for DoS protection
         if len(result) > 200:
@@ -436,7 +472,9 @@ class SecurityValidator:
             for key in data:
                 # Check for collision suffix pattern (--N where N is a number)
                 if isinstance(key, str) and re.match(r".*--\d+$", key):
-                    raise SecurityError(f"YAML collision suffix detected in {context}: {key}")
+                    raise SecurityError(
+                        f"YAML collision suffix detected in {context}: {key}"
+                    )
                 # Validate the key for security issues
                 try:
                     safe_key = self.validate_string(key, context="yaml_key")
@@ -502,8 +540,17 @@ class SecurityValidator:
         # "Аррӏе" should be caught here
         if any(char in self.homograph_mappings for char in text):
             # Check if it looks like a common English word written in Cyrillic
-            converted = "".join(self.homograph_mappings.get(char, char) for char in text)
-            if converted.lower() in ["apple", "google", "microsoft", "admin", "test", "user"]:
+            converted = "".join(
+                self.homograph_mappings.get(char, char) for char in text
+            )
+            if converted.lower() in [
+                "apple",
+                "google",
+                "microsoft",
+                "admin",
+                "test",
+                "user",
+            ]:
                 raise SecurityError(
                     f"Homograph attack detected in {context} (mimics '{converted}')"
                 )
@@ -527,7 +574,9 @@ class SecurityValidator:
 
         # Allow reasonable number of combining characters (accents, etc.)
         # But block excessive stacking like "Ä̈"
-        if combining_count > len(text) * 0.3:  # More than 30% combining chars is suspicious
+        if (
+            combining_count > len(text) * 0.3
+        ):  # More than 30% combining chars is suspicious
             raise SecurityError(
                 f"Excessive combining characters in {context} ({combining_count} combining chars)"
             )
@@ -628,14 +677,18 @@ class SecurityValidator:
                         :30
                     ]:  # Check first 30 patterns
                         if pattern.search(decoded):
-                            raise SecurityError(f"Base64-encoded attack detected in {context}")
+                            raise SecurityError(
+                                f"Base64-encoded attack detected in {context}"
+                            )
                 except SecurityError:
                     # Re-raise SecurityError
                     raise
                 except Exception:
                     # If it looks like base64 but doesn't decode, still suspicious for long strings
                     if len(text) >= 40 and ("+" in text or "/" in text or "=" in text):
-                        raise SecurityError(f"Suspicious Base64-like pattern in {context}")
+                        raise SecurityError(
+                            f"Suspicious Base64-like pattern in {context}"
+                        )
 
     def _check_polyglot_attacks(self, text: str, context: str) -> None:
         """
@@ -649,7 +702,10 @@ class SecurityValidator:
             SecurityError: If polyglot attack patterns detected
         """
         # Skip polyglot checks for metadata fields that might legitimately contain these words
-        if any(field in context.lower() for field in ["method", "type", "mode", "status", "state"]):
+        if any(
+            field in context.lower()
+            for field in ["method", "type", "mode", "status", "state"]
+        ):
             return
 
         # Check for content that could be both valid name and code
@@ -751,7 +807,10 @@ class SecurityValidator:
             self.rate_limit_tracker[client_id] = {"count": 0, "timestamp": current_time}
 
         # Check if window expired and reset if needed
-        if current_time - self.rate_limit_tracker[client_id]["timestamp"] > self.rate_limit_window:
+        if (
+            current_time - self.rate_limit_tracker[client_id]["timestamp"]
+            > self.rate_limit_window
+        ):
             self.rate_limit_tracker[client_id] = {"count": 1, "timestamp": current_time}
             return
 

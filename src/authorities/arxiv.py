@@ -66,7 +66,10 @@ class ArXivAPI:
 
     def _parse_atom_entry(self, entry: ET.Element) -> ArXivPaper:
         """Parse ArXiv Atom feed entry"""
-        ns = {"atom": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
+        ns = {
+            "atom": "http://www.w3.org/2005/Atom",
+            "arxiv": "http://arxiv.org/schemas/atom",
+        }
 
         # Extract basic info
         arxiv_id = entry.find("atom:id", ns).text.split("/")[-1]
@@ -229,7 +232,9 @@ class ArXivAPI:
 
         # Add ArXiv IDs
         arxiv_ids = [p.arxiv_id for p in papers[:3]]  # Top 3 papers
-        entry["ExternalIDs"].append({"type": "ArXiv", "value": arxiv_ids, "source": "ArXiv API"})
+        entry["ExternalIDs"].append(
+            {"type": "ArXiv", "value": arxiv_ids, "source": "ArXiv API"}
+        )
 
         # Extract unique affiliations
         affiliations = set()
@@ -255,7 +260,11 @@ class ArXivAPI:
         # Add metadata
         entry["AuthoritySources"] = entry.get("AuthoritySources", [])
         entry["AuthoritySources"].append(
-            {"source": "ArXiv", "paper_count": len(papers), "categories": list(categories)[:3]}
+            {
+                "source": "ArXiv",
+                "paper_count": len(papers),
+                "categories": list(categories)[:3],
+            }
         )
 
         return entry

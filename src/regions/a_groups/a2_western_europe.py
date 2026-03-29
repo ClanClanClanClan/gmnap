@@ -104,7 +104,9 @@ class A2_WesternEurope(RegionSpec):
         }
 
         # Diacritic patterns for validation (including Hungarian ő, ű)
-        self.diacritic_chars = set("áàâäéèêëíìîïóòôöúùûüñçåæøőűÁÀÂÄÉÈÊËÍÌÎÏÓÒÔÖÚÙÛÜÑÇÅÆØŐŰ")
+        self.diacritic_chars = set(
+            "áàâäéèêëíìîïóòôöúùûüñçåæøőűÁÀÂÄÉÈÊËÍÌÎÏÓÒÔÖÚÙÛÜÑÇÅÆØŐŰ"
+        )
 
         # Country-specific validation patterns
         self.country_patterns = {
@@ -116,7 +118,18 @@ class A2_WesternEurope(RegionSpec):
             },
             "DE": {
                 "required_chars": "äöüß",
-                "particles": {"von", "van", "der", "den", "de", "zum", "zur", "am", "im", "zu"},
+                "particles": {
+                    "von",
+                    "van",
+                    "der",
+                    "den",
+                    "de",
+                    "zum",
+                    "zur",
+                    "am",
+                    "im",
+                    "zu",
+                },
             },
             "IT": {
                 "required_chars": "àáéèíìîóòúù",
@@ -249,7 +262,9 @@ class A2_WesternEurope(RegionSpec):
 
         # Check basic format (Family, Given or Given Family)
         if not (", " in canonical or " " in canonical):
-            raise RegionRuleError("Invalid name format: must contain family and given names")
+            raise RegionRuleError(
+                "Invalid name format: must contain family and given names"
+            )
 
         # Validate character set (Latin script + diacritics)
         valid_chars = set()
@@ -259,7 +274,9 @@ class A2_WesternEurope(RegionSpec):
 
         invalid_chars = set(canonical) - valid_chars
         if invalid_chars:
-            raise RegionRuleError(f"Invalid characters in name: {', '.join(invalid_chars)}")
+            raise RegionRuleError(
+                f"Invalid characters in name: {', '.join(invalid_chars)}"
+            )
 
         # Check for overly long names (likely errors)
         if len(canonical) > 100:
@@ -269,7 +286,9 @@ class A2_WesternEurope(RegionSpec):
         particles_in_name = self._extract_particles(canonical)
         for particle in particles_in_name:
             if particle.lower() not in self.particles:
-                self.logger.warning(f"Unknown particle '{particle}' in name: {canonical}")
+                self.logger.warning(
+                    f"Unknown particle '{particle}' in name: {canonical}"
+                )
 
         # Check for consistent diacritic usage
         if self._has_inconsistent_diacritics(canonical):
@@ -415,11 +434,15 @@ class A2_WesternEurope(RegionSpec):
         name_lower = name.lower()
 
         # Spanish indicators
-        if any(c in name_lower for c in "ñáéíóúü") and self._is_dual_surname_pattern(name):
+        if any(c in name_lower for c in "ñáéíóúü") and self._is_dual_surname_pattern(
+            name
+        ):
             return "ES"
 
         # Portuguese indicators
-        if any(c in name_lower for c in "ãàâáçéêíóôõúü") and self._is_dual_surname_pattern(name):
+        if any(
+            c in name_lower for c in "ãàâáçéêíóôõúü"
+        ) and self._is_dual_surname_pattern(name):
             return "PT"
 
         # French indicators
@@ -442,7 +465,8 @@ class A2_WesternEurope(RegionSpec):
 
         # Dutch indicators
         if any(
-            p in name_lower for p in ["van ", "der ", "den ", "de ", "het ", "ten ", "ter ", "te "]
+            p in name_lower
+            for p in ["van ", "der ", "den ", "de ", "het ", "ten ", "ter ", "te "]
         ):
             return "NL"
 
@@ -488,9 +512,13 @@ class A2_WesternEurope(RegionSpec):
 
             for word in words:
                 # Check if this word had sharp-s characters
-                original_word_idx = name.find(word.replace("ss", "ß").replace("SS", "ẞ"))
+                original_word_idx = name.find(
+                    word.replace("ss", "ß").replace("SS", "ẞ")
+                )
                 if original_word_idx >= 0:
-                    original_word = name[original_word_idx : original_word_idx + len(word)]
+                    original_word = name[
+                        original_word_idx : original_word_idx + len(word)
+                    ]
                     if "ß" in original_word or "ẞ" in original_word:
                         # This word was affected by sharp-s normalization
                         # Ensure proper case handling

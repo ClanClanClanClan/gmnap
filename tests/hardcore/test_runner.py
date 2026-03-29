@@ -57,7 +57,11 @@ class TestResourceMonitor:
                     "memory_vms_mb": memory_info.vms / 1024 / 1024,
                     "cpu_percent": cpu_percent,
                     "num_threads": self.process.num_threads(),
-                    "num_fds": self.process.num_fds() if hasattr(self.process, "num_fds") else 0,
+                    "num_fds": (
+                        self.process.num_fds()
+                        if hasattr(self.process, "num_fds")
+                        else 0
+                    ),
                     "gc_objects": len(gc.get_objects()),
                 }
 
@@ -146,7 +150,9 @@ class HardcoreTestRunner:
                 # Log results
                 self.logger.info(f"Completed {category}: {category_result['status']}")
                 if category_result["status"] == "FAILED":
-                    self.logger.error(f"Failures in {category}: {category_result['failures']}")
+                    self.logger.error(
+                        f"Failures in {category}: {category_result['failures']}"
+                    )
 
                 # Force garbage collection between categories
                 gc.collect()
@@ -256,10 +262,18 @@ class HardcoreTestRunner:
         resource_stats = self.resource_monitor.get_stats()
 
         # Calculate overall stats
-        total_tests = sum(result["stats"].get("total_tests", 0) for result in self.test_results)
-        total_passed = sum(result["stats"].get("passed", 0) for result in self.test_results)
-        total_failed = sum(result["stats"].get("failed", 0) for result in self.test_results)
-        total_skipped = sum(result["stats"].get("skipped", 0) for result in self.test_results)
+        total_tests = sum(
+            result["stats"].get("total_tests", 0) for result in self.test_results
+        )
+        total_passed = sum(
+            result["stats"].get("passed", 0) for result in self.test_results
+        )
+        total_failed = sum(
+            result["stats"].get("failed", 0) for result in self.test_results
+        )
+        total_skipped = sum(
+            result["stats"].get("skipped", 0) for result in self.test_results
+        )
 
         # Overall status
         overall_status = "PASSED" if total_failed == 0 else "FAILED"
@@ -267,7 +281,10 @@ class HardcoreTestRunner:
         # Critical failures (invariant violations)
         critical_failures = []
         for result in self.test_results:
-            if result["category"] == "invariant_verification" and result["status"] == "FAILED":
+            if (
+                result["category"] == "invariant_verification"
+                and result["status"] == "FAILED"
+            ):
                 critical_failures.extend(result["failures"])
 
         report = {
@@ -281,7 +298,9 @@ class HardcoreTestRunner:
                 "passed": total_passed,
                 "failed": total_failed,
                 "skipped": total_skipped,
-                "pass_rate": (total_passed / total_tests) * 100 if total_tests > 0 else 0,
+                "pass_rate": (
+                    (total_passed / total_tests) * 100 if total_tests > 0 else 0
+                ),
             },
             "category_results": self.test_results,
             "critical_failures": critical_failures,
@@ -324,14 +343,16 @@ class HardcoreTestRunner:
                     [
                         r
                         for r in self.test_results
-                        if r["category"] == "invariant_verification" and r["status"] == "FAILED"
+                        if r["category"] == "invariant_verification"
+                        and r["status"] == "FAILED"
                     ]
                 ),
                 "passed": len(
                     [
                         r
                         for r in self.test_results
-                        if r["category"] == "invariant_verification" and r["status"] == "FAILED"
+                        if r["category"] == "invariant_verification"
+                        and r["status"] == "FAILED"
                     ]
                 )
                 == 0,
@@ -404,7 +425,9 @@ class HardcoreTestRunner:
             # Recommendations
             f.write("Recommendations:\n")
             if report["overall_status"] == "FAILED":
-                f.write("  - Address all test failures before deploying to production\n")
+                f.write(
+                    "  - Address all test failures before deploying to production\n"
+                )
             if not report["quality_gates"]["no_invariant_violations"]["passed"]:
                 f.write("  - CRITICAL: Fix invariant violations immediately\n")
             if not report["quality_gates"]["memory_limit_2gb"]["passed"]:
@@ -422,7 +445,9 @@ def main():
     parser = argparse.ArgumentParser(description="Run GMNAP hardcore test suite")
     parser.add_argument("--output-dir", type=Path, help="Output directory for results")
     parser.add_argument("--categories", nargs="+", help="Test categories to run")
-    parser.add_argument("--quick", action="store_true", help="Run quick subset of tests")
+    parser.add_argument(
+        "--quick", action="store_true", help="Run quick subset of tests"
+    )
 
     args = parser.parse_args()
 
@@ -445,7 +470,9 @@ def main():
     )
 
     if report["critical_failures"]:
-        print(f"\nCRITICAL: {len(report['critical_failures'])} invariant violations found!")
+        print(
+            f"\nCRITICAL: {len(report['critical_failures'])} invariant violations found!"
+        )
         return 1
 
     return 0 if report["overall_status"] == "PASSED" else 1

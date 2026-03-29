@@ -16,7 +16,9 @@ def load_dataset(file_path):
     return data["data"]
 
 
-def create_stratified_split(data, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, seed=42):
+def create_stratified_split(
+    data, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, seed=42
+):
     """
     Create stratified train/val/test splits maintaining regional balance.
     """
@@ -136,8 +138,12 @@ def main():
     print("=" * 70)
     print()
     print(f"Combined dataset: {len(combined):,} names")
-    print(f"  - Synthetic: {len(synthetic):,} ({len(synthetic)/len(combined)*100:.1f}%)")
-    print(f"  - Real-world: {len(real_world):,} ({len(real_world)/len(combined)*100:.1f}%)")
+    print(
+        f"  - Synthetic: {len(synthetic):,} ({len(synthetic)/len(combined)*100:.1f}%)"
+    )
+    print(
+        f"  - Real-world: {len(real_world):,} ({len(real_world)/len(combined)*100:.1f}%)"
+    )
     print()
     print("Ready for training:")
     print("  python3 scripts/ml/train_fasttext.py")

@@ -79,7 +79,9 @@ async def test_authority_reality():
     broken = sum(1 for v in results.values() if v in ["STUB", "BROKEN", "EMPTY"])
 
     print()
-    print(f"REALITY: {working} actually working, {partial} partial, {broken} broken/stub/empty")
+    print(
+        f"REALITY: {working} actually working, {partial} partial, {broken} broken/stub/empty"
+    )
     return working, len(results)
 
 
@@ -91,7 +93,10 @@ print("-" * 40)
 
 async def test_real_performance():
     """Test performance without skipping stages."""
-    from src.core.pipeline_v7_complete_final import V7PipelineCompleteFinal, PipelineMode
+    from src.core.pipeline_v7_complete_final import (
+        V7PipelineCompleteFinal,
+        PipelineMode,
+    )
 
     # Force EXTREME mode to prevent optimization cheats
     pipeline = V7PipelineCompleteFinal(mode=PipelineMode.EXTREME)

@@ -28,19 +28,31 @@ TEST_CONFIG = {
     "authority_apis": ["crossref", "openalex", "orcid", "arxiv", "mathgenealogy"],
     "pipeline_stages": list(range(12)),
     "test_mathematicians": [
-        {"GlobalID": "test-tao", "CanonicalLatin": "Tao, Terence", "CanonicalNative": None},
+        {
+            "GlobalID": "test-tao",
+            "CanonicalLatin": "Tao, Terence",
+            "CanonicalNative": None,
+        },
         {
             "GlobalID": "test-mirzakhani",
             "CanonicalLatin": "Mirzakhani, Maryam",
             "CanonicalNative": "مریم میرزاخانی",
         },
-        {"GlobalID": "test-villani", "CanonicalLatin": "Villani, Cédric", "CanonicalNative": None},
+        {
+            "GlobalID": "test-villani",
+            "CanonicalLatin": "Villani, Cédric",
+            "CanonicalNative": None,
+        },
         {
             "GlobalID": "test-perelman",
             "CanonicalLatin": "Perelman, Grigori",
             "CanonicalNative": "Григорий Перельман",
         },
-        {"GlobalID": "test-wiles", "CanonicalLatin": "Wiles, Andrew", "CanonicalNative": None},
+        {
+            "GlobalID": "test-wiles",
+            "CanonicalLatin": "Wiles, Andrew",
+            "CanonicalNative": None,
+        },
     ],
 }
 
@@ -101,7 +113,9 @@ class V7IntegrationTester:
             async with MemgraphClient() as client:
                 # Create test node
                 test_node = GraphNode(
-                    global_id="v7-test-001", canonical_latin="Test V7 Integration", region_code="A1"
+                    global_id="v7-test-001",
+                    canonical_latin="Test V7 Integration",
+                    region_code="A1",
                 )
 
                 success = await client.upsert_mathematician(test_node)
@@ -111,7 +125,9 @@ class V7IntegrationTester:
 
                     # Get metrics
                     metrics = await client.calculate_consistency_metrics()
-                    print(f"  ✓ Graph metrics retrieved: {metrics['total_nodes']} nodes")
+                    print(
+                        f"  ✓ Graph metrics retrieved: {metrics['total_nodes']} nodes"
+                    )
                     return True
                 else:
                     print("  ✗ Failed to create test node")
@@ -245,7 +261,10 @@ class V7IntegrationTester:
                 entry["RegionCode"] = region_code
                 entry["Script"] = script
                 regions_detected.append(region_code)
-            stage_results[2] = {"status": "working", "output": f"Regions: {set(regions_detected)}"}
+            stage_results[2] = {
+                "status": "working",
+                "output": f"Regions: {set(regions_detected)}",
+            }
             print(f"  ✓ Stage 2 (Detect): {len(set(regions_detected))} unique regions")
         except Exception as e:
             stage_results[2] = {"status": "failed", "error": str(e)[:50]}
@@ -264,14 +283,18 @@ class V7IntegrationTester:
 
         # Stage 4: Authority Enrichment
         try:
-            from src.pipeline.stage4_authority_enrichment import enrich_from_authorities_sync
+            from src.pipeline.stage4_authority_enrichment import (
+                enrich_from_authorities_sync,
+            )
 
             batch, metrics = enrich_from_authorities_sync(batch, mode="Quick")
             stage_results[4] = {
                 "status": "working",
                 "output": f"Enriched: {metrics.get('entries_enriched', 0)}",
             }
-            print(f"  ✓ Stage 4 (Authority): {metrics.get('entries_enriched', 0)} enriched")
+            print(
+                f"  ✓ Stage 4 (Authority): {metrics.get('entries_enriched', 0)} enriched"
+            )
         except Exception as e:
             stage_results[4] = {"status": "failed", "error": str(e)[:50]}
             print(f"  ✗ Stage 4 (Authority): {str(e)[:50]}")
@@ -285,7 +308,9 @@ class V7IntegrationTester:
                 "status": "working",
                 "output": f"Duplicates: {collision_stats.get('duplicates', 0)}",
             }
-            print(f"  ✓ Stage 5 (Collision): {collision_stats.get('duplicates', 0)} duplicates")
+            print(
+                f"  ✓ Stage 5 (Collision): {collision_stats.get('duplicates', 0)} duplicates"
+            )
         except Exception as e:
             stage_results[5] = {"status": "failed", "error": str(e)[:50]}
             print(f"  ✗ Stage 5 (Collision): {str(e)[:50]}")
@@ -295,7 +320,10 @@ class V7IntegrationTester:
             # Check if Memgraph is available
             import neo4j
 
-            stage_results[6] = {"status": "skipped", "output": "Memgraph integration pending"}
+            stage_results[6] = {
+                "status": "skipped",
+                "output": "Memgraph integration pending",
+            }
             print(f"  ⚠ Stage 6 (Graph): Skipped (Memgraph required)")
         except ImportError:
             stage_results[6] = {"status": "skipped", "output": "neo4j not installed"}
@@ -316,7 +344,10 @@ class V7IntegrationTester:
         # Stage 8: Global Validation
         try:
             validation_passed = all(entry.get("GlobalID") for entry in batch)
-            stage_results[8] = {"status": "working", "output": f"Valid: {validation_passed}"}
+            stage_results[8] = {
+                "status": "working",
+                "output": f"Valid: {validation_passed}",
+            }
             print(f"  ✓ Stage 8 (Validate): All entries valid")
         except Exception as e:
             stage_results[8] = {"status": "failed", "error": str(e)[:50]}
@@ -333,7 +364,10 @@ class V7IntegrationTester:
                 "regions": len(set(e.get("RegionCode", "unknown") for e in batch)),
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             }
-            stage_results[10] = {"status": "working", "output": f"{len(batch)} entries processed"}
+            stage_results[10] = {
+                "status": "working",
+                "output": f"{len(batch)} entries processed",
+            }
             print(f"  ✓ Stage 10 (Report): Generated")
         except Exception as e:
             stage_results[10] = {"status": "failed", "error": str(e)[:50]}
@@ -344,7 +378,10 @@ class V7IntegrationTester:
             from src.pipeline.stage11_idempotency_gate import _canonical_bytes
 
             canonical = _canonical_bytes(batch)
-            stage_results[11] = {"status": "working", "output": f"{len(canonical)} bytes"}
+            stage_results[11] = {
+                "status": "working",
+                "output": f"{len(canonical)} bytes",
+            }
             print(f"  ✓ Stage 11 (Idempotency): {len(canonical)} bytes canonical form")
         except Exception as e:
             stage_results[11] = {"status": "failed", "error": str(e)[:50]}
@@ -471,7 +508,9 @@ async def run_v7_integration_test():
     tester.results["apis"] = await tester.test_authority_apis()
 
     # 4. Test full pipeline
-    tester.results["pipeline"] = tester.test_full_pipeline(TEST_CONFIG["test_mathematicians"])
+    tester.results["pipeline"] = tester.test_full_pipeline(
+        TEST_CONFIG["test_mathematicians"]
+    )
 
     # 5. Test streaming pipeline
     tester.results["streaming"] = await tester.test_streaming_pipeline()
@@ -504,7 +543,12 @@ async def run_v7_integration_test():
 
     # Save detailed results
     with open("v7_integration_test_results.json", "w") as f:
-        json.dump({"report": report, "detailed_results": tester.results}, f, indent=2, default=str)
+        json.dump(
+            {"report": report, "detailed_results": tester.results},
+            f,
+            indent=2,
+            default=str,
+        )
 
     print("\nDetailed results saved to: v7_integration_test_results.json")
 

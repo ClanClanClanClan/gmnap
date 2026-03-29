@@ -20,32 +20,162 @@ from collections import Counter
 
 # Simple synthetic name generator for rare regions
 SYNTHETIC_NAMES = {
-    "A1": ["John Smith", "Mary Johnson", "David Williams", "Sarah Brown", "Michael Davis"],
-    "A2": ["Hans Mueller", "Jean Dubois", "Marco Rossi", "Pedro Garcia", "Jan de Vries"],
-    "A3": ["Lars Andersson", "Erik Nielsen", "Mikko Virtanen", "Ole Hansen", "Sven Johansson"],
-    "B1": ["Ivan Petrov", "Dmitri Ivanov", "Olga Sokolova", "Andrei Volkov", "Natalia Popova"],
-    "B2": ["Jan Kowalski", "Petr Novak", "Istvan Nagy", "Wojciech Wisniewski", "Anna Nowak"],
-    "B3": ["Georgios Papadopoulos", "Maria Konstantinou", "Dimitrios Georgiou", "Andreas Ioannou"],
+    "A1": [
+        "John Smith",
+        "Mary Johnson",
+        "David Williams",
+        "Sarah Brown",
+        "Michael Davis",
+    ],
+    "A2": [
+        "Hans Mueller",
+        "Jean Dubois",
+        "Marco Rossi",
+        "Pedro Garcia",
+        "Jan de Vries",
+    ],
+    "A3": [
+        "Lars Andersson",
+        "Erik Nielsen",
+        "Mikko Virtanen",
+        "Ole Hansen",
+        "Sven Johansson",
+    ],
+    "B1": [
+        "Ivan Petrov",
+        "Dmitri Ivanov",
+        "Olga Sokolova",
+        "Andrei Volkov",
+        "Natalia Popova",
+    ],
+    "B2": [
+        "Jan Kowalski",
+        "Petr Novak",
+        "Istvan Nagy",
+        "Wojciech Wisniewski",
+        "Anna Nowak",
+    ],
+    "B3": [
+        "Georgios Papadopoulos",
+        "Maria Konstantinou",
+        "Dimitrios Georgiou",
+        "Andreas Ioannou",
+    ],
     "C1": ["Mehmet Yilmaz", "Ayse Demir", "Mustafa Kaya", "Fatma Celik", "Ali Sahin"],
-    "C2": ["Mohammad Rezai", "Fatemeh Ahmadi", "Ali Hosseini", "Zahra Karimi", "Hassan Moradi"],
-    "C3": ["Ahmed Hassan", "Fatima Ali", "Mohamed Ibrahim", "Sara Mahmoud", "Omar Khalil"],
-    "C4": ["Abdullah Al-Rashid", "Fatima Al-Masri", "Mohammed Al-Khalifa", "Aisha Al-Saud"],
+    "C2": [
+        "Mohammad Rezai",
+        "Fatemeh Ahmadi",
+        "Ali Hosseini",
+        "Zahra Karimi",
+        "Hassan Moradi",
+    ],
+    "C3": [
+        "Ahmed Hassan",
+        "Fatima Ali",
+        "Mohamed Ibrahim",
+        "Sara Mahmoud",
+        "Omar Khalil",
+    ],
+    "C4": [
+        "Abdullah Al-Rashid",
+        "Fatima Al-Masri",
+        "Mohammed Al-Khalifa",
+        "Aisha Al-Saud",
+    ],
     "C5": ["Mohamed Benali", "Fatima Bouzid", "Ahmed Mansour", "Yasmine El-Fassi"],
-    "C6": ["David Cohen", "Rachel Levy", "Yosef Katz", "Sarah Friedman", "Michael Goldberg"],
+    "C6": [
+        "David Cohen",
+        "Rachel Levy",
+        "Yosef Katz",
+        "Sarah Friedman",
+        "Michael Goldberg",
+    ],
     "D1": ["Raj Kumar", "Priya Sharma", "Amit Patel", "Anita Singh", "Rahul Gupta"],
-    "D3": ["Rahim Ahmed", "Fatima Begum", "Karim Rahman", "Nasrin Akter", "Habib Chowdhury"],
-    "D4": ["Muhammad Khan", "Fatima Malik", "Ahmed Ali", "Ayesha Hassan", "Omar Hussain"],
+    "D3": [
+        "Rahim Ahmed",
+        "Fatima Begum",
+        "Karim Rahman",
+        "Nasrin Akter",
+        "Habib Chowdhury",
+    ],
+    "D4": [
+        "Muhammad Khan",
+        "Fatima Malik",
+        "Ahmed Ali",
+        "Ayesha Hassan",
+        "Omar Hussain",
+    ],
     "E1": ["Wang Wei", "Li Na", "Zhang Ming", "Liu Yang", "Chen Jing"],
-    "E2": ["Lin Mei-ling", "Chen Chih-wei", "Wu Hsiao-fen", "Huang Ming-chuan", "Lee Shu-chen"],
-    "E3": ["Tanaka Yuki", "Suzuki Aiko", "Sato Takeshi", "Yamamoto Keiko", "Watanabe Hiroshi"],
-    "E4": ["Kim Min-jun", "Lee Seo-yeon", "Park Ji-hoon", "Choi Soo-jin", "Jung Hyun-woo"],
-    "E5": ["Nguyen Van An", "Tran Thi Lan", "Le Van Hai", "Pham Thi Mai", "Hoang Van Duc"],
-    "E6": ["Somchai Srisuk", "Thida Phongsavanh", "Aung Win", "Bopha Sok", "Phimmasone Kham"],
-    "E7": ["Ahmad Bin Hassan", "Siti Nurhaliza", "Jose Rizal", "Maria Santos", "Budi Santoso"],
-    "F1": ["Mamadou Diallo", "Fatou Sow", "Ibrahim Traore", "Aminata Toure", "Ousmane Kone"],
-    "F2": ["Chukwuemeka Okafor", "Amara Mensah", "Kwame Nkrumah", "Nia Kamau", "Abebe Bekele"],
-    "F3": ["Abebe Gebre", "Fatuma Mohamed", "Yohannes Tesfaye", "Hawa Ahmed", "Dawit Haile"],
-    "G1": ["Juan Rodriguez", "Maria Garcia", "Carlos Hernandez", "Ana Martinez", "Jose Lopez"],
+    "E2": [
+        "Lin Mei-ling",
+        "Chen Chih-wei",
+        "Wu Hsiao-fen",
+        "Huang Ming-chuan",
+        "Lee Shu-chen",
+    ],
+    "E3": [
+        "Tanaka Yuki",
+        "Suzuki Aiko",
+        "Sato Takeshi",
+        "Yamamoto Keiko",
+        "Watanabe Hiroshi",
+    ],
+    "E4": [
+        "Kim Min-jun",
+        "Lee Seo-yeon",
+        "Park Ji-hoon",
+        "Choi Soo-jin",
+        "Jung Hyun-woo",
+    ],
+    "E5": [
+        "Nguyen Van An",
+        "Tran Thi Lan",
+        "Le Van Hai",
+        "Pham Thi Mai",
+        "Hoang Van Duc",
+    ],
+    "E6": [
+        "Somchai Srisuk",
+        "Thida Phongsavanh",
+        "Aung Win",
+        "Bopha Sok",
+        "Phimmasone Kham",
+    ],
+    "E7": [
+        "Ahmad Bin Hassan",
+        "Siti Nurhaliza",
+        "Jose Rizal",
+        "Maria Santos",
+        "Budi Santoso",
+    ],
+    "F1": [
+        "Mamadou Diallo",
+        "Fatou Sow",
+        "Ibrahim Traore",
+        "Aminata Toure",
+        "Ousmane Kone",
+    ],
+    "F2": [
+        "Chukwuemeka Okafor",
+        "Amara Mensah",
+        "Kwame Nkrumah",
+        "Nia Kamau",
+        "Abebe Bekele",
+    ],
+    "F3": [
+        "Abebe Gebre",
+        "Fatuma Mohamed",
+        "Yohannes Tesfaye",
+        "Hawa Ahmed",
+        "Dawit Haile",
+    ],
+    "G1": [
+        "Juan Rodriguez",
+        "Maria Garcia",
+        "Carlos Hernandez",
+        "Ana Martinez",
+        "Jose Lopez",
+    ],
 }
 
 
@@ -142,7 +272,9 @@ def print_stats(real_profiles, synthetic_profiles, lines):
         real_count = real_regions.get(region, 0)
         synthetic_count = synthetic_regions.get(region, 0)
         total = real_count + synthetic_count
-        print(f"  {region}: {total} total ({real_count} real, {synthetic_count} synthetic)")
+        print(
+            f"  {region}: {total} total ({real_count} real, {synthetic_count} synthetic)"
+        )
 
     print()
     print(f"Coverage: {len(all_regions)} regions")

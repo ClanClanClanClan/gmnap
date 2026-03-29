@@ -9,7 +9,9 @@ import shutil
 from datetime import datetime
 
 # Backup the current file
-backup_name = f"resources/rr_syllable_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+backup_name = (
+    f"resources/rr_syllable_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+)
 shutil.copy("resources/rr_syllable_map.csv", backup_name)
 print(f"Backed up to: {backup_name}")
 
@@ -39,9 +41,21 @@ bidirectional_fixes = [
     # INITIAL FIXES
     ("제이", "j", "-1.0"),  # 제이 → "j" not "je i" (for initials)
     # COMPOUND PRESERVATION
-    ("성준", "seongjoon", "-0.8"),  # Preserve compound: 성준 → "seongjoon" not "seong jun"
-    ("민정", "minjeong", "-0.8"),  # Preserve compound: 민정 → "minjeong" not "min jeong"
-    ("영철", "youngchul", "-0.8"),  # Preserve compound: 영철 → "youngchul" not "young chul"
+    (
+        "성준",
+        "seongjoon",
+        "-0.8",
+    ),  # Preserve compound: 성준 → "seongjoon" not "seong jun"
+    (
+        "민정",
+        "minjeong",
+        "-0.8",
+    ),  # Preserve compound: 민정 → "minjeong" not "min jeong"
+    (
+        "영철",
+        "youngchul",
+        "-0.8",
+    ),  # Preserve compound: 영철 → "youngchul" not "young chul"
     # ADDITIONAL REVERSE PREFERENCES
     ("계래", "kailai", "-1.0"),  # Compound: 계래 → "kailai" not "gye rae"
     ("여정", "yojong", "-0.6"),  # 여정 → "yojong" not "yeo jeong"
@@ -78,7 +92,9 @@ for hangul, roman, weight in bidirectional_fixes:
                         )
                 else:
                     rows[i] = [hangul, roman, weight]
-                    print(f"  UPDATED REVERSE: {hangul} → {roman} (added weight: {weight})")
+                    print(
+                        f"  UPDATED REVERSE: {hangul} → {roman} (added weight: {weight})"
+                    )
                     updated_count += 1
                 break
 

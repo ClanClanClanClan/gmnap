@@ -30,7 +30,8 @@ async def test_comprehensive_metrics_collection():
         with tempfile.TemporaryDirectory() as temp_dir:
             # Initialize production monitoring
             monitor = ProductionMonitoringSystem(
-                db_path=Path(temp_dir) / "prod_test.db", alert_config=AlertNotificationConfig()
+                db_path=Path(temp_dir) / "prod_test.db",
+                alert_config=AlertNotificationConfig(),
             )
 
             # Let it collect metrics for a few seconds
@@ -73,7 +74,9 @@ async def test_comprehensive_metrics_collection():
                 print("PASS Comprehensive metrics collection successful")
                 return True
             else:
-                print(f"FAIL Comprehensive metrics failed: only {working_metrics}/5 working")
+                print(
+                    f"FAIL Comprehensive metrics failed: only {working_metrics}/5 working"
+                )
                 return False
 
     except Exception as e:
@@ -98,7 +101,9 @@ async def test_real_time_alerting():
         captured_alerts = []
 
         @pytest.mark.timeout(15)
-        def test_alert_handler(webhook_url, level, component, message, value, threshold):
+        def test_alert_handler(
+            webhook_url, level, component, message, value, threshold
+        ):
             captured_alerts.append(
                 {
                     "level": level,
@@ -177,7 +182,8 @@ async def test_live_monitoring_endpoints():
 
         with tempfile.TemporaryDirectory() as temp_dir:
             monitor = ProductionMonitoringSystem(
-                db_path=Path(temp_dir) / "live_test.db", alert_config=AlertNotificationConfig()
+                db_path=Path(temp_dir) / "live_test.db",
+                alert_config=AlertNotificationConfig(),
             )
 
             # Update with realistic metrics
@@ -209,7 +215,9 @@ async def test_live_monitoring_endpoints():
 
             print(f"PASS Live monitoring results:")
             print(f"   Live status sections: {len(live_status.keys())}")
-            print(f"   Pipeline throughput: {live_status['pipeline']['throughput']} entries/sec")
+            print(
+                f"   Pipeline throughput: {live_status['pipeline']['throughput']} entries/sec"
+            )
             print(
                 f"   Database active connections: {live_status['database']['connections_active']}"
             )
@@ -226,7 +234,12 @@ async def test_live_monitoring_endpoints():
                 1 for section in essential_sections if section in live_status
             )
 
-            dashboard_sections_present = ["period", "current_status", "trends", "alerts"]
+            dashboard_sections_present = [
+                "period",
+                "current_status",
+                "trends",
+                "alerts",
+            ]
             dashboard_complete = sum(
                 1 for section in dashboard_sections_present if section in dashboard
             )
@@ -254,7 +267,11 @@ async def test_production_integration():
             ProductionMonitoringSystem,
             AlertNotificationConfig,
         )
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig, test_data_generator
+        from src.core.streaming_v7 import (
+            V7StreamingPipeline,
+            StreamingConfig,
+            test_data_generator,
+        )
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Initialize production monitoring
@@ -344,7 +361,11 @@ async def test_monitoring_performance_impact():
             ProductionMonitoringSystem,
             AlertNotificationConfig,
         )
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig, test_data_generator
+        from src.core.streaming_v7 import (
+            V7StreamingPipeline,
+            StreamingConfig,
+            test_data_generator,
+        )
 
         # Test without monitoring
         print("   Testing baseline performance (no monitoring)...")
@@ -360,7 +381,8 @@ async def test_monitoring_performance_impact():
         print("   Testing performance with production monitoring...")
         with tempfile.TemporaryDirectory() as temp_dir:
             monitor = ProductionMonitoringSystem(
-                db_path=Path(temp_dir) / "perf_test.db", alert_config=AlertNotificationConfig()
+                db_path=Path(temp_dir) / "perf_test.db",
+                alert_config=AlertNotificationConfig(),
             )
 
             start_time = time.time()
@@ -379,14 +401,20 @@ async def test_monitoring_performance_impact():
             monitor.shutdown()
 
         # Calculate performance impact
-        impact_percent = ((monitored_duration - baseline_duration) / baseline_duration) * 100
+        impact_percent = (
+            (monitored_duration - baseline_duration) / baseline_duration
+        ) * 100
 
         print(f"PASS Performance impact results:")
         print(f"   Baseline duration: {baseline_duration:.2f}s")
         print(f"   Monitored duration: {monitored_duration:.2f}s")
         print(f"   Performance impact: {impact_percent:.1f}%")
-        print(f"   Baseline throughput: {baseline_metrics.average_throughput:.1f} entries/sec")
-        print(f"   Monitored throughput: {monitored_metrics.average_throughput:.1f} entries/sec")
+        print(
+            f"   Baseline throughput: {baseline_metrics.average_throughput:.1f} entries/sec"
+        )
+        print(
+            f"   Monitored throughput: {monitored_metrics.average_throughput:.1f} entries/sec"
+        )
 
         # Acceptable impact is < 10%
         if abs(impact_percent) < 10:
@@ -437,7 +465,9 @@ async def main():
 
     # Brutal assessment
     print("\n" + "=" * 80)
-    print(f"🎯 PRODUCTION MONITORING BRUTAL RESULTS: {tests_passed}/{total_tests} PASSED")
+    print(
+        f"🎯 PRODUCTION MONITORING BRUTAL RESULTS: {tests_passed}/{total_tests} PASSED"
+    )
 
     if tests_passed == total_tests:
         print("🚀 PRODUCTION MONITORING: TRULY PRODUCTION READY")

@@ -94,7 +94,9 @@ class HellLevelTester:
         logger.setLevel(logging.INFO)
 
         if not logger.handlers:
-            formatter = logging.Formatter("%(asctime)s [HELL-TEST] %(levelname)s: %(message)s")
+            formatter = logging.Formatter(
+                "%(asctime)s [HELL-TEST] %(levelname)s: %(message)s"
+            )
             console_handler = logging.StreamHandler()
             console_handler.setFormatter(formatter)
             logger.addHandler(console_handler)
@@ -133,14 +135,25 @@ class HellLevelTester:
         ]
 
         # Command injection
-        cmd_attacks = ["; rm -rf /", "| cat /etc/passwd", "&& format c:", "`whoami`", "$(rm -rf /)"]
+        cmd_attacks = [
+            "; rm -rf /",
+            "| cat /etc/passwd",
+            "&& format c:",
+            "`whoami`",
+            "$(rm -rf /)",
+        ]
 
         # Combine all attacks
         all_attacks = sql_attacks + xss_attacks + path_attacks + cmd_attacks
 
         for attack in all_attacks:
             malicious.append(
-                {"name": attack, "email": f"{attack}@evil.com", "comment": attack, "data": attack}
+                {
+                    "name": attack,
+                    "email": f"{attack}@evil.com",
+                    "comment": attack,
+                    "data": attack,
+                }
             )
 
         return malicious
@@ -192,7 +205,11 @@ class HellLevelTester:
         # Massive string inputs
         for size in [10**5, 10**6, 10**7]:  # 100K, 1M, 10M chars
             exhaustion.append(
-                {"name": "A" * size, "data": "x" * size, "comment": "Memory exhaustion test"}
+                {
+                    "name": "A" * size,
+                    "data": "x" * size,
+                    "comment": "Memory exhaustion test",
+                }
             )
 
         # Nested structure attacks
@@ -204,12 +221,17 @@ class HellLevelTester:
 
         # Array multiplication attacks
         exhaustion.append(
-            {"name": "array_bomb", "data": ["x" * 1000 for _ in range(1000)]}  # Large array
+            {
+                "name": "array_bomb",
+                "data": ["x" * 1000 for _ in range(1000)],
+            }  # Large array
         )
 
         return exhaustion
 
-    async def run_hell_testing_suite(self, target_regions: List[str] = None) -> Dict[str, Any]:
+    async def run_hell_testing_suite(
+        self, target_regions: List[str] = None
+    ) -> Dict[str, Any]:
         """Run the complete hell-level testing suite."""
         self.logger.info("🔥 HELL-LEVEL TESTING SUITE INITIATED")
         self.logger.info("=" * 80)
@@ -255,13 +277,33 @@ class HellLevelTester:
 
         # Test cases specific to each working region
         region_test_cases = {
-            "A2": [{"name": "Jean Dupont"}, {"name": "Marie Dubois"}, {"name": "Pierre Martin"}],
-            "A3": [{"name": "Lars Andersen"}, {"name": "Erik Nilsson"}, {"name": "Anna Korhonen"}],
-            "B2": [{"name": "Marko Petrović"}, {"name": "Ana Novak"}, {"name": "Petar Jovanović"}],
+            "A2": [
+                {"name": "Jean Dupont"},
+                {"name": "Marie Dubois"},
+                {"name": "Pierre Martin"},
+            ],
+            "A3": [
+                {"name": "Lars Andersen"},
+                {"name": "Erik Nilsson"},
+                {"name": "Anna Korhonen"},
+            ],
+            "B2": [
+                {"name": "Marko Petrović"},
+                {"name": "Ana Novak"},
+                {"name": "Petar Jovanović"},
+            ],
             "E2": [{"name": "李明華"}, {"name": "王小明"}, {"name": "陳美玲"}],
             "E4": [{"name": "김철수"}, {"name": "박영희"}, {"name": "이민수"}],
-            "E5": [{"name": "Nguyễn Văn Nam"}, {"name": "Trần Thị Lan"}, {"name": "Lê Văn Hùng"}],
-            "G1": [{"name": "José García"}, {"name": "María López"}, {"name": "Carlos Rodríguez"}],
+            "E5": [
+                {"name": "Nguyễn Văn Nam"},
+                {"name": "Trần Thị Lan"},
+                {"name": "Lê Văn Hùng"},
+            ],
+            "G1": [
+                {"name": "José García"},
+                {"name": "María López"},
+                {"name": "Carlos Rodríguez"},
+            ],
         }
 
         # Test each region with ACTUAL PROCESSING (not just detection)
@@ -328,7 +370,9 @@ class HellLevelTester:
                 # Try to bypass security
                 self.security_validator.validate_entry(malicious_input)
                 security_bypasses += 1
-                self.logger.warning(f"WARN  Security bypass: {malicious_input['name'][:20]}...")
+                self.logger.warning(
+                    f"WARN  Security bypass: {malicious_input['name'][:20]}..."
+                )
             except Exception:
                 security_blocks += 1  # Expected - security should block
 
@@ -513,7 +557,9 @@ class HellLevelTester:
                 except Exception:
                     mutations_crashed += 1
 
-        survival_rate = mutations_survived / (mutations_survived + mutations_crashed) * 100
+        survival_rate = (
+            mutations_survived / (mutations_survived + mutations_crashed) * 100
+        )
 
         self._record_result(
             "adversarial_mutation",
@@ -636,7 +682,9 @@ class HellLevelTester:
         self.logger.info("🔥 HELL-LEVEL TESTING REPORT")
         self.logger.info("=" * 80)
 
-        success_rate = self.passed_tests / self.total_tests * 100 if self.total_tests > 0 else 0
+        success_rate = (
+            self.passed_tests / self.total_tests * 100 if self.total_tests > 0 else 0
+        )
 
         # Overall statistics
         self.logger.info(f"\n📊 OVERALL STATISTICS:")
@@ -747,7 +795,15 @@ async def main():
 
     # HONEST TARGET REGIONS - Only test regions that actually work
     # Based on comprehensive audit results
-    target_regions = ["A2", "A3", "B2", "E2", "E4", "E5", "G1"]  # Only 7 working regions
+    target_regions = [
+        "A2",
+        "A3",
+        "B2",
+        "E2",
+        "E4",
+        "E5",
+        "G1",
+    ]  # Only 7 working regions
 
     report = await tester.run_hell_testing_suite(target_regions)
 
@@ -755,7 +811,9 @@ async def main():
     with open("hell_level_test_report.json", "w") as f:
         json.dump(report, f, indent=2)
 
-    print(f"\n🔥 Hell-level testing complete. Report saved to hell_level_test_report.json")
+    print(
+        f"\n🔥 Hell-level testing complete. Report saved to hell_level_test_report.json"
+    )
     return report
 
 

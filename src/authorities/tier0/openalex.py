@@ -88,7 +88,8 @@ class OpenAlexFetcher(AuthorityFetcher):
                         # Search results
                         if not data["results"]:
                             return FetchResult(
-                                status=FetchStatus.NOT_FOUND, error_message="No results found"
+                                status=FetchStatus.NOT_FOUND,
+                                error_message="No results found",
                             )
 
                         # Take best match
@@ -127,7 +128,9 @@ class OpenAlexFetcher(AuthorityFetcher):
                     )
 
         except asyncio.TimeoutError:
-            return FetchResult(status=FetchStatus.NETWORK_ERROR, error_message="Request timeout")
+            return FetchResult(
+                status=FetchStatus.NETWORK_ERROR, error_message="Request timeout"
+            )
 
         except Exception as e:
             self.logger.error(f"Fetch error: {e}")
@@ -148,7 +151,9 @@ class OpenAlexFetcher(AuthorityFetcher):
             return AuthorityData(source=self.service, source_id="", canonical_name="")
 
         # Extract basic info
-        openalex_id = response.get("id", "").split("/")[-1] if response.get("id") else ""
+        openalex_id = (
+            response.get("id", "").split("/")[-1] if response.get("id") else ""
+        )
         display_name = response.get("display_name", "")
 
         # Initialize data

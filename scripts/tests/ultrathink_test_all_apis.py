@@ -309,11 +309,15 @@ def main():
 
     # Check environment
     print("\n=== Environment Check ===")
-    print(f"ORCID_CLIENT_ID: {'✅ Set' if os.environ.get('ORCID_CLIENT_ID') else '❌ Not set'}")
+    print(
+        f"ORCID_CLIENT_ID: {'✅ Set' if os.environ.get('ORCID_CLIENT_ID') else '❌ Not set'}"
+    )
     print(
         f"ORCID_CLIENT_SECRET: {'✅ Set' if os.environ.get('ORCID_CLIENT_SECRET') else '❌ Not set'}"
     )
-    print(f"PUBMED_API_KEY: {'✅ Set' if os.environ.get('PUBMED_API_KEY') else '❌ Not set'}")
+    print(
+        f"PUBMED_API_KEY: {'✅ Set' if os.environ.get('PUBMED_API_KEY') else '❌ Not set'}"
+    )
     print(
         f"CROSSREF_API_KEY: {'✅ Set' if os.environ.get('CROSSREF_API_KEY') else '⚠️ Not set (optional)'}"
     )
@@ -354,8 +358,12 @@ def main():
             print(f"❌ {api}: FAILED")
 
     print(f"\n📊 Statistics:")
-    print(f"   Working: {len(working)}/{len(results)} ({100*len(working)/len(results):.1f}%)")
-    print(f"   Failed: {len(failed)}/{len(results)} ({100*len(failed)/len(results):.1f}%)")
+    print(
+        f"   Working: {len(working)}/{len(results)} ({100*len(working)/len(results):.1f}%)"
+    )
+    print(
+        f"   Failed: {len(failed)}/{len(results)} ({100*len(failed)/len(results):.1f}%)"
+    )
 
     print(f"\n✅ Working APIs: {', '.join(working) if working else 'None'}")
     print(f"❌ Failed APIs: {', '.join(failed) if failed else 'None'}")

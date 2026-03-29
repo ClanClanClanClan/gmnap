@@ -102,7 +102,9 @@ def add_v7_security_to_file(file_path: Path, region_code: str) -> None:
             new_lines.append(line)
 
             # Detect start of validate method
-            if line.strip().startswith("def validate(self, entry: Dict[str, Any]) -> None:"):
+            if line.strip().startswith(
+                "def validate(self, entry: Dict[str, Any]) -> None:"
+            ):
                 in_validate = True
                 validate_indent = len(line) - len(line.lstrip())
                 continue
@@ -161,7 +163,10 @@ def main():
     # Define the files to fix
     regions_to_fix = [
         {"code": "E2", "path": Path("src/regions/e_groups/e2_traditional_chinese.py")},
-        {"code": "A3", "path": Path("src/regions/a_groups/a3_nordic_baltic/processor.py")},
+        {
+            "code": "A3",
+            "path": Path("src/regions/a_groups/a3_nordic_baltic/processor.py"),
+        },
         {"code": "B3", "path": Path("src/regions/b_groups/b3_greek.py")},
     ]
 
@@ -176,7 +181,9 @@ def main():
 
     print()
     print("=" * 60)
-    print(f"📊 V7 SECURITY FIXES APPLIED: {success_count}/{len(regions_to_fix)} regions")
+    print(
+        f"📊 V7 SECURITY FIXES APPLIED: {success_count}/{len(regions_to_fix)} regions"
+    )
 
     if success_count == len(regions_to_fix):
         print("🎉 ALL REGIONS SUCCESSFULLY UPDATED!")

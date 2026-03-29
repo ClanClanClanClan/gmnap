@@ -178,7 +178,9 @@ class V7PipelineComplete:
 
     def _get_worker_count(self) -> int:
         """Get worker count based on mode."""
-        return {PipelineMode.QUICK: 4, PipelineMode.FULL: 8, PipelineMode.EXTREME: 12}[self.mode]
+        return {PipelineMode.QUICK: 4, PipelineMode.FULL: 8, PipelineMode.EXTREME: 12}[
+            self.mode
+        ]
 
     async def process_batch(
         self, entries: List[Dict[str, Any]], chunk_size: int = 8000
@@ -251,7 +253,10 @@ class V7PipelineComplete:
         return {
             "success": gates_passed,
             "metrics": asdict(self.metrics),
-            "quality_gates": {"passed": gates_passed, "checks": self._get_quality_gate_results()},
+            "quality_gates": {
+                "passed": gates_passed,
+                "checks": self._get_quality_gate_results(),
+            },
             "results": all_results[:10],  # First 10 for inspection
             "output_files": {
                 "yaml": str(self._output_path / "output.yaml"),
@@ -278,15 +283,23 @@ class V7PipelineComplete:
             raise RuntimeError(f"Required components missing: {failed_checks}")
 
         # Validate configuration
-        required_keys = ["streaming_chunk_size", "security_enabled", "authority_sources"]
+        required_keys = [
+            "streaming_chunk_size",
+            "security_enabled",
+            "authority_sources",
+        ]
         missing_keys = [k for k in required_keys if k not in self.config]
         if missing_keys:
             raise RuntimeError(f"Required config keys missing: {missing_keys}")
 
         self.metrics.stage_timings["stage_0_config"] = time.time() - start_time
-        logger.info(f"Stage 0 completed in {self.metrics.stage_timings['stage_0_config']:.2f}s")
+        logger.info(
+            f"Stage 0 completed in {self.metrics.stage_timings['stage_0_config']:.2f}s"
+        )
 
-    async def _stage_1_ingest(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_1_ingest(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 1: Ingest with Unicode normalization and security validation."""
         start_time = time.time()
         logger.info(f"Stage 1: Ingesting {len(entries)} entries")
@@ -298,7 +311,9 @@ class V7PipelineComplete:
                 # Security validation FIRST
                 if self.config.get("security_enabled", True):
                     try:
-                        entry = self.security_validator.validate_entry(entry, context="ingest")
+                        entry = self.security_validator.validate_entry(
+                            entry, context="ingest"
+                        )
                     except SecurityError as e:
                         logger.warning(f"Security validation failed: {e}")
                         self.metrics.security_blocked += 1
@@ -308,10 +323,20 @@ class V7PipelineComplete:
                 # Unicode normalization per V7 spec: NFC→NFKD→fold→NFC
                 import unicodedata
 
-                for field in ["CanonicalLatin", "CanonicalNative", "GivenName", "FamilyName"]:
+                for field in [
+                    "CanonicalLatin",
+                    "CanonicalNative",
+                    "GivenName",
+                    "FamilyName",
+                ]:
                     if field in entry and entry[field]:
                         # First normalize whitespace (tabs, newlines -> spaces)
-                        text = entry[field].replace("\t", " ").replace("\n", " ").replace("\r", " ")
+                        text = (
+                            entry[field]
+                            .replace("\t", " ")
+                            .replace("\n", " ")
+                            .replace("\r", " ")
+                        )
                         # Multiple spaces to single space
                         text = " ".join(text.split())
 
@@ -319,7 +344,9 @@ class V7PipelineComplete:
                         text = unicodedata.normalize("NFC", text)  # Start with NFC
                         text = unicodedata.normalize("NFKD", text)  # Decompose
                         text_folded = text.casefold()  # Case fold for comparison
-                        text = unicodedata.normalize("NFC", text)  # Back to NFC for storage
+                        text = unicodedata.normalize(
+                            "NFC", text
+                        )  # Back to NFC for storage
 
                         entry[field] = text
                         # Store folded version for matching
@@ -337,11 +364,15 @@ class V7PipelineComplete:
                 self.metrics.failed_entries += 1
 
         self.metrics.stage_timings["stage_1_ingest"] = time.time() - start_time
-        logger.info(f"Stage 1 completed: {len(processed)}/{len(entries)} entries processed")
+        logger.info(
+            f"Stage 1 completed: {len(processed)}/{len(entries)} entries processed"
+        )
 
         return processed
 
-    async def _stage_2_detect_region(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_2_detect_region(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 2: Detect region using multi-stage detection."""
         start_time = time.time()
         logger.info(f"Stage 2: Detecting regions for {len(entries)} entries")
@@ -362,11 +393,15 @@ class V7PipelineComplete:
                 entry["_region_confidence"] = 0.0
 
         self.metrics.stage_timings["stage_2_detect"] = time.time() - start_time
-        logger.info(f"Stage 2 completed in {self.metrics.stage_timings['stage_2_detect']:.2f}s")
+        logger.info(
+            f"Stage 2 completed in {self.metrics.stage_timings['stage_2_detect']:.2f}s"
+        )
 
         return entries
 
-    async def _stage_3_region_hooks(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_3_region_hooks(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 3: Apply regional processing rules."""
         start_time = time.time()
         logger.info(f"Stage 3: Applying region hooks to {len(entries)} entries")
@@ -392,7 +427,9 @@ class V7PipelineComplete:
                 entry["_region_processed"] = False
 
         self.metrics.stage_timings["stage_3_hooks"] = time.time() - start_time
-        logger.info(f"Stage 3 completed in {self.metrics.stage_timings['stage_3_hooks']:.2f}s")
+        logger.info(
+            f"Stage 3 completed in {self.metrics.stage_timings['stage_3_hooks']:.2f}s"
+        )
 
         return entries
 
@@ -430,7 +467,9 @@ class V7PipelineComplete:
                     except Exception as e:
                         logger.debug(f"Authority {source} failed: {e}")
 
-        self.metrics.stage_timings["stage_4_authority_enrich"] = time.time() - start_time
+        self.metrics.stage_timings["stage_4_authority_enrich"] = (
+            time.time() - start_time
+        )
         logger.info(
             f"Stage 4 completed in {self.metrics.stage_timings['stage_4_authority_enrich']:.2f}s"
         )
@@ -468,14 +507,20 @@ class V7PipelineComplete:
                 for idx in indices:
                     entries[idx]["_has_collision"] = True
                     entries[idx]["_collision_count"] = len(indices) - 1
-                    entries[idx]["_collision_indices"] = [i for i in indices if i != idx]
+                    entries[idx]["_collision_indices"] = [
+                        i for i in indices if i != idx
+                    ]
 
                     # Generate unique suffix if needed
                     if len(indices) > 1:
                         entries[idx]["_collision_suffix"] = f"--{idx}"
 
-        self.metrics.stage_timings["stage_5_collision_analytics"] = time.time() - start_time
-        logger.info(f"Stage 5 completed: {self.metrics.duplicate_external_ids} collisions found")
+        self.metrics.stage_timings["stage_5_collision_analytics"] = (
+            time.time() - start_time
+        )
+        logger.info(
+            f"Stage 5 completed: {self.metrics.duplicate_external_ids} collisions found"
+        )
 
         return entries
 
@@ -495,7 +540,11 @@ class V7PipelineComplete:
             global_id = entry["GlobalID"]
 
             # Add to graph (simulated)
-            self._graph_nodes[global_id] = {"entry": entry, "edges": [], "betweenness": 0.0}
+            self._graph_nodes[global_id] = {
+                "entry": entry,
+                "edges": [],
+                "betweenness": 0.0,
+            }
 
             # Check for conflicts
             if "_collision_indices" in entry:
@@ -506,11 +555,15 @@ class V7PipelineComplete:
             entry["_graph_coherence"] = 0.85 + (0.15 * random.random())  # Simulated
 
         self.metrics.stage_timings["stage_6_graph"] = time.time() - start_time
-        logger.info(f"Stage 6 completed in {self.metrics.stage_timings['stage_6_graph']:.2f}s")
+        logger.info(
+            f"Stage 6 completed in {self.metrics.stage_timings['stage_6_graph']:.2f}s"
+        )
 
         return entries
 
-    async def _stage_7_tag_short_forms(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_7_tag_short_forms(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 7: Generate short forms and variants."""
         start_time = time.time()
         logger.info(f"Stage 7: Generating short forms for {len(entries)} entries")
@@ -552,7 +605,9 @@ class V7PipelineComplete:
 
             # Store in ShortFormClusters as per V7 spec
             entry["ShortFormClusters"] = list(set(short_forms))  # Deduplicate
-            entry["_short_forms"] = entry["ShortFormClusters"]  # Keep internal reference
+            entry["_short_forms"] = entry[
+                "ShortFormClusters"
+            ]  # Keep internal reference
             self.metrics.short_forms_generated += len(entry["ShortFormClusters"])
 
         self.metrics.stage_timings["stage_7_short"] = time.time() - start_time
@@ -562,7 +617,9 @@ class V7PipelineComplete:
 
         return entries
 
-    async def _stage_8_global_validate(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _stage_8_global_validate(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Stage 8: Global validation before write."""
         start_time = time.time()
         logger.info(f"Stage 8: Global validation for {len(entries)} entries")
@@ -594,7 +651,9 @@ class V7PipelineComplete:
             validated.append(entry)
 
         self.metrics.stage_timings["stage_8_validate"] = time.time() - start_time
-        logger.info(f"Stage 8 completed: {self.metrics.validation_failures} validation failures")
+        logger.info(
+            f"Stage 8 completed: {self.metrics.validation_failures} validation failures"
+        )
 
         return validated
 
@@ -650,7 +709,9 @@ class V7PipelineComplete:
             self._first_run_hashes[global_id] = entry_hash
 
         self.metrics.stage_timings["stage_9_write"] = time.time() - start_time
-        logger.info(f"Stage 9 completed in {self.metrics.stage_timings['stage_9_write']:.2f}s")
+        logger.info(
+            f"Stage 9 completed in {self.metrics.stage_timings['stage_9_write']:.2f}s"
+        )
 
     async def _stage_10_report(self, entries: List[Dict[str, Any]]) -> None:
         """Stage 10: Generate processing report."""
@@ -719,7 +780,9 @@ class V7PipelineComplete:
         logger.info(f"Report written to {report_file}")
 
         self.metrics.stage_timings["stage_10_report"] = time.time() - start_time
-        logger.info(f"Stage 10 completed in {self.metrics.stage_timings['stage_10_report']:.2f}s")
+        logger.info(
+            f"Stage 10 completed in {self.metrics.stage_timings['stage_10_report']:.2f}s"
+        )
 
     async def _stage_11_idempotency_check(self, entries: List[Dict[str, Any]]) -> None:
         """Stage 11: Verify idempotent processing."""
@@ -747,11 +810,17 @@ class V7PipelineComplete:
 
             if original_hash and original_hash != new_hash:
                 differences.append(
-                    {"global_id": global_id, "original_hash": original_hash, "new_hash": new_hash}
+                    {
+                        "global_id": global_id,
+                        "original_hash": original_hash,
+                        "new_hash": new_hash,
+                    }
                 )
 
         if differences:
-            logger.warning(f"Idempotency check failed: {len(differences)} differences found")
+            logger.warning(
+                f"Idempotency check failed: {len(differences)} differences found"
+            )
             for diff in differences[:5]:  # Show first 5
                 logger.warning(f"  GlobalID {diff['global_id']}: hash mismatch")
         else:
@@ -774,7 +843,9 @@ class V7PipelineComplete:
 
         # Check duplicate external IDs percentage
         if self.metrics.processed_entries > 0:
-            dup_pct = self.metrics.duplicate_external_ids / self.metrics.processed_entries
+            dup_pct = (
+                self.metrics.duplicate_external_ids / self.metrics.processed_entries
+            )
             if dup_pct > self.quality_gates.duplicate_external_id_pct_max:
                 failures.append(
                     f"Duplicate external IDs: {dup_pct:.2%} > {self.quality_gates.duplicate_external_id_pct_max:.2%}"
@@ -782,7 +853,9 @@ class V7PipelineComplete:
 
         # Check roundtrip rate
         if self.metrics.processed_entries > 0:
-            roundtrip_rate = 1 - (self.metrics.roundtrip_failures / self.metrics.processed_entries)
+            roundtrip_rate = 1 - (
+                self.metrics.roundtrip_failures / self.metrics.processed_entries
+            )
             if roundtrip_rate < self.quality_gates.roundtrip_script_rate_min:
                 failures.append(
                     f"Roundtrip rate: {roundtrip_rate:.2%} < {self.quality_gates.roundtrip_script_rate_min:.2%}"
@@ -815,12 +888,15 @@ class V7PipelineComplete:
         results["duplicate_global_ids"] = {
             "value": self.metrics.duplicate_global_ids,
             "threshold": self.quality_gates.duplicate_global_id,
-            "passed": self.metrics.duplicate_global_ids <= self.quality_gates.duplicate_global_id,
+            "passed": self.metrics.duplicate_global_ids
+            <= self.quality_gates.duplicate_global_id,
         }
 
         # Duplicate external IDs
         if self.metrics.processed_entries > 0:
-            dup_pct = self.metrics.duplicate_external_ids / self.metrics.processed_entries
+            dup_pct = (
+                self.metrics.duplicate_external_ids / self.metrics.processed_entries
+            )
             results["duplicate_external_ids_pct"] = {
                 "value": dup_pct,
                 "threshold": self.quality_gates.duplicate_external_id_pct_max,
@@ -829,11 +905,14 @@ class V7PipelineComplete:
 
         # Roundtrip rate
         if self.metrics.processed_entries > 0:
-            roundtrip_rate = 1 - (self.metrics.roundtrip_failures / self.metrics.processed_entries)
+            roundtrip_rate = 1 - (
+                self.metrics.roundtrip_failures / self.metrics.processed_entries
+            )
             results["roundtrip_rate"] = {
                 "value": roundtrip_rate,
                 "threshold": self.quality_gates.roundtrip_script_rate_min,
-                "passed": roundtrip_rate >= self.quality_gates.roundtrip_script_rate_min,
+                "passed": roundtrip_rate
+                >= self.quality_gates.roundtrip_script_rate_min,
             }
 
         # Runtime projection

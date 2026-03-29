@@ -205,7 +205,9 @@ def main():
     # Show current project stats
     print("\n📊 PROJECT STATS AFTER CLEANUP:")
     os.system("find . -name '*.py' -type f | wc -l | xargs echo '  - Python files:'")
-    os.system("find tests -name 'test_*.py' -type f | wc -l | xargs echo '  - Test files:'")
+    os.system(
+        "find tests -name 'test_*.py' -type f | wc -l | xargs echo '  - Test files:'"
+    )
     os.system("du -sh . | cut -f1 | xargs echo '  - Total size:'")
 
 

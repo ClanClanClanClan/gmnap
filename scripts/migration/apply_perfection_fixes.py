@@ -15,9 +15,7 @@ def apply_validation_fix(file_path, region_code):
             content = f.read()
 
         # Find the validate method
-        validate_pattern = (
-            r"(def validate\(self, entry: Dict\[str, Any\]\) -> None:.*?)(\n    def |\n\nclass |\Z)"
-        )
+        validate_pattern = r"(def validate\(self, entry: Dict\[str, Any\]\) -> None:.*?)(\n    def |\n\nclass |\Z)"
 
         match = re.search(validate_pattern, content, re.DOTALL)
         if not match:

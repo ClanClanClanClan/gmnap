@@ -165,7 +165,9 @@ class DataQualityValidator:
 
         if invalid_regions:
             for region, count in invalid_regions.most_common():
-                self.error(f"{dataset_name}: Invalid region '{region}' ({count} occurrences)")
+                self.error(
+                    f"{dataset_name}: Invalid region '{region}' ({count} occurrences)"
+                )
             return False
 
         self.info(f"{dataset_name}: All regions valid")
@@ -193,18 +195,26 @@ class DataQualityValidator:
         imbalance_ratio = max_count / min_count if min_count > 0 else float("inf")
 
         if imbalance_ratio > 100:
-            self.warn(f"{dataset_name}: Severe class imbalance (ratio: {imbalance_ratio:.1f}:1)")
+            self.warn(
+                f"{dataset_name}: Severe class imbalance (ratio: {imbalance_ratio:.1f}:1)"
+            )
         elif imbalance_ratio > 50:
-            self.warn(f"{dataset_name}: Moderate class imbalance (ratio: {imbalance_ratio:.1f}:1)")
+            self.warn(
+                f"{dataset_name}: Moderate class imbalance (ratio: {imbalance_ratio:.1f}:1)"
+            )
 
         # Check for singleton classes
         singletons = [r for r, c in region_counts.items() if c == 1]
         if singletons:
-            self.warn(f"{dataset_name}: {len(singletons)} singleton classes: {singletons}")
+            self.warn(
+                f"{dataset_name}: {len(singletons)} singleton classes: {singletons}"
+            )
 
         return dict(region_counts)
 
-    def check_data_leakage(self, train: List[Dict], val: List[Dict], test: List[Dict]) -> bool:
+    def check_data_leakage(
+        self, train: List[Dict], val: List[Dict], test: List[Dict]
+    ) -> bool:
         """Check for surname leakage between splits"""
         print(f"\n{'='*80}")
         print(f"DATA LEAKAGE DETECTION")
@@ -280,7 +290,9 @@ class DataQualityValidator:
 
             if len(duplicates) <= 10:
                 print("\nDuplicate names:")
-                for name, count in sorted(duplicates.items(), key=lambda x: x[1], reverse=True):
+                for name, count in sorted(
+                    duplicates.items(), key=lambda x: x[1], reverse=True
+                ):
                     print(f"  '{name}': {count} occurrences")
         else:
             self.info(f"{dataset_name}: No duplicates found")
@@ -337,11 +349,15 @@ class DataQualityValidator:
                 name_to_regions[normalized].add(region)
 
         inconsistent = {
-            name: regions for name, regions in name_to_regions.items() if len(regions) > 1
+            name: regions
+            for name, regions in name_to_regions.items()
+            if len(regions) > 1
         }
 
         if inconsistent:
-            self.error(f"{dataset_name}: {len(inconsistent)} names have inconsistent labels")
+            self.error(
+                f"{dataset_name}: {len(inconsistent)} names have inconsistent labels"
+            )
 
             if len(inconsistent) <= 10:
                 print("\nInconsistent labels:")
@@ -478,7 +494,9 @@ class DataQualityValidator:
 def main():
     parser = argparse.ArgumentParser(description="Validate training data quality")
     parser.add_argument(
-        "--train", default="data/ml_training/train_profiles.json", help="Training dataset"
+        "--train",
+        default="data/ml_training/train_profiles.json",
+        help="Training dataset",
     )
     parser.add_argument(
         "--val", default="data/ml_training/val_profiles.json", help="Validation dataset"
@@ -487,7 +505,9 @@ def main():
         "--test", default="data/ml_training/test_profiles.json", help="Test dataset"
     )
     parser.add_argument(
-        "--output", default="reports/ml/data_quality_report.json", help="Output report JSON"
+        "--output",
+        default="reports/ml/data_quality_report.json",
+        help="Output report JSON",
     )
 
     args = parser.parse_args()

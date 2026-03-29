@@ -191,7 +191,9 @@ def test_phase2_classification_100():
                         print(f"PASS {name} -> {actual_region}")
                         correct += 1
                     else:
-                        print(f"FAIL {name} -> {actual_region} (expected {expected_region})")
+                        print(
+                            f"FAIL {name} -> {actual_region} (expected {expected_region})"
+                        )
                 else:
                     print(f"FAIL {name} -> MISSING")
 
@@ -338,7 +340,9 @@ def main():
     core_compliance = all([security_passed, classification_passed, coverage_passed])
 
     if core_compliance:
-        print("\nPASSPASSPASS CORE GMNAP FUNCTIONALITY IS 100% V7 COMPLIANT! PASSPASSPASS")
+        print(
+            "\nPASSPASSPASS CORE GMNAP FUNCTIONALITY IS 100% V7 COMPLIANT! PASSPASSPASS"
+        )
         print("\nRemaining work for full v7.0 MathLineage Edition:")
         print("- Integrate Memgraph graph database")
         print("- Add LLM integration for PDF processing")

@@ -247,10 +247,18 @@ class PsychoticParanoidTester:
 
         # Print summary
         print(f"Tested {len(test_chars)} Unicode categories")
-        print(f"Removed: {sum(1 for v in categories_tested.values() if v == 'REMOVED')}")
-        print(f"Rejected: {sum(1 for v in categories_tested.values() if v == 'REJECTED')}")
-        print(f"Transformed: {sum(1 for v in categories_tested.values() if 'TRANSFORMED' in v)}")
-        print(f"Unchanged: {sum(1 for v in categories_tested.values() if v == 'UNCHANGED')}")
+        print(
+            f"Removed: {sum(1 for v in categories_tested.values() if v == 'REMOVED')}"
+        )
+        print(
+            f"Rejected: {sum(1 for v in categories_tested.values() if v == 'REJECTED')}"
+        )
+        print(
+            f"Transformed: {sum(1 for v in categories_tested.values() if 'TRANSFORMED' in v)}"
+        )
+        print(
+            f"Unchanged: {sum(1 for v in categories_tested.values() if v == 'UNCHANGED')}"
+        )
 
         if sample_failures:
             print(f"\nWARN Issues found:")
@@ -292,7 +300,10 @@ class PsychoticParanoidTester:
             ("-1+1", "CSV_INJECTION"),
             ("@SUM(A1:A10)", "CSV_INJECTION"),
             # XML Injection
-            ("<!DOCTYPE foo [<!ENTITY xxe SYSTEM 'file:///etc/passwd'>]>", "XML_INJECTION"),
+            (
+                "<!DOCTYPE foo [<!ENTITY xxe SYSTEM 'file:///etc/passwd'>]>",
+                "XML_INJECTION",
+            ),
             # CRLF Injection
             ("name\r\nSet-Cookie: admin=true", "CRLF_INJECTION"),
             # Unicode attacks
@@ -322,7 +333,9 @@ class PsychoticParanoidTester:
                 blocked += 1
                 self.stats["passed"] += 1
             except Exception as e:
-                self.failures.append(f"{attack_type} caused unexpected error: {str(e)[:50]}")
+                self.failures.append(
+                    f"{attack_type} caused unexpected error: {str(e)[:50]}"
+                )
                 self.stats["failed"] += 1
 
         print(f"Blocked {blocked}/{len(attack_vectors)} attack vectors")
@@ -380,7 +393,9 @@ class PsychoticParanoidTester:
                     )
                     self.stats["failed"] += 1
                 elif original != third:
-                    non_idempotent.append(f"{region_code}: {test_input[:20]} non-deterministic")
+                    non_idempotent.append(
+                        f"{region_code}: {test_input[:20]} non-deterministic"
+                    )
                     self.stats["failed"] += 1
                 else:
                     self.stats["passed"] += 1
@@ -437,7 +452,9 @@ class PsychoticParanoidTester:
             self.failures.append(f"Thread safety: {len(errors)} errors")
             self.stats["failed"] += 1
         else:
-            print(f"PASS Thread safe: {len(threads)} threads, {len(results)} operations")
+            print(
+                f"PASS Thread safe: {len(threads)} threads, {len(results)} operations"
+            )
             self.stats["passed"] += 1
 
     @pytest.mark.timeout(15)
@@ -474,7 +491,9 @@ class PsychoticParanoidTester:
         print(f"Increase: {mem_increase:.1f} MB")
 
         if mem_increase > 50:  # More than 50MB increase
-            self.warnings.append(f"Potential memory leak: {mem_increase:.1f} MB increase")
+            self.warnings.append(
+                f"Potential memory leak: {mem_increase:.1f} MB increase"
+            )
             print("WARN Potential memory leak detected")
             self.stats["warnings"] += 1
         else:
@@ -685,7 +704,9 @@ class PsychoticParanoidTester:
 
             except RegionRuleError as e:
                 if "CSV injection" in str(e):
-                    self.failures.append(f"Collision suffix blocked as CSV injection: {name}")
+                    self.failures.append(
+                        f"Collision suffix blocked as CSV injection: {name}"
+                    )
                     self.stats["failed"] += 1
                 else:
                     self.stats["passed"] += 1
@@ -723,7 +744,9 @@ class PsychoticParanoidTester:
                         self.stats["passed"] += 1
 
                     except Exception as e:
-                        self.warnings.append(f"Mixed {script1}+{script2} issue: {str(e)[:30]}")
+                        self.warnings.append(
+                            f"Mixed {script1}+{script2} issue: {str(e)[:30]}"
+                        )
                         self.stats["warnings"] += 1
 
     @pytest.mark.timeout(15)
@@ -765,7 +788,9 @@ class PsychoticParanoidTester:
                 if "John Smith" in result or "JohnSmith" in result:
                     self.stats["passed"] += 1
                 else:
-                    self.warnings.append(f"{ws_name} not normalized properly: {repr(result)}")
+                    self.warnings.append(
+                        f"{ws_name} not normalized properly: {repr(result)}"
+                    )
                     self.stats["warnings"] += 1
 
             except Exception as e:

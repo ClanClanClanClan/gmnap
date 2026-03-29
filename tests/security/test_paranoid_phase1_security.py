@@ -216,7 +216,9 @@ def test_buffer_overflow_attempts():
 
     for attack_string, description in attacks:
         try:
-            validated = validator.validate_string(attack_string[:1000000], context="test")
+            validated = validator.validate_string(
+                attack_string[:1000000], context="test"
+            )
             if len(validated) > 1000:  # Check if it was truncated
                 print(f"FAIL PASSED: {description} - Length: {len(validated)}")
             else:
@@ -292,7 +294,10 @@ def test_regex_dos_patterns():
     redos_patterns = [
         ("a" * 50 + "!", "Simple repetition"),
         ("a" * 100 + "b", "Long prefix mismatch"),
-        ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaX", "Catastrophic backtracking"),
+        (
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaX",
+            "Catastrophic backtracking",
+        ),
         ("(a+)+" * 10, "Nested quantifiers"),
         ("(a|a)*" * 30, "Alternation explosion"),
         ("(.*a){x}.*", "Polynomial complexity"),
@@ -388,7 +393,10 @@ def test_polyglot_attacks():
             "Ultimate XSS polyglot",
         ),
         # SQL + NoSQL + LDAP
-        ("admin' OR '1'='1' OR '{\"$ne\":null}' OR '(|(password=*))'--", "Multi-injection"),
+        (
+            "admin' OR '1'='1' OR '{\"$ne\":null}' OR '(|(password=*))'--",
+            "Multi-injection",
+        ),
         # Command injection for multiple shells
         (";ls;id;whoami;pwd;uname -a;", "Unix command chain"),
         ("& dir & whoami & ver & ipconfig &", "Windows command chain"),
@@ -536,7 +544,9 @@ def test_comprehensive_pipeline_security():
                 for attack in passed_attacks:
                     print(f"  - {repr(attack)[:50]}...")
 
-            print(f"\n🛡️ Security effectiveness: {blocked_attacks/total_attacks*100:.1f}%")
+            print(
+                f"\n🛡️ Security effectiveness: {blocked_attacks/total_attacks*100:.1f}%"
+            )
 
             return blocked_attacks == total_attacks
 
@@ -579,6 +589,10 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("🏁 FINAL AUDIT RESULT:")
     if all_tests_passed:
-        print("PASSPASSPASS ALL SECURITY TESTS PASSED! PHASE 1 IS BULLETPROOF! PASSPASSPASS")
+        print(
+            "PASSPASSPASS ALL SECURITY TESTS PASSED! PHASE 1 IS BULLETPROOF! PASSPASSPASS"
+        )
     else:
-        print("FAILFAILFAIL SOME SECURITY TESTS FAILED! PHASE 1 NEEDS HARDENING! FAILFAILFAIL")
+        print(
+            "FAILFAILFAIL SOME SECURITY TESTS FAILED! PHASE 1 NEEDS HARDENING! FAILFAILFAIL"
+        )

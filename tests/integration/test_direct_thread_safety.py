@@ -100,7 +100,9 @@ def test_concurrent_cache_access():
                 # Check cache size periodically
                 if i % 10 == 0 and hasattr(region, "_processing_cache"):
                     cache_size = len(region._processing_cache)
-                    print(f"Worker {worker_id}, iteration {i}: cache size = {cache_size}")
+                    print(
+                        f"Worker {worker_id}, iteration {i}: cache size = {cache_size}"
+                    )
 
             except Exception as e:
                 worker_errors.append(f"Worker {worker_id}, iteration {i}: {e}")

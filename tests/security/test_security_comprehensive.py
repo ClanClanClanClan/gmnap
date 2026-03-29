@@ -120,7 +120,10 @@ class SecurityTestSuite:
 
     @pytest.mark.timeout(15)
     def test_processor_integration(
-        self, test_name: str, actual_processor_name: str, malicious_entry: Dict[str, Any]
+        self,
+        test_name: str,
+        actual_processor_name: str,
+        malicious_entry: Dict[str, Any],
     ):
         """Test processor integration with security."""
         self.total_tests += 1
@@ -160,7 +163,9 @@ class SecurityTestSuite:
         print("\n1. Script Injection Tests")
         print("-" * 25)
 
-        self.test_attack_vector("JavaScript Alert", "Smith<script>alert('XSS')</script>")
+        self.test_attack_vector(
+            "JavaScript Alert", "Smith<script>alert('XSS')</script>"
+        )
         self.test_attack_vector("JavaScript Event Handler", 'Smith" onload="alert(1)"')
         self.test_attack_vector("VBScript Injection", "vbscript:msgbox('attack')")
         self.test_attack_vector("JavaScript Protocol", "javascript:eval('malicious')")
@@ -171,7 +176,9 @@ class SecurityTestSuite:
         print("\n2. SQL Injection Tests")
         print("-" * 20)
 
-        self.test_attack_vector("SQL Union Attack", "Smith' UNION SELECT * FROM users--")
+        self.test_attack_vector(
+            "SQL Union Attack", "Smith' UNION SELECT * FROM users--"
+        )
         self.test_attack_vector("SQL Boolean Attack", "Smith' OR '1'='1")
         self.test_attack_vector("SQL Drop Table", "Smith'; DROP TABLE names;--")
         self.test_attack_vector("SQL Comment Injection", "Smith'/**/OR/**/1=1--")
@@ -190,12 +197,18 @@ class SecurityTestSuite:
         print("\n4. HTML Injection Tests")
         print("-" * 19)
 
-        self.test_attack_vector("Iframe Injection", "<iframe src='malicious.com'></iframe>")
-        self.test_attack_vector("Object Injection", "<object data='malicious.swf'></object>")
+        self.test_attack_vector(
+            "Iframe Injection", "<iframe src='malicious.com'></iframe>"
+        )
+        self.test_attack_vector(
+            "Object Injection", "<object data='malicious.swf'></object>"
+        )
         self.test_attack_vector(
             "Meta Refresh", "<meta http-equiv='refresh' content='0;url=evil.com'>"
         )
-        self.test_attack_vector("Link Injection", "<link rel='stylesheet' href='evil.css'>")
+        self.test_attack_vector(
+            "Link Injection", "<link rel='stylesheet' href='evil.css'>"
+        )
 
         # 5. Control Character Tests
         print("\n5. Control Character Tests")
@@ -220,7 +233,9 @@ class SecurityTestSuite:
         print("-" * 21)
 
         self.test_attack_vector("Directory Traversal", "../../../etc/passwd")
-        self.test_attack_vector("Windows Traversal", "..\\\\..\\\\..\\\\windows\\\\system32")
+        self.test_attack_vector(
+            "Windows Traversal", "..\\\\..\\\\..\\\\windows\\\\system32"
+        )
         self.test_attack_vector("Encoded Traversal", "%2e%2e%2f%2e%2e%2f")
 
         # 8. Template Injection Tests

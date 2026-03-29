@@ -76,11 +76,15 @@ def test_live_adapters():
                                     f"       Data keys: {list(result.get('data', {}).keys())[:5]}"
                                 )
                         else:
-                            print(f"    ❌ {adapter_name}: {result.get('reason', 'Failed')}")
+                            print(
+                                f"    ❌ {adapter_name}: {result.get('reason', 'Failed')}"
+                            )
                     elif isinstance(result, list):
                         print(f"    ✅ {adapter_name}: Got {len(result)} results")
                     else:
-                        print(f"    ⚠️ {adapter_name}: Unexpected result type: {type(result)}")
+                        print(
+                            f"    ⚠️ {adapter_name}: Unexpected result type: {type(result)}"
+                        )
 
                 except Exception as e:
                     print(f"    ❌ {adapter_name}: Error - {str(e)[:100]}")
@@ -179,7 +183,11 @@ def test_pipeline_authority_integration():
                 "CanonicalNative": "Andrew Wiles",
                 "CanonicalLatin": "Andrew Wiles",
             },
-            {"GlobalID": "PIPE-002", "CanonicalNative": "김민수", "CanonicalLatin": "Kim Min-su"},
+            {
+                "GlobalID": "PIPE-002",
+                "CanonicalNative": "김민수",
+                "CanonicalLatin": "Kim Min-su",
+            },
         ]
 
         print(f"  Processing {len(test_batch)} entries...")
@@ -194,12 +202,17 @@ def test_pipeline_authority_integration():
             authority_fields = [
                 k
                 for k in entry.keys()
-                if "Authority" in k or "Crossref" in k or "ORCID" in k or "OpenAlex" in k
+                if "Authority" in k
+                or "Crossref" in k
+                or "ORCID" in k
+                or "OpenAlex" in k
             ]
 
             if authority_fields:
                 authority_count += 1
-                print(f"    ✅ {entry['GlobalID']}: Found authority fields: {authority_fields[:3]}")
+                print(
+                    f"    ✅ {entry['GlobalID']}: Found authority fields: {authority_fields[:3]}"
+                )
             else:
                 print(f"    ⚠️ {entry['GlobalID']}: No authority fields found")
 
@@ -258,7 +271,9 @@ def main():
     print(f"\n📈 Overall: {working}/{total} test suites working")
 
     # Save results
-    report_file = f"authority_test_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    report_file = (
+        f"authority_test_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
     with open(report_file, "w") as f:
         json.dump(results, f, indent=2, default=str)
     print(f"\n📄 Results saved to: {report_file}")

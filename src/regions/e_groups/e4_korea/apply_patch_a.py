@@ -31,7 +31,11 @@ def apply_patch_a():
             hangul, roman, weight = row[0], row[1], row[2]
 
             for target_hangul, target_roman, old_weight, new_weight in changes:
-                if hangul == target_hangul and roman == target_roman and weight == old_weight:
+                if (
+                    hangul == target_hangul
+                    and roman == target_roman
+                    and weight == old_weight
+                ):
                     print(
                         f"  Line {i+1}: {hangul},{roman},{weight} → {hangul},{roman},{new_weight}"
                     )

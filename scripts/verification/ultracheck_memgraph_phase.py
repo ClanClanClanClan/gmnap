@@ -62,7 +62,9 @@ def ultracheck_memgraph_deployment():
         throughput = test_count / duration
 
         if throughput >= 50:
-            print(f"✅ VERIFIED: Performance excellent ({throughput:.1f} mathematicians/sec)")
+            print(
+                f"✅ VERIFIED: Performance excellent ({throughput:.1f} mathematicians/sec)"
+            )
             checks_passed += 1
         else:
             print(
@@ -151,7 +153,14 @@ def ultracheck_memgraph_deployment():
 
         # Check Docker container is running
         result = subprocess.run(
-            ["docker", "ps", "--filter", "name=gmnap-memgraph", "--format", "{{.Status}}"],
+            [
+                "docker",
+                "ps",
+                "--filter",
+                "name=gmnap-memgraph",
+                "--format",
+                "{{.Status}}",
+            ],
             capture_output=True,
             text=True,
         )

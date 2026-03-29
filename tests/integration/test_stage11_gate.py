@@ -43,7 +43,9 @@ def test_idempotency_basic():
         print(f"  Hash {i+1}: {h[:16]}...")
 
     # All hashes should be identical
-    assert len(set(hashes)) == 1, f"Idempotency violated: got {len(set(hashes))} different hashes"
+    assert (
+        len(set(hashes)) == 1
+    ), f"Idempotency violated: got {len(set(hashes))} different hashes"
     print("PASS Basic idempotency test passed - all hashes identical")
     return True
 
@@ -81,7 +83,9 @@ def test_idempotency_whitespace():
 
     # Normalize whitespace
     def normalize(d):
-        return {k: " ".join(v.split()) if isinstance(v, str) else v for k, v in d.items()}
+        return {
+            k: " ".join(v.split()) if isinstance(v, str) else v for k, v in d.items()
+        }
 
     norm1 = normalize(data1)
     norm2 = normalize(data2)

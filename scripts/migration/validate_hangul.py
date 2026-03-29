@@ -9,7 +9,12 @@ import sys
 from pathlib import Path
 
 # Add src directory to path
-E4_ROOT = Path(__file__).parent.parent.parent.rstrip(".").parent.rstrip(".").parent.rstrip(".")
+E4_ROOT = (
+    Path(__file__)
+    .parent.parent.parent.rstrip(".")
+    .parent.rstrip(".")
+    .parent.rstrip(".")
+)
 sys.path.insert(0, str(E4_ROOT / "src"))
 
 # from converter import eng2kor, kor2eng
@@ -122,8 +127,12 @@ def validate_accuracy():
             )
 
     # Calculate metrics
-    conversion_rate = (successful_conversions / total_tested * 100) if total_tested > 0 else 0
-    round_trip_rate = (round_trip_successes / total_tested * 100) if total_tested > 0 else 0
+    conversion_rate = (
+        (successful_conversions / total_tested * 100) if total_tested > 0 else 0
+    )
+    round_trip_rate = (
+        (round_trip_successes / total_tested * 100) if total_tested > 0 else 0
+    )
 
     print(f"\n📈 RESULTS:")
     print(f"📊 Total entries with Hangul variants: {has_hangul_variant}")

@@ -41,7 +41,9 @@ class TestRegionE4:
     @pytest.fixture
     def test_data(self):
         """Load test data for E4 region."""
-        test_file = Path(__file__).parent.parent.parent / "fixtures/regions/e4_test_data.yaml"
+        test_file = (
+            Path(__file__).parent.parent.parent / "fixtures/regions/e4_test_data.yaml"
+        )
         if test_file.exists():
             with open(test_file, "r", encoding="utf-8") as f:
                 return yaml.safe_load(f)
@@ -58,13 +60,25 @@ class TestRegionE4:
                     ],
                     "romanized": [
                         {"input": "Kim Jong-un", "expected": "E4", "confidence": 0.85},
-                        {"input": "Park Geun-hye", "expected": "E4", "confidence": 0.85},
+                        {
+                            "input": "Park Geun-hye",
+                            "expected": "E4",
+                            "confidence": 0.85,
+                        },
                         {"input": "Moon Jae-in", "expected": "E4", "confidence": 0.85},
-                        {"input": "Lee Myung-bak", "expected": "E4", "confidence": 0.85},
+                        {
+                            "input": "Lee Myung-bak",
+                            "expected": "E4",
+                            "confidence": 0.85,
+                        },
                         {"input": "Roh Moo-hyun", "expected": "E4", "confidence": 0.85},
                     ],
                     "ambiguous": [
-                        {"input": "Lee", "possible": ["A1", "E1", "E4"], "expected": "A1"},
+                        {
+                            "input": "Lee",
+                            "possible": ["A1", "E1", "E4"],
+                            "expected": "A1",
+                        },
                         {"input": "Kim Lee", "expected": "E4"},  # First name Korean
                         {"input": "John Kim", "expected": "A1"},  # First name Western
                     ],
@@ -81,8 +95,14 @@ class TestRegionE4:
                         {"input": "KIM JONG UN", "expected": "KIM JONG UN"},
                     ],
                     "special": [
-                        {"input": "Kim, Jong-un (김정은)", "expected": "Kim, Jong-un (김정은)"},
-                        {"input": "Kim Jong-un [金正恩]", "expected": "Kim Jong-un [金正恩]"},
+                        {
+                            "input": "Kim, Jong-un (김정은)",
+                            "expected": "Kim, Jong-un (김정은)",
+                        },
+                        {
+                            "input": "Kim Jong-un [金正恩]",
+                            "expected": "Kim Jong-un [金正恩]",
+                        },
                     ],
                 },
                 "variants": [
@@ -124,7 +144,11 @@ class TestRegionE4:
                     },
                     {
                         "names": ["Park Geun-hye", "Park Chung-hee", "Park Won-soon"],
-                        "expected": ["Park Chung-hee", "Park Geun-hye", "Park Won-soon"],
+                        "expected": [
+                            "Park Chung-hee",
+                            "Park Geun-hye",
+                            "Park Won-soon",
+                        ],
                     },
                 ],
             }
@@ -137,7 +161,9 @@ class TestRegionE4:
         for case in test_data["detection"]["native"]:
             result = region_manager.detect_region({"CanonicalLatin": case["input"]})
             assert hasattr(result, "region_code")
-            assert result.region_code == case["expected"], f"Failed to detect {case['input']} as E4"
+            assert (
+                result.region_code == case["expected"]
+            ), f"Failed to detect {case['input']} as E4"
             assert (
                 result.confidence >= case["confidence"]
             ), f"Low confidence for {case['input']}: {result.confidence}"
@@ -148,7 +174,9 @@ class TestRegionE4:
         for case in test_data["detection"]["romanized"]:
             result = region_manager.detect_region({"CanonicalLatin": case["input"]})
             assert hasattr(result, "region_code")
-            assert result.region_code == case["expected"], f"Failed to detect {case['input']} as E4"
+            assert (
+                result.region_code == case["expected"]
+            ), f"Failed to detect {case['input']} as E4"
 
     @pytest.mark.timeout(15)
     def test_detection_ambiguous_cases(self, region_manager, test_data):
@@ -166,7 +194,9 @@ class TestRegionE4:
     @pytest.mark.timeout(15)
     def test_detection_with_country_code(self, region_manager):
         """Test detection with country code hints."""
-        result = region_manager.detect_region({"CanonicalLatin": "Lee", "CountryCodes": ["KR"]})
+        result = region_manager.detect_region(
+            {"CanonicalLatin": "Lee", "CountryCodes": ["KR"]}
+        )
         assert result.region_code == "E4", "Should detect E4 with KR country code"
 
     @pytest.mark.timeout(15)
@@ -176,7 +206,9 @@ class TestRegionE4:
         korean_surnames = ["Kim", "Park", "Choi", "Jung", "Kang", "Cho", "Yoon"]
         for surname in korean_surnames:
             result = region_manager.detect_region({"CanonicalLatin": f"{surname} Test"})
-            assert result.region_code == "E4", f"Failed to detect {surname} as Korean surname"
+            assert (
+                result.region_code == "E4"
+            ), f"Failed to detect {surname} as Korean surname"
 
         # Test ambiguous names with Korean context
         ambiguous_with_context = [

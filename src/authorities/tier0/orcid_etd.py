@@ -136,7 +136,9 @@ class ORCIDETDFetcher(AuthorityFetcher):
         # Handle both string and dict inputs
         if isinstance(identifier, dict):
             # If we get a dict, try to extract the actual identifier
-            identifier = identifier.get("identifier", identifier.get("query", str(identifier)))
+            identifier = identifier.get(
+                "identifier", identifier.get("query", str(identifier))
+            )
 
         # Clean ORCID ID
         if isinstance(identifier, str) and "/" in identifier:
@@ -188,7 +190,8 @@ class ORCIDETDFetcher(AuthorityFetcher):
 
                     # Check if it's a PhD or thesis-granting degree
                     if role and any(
-                        term in role.lower() for term in ["phd", "ph.d", "doctorate", "doctoral"]
+                        term in role.lower()
+                        for term in ["phd", "ph.d", "doctorate", "doctoral"]
                     ):
                         record.university = org_name
 
@@ -217,10 +220,14 @@ class ORCIDETDFetcher(AuthorityFetcher):
                         record.thesis_title = title
 
                         # Get DOI if available
-                        for ext_id in work.get("external-ids", {}).get("external-id", []):
+                        for ext_id in work.get("external-ids", {}).get(
+                            "external-id", []
+                        ):
                             if ext_id.get("external-id-type") == "doi":
                                 record.thesis_doi = ext_id.get("external-id-value")
-                                record.thesis_url = f"https://doi.org/{record.thesis_doi}"
+                                record.thesis_url = (
+                                    f"https://doi.org/{record.thesis_doi}"
+                                )
 
                         # Get publication year
                         pub_date = work.get("publication-date")
@@ -258,7 +265,9 @@ class ORCIDETDFetcher(AuthorityFetcher):
 
                     # Get detailed info for works that might be dissertations
                     for work_summary in data.get("group", []):
-                        work_id = work_summary.get("work-summary", [{}])[0].get("put-code")
+                        work_id = work_summary.get("work-summary", [{}])[0].get(
+                            "put-code"
+                        )
                         if work_id:
                             work_detail = await self._fetch_work_detail(
                                 session, orcid, work_id, headers
@@ -266,7 +275,9 @@ class ORCIDETDFetcher(AuthorityFetcher):
                             if work_detail:
                                 work_type = work_detail.get("type")
                                 title = (
-                                    work_detail.get("title", {}).get("title", {}).get("value", "")
+                                    work_detail.get("title", {})
+                                    .get("title", {})
+                                    .get("value", "")
                                 )
 
                                 # Check if it's a dissertation
@@ -366,7 +377,11 @@ class ORCIDETDFetcher(AuthorityFetcher):
                     entry["ExternalIDs"] = []
 
                 entry["ExternalIDs"].append(
-                    {"type": "ORCID_ETD", "value": orcid, "confidence": record.confidence}
+                    {
+                        "type": "ORCID_ETD",
+                        "value": orcid,
+                        "confidence": record.confidence,
+                    }
                 )
 
                 # Add thesis metadata
@@ -391,7 +406,11 @@ class ORCIDETDFetcher(AuthorityFetcher):
                         entry["Advisors"] = []
 
                     entry["Advisors"].append(
-                        {"name": record.advisor_name, "type": "doctoral", "source": "ORCID_ETD"}
+                        {
+                            "name": record.advisor_name,
+                            "type": "doctoral",
+                            "source": "ORCID_ETD",
+                        }
                     )
 
                 # Add university affiliation

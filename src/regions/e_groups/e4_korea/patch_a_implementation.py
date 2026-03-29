@@ -150,7 +150,9 @@ def apply_weight_recalibrations(targets, dry_run=True):
 
     if not dry_run and changes_made > 0:
         # Write updated mappings
-        with open("resources/rr_syllable_map.csv", "w", encoding="utf-8", newline="") as f:
+        with open(
+            "resources/rr_syllable_map.csv", "w", encoding="utf-8", newline=""
+        ) as f:
             writer = csv.writer(f)
             for row in rows:
                 writer.writerow(row)

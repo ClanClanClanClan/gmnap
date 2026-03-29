@@ -78,9 +78,15 @@ class TestAllRegions:
             try:
                 region = region_manager.get_region(region_code)
                 assert region is not None, f"Region {region_code} returned None"
-                assert hasattr(region, "clean"), f"Region {region_code} missing clean method"
-                assert hasattr(region, "validate"), f"Region {region_code} missing validate method"
-                assert hasattr(region, "augment"), f"Region {region_code} missing augment method"
+                assert hasattr(
+                    region, "clean"
+                ), f"Region {region_code} missing clean method"
+                assert hasattr(
+                    region, "validate"
+                ), f"Region {region_code} missing validate method"
+                assert hasattr(
+                    region, "augment"
+                ), f"Region {region_code} missing augment method"
                 loaded_regions.append(region_code)
             except Exception as e:
                 failed_regions.append((region_code, str(e)))
@@ -93,7 +99,9 @@ class TestAllRegions:
                 print(f"   - {code}: {error}")
 
         assert len(failed_regions) == 0, f"Failed to load {len(failed_regions)} regions"
-        assert len(loaded_regions) == 33, f"Only loaded {len(loaded_regions)}/33 regions"
+        assert (
+            len(loaded_regions) == 33
+        ), f"Only loaded {len(loaded_regions)}/33 regions"
 
     @pytest.mark.timeout(15)
     def test_basic_processing_all_regions(self, region_manager):
@@ -182,7 +190,10 @@ class TestAllRegions:
             ("numbers", {"GlobalID": "test", "CanonicalLatin": "123"}),
             ("special_chars", {"GlobalID": "test", "CanonicalLatin": "@#$%"}),
             ("very_long", {"GlobalID": "test", "CanonicalLatin": "A" * 200}),
-            ("hyphenated", {"GlobalID": "test", "CanonicalLatin": "Jean-Claude Van-Damme"}),
+            (
+                "hyphenated",
+                {"GlobalID": "test", "CanonicalLatin": "Jean-Claude Van-Damme"},
+            ),
             ("apostrophe", {"GlobalID": "test", "CanonicalLatin": "O'Connor"}),
         ]
 

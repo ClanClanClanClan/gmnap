@@ -24,7 +24,9 @@ class AuthenticationManager:
         """Generate a secure secret key"""
         return secrets.token_urlsafe(32)
 
-    def generate_token(self, user_id: str, email: str = None, role: str = "viewer") -> str:
+    def generate_token(
+        self, user_id: str, email: str = None, role: str = "viewer"
+    ) -> str:
         """
         Generate a JWT token for a user
 

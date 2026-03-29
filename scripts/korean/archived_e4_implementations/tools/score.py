@@ -11,7 +11,10 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 def run_math():
     res = subprocess.run(
-        [sys.executable, "scripts/validate.py"], cwd=ROOT, capture_output=True, text=True
+        [sys.executable, "scripts/validate.py"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
     )
     if res.returncode:
         print(res.stderr.strip(), file=sys.stderr)

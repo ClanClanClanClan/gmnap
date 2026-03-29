@@ -40,7 +40,10 @@ class TestA3NordicBaltic:
     @pytest.mark.timeout(15)
     def test_icelandic_patronymic_male(self, processor):
         """Test male Icelandic patronymic detection."""
-        entry = {"CanonicalLatin": "Magnússon, Jón", "CanonicalNative": "Magnússon, Jón"}
+        entry = {
+            "CanonicalLatin": "Magnússon, Jón",
+            "CanonicalNative": "Magnússon, Jón",
+        }
 
         processor.clean(entry)
         processor.augment(entry)
@@ -112,7 +115,9 @@ class TestA3NordicBaltic:
 
         # Check particle-drop variant
         variants = [
-            v["str"] for v in entry["Variants"]["Synthesised"] if v["type"] == "particle-drop"
+            v["str"]
+            for v in entry["Variants"]["Synthesised"]
+            if v["type"] == "particle-drop"
         ]
         assert "Klint, Hilma" in variants
 
@@ -205,7 +210,9 @@ class TestA3NordicBaltic:
 
         # Check ASCII variant generation
         ascii_variants = [
-            v["str"] for v in entry["Variants"]["Synthesised"] if v["type"] == "ascii-lossy"
+            v["str"]
+            for v in entry["Variants"]["Synthesised"]
+            if v["type"] == "ascii-lossy"
         ]
         assert "Sjostrom, Asa" in ascii_variants
 
@@ -220,7 +227,9 @@ class TestA3NordicBaltic:
 
         # Check ASCII variant
         ascii_variants = [
-            v["str"] for v in entry["Variants"]["Synthesised"] if v["type"] == "ascii-lossy"
+            v["str"]
+            for v in entry["Variants"]["Synthesised"]
+            if v["type"] == "ascii-lossy"
         ]
         assert "Kjaergaard, Soren" in ascii_variants
 
@@ -235,7 +244,9 @@ class TestA3NordicBaltic:
 
         # Check ASCII variant
         ascii_variants = [
-            v["str"] for v in entry["Variants"]["Synthesised"] if v["type"] == "ascii-lossy"
+            v["str"]
+            for v in entry["Variants"]["Synthesised"]
+            if v["type"] == "ascii-lossy"
         ]
         assert "THordarson, Bjorn" in ascii_variants
 
@@ -250,7 +261,9 @@ class TestA3NordicBaltic:
 
         # Check ASCII variant
         ascii_variants = [
-            v["str"] for v in entry["Variants"]["Synthesised"] if v["type"] == "ascii-lossy"
+            v["str"]
+            for v in entry["Variants"]["Synthesised"]
+            if v["type"] == "ascii-lossy"
         ]
         assert "Zukauskas, Ceslovas" in ascii_variants
 

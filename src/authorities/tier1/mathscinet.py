@@ -62,7 +62,9 @@ class MathSciNetFetcher(AuthorityFetcher):
                 )
 
         except asyncio.TimeoutError:
-            return FetchResult(status=FetchStatus.NETWORK_ERROR, error_message="Request timeout")
+            return FetchResult(
+                status=FetchStatus.NETWORK_ERROR, error_message="Request timeout"
+            )
 
         except Exception as e:
             self.logger.error(f"MathSciNet fetch error: {e}")
@@ -76,12 +78,18 @@ class MathSciNetFetcher(AuthorityFetcher):
         # Generate mock mathematical data
         mock_id = f"mr{hash(query) % 1000000:06d}"
 
-        data = AuthorityData(source=self.service, source_id=mock_id, canonical_name=query)
+        data = AuthorityData(
+            source=self.service, source_id=mock_id, canonical_name=query
+        )
 
         # Mock mathematical publication data
         data.metadata = {
             "mr_number": mock_id,
-            "msc_classifications": ["11A25", "11N05", "14G05"],  # Math subject classifications
+            "msc_classifications": [
+                "11A25",
+                "11N05",
+                "14G05",
+            ],  # Math subject classifications
             "publications_total": 15 + (hash(query) % 50),
             "citations_total": 100 + (hash(query) % 500),
             "collaborators_count": 5 + (hash(query) % 20),
@@ -110,7 +118,9 @@ class MathSciNetFetcher(AuthorityFetcher):
         data.confidence_score = self.calculate_confidence(data)
 
         return FetchResult(
-            status=FetchStatus.SUCCESS, data=data, raw_response={"mock": True, "query": query}
+            status=FetchStatus.SUCCESS,
+            data=data,
+            raw_response={"mock": True, "query": query},
         )
 
     def calculate_confidence(self, data: AuthorityData) -> float:

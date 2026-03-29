@@ -25,7 +25,9 @@ class ContextAwareSecurityValidator:
             r"[/\\]var[/\\]",  # Unix var directories
             r"[/\\]tmp[/\\]",  # Temp directories
         ]
-        self.compiled_path_patterns = [re.compile(p, re.IGNORECASE) for p in self.path_patterns]
+        self.compiled_path_patterns = [
+            re.compile(p, re.IGNORECASE) for p in self.path_patterns
+        ]
 
     def validate_name_field(self, value: str, field: str = "name") -> tuple[bool, str]:
         """
@@ -43,7 +45,9 @@ class ContextAwareSecurityValidator:
                 return False, f"Path pattern detected in {field}"
 
         # 2. Check for file extensions
-        if re.search(r"\.(exe|bat|sh|cmd|com|scr|vbs|js|jar|pdf|doc|xls)$", value, re.IGNORECASE):
+        if re.search(
+            r"\.(exe|bat|sh|cmd|com|scr|vbs|js|jar|pdf|doc|xls)$", value, re.IGNORECASE
+        ):
             return False, f"File extension detected in {field}"
 
         # 3. Check for emoji/symbol-only names
@@ -68,11 +72,15 @@ class ContextAwareSecurityValidator:
             return False, f"Too many symbols in {field}"
 
         # 4. Check for protocol handlers
-        if re.match(r"^(https?|ftp|file|javascript|data|vbscript):", value, re.IGNORECASE):
+        if re.match(
+            r"^(https?|ftp|file|javascript|data|vbscript):", value, re.IGNORECASE
+        ):
             return False, f"Protocol handler in {field}"
 
         # 5. Check for HTML/script tags (even partial)
-        if re.search(r"<[^>]+>|<script|</script|javascript:|onerror=", value, re.IGNORECASE):
+        if re.search(
+            r"<[^>]+>|<script|</script|javascript:|onerror=", value, re.IGNORECASE
+        ):
             return False, f"HTML/script pattern in {field}"
 
         return True, "Valid"
@@ -90,11 +98,16 @@ class ContextAwareSecurityValidator:
 
         # Remove any protocol handlers
         value = re.sub(
-            r"^(https?|ftp|file|javascript|data|vbscript):", "", value, flags=re.IGNORECASE
+            r"^(https?|ftp|file|javascript|data|vbscript):",
+            "",
+            value,
+            flags=re.IGNORECASE,
         )
 
         # Remove file extensions
-        value = re.sub(r"\.(exe|bat|sh|cmd|com|scr|vbs|js|jar)$", "", value, flags=re.IGNORECASE)
+        value = re.sub(
+            r"\.(exe|bat|sh|cmd|com|scr|vbs|js|jar)$", "", value, flags=re.IGNORECASE
+        )
 
         # Remove excessive symbols (keep max 1 symbol between letters)
         value = re.sub(r"[^\w\s-]{2,}", "", value)

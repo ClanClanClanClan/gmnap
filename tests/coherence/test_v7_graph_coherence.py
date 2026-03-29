@@ -78,9 +78,21 @@ class TestV7GraphCoherence:
 
         # Add logical relationships (tree structure, no cycles)
         relationships = [
-            ("advisor1", "student1", {"relation_type": "doctoralAdvisor", "confidence": 95.0}),
-            ("advisor1", "student2", {"relation_type": "doctoralAdvisor", "confidence": 93.0}),
-            ("advisor2", "student3", {"relation_type": "doctoralAdvisor", "confidence": 90.0}),
+            (
+                "advisor1",
+                "student1",
+                {"relation_type": "doctoralAdvisor", "confidence": 95.0},
+            ),
+            (
+                "advisor1",
+                "student2",
+                {"relation_type": "doctoralAdvisor", "confidence": 93.0},
+            ),
+            (
+                "advisor2",
+                "student3",
+                {"relation_type": "doctoralAdvisor", "confidence": 90.0},
+            ),
             ("student1", "student2", {"relation_type": "peer", "confidence": 80.0}),
         ]
 
@@ -103,7 +115,8 @@ class TestV7GraphCoherence:
             # May not meet extreme mode due to strict requirements, but should be close
             if mode in ["quick", "full"]:
                 assert (
-                    result.v7_compliant or result.coherence_score >= result.v7_threshold * 0.95
+                    result.v7_compliant
+                    or result.coherence_score >= result.v7_threshold * 0.95
                 ), f"Perfect graph should meet {mode} mode requirements"
 
     @pytest.mark.timeout(15)
@@ -126,8 +139,16 @@ class TestV7GraphCoherence:
 
         # Add problematic relationships (cycles, inconsistencies)
         problem_relationships = [
-            ("person1", "person2", {"relation_type": "doctoralAdvisor", "confidence": 20.0}),
-            ("person2", "person3", {"relation_type": "doctoralAdvisor", "confidence": 15.0}),
+            (
+                "person1",
+                "person2",
+                {"relation_type": "doctoralAdvisor", "confidence": 20.0},
+            ),
+            (
+                "person2",
+                "person3",
+                {"relation_type": "doctoralAdvisor", "confidence": 15.0},
+            ),
             (
                 "person3",
                 "person1",
@@ -152,7 +173,9 @@ class TestV7GraphCoherence:
             ), f"Problematic graph should have low coherence: {result.coherence_score:.3f}"
 
             # Should fail V7 compliance
-            assert not result.v7_compliant, f"Problematic graph should fail {mode} mode compliance"
+            assert (
+                not result.v7_compliant
+            ), f"Problematic graph should fail {mode} mode compliance"
 
     @pytest.mark.timeout(15)
     def test_empty_graph_handling(self):
@@ -164,21 +187,27 @@ class TestV7GraphCoherence:
         print(f"Empty graph coherence: {result.coherence_score:.3f}")
 
         # Empty graph should have neutral/low score
-        assert 0.0 <= result.coherence_score <= 0.5, "Empty graph should have low coherence score"
+        assert (
+            0.0 <= result.coherence_score <= 0.5
+        ), "Empty graph should have low coherence score"
         assert not result.v7_compliant, "Empty graph should not be V7 compliant"
 
     @pytest.mark.timeout(15)
     def test_single_node_graph(self):
         """Test coherence scoring for single node graphs"""
         single_graph = nx.Graph()
-        single_graph.add_node("only_person", canonical_name="Alone, Person", confidence=80.0)
+        single_graph.add_node(
+            "only_person", canonical_name="Alone, Person", confidence=80.0
+        )
 
         result = self.scorer.score_graph_coherence(single_graph, "quick")
 
         print(f"Single node coherence: {result.coherence_score:.3f}")
 
         # Single node should be coherent but limited
-        assert result.coherence_score >= 0.5, "Single node should have reasonable coherence"
+        assert (
+            result.coherence_score >= 0.5
+        ), "Single node should have reasonable coherence"
 
     @pytest.mark.timeout(15)
     def test_linear_chain_graph(self):
@@ -198,9 +227,21 @@ class TestV7GraphCoherence:
 
         # Linear chain relationships
         chain_edges = [
-            ("prof_a", "prof_b", {"relation_type": "doctoralAdvisor", "confidence": 95.0}),
-            ("prof_b", "prof_c", {"relation_type": "doctoralAdvisor", "confidence": 90.0}),
-            ("prof_c", "student_d", {"relation_type": "doctoralAdvisor", "confidence": 85.0}),
+            (
+                "prof_a",
+                "prof_b",
+                {"relation_type": "doctoralAdvisor", "confidence": 95.0},
+            ),
+            (
+                "prof_b",
+                "prof_c",
+                {"relation_type": "doctoralAdvisor", "confidence": 90.0},
+            ),
+            (
+                "prof_c",
+                "student_d",
+                {"relation_type": "doctoralAdvisor", "confidence": 85.0},
+            ),
         ]
 
         for source, target, attrs in chain_edges:
@@ -214,7 +255,9 @@ class TestV7GraphCoherence:
         assert result.coherence_score >= 0.7, "Linear chain should have good coherence"
 
         # Should have exactly one component
-        assert result.metrics.connected_components == 1, "Chain should be single component"
+        assert (
+            result.metrics.connected_components == 1
+        ), "Chain should be single component"
         assert result.metrics.cycles_detected == 0, "Chain should have no cycles"
 
     @pytest.mark.timeout(15)
@@ -223,27 +266,42 @@ class TestV7GraphCoherence:
         star_graph = nx.Graph()
 
         # Central advisor
-        star_graph.add_node("central_advisor", canonical_name="Popular, Advisor", confidence=95.0)
+        star_graph.add_node(
+            "central_advisor", canonical_name="Popular, Advisor", confidence=95.0
+        )
 
         # Many students connected to central advisor
         for i in range(8):
             student_id = f"student_{i}"
-            star_graph.add_node(student_id, canonical_name=f"Student, {i}", confidence=80.0)
+            star_graph.add_node(
+                student_id, canonical_name=f"Student, {i}", confidence=80.0
+            )
             star_graph.add_edge(
-                "central_advisor", student_id, relation_type="doctoralAdvisor", confidence=85.0
+                "central_advisor",
+                student_id,
+                relation_type="doctoralAdvisor",
+                confidence=85.0,
             )
 
         result = self.scorer.score_graph_coherence(star_graph, "full")
 
         print(f"Star topology coherence: {result.coherence_score:.3f}")
-        print(f"  Max betweenness: {max(result.metrics.betweenness_scores.values()):.3f}")
+        print(
+            f"  Max betweenness: {max(result.metrics.betweenness_scores.values()):.3f}"
+        )
 
         # Star topology should have reasonable coherence but high centralization
-        assert result.coherence_score >= 0.6, "Star topology should have reasonable coherence"
+        assert (
+            result.coherence_score >= 0.6
+        ), "Star topology should have reasonable coherence"
 
         # Central node should have high betweenness
-        central_betweenness = result.metrics.betweenness_scores.get("central_advisor", 0.0)
-        assert central_betweenness >= 0.5, "Central advisor should have high betweenness centrality"
+        central_betweenness = result.metrics.betweenness_scores.get(
+            "central_advisor", 0.0
+        )
+        assert (
+            central_betweenness >= 0.5
+        ), "Central advisor should have high betweenness centrality"
 
     @pytest.mark.timeout(15)
     def test_confidence_impact_on_coherence(self):
@@ -252,15 +310,27 @@ class TestV7GraphCoherence:
 
         def create_test_graph(confidence_level):
             graph = nx.Graph()
-            graph.add_node("advisor", canonical_name="Test, Advisor", confidence=confidence_level)
-            graph.add_node("student1", canonical_name="Test, Student1", confidence=confidence_level)
-            graph.add_node("student2", canonical_name="Test, Student2", confidence=confidence_level)
+            graph.add_node(
+                "advisor", canonical_name="Test, Advisor", confidence=confidence_level
+            )
+            graph.add_node(
+                "student1", canonical_name="Test, Student1", confidence=confidence_level
+            )
+            graph.add_node(
+                "student2", canonical_name="Test, Student2", confidence=confidence_level
+            )
 
             graph.add_edge(
-                "advisor", "student1", relation_type="doctoralAdvisor", confidence=confidence_level
+                "advisor",
+                "student1",
+                relation_type="doctoralAdvisor",
+                confidence=confidence_level,
             )
             graph.add_edge(
-                "advisor", "student2", relation_type="doctoralAdvisor", confidence=confidence_level
+                "advisor",
+                "student2",
+                relation_type="doctoralAdvisor",
+                confidence=confidence_level,
             )
 
             return graph
@@ -295,8 +365,12 @@ class TestV7GraphCoherence:
         acyclic_graph.add_node("b", canonical_name="Person, B", confidence=80.0)
         acyclic_graph.add_node("c", canonical_name="Person, C", confidence=80.0)
 
-        acyclic_graph.add_edge("a", "b", relation_type="doctoralAdvisor", confidence=80.0)
-        acyclic_graph.add_edge("b", "c", relation_type="doctoralAdvisor", confidence=80.0)
+        acyclic_graph.add_edge(
+            "a", "b", relation_type="doctoralAdvisor", confidence=80.0
+        )
+        acyclic_graph.add_edge(
+            "b", "c", relation_type="doctoralAdvisor", confidence=80.0
+        )
 
         # Graph with cycle
         cyclic_graph = acyclic_graph.copy()
@@ -316,7 +390,9 @@ class TestV7GraphCoherence:
         ), "Acyclic graphs should have better coherence than cyclic graphs"
 
         # Cycle detection should work
-        assert acyclic_result.metrics.cycles_detected == 0, "Acyclic graph should have no cycles"
+        assert (
+            acyclic_result.metrics.cycles_detected == 0
+        ), "Acyclic graph should have no cycles"
 
     @pytest.mark.timeout(15)
     def test_mode_threshold_compliance(self):
@@ -342,11 +418,15 @@ class TestV7GraphCoherence:
                 )
 
         # Excellent graph should pass quick and full modes
-        assert results["excellent"]["quick"].v7_compliant, "Excellent graph should pass quick mode"
+        assert results["excellent"][
+            "quick"
+        ].v7_compliant, "Excellent graph should pass quick mode"
 
         # Poor graph should fail all modes
         for mode in ["quick", "full", "extreme"]:
-            assert not results["poor"][mode].v7_compliant, f"Poor graph should fail {mode} mode"
+            assert not results["poor"][
+                mode
+            ].v7_compliant, f"Poor graph should fail {mode} mode"
 
     @pytest.mark.timeout(15)
     def test_coherence_report_generation(self):
@@ -398,7 +478,11 @@ class TestV7GraphCoherence:
                 "CanonicalLatin": "Smith, John",
                 "Confidence": 85.0,
                 "GenealogyRelation": [
-                    {"target_id": "person2", "relation_type": "doctoralAdvisor", "confidence": 90.0}
+                    {
+                        "target_id": "person2",
+                        "relation_type": "doctoralAdvisor",
+                        "confidence": 90.0,
+                    }
                 ],
             },
             {
@@ -411,7 +495,9 @@ class TestV7GraphCoherence:
 
         graph = self.scorer.create_genealogy_graph_from_entries(sample_entries)
 
-        print(f"Created graph: {graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges")
+        print(
+            f"Created graph: {graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges"
+        )
 
         # Should create nodes and edges based on entry data
         assert graph.number_of_nodes() == 2, "Should create node for each entry"
@@ -419,7 +505,9 @@ class TestV7GraphCoherence:
 
         # Test coherence of created graph
         result = self.scorer.score_graph_coherence(graph, "quick")
-        assert result.coherence_score >= 0.0, "Created graph should have valid coherence score"
+        assert (
+            result.coherence_score >= 0.0
+        ), "Created graph should have valid coherence score"
 
     def _create_excellent_graph(self) -> nx.Graph:
         """Create a high-quality graph for testing"""
@@ -429,7 +517,10 @@ class TestV7GraphCoherence:
         nodes = [
             ("senior_prof", {"canonical_name": "Einstein, Albert", "confidence": 98.0}),
             ("mid_prof", {"canonical_name": "Planck, Max", "confidence": 95.0}),
-            ("junior_prof", {"canonical_name": "Heisenberg, Werner", "confidence": 92.0}),
+            (
+                "junior_prof",
+                {"canonical_name": "Heisenberg, Werner", "confidence": 92.0},
+            ),
             ("postdoc", {"canonical_name": "Schrödinger, Erwin", "confidence": 90.0}),
         ]
 
@@ -437,9 +528,21 @@ class TestV7GraphCoherence:
             graph.add_node(node_id, **attrs)
 
         edges = [
-            ("senior_prof", "mid_prof", {"relation_type": "doctoralAdvisor", "confidence": 96.0}),
-            ("mid_prof", "junior_prof", {"relation_type": "doctoralAdvisor", "confidence": 94.0}),
-            ("junior_prof", "postdoc", {"relation_type": "postdocMentor", "confidence": 91.0}),
+            (
+                "senior_prof",
+                "mid_prof",
+                {"relation_type": "doctoralAdvisor", "confidence": 96.0},
+            ),
+            (
+                "mid_prof",
+                "junior_prof",
+                {"relation_type": "doctoralAdvisor", "confidence": 94.0},
+            ),
+            (
+                "junior_prof",
+                "postdoc",
+                {"relation_type": "postdocMentor", "confidence": 91.0},
+            ),
         ]
 
         for source, target, attrs in edges:
@@ -462,8 +565,16 @@ class TestV7GraphCoherence:
             graph.add_node(node_id, **attrs)
 
         edges = [
-            ("prof1", "student1", {"relation_type": "doctoralAdvisor", "confidence": 72.0}),
-            ("prof2", "student2", {"relation_type": "doctoralAdvisor", "confidence": 69.0}),
+            (
+                "prof1",
+                "student1",
+                {"relation_type": "doctoralAdvisor", "confidence": 72.0},
+            ),
+            (
+                "prof2",
+                "student2",
+                {"relation_type": "doctoralAdvisor", "confidence": 69.0},
+            ),
         ]
 
         for source, target, attrs in edges:
@@ -477,7 +588,10 @@ class TestV7GraphCoherence:
 
         nodes = [
             ("unknown1", {"canonical_name": "Unknown, Person", "confidence": 25.0}),
-            ("unknown2", {"canonical_name": "Uncertain, Individual", "confidence": 20.0}),
+            (
+                "unknown2",
+                {"canonical_name": "Uncertain, Individual", "confidence": 20.0},
+            ),
             ("isolated", {"canonical_name": "Isolated, Person", "confidence": 15.0}),
         ]
 

@@ -32,7 +32,9 @@ class GraphCoherence:
 
         if nx is None:
             # NetworkX not available, return default scores
-            return {e.get("GlobalID", f"unknown_{i}"): 0.5 for i, e in enumerate(entries)}
+            return {
+                e.get("GlobalID", f"unknown_{i}"): 0.5 for i, e in enumerate(entries)
+            }
 
         # Build graph
         G = nx.DiGraph()

@@ -114,7 +114,12 @@ independent_test_cases = [
         "source": "Independence activist",
     },
     # LITERARY/CULTURAL FIGURES
-    {"name": "Ko, Un", "expected_korean": "고은", "category": "literary", "source": "Poet"},
+    {
+        "name": "Ko, Un",
+        "expected_korean": "고은",
+        "category": "literary",
+        "source": "Poet",
+    },
     {
         "name": "Park, Kyung-Ni",
         "expected_korean": "박경리",
@@ -133,7 +138,12 @@ independent_test_cases = [
         "category": "literary",
         "source": "Novelist",
     },
-    {"name": "Kim, So-Wol", "expected_korean": "김소월", "category": "literary", "source": "Poet"},
+    {
+        "name": "Kim, So-Wol",
+        "expected_korean": "김소월",
+        "category": "literary",
+        "source": "Poet",
+    },
     # MODERN CULTURAL FIGURES (different from existing diverse dataset)
     {
         "name": "Bong, Joon-Ho",
@@ -166,7 +176,12 @@ independent_test_cases = [
         "source": "Film director",
     },
     # SPORTS FIGURES (different from existing)
-    {"name": "Park, In-Bee", "expected_korean": "박인비", "category": "sports", "source": "Golfer"},
+    {
+        "name": "Park, In-Bee",
+        "expected_korean": "박인비",
+        "category": "sports",
+        "source": "Golfer",
+    },
     {
         "name": "Kim, Yu-Na",
         "expected_korean": "김연아",
@@ -247,7 +262,12 @@ independent_test_cases = [
         "category": "culture",
         "source": "Actress",
     },
-    {"name": "Ha, Jung-Woo", "expected_korean": "하정우", "category": "culture", "source": "Actor"},
+    {
+        "name": "Ha, Jung-Woo",
+        "expected_korean": "하정우",
+        "category": "culture",
+        "source": "Actor",
+    },
     # COMPOUND AND COMPLEX NAMES
     {
         "name": "Kim, Jong-Un",
@@ -267,7 +287,12 @@ independent_test_cases = [
         "category": "political",
         "source": "NK founder",
     },
-    {"name": "Pak, Se-Ri", "expected_korean": "박세리", "category": "sports", "source": "Golfer"},
+    {
+        "name": "Pak, Se-Ri",
+        "expected_korean": "박세리",
+        "category": "sports",
+        "source": "Golfer",
+    },
     {
         "name": "Lee, Young-Ae",
         "expected_korean": "이영애",
@@ -287,9 +312,24 @@ independent_test_cases = [
         "category": "culture",
         "source": "Actress",
     },
-    {"name": "Cha, In-Pyo", "expected_korean": "차인표", "category": "culture", "source": "Actor"},
-    {"name": "Gong, Yoo", "expected_korean": "공유", "category": "culture", "source": "Actor"},
-    {"name": "Won, Bin", "expected_korean": "원빈", "category": "culture", "source": "Actor"},
+    {
+        "name": "Cha, In-Pyo",
+        "expected_korean": "차인표",
+        "category": "culture",
+        "source": "Actor",
+    },
+    {
+        "name": "Gong, Yoo",
+        "expected_korean": "공유",
+        "category": "culture",
+        "source": "Actor",
+    },
+    {
+        "name": "Won, Bin",
+        "expected_korean": "원빈",
+        "category": "culture",
+        "source": "Actor",
+    },
 ]
 
 print(f"Created {len(independent_test_cases)} independent test cases")
@@ -304,13 +344,25 @@ dataset_info = {
     "description": "High-quality Korean names from diverse domains for independent validation",
     "total_cases": len(independent_test_cases),
     "categories": {
-        "political": len([c for c in independent_test_cases if c["category"] == "political"]),
-        "business": len([c for c in independent_test_cases if c["category"] == "business"]),
-        "historical": len([c for c in independent_test_cases if c["category"] == "historical"]),
-        "literary": len([c for c in independent_test_cases if c["category"] == "literary"]),
-        "culture": len([c for c in independent_test_cases if c["category"] == "culture"]),
+        "political": len(
+            [c for c in independent_test_cases if c["category"] == "political"]
+        ),
+        "business": len(
+            [c for c in independent_test_cases if c["category"] == "business"]
+        ),
+        "historical": len(
+            [c for c in independent_test_cases if c["category"] == "historical"]
+        ),
+        "literary": len(
+            [c for c in independent_test_cases if c["category"] == "literary"]
+        ),
+        "culture": len(
+            [c for c in independent_test_cases if c["category"] == "culture"]
+        ),
         "sports": len([c for c in independent_test_cases if c["category"] == "sports"]),
-        "academic": len([c for c in independent_test_cases if c["category"] == "academic"]),
+        "academic": len(
+            [c for c in independent_test_cases if c["category"] == "academic"]
+        ),
     },
     "quality_criteria": [
         "Real Korean names from verified sources",

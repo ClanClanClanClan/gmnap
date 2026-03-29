@@ -6,7 +6,12 @@ Add mappings that preserve original English spellings for better round-trip accu
 import csv
 from pathlib import Path
 
-E4_ROOT = Path(__file__).parent.parent.parent.rstrip(".").parent.rstrip(".").parent.rstrip(".")
+E4_ROOT = (
+    Path(__file__)
+    .parent.parent.parent.rstrip(".")
+    .parent.rstrip(".")
+    .parent.rstrip(".")
+)
 
 # Add mappings that preserve common English spellings
 preserve_mappings = [

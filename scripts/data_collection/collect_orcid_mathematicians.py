@@ -53,7 +53,9 @@ class ORCIDCollector:
             print(f"✅ Authenticated successfully")
             return self.access_token
         else:
-            raise Exception(f"ORCID authentication failed: {response.status_code} {response.text}")
+            raise Exception(
+                f"ORCID authentication failed: {response.status_code} {response.text}"
+            )
 
     def search_mathematicians(
         self, query: str = "mathematics", max_results: int = 10000
@@ -131,7 +133,10 @@ class ORCIDCollector:
 
         response = requests.get(
             f"{self.base_url}/{orcid_id}/person",
-            headers={"Authorization": f"Bearer {self.access_token}", "Accept": "application/json"},
+            headers={
+                "Authorization": f"Bearer {self.access_token}",
+                "Accept": "application/json",
+            },
         )
 
         if response.status_code != 200:
@@ -262,7 +267,9 @@ def main():
             country_counts[country] = country_counts.get(country, 0) + 1
 
     print("\nTop 10 Countries:")
-    for country, count in sorted(country_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
+    for country, count in sorted(
+        country_counts.items(), key=lambda x: x[1], reverse=True
+    )[:10]:
         print(f"  {country}: {count}")
 
     print()

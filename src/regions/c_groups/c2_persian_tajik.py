@@ -187,7 +187,9 @@ class C2_PersianTajik(RegionSpec):
         if self._is_persian_or_tajik(canonical):
             romanized = self._romanize_name(canonical)
             if romanized != canonical:
-                entry["Variants"]["Synthesised"].append({"str": romanized, "type": "romanization"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": romanized, "type": "romanization"}
+                )
 
         # Rule 7: Persian Ezafe – identify and generate variants
         ezafe_info = self._analyze_persian_ezafe(canonical)
@@ -213,7 +215,9 @@ class C2_PersianTajik(RegionSpec):
 
         # Add variant without patronymic
         if components.get("patronymic"):
-            without_patronymic = self._generate_no_patronymic_variant(canonical, components)
+            without_patronymic = self._generate_no_patronymic_variant(
+                canonical, components
+            )
             if without_patronymic and without_patronymic != canonical:
                 entry["Variants"]["Synthesised"].append(
                     {"str": without_patronymic, "type": "no-patronymic"}
@@ -466,7 +470,10 @@ class C2_PersianTajik(RegionSpec):
             (r"(\w+)ِ\s+(\w+)", "kasre_marked"),  # With visible kasre
             (r"(\w+)\u0650\s+(\w+)", "kasre_unicode"),  # Unicode kasre (U+0650)
             # Common Persian ezafe constructions (implicit)
-            (r"\b(\w+)\s+(شیرازی|اصفهانی|تهرانی|کاشانی|یزدی|کرمانی|فارسی)", "geographic_implicit"),
+            (
+                r"\b(\w+)\s+(شیرازی|اصفهانی|تهرانی|کاشانی|یزدی|کرمانی|فارسی)",
+                "geographic_implicit",
+            ),
             (r"\b(\w+)\s+(کبیر|صغیر|اکبر|اصغر|بزرگ|کوچک)", "descriptive_implicit"),
         ]
 
@@ -502,7 +509,13 @@ class C2_PersianTajik(RegionSpec):
             first, second = words
 
             # Common patterns that suggest implicit ezafe
-            geographic_endings = ["ی", "ي", "انی", "i", "ani"]  # Persian/Arabic geographic suffixes
+            geographic_endings = [
+                "ی",
+                "ي",
+                "انی",
+                "i",
+                "ani",
+            ]  # Persian/Arabic geographic suffixes
             descriptive_words = [
                 "کبیر",
                 "صغیر",
@@ -516,8 +529,12 @@ class C2_PersianTajik(RegionSpec):
                 "bozorg",
             ]
 
-            is_geographic = any(second.endswith(ending) for ending in geographic_endings)
-            is_descriptive = any(second.lower() in [word.lower() for word in descriptive_words])
+            is_geographic = any(
+                second.endswith(ending) for ending in geographic_endings
+            )
+            is_descriptive = any(
+                second.lower() in [word.lower() for word in descriptive_words]
+            )
 
             if is_geographic or is_descriptive:
                 ezafe_info.update(
@@ -527,7 +544,9 @@ class C2_PersianTajik(RegionSpec):
                         "ezafe_base": first,
                         "ezafe_complement": second,
                         "ezafe_full_match": name,
-                        "ezafe_relationship": "geographic" if is_geographic else "descriptive",
+                        "ezafe_relationship": (
+                            "geographic" if is_geographic else "descriptive"
+                        ),
                     }
                 )
                 return ezafe_info
@@ -733,8 +752,12 @@ class C2_PersianTajik(RegionSpec):
 
         # Add variants for different suffix spellings
         for suffix_type, variant_name in suffix_variants.items():
-            if suffix_type != current_suffix.replace("زاده", "zadeh").replace("زاد", "zade"):
-                variants.append({"str": variant_name, "type": f"zadeh-suffix-{suffix_type}"})
+            if suffix_type != current_suffix.replace("زاده", "zadeh").replace(
+                "زاد", "zade"
+            ):
+                variants.append(
+                    {"str": variant_name, "type": f"zadeh-suffix-{suffix_type}"}
+                )
 
         # Generate root name variant (without suffix)
         if len(root) >= 3:  # Only for substantial root names
@@ -774,7 +797,9 @@ class C2_PersianTajik(RegionSpec):
             if variant["str"].islower():
                 capitalized = variant["str"].title()
                 if capitalized != variant["str"]:
-                    variants.append({"str": capitalized, "type": variant["type"] + "-capitalized"})
+                    variants.append(
+                        {"str": capitalized, "type": variant["type"] + "-capitalized"}
+                    )
 
         return variants
 
@@ -811,14 +836,18 @@ class C2_PersianTajik(RegionSpec):
         # If CanonicalLatin exists, it should be romanized
         if canonical_latin:
             if self._is_persian_or_tajik(canonical_latin):
-                raise RegionRuleError(f"CanonicalLatin should be romanized: {canonical_latin}")
+                raise RegionRuleError(
+                    f"CanonicalLatin should be romanized: {canonical_latin}"
+                )
 
         # Check name structure
         for canonical in [canonical_native, canonical_latin]:
             if canonical:
                 words = canonical.split()
                 if len(words) < 2:
-                    raise RegionRuleError(f"Name should have at least 2 words: {canonical}")
+                    raise RegionRuleError(
+                        f"Name should have at least 2 words: {canonical}"
+                    )
 
                 # Check for invalid characters
                 if not self._has_valid_characters(canonical):

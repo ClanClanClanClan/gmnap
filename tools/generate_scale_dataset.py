@@ -4,7 +4,16 @@
 import json, random, pathlib, argparse
 
 REGIONS = [f"R{i:02d}" for i in range(1, 38)]  # 37 regions
-SOURCES = ["Crossref", "OpenAlex", "ORCID_ETD", "Wikidata_P184", "OAI", "HAL", "GND", "zbMATH"]
+SOURCES = [
+    "Crossref",
+    "OpenAlex",
+    "ORCID_ETD",
+    "Wikidata_P184",
+    "OAI",
+    "HAL",
+    "GND",
+    "zbMATH",
+]
 SURNAMES = [
     "Lee",
     "Kim",
@@ -41,7 +50,11 @@ def one(i):
     )
     by = 1900 + random.randint(0, 120)
     sources = random.sample(SOURCES, random.randint(1, 3))
-    advisors = [f"ID-{(i-1)//10000}-{(i-1)%10000:04d}"] if i > 0 and random.random() < 0.2 else []
+    advisors = (
+        [f"ID-{(i-1)//10000}-{(i-1)%10000:04d}"]
+        if i > 0 and random.random() < 0.2
+        else []
+    )
     return {
         "GlobalID": rid,
         "CanonicalNative": name,
@@ -58,7 +71,9 @@ def main(N=1_000_000, out="datasets/scale/production_test_dataset_1m.jsonl", see
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "w", encoding="utf-8") as fh:
         for i in range(N):
-            fh.write(json.dumps(one(i), ensure_ascii=True, separators=(",", ":")) + "\n")
+            fh.write(
+                json.dumps(one(i), ensure_ascii=True, separators=(",", ":")) + "\n"
+            )
     print(f"Wrote {N} lines to {p}")
 
 

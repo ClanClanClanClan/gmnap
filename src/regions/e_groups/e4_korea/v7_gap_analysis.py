@@ -16,7 +16,10 @@ def analyze_v7_requirements():
     print("📊 CURRENT PERFORMANCE METRICS")
     try:
         result = subprocess.run(
-            ["python3", "scripts/validate.py"], capture_output=True, text=True, timeout=60
+            ["python3", "scripts/validate.py"],
+            capture_output=True,
+            text=True,
+            timeout=60,
         )
 
         current_math = None
@@ -56,7 +59,9 @@ def analyze_v7_requirements():
     print(f"Gap: {gap:.3f} ({gap*100:.2f} percentage points)")
 
     if gap > 0:
-        print(f"🚨 BLOCKING ISSUE: {gap*100:.2f}% performance gap prevents v7 integration")
+        print(
+            f"🚨 BLOCKING ISSUE: {gap*100:.2f}% performance gap prevents v7 integration"
+        )
         return False
     else:
         print(f"✅ Performance requirement met")
@@ -122,7 +127,9 @@ def analyze_executive_patches():
             implemented_count += 1
         print()
 
-    print(f"Implementation Status: {implemented_count}/6 patches ({implemented_count/6*100:.1f}%)")
+    print(
+        f"Implementation Status: {implemented_count}/6 patches ({implemented_count/6*100:.1f}%)"
+    )
     return implemented_count, len(patches)
 
 
@@ -170,7 +177,9 @@ def main():
     print("=" * 60)
 
     if readiness_score >= 60:
-        print("The Korean Regional Processor shows strong alignment with GMNAP v7 specs.")
+        print(
+            "The Korean Regional Processor shows strong alignment with GMNAP v7 specs."
+        )
         print("Key remaining work:")
         print("  • Apply Patch A (weight recalibration) to close 2.73% performance gap")
         print("  • Implement Patches C & D for full security compliance")

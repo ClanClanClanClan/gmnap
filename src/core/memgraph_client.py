@@ -27,9 +27,7 @@ class GenealogyRelation:
 
     source_id: str
     target_id: str
-    relation_type: (
-        str  # doctoralAdvisor, adviserCommitteeMember, postdocMentor, habilitationAdvisor
-    )
+    relation_type: str  # doctoralAdvisor, adviserCommitteeMember, postdocMentor, habilitationAdvisor
     qualifier: Optional[str] = None
     confidence: float = 1.0
     source: str = "GMNAP"
@@ -67,7 +65,11 @@ class MemgraphClient:
     """
 
     def __init__(
-        self, host: str = "localhost", port: int = 7687, username: str = "gmnap", password: str = ""
+        self,
+        host: str = "localhost",
+        port: int = 7687,
+        username: str = "gmnap",
+        password: str = "",
     ):
         self.host = host
         self.port = port
@@ -83,7 +85,9 @@ class MemgraphClient:
         self.password = os.getenv("MEMGRAPH_PASSWORD", self.password)
 
         if not MEMGRAPH_AVAILABLE:
-            logger.warning("Memgraph client not available - neo4j package not installed")
+            logger.warning(
+                "Memgraph client not available - neo4j package not installed"
+            )
             return
 
         self._connect()
@@ -211,7 +215,9 @@ class MemgraphClient:
                 )
 
                 if result.single():
-                    logger.debug(f"Added relation: {relation.source_id} -> {relation.target_id}")
+                    logger.debug(
+                        f"Added relation: {relation.source_id} -> {relation.target_id}"
+                    )
                     return True
 
         except Exception as e:
@@ -252,7 +258,9 @@ class MemgraphClient:
                 for record in result:
                     scores[record["id"]] = record["score"]
 
-                logger.info(f"Calculated betweenness centrality for {len(scores)} mathematicians")
+                logger.info(
+                    f"Calculated betweenness centrality for {len(scores)} mathematicians"
+                )
                 return scores
 
         except Exception as e:
@@ -291,7 +299,9 @@ class MemgraphClient:
                     cycles.append(cycle)
 
                 if cycles:
-                    logger.warning(f"Detected {len(cycles)} potential cycles in genealogy graph")
+                    logger.warning(
+                        f"Detected {len(cycles)} potential cycles in genealogy graph"
+                    )
                 else:
                     logger.info("No cycles detected in genealogy graph")
 
@@ -328,7 +338,9 @@ class MemgraphClient:
 
                 # Calculate coherence score (simplified)
                 # In production, would use more sophisticated coherence metrics
-                coherence_score = min(1.0, relationship_count / max(1, mathematician_count) * 0.1)
+                coherence_score = min(
+                    1.0, relationship_count / max(1, mathematician_count) * 0.1
+                )
 
                 # Get betweenness scores
                 betweenness_scores = self.calculate_betweenness_centrality()
@@ -344,7 +356,9 @@ class MemgraphClient:
                 """
 
                 conflict_result = session.run(conflict_query).single()
-                edge_conflicts = conflict_result["conflict_count"] if conflict_result else 0
+                edge_conflicts = (
+                    conflict_result["conflict_count"] if conflict_result else 0
+                )
 
                 metrics = GraphMetrics(
                     total_mathematicians=mathematician_count,
@@ -369,7 +383,9 @@ class MemgraphClient:
 
         return GraphMetrics()
 
-    def validate_quality_gates(self, mode: str = "quick") -> Tuple[bool, Dict[str, Any]]:
+    def validate_quality_gates(
+        self, mode: str = "quick"
+    ) -> Tuple[bool, Dict[str, Any]]:
         """
         Validate V7 quality gates for graph consistency.
 
@@ -391,7 +407,9 @@ class MemgraphClient:
         threshold = thresholds.get(mode, thresholds["quick"])
 
         # Calculate edge conflict percentage
-        edge_conflict_pct = (metrics.edge_conflicts / max(1, metrics.total_relationships)) * 100
+        edge_conflict_pct = (
+            metrics.edge_conflicts / max(1, metrics.total_relationships)
+        ) * 100
 
         # Check gates
         coherence_pass = metrics.coherence_score >= threshold["coherence_min"]

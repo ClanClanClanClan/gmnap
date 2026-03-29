@@ -48,7 +48,9 @@ def test_detection():
         entry = {"CanonicalLatin": name}
         result = manager.detect_region(entry)
 
-        print(f"{name:25} -> {result.region_code} (confidence: {result.confidence:.2f})")
+        print(
+            f"{name:25} -> {result.region_code} (confidence: {result.confidence:.2f})"
+        )
         print(f"  Method: {result.detection_method}")
         print(f"  Metadata: {result.metadata}")
         print()

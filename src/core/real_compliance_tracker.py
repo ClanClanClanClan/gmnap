@@ -76,7 +76,9 @@ class RealComplianceTracker:
         # Calculate real overall compliance
         total_score = sum(result.score for result in results.values())
         max_possible = len(results) * 1.0
-        real_compliance_percentage = (total_score / max_possible) * 100 if max_possible > 0 else 0
+        real_compliance_percentage = (
+            (total_score / max_possible) * 100 if max_possible > 0 else 0
+        )
 
         # Count working vs non-working components
         working_components = sum(1 for result in results.values() if result.working)
@@ -109,7 +111,9 @@ class RealComplianceTracker:
             },
         }
 
-    async def _test_pipeline_stages(self, test_entries: List[Dict[str, Any]]) -> ComponentTest:
+    async def _test_pipeline_stages(
+        self, test_entries: List[Dict[str, Any]]
+    ) -> ComponentTest:
         """Test actual pipeline stage functionality"""
         working_stages = []
         total_stages = 12  # Expected V7 stages (0-11)
@@ -199,12 +203,20 @@ class RealComplianceTracker:
                 "working_count": working_count,
                 "total_expected": total_stages,
                 "stage_success_rate": (working_count / total_stages) * 100,
-                "functional_stages": ["Stage_0", "Stage_1", "Stage_1b", "Stage_2", "Stage_3"],
+                "functional_stages": [
+                    "Stage_0",
+                    "Stage_1",
+                    "Stage_1b",
+                    "Stage_2",
+                    "Stage_3",
+                ],
             },
             errors=errors,
         )
 
-    async def _test_quality_gates(self, test_entries: List[Dict[str, Any]]) -> ComponentTest:
+    async def _test_quality_gates(
+        self, test_entries: List[Dict[str, Any]]
+    ) -> ComponentTest:
         """Test actual quality gate functionality"""
         errors = []
         working = False
@@ -224,7 +236,9 @@ class RealComplianceTracker:
             gate_result = await self.quality_gates.validate_batch(enriched_entries)
 
             working = gate_result["summary"]["overall_passed"]
-            score = gate_result["summary"]["validation_rate"] / 100.0  # Convert percentage to score
+            score = (
+                gate_result["summary"]["validation_rate"] / 100.0
+            )  # Convert percentage to score
 
             details = {
                 "gates_tested": gate_result["summary"]["gates_run"],
@@ -243,7 +257,11 @@ class RealComplianceTracker:
             errors.append(f"Quality gate testing failed: {e}")
 
         return ComponentTest(
-            component="quality_gates", working=working, score=score, details=details, errors=errors
+            component="quality_gates",
+            working=working,
+            score=score,
+            details=details,
+            errors=errors,
         )
 
     async def _test_authority_sources(self) -> ComponentTest:
@@ -292,7 +310,9 @@ class RealComplianceTracker:
             errors=errors,
         )
 
-    async def _test_regional_processing(self, test_entries: List[Dict[str, Any]]) -> ComponentTest:
+    async def _test_regional_processing(
+        self, test_entries: List[Dict[str, Any]]
+    ) -> ComponentTest:
         """Test actual regional processing functionality"""
         errors = []
         working_regions = []
@@ -347,7 +367,9 @@ class RealComplianceTracker:
             errors=errors,
         )
 
-    async def _test_system_integration(self, test_entries: List[Dict[str, Any]]) -> ComponentTest:
+    async def _test_system_integration(
+        self, test_entries: List[Dict[str, Any]]
+    ) -> ComponentTest:
         """Test end-to-end system integration"""
         errors = []
         integration_steps = []
@@ -377,7 +399,9 @@ class RealComplianceTracker:
                 errors.append(f"Pipeline-Quality integration failed: {e}")
 
             # Test 2: Full orchestrator integration would timeout, so mark as not working
-            errors.append("Full orchestrator integration: Times out on authority enrichment")
+            errors.append(
+                "Full orchestrator integration: Times out on authority enrichment"
+            )
 
         except Exception as e:
             errors.append(f"System integration test failed: {e}")

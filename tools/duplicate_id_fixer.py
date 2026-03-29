@@ -64,7 +64,9 @@ if __name__ == "__main__":
     ap.add_argument("--write", dest="write")
     a = ap.parse_args()
     entries = load_entries(a.inp)
-    counts = collections.Counter([e.get("GlobalID") for e in entries if e.get("GlobalID")])
+    counts = collections.Counter(
+        [e.get("GlobalID") for e in entries if e.get("GlobalID")]
+    )
     dups = {k: v for k, v in counts.items() if v > 1}
     if not dups:
         print("No duplicates found.")

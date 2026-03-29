@@ -73,7 +73,10 @@ def test_accuracy_improvements():
         )
 
         # Track improvements for specific failed cases
-        if name in ["Jean Dupont", "Wang Wei", "Maria Silva"] and result.region_code == expected:
+        if (
+            name in ["Jean Dupont", "Wang Wei", "Maria Silva"]
+            and result.region_code == expected
+        ):
             improvements.append(name)
 
     accuracy = correct_predictions / len(test_cases)
@@ -154,7 +157,9 @@ def test_specific_fixes():
                 f"   PASS SUCCESS: {result.region_code} ({result.detection_method}, {result.confidence:.2f})"
             )
         else:
-            print(f"   FAIL FAILED: {result.region_code} (expected {test_case['expected']})")
+            print(
+                f"   FAIL FAILED: {result.region_code} (expected {test_case['expected']})"
+            )
 
             # Debug why it failed
             if result.region_code == "A1" and result.confidence == 0.1:

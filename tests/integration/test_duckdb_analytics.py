@@ -211,8 +211,12 @@ def test_suffix_duplicates():
     assert (
         smith_entries[0]["CanonicalLatin"] == "Smith, John"
     ), "Highest confidence should be unchanged"
-    assert smith_entries[1]["CanonicalLatin"] == "Smith, John_001", "Second should be suffixed _001"
-    assert smith_entries[2]["CanonicalLatin"] == "Smith, John_002", "Third should be suffixed _002"
+    assert (
+        smith_entries[1]["CanonicalLatin"] == "Smith, John_001"
+    ), "Second should be suffixed _001"
+    assert (
+        smith_entries[2]["CanonicalLatin"] == "Smith, John_002"
+    ), "Third should be suffixed _002"
 
     print("PASS Duplicate suffixing working correctly")
     for entry in smith_entries:
@@ -315,7 +319,9 @@ def test_sql_injection_safety():
 
         # Verify table wasn't dropped
         tables = conn.execute("SHOW TABLES").fetchall()
-        assert any("security_test" in str(t) for t in tables), "Table should still exist"
+        assert any(
+            "security_test" in str(t) for t in tables
+        ), "Table should still exist"
 
         print("PASS SQL injection prevention working")
         print(f"  - Safely stored: {malicious_input[:30]}...")

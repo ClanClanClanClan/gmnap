@@ -8,7 +8,9 @@ import shutil
 from datetime import datetime
 
 # Backup the current file
-backup_name = f"resources/rr_syllable_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+backup_name = (
+    f"resources/rr_syllable_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+)
 shutil.copy("resources/rr_syllable_map.csv", backup_name)
 print(f"Backed up to: {backup_name}")
 
@@ -67,7 +69,9 @@ for hangul, roman, weight in segmentation_fixes:
                     new_weight = float(weight)
                     if new_weight < old_weight:  # Lower weight = stronger preference
                         rows[i] = [hangul, roman, weight]
-                        print(f"  UPDATED: {roman} → {hangul} (weight: {old_weight} → {weight})")
+                        print(
+                            f"  UPDATED: {roman} → {hangul} (weight: {old_weight} → {weight})"
+                        )
                         updated_count += 1
                     else:
                         print(

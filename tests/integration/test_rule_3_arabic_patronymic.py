@@ -57,7 +57,10 @@ def test_rule_3_c3():
     print()
 
     # Test case 2: Arabic bint patronymic
-    entry2 = {"CanonicalNative": "فاطمة بنت أحمد", "RegionalExtras": {}}  # Fatima bint Ahmad
+    entry2 = {
+        "CanonicalNative": "فاطمة بنت أحمد",
+        "RegionalExtras": {},
+    }  # Fatima bint Ahmad
 
     processor.augment(entry2)
 
@@ -66,7 +69,10 @@ def test_rule_3_c3():
     print(f"Is bin/bint: {entry2['RegionalExtras'].get('is_bin_bint', False)}")
 
     # Test case 3: Non-bin/bint patronymic (should not be affected by Rule 3)
-    entry3 = {"CanonicalNative": "محمد أبو يوسف", "RegionalExtras": {}}  # Muhammad Abu Yusuf
+    entry3 = {
+        "CanonicalNative": "محمد أبو يوسف",
+        "RegionalExtras": {},
+    }  # Muhammad Abu Yusuf
 
     processor.augment(entry3)
 
@@ -107,7 +113,10 @@ def test_rule_3_c4():
     print()
 
     # Test case 2: Arabic ibn patronymic
-    entry2 = {"CanonicalNative": "سعود ابن عبدالعزيز", "RegionalExtras": {}}  # Saud ibn Abdulaziz
+    entry2 = {
+        "CanonicalNative": "سعود ابن عبدالعزيز",
+        "RegionalExtras": {},
+    }  # Saud ibn Abdulaziz
 
     processor.augment(entry2)
 
@@ -205,7 +214,9 @@ def test_rule_3_order_key():
             .replace(" \u0628\u0646\u062a ", " ")
         )
         name_without = (
-            name_without.replace(" bin ", " ").replace(" ibn ", " ").replace(" bint ", " ")
+            name_without.replace(" bin ", " ")
+            .replace(" ibn ", " ")
+            .replace(" bint ", " ")
         )
         # Remove the father's name (word after patronymic)
         words = name_without.split()

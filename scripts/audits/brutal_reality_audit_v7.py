@@ -20,7 +20,13 @@ class BrutalV7Audit:
     """Brutally honest V7 compliance audit."""
 
     def __init__(self):
-        self.results = {"claims": {}, "reality": {}, "gaps": [], "lies": [], "truth_score": 0}
+        self.results = {
+            "claims": {},
+            "reality": {},
+            "gaps": [],
+            "lies": [],
+            "truth_score": 0,
+        }
 
     async def audit_regional_processing(self) -> Dict[str, Any]:
         """Test if all 33 regions ACTUALLY work."""
@@ -127,7 +133,11 @@ class BrutalV7Audit:
             # Test 1: Empty entries
             scores = coherence.compute_coherence([])
             results["test_results"].append(
-                {"test": "empty entries", "result": scores, "valid": isinstance(scores, dict)}
+                {
+                    "test": "empty entries",
+                    "result": scores,
+                    "valid": isinstance(scores, dict),
+                }
             )
 
             # Test 2: Single entry
@@ -145,7 +155,11 @@ class BrutalV7Audit:
             entries = [
                 {"GlobalID": "ADVISOR001", "Field": "Math"},
                 {"GlobalID": "STUDENT001", "Field": "Math", "Advisors": ["ADVISOR001"]},
-                {"GlobalID": "STUDENT002", "Field": "Physics", "Advisors": ["ADVISOR001"]},
+                {
+                    "GlobalID": "STUDENT002",
+                    "Field": "Physics",
+                    "Advisors": ["ADVISOR001"],
+                },
             ]
             scores = coherence.compute_coherence(entries)
             results["test_results"].append(
@@ -159,7 +173,9 @@ class BrutalV7Audit:
 
             # Check if it returns individual scores (not single float)
             all_valid = all(t["valid"] for t in results["test_results"])
-            returns_dict = all(isinstance(t["result"], dict) for t in results["test_results"])
+            returns_dict = all(
+                isinstance(t["result"], dict) for t in results["test_results"]
+            )
 
             if all_valid and returns_dict:
                 results["reality"] = "WORKING: Returns dict of individual scores"
@@ -270,10 +286,17 @@ class BrutalV7Audit:
         print("AUDITING: Quality Gates Claims")
         print("=" * 60)
 
-        results = {"claimed": "Strict blocking enforcement", "reality": None, "tests": []}
+        results = {
+            "claimed": "Strict blocking enforcement",
+            "reality": None,
+            "tests": [],
+        }
 
         try:
-            from src.quality.strict_gates import StrictQualityGates, QualityGateBlockedException
+            from src.quality.strict_gates import (
+                StrictQualityGates,
+                QualityGateBlockedException,
+            )
 
             gates = StrictQualityGates(mode="production", strict=True)
 
@@ -286,7 +309,11 @@ class BrutalV7Audit:
             try:
                 result = gates.enforce_quality_gates(duplicate_entries)
                 results["tests"].append(
-                    {"test": "duplicate blocking", "result": "NOT BLOCKED", "correct": False}
+                    {
+                        "test": "duplicate blocking",
+                        "result": "NOT BLOCKED",
+                        "correct": False,
+                    }
                 )
             except QualityGateBlockedException:
                 results["tests"].append(
@@ -295,13 +322,18 @@ class BrutalV7Audit:
 
             # Test 2: High error rate blocking
             error_entries = [
-                {"GlobalID": f"ERR{i:03d}", "ValidationErrors": ["error"]} for i in range(10)
+                {"GlobalID": f"ERR{i:03d}", "ValidationErrors": ["error"]}
+                for i in range(10)
             ]
 
             try:
                 result = gates.enforce_quality_gates(error_entries)
                 results["tests"].append(
-                    {"test": "high error rate", "result": "NOT BLOCKED", "correct": False}
+                    {
+                        "test": "high error rate",
+                        "result": "NOT BLOCKED",
+                        "correct": False,
+                    }
                 )
             except QualityGateBlockedException:
                 results["tests"].append(
@@ -336,7 +368,10 @@ class BrutalV7Audit:
         }
 
         try:
-            from src.core.pipeline_v7_complete_final import V7PipelineCompleteFinal, PipelineMode
+            from src.core.pipeline_v7_complete_final import (
+                V7PipelineCompleteFinal,
+                PipelineMode,
+            )
 
             pipeline = V7PipelineCompleteFinal(mode=PipelineMode.QUICK)
 
@@ -362,7 +397,9 @@ class BrutalV7Audit:
 
                     entries_per_sec = size / elapsed if elapsed > 0 else 0
                     min_per_million = (
-                        (1000000 / entries_per_sec / 60) if entries_per_sec > 0 else float("inf")
+                        (1000000 / entries_per_sec / 60)
+                        if entries_per_sec > 0
+                        else float("inf")
                     )
 
                     results["measurements"].append(
@@ -374,10 +411,14 @@ class BrutalV7Audit:
                         }
                     )
                 except Exception as e:
-                    results["measurements"].append({"size": size, "error": str(e)[:100]})
+                    results["measurements"].append(
+                        {"size": size, "error": str(e)[:100]}
+                    )
 
             # Calculate average performance
-            valid_measurements = [m for m in results["measurements"] if "entries_per_sec" in m]
+            valid_measurements = [
+                m for m in results["measurements"] if "entries_per_sec" in m
+            ]
             if valid_measurements:
                 avg_speed = sum(m["entries_per_sec"] for m in valid_measurements) / len(
                     valid_measurements
@@ -385,7 +426,9 @@ class BrutalV7Audit:
                 avg_time = sum(m["min_per_million"] for m in valid_measurements) / len(
                     valid_measurements
                 )
-                results["reality"] = f"{avg_speed:.1f} entries/sec, {avg_time:.1f} min/million"
+                results["reality"] = (
+                    f"{avg_speed:.1f} entries/sec, {avg_time:.1f} min/million"
+                )
             else:
                 results["reality"] = "FAILED: Could not measure"
 
@@ -403,7 +446,10 @@ class BrutalV7Audit:
         results = {"claimed": "0-byte idempotency", "reality": None, "test_results": []}
 
         try:
-            from src.core.pipeline_v7_complete_final import V7PipelineCompleteFinal, PipelineMode
+            from src.core.pipeline_v7_complete_final import (
+                V7PipelineCompleteFinal,
+                PipelineMode,
+            )
 
             pipeline = V7PipelineCompleteFinal(mode=PipelineMode.QUICK)
 
@@ -446,13 +492,20 @@ class BrutalV7Audit:
 
         return results
 
-    async def calculate_real_compliance(self, audit_results: Dict[str, Any]) -> Dict[str, Any]:
+    async def calculate_real_compliance(
+        self, audit_results: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Calculate REAL V7 compliance score."""
         print("\n" + "=" * 60)
         print("CALCULATING REAL V7 COMPLIANCE")
         print("=" * 60)
 
-        scoring = {"components": {}, "total_score": 0, "max_score": 100, "percentage": 0}
+        scoring = {
+            "components": {},
+            "total_score": 0,
+            "max_score": 100,
+            "percentage": 0,
+        }
 
         # Regional Processing (10 points)
         regional = audit_results.get("regional_processing", {})
@@ -497,7 +550,8 @@ class BrutalV7Audit:
             import re
 
             match = re.search(
-                r"(\d+\.?\d*)\s*entries/sec.*?(\d+\.?\d*)\s*min/million", perf["reality"]
+                r"(\d+\.?\d*)\s*entries/sec.*?(\d+\.?\d*)\s*min/million",
+                perf["reality"],
             )
             if match:
                 entries_per_sec = float(match.group(1))

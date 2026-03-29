@@ -5,7 +5,11 @@ def synth(N):
     L = []
     for i in range(N):
         L.append(
-            {"GlobalID": f"G-{i:07d}", "CanonicalLatin": f"Name {i}", "BirthYear": 1900 + (i % 120)}
+            {
+                "GlobalID": f"G-{i:07d}",
+                "CanonicalLatin": f"Name {i}",
+                "BirthYear": 1900 + (i % 120),
+            }
         )
         if i % 50000 == 0:
             gc.collect()
@@ -25,5 +29,7 @@ if __name__ == "__main__":
     start = time.time()
     data = synth(2_000_000)
     rss = peak_rss_gb()
-    print(json.dumps({"peak_rss_gb_on_2M": rss, "seconds": time.time() - start}, indent=2))
+    print(
+        json.dumps({"peak_rss_gb_on_2M": rss, "seconds": time.time() - start}, indent=2)
+    )
     assert rss <= 6.0, "Peak RSS exceeds 6 GB (Extreme)"

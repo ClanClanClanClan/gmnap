@@ -60,7 +60,9 @@ async def test_crossref_free_api():
             # Test CrossrefAPI
             async with impl_class(mailto="test@example.com") as api:
                 print(f"✓ Using mailto: {api.mailto}")
-                print(f"✓ Rate limit: {api.POLITE_POOL_DELAY}s between requests (polite pool)")
+                print(
+                    f"✓ Rate limit: {api.POLITE_POOL_DELAY}s between requests (polite pool)"
+                )
                 print()
 
                 for query in test_queries:
@@ -70,8 +72,12 @@ async def test_crossref_free_api():
                         if results:
                             print(f"  ✓ Found {len(results)} results")
                             first = results[0]
-                            print(f"    - Name: {first.get('canonical_name', 'Unknown')}")
-                            print(f"    - Confidence: {first.get('confidence', 0):.1f}%")
+                            print(
+                                f"    - Name: {first.get('canonical_name', 'Unknown')}"
+                            )
+                            print(
+                                f"    - Confidence: {first.get('confidence', 0):.1f}%"
+                            )
                             if first.get("orcid"):
                                 print(f"    - ORCID: {first['orcid']}")
                         else:
@@ -107,9 +113,7 @@ async def test_crossref_free_api():
                             authors = first_work.get("author", [])
                             if authors:
                                 author = authors[0]
-                                name = (
-                                    f"{author.get('given', '')} {author.get('family', '')}".strip()
-                                )
+                                name = f"{author.get('given', '')} {author.get('family', '')}".strip()
                                 print(f"    - First author: {name}")
                             title = (
                                 first_work.get("title", [""])[0]

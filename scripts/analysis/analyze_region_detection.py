@@ -35,12 +35,19 @@ for name, expected, description in test_cases:
     detected = pipeline._stage_detect_region(entry)
 
     status = "✓" if detected == expected else "✗"
-    print(f"{status} {name:25} Expected: {expected:3} Got: {detected:3} ({description})")
+    print(
+        f"{status} {name:25} Expected: {expected:3} Got: {detected:3} ({description})"
+    )
 
     if detected != expected:
         # Debug why it was misdetected
-        if entry.get("CanonicalNative") and entry["CanonicalNative"] != entry["CanonicalLatin"]:
-            script_detected = pipeline._detect_region_by_script(entry["CanonicalNative"])
+        if (
+            entry.get("CanonicalNative")
+            and entry["CanonicalNative"] != entry["CanonicalLatin"]
+        ):
+            script_detected = pipeline._detect_region_by_script(
+                entry["CanonicalNative"]
+            )
             print(f"   Script detection: {script_detected}")
         else:
             pattern_detected = pipeline._detect_region_by_name_pattern(name)

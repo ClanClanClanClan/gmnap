@@ -158,7 +158,9 @@ class PatternAnalyzer:
                 return json.load(f)
         return {}
 
-    def analyze_failure(self, name: str, expected: str, actual: str, failure_type: str) -> Dict:
+    def analyze_failure(
+        self, name: str, expected: str, actual: str, failure_type: str
+    ) -> Dict:
         """Analyze a single failure and return detailed analysis"""
         analysis = {
             "name": name,
@@ -315,7 +317,11 @@ class PatternAnalyzer:
         elif best_priority == 3:
             # Confidence based on similarity
             best_similarity = max(
-                (s.get("similarity", 0) for s in suggestions if s["type"] == "similar_pattern"),
+                (
+                    s.get("similarity", 0)
+                    for s in suggestions
+                    if s["type"] == "similar_pattern"
+                ),
                 default=0,
             )
             return best_similarity * 0.7
@@ -341,7 +347,10 @@ class FixGenerator:
             if failure["confidence"] > 0.7 and failure["suggestions"]:
                 best_suggestion = failure["suggestions"][0]
 
-                if best_suggestion["type"] in ["mapping_override", "historical_correction"]:
+                if best_suggestion["type"] in [
+                    "mapping_override",
+                    "historical_correction",
+                ]:
                     rom = best_suggestion["romanization"]
                     han = best_suggestion["hangul"]
                     mapping_fixes[rom].append(
@@ -391,8 +400,12 @@ class FixGenerator:
 
                 # Check if mapping already exists
                 commands.append(f"# Check if {rom} → {han} exists")
-                commands.append(f"grep -q '^{han},{rom},' ../resources/variant_map.csv || \\")
-                commands.append(f"  echo '{han},{rom},' >> ../resources/variant_map.csv")
+                commands.append(
+                    f"grep -q '^{han},{rom},' ../resources/variant_map.csv || \\"
+                )
+                commands.append(
+                    f"  echo '{han},{rom},' >> ../resources/variant_map.csv"
+                )
 
         # Generate FST rebuild command if needed
         if fst_rebuilds:
@@ -549,13 +562,48 @@ def main():
     # Load test failures
     test_failures = [
         # From the failure analysis report
-        {"name": "Chun_Baekjin", "expected": "천백진", "actual": "전백진", "type": "eng→kor"},
-        {"name": "Cheong_Munho", "expected": "정문호", "actual": "청문호", "type": "eng→kor"},
-        {"name": "Yom_Ha-Rim", "expected": "염하림", "actual": "욤하림", "type": "eng→kor"},
-        {"name": "Yum_Young-Tae", "expected": "염영태", "actual": "윰영태", "type": "eng→kor"},
-        {"name": "Pae_Soonjung", "expected": "배순정", "actual": "패순정", "type": "eng→kor"},
-        {"name": "Boo_Kyungmin", "expected": "부경민", "actual": None, "type": "eng→kor"},
-        {"name": "Jee_Sungmin", "expected": "지성민", "actual": None, "type": "eng→kor"},
+        {
+            "name": "Chun_Baekjin",
+            "expected": "천백진",
+            "actual": "전백진",
+            "type": "eng→kor",
+        },
+        {
+            "name": "Cheong_Munho",
+            "expected": "정문호",
+            "actual": "청문호",
+            "type": "eng→kor",
+        },
+        {
+            "name": "Yom_Ha-Rim",
+            "expected": "염하림",
+            "actual": "욤하림",
+            "type": "eng→kor",
+        },
+        {
+            "name": "Yum_Young-Tae",
+            "expected": "염영태",
+            "actual": "윰영태",
+            "type": "eng→kor",
+        },
+        {
+            "name": "Pae_Soonjung",
+            "expected": "배순정",
+            "actual": "패순정",
+            "type": "eng→kor",
+        },
+        {
+            "name": "Boo_Kyungmin",
+            "expected": "부경민",
+            "actual": None,
+            "type": "eng→kor",
+        },
+        {
+            "name": "Jee_Sungmin",
+            "expected": "지성민",
+            "actual": None,
+            "type": "eng→kor",
+        },
     ]
 
     # Analyze failures
@@ -614,7 +662,9 @@ def main():
     print("-" * 60)
     print("\nRecording successful corrections...")
     for fix in safe_fixes[:3]:
-        learning_system.record_correction(fix["romanization"], fix["hangul"], success=True)
+        learning_system.record_correction(
+            fix["romanization"], fix["hangul"], success=True
+        )
         print(f"Recorded: {fix['romanization']} → {fix['hangul']}")
 
     print("\nCorrection history updated.")

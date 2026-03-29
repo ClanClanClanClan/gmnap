@@ -29,7 +29,9 @@ class ArxivCollector:
             "arxiv": "http://arxiv.org/schemas/atom",
         }
 
-    def search_papers(self, category: str = "math", max_results: int = 10000) -> List[Dict]:
+    def search_papers(
+        self, category: str = "math", max_results: int = 10000
+    ) -> List[Dict]:
         """
         Search arXiv for mathematics papers.
 
@@ -184,7 +186,9 @@ class ArxivCollector:
                 "total_authors": len(profiles),
                 "collection_date": time.strftime("%Y-%m-%d"),
                 "top_categories": dict(
-                    sorted(category_counts.items(), key=lambda x: x[1], reverse=True)[:20]
+                    sorted(category_counts.items(), key=lambda x: x[1], reverse=True)[
+                        :20
+                    ]
                 ),
             },
             "profiles": profiles,
@@ -239,7 +243,9 @@ def main():
             category_counts[cat] += 1
 
     print("\nTop 10 Math Categories:")
-    for cat, count in sorted(category_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
+    for cat, count in sorted(category_counts.items(), key=lambda x: x[1], reverse=True)[
+        :10
+    ]:
         print(f"  {cat}: {count} authors")
 
     print()

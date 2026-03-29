@@ -30,7 +30,12 @@ class _Limiter:
 
 class AuthorityContext:
     def __init__(
-        self, name: str, base_url: str, rps: int = 1, burst: int = 1, cache_ttl: int = 3600
+        self,
+        name: str,
+        base_url: str,
+        rps: int = 1,
+        burst: int = 1,
+        cache_ttl: int = 3600,
     ):
         self.name = name
         self.base_url = base_url

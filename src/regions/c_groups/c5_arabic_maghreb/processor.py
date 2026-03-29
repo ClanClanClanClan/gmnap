@@ -460,7 +460,9 @@ class C5_ArabicMaghreb(RegionSpec):
             indicators.append(f"places:{place_score:.2f}")
 
         if confidence > 0:
-            self.logger.debug(f"C5 detection: {confidence:.3f} [{', '.join(indicators)}]")
+            self.logger.debug(
+                f"C5 detection: {confidence:.3f} [{', '.join(indicators)}]"
+            )
 
         return min(confidence, 1.0)
 
@@ -555,7 +557,9 @@ class C5_ArabicMaghreb(RegionSpec):
 
     def _detect_maghrebi_subregion(self, name: str, entry: Dict[str, Any]) -> str:
         """Detect specific Maghrebi subregion."""
-        full_text = f"{name} {entry.get('email', '')} {entry.get('affiliation', '')}".lower()
+        full_text = (
+            f"{name} {entry.get('email', '')} {entry.get('affiliation', '')}".lower()
+        )
 
         # Check for country-specific indicators
         country_scores = {}
@@ -665,7 +669,9 @@ class C5_ArabicMaghreb(RegionSpec):
         if not name:
             return False
         french_patterns = self.maghrebi_patterns["french_influence"]
-        return any(re.search(pattern, name, re.IGNORECASE) for pattern in french_patterns)
+        return any(
+            re.search(pattern, name, re.IGNORECASE) for pattern in french_patterns
+        )
 
     # Removed validate_entry method - not part of V7 RegionSpec interface
 
@@ -720,7 +726,14 @@ class C5_ArabicMaghreb(RegionSpec):
             "description": "Arabic Maghreb mathematician names from North Africa",
             "languages": self.get_supported_languages(),
             "scripts": ["Arabic"],
-            "countries": ["Morocco", "Algeria", "Tunisia", "Libya", "Western Sahara", "Mauritania"],
+            "countries": [
+                "Morocco",
+                "Algeria",
+                "Tunisia",
+                "Libya",
+                "Western Sahara",
+                "Mauritania",
+            ],
             "romanization_standard": "ISO_233_2",
             "total_speakers": "100M+",
             "mathematician_population": "~15,000",

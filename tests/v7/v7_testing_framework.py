@@ -69,7 +69,9 @@ def concurrency_worker_task(worker_id: int) -> Dict[str, Any]:
         processed = 0
         errors = 0
 
-        test_entries = [{"CanonicalLatin": f"TestWorker{worker_id}, Entry{i}"} for i in range(100)]
+        test_entries = [
+            {"CanonicalLatin": f"TestWorker{worker_id}, Entry{i}"} for i in range(100)
+        ]
 
         for entry in test_entries:
             try:
@@ -78,7 +80,12 @@ def concurrency_worker_task(worker_id: int) -> Dict[str, Any]:
             except Exception:
                 errors += 1
 
-        return {"worker_id": worker_id, "processed": processed, "errors": errors, "success": True}
+        return {
+            "worker_id": worker_id,
+            "processed": processed,
+            "errors": errors,
+            "success": True,
+        }
     except Exception as e:
         return {
             "worker_id": worker_id,
@@ -136,7 +143,15 @@ class V7FixtureGenerator:
             "E4",
             "G1",
         ]
-        self.scripts = ["Latin", "Cyrillic", "Arabic", "Han", "Hangul", "Hiragana", "Devanagari"]
+        self.scripts = [
+            "Latin",
+            "Cyrillic",
+            "Arabic",
+            "Han",
+            "Hangul",
+            "Hiragana",
+            "Devanagari",
+        ]
 
     def generate_fixture_set(self, count: int = 1500) -> List[Dict[str, Any]]:
         """Generate diverse test fixtures covering all edge cases."""
@@ -217,7 +232,10 @@ class V7FixtureGenerator:
             {"CanonicalLatin": "smith, john", "test_category": "lowercase"},
             {"CanonicalLatin": "SmItH, JoHn", "test_category": "mixed_case"},
             # Long names
-            {"CanonicalLatin": "A" * 100 + ", " + "B" * 100, "test_category": "very_long"},
+            {
+                "CanonicalLatin": "A" * 100 + ", " + "B" * 100,
+                "test_category": "very_long",
+            },
             {
                 "CanonicalLatin": "Wolfeschlegelsteinhausenbergerdorff, Johann",
                 "test_category": "german_long",
@@ -329,11 +347,13 @@ class V7FixtureGenerator:
         # Patterns that might cause performance issues
         patterns = [
             # Very long repeated patterns
-            lambda: "A" * random.randint(1000, 5000) + ", B" * random.randint(1000, 5000),
+            lambda: "A" * random.randint(1000, 5000)
+            + ", B" * random.randint(1000, 5000),
             # Many delimiters
             lambda: ",".join(["Name"] * random.randint(10, 100)),
             # Complex Unicode
-            lambda: "".join(chr(random.randint(0x1000, 0x2000)) for _ in range(100)) + ", Test",
+            lambda: "".join(chr(random.randint(0x1000, 0x2000)) for _ in range(100))
+            + ", Test",
             # Nested structures
             lambda: "((()))" * 100 + ", Test",
             # Regex stress patterns
@@ -484,7 +504,9 @@ class V7TestingFramework:
                 processed += 1
             except Exception as e:
                 errors += 1
-                error_details.append(f"Fixture {fixture.get('fixture_id', 'unknown')}: {str(e)}")
+                error_details.append(
+                    f"Fixture {fixture.get('fixture_id', 'unknown')}: {str(e)}"
+                )
 
         duration = time.perf_counter() - start_time
         peak_memory = self._get_memory_usage() - start_memory
@@ -502,7 +524,9 @@ class V7TestingFramework:
             metadata={
                 "total_fixtures": 1500,
                 "error_count": errors,
-                "success_rate": processed / (processed + errors) if (processed + errors) > 0 else 0,
+                "success_rate": (
+                    processed / (processed + errors) if (processed + errors) > 0 else 0
+                ),
             },
         )
 
@@ -514,7 +538,10 @@ class V7TestingFramework:
 
         # Run concurrent workers using module-level function (for pickling)
         with ProcessPoolExecutor(max_workers=num_processes) as executor:
-            futures = [executor.submit(concurrency_worker_task, i) for i in range(num_processes)]
+            futures = [
+                executor.submit(concurrency_worker_task, i)
+                for i in range(num_processes)
+            ]
             worker_results = [future.result() for future in futures]
 
         duration = time.perf_counter() - start_time
@@ -527,7 +554,9 @@ class V7TestingFramework:
 
         success = successful_workers >= num_processes * 0.8  # 80% workers must succeed
         error_message = (
-            None if success else f"Only {successful_workers}/{num_processes} workers succeeded"
+            None
+            if success
+            else f"Only {successful_workers}/{num_processes} workers succeeded"
         )
 
         return TestResult(
@@ -600,7 +629,9 @@ class V7TestingFramework:
             success = False
         else:
             success = errors < sample_size * 0.05  # Less than 5% errors
-            error_message = None if success else f"Too many errors: {errors}/{sample_size}"
+            error_message = (
+                None if success else f"Too many errors: {errors}/{sample_size}"
+            )
 
         duration = time.perf_counter() - start_time
         peak_memory = max(memory_samples) - start_memory if memory_samples else 0
@@ -608,7 +639,9 @@ class V7TestingFramework:
         # Extrapolate performance
         entries_per_second = processed / duration if duration > 0 else 0
         estimated_2m_duration = (
-            2_000_000 / entries_per_second / 60 if entries_per_second > 0 else float("inf")
+            2_000_000 / entries_per_second / 60
+            if entries_per_second > 0
+            else float("inf")
         )
 
         return TestResult(
@@ -751,7 +784,9 @@ class V7TestingFramework:
         peak_memory = self._get_memory_usage() - start_memory
 
         success = len(errors) < test_count * 0.05  # Less than 5% error rate
-        error_message = None if success else f"{len(errors)} property violations: {errors[:3]}"
+        error_message = (
+            None if success else f"{len(errors)} property violations: {errors[:3]}"
+        )
 
         return TestResult(
             test_name="property_based_tests",
@@ -827,16 +862,23 @@ class V7TestingFramework:
         # Generate performance metrics
         report.performance_metrics = {
             "total_duration": sum(r.duration_seconds for r in report.test_results),
-            "average_duration": statistics.mean([r.duration_seconds for r in report.test_results]),
-            "total_entries_processed": sum(r.entries_processed for r in report.test_results),
+            "average_duration": statistics.mean(
+                [r.duration_seconds for r in report.test_results]
+            ),
+            "total_entries_processed": sum(
+                r.entries_processed for r in report.test_results
+            ),
             "peak_memory_mb": max([r.memory_peak_mb for r in report.test_results]),
         }
 
         report.memory_metrics = {
             "peak_memory_mb": max([r.memory_peak_mb for r in report.test_results]),
-            "average_memory_mb": statistics.mean([r.memory_peak_mb for r in report.test_results]),
+            "average_memory_mb": statistics.mean(
+                [r.memory_peak_mb for r in report.test_results]
+            ),
             "v7_limit_mb": 6 * 1024,  # 6GB
-            "compliance": max([r.memory_peak_mb for r in report.test_results]) < 6 * 1024,
+            "compliance": max([r.memory_peak_mb for r in report.test_results])
+            < 6 * 1024,
         }
 
         return report
@@ -924,11 +966,17 @@ def main():
 
     parser = argparse.ArgumentParser(description="GMNAP V7 Testing Framework")
     parser.add_argument("--all", action="store_true", help="Run all v7 tests")
-    parser.add_argument("--fixtures", action="store_true", help="Run 1500 fixtures test")
-    parser.add_argument("--concurrency", action="store_true", help="Run concurrency test")
+    parser.add_argument(
+        "--fixtures", action="store_true", help="Run 1500 fixtures test"
+    )
+    parser.add_argument(
+        "--concurrency", action="store_true", help="Run concurrency test"
+    )
     parser.add_argument("--stress", action="store_true", help="Run 2M stress test")
     parser.add_argument("--memory", action="store_true", help="Run memory peak test")
-    parser.add_argument("--property", action="store_true", help="Run property-based tests")
+    parser.add_argument(
+        "--property", action="store_true", help="Run property-based tests"
+    )
     parser.add_argument("--report", type=str, help="Generate HTML report to file")
 
     args = parser.parse_args()
@@ -943,8 +991,12 @@ def main():
         print("=" * 50)
         print(f"Overall Score: {report.compliance_score:.1%}")
         print(f"Tests Passed: {report.passed_tests}/{report.total_tests}")
-        print(f"Total Duration: {report.performance_metrics.get('total_duration', 0):.2f}s")
-        print(f"Peak Memory: {report.performance_metrics.get('peak_memory_mb', 0):.1f}MB")
+        print(
+            f"Total Duration: {report.performance_metrics.get('total_duration', 0):.2f}s"
+        )
+        print(
+            f"Peak Memory: {report.performance_metrics.get('peak_memory_mb', 0):.1f}MB"
+        )
 
         if args.report:
             framework.generate_html_report(report, Path(args.report))

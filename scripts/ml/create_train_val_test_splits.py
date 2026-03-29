@@ -286,7 +286,10 @@ def save_splits(train, val, test):
     train_path = output_dir / "train_split.json"
     with open(train_path, "w") as f:
         json.dump(
-            {"metadata": {"total": len(train), "split": "train", "ratio": 0.70}, "profiles": train},
+            {
+                "metadata": {"total": len(train), "split": "train", "ratio": 0.70},
+                "profiles": train,
+            },
             f,
             indent=2,
         )
@@ -341,7 +344,9 @@ def print_stats(by_region, train, val, test, unmapped):
     # Regional distribution
     print("Regional distribution:")
     region_counts = {}
-    for region, profiles in sorted(by_region.items(), key=lambda x: len(x[1]), reverse=True):
+    for region, profiles in sorted(
+        by_region.items(), key=lambda x: len(x[1]), reverse=True
+    ):
         region_counts[region] = len(profiles)
 
     for region, count in region_counts.items():

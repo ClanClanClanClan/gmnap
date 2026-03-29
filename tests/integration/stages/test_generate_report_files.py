@@ -56,9 +56,13 @@ def test_generate_report_produces_files(tmp_path, monkeypatch):
     assert os.path.isfile(os.path.join(report_dir, "ATTRIBUTION.txt"))
     assert os.path.isfile(os.path.join(report_dir, "CHECKSUMS.sha256"))
     # DOI string present
-    doi = open(os.path.join(report_dir, "DOI.txt"), "r", encoding="utf-8").read().strip()
+    doi = (
+        open(os.path.join(report_dir, "DOI.txt"), "r", encoding="utf-8").read().strip()
+    )
     assert doi.startswith("10.3929/ethz-lineage/")
     # datacite payload parsable
-    with open(os.path.join(report_dir, "datacite_draft.json"), "r", encoding="utf-8") as f:
+    with open(
+        os.path.join(report_dir, "datacite_draft.json"), "r", encoding="utf-8"
+    ) as f:
         data = json.load(f)
     assert data["data"]["attributes"]["event"] == "draft"

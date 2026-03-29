@@ -66,7 +66,9 @@ def add_mappings():
                     old_weight = float(row[2])
                     if weight > old_weight:
                         rows[i][2] = str(weight)
-                        print(f"Updated weight: {roman} → {hangul} ({old_weight} → {weight})")
+                        print(
+                            f"Updated weight: {roman} → {hangul} ({old_weight} → {weight})"
+                        )
 
     # Write back
     with open(csv_path, "w", encoding="utf-8", newline="") as f:

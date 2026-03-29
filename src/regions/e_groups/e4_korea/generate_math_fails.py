@@ -17,5 +17,7 @@ for k, v in data.items():
     if _enhanced_dice(rr, rr2) < 0.9:
         fails.append((k, rr, kor, rr2))
 fails.sort()
-open("/tmp/math_fails.txt", "w").write("\n".join(f"{a}|{b}|{c}|{d}" for a, b, c, d in fails))
+open("/tmp/math_fails.txt", "w").write(
+    "\n".join(f"{a}|{b}|{c}|{d}" for a, b, c, d in fails)
+)
 print(f"{len(fails)} fails  ➜  /tmp/math_fails.txt")

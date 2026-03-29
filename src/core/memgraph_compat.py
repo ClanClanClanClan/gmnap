@@ -36,9 +36,7 @@ class GenealogyRelation:
 
     source_id: str
     target_id: str
-    relation_type: (
-        str  # doctoralAdvisor, adviserCommitteeMember, postdocMentor, habilitationAdvisor
-    )
+    relation_type: str  # doctoralAdvisor, adviserCommitteeMember, postdocMentor, habilitationAdvisor
     qualifier: Optional[str] = None
     confidence: float = 1.0
     source: str = "GMNAP"
@@ -139,7 +137,9 @@ class MemgraphCompatibleClient:
                 auth = None
 
             self.driver = GraphDatabase.driver(
-                uri, auth=auth, encrypted=False  # Memgraph typically doesn't use TLS in development
+                uri,
+                auth=auth,
+                encrypted=False,  # Memgraph typically doesn't use TLS in development
             )
 
             # Test connection with Memgraph-compatible query
@@ -151,7 +151,9 @@ class MemgraphCompatibleClient:
                     return True
 
         except Exception as e:
-            logger.warning(f"Failed to connect to Memgraph, using NetworkX fallback: {e}")
+            logger.warning(
+                f"Failed to connect to Memgraph, using NetworkX fallback: {e}"
+            )
             self._init_mock()
 
         return self.connected
@@ -276,7 +278,9 @@ class MemgraphCompatibleClient:
                 )
 
                 if result.single():
-                    logger.debug(f"Added relation: {relation.source_id} -> {relation.target_id}")
+                    logger.debug(
+                        f"Added relation: {relation.source_id} -> {relation.target_id}"
+                    )
                     return True
 
         except Exception as e:
@@ -411,7 +415,8 @@ class MemgraphCompatibleClient:
             if metrics.total_mathematicians > 0:
                 metrics.betweenness_scores = self.calculate_betweenness_centrality()
                 metrics.coherence_score = min(
-                    1.0, metrics.total_relationships / (metrics.total_mathematicians * 2)
+                    1.0,
+                    metrics.total_relationships / (metrics.total_mathematicians * 2),
                 )
                 cycles = self.detect_cycles()
                 metrics.cycle_count = len(cycles)
@@ -428,7 +433,9 @@ class MemgraphCompatibleClient:
                     metrics.total_mathematicians = record["count"]
 
                 # Count relationships
-                result = session.run("MATCH ()-[r:DOCTORAL_ADVISOR]->() RETURN count(r) as count")
+                result = session.run(
+                    "MATCH ()-[r:DOCTORAL_ADVISOR]->() RETURN count(r) as count"
+                )
                 record = result.single()
                 if record:
                     metrics.total_relationships = record["count"]
@@ -436,7 +443,9 @@ class MemgraphCompatibleClient:
                 # Calculate coherence score
                 if metrics.total_mathematicians > 0:
                     metrics.coherence_score = min(
-                        1.0, metrics.total_relationships / (metrics.total_mathematicians * 2)
+                        1.0,
+                        metrics.total_relationships
+                        / (metrics.total_mathematicians * 2),
                     )
 
                 # Get betweenness scores
@@ -463,7 +472,9 @@ class MemgraphCompatibleClient:
 
         return metrics
 
-    def validate_quality_gates(self, mode: str = "quick") -> Tuple[bool, Dict[str, Any]]:
+    def validate_quality_gates(
+        self, mode: str = "quick"
+    ) -> Tuple[bool, Dict[str, Any]]:
         """
         Validate V7 quality gates for graph consistency.
 
@@ -499,7 +510,9 @@ class MemgraphCompatibleClient:
         # Calculate percentages
         edge_conflict_pct = 0.0
         if metrics.total_relationships > 0:
-            edge_conflict_pct = (metrics.edge_conflicts / metrics.total_relationships) * 100
+            edge_conflict_pct = (
+                metrics.edge_conflicts / metrics.total_relationships
+            ) * 100
 
         # Validate
         results = {
@@ -508,7 +521,8 @@ class MemgraphCompatibleClient:
             "coherence_pass": metrics.coherence_score >= threshold["coherence"],
             "edge_conflict_pct": edge_conflict_pct,
             "edge_conflict_threshold": threshold["max_edge_conflicts"] * 100,
-            "edge_conflict_pass": edge_conflict_pct <= threshold["max_edge_conflicts"] * 100,
+            "edge_conflict_pass": edge_conflict_pct
+            <= threshold["max_edge_conflicts"] * 100,
             "cycle_count": metrics.cycle_count,
             "cycle_threshold": threshold["max_cycles"],
             "cycle_pass": metrics.cycle_count <= threshold["max_cycles"],
@@ -518,7 +532,9 @@ class MemgraphCompatibleClient:
 
         # Overall pass/fail
         passed = (
-            results["coherence_pass"] and results["edge_conflict_pass"] and results["cycle_pass"]
+            results["coherence_pass"]
+            and results["edge_conflict_pass"]
+            and results["cycle_pass"]
         )
 
         return passed, results

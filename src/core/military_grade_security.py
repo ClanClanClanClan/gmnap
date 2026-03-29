@@ -121,8 +121,14 @@ class MilitaryGradeSecurityValidator:
             (r"\.\.%2f", "Mixed path traversal"),
             (r"\.\.%5c", "Mixed path traversal"),
             # System paths
-            (r"(?i)[\\/](etc|proc|sys|dev|var|usr|opt|root|home)[\\/]", "System path access"),
-            (r"(?i)[c-z]:[\\\/](windows|system32|program files)", "Windows system path"),
+            (
+                r"(?i)[\\/](etc|proc|sys|dev|var|usr|opt|root|home)[\\/]",
+                "System path access",
+            ),
+            (
+                r"(?i)[c-z]:[\\\/](windows|system32|program files)",
+                "Windows system path",
+            ),
             # Command injection (comprehensive)
             (r"(?i)(&&|\|\||;|`|\$\(|\$\{)", "Command injection"),
             (r"(?i)(sh\s|bash\s|cmd\s|powershell\s)", "Shell commands"),
@@ -132,7 +138,10 @@ class MilitaryGradeSecurityValidator:
                 r"(?i)('.*or.*'|\".*or.*\"|union.*select|insert.*into|update.*set|delete.*from)",
                 "SQL injection",
             ),
-            (r"(?i)(drop\s+(table|database)|create\s+(table|database)|alter\s+table)", "SQL DDL"),
+            (
+                r"(?i)(drop\s+(table|database)|create\s+(table|database)|alter\s+table)",
+                "SQL DDL",
+            ),
             (r"(?i)(exec|execute|sp_|xp_)", "SQL procedure calls"),
             # XSS and HTML injection
             (
@@ -271,7 +280,9 @@ class MilitaryGradeSecurityValidator:
                 f"Critical security threat detected: {', '.join(threats_detected[:3])}"
             )
         elif threat_score >= 50:  # High threat
-            raise SecurityValidationError(f"High security risk: {', '.join(threats_detected[:2])}")
+            raise SecurityValidationError(
+                f"High security risk: {', '.join(threats_detected[:2])}"
+            )
         elif threat_score >= 20:  # Medium threat
             logger.warning(
                 f"Medium security risk in '{name}': {threats_detected[0] if threats_detected else 'Unknown'}"
@@ -327,9 +338,14 @@ class MilitaryGradeSecurityValidator:
         for pattern, description in self.compiled_attack_patterns:
             if pattern.search(name):
                 threats.append(description)
-                if any(word in description.lower() for word in ["sql", "command", "path"]):
+                if any(
+                    word in description.lower() for word in ["sql", "command", "path"]
+                ):
                     score += 100  # Critical
-                elif any(word in description.lower() for word in ["xss", "injection", "script"]):
+                elif any(
+                    word in description.lower()
+                    for word in ["xss", "injection", "script"]
+                ):
                     score += 80  # High
                 else:
                     score += 50  # Medium
@@ -338,11 +354,15 @@ class MilitaryGradeSecurityValidator:
 
         # Detect pure symbol sequences (potential attack vectors) - refined
         non_letter_non_space = [
-            c for c in name if not c.isalpha() and c != " " and c != "-" and c != "'" and c != "."
+            c
+            for c in name
+            if not c.isalpha() and c != " " and c != "-" and c != "'" and c != "."
         ]
         if len(non_letter_non_space) >= 5:  # Many suspicious symbols
             # Check if it's mostly punctuation/symbols (not legitimate international text)
-            suspicious_symbols = [c for c in non_letter_non_space if ord(c) < 127]  # ASCII symbols
+            suspicious_symbols = [
+                c for c in non_letter_non_space if ord(c) < 127
+            ]  # ASCII symbols
             if len(suspicious_symbols) >= 4:  # Multiple ASCII symbols
                 threats.append("Pure symbol sequence")
                 score += 70
@@ -357,7 +377,9 @@ class MilitaryGradeSecurityValidator:
 
         # ULTRAFIX: Detect extremely high Unicode bytes (potential binary data)
         # Only target truly suspicious ranges, exclude legitimate Latin-1 supplement
-        extreme_high_bytes = [c for c in name if ord(c) >= 0xFF00]  # Private use, specials
+        extreme_high_bytes = [
+            c for c in name if ord(c) >= 0xFF00
+        ]  # Private use, specials
         if extreme_high_bytes:
             threats.append("Extreme high Unicode bytes detected")
             score += 80
@@ -372,7 +394,8 @@ class MilitaryGradeSecurityValidator:
         if len(name) >= 4:
             non_space_chars = name.replace(" ", "")
             if non_space_chars and all(
-                ord(c) > 127 and unicodedata.category(c) in ["So", "Sm", "Sk", "Sc", "Po"]
+                ord(c) > 127
+                and unicodedata.category(c) in ["So", "Sm", "Sk", "Sc", "Po"]
                 for c in non_space_chars
             ):
                 # All non-space characters are symbols/punctuation - likely attack
@@ -406,7 +429,15 @@ class MilitaryGradeSecurityValidator:
                 score += 80
 
             # Check for bidirectional override
-            if unicodedata.bidirectional(char) in ["RLO", "LRO", "RLE", "LRE", "PDF", "FSI", "PDI"]:
+            if unicodedata.bidirectional(char) in [
+                "RLO",
+                "LRO",
+                "RLE",
+                "LRE",
+                "PDF",
+                "FSI",
+                "PDI",
+            ]:
                 threats.append("Bidirectional override detected")
                 score += 90
 
@@ -430,7 +461,9 @@ class MilitaryGradeSecurityValidator:
                     threats.append("URL encoding detected")
                     score += 40
                     # Recursively check decoded content
-                    decoded_score, decoded_threats = self._check_attack_patterns(decoded)
+                    decoded_score, decoded_threats = self._check_attack_patterns(
+                        decoded
+                    )
                     score += decoded_score
                     threats.extend(decoded_threats)
             except Exception:
@@ -445,7 +478,9 @@ class MilitaryGradeSecurityValidator:
                     threats.append("HTML encoding detected")
                     score += 40
                     # Check decoded content
-                    decoded_score, decoded_threats = self._check_attack_patterns(decoded)
+                    decoded_score, decoded_threats = self._check_attack_patterns(
+                        decoded
+                    )
                     score += decoded_score
                     threats.extend(decoded_threats)
             except Exception:
@@ -583,7 +618,11 @@ class MilitaryGradeSecurityValidator:
                 # Both parts should look like text, not protocols
                 if (
                     before.replace(" ", "").replace("-", "").replace("'", "").isalpha()
-                    and after[:10].replace(" ", "").replace("-", "").replace("'", "").isalpha()
+                    and after[:10]
+                    .replace(" ", "")
+                    .replace("-", "")
+                    .replace("'", "")
+                    .isalpha()
                 ):
                     return True
 

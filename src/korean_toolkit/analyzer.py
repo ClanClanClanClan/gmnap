@@ -132,7 +132,9 @@ class KoreanAnalyzer:
             "regressions": list(before_set - after_set),
             "improvements": list(after_set - before_set),
             "unchanged": list(before_set & after_set),
-            "regression_rate": len(before_set - after_set) / len(before_set) if before_set else 0,
+            "regression_rate": (
+                len(before_set - after_set) / len(before_set) if before_set else 0
+            ),
         }
 
     def _analyze_roundtrip(self, tests: List[Dict]) -> Dict[str, Any]:

@@ -87,7 +87,9 @@ for f in eng_to_kor_failures:
     surname_failures[surname].append(f)
 
 # Sort by frequency
-sorted_surnames = sorted(surname_failures.items(), key=lambda x: len(x[1]), reverse=True)
+sorted_surnames = sorted(
+    surname_failures.items(), key=lambda x: len(x[1]), reverse=True
+)
 
 print("Top surname failure patterns:")
 for surname, failures in sorted_surnames[:10]:

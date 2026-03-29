@@ -146,7 +146,9 @@ class UltraParanoidV7Tester:
 
         # Empty string handling
         self.test(
-            "Empty name handling", self._test_empty_names(), "Pipeline should reject empty names"
+            "Empty name handling",
+            self._test_empty_names(),
+            "Pipeline should reject empty names",
         )
 
         # Single character names
@@ -186,7 +188,9 @@ class UltraParanoidV7Tester:
 
         # Whitespace variations
         self.test(
-            "Whitespace handling", self._test_whitespace_handling(), "Should normalize whitespace"
+            "Whitespace handling",
+            self._test_whitespace_handling(),
+            "Should normalize whitespace",
         )
 
         # Special characters in names
@@ -198,12 +202,16 @@ class UltraParanoidV7Tester:
 
         # Duplicate detection edge cases
         self.test(
-            "Near-duplicate detection", self._test_near_duplicates(), "Should detect similar names"
+            "Near-duplicate detection",
+            self._test_near_duplicates(),
+            "Should detect similar names",
         )
 
         # Boundary years
         self.test(
-            "Boundary year handling", self._test_boundary_years(), "Years 0000, 9999, negative"
+            "Boundary year handling",
+            self._test_boundary_years(),
+            "Years 0000, 9999, negative",
         )
 
     async def level_3_implementation_details(self):
@@ -226,7 +234,11 @@ class UltraParanoidV7Tester:
         )
 
         # File handle leaks
-        self.test("File handle leaks", self._test_file_handle_leaks(), "No file handles leaked")
+        self.test(
+            "File handle leaks",
+            self._test_file_handle_leaks(),
+            "No file handles leaked",
+        )
 
         # Thread safety
         self.test(
@@ -244,7 +256,9 @@ class UltraParanoidV7Tester:
 
         # Error propagation
         self.test(
-            "Error propagation chain", self._test_error_propagation(), "Errors propagate correctly"
+            "Error propagation chain",
+            self._test_error_propagation(),
+            "Errors propagate correctly",
         )
 
         # State management
@@ -275,23 +289,37 @@ class UltraParanoidV7Tester:
 
         # Unicode security
         self.test(
-            "Unicode security exploits", self._test_unicode_security(), "Block homograph attacks"
+            "Unicode security exploits",
+            self._test_unicode_security(),
+            "Block homograph attacks",
         )
 
         # XXE attacks
-        self.test("XML External Entity attacks", self._test_xxe_attacks(), "Block XXE attempts")
+        self.test(
+            "XML External Entity attacks",
+            self._test_xxe_attacks(),
+            "Block XXE attempts",
+        )
 
         # SSRF attempts
-        self.test("Server-Side Request Forgery", self._test_ssrf_attempts(), "Block SSRF attempts")
+        self.test(
+            "Server-Side Request Forgery",
+            self._test_ssrf_attempts(),
+            "Block SSRF attempts",
+        )
 
         # Timing attacks
         self.test(
-            "Timing attack resistance", self._test_timing_attacks(), "Constant-time operations"
+            "Timing attack resistance",
+            self._test_timing_attacks(),
+            "Constant-time operations",
         )
 
         # Resource exhaustion
         self.test(
-            "Resource exhaustion attacks", self._test_resource_exhaustion(), "Prevent DoS attempts"
+            "Resource exhaustion attacks",
+            self._test_resource_exhaustion(),
+            "Prevent DoS attempts",
         )
 
         # Prototype pollution
@@ -329,7 +357,9 @@ class UltraParanoidV7Tester:
 
         # Disk I/O limits
         self.test(
-            "Disk I/O saturation", await self._test_disk_io_limits(), "Handle I/O bottlenecks"
+            "Disk I/O saturation",
+            await self._test_disk_io_limits(),
+            "Handle I/O bottlenecks",
         )
 
         # Network timeouts
@@ -366,7 +396,11 @@ class UltraParanoidV7Tester:
         )
 
         # Truncated data
-        self.test("Truncated data handling", self._test_truncated_data(), "Handle incomplete data")
+        self.test(
+            "Truncated data handling",
+            self._test_truncated_data(),
+            "Handle incomplete data",
+        )
 
         # Character encoding corruption
         self.test(
@@ -377,12 +411,16 @@ class UltraParanoidV7Tester:
 
         # Checksum validation
         self.test(
-            "Data integrity checksums", self._test_checksum_validation(), "Validate data integrity"
+            "Data integrity checksums",
+            self._test_checksum_validation(),
+            "Validate data integrity",
         )
 
         # Partial writes
         self.test(
-            "Partial write recovery", self._test_partial_writes(), "Recover from partial writes"
+            "Partial write recovery",
+            self._test_partial_writes(),
+            "Recover from partial writes",
         )
 
     async def level_7_concurrency(self):
@@ -399,17 +437,23 @@ class UltraParanoidV7Tester:
 
         # Deadlock prevention
         self.test(
-            "Deadlock prevention", await self._test_deadlock_prevention(), "No deadlocks possible"
+            "Deadlock prevention",
+            await self._test_deadlock_prevention(),
+            "No deadlocks possible",
         )
 
         # Lock contention
         self.test(
-            "Lock contention handling", await self._test_lock_contention(), "Handle high contention"
+            "Lock contention handling",
+            await self._test_lock_contention(),
+            "Handle high contention",
         )
 
         # Async safety
         self.test(
-            "Async operation safety", await self._test_async_safety(), "All async ops are safe"
+            "Async operation safety",
+            await self._test_async_safety(),
+            "All async ops are safe",
         )
 
     async def level_8_integration_boundaries(self):
@@ -466,7 +510,9 @@ class UltraParanoidV7Tester:
 
         # Mutation testing
         self.test(
-            "Input mutation resistance", self._test_mutation_resistance(), "Handle mutated inputs"
+            "Input mutation resistance",
+            self._test_mutation_resistance(),
+            "Handle mutated inputs",
         )
 
         # Payload smuggling
@@ -490,11 +536,17 @@ class UltraParanoidV7Tester:
 
         # Chaos engineering
         self.test(
-            "Chaos monkey survival", await self._test_chaos_engineering(), "Survive random failures"
+            "Chaos monkey survival",
+            await self._test_chaos_engineering(),
+            "Survive random failures",
         )
 
         # Time travel paradoxes
-        self.test("Temporal consistency", self._test_temporal_consistency(), "No time paradoxes")
+        self.test(
+            "Temporal consistency",
+            self._test_temporal_consistency(),
+            "No time paradoxes",
+        )
 
         # Schrödinger's data
         self.test(
@@ -1436,7 +1488,9 @@ class UltraParanoidV7Tester:
                 await asyncio.sleep(0.001)
                 return "success"
 
-            results = await asyncio.gather(failing_task(), normal_task(), return_exceptions=True)
+            results = await asyncio.gather(
+                failing_task(), normal_task(), return_exceptions=True
+            )
 
             # Should capture exception without crashing
             return any(isinstance(r, Exception) for r in results)
@@ -1564,7 +1618,9 @@ class UltraParanoidV7Tester:
             # Generate random inputs
             for _ in range(1000):  # Reduced from 10000 for speed
                 length = random.randint(0, 1000)
-                fuzz = "".join(random.choices(string.printable + "\x00\xff\r\n\t", k=length))
+                fuzz = "".join(
+                    random.choices(string.printable + "\x00\xff\r\n\t", k=length)
+                )
 
                 try:
                     validator.is_safe(fuzz)
@@ -1745,7 +1801,9 @@ class UltraParanoidV7Tester:
         if self.passed_count == self.test_count:
             print("PASS MAXIMUM PARANOIA ACHIEVED!")
             print("   Your system has survived the most paranoid testing possible.")
-            print("   It is ready for production, alien invasions, and quantum attacks.")
+            print(
+                "   It is ready for production, alien invasions, and quantum attacks."
+            )
         elif self.passed_count / self.test_count > 0.95:
             print("WARN VERY HIGH PARANOIA (>95%)")
             print("   Your system is extremely robust but has minor vulnerabilities.")

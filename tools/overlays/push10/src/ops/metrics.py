@@ -48,11 +48,15 @@ TX_SUCCESS = Counter("gmnap_db_tx_success_total", "Successful DB transactions")
 TX_ROLLBACK = Counter("gmnap_db_tx_rollback_total", "Rolled back DB transactions")
 AUTH_FAILS = Counter("gmnap_auth_fail_total", "Authentication failures")
 AUTH_OK = Counter("gmnap_auth_ok_total", "Authentication successes")
-DB_APPLY_QUERIES = Counter("gmnap_db_apply_queries_total", "Queries applied from changelog")
+DB_APPLY_QUERIES = Counter(
+    "gmnap_db_apply_queries_total", "Queries applied from changelog"
+)
 
 # Push 10 metrics
 REPORTS_EMITTED = Counter("gmnap_reports_emitted_total", "Stage 10 reports generated")
-DOI_DRAFTS_CREATED = Counter("gmnap_doi_drafts_created_total", "DataCite DOI drafts generated")
+DOI_DRAFTS_CREATED = Counter(
+    "gmnap_doi_drafts_created_total", "DataCite DOI drafts generated"
+)
 ARCHIVE_UPLOADS_SUCCEEDED = Counter(
     "gmnap_archive_uploads_succeeded_total", "Snapshot archives uploaded successfully"
 )

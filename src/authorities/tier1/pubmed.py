@@ -99,7 +99,9 @@ class PubMedFetcher(AuthorityFetcher):
                     id_list = data.get("esearchresult", {}).get("idlist", [])
                     return id_list
                 else:
-                    logger.warning(f"PubMed search failed with status {response.status}")
+                    logger.warning(
+                        f"PubMed search failed with status {response.status}"
+                    )
                     return []
         except Exception as e:
             logger.error(f"PubMed search error: {e}")
@@ -216,7 +218,9 @@ class PubMedFetcher(AuthorityFetcher):
             pmids = await self.search_author(identifier, limit=10)
 
             if not pmids:
-                return FetchResult(status=FetchStatus.NOT_FOUND, source="PubMed", query=identifier)
+                return FetchResult(
+                    status=FetchStatus.NOT_FOUND, source="PubMed", query=identifier
+                )
 
             # Fetch article details
             articles = await self.fetch_article_details(pmids)
@@ -225,14 +229,18 @@ class PubMedFetcher(AuthorityFetcher):
             author_data = self._extract_author_data(identifier, articles)
 
             if not author_data:
-                return FetchResult(status=FetchStatus.NOT_FOUND, source="PubMed", query=identifier)
+                return FetchResult(
+                    status=FetchStatus.NOT_FOUND, source="PubMed", query=identifier
+                )
 
             # Convert to AuthorityData
             authority_data = AuthorityData(
                 source="PubMed",
                 identifier=identifier,
                 name=author_data.author_name,
-                affiliations=[author_data.affiliation] if author_data.affiliation else [],
+                affiliations=(
+                    [author_data.affiliation] if author_data.affiliation else []
+                ),
                 publications=[
                     {
                         "title": pub.get("title"),
@@ -247,13 +255,19 @@ class PubMedFetcher(AuthorityFetcher):
             )
 
             return FetchResult(
-                status=FetchStatus.SUCCESS, source="PubMed", query=identifier, data=authority_data
+                status=FetchStatus.SUCCESS,
+                source="PubMed",
+                query=identifier,
+                data=authority_data,
             )
 
         except Exception as e:
             logger.error(f"PubMed fetch error: {e}")
             return FetchResult(
-                status=FetchStatus.ERROR, source="PubMed", query=identifier, error=str(e)
+                status=FetchStatus.ERROR,
+                source="PubMed",
+                query=identifier,
+                error=str(e),
             )
 
     def _extract_author_data(
@@ -274,9 +288,7 @@ class PubMedFetcher(AuthorityFetcher):
         for article in articles:
             for author in article.get("authors", []):
                 # Check if this author matches our query
-                author_name = (
-                    f"{author.get('first_name', '')} {author.get('last_name', '')}".strip()
-                )
+                author_name = f"{author.get('first_name', '')} {author.get('last_name', '')}".strip()
                 author_parts = author_name.lower().split()
 
                 # Simple matching - last names must match

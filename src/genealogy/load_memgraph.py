@@ -50,7 +50,9 @@ class MemgraphLoader:
             bolt_pass: Password (optional)
             dry_run: If True, validate but don't load
         """
-        self.bolt_uri = bolt_uri or os.environ.get("GENEALOGY_BOLT_URI", "bolt://localhost:7688")
+        self.bolt_uri = bolt_uri or os.environ.get(
+            "GENEALOGY_BOLT_URI", "bolt://localhost:7688"
+        )
         self.bolt_user = bolt_user or os.environ.get("GENEALOGY_BOLT_USER", "")
         self.bolt_pass = bolt_pass or os.environ.get("GENEALOGY_BOLT_PASS", "")
         self.dry_run = dry_run
@@ -223,7 +225,9 @@ class MemgraphLoader:
         }
 
         if gate3_passed:
-            print(f"    ✅ PASS: {violation_pct:.2f}% temporal violations (<0.5% required)")
+            print(
+                f"    ✅ PASS: {violation_pct:.2f}% temporal violations (<0.5% required)"
+            )
         else:
             print(f"    ⚠️  WARN: {violation_pct:.2f}% temporal violations (≥0.5%)")
             # Don't fail on temporal - may be legitimate cases
@@ -231,7 +235,9 @@ class MemgraphLoader:
         # Gate 4: Data completeness
         print("  Gate 4: Data completeness...")
         complete = sum(
-            1 for e in edges if e.get("student_global_id") and e.get("advisor_global_id")
+            1
+            for e in edges
+            if e.get("student_global_id") and e.get("advisor_global_id")
         )
         completeness_pct = complete / len(edges) * 100
 
@@ -294,7 +300,9 @@ class MemgraphLoader:
                 created += result
 
             if batch_num % 5 == 0:
-                print(f"    Batch {batch_num}/{total_batches}: {created:,} persons created")
+                print(
+                    f"    Batch {batch_num}/{total_batches}: {created:,} persons created"
+                )
 
         self.stats["persons_created"] = created
         print(f"  ✅ Created {created:,} person nodes")
@@ -330,7 +338,9 @@ class MemgraphLoader:
                 created += result
 
             if batch_num % 5 == 0:
-                print(f"    Batch {batch_num}/{total_batches}: {created:,} relationships created")
+                print(
+                    f"    Batch {batch_num}/{total_batches}: {created:,} relationships created"
+                )
 
         self.stats["edges_created"] = created
         print(f"  ✅ Created {created:,} DOCTORAL_ADVISOR relationships")
@@ -382,15 +392,24 @@ def main():
     parser = argparse.ArgumentParser(description="Load genealogy edges to Memgraph")
     parser.add_argument("--input", required=True, help="Input matched edges JSON file")
     parser.add_argument(
-        "--bolt-uri", default=None, help="Memgraph Bolt URI (default: bolt://localhost:7688)"
+        "--bolt-uri",
+        default=None,
+        help="Memgraph Bolt URI (default: bolt://localhost:7688)",
     )
     parser.add_argument("--bolt-user", default=None, help="Bolt username (optional)")
     parser.add_argument("--bolt-pass", default=None, help="Bolt password (optional)")
     parser.add_argument(
-        "--batch-size", type=int, default=1000, help="Batch size for loading (default: 1000)"
+        "--batch-size",
+        type=int,
+        default=1000,
+        help="Batch size for loading (default: 1000)",
     )
-    parser.add_argument("--dry-run", action="store_true", help="Validate only, don't load")
-    parser.add_argument("--validate-only", action="store_true", help="Run quality gates only")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Validate only, don't load"
+    )
+    parser.add_argument(
+        "--validate-only", action="store_true", help="Run quality gates only"
+    )
 
     args = parser.parse_args()
 

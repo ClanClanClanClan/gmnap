@@ -29,7 +29,13 @@ def test_region_loading():
     manager1._load_regions()
 
     # Simulate multiple detections (this should be fast with singleton)
-    test_names = ["Smith, John", "Müller, Hans", "Kim, Jong-Un", "García, María", "Wang, Li"]
+    test_names = [
+        "Smith, John",
+        "Müller, Hans",
+        "Kim, Jong-Un",
+        "García, María",
+        "Wang, Li",
+    ]
     for name in test_names:
         manager1.detect_region({"CanonicalLatin": name})
 
@@ -121,7 +127,9 @@ def main():
     # Summary
     print("\n" + "=" * 60)
     print("📊 SUMMARY")
-    print(f"   Performance improvement: {((original - optimized) / original * 100):.1f}%")
+    print(
+        f"   Performance improvement: {((original - optimized) / original * 100):.1f}%"
+    )
     print(f"   Regions successfully loaded: {regions}")
     print(
         f"   E4 Korea integration: {'✅ Working' if 'E4' in str(test_e4_integration) else '✅ Tested above'}"

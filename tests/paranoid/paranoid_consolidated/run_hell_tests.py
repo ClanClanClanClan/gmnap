@@ -95,14 +95,18 @@ class HellTestRunner:
                 "python_version": platform.python_version(),
                 "cpu_count": psutil.cpu_count(),
                 "memory_total_gb": round(psutil.virtual_memory().total / (1024**3), 2),
-                "memory_available_gb": round(psutil.virtual_memory().available / (1024**3), 2),
+                "memory_available_gb": round(
+                    psutil.virtual_memory().available / (1024**3), 2
+                ),
                 "disk_free_gb": round(psutil.disk_usage("/").free / (1024**3), 2),
                 "timestamp": datetime.datetime.now().isoformat(),
             }
         except Exception as e:
             self.results["system_info"] = {"error": str(e)}
 
-    def run_test_category(self, category: str, category_info: Dict[str, Any]) -> Dict[str, Any]:
+    def run_test_category(
+        self, category: str, category_info: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Run tests for a specific category."""
 
         print(f"\n{'='*60}")
@@ -143,7 +147,9 @@ class HellTestRunner:
             category_results["failures"].extend(file_result["failures"])
 
         category_results["end_time"] = time.time()
-        category_results["duration"] = category_results["end_time"] - category_results["start_time"]
+        category_results["duration"] = (
+            category_results["end_time"] - category_results["start_time"]
+        )
 
         # Determine status
         if category_results["errors"] > 0:
@@ -156,7 +162,9 @@ class HellTestRunner:
             category_results["status"] = "passed"
 
         print(f"\nPASS {category_info['name']} completed:")
-        print(f"   📊 {category_results['passed']}/{category_results['total_tests']} tests passed")
+        print(
+            f"   📊 {category_results['passed']}/{category_results['total_tests']} tests passed"
+        )
         print(f"   ⏱️  Duration: {category_results['duration']:.1f}s")
         print(f"   📈 Status: {category_results['status']}")
 
@@ -372,11 +380,21 @@ class HellTestRunner:
     def generate_summary(self):
         """Generate overall test summary."""
 
-        total_tests = sum(cat.get("total_tests", 0) for cat in self.results["categories"].values())
-        total_passed = sum(cat.get("passed", 0) for cat in self.results["categories"].values())
-        total_failed = sum(cat.get("failed", 0) for cat in self.results["categories"].values())
-        total_errors = sum(cat.get("errors", 0) for cat in self.results["categories"].values())
-        total_skipped = sum(cat.get("skipped", 0) for cat in self.results["categories"].values())
+        total_tests = sum(
+            cat.get("total_tests", 0) for cat in self.results["categories"].values()
+        )
+        total_passed = sum(
+            cat.get("passed", 0) for cat in self.results["categories"].values()
+        )
+        total_failed = sum(
+            cat.get("failed", 0) for cat in self.results["categories"].values()
+        )
+        total_errors = sum(
+            cat.get("errors", 0) for cat in self.results["categories"].values()
+        )
+        total_skipped = sum(
+            cat.get("skipped", 0) for cat in self.results["categories"].values()
+        )
 
         pass_rate = (total_passed / total_tests * 100) if total_tests > 0 else 0
 
@@ -483,7 +501,9 @@ class HellTestRunner:
 
         # Final verdict
         if summary["overall_status"] == "PASSED":
-            print("🎉 HELL TESTS PASSED! System is extremely robust and ready for production.")
+            print(
+                "🎉 HELL TESTS PASSED! System is extremely robust and ready for production."
+            )
         elif summary["overall_status"] == "FAILURES":
             print("WARN  SOME ISSUES FOUND. Review failures and fix before production.")
         elif summary["overall_status"] == "CRITICAL_FAILURES":
@@ -528,7 +548,9 @@ class HellTestRunner:
                 continue
 
             try:
-                category_results = self.run_test_category(category, self.test_categories[category])
+                category_results = self.run_test_category(
+                    category, self.test_categories[category]
+                )
                 self.results["categories"][category] = category_results
 
             except Exception as e:

@@ -125,7 +125,11 @@ class PipelineStage(ABC, Generic[T, R]):
             self.logger.error(f"Stage {self.name} failed: {e}")
             self._result.status = StageStatus.FAILED
             self._result.errors.append(
-                {"error": str(e), "type": type(e).__name__, "timestamp": datetime.now().isoformat()}
+                {
+                    "error": str(e),
+                    "type": type(e).__name__,
+                    "timestamp": datetime.now().isoformat(),
+                }
             )
             raise
 
@@ -179,7 +183,9 @@ class Pipeline:
         console_handler.setLevel(logging.WARNING)
 
         # Formatter
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
         file_handler.setFormatter(formatter)
         console_handler.setFormatter(formatter)
 
@@ -229,7 +235,9 @@ class Pipeline:
 
         return None
 
-    async def _execute_stage_with_retry(self, stage: PipelineStage, input_data: Any) -> StageResult:
+    async def _execute_stage_with_retry(
+        self, stage: PipelineStage, input_data: Any
+    ) -> StageResult:
         """Execute a stage with retry logic."""
         last_error = None
 
@@ -268,14 +276,18 @@ class Pipeline:
     async def execute(self, initial_input: Any = None) -> Dict[str, Any]:
         """Execute the full pipeline."""
         self._start_time = datetime.now()
-        self.logger.info(f"Starting pipeline execution in {self.config.mode.value} mode")
+        self.logger.info(
+            f"Starting pipeline execution in {self.config.mode.value} mode"
+        )
 
         results = []
         current_input = initial_input
 
         async with self._database_session():
             for i, stage in enumerate(self.stages):
-                self.logger.info(f"Executing stage {i+1}/{len(self.stages)}: {stage.name}")
+                self.logger.info(
+                    f"Executing stage {i+1}/{len(self.stages)}: {stage.name}"
+                )
 
                 # Check for checkpoint
                 checkpoint_data = await self._load_checkpoint(stage.name)
@@ -317,7 +329,9 @@ class Pipeline:
                             start_time=datetime.now(),
                             end_time=datetime.now(),
                             output=None,
-                            errors=[{"message": "Skipped due to earlier stage failure"}],
+                            errors=[
+                                {"message": "Skipped due to earlier stage failure"}
+                            ],
                         )
                         results.append(remaining_result)
                     break
@@ -395,7 +409,11 @@ class DataIngestionStage(PipelineStage[None, List[Dict[str, Any]]]):
         data = []
         for i in range(10):  # Small test dataset
             data.append(
-                {"id": f"test_{i}", "name": f"Test Mathematician {i}", "region": "north_america"}
+                {
+                    "id": f"test_{i}",
+                    "name": f"Test Mathematician {i}",
+                    "region": "north_america",
+                }
             )
 
         self._result.records_processed = len(data)
@@ -426,7 +444,9 @@ class ValidationStage(PipelineStage[List[Dict[str, Any]], List[Dict[str, Any]]])
                 else:
                     self._result.records_failed += 1
             except Exception as e:
-                self.logger.warning(f"Validation failed for record {record.get('id')}: {e}")
+                self.logger.warning(
+                    f"Validation failed for record {record.get('id')}: {e}"
+                )
                 self._result.records_failed += 1
 
         return valid_records

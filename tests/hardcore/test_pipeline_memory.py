@@ -66,7 +66,9 @@ class TestPipelineMemoryManagement:
         config.output.directory = self.output_path
         return config
 
-    def _create_test_entries(self, count: int, entry_size: str = "medium") -> Dict[str, Any]:
+    def _create_test_entries(
+        self, count: int, entry_size: str = "medium"
+    ) -> Dict[str, Any]:
         """Create test entries for memory testing."""
         entries = {}
 
@@ -170,7 +172,9 @@ class TestPipelineMemoryManagement:
             ingest_growth = ingest_memory - initial_memory
 
             # Should not use excessive memory
-            assert ingest_growth < 500, f"Excessive memory usage after ingestion: {ingest_growth}MB"
+            assert (
+                ingest_growth < 500
+            ), f"Excessive memory usage after ingestion: {ingest_growth}MB"
 
             # Continue with region detection
             await pipeline._stage_2_detect_region()
@@ -186,7 +190,9 @@ class TestPipelineMemoryManagement:
 
             # Memory should be proportional to entry count
             memory_per_entry = region_growth / len(entries)
-            assert memory_per_entry < 0.02, f"Too much memory per entry: {memory_per_entry}MB"
+            assert (
+                memory_per_entry < 0.02
+            ), f"Too much memory per entry: {memory_per_entry}MB"
 
     @pytest.mark.asyncio
     async def test_chunk_processing_efficiency(self):
@@ -245,8 +251,12 @@ class TestPipelineMemoryManagement:
                 memory_usages.append(memory_growth)
 
         # Smaller chunks should use less memory
-        assert memory_usages[0] <= memory_usages[1], "Smaller chunks should use less memory"
-        assert memory_usages[1] <= memory_usages[2], "Smaller chunks should use less memory"
+        assert (
+            memory_usages[0] <= memory_usages[1]
+        ), "Smaller chunks should use less memory"
+        assert (
+            memory_usages[1] <= memory_usages[2]
+        ), "Smaller chunks should use less memory"
 
     @pytest.mark.asyncio
     async def test_memory_leaks_during_pipeline(self):
@@ -444,7 +454,9 @@ class TestPipelineMemoryManagement:
 
         # Create many small files
         for i in range(file_count):
-            entries = self._create_test_entries(count=entries_per_file, entry_size="small")
+            entries = self._create_test_entries(
+                count=entries_per_file, entry_size="small"
+            )
             yaml_file = self.input_path / f"stream_{i:04d}.yaml"
             with open(yaml_file, "w", encoding="utf-8") as f:
                 yaml.dump(entries, f, default_flow_style=False, allow_unicode=True)
@@ -488,7 +500,9 @@ class TestPipelineMemoryManagement:
 
         # Memory should remain bounded
         memory_per_entry = max_memory / total_entries
-        assert memory_per_entry < 0.01, f"Memory usage too high: {memory_per_entry}MB per entry"
+        assert (
+            memory_per_entry < 0.01
+        ), f"Memory usage too high: {memory_per_entry}MB per entry"
 
     @pytest.mark.asyncio
     async def test_memory_limits_enforcement(self):

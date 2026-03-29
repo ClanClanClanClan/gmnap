@@ -267,7 +267,9 @@ class TestSecurityValidatorComprehensive:
 
         for attack in file_attacks:
             # File paths with suspicious extensions should be caught
-            if any(ext in attack.lower() for ext in [".php", ".asp", ".jsp", ".htaccess"]):
+            if any(
+                ext in attack.lower() for ext in [".php", ".asp", ".jsp", ".htaccess"]
+            ):
                 with pytest.raises(SecurityError):
                     self.validator.validate_string(attack, context="file_upload_test")
 
@@ -392,12 +394,18 @@ class TestSecurityValidatorComprehensive:
         assert result == valid_entry
 
         # Entry with SQL injection should fail
-        malicious_entry = {"CanonicalLatin": "John'; DROP TABLE users; --", "GlobalID": "test123"}
+        malicious_entry = {
+            "CanonicalLatin": "John'; DROP TABLE users; --",
+            "GlobalID": "test123",
+        }
         with pytest.raises(SecurityError):
             self.validator.validate_entry(malicious_entry)
 
         # Entry with XSS should fail
-        xss_entry = {"CanonicalLatin": "<script>alert('XSS')</script>", "GlobalID": "test123"}
+        xss_entry = {
+            "CanonicalLatin": "<script>alert('XSS')</script>",
+            "GlobalID": "test123",
+        }
         with pytest.raises(SecurityError):
             self.validator.validate_entry(xss_entry)
 
@@ -470,7 +478,9 @@ class TestSecurityValidatorComprehensive:
                 output_dir = Path(config.cache.cache_dir) / "output"
                 if (output_dir / "malicious_comprehensive.yaml").exists():
                     with open(
-                        output_dir / "malicious_comprehensive.yaml", "r", encoding="utf-8"
+                        output_dir / "malicious_comprehensive.yaml",
+                        "r",
+                        encoding="utf-8",
                     ) as f:
                         output_data = yaml.safe_load(f)
                         # No malicious entries should pass through

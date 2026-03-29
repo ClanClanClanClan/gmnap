@@ -398,7 +398,11 @@ class TestSecurityValidatorComprehensive(unittest.TestCase):
         valid_entries = [
             {"CanonicalLatin": "John Smith", "GlobalID": "john001"},
             {"CanonicalLatin": "María García", "GlobalID": "maria001"},
-            {"CanonicalLatin": "李明", "CanonicalNative": "Li Ming", "GlobalID": "li001"},
+            {
+                "CanonicalLatin": "李明",
+                "CanonicalNative": "Li Ming",
+                "GlobalID": "li001",
+            },
             {"CanonicalLatin": "Jean-Claude", "GlobalID": "jc001"},
         ]
 
@@ -424,9 +428,21 @@ class TestSecurityValidatorComprehensive(unittest.TestCase):
         """Test CJK name round-trip validation."""
         # Valid CJK names with correct round-trip
         valid_cjk = [
-            {"CanonicalNative": "王明", "CanonicalLatin": "Wang Ming", "GlobalID": "wang001"},
-            {"CanonicalNative": "李华", "CanonicalLatin": "Li Hua", "GlobalID": "li001"},
-            {"CanonicalNative": "김민준", "CanonicalLatin": "Kim Min-jun", "GlobalID": "kim001"},
+            {
+                "CanonicalNative": "王明",
+                "CanonicalLatin": "Wang Ming",
+                "GlobalID": "wang001",
+            },
+            {
+                "CanonicalNative": "李华",
+                "CanonicalLatin": "Li Hua",
+                "GlobalID": "li001",
+            },
+            {
+                "CanonicalNative": "김민준",
+                "CanonicalLatin": "Kim Min-jun",
+                "GlobalID": "kim001",
+            },
             {
                 "CanonicalNative": "山田太郎",
                 "CanonicalLatin": "Yamada Taro",
@@ -440,7 +456,11 @@ class TestSecurityValidatorComprehensive(unittest.TestCase):
 
         # Should detect potential round-trip issues
         suspicious_cjk = [
-            {"CanonicalNative": "王明", "CanonicalLatin": "Smith John", "GlobalID": "mismatch001"},
+            {
+                "CanonicalNative": "王明",
+                "CanonicalLatin": "Smith John",
+                "GlobalID": "mismatch001",
+            },
             {
                 "CanonicalNative": "李华",
                 "CanonicalLatin": "'; DROP TABLE users; --",

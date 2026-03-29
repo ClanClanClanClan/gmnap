@@ -168,7 +168,9 @@ class ModelRegistry:
 
         # Activate new model
         self.registry["models"][model_id]["deployment_status"] = "active"
-        self.registry["models"][model_id]["deployed_at"] = datetime.utcnow().isoformat() + "Z"
+        self.registry["models"][model_id]["deployed_at"] = (
+            datetime.utcnow().isoformat() + "Z"
+        )
         self.registry["active_model_id"] = model_id
 
         # Log deployment
@@ -277,7 +279,11 @@ class ModelRegistry:
                 ]
             ),
             "active_models": len(
-                [m for m in self.registry["models"].values() if m["deployment_status"] == "active"]
+                [
+                    m
+                    for m in self.registry["models"].values()
+                    if m["deployment_status"] == "active"
+                ]
             ),
             "deprecated_models": len(
                 [
@@ -352,9 +358,15 @@ if __name__ == "__main__":
 
     # Compare models
     print("\n5. Comparing v4 vs v5...")
-    comparison = registry.compare_models("v4_affiliation_20251027", "v5_etymology_20251030")
-    print(f"\n  Model 1: {comparison['model_1']['id']} ({comparison['model_1']['accuracy']:.1%})")
-    print(f"  Model 2: {comparison['model_2']['id']} ({comparison['model_2']['accuracy']:.1%})")
+    comparison = registry.compare_models(
+        "v4_affiliation_20251027", "v5_etymology_20251030"
+    )
+    print(
+        f"\n  Model 1: {comparison['model_1']['id']} ({comparison['model_1']['accuracy']:.1%})"
+    )
+    print(
+        f"  Model 2: {comparison['model_2']['id']} ({comparison['model_2']['accuracy']:.1%})"
+    )
     if "accuracy" in comparison["improvements"]:
         imp = comparison["improvements"]["accuracy"]
         print(f"  Improvement: +{imp['delta_pp']:.2f}pp")

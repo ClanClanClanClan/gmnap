@@ -155,7 +155,9 @@ class AutoFixDemo:
         # Simulate recording successes
         for fix in safe_fixes[:3]:
             if fix["confidence"] > 0.8:
-                self.learning.record_correction(fix["romanization"], fix["hangul"], success=True)
+                self.learning.record_correction(
+                    fix["romanization"], fix["hangul"], success=True
+                )
                 print(f"✓ Recorded: {fix['romanization']} → {fix['hangul']}")
 
         print("\n7. CONTINUOUS IMPROVEMENT")
@@ -199,7 +201,9 @@ class AutoFixDemo:
 
         return {
             "remaining_failures": len(original_failures) - fixed_count,
-            "success_rate": fixed_count / len(original_failures) if original_failures else 0,
+            "success_rate": (
+                fixed_count / len(original_failures) if original_failures else 0
+            ),
         }
 
 

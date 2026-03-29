@@ -36,7 +36,9 @@ def fix_scottish_given_names():
                          'davidson', 'robertson', 'morrison', 'sinclair', 'gordon', 'hamilton', 'douglas', 'bruce']
         has_scottish_given = any(given in name_lower for given in scottish_given)"""
 
-        content = re.sub(anglo_given_pattern, scottish_given_code, content, flags=re.DOTALL)
+        content = re.sub(
+            anglo_given_pattern, scottish_given_code, content, flags=re.DOTALL
+        )
         print("   ✅ Added Scottish given name detection")
 
         # Find the Anglo scoring section and add Scottish logic

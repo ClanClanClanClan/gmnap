@@ -126,7 +126,9 @@ class V7PerformanceBenchmark:
             # Add some variations
             if i % 10 == 0:
                 # Add external IDs
-                entry["ExternalIDs"] = [{"type": "ORCID", "value": f"0000-0000-0000-{i:04d}"}]
+                entry["ExternalIDs"] = [
+                    {"type": "ORCID", "value": f"0000-0000-0000-{i:04d}"}
+                ]
 
             if i % 20 == 0:
                 # Add affiliations
@@ -230,7 +232,9 @@ class V7PerformanceBenchmark:
         # Stage 6: GraphConsistency (skip if no Memgraph)
         if self.memgraph.is_connected():
             current_entries, stage_time = self.benchmark_stage(
-                "GraphConsistency", self.pipeline.ensure_graph_consistency, current_entries
+                "GraphConsistency",
+                self.pipeline.ensure_graph_consistency,
+                current_entries,
             )
             metrics.stage_timings["stage_6_graph"] = stage_time
         else:
@@ -311,9 +315,15 @@ class V7PerformanceBenchmark:
             print(f"  Projected time for 1M: {metrics.projected_time_1m:.1f} minutes")
             print(f"  Peak memory: {metrics.peak_memory_mb:.1f} MB")
             print(f"  Average CPU: {metrics.avg_cpu_percent:.1f}%")
-            print(f"  Slowest stage: {metrics.slowest_stage} ({metrics.slowest_stage_time:.2f}s)")
-            print(f"  Meets V7 Quick requirement: {'PASS' if metrics.meets_v7_quick else 'FAIL'}")
-            print(f"  Meets V7 Full requirement: {'PASS' if metrics.meets_v7_full else 'FAIL'}")
+            print(
+                f"  Slowest stage: {metrics.slowest_stage} ({metrics.slowest_stage_time:.2f}s)"
+            )
+            print(
+                f"  Meets V7 Quick requirement: {'PASS' if metrics.meets_v7_quick else 'FAIL'}"
+            )
+            print(
+                f"  Meets V7 Full requirement: {'PASS' if metrics.meets_v7_full else 'FAIL'}"
+            )
 
             # Stage breakdown
             print("\n  Stage timings:")
@@ -365,7 +375,8 @@ class V7PerformanceBenchmark:
         # Check if it's a scaling issue
         if len(benchmarks) > 1:
             scaling_factor = (
-                benchmarks[-1]["entries_per_second"] / benchmarks[0]["entries_per_second"]
+                benchmarks[-1]["entries_per_second"]
+                / benchmarks[0]["entries_per_second"]
             )
             if scaling_factor < 0.8:
                 recommendations.append(
@@ -379,19 +390,29 @@ class V7PerformanceBenchmark:
                 "🔧 Optimize region processing - consider caching or parallel processing"
             )
         elif "authority" in slowest:
-            recommendations.append("🔧 Optimize authority enrichment - use async/parallel fetching")
+            recommendations.append(
+                "🔧 Optimize authority enrichment - use async/parallel fetching"
+            )
         elif "collision" in slowest:
-            recommendations.append("🔧 Optimize collision detection - consider better indexing")
+            recommendations.append(
+                "🔧 Optimize collision detection - consider better indexing"
+            )
 
         # Memory recommendations
         if latest["peak_memory_mb"] > 1000:
-            recommendations.append("💾 High memory usage - implement streaming/batching")
+            recommendations.append(
+                "💾 High memory usage - implement streaming/batching"
+            )
 
         # CPU recommendations
         if latest["avg_cpu_percent"] < 50:
             recommendations.append("🔥 Low CPU utilization - increase parallelization")
 
-        return " | ".join(recommendations) if recommendations else "Performance optimization needed"
+        return (
+            " | ".join(recommendations)
+            if recommendations
+            else "Performance optimization needed"
+        )
 
 
 # Test functions for pytest
@@ -411,8 +432,12 @@ class TestV7Performance:
         metrics = self.benchmark.benchmark_full_pipeline(entries)
 
         # Should easily handle 100 entries
-        assert metrics.entries_per_second > 10, f"Too slow: {metrics.entries_per_second:.1f} eps"
-        assert metrics.peak_memory_mb < 500, f"Too much memory: {metrics.peak_memory_mb:.1f} MB"
+        assert (
+            metrics.entries_per_second > 10
+        ), f"Too slow: {metrics.entries_per_second:.1f} eps"
+        assert (
+            metrics.peak_memory_mb < 500
+        ), f"Too much memory: {metrics.peak_memory_mb:.1f} MB"
 
     @pytest.mark.timeout(15)
     def test_medium_batch_performance(self):
@@ -421,7 +446,9 @@ class TestV7Performance:
         metrics = self.benchmark.benchmark_full_pipeline(entries)
 
         # Check if we're on track for V7 requirements
-        print(f"\nProjected time for 1M entries: {metrics.projected_time_1m:.1f} minutes")
+        print(
+            f"\nProjected time for 1M entries: {metrics.projected_time_1m:.1f} minutes"
+        )
         print(f"V7 Quick requirement: <=35 minutes")
         print(f"Status: {'PASS PASS' if metrics.meets_v7_quick else 'FAIL FAIL'}")
 

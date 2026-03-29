@@ -4,7 +4,9 @@ from overlays.stage9_write_diff.src.diff.write_and_diff import write_yaml_sorted
 
 
 def canonical_bytes(obj):
-    return json.dumps(obj, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode()
+    return json.dumps(
+        obj, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    ).encode()
 
 
 def sha256_hex(b: bytes) -> str:

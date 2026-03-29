@@ -5,14 +5,18 @@ from ..utils.matching import map_wikidata_to_global_id
 
 
 class GraphLoader:
-    def __init__(self, uri: str, user: Optional[str] = None, password: Optional[str] = None):
+    def __init__(
+        self, uri: str, user: Optional[str] = None, password: Optional[str] = None
+    ):
         auth = (user, password) if user or password else None
         self.driver = GraphDatabase.driver(uri, auth=auth)
 
     def close(self):
         self.driver.close()
 
-    def upsert_nodes(self, entries: List[Dict[str, Any]], batch_size: int = 1000) -> None:
+    def upsert_nodes(
+        self, entries: List[Dict[str, Any]], batch_size: int = 1000
+    ) -> None:
         q = (
             "UNWIND $batch AS e "
             "MERGE (m:Mathematician {global_id: e.global_id}) "
@@ -33,7 +37,9 @@ class GraphLoader:
             for i in range(0, len(entries), batch_size):
                 s.run(q, batch=entries[i : i + batch_size])
 
-    def upsert_advisor_edges(self, edges: List[Dict[str, Any]], batch_size: int = 1000) -> None:
+    def upsert_advisor_edges(
+        self, edges: List[Dict[str, Any]], batch_size: int = 1000
+    ) -> None:
         # Fetch a snapshot of all current nodes for name->id resolution
         with self.driver.session() as s:
             res = s.run(
@@ -41,7 +47,8 @@ class GraphLoader:
             )
             rows = res.data()
         snapshot = [
-            {"GlobalID": r["id"], "CanonicalLatin": r["name"], "BirthYear": r["by"]} for r in rows
+            {"GlobalID": r["id"], "CanonicalLatin": r["name"], "BirthYear": r["by"]}
+            for r in rows
         ]
 
         # Resolve target ids where missing

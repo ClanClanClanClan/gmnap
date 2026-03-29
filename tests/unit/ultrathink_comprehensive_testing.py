@@ -60,7 +60,9 @@ class UltrathinkTester:
         with open(dataset_path, "r", encoding="utf-8") as f:
             self.dataset = json.load(f)
 
-        print(f"📚 Loaded {self.dataset['dataset_metadata']['total_entries']} real mathematicians")
+        print(
+            f"📚 Loaded {self.dataset['dataset_metadata']['total_entries']} real mathematicians"
+        )
         print(f"🌍 Regions: {len(self.dataset['dataset_metadata']['regions_covered'])}")
 
     def test_1_real_mathematician_classification(self):
@@ -96,7 +98,9 @@ class UltrathinkTester:
                     try:
                         # Test with primary romanization
                         start_time = time.time()
-                        detection_result = manager.detect_region({"CanonicalLatin": name})
+                        detection_result = manager.detect_region(
+                            {"CanonicalLatin": name}
+                        )
                         processing_time = time.time() - start_time
 
                         if hasattr(detection_result, "region_code"):
@@ -111,9 +115,13 @@ class UltrathinkTester:
 
                         # Test alternative romanizations
                         alt_variants = 0
-                        for alt_name in mathematician.get("alternative_romanizations", []):
+                        for alt_name in mathematician.get(
+                            "alternative_romanizations", []
+                        ):
                             try:
-                                alt_result = manager.detect_region({"CanonicalLatin": alt_name})
+                                alt_result = manager.detect_region(
+                                    {"CanonicalLatin": alt_name}
+                                )
                                 if hasattr(alt_result, "region_code"):
                                     alt_region = alt_result.region_code
                                 else:
@@ -131,12 +139,16 @@ class UltrathinkTester:
                             passed=passed,
                             variants_generated=alt_variants,
                             processing_time=processing_time,
-                            linguistic_features_tested=mathematician.get("linguistic_features", []),
+                            linguistic_features_tested=mathematician.get(
+                                "linguistic_features", []
+                            ),
                         )
                         self.results.append(result)
 
                         status = "PASS" if passed else "FAIL"
-                        print(f"  {status} {name} -> {actual_region} (expected {expected_region})")
+                        print(
+                            f"  {status} {name} -> {actual_region} (expected {expected_region})"
+                        )
 
                         total_tests += 1
                         region_total += 1
@@ -164,7 +176,9 @@ class UltrathinkTester:
                     f"  📊 {region_name}: {region_correct}/{region_total} ({region_accuracy[region_name]:.1%})"
                 )
 
-            overall_accuracy = correct_classifications / total_tests if total_tests > 0 else 0
+            overall_accuracy = (
+                correct_classifications / total_tests if total_tests > 0 else 0
+            )
             print(
                 f"\n📊 OVERALL CLASSIFICATION ACCURACY: {correct_classifications}/{total_tests} ({overall_accuracy:.1%})"
             )
@@ -172,7 +186,11 @@ class UltrathinkTester:
             # Detailed accuracy report
             print(f"\n📈 PER-REGION ACCURACY:")
             for region, accuracy in sorted(region_accuracy.items()):
-                status = "PASS" if accuracy >= 0.8 else ("WARN" if accuracy >= 0.6 else "FAIL")
+                status = (
+                    "PASS"
+                    if accuracy >= 0.8
+                    else ("WARN" if accuracy >= 0.6 else "FAIL")
+                )
                 print(f"  {status} {region}: {accuracy:.1%}")
 
             return overall_accuracy >= 0.75  # 75% threshold for real names
@@ -225,7 +243,9 @@ class UltrathinkTester:
 
                         # Test specific features
                         if "patronymic" in features or "patronymic_surname" in features:
-                            feature_tests["patronymic"].append((name, has_variants, region_code))
+                            feature_tests["patronymic"].append(
+                                (name, has_variants, region_code)
+                            )
 
                         if (
                             "alternative_romanizations" in mathematician
@@ -236,7 +256,9 @@ class UltrathinkTester:
                             )
 
                         if any("diacritic" in f or "accent" in f for f in features):
-                            feature_tests["diacritics"].append((name, has_variants, region_code))
+                            feature_tests["diacritics"].append(
+                                (name, has_variants, region_code)
+                            )
 
                         if "compound" in str(features):
                             feature_tests["compound_names"].append(
@@ -260,11 +282,17 @@ class UltrathinkTester:
                     print(f"  ⚪ {feature}: No test cases found")
 
             overall_feature_success = (
-                sum(feature_success.values()) / len(feature_success) if feature_success else 0
+                sum(feature_success.values()) / len(feature_success)
+                if feature_success
+                else 0
             )
-            print(f"\n📊 OVERALL LINGUISTIC FEATURE SUCCESS: {overall_feature_success:.1%}")
+            print(
+                f"\n📊 OVERALL LINGUISTIC FEATURE SUCCESS: {overall_feature_success:.1%}"
+            )
 
-            return overall_feature_success >= 0.4  # 40% threshold for linguistic features
+            return (
+                overall_feature_success >= 0.4
+            )  # 40% threshold for linguistic features
 
         except Exception as e:
             print(f"FAIL TEST 2 FAILED: {e}")
@@ -294,7 +322,9 @@ class UltrathinkTester:
                         "CanonicalLatin": name,
                         "UpdatedAt": "2025-08-04T00:00:00Z",
                         "ExpectedRegion": self._region_name_to_code(region_name),
-                        "LinguisticFeatures": mathematician.get("linguistic_features", []),
+                        "LinguisticFeatures": mathematician.get(
+                            "linguistic_features", []
+                        ),
                         "Period": mathematician.get("period", "Unknown"),
                         "Country": mathematician.get("country", "Unknown"),
                     }
@@ -325,7 +355,9 @@ class UltrathinkTester:
                 minutes_per_million = (1_000_000 / entries_per_sec) / 60
 
                 print(f"📈 REALISTIC PERFORMANCE RESULTS:")
-                print(f"  ⏱️  Duration: {duration:.2f}s for {len(test_entries)} entries")
+                print(
+                    f"  ⏱️  Duration: {duration:.2f}s for {len(test_entries)} entries"
+                )
                 print(f"  🚀 Rate: {entries_per_sec:.1f} entries/sec")
                 print(f"  📊 Projected 1M rate: {minutes_per_million:.1f} min/1M")
                 print(
@@ -336,7 +368,9 @@ class UltrathinkTester:
                 processing_errors = result.total_entries - result.successful_entries
                 error_rate = processing_errors / result.total_entries
 
-                print(f"  FAIL Processing errors: {processing_errors} ({error_rate:.1%})")
+                print(
+                    f"  FAIL Processing errors: {processing_errors} ({error_rate:.1%})"
+                )
 
                 if minutes_per_million <= 30:
                     print("  🎯 PERFORMANCE: MEETS TARGET (<=30 min/1M)")
@@ -474,7 +508,9 @@ class UltrathinkTester:
                         variants = test_entry.get("Variants", {}).get("Synthesised", [])
                         metadata = test_entry.get("RegionMetadata", {})
 
-                        print(f"  2️⃣ Regional Processing: Generated {len(variants)} variants")
+                        print(
+                            f"  2️⃣ Regional Processing: Generated {len(variants)} variants"
+                        )
                         print(f"  3️⃣ Metadata: {metadata}")
                         print(f"  4️⃣ Sort Key: {order_key}")
 
@@ -538,17 +574,31 @@ class UltrathinkTester:
 
         # Run all comprehensive tests
         test_results.append(
-            ("Real Mathematician Classification", self.test_1_real_mathematician_classification())
+            (
+                "Real Mathematician Classification",
+                self.test_1_real_mathematician_classification(),
+            )
         )
         test_results.append(
-            ("Linguistic Feature Validation", self.test_2_linguistic_feature_validation())
+            (
+                "Linguistic Feature Validation",
+                self.test_2_linguistic_feature_validation(),
+            )
         )
         test_results.append(
-            ("Realistic Performance Measurement", self.test_3_realistic_performance_measurement())
+            (
+                "Realistic Performance Measurement",
+                self.test_3_realistic_performance_measurement(),
+            )
         )
-        test_results.append(("Edge Cases and Robustness", self.test_4_edge_cases_and_robustness()))
         test_results.append(
-            ("End-to-End Workflow Validation", self.test_5_end_to_end_workflow_validation())
+            ("Edge Cases and Robustness", self.test_4_edge_cases_and_robustness())
+        )
+        test_results.append(
+            (
+                "End-to-End Workflow Validation",
+                self.test_5_end_to_end_workflow_validation(),
+            )
         )
 
         # Generate comprehensive report

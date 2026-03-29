@@ -313,7 +313,8 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
                     entry[field] = raw_input
                 # Check remaining dangerous chars
                 if any(
-                    ord(c) < 32 and c not in (" ", "\t", "\n") or ord(c) == 127 for c in raw_input
+                    ord(c) < 32 and c not in (" ", "\t", "\n") or ord(c) == 127
+                    for c in raw_input
                 ):
                     raise RegionRuleError(
                         f"Name contains dangerous characters: {raw_input[:50]}..."
@@ -536,11 +537,25 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
                 result["caste_indicator"] = last_word
 
                 # Determine probable community
-                if last_word in ["शर्मा", "Sharma", "पांडे", "Pandey", "मिश्र", "Mishra"]:
+                if last_word in [
+                    "शर्मा",
+                    "Sharma",
+                    "पांडे",
+                    "Pandey",
+                    "मिश्र",
+                    "Mishra",
+                ]:
                     result["probable_community"] = "Brahmin"
                 elif last_word in ["सिंह", "Singh", "राणा", "Rana", "ठाकुर", "Thakur"]:
                     result["probable_community"] = "Kshatriya"
-                elif last_word in ["गुप्ता", "Gupta", "अग्रवाल", "Agrawal", "जैन", "Jain"]:
+                elif last_word in [
+                    "गुप्ता",
+                    "Gupta",
+                    "अग्रवाल",
+                    "Agrawal",
+                    "जैन",
+                    "Jain",
+                ]:
                     result["probable_community"] = "Vaishya"
 
         return result if result else None
@@ -710,7 +725,9 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
         simplified = " ".join(simplified.split())
         return simplified.title()
 
-    def _generate_initials_variant(self, name: str, components: Dict[str, Any]) -> Optional[str]:
+    def _generate_initials_variant(
+        self, name: str, components: Dict[str, Any]
+    ) -> Optional[str]:
         """Generate variant with initials."""
         given = components.get("given_name", "")
         middle = components.get("middle_name", "") or components.get("father_name", "")
@@ -726,7 +743,9 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
 
         return None
 
-    def _generate_short_variant(self, name: str, components: Dict[str, Any]) -> Optional[str]:
+    def _generate_short_variant(
+        self, name: str, components: Dict[str, Any]
+    ) -> Optional[str]:
         """Generate short form without middle/father name."""
         given = components.get("given_name", "")
         family = components.get("family_name", "")
@@ -749,7 +768,9 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
 
         # SECURITY: Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         canonical_native = entry.get("CanonicalNative", "")
         canonical_latin = entry.get("CanonicalLatin", "")
@@ -767,7 +788,9 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
 
         # If CanonicalLatin exists and is pure Devanagari, that's unusual but acceptable
         if canonical_latin:
-            if self._is_devanagari(canonical_latin) and not self._is_mixed_script(canonical_latin):
+            if self._is_devanagari(canonical_latin) and not self._is_mixed_script(
+                canonical_latin
+            ):
                 self.logger.warning(
                     f"CanonicalLatin contains Devanagari (unusual): {canonical_latin}"
                 )
@@ -784,7 +807,9 @@ class D1_SouthAsiaHindiBelt(RegionSpec):
                 # Check for invalid characters (but be lenient)
                 if not self._has_valid_characters(canonical):
                     # Only reject if truly problematic
-                    self.logger.warning(f"Potentially invalid characters in name: {canonical}")
+                    self.logger.warning(
+                        f"Potentially invalid characters in name: {canonical}"
+                    )
                     # Continue processing instead of failing
 
     def _is_mixed_script(self, text: str) -> bool:

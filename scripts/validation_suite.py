@@ -208,14 +208,22 @@ def run_validation_suite():
 
     print(f"\n🎯 BLUEPRINT COMPLIANCE:")
     if conversion_rate >= blueprint_conversion_target:
-        print(f"  ✅ Conversion rate: {conversion_rate:.1f}% ≥ {blueprint_conversion_target}%")
+        print(
+            f"  ✅ Conversion rate: {conversion_rate:.1f}% ≥ {blueprint_conversion_target}%"
+        )
     else:
-        print(f"  ❌ Conversion rate: {conversion_rate:.1f}% < {blueprint_conversion_target}%")
+        print(
+            f"  ❌ Conversion rate: {conversion_rate:.1f}% < {blueprint_conversion_target}%"
+        )
 
     if round_trip_rate >= blueprint_roundtrip_target:
-        print(f"  ✅ Round-trip rate: {round_trip_rate:.1f}% ≥ {blueprint_roundtrip_target}%")
+        print(
+            f"  ✅ Round-trip rate: {round_trip_rate:.1f}% ≥ {blueprint_roundtrip_target}%"
+        )
     else:
-        print(f"  ❌ Round-trip rate: {round_trip_rate:.1f}% < {blueprint_roundtrip_target}%")
+        print(
+            f"  ❌ Round-trip rate: {round_trip_rate:.1f}% < {blueprint_roundtrip_target}%"
+        )
 
     if avg_dice >= 0.85:
         print(f"  ✅ Dice coefficient: {avg_dice:.3f} ≥ 0.85")

@@ -18,13 +18,18 @@ async def test_strict_gates():
     """Test that quality gates are strictly enforced."""
 
     # Import pipeline
-    from src.core.pipeline_v7_complete_final import V7PipelineCompleteFinal, PipelineMode
+    from src.core.pipeline_v7_complete_final import (
+        V7PipelineCompleteFinal,
+        PipelineMode,
+    )
     from src.quality.strict_gates import QualityGateBlockedException
 
     logger.info("Testing STRICT quality gate enforcement...")
 
     # Create pipeline with strict mode
-    pipeline = V7PipelineCompleteFinal(mode=PipelineMode.EXTREME)  # This enables strict gates
+    pipeline = V7PipelineCompleteFinal(
+        mode=PipelineMode.EXTREME
+    )  # This enables strict gates
 
     # Test 1: Process with good data - should pass
     logger.info("\n" + "=" * 60)
@@ -137,9 +142,13 @@ async def test_strict_gates():
     ]
 
     try:
-        result = gates_warning.enforce_quality_gates(entries_no_authority, runtime_seconds=1.0)
+        result = gates_warning.enforce_quality_gates(
+            entries_no_authority, runtime_seconds=1.0
+        )
         if result["warnings"]:
-            logger.info(f"✅ Warnings correctly generated: {len(result['warnings'])} warnings")
+            logger.info(
+                f"✅ Warnings correctly generated: {len(result['warnings'])} warnings"
+            )
             for warning in result["warnings"][:3]:
                 logger.info(f"   {warning}")
         else:
@@ -151,7 +160,9 @@ async def test_strict_gates():
     gates_strict = StrictQualityGates(mode="production", strict=True)
 
     try:
-        result = gates_strict.enforce_quality_gates(entries_no_authority, runtime_seconds=1.0)
+        result = gates_strict.enforce_quality_gates(
+            entries_no_authority, runtime_seconds=1.0
+        )
         logger.warning("⚠️  No blocking occurred (may be acceptable if thresholds met)")
     except QualityGateBlockedException as e:
         logger.info(f"✅ Strict mode correctly BLOCKS: {len(e.failures)} failures")

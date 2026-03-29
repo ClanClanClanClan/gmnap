@@ -6,7 +6,12 @@ Add comprehensive syllable mappings to improve accuracy
 import csv
 from pathlib import Path
 
-E4_ROOT = Path(__file__).parent.parent.parent.rstrip(".").parent.rstrip(".").parent.rstrip(".")
+E4_ROOT = (
+    Path(__file__)
+    .parent.parent.parent.rstrip(".")
+    .parent.rstrip(".")
+    .parent.rstrip(".")
+)
 
 # Common Korean name syllables that are missing
 comprehensive_mappings = [

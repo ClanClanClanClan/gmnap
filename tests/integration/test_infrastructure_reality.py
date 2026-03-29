@@ -35,7 +35,9 @@ def test_memgraph_client_functionality():
             print(f"PASS Create node result: {result}")
         except Exception as e:
             if "connection" in str(e).lower() or "memgraph" in str(e).lower():
-                print(f"PASS Expected connection error (Memgraph not deployed): {str(e)[:100]}...")
+                print(
+                    f"PASS Expected connection error (Memgraph not deployed): {str(e)[:100]}..."
+                )
                 return True  # This is expected without deployment
             else:
                 print(f"FAIL Unexpected error: {e}")
@@ -258,7 +260,10 @@ def main():
     tests = [
         ("Memgraph Client", test_memgraph_client_functionality),
         ("Pipeline Architecture", test_pipeline_functionality),
-        ("Regional + Infrastructure", test_regional_processor_infrastructure_integration),
+        (
+            "Regional + Infrastructure",
+            test_regional_processor_infrastructure_integration,
+        ),
         ("Security Validator", test_security_validator_integration),
         ("Authority Integration", test_authority_integration),
         ("End-to-End Integration", test_end_to_end_integration),

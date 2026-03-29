@@ -122,15 +122,23 @@ if memory_points:
     print(f"\n🔍 OBJECT CREATION ANALYSIS:")
     print(f"   Core processing leak: {core_processing_leak:.3f} MB/1K ops")
     print(f"   Minimal object creation: {current_leak:.3f} MB/1K ops")
-    print(f"   Complex processing overhead: {(core_processing_leak - current_leak):.3f} MB/1K ops")
+    print(
+        f"   Complex processing overhead: {(core_processing_leak - current_leak):.3f} MB/1K ops"
+    )
 
     # Verdict
     if current_leak < 0.01:
-        print(f"\nPASS NO OBJECT LEAK: RegionDetectionResult objects are properly collected")
+        print(
+            f"\nPASS NO OBJECT LEAK: RegionDetectionResult objects are properly collected"
+        )
         print(f"   The leak must be in complex region processing logic")
     elif current_leak >= core_processing_leak * 0.8:
-        print(f"\n🔴 OBJECT RETENTION ISSUE: RegionDetectionResult objects not being collected")
-        print(f"   This suggests a reference retention problem in the dataclass or metadata")
+        print(
+            f"\n🔴 OBJECT RETENTION ISSUE: RegionDetectionResult objects not being collected"
+        )
+        print(
+            f"   This suggests a reference retention problem in the dataclass or metadata"
+        )
     else:
         print(f"\n🟡 PARTIAL OBJECT LEAK: Some object retention + processing overhead")
 
@@ -140,11 +148,15 @@ if memory_points:
         print(
             f"   -> The leak is in region processing logic (script analysis, pattern matching, etc.)"
         )
-        print(f"   -> Check _analyze_scripts, _enhance_detection_with_patterns, or region loading")
+        print(
+            f"   -> Check _analyze_scripts, _enhance_detection_with_patterns, or region loading"
+        )
     elif current_leak >= 0.05:
         print(f"   -> The leak is in RegionDetectionResult object retention")
         print(f"   -> Check for circular references or metadata dictionary growth")
     else:
-        print(f"   -> Mixed: Both object retention and processing logic contributing to leak")
+        print(
+            f"   -> Mixed: Both object retention and processing logic contributing to leak"
+        )
 else:
     print("🔴 TEST FAILED: No memory measurements taken")

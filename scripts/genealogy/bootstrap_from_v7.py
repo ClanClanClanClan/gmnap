@@ -29,7 +29,9 @@ from typing import Dict, List, Tuple
 from datetime import datetime
 from neo4j import GraphDatabase
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -89,7 +91,9 @@ class GenealogyBootstrapper:
 
                 nodes.append(props)
 
-            logger.info(f"✅ Exported {len(nodes)} Mathematician nodes with all properties")
+            logger.info(
+                f"✅ Exported {len(nodes)} Mathematician nodes with all properties"
+            )
             if nodes:
                 sample = nodes[0]
                 logger.info(f"   Sample properties: {list(sample.keys())}")
@@ -133,7 +137,9 @@ class GenealogyBootstrapper:
                     }
                 )
 
-            logger.info(f"✅ Exported {len(relationships)} DOCTORAL_ADVISOR relationships")
+            logger.info(
+                f"✅ Exported {len(relationships)} DOCTORAL_ADVISOR relationships"
+            )
             return relationships
 
     def import_nodes(self, nodes: List[Dict]) -> int:
@@ -153,7 +159,9 @@ class GenealogyBootstrapper:
                     # Build SET clause dynamically for all properties
                     # Exclude global_id (used in MATCH) and datetime fields (set automatically)
                     props_to_set = {
-                        k: v for k, v in node.items() if k != "global_id" and not k.endswith("_at")
+                        k: v
+                        for k, v in node.items()
+                        if k != "global_id" and not k.endswith("_at")
                     }
 
                     session.run(
@@ -214,7 +222,9 @@ class GenealogyBootstrapper:
                     )
                     imported += 1
 
-                logger.info(f"  Imported {imported}/{len(relationships)} relationships...")
+                logger.info(
+                    f"  Imported {imported}/{len(relationships)} relationships..."
+                )
 
         logger.info(f"✅ Imported {imported} relationships")
         return imported
@@ -229,7 +239,9 @@ class GenealogyBootstrapper:
             actual_nodes = result.single()["count"]
 
             # Count relationships
-            result = session.run("MATCH ()-[r:DOCTORAL_ADVISOR]->() RETURN count(r) as count")
+            result = session.run(
+                "MATCH ()-[r:DOCTORAL_ADVISOR]->() RETURN count(r) as count"
+            )
             actual_rels = result.single()["count"]
 
         success = (actual_nodes == expected_nodes) and (actual_rels == expected_rels)
@@ -283,12 +295,16 @@ class GenealogyBootstrapper:
 def main():
     parser = argparse.ArgumentParser(description="Bootstrap Phase 2 from V7 data")
     parser.add_argument(
-        "--dry-run", action="store_true", help="Show what would be migrated without writing"
+        "--dry-run",
+        action="store_true",
+        help="Show what would be migrated without writing",
     )
     parser.add_argument(
         "--batch-size", type=int, default=1000, help="Records per batch (default: 1000)"
     )
-    parser.add_argument("--v7-uri", default="bolt://localhost:7687", help="V7 Memgraph URI")
+    parser.add_argument(
+        "--v7-uri", default="bolt://localhost:7687", help="V7 Memgraph URI"
+    )
     parser.add_argument(
         "--phase2-uri", default="bolt://localhost:7688", help="Phase 2 Memgraph URI"
     )

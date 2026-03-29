@@ -6,7 +6,9 @@ from .canonical_json import to_canonical_bytes
 
 def canonical_batch_bytes(entries: List[Dict[str, Any]]) -> bytes:
     """Order‑insensitive canonical bytes for a batch (sort by GlobalID, Source)."""
-    ordered = sorted(entries, key=lambda e: (e.get("GlobalID", ""), e.get("Source", "")))
+    ordered = sorted(
+        entries, key=lambda e: (e.get("GlobalID", ""), e.get("Source", ""))
+    )
     return to_canonical_bytes(ordered)
 
 
@@ -14,7 +16,9 @@ def batch_hash(entries: List[Dict[str, Any]]) -> str:
     return hashlib.sha256(canonical_batch_bytes(entries)).hexdigest()
 
 
-def assert_identical(output_a: List[Dict[str, Any]], output_b: List[Dict[str, Any]]) -> None:
+def assert_identical(
+    output_a: List[Dict[str, Any]], output_b: List[Dict[str, Any]]
+) -> None:
     if batch_hash(output_a) != batch_hash(output_b):
         raise AssertionError("Idempotency violated: canonical batch hashes differ")
 

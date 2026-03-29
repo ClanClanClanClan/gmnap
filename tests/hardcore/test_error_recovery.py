@@ -126,7 +126,9 @@ class TestCircuitBreakerResilience:
 
         threads = []
         for i in range(num_workers):
-            thread = threading.Thread(target=circuit_worker, args=(i, operations_per_worker))
+            thread = threading.Thread(
+                target=circuit_worker, args=(i, operations_per_worker)
+            )
             threads.append(thread)
             thread.start()
 
@@ -253,7 +255,9 @@ class TestCircuitBreakerResilience:
 
         # Memory usage should be bounded
         memory_usage = psutil.Process().memory_info().rss / 1024 / 1024
-        assert memory_usage < 100, f"Circuit breaker using too much memory: {memory_usage}MB"
+        assert (
+            memory_usage < 100
+        ), f"Circuit breaker using too much memory: {memory_usage}MB"
 
 
 class TestRetryStormPrevention:
@@ -301,7 +305,9 @@ class TestRetryStormPrevention:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # All should fail with MaxRetriesExceededError
-        max_retry_errors = [r for r in results if isinstance(r, MaxRetriesExceededError)]
+        max_retry_errors = [
+            r for r in results if isinstance(r, MaxRetriesExceededError)
+        ]
         assert (
             len(max_retry_errors) == 50
         ), f"Expected 50 max retry errors, got {len(max_retry_errors)}"
@@ -335,7 +341,9 @@ class TestRetryStormPrevention:
 
                 try:
                     await self.recovery._apply_strategy(
-                        RecoveryStrategy.RETRY_WITH_BACKOFF, NetworkError("Test error"), context
+                        RecoveryStrategy.RETRY_WITH_BACKOFF,
+                        NetworkError("Test error"),
+                        context,
                     )
                 except (RetryableError, MaxRetriesExceededError):
                     pass
@@ -377,11 +385,15 @@ class TestRetryStormPrevention:
         await asyncio.gather(*tasks, return_exceptions=True)
 
         # Should have reasonable spread of retry times
-        assert len(retry_times) == 20, f"Expected 20 retry times, got {len(retry_times)}"
+        assert (
+            len(retry_times) == 20
+        ), f"Expected 20 retry times, got {len(retry_times)}"
 
         # Should not all retry at exactly the same time
         time_variance = max(retry_times) - min(retry_times)
-        assert time_variance > 0.1, f"Retry times too synchronized: {time_variance}s variance"
+        assert (
+            time_variance > 0.1
+        ), f"Retry times too synchronized: {time_variance}s variance"
 
 
 class TestErrorContextLeaks:
@@ -530,7 +542,9 @@ class TestErrorContextLeaks:
 
         threads = []
         for i in range(num_workers):
-            thread = threading.Thread(target=error_generator, args=(i, errors_per_worker))
+            thread = threading.Thread(
+                target=error_generator, args=(i, errors_per_worker)
+            )
             threads.append(thread)
             thread.start()
 
@@ -558,7 +572,9 @@ class TestErrorContextLeaks:
         assert (
             len(worker_results) == num_workers
         ), f"Not all workers completed: {len(worker_results)}"
-        assert len(worker_errors) == 0, f"Errors during concurrent collection: {worker_errors}"
+        assert (
+            len(worker_errors) == 0
+        ), f"Errors during concurrent collection: {worker_errors}"
 
         # Should have collected errors
         total_generated = sum(result[1] for result in worker_results)
@@ -566,7 +582,9 @@ class TestErrorContextLeaks:
 
         # Should have reasonable number of errors (limited by max_errors)
         collected_errors = len(self.collector._errors)
-        assert collected_errors <= 1000, f"Too many errors collected: {collected_errors}"
+        assert (
+            collected_errors <= 1000
+        ), f"Too many errors collected: {collected_errors}"
 
 
 class TestCascadingFailurePrevention:
@@ -627,11 +645,15 @@ class TestCascadingFailurePrevention:
         # Overload database pool
         database_futures = []
         for i in range(10):  # More than max_workers
-            future = thread_pools["database"].submit(resource_intensive_task, "database", i)
+            future = thread_pools["database"].submit(
+                resource_intensive_task, "database", i
+            )
             database_futures.append(future)
 
         # Other pools should still work
-        network_future = thread_pools["network"].submit(resource_intensive_task, "network", 0)
+        network_future = thread_pools["network"].submit(
+            resource_intensive_task, "network", 0
+        )
         cache_future = thread_pools["cache"].submit(resource_intensive_task, "cache", 0)
 
         # Wait for completion
@@ -737,7 +759,9 @@ class TestErrorLoggingSecurity:
         # Mock logging
         with patch("logging.getLogger") as mock_logger:
             mock_logger.return_value.error = lambda msg: self.mock_logger("error", msg)
-            mock_logger.return_value.warning = lambda msg: self.mock_logger("warning", msg)
+            mock_logger.return_value.warning = lambda msg: self.mock_logger(
+                "warning", msg
+            )
             mock_logger.return_value.info = lambda msg: self.mock_logger("info", msg)
 
             # Log the error
@@ -806,7 +830,9 @@ class TestErrorLoggingSecurity:
         assert logging_time < 1.0, f"Error logging too slow: {logging_time:.2f}s"
 
         # Should have logged all errors
-        assert len(self.log_messages) == 1000, f"Not all errors logged: {len(self.log_messages)}"
+        assert (
+            len(self.log_messages) == 1000
+        ), f"Not all errors logged: {len(self.log_messages)}"
 
 
 if __name__ == "__main__":

@@ -129,7 +129,9 @@ def test_pipeline_performance(
 
             import shutil
 
-            shutil.copy2(source_manifest_path, cache_config_dir / "source_manifest.json")
+            shutil.copy2(
+                source_manifest_path, cache_config_dir / "source_manifest.json"
+            )
 
         # Generate test data
         generate_test_data(dataset_size, input_dir)
@@ -173,7 +175,9 @@ def test_pipeline_performance(
             "peak_memory_mb": peak_memory,
             "memory_increase_mb": final_memory - initial_memory,
             "dataset_size": dataset_size,
-            "entries_per_second": dataset_size / (end_time - start_time) if success else 0,
+            "entries_per_second": (
+                dataset_size / (end_time - start_time) if success else 0
+            ),
             "result": result,
         }
 
@@ -245,7 +249,8 @@ def run_performance_comparison():
         # Compare results
         if regular_result.get("success") and streaming_result.get("success"):
             speed_improvement = (
-                streaming_result["entries_per_second"] / regular_result["entries_per_second"]
+                streaming_result["entries_per_second"]
+                / regular_result["entries_per_second"]
             )
             memory_improvement = regular_result["memory_increase_mb"] / max(
                 streaming_result["memory_increase_mb"], 1
@@ -287,7 +292,9 @@ def run_performance_comparison():
                     f"{streaming['entries_per_second']:.1f} entries/sec"
                 )
             else:
-                print(f"  Streaming: FAILED - {streaming.get('error', 'Unknown error')}")
+                print(
+                    f"  Streaming: FAILED - {streaming.get('error', 'Unknown error')}"
+                )
 
     # Performance projection
     print(f"\n🎯 EXTRAPOLATION TO 1M ENTRIES:")
@@ -299,18 +306,23 @@ def run_performance_comparison():
         if key in results and results[key].get("success"):
             if (
                 not best_streaming
-                or results[key]["entries_per_second"] > best_streaming["entries_per_second"]
+                or results[key]["entries_per_second"]
+                > best_streaming["entries_per_second"]
             ):
                 best_streaming = results[key]
 
     if best_streaming:
         projected_time_minutes = (1_000_000 / best_streaming["entries_per_second"]) / 60
-        print(f"  Projected streaming time for 1M entries: {projected_time_minutes:.1f} minutes")
+        print(
+            f"  Projected streaming time for 1M entries: {projected_time_minutes:.1f} minutes"
+        )
 
         if projected_time_minutes <= 30:
             print(f"  🎉 MEETS PERFORMANCE TARGET! (<=30 min)")
         else:
-            print(f"  WARN  Still {projected_time_minutes/30:.1f}x slower than 30min target")
+            print(
+                f"  WARN  Still {projected_time_minutes/30:.1f}x slower than 30min target"
+            )
     else:
         print(f"  FAIL No successful streaming runs to extrapolate from")
 

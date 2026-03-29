@@ -13,7 +13,10 @@ from datetime import datetime
 sys.path.insert(0, str(Path(__file__).parent))
 
 # Import the complete pipeline
-from src.core.pipeline_v7_complete_final import V7PipelineCompleteFinal, create_v7_pipeline
+from src.core.pipeline_v7_complete_final import (
+    V7PipelineCompleteFinal,
+    create_v7_pipeline,
+)
 
 
 async def verify_integration():
@@ -43,7 +46,11 @@ async def verify_integration():
         ("Quality Gates", "src.quality.gates", "QualityGatesEnforcer"),
         ("Schema Validator", "src.validation.schema_validator", "V7SchemaValidator"),
         ("Round-trip Validator", "src.linguistics.roundtrip", "RoundTripValidator"),
-        ("Live Authority Adapters", "src.authorities.live_adapters", "LiveAuthorityAdapters"),
+        (
+            "Live Authority Adapters",
+            "src.authorities.live_adapters",
+            "LiveAuthorityAdapters",
+        ),
     ]
 
     for name, module_path, class_name in components_to_check:
@@ -59,7 +66,9 @@ async def verify_integration():
     # 2. Create pipeline instance
     print("\n2. CREATING PIPELINE INSTANCE...")
     try:
-        pipeline = create_v7_pipeline(mode="quick", enable_live=False, enable_memgraph=False)
+        pipeline = create_v7_pipeline(
+            mode="quick", enable_live=False, enable_memgraph=False
+        )
         print("  ✅ Pipeline created successfully")
 
         # Check for new components
@@ -126,7 +135,10 @@ async def verify_integration():
         validated = await pipeline._stage_8_global_validate(test_entries.copy())
         print(f"    ✅ Validated {len(validated)}/{len(test_entries)} entries")
 
-        results["stages"]["stage_8"] = {"tested": True, "validated_count": len(validated)}
+        results["stages"]["stage_8"] = {
+            "tested": True,
+            "validated_count": len(validated),
+        }
     except Exception as e:
         print(f"    ❌ Stage 8 test failed: {e}")
         results["stages"]["stage_8"] = {"tested": False, "error": str(e)}
@@ -168,7 +180,10 @@ async def verify_integration():
             }
         else:
             print("  ⚠️ Idempotency gate not available")
-            results["tests"]["idempotency"] = {"tested": False, "reason": "Gate not available"}
+            results["tests"]["idempotency"] = {
+                "tested": False,
+                "reason": "Gate not available",
+            }
 
     except Exception as e:
         print(f"  ❌ Idempotency test failed: {e}")
@@ -187,7 +202,9 @@ async def verify_integration():
     total_stages = len(results.get("stages", {}))
 
     pipeline_ok = results.get("pipeline", {}).get("created", False)
-    idempotency_ok = results.get("tests", {}).get("idempotency", {}).get("passed", False)
+    idempotency_ok = (
+        results.get("tests", {}).get("idempotency", {}).get("passed", False)
+    )
 
     print(f"Components: {components_ok}/{total_components} available")
     print(f"Pipeline: {'✅ Created' if pipeline_ok else '❌ Failed'}")

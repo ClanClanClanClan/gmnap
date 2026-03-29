@@ -77,7 +77,9 @@ def categorize_failure(failure: dict) -> dict:
     ]
 
     if expected == "A1" and detected == "G1":
-        has_hispanic_surname = any(surname in name.lower() for surname in hispanic_surnames)
+        has_hispanic_surname = any(
+            surname in name.lower() for surname in hispanic_surnames
+        )
 
         if has_hispanic_surname:
             return {
@@ -90,7 +92,9 @@ def categorize_failure(failure: dict) -> dict:
 
     # Category 4: A5 (Caribbean) vs G1 (Latin America) - Same surnames
     if expected == "A5" and detected == "G1":
-        has_hispanic_surname = any(surname in name.lower() for surname in hispanic_surnames)
+        has_hispanic_surname = any(
+            surname in name.lower() for surname in hispanic_surnames
+        )
 
         if has_hispanic_surname:
             return {
@@ -256,7 +260,9 @@ def main():
     print()
 
     # Scenario 3: Conservative (exclude R0/Z0 + relabel obvious)
-    accuracy_conservative = ((corrected_correct + relabel_count) / correctable_entries) * 100
+    accuracy_conservative = (
+        (corrected_correct + relabel_count) / correctable_entries
+    ) * 100
 
     print(f"3. Conservative estimate (exclude fallbacks + relabel obvious):")
     print(f"   Accuracy: {accuracy_conservative:.2f}%")
@@ -264,7 +270,10 @@ def main():
 
     # Save detailed analysis
     output_file = (
-        Path(__file__).parent.parent.parent / "data" / "analysis" / "high_conf_disagreements.json"
+        Path(__file__).parent.parent.parent
+        / "data"
+        / "analysis"
+        / "high_conf_disagreements.json"
     )
     output_file.parent.mkdir(exist_ok=True, parents=True)
 

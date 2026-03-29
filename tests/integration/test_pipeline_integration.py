@@ -123,7 +123,9 @@ class TestPipelineIntegration:
         with patch("src.authorities.tier0.openalex.OpenAlexFetcher") as mock_fetcher:
             mock_instance = Mock()
             mock_instance.fetch = AsyncMock(
-                return_value=Mock(status=Mock(value="not_found"), error_message="Not found")
+                return_value=Mock(
+                    status=Mock(value="not_found"), error_message="Not found"
+                )
             )
             mock_fetcher.return_value = mock_instance
 
@@ -149,15 +151,21 @@ class TestPipelineIntegration:
             return Mock()
 
         # Mock all stages
-        with patch.object(pipeline, "_stage_0_config", side_effect=lambda: mock_stage("stage_0")):
+        with patch.object(
+            pipeline, "_stage_0_config", side_effect=lambda: mock_stage("stage_0")
+        ):
             with patch.object(
                 pipeline, "_stage_1_ingest", side_effect=lambda x: mock_stage("stage_1")
             ):
                 with patch.object(
-                    pipeline, "_stage_2_detect_region", side_effect=lambda: mock_stage("stage_2")
+                    pipeline,
+                    "_stage_2_detect_region",
+                    side_effect=lambda: mock_stage("stage_2"),
                 ):
                     with patch.object(
-                        pipeline, "_stage_3_region_hooks", side_effect=lambda: mock_stage("stage_3")
+                        pipeline,
+                        "_stage_3_region_hooks",
+                        side_effect=lambda: mock_stage("stage_3"),
                     ):
                         with patch.object(
                             pipeline,
@@ -187,12 +195,16 @@ class TestPipelineIntegration:
                                             with patch.object(
                                                 pipeline,
                                                 "_stage_9_report",
-                                                side_effect=lambda: mock_stage("stage_9"),
+                                                side_effect=lambda: mock_stage(
+                                                    "stage_9"
+                                                ),
                                             ):
                                                 with patch.object(
                                                     pipeline,
                                                     "_stage_10_idempotency_check",
-                                                    side_effect=lambda: mock_stage("stage_10"),
+                                                    side_effect=lambda: mock_stage(
+                                                        "stage_10"
+                                                    ),
                                                 ):
                                                     await pipeline.run(self.input_dir)
 
@@ -316,7 +328,9 @@ class TestPipelineIntegration:
 
             # Mock quota manager
             pipeline._quota_manager = Mock()
-            pipeline._quota_manager.batch_fetch = AsyncMock(return_value=[mock_response])
+            pipeline._quota_manager.batch_fetch = AsyncMock(
+                return_value=[mock_response]
+            )
 
             # Run first 5 stages
             await pipeline._stage_0_config()
@@ -546,7 +560,9 @@ class TestPipelineIntegration:
         pipeline = GMNAPPipeline(self.config, PipelineMode.QUICK)
 
         # Mock stage to raise exception
-        with patch.object(pipeline, "_stage_2_detect_region", side_effect=Exception("Test error")):
+        with patch.object(
+            pipeline, "_stage_2_detect_region", side_effect=Exception("Test error")
+        ):
             with pytest.raises(Exception):
                 await pipeline.run(self.input_dir)
 

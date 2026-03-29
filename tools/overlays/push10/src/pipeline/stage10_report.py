@@ -51,13 +51,20 @@ def _list_authorities(batch: List[Dict[str, Any]]) -> Dict[str, int]:
     return dict(sorted(c.items(), key=lambda kv: (-kv[1], kv[0])))
 
 
-def _quality_gate_eval(specs: Dict[str, Any], metrics: Dict[str, Any], mode: str) -> Dict[str, Any]:
+def _quality_gate_eval(
+    specs: Dict[str, Any], metrics: Dict[str, Any], mode: str
+) -> Dict[str, Any]:
     gates = specs.get("quality_gates", {}) or {}
     mode = mode or "Quick"
     out = {}
     # Graph coherence
     min_coh = gates.get("graph_coherence_score_min", {}).get(
-        mode.lower() if isinstance(gates.get("graph_coherence_score_min"), dict) else None, None
+        (
+            mode.lower()
+            if isinstance(gates.get("graph_coherence_score_min"), dict)
+            else None
+        ),
+        None,
     )
     if isinstance(gates.get("graph_coherence_score_min"), dict):
         min_coh = gates["graph_coherence_score_min"].get(mode.lower(), None) or gates[
@@ -70,11 +77,21 @@ def _quality_gate_eval(specs: Dict[str, Any], metrics: Dict[str, Any], mode: str
             else 0.85
         )
     coh = float(metrics.get("graph_coherence", metrics.get("coherence", 0.0)))
-    out["graph_coherence"] = {"value": coh, "min": float(min_coh), "pass": coh >= float(min_coh)}
+    out["graph_coherence"] = {
+        "value": coh,
+        "min": float(min_coh),
+        "pass": coh >= float(min_coh),
+    }
     # Round-trip rate
     rrt_min = float(gates.get("roundtrip_script_rate_min", 0.97))
-    rrt = float(metrics.get("roundtrip_script_rate", metrics.get("cjk_roundtrip_rate", 1.0)))
-    out["roundtrip_script_rate"] = {"value": rrt, "min": rrt_min, "pass": rrt >= rrt_min}
+    rrt = float(
+        metrics.get("roundtrip_script_rate", metrics.get("cjk_roundtrip_rate", 1.0))
+    )
+    out["roundtrip_script_rate"] = {
+        "value": rrt,
+        "min": rrt_min,
+        "pass": rrt >= rrt_min,
+    }
     # Idempotent diff bytes
     idem_max = int(gates.get("idempotent_diff_bytes_max", 0))
     diff_bytes = int(metrics.get("idempotent_diff_bytes", 0))
@@ -92,14 +109,18 @@ def _load_datacite_schema(schema_dir: str) -> Dict[str, Any]:
 
 
 def _render_markdown(template_dir: str, context: Dict[str, Any]) -> str:
-    env = Environment(loader=FileSystemLoader(template_dir), autoescape=select_autoescape())
+    env = Environment(
+        loader=FileSystemLoader(template_dir), autoescape=select_autoescape()
+    )
     return env.get_template("report.md.j2").render(**context)
 
 
 def _build_doi_draft(
     specs: Dict[str, Any], run_hash: str, snapshot_dir: str, batch: List[Dict[str, Any]]
 ) -> Dict[str, Any]:
-    shoulder = (specs.get("doi_minting") or {}).get("shoulder") or "10.3929/ethz-lineage"
+    shoulder = (specs.get("doi_minting") or {}).get(
+        "shoulder"
+    ) or "10.3929/ethz-lineage"
     now = datetime.datetime.utcnow()
     creators = [
         {
@@ -107,7 +128,9 @@ def _build_doi_draft(
             "name": "ETH Zürich — Global Name Authority Project (MathLineage)",
         }
     ]
-    titles = [{"title": f"MathLineage snapshot {now.date().isoformat()} (run {run_hash})"}]
+    titles = [
+        {"title": f"MathLineage snapshot {now.date().isoformat()} (run {run_hash})"}
+    ]
     related = [
         {
             "relationType": "IsIdenticalTo",
@@ -122,7 +145,10 @@ def _build_doi_draft(
         "titles": titles,
         "publisher": "ETH Zürich",
         "publicationYear": now.year,
-        "types": {"resourceTypeGeneral": "Dataset", "resourceType": "Authority snapshot"},
+        "types": {
+            "resourceTypeGeneral": "Dataset",
+            "resourceType": "Authority snapshot",
+        },
         "descriptions": [
             {
                 "descriptionType": "Abstract",
@@ -190,14 +216,18 @@ def generate_report(
     # Archive manifest + attribution
     archive_manifest = _write_archive_manifest(snapshot_dir)
     attribution_text = generate_attribution_text()
-    pathlib.Path(snapshot_dir, "ATTRIBUTION.txt").write_text(attribution_text, encoding="utf-8")
+    pathlib.Path(snapshot_dir, "ATTRIBUTION.txt").write_text(
+        attribution_text, encoding="utf-8"
+    )
 
     # DOI draft
     doi_draft = _build_doi_draft(specs, run_hash, snapshot_dir, batch)
     schema = _load_datacite_schema(schema_dir)
     Draft202012Validator(schema).validate(doi_draft)
     doi_path = pathlib.Path(snapshot_dir) / "doi_draft.json"
-    doi_path.write_text(json.dumps(doi_draft, ensure_ascii=False, indent=2), encoding="utf-8")
+    doi_path.write_text(
+        json.dumps(doi_draft, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     DOI_DRAFTS_CREATED.inc()
 
     # Markdown report
@@ -210,7 +240,9 @@ def generate_report(
         "authorities": authorities,
         "gates": gates,
         "snapshot_dir": snapshot_dir,
-        "shortform_top": sorted(shortform_clusters.items(), key=lambda kv: (-kv[1], kv[0]))[:25],
+        "shortform_top": sorted(
+            shortform_clusters.items(), key=lambda kv: (-kv[1], kv[0])
+        )[:25],
     }
     md = _render_markdown(templates_dir, context)
     report_path = pathlib.Path(snapshot_dir) / "report.md"
@@ -222,12 +254,17 @@ def generate_report(
     provider = (archive_cfg.get("provider") or "").lower()
     default_method = (
         "sftp"
-        if (archive_cfg.get("protocol", "").lower() == "sftp" or provider.find("archive") >= 0)
+        if (
+            archive_cfg.get("protocol", "").lower() == "sftp"
+            or provider.find("archive") >= 0
+        )
         else "local_zip"
     )
     method = archive_method or default_method
     archived = archive_snapshot(
-        snapshot_dir, target_dir=archive_target or archive_cfg.get("path"), method=method
+        snapshot_dir,
+        target_dir=archive_target or archive_cfg.get("path"),
+        method=method,
     )
 
     payload = {
@@ -243,7 +280,9 @@ def generate_report(
         "authorities": authorities,
     }
     json_path = pathlib.Path(snapshot_dir) / "report.json"
-    json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    json_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     # Return directory (snapshot) and the payload
     return snapshot_dir, payload

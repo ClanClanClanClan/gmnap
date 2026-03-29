@@ -91,7 +91,20 @@ for region in sorted(missing_regions):
 
 # Prioritize by mathematician population impact
 HIGH_PRIORITY = ["A4", "B3", "E2", "E5", "F1", "F2", "C5", "C6"]
-MEDIUM_PRIORITY = ["A5", "C7", "C8", "C9", "D2", "D3", "D4", "D5", "E6", "E7", "F3", "F4"]
+MEDIUM_PRIORITY = [
+    "A5",
+    "C7",
+    "C8",
+    "C9",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "E6",
+    "E7",
+    "F3",
+    "F4",
+]
 LOW_PRIORITY = ["H1", "R0", "Z0"]
 
 print(f"\n🎯 IMPLEMENTATION PRIORITY:")

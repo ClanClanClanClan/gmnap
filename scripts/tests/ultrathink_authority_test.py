@@ -136,7 +136,9 @@ def test_enricher():
         result = asyncio.run(enricher.enrich(entry))
 
         if "AuthoritySources" in result and result["AuthoritySources"]:
-            print(f"  ✅ Enricher works - added {len(result['AuthoritySources'])} sources")
+            print(
+                f"  ✅ Enricher works - added {len(result['AuthoritySources'])} sources"
+            )
             return True
         else:
             print(f"  ❌ Enricher added no authority sources")

@@ -64,7 +64,9 @@ for input_name, got, expected in failures:
             surname_failures[surname] = []
         surname_failures[surname].append((input_name, got, expected))
 
-sorted_surnames = sorted(surname_failures.items(), key=lambda x: len(x[1]), reverse=True)
+sorted_surnames = sorted(
+    surname_failures.items(), key=lambda x: len(x[1]), reverse=True
+)
 print("Top surname failure patterns:")
 for surname, surname_fails in sorted_surnames[:10]:
     print(f"\n{surname} ({len(surname_fails)} failures):")

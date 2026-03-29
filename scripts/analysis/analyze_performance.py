@@ -86,7 +86,9 @@ def profile_pipeline_stages():
         result = manager.detect_region(entry)  # Pass the full entry dict
         duration = time.time() - start
         detection_times.append(duration)
-        print(f"  {entry['name']:20} -> {result.region_code:10} ({duration*1000:.1f}ms)")
+        print(
+            f"  {entry['name']:20} -> {result.region_code:10} ({duration*1000:.1f}ms)"
+        )
 
     avg_detection = sum(detection_times) / len(detection_times)
     print(f"\n  Average detection time: {avg_detection*1000:.1f}ms")
@@ -113,7 +115,9 @@ def profile_pipeline_stages():
         stats = manager.get_cache_stats()
         print(f"    Processed {len(duplicate_test)} entries in {cache_time*1000:.1f}ms")
         print(f"    Final hit rate: {stats['hit_rate']:.1%}")
-        print(f"    Average time per entry: {cache_time*1000/len(duplicate_test):.2f}ms")
+        print(
+            f"    Average time per entry: {cache_time*1000/len(duplicate_test):.2f}ms"
+        )
 
     # Profile full pipeline
     print("\n3. PROFILING FULL PIPELINE:")
@@ -138,7 +142,9 @@ def profile_pipeline_stages():
         if processing_times:
             avg_processing = sum(processing_times) / len(processing_times)
             print(f"\n  Average processing time: {avg_processing*1000:.1f}ms per entry")
-            print(f"  Projected for 1M entries: {avg_processing * 1_000_000 / 60:.1f} minutes")
+            print(
+                f"  Projected for 1M entries: {avg_processing * 1_000_000 / 60:.1f} minutes"
+            )
     except Exception as e:
         print(f"  Pipeline initialization failed: {e}")
 
@@ -180,7 +186,13 @@ def detailed_profiling():
     profiler = cProfile.Profile()
 
     manager = RegionManager()
-    test_names = ["John Smith", "김철수", "José García", "李明", "محمد الأحمد"] * 20  # 100 names
+    test_names = [
+        "John Smith",
+        "김철수",
+        "José García",
+        "李明",
+        "محمد الأحمد",
+    ] * 20  # 100 names
 
     profiler.enable()
 
@@ -213,7 +225,9 @@ def analyze_singleton_issue():
         # Check for singleton pattern
         has_instances = "_instances" in content
         has_new = "__new__" in content
-        has_class_var = "cls._instance" in content or "RegionManager._instance" in content
+        has_class_var = (
+            "cls._instance" in content or "RegionManager._instance" in content
+        )
 
         print(f"  Has _instances dict: {has_instances}")
         print(f"  Has __new__ method: {has_new}")

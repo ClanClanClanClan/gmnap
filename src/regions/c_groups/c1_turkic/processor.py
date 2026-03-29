@@ -44,8 +44,18 @@ class C1TurkicProcessor(RegionSpec):
 
         # Script reform schedules (key feature of C1)
         self.script_reforms = {
-            "UZ": {"start": 2023, "status": "active", "from": "Cyrillic", "to": "Latin"},
-            "TM": {"start": 2019, "status": "active", "from": "Cyrillic", "to": "Latin"},
+            "UZ": {
+                "start": 2023,
+                "status": "active",
+                "from": "Cyrillic",
+                "to": "Latin",
+            },
+            "TM": {
+                "start": 2019,
+                "status": "active",
+                "from": "Cyrillic",
+                "to": "Latin",
+            },
             "KZ": {
                 "start": 2023,
                 "end": 2031,
@@ -53,8 +63,18 @@ class C1TurkicProcessor(RegionSpec):
                 "from": "Cyrillic",
                 "to": "Latin",
             },
-            "AZ": {"start": 1991, "status": "completed", "from": "Cyrillic", "to": "Latin"},
-            "TR": {"start": 1928, "status": "completed", "from": "Arabic", "to": "Latin"},
+            "AZ": {
+                "start": 1991,
+                "status": "completed",
+                "from": "Cyrillic",
+                "to": "Latin",
+            },
+            "TR": {
+                "start": 1928,
+                "status": "completed",
+                "from": "Arabic",
+                "to": "Latin",
+            },
         }
 
         # Latin characters used in Turkic languages
@@ -259,7 +279,9 @@ class C1TurkicProcessor(RegionSpec):
         }
 
         self.allowed_chars = (
-            self.turkic_latin_chars | self.turkic_cyrillic_chars | self.turkic_arabic_chars
+            self.turkic_latin_chars
+            | self.turkic_cyrillic_chars
+            | self.turkic_arabic_chars
         )
 
         # Turkic patronymic suffixes by country/language
@@ -328,7 +350,11 @@ class C1TurkicProcessor(RegionSpec):
         self.country_patterns = {
             "TR": {"script": "Latin", "apostrophe": False, "case_sensitive": True},
             "AZ": {"script": "Latin", "apostrophe": False, "case_sensitive": True},
-            "UZ": {"script": "Latin", "apostrophe": True, "case_sensitive": False},  # Uses oʻ, gʻ
+            "UZ": {
+                "script": "Latin",
+                "apostrophe": True,
+                "case_sensitive": False,
+            },  # Uses oʻ, gʻ
             "TM": {"script": "Latin", "apostrophe": False, "case_sensitive": True},
             "KG": {"script": "Cyrillic", "apostrophe": False, "case_sensitive": True},
             "KZ": {"script": "Cyrillic", "apostrophe": False, "case_sensitive": True},
@@ -457,7 +483,9 @@ class C1TurkicProcessor(RegionSpec):
             entry["Variants"]["Synthesised"].append(variant)
 
         # Rule 6: Turkish İ/i ambiguity – generate proper capitalization variants
-        if components.get("likely_country") == "TR" or self._has_turkish_chars(canonical):
+        if components.get("likely_country") == "TR" or self._has_turkish_chars(
+            canonical
+        ):
             turkish_variants = self._generate_turkish_case_variants(canonical)
             for variant in turkish_variants:
                 if variant["str"] != canonical:
@@ -466,12 +494,16 @@ class C1TurkicProcessor(RegionSpec):
         # Rule 20: Turkic -oğlu/-ogly – patronymic suffix handling
         if components.get("is_patronymic"):
             # Store detailed patronymic information for V7 compliance
-            patronymic_info = self._extract_turkic_patronymic_details(canonical, components)
+            patronymic_info = self._extract_turkic_patronymic_details(
+                canonical, components
+            )
             if patronymic_info:
                 entry["RegionalExtras"].update(patronymic_info)
 
             # Generate patronymic variants
-            patronymic_variants = self._generate_patronymic_variants(canonical, components)
+            patronymic_variants = self._generate_patronymic_variants(
+                canonical, components
+            )
             for variant in patronymic_variants:
                 entry["Variants"]["Synthesised"].append(variant)
 
@@ -515,9 +547,9 @@ class C1TurkicProcessor(RegionSpec):
         country = self._detect_country(name, script)
         if country:
             components["likely_country"] = country
-            components["script_reform_status"] = self.script_reforms.get(country, {}).get(
-                "status", "stable"
-            )
+            components["script_reform_status"] = self.script_reforms.get(
+                country, {}
+            ).get("status", "stable")
 
         return components
 
@@ -566,7 +598,9 @@ class C1TurkicProcessor(RegionSpec):
     def _is_patronymic(self, name: str) -> bool:
         """Check if name follows patronymic pattern."""
         name_lower = name.lower()
-        return any(name_lower.endswith(suffix) for suffix in self.patronymic_suffixes.keys())
+        return any(
+            name_lower.endswith(suffix) for suffix in self.patronymic_suffixes.keys()
+        )
 
     def _generate_script_variants(
         self, name: str, components: Dict[str, Any]
@@ -579,7 +613,9 @@ class C1TurkicProcessor(RegionSpec):
         if current_script in ["Cyrillic", "Arabic"]:
             ascii_name = self._transliterate_to_ascii(name, current_script)
             if ascii_name != name:
-                variants.append({"str": ascii_name, "type": f"{current_script.lower()}-to-latin"})
+                variants.append(
+                    {"str": ascii_name, "type": f"{current_script.lower()}-to-latin"}
+                )
 
         return variants
 
@@ -636,18 +672,40 @@ class C1TurkicProcessor(RegionSpec):
             for char in name:
                 if char.lower() in cyrillic_to_latin:
                     transliterated = cyrillic_to_latin[char.lower()]
-                    result += transliterated.capitalize() if char.isupper() else transliterated
+                    result += (
+                        transliterated.capitalize()
+                        if char.isupper()
+                        else transliterated
+                    )
                 else:
                     result += char
             return result
 
         # For Arabic, use basic Unicode normalization
-        return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii")
+        return (
+            unicodedata.normalize("NFKD", name)
+            .encode("ascii", "ignore")
+            .decode("ascii")
+        )
 
     def _has_turkish_chars(self, name: str) -> bool:
         """Check if name contains Turkish-specific characters."""
         # Turkish-specific characters that indicate Turkish language
-        turkish_chars = {"ç", "ğ", "ı", "İ", "ö", "ş", "ü", "Ç", "Ğ", "I", "Ö", "Ş", "Ü"}
+        turkish_chars = {
+            "ç",
+            "ğ",
+            "ı",
+            "İ",
+            "ö",
+            "ş",
+            "ü",
+            "Ç",
+            "Ğ",
+            "I",
+            "Ö",
+            "Ş",
+            "Ü",
+        }
         return any(c in turkish_chars for c in name)
 
     def _generate_turkish_case_variants(self, name: str) -> List[Dict[str, str]]:
@@ -684,7 +742,9 @@ class C1TurkicProcessor(RegionSpec):
         # This helps with systems that don't understand Turkish capitalization
         international_variant = self._normalize_turkish_case_for_international(name)
         if international_variant != name:
-            variants.append({"str": international_variant, "type": "international-compatible"})
+            variants.append(
+                {"str": international_variant, "type": "international-compatible"}
+            )
 
         return variants
 
@@ -904,7 +964,9 @@ class C1TurkicProcessor(RegionSpec):
         }
 
         # Reverse mapping for Latin → Cyrillic
-        kazakh_latin_to_cyrillic = {v: k for k, v in kazakh_cyrillic_to_latin.items() if v}
+        kazakh_latin_to_cyrillic = {
+            v: k for k, v in kazakh_cyrillic_to_latin.items() if v
+        }
 
         # Additional Latin → Cyrillic mappings for ambiguous cases
         kazakh_latin_to_cyrillic.update(
@@ -966,7 +1028,9 @@ class C1TurkicProcessor(RegionSpec):
 
         return variants
 
-    def _transliterate_kazakh_cyrillic_to_latin(self, name: str, mapping: Dict[str, str]) -> str:
+    def _transliterate_kazakh_cyrillic_to_latin(
+        self, name: str, mapping: Dict[str, str]
+    ) -> str:
         """Transliterate Kazakh name from Cyrillic to Latin script."""
         result = []
         for char in name:
@@ -984,7 +1048,9 @@ class C1TurkicProcessor(RegionSpec):
 
         return transliterated
 
-    def _transliterate_kazakh_latin_to_cyrillic(self, name: str, mapping: Dict[str, str]) -> str:
+    def _transliterate_kazakh_latin_to_cyrillic(
+        self, name: str, mapping: Dict[str, str]
+    ) -> str:
         """Transliterate Kazakh name from Latin to Cyrillic script."""
         result = []
         i = 0
@@ -1144,13 +1210,17 @@ class C1TurkicProcessor(RegionSpec):
                 )
 
                 # Generate alternative spellings/variants of the suffix
-                alternatives = self._get_patronymic_alternatives(matched_suffix, suffix_info)
+                alternatives = self._get_patronymic_alternatives(
+                    matched_suffix, suffix_info
+                )
                 if alternatives:
                     patronymic_details["turkic_patronymic_alternatives"] = alternatives
 
         return patronymic_details
 
-    def _get_patronymic_alternatives(self, suffix: str, suffix_info: Dict[str, str]) -> List[str]:
+    def _get_patronymic_alternatives(
+        self, suffix: str, suffix_info: Dict[str, str]
+    ) -> List[str]:
         """Get alternative spellings of Turkic patronymic suffixes."""
         alternatives = []
 
@@ -1202,7 +1272,9 @@ class C1TurkicProcessor(RegionSpec):
         if not self._is_valid_turkic_name(canonical):
             invalid_chars = (
                 set(canonical)
-                - set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'")
+                - set(
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'"
+                )
                 - self.allowed_chars
             )
             if invalid_chars:
@@ -1212,19 +1284,27 @@ class C1TurkicProcessor(RegionSpec):
         components = entry.get("RegionalExtras", {})
         script = components.get("script")
 
-        if script == "Arabic" and not any(c in self.turkic_arabic_chars for c in canonical):
-            raise RegionRuleError("Name marked as Arabic script but contains no Arabic characters")
+        if script == "Arabic" and not any(
+            c in self.turkic_arabic_chars for c in canonical
+        ):
+            raise RegionRuleError(
+                "Name marked as Arabic script but contains no Arabic characters"
+            )
 
         # Validate patronymic consistency
         if components.get("is_patronymic"):
             family = components.get("family_name", "")
             if not self._is_patronymic(family):
-                raise RegionRuleError(f"Marked as patronymic but doesn't match pattern: {family}")
+                raise RegionRuleError(
+                    f"Marked as patronymic but doesn't match pattern: {family}"
+                )
 
     def _is_valid_turkic_name(self, name: str) -> bool:
         """Check if name contains valid Turkic characters."""
         # Allow basic Latin, Turkic special characters, numbers, and common punctuation
-        allowed = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'")
+        allowed = set(
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'"
+        )
         allowed.update(self.allowed_chars)
 
         return all(c in allowed for c in name)

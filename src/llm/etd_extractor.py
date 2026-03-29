@@ -15,7 +15,9 @@ class CostMeter:
     def add(self, chf: float):
         self.spent += chf
         if self.spent > self.cap:
-            raise RuntimeError(f"LLM cost cap exceeded: {self.spent:.2f} CHF > {self.cap:.2f} CHF")
+            raise RuntimeError(
+                f"LLM cost cap exceeded: {self.spent:.2f} CHF > {self.cap:.2f} CHF"
+            )
 
 
 def validate_llm_json(obj: Dict, schema: Dict) -> Tuple[bool, List[str]]:

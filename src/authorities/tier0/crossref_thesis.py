@@ -90,7 +90,11 @@ class CrossrefThesisFetcher(AuthorityFetcher):
 
     def _get_headers(self) -> Dict[str, str]:
         """Get request headers with optional email."""
-        headers = {"User-Agent": f"GMNAP/7.0 (mailto:{self.email})" if self.email else "GMNAP/7.0"}
+        headers = {
+            "User-Agent": (
+                f"GMNAP/7.0 (mailto:{self.email})" if self.email else "GMNAP/7.0"
+            )
+        }
         return headers
 
     async def search(self, query: str, limit: int = 10) -> List[str]:
@@ -116,7 +120,9 @@ class CrossrefThesisFetcher(AuthorityFetcher):
         url = f"{self.BASE_URL}/works"
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, params=params, headers=self._get_headers()) as response:
+            async with session.get(
+                url, params=params, headers=self._get_headers()
+            ) as response:
                 if response.status != 200:
                     logger.warning(f"Crossref Thesis search returned {response.status}")
                     return []
@@ -147,7 +153,9 @@ class CrossrefThesisFetcher(AuthorityFetcher):
         # Clean DOI - handle both string and dict inputs
         if isinstance(identifier, dict):
             # If we get a dict, try to extract the actual identifier
-            identifier = identifier.get("identifier", identifier.get("query", str(identifier)))
+            identifier = identifier.get(
+                "identifier", identifier.get("query", str(identifier))
+            )
 
         if isinstance(identifier, str) and identifier.startswith("http"):
             identifier = identifier.split("doi.org/")[-1]
@@ -160,7 +168,9 @@ class CrossrefThesisFetcher(AuthorityFetcher):
                     logger.info(f"DOI not found: {identifier}")
                     return None
                 elif response.status != 200:
-                    logger.warning(f"Crossref returned {response.status} for {identifier}")
+                    logger.warning(
+                        f"Crossref returned {response.status} for {identifier}"
+                    )
                     return None
 
                 data = await response.json()
@@ -208,7 +218,9 @@ class CrossrefThesisFetcher(AuthorityFetcher):
                     # Remove XML/HTML tags
                     import re
 
-                    record.abstract = re.sub("<[^<]+?>", "", abstract)[:500]  # First 500 chars
+                    record.abstract = re.sub("<[^<]+?>", "", abstract)[
+                        :500
+                    ]  # First 500 chars
 
                 # Extract subject areas
                 subjects = message.get("subject", [])
@@ -285,7 +297,9 @@ class CrossrefThesisFetcher(AuthorityFetcher):
         url = f"{self.BASE_URL}/works"
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, params=params, headers=self._get_headers()) as response:
+            async with session.get(
+                url, params=params, headers=self._get_headers()
+            ) as response:
                 if response.status != 200:
                     logger.warning(f"Crossref search returned {response.status}")
                     return []
@@ -369,7 +383,11 @@ class CrossrefThesisFetcher(AuthorityFetcher):
 
                     for advisor in record.advisor_names:
                         entry["Advisors"].append(
-                            {"name": advisor, "type": "doctoral", "source": "Crossref_Thesis"}
+                            {
+                                "name": advisor,
+                                "type": "doctoral",
+                                "source": "Crossref_Thesis",
+                            }
                         )
 
                 # Add committee members
@@ -391,7 +409,11 @@ class CrossrefThesisFetcher(AuthorityFetcher):
                     entry["ResearchAreas"] = list(set(entry["ResearchAreas"]))  # Dedupe
 
                 # Estimate birth year from PhD year (typically age 28)
-                if record.thesis_year and record.degree == "PhD" and not entry.get("BirthYear"):
+                if (
+                    record.thesis_year
+                    and record.degree == "PhD"
+                    and not entry.get("BirthYear")
+                ):
                     entry["BirthYear"] = record.thesis_year - 28
 
                 logger.info(f"Enriched {name} with Crossref thesis data")

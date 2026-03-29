@@ -12,7 +12,9 @@ def get_independent_failures():
     """Get current failures from Independent dataset"""
     try:
         # Load independent dataset
-        with open("data/expanded_independent_validation_dataset.json", "r", encoding="utf8") as f:
+        with open(
+            "data/expanded_independent_validation_dataset.json", "r", encoding="utf8"
+        ) as f:
             data = json.load(f)
 
         failures = []
@@ -142,7 +144,8 @@ def systematic_improvement_demo():
 
         # Try to find safe fix
         result = validator.find_safe_weight_for_case(
-            failing_case_input=failure["input"], failing_case_expected=failure["expected"]
+            failing_case_input=failure["input"],
+            failing_case_expected=failure["expected"],
         )
 
         if result["success"]:
@@ -178,7 +181,9 @@ def systematic_improvement_demo():
     current_independent = 145  # Current successful cases
     total_independent = 165  # Total cases
 
-    new_success_rate = (current_independent + estimated_improvement) / total_independent * 100
+    new_success_rate = (
+        (current_independent + estimated_improvement) / total_independent * 100
+    )
     print(f"\\n🎯 ESTIMATED IMPROVEMENT:")
     print(f"Current Independent: {current_independent}/{total_independent} = 87.88%")
     print(

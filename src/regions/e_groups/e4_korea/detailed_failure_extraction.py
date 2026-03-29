@@ -37,7 +37,9 @@ def find_hangul(variants):
 
 def character_by_character_analysis(original, roundtrip):
     """Analyze character-by-character differences"""
-    orig_chars = list(original.lower().replace(" ", "").replace(",", "").replace("-", ""))
+    orig_chars = list(
+        original.lower().replace(" ", "").replace(",", "").replace("-", "")
+    )
     round_chars = list(roundtrip.lower().replace(" ", ""))
 
     differences = []
@@ -69,7 +71,9 @@ def character_by_character_analysis(original, roundtrip):
                     ):
                         # Missing characters in roundtrip
                         missing = "".join(orig_chars[i:k])
-                        differences.append(f"Missing '{missing}' before '{orig_chars[k]}'")
+                        differences.append(
+                            f"Missing '{missing}' before '{orig_chars[k]}'"
+                        )
                         i = k
                         match_found = True
                         break
@@ -159,7 +163,9 @@ def extract_all_failures():
             successes += 1
 
     total = successes + len(failures)
-    print(f"Analysis complete: {successes}/{total} = {successes/total*100:.2f}% success")
+    print(
+        f"Analysis complete: {successes}/{total} = {successes/total*100:.2f}% success"
+    )
     print(f"Found {len(failures)} failure cases for expert analysis")
 
     return failures
@@ -206,7 +212,9 @@ def analyze_systematic_patterns(failures):
         patterns[pattern].append(failure)
 
     print("Pattern distribution:")
-    for pattern, cases in sorted(patterns.items(), key=lambda x: len(x[1]), reverse=True):
+    for pattern, cases in sorted(
+        patterns.items(), key=lambda x: len(x[1]), reverse=True
+    ):
         print(f"\n{pattern}: {len(cases)} cases ({len(cases)/len(failures)*100:.1f}%)")
 
         # Show top examples
@@ -228,11 +236,15 @@ def generate_expert_recommendations(patterns):
 
     recommendations = []
 
-    for pattern, cases in sorted(patterns.items(), key=lambda x: len(x[1]), reverse=True):
+    for pattern, cases in sorted(
+        patterns.items(), key=lambda x: len(x[1]), reverse=True
+    ):
         rec = {
             "pattern": pattern,
             "case_count": len(cases),
-            "priority": "HIGH" if len(cases) >= 5 else "MEDIUM" if len(cases) >= 2 else "LOW",
+            "priority": (
+                "HIGH" if len(cases) >= 5 else "MEDIUM" if len(cases) >= 2 else "LOW"
+            ),
             "examples": [],
             "suggested_fixes": [],
             "estimated_impact": len(cases),
@@ -291,7 +303,9 @@ def generate_expert_recommendations(patterns):
     # Display recommendations
     for rec in recommendations:
         print(f"\n{rec['pattern'].upper()} - {rec['priority']} PRIORITY")
-        print(f"Cases: {rec['case_count']} | Estimated Impact: +{rec['estimated_impact']} cases")
+        print(
+            f"Cases: {rec['case_count']} | Estimated Impact: +{rec['estimated_impact']} cases"
+        )
 
         print("Examples:")
         for ex in rec["examples"]:
@@ -324,7 +338,9 @@ def save_expert_analysis(failures, patterns, recommendations):
         json.dump(analysis, f, indent=2, ensure_ascii=False)
 
     print(f"\n💾 Complete analysis saved to: expert_failure_analysis.json")
-    print(f"📊 Total data points: {len(failures)} failures across {len(patterns)} patterns")
+    print(
+        f"📊 Total data points: {len(failures)} failures across {len(patterns)} patterns"
+    )
 
 
 def main():
@@ -358,7 +374,9 @@ def main():
     print(f"  • Complete technical recommendations provided")
     print(f"  • Analysis saved to expert_failure_analysis.json")
 
-    print(f"\nNext step: Apply linguistic expertise to top {min(5, len(patterns))} patterns")
+    print(
+        f"\nNext step: Apply linguistic expertise to top {min(5, len(patterns))} patterns"
+    )
     print(f"Expected result: Close 2.73% performance gap to achieve ≥97% v7 compliance")
 
 

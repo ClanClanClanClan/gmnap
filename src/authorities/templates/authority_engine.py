@@ -102,7 +102,11 @@ class AuthorityTemplate:
             "daily_quota": 25000,
             "requires_auth": False,
             "response_format": "json",
-            "confidence_factors": ["publication_count", "collaboration_count", "cern_affiliation"],
+            "confidence_factors": [
+                "publication_count",
+                "collaboration_count",
+                "cern_affiliation",
+            ],
         },
         # Additional Tier-2 Sources (Completing 70% → 90%+ coverage)
         "Google_Scholar": {
@@ -123,7 +127,11 @@ class AuthorityTemplate:
             "daily_quota": 5000,
             "requires_auth": False,
             "response_format": "json",
-            "confidence_factors": ["publication_count", "citation_count", "institution_rank"],
+            "confidence_factors": [
+                "publication_count",
+                "citation_count",
+                "institution_rank",
+            ],
         },
         "J_STAGE": {
             "tier": AuthorityTier.TIER_2,
@@ -133,7 +141,11 @@ class AuthorityTemplate:
             "daily_quota": 10000,
             "requires_auth": False,
             "response_format": "json",
-            "confidence_factors": ["publication_count", "journal_impact", "jst_affiliation"],
+            "confidence_factors": [
+                "publication_count",
+                "journal_impact",
+                "jst_affiliation",
+            ],
         },
         # Regional Authority Sources
         "JSTOR": {
@@ -144,7 +156,11 @@ class AuthorityTemplate:
             "daily_quota": 2000,
             "requires_auth": True,  # JSTOR requires API key
             "response_format": "json",
-            "confidence_factors": ["article_count", "journal_prestige", "historical_range"],
+            "confidence_factors": [
+                "article_count",
+                "journal_prestige",
+                "historical_range",
+            ],
         },
         "ProQuest": {
             "tier": AuthorityTier.TIER_2,
@@ -243,7 +259,9 @@ class UniversalFetcher(AuthorityFetcher):
                 )
 
         except asyncio.TimeoutError:
-            return FetchResult(status=FetchStatus.NETWORK_ERROR, error_message="Request timeout")
+            return FetchResult(
+                status=FetchStatus.NETWORK_ERROR, error_message="Request timeout"
+            )
 
         except Exception as e:
             self.logger.error(f"Fetch error for {self.service}: {e}")
@@ -291,7 +309,8 @@ class UniversalFetcher(AuthorityFetcher):
 
             except Exception as e:
                 return FetchResult(
-                    status=FetchStatus.PARSE_ERROR, error_message=f"SPARQL query failed: {e}"
+                    status=FetchStatus.PARSE_ERROR,
+                    error_message=f"SPARQL query failed: {e}",
                 )
 
         return FetchResult(status=FetchStatus.NOT_FOUND)
@@ -306,7 +325,12 @@ class UniversalFetcher(AuthorityFetcher):
             params = {"query": query, "format": "json", "size": 10}
             url = f"{self.base_url}?" + urllib.parse.urlencode(params)
         elif self.authority_name == "SciELO":
-            params = {"q": f'au:"{query}"', "output": "site", "lang": "en", "format": "json"}
+            params = {
+                "q": f'au:"{query}"',
+                "output": "site",
+                "lang": "en",
+                "format": "json",
+            }
             url = f"{self.base_url}?" + urllib.parse.urlencode(params)
         elif self.authority_name == "EThOS":
             params = {"q": f'author:"{query}"', "format": "json"}
@@ -332,7 +356,11 @@ class UniversalFetcher(AuthorityFetcher):
             }
             url = f"{self.base_url}?" + urllib.parse.urlencode(params)
         elif self.authority_name == "ProQuest":
-            params = {"q": f'author("{query}")', "discipline": "Mathematics", "format": "json"}
+            params = {
+                "q": f'author("{query}")',
+                "discipline": "Mathematics",
+                "format": "json",
+            }
             url = f"{self.base_url}?" + urllib.parse.urlencode(params)
         elif self.authority_name == "TEL":
             params = {"q": f'authFullName_s:"{query}"', "wt": "json", "rows": 10}
@@ -357,7 +385,8 @@ class UniversalFetcher(AuthorityFetcher):
                 return FetchResult(status=FetchStatus.RATE_LIMITED)
             else:
                 return FetchResult(
-                    status=FetchStatus.NETWORK_ERROR, error_message=f"HTTP {response.status}"
+                    status=FetchStatus.NETWORK_ERROR,
+                    error_message=f"HTTP {response.status}",
                 )
 
     async def _fetch_xml(self, query: str) -> FetchResult:
@@ -658,7 +687,9 @@ class UniversalFetcher(AuthorityFetcher):
             statement_boost = min(statement_count * 0.02, 0.15)
             reference_boost = min(reference_count * 0.05, 0.05)
 
-            return min(base_score + item_boost + statement_boost + reference_boost, 0.95)
+            return min(
+                base_score + item_boost + statement_boost + reference_boost, 0.95
+            )
 
         elif self.authority_name == "HAL":
             # HAL confidence based on publication activity
@@ -685,8 +716,12 @@ class UniversalFetcher(AuthorityFetcher):
 
         elif self.authority_name in ["CNKI", "J_STAGE"]:
             # Regional database confidence
-            pub_count = factors.get("publication_count", factors.get("article_count", 0))
-            regional_boost = factors.get("institution_rank", factors.get("journal_impact", 0))
+            pub_count = factors.get(
+                "publication_count", factors.get("article_count", 0)
+            )
+            regional_boost = factors.get(
+                "institution_rank", factors.get("journal_impact", 0)
+            )
 
             base_score = 0.65
             pub_boost = min(pub_count * 0.03, 0.2)
@@ -697,7 +732,9 @@ class UniversalFetcher(AuthorityFetcher):
         elif self.authority_name in ["JSTOR", "ProQuest", "TEL"]:
             # Academic repository confidence
             content_count = factors.get("article_count", factors.get("thesis_count", 0))
-            prestige = factors.get("journal_prestige", factors.get("institution_rank", 0))
+            prestige = factors.get(
+                "journal_prestige", factors.get("institution_rank", 0)
+            )
 
             base_score = 0.7  # Higher base for academic repositories
             content_boost = min(content_count * 0.05, 0.2)
@@ -710,7 +747,9 @@ class UniversalFetcher(AuthorityFetcher):
             return min(0.7, max(0.3, sum(factors.values()) * 0.1))
 
 
-def create_authority_fetcher(authority_name: str, config: Dict[str, Any]) -> UniversalFetcher:
+def create_authority_fetcher(
+    authority_name: str, config: Dict[str, Any]
+) -> UniversalFetcher:
     """Factory function to create authority fetcher from template"""
     return UniversalFetcher(authority_name, config)
 

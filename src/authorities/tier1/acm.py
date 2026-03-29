@@ -78,13 +78,19 @@ class ACMFetcher(AuthorityFetcher):
                 )
 
             return FetchResult(
-                status=FetchStatus.SUCCESS, source=self.service, query=identifier, data=author_data
+                status=FetchStatus.SUCCESS,
+                source=self.service,
+                query=identifier,
+                data=author_data,
             )
 
         except Exception as e:
             logger.error(f"ACM fetch error: {e}")
             return FetchResult(
-                status=FetchStatus.ERROR, source=self.service, query=identifier, error=str(e)
+                status=FetchStatus.ERROR,
+                source=self.service,
+                query=identifier,
+                error=str(e),
             )
 
     async def _search_author_crossref(
@@ -115,14 +121,20 @@ class ACMFetcher(AuthorityFetcher):
 
         try:
             url = f"{self.base_url}/works"
-            async with self._session.get(url, params=params, headers=headers) as response:
+            async with self._session.get(
+                url, params=params, headers=headers
+            ) as response:
                 if response.status == 200:
                     data = await response.json()
                     items = data.get("message", {}).get("items", [])
-                    logger.info(f"ACM (via Crossref): Found {len(items)} works for '{author_name}'")
+                    logger.info(
+                        f"ACM (via Crossref): Found {len(items)} works for '{author_name}'"
+                    )
                     return items
                 else:
-                    logger.warning(f"ACM/Crossref search failed with status {response.status}")
+                    logger.warning(
+                        f"ACM/Crossref search failed with status {response.status}"
+                    )
                     return []
         except Exception as e:
             logger.error(f"ACM/Crossref search error: {e}")
@@ -178,7 +190,9 @@ class ACMFetcher(AuthorityFetcher):
             pub_date = work.get("published", {})
             pub_year = None
             if "date-parts" in pub_date and pub_date["date-parts"]:
-                pub_year = pub_date["date-parts"][0][0] if pub_date["date-parts"][0] else None
+                pub_year = (
+                    pub_date["date-parts"][0][0] if pub_date["date-parts"][0] else None
+                )
 
             pub = {
                 "title": (
@@ -205,7 +219,8 @@ class ACMFetcher(AuthorityFetcher):
             canonical_name=query_name,
             name_variants=[],
             affiliations=[
-                {"institution": aff} for aff in list(affiliations)[:5]  # Top 5 affiliations
+                {"institution": aff}
+                for aff in list(affiliations)[:5]  # Top 5 affiliations
             ],
             identifiers={"DOI": list(dois)[0] if dois else None},
             msc_codes=[],  # ACM uses Computing Classification System, not MSC
@@ -219,7 +234,9 @@ class ACMFetcher(AuthorityFetcher):
                 "work_count": len(works),
                 "total_citations": total_citations,
             },
-            confidence_score=self._calculate_confidence(works, affiliations, dois, total_citations),
+            confidence_score=self._calculate_confidence(
+                works, affiliations, dois, total_citations
+            ),
             fetch_timestamp=datetime.now(),
             personal_data_scrubbed=True,
         )

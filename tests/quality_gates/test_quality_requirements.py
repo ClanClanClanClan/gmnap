@@ -90,7 +90,9 @@ class TestGlobalIDQualityGates:
         self.generator.load_existing_ids(existing_ids)
 
         # Generate new ID that would collide
-        with pytest.mock.patch.object(self.generator, "_compute_base_id", return_value=base_id):
+        with pytest.mock.patch.object(
+            self.generator, "_compute_base_id", return_value=base_id
+        ):
             new_id = self.generator.generate({"CanonicalNative": "Test, Person"})
 
         # Should get next available collision number
@@ -144,7 +146,9 @@ class TestUnicodeQualityGates:
                 non_idempotent.append((text, normalized1, normalized2))
 
         # Quality gate: Normalization must be idempotent
-        assert len(non_idempotent) == 0, f"Non-idempotent normalizations: {non_idempotent}"
+        assert (
+            len(non_idempotent) == 0
+        ), f"Non-idempotent normalizations: {non_idempotent}"
 
     def test_unicode_script_detection_accuracy(self):
         """Test Unicode script detection accuracy."""
@@ -244,8 +248,14 @@ class TestRegionQualityGates:
         """Test region fallback handling."""
         # Test entries that should fall back to R0 or Z0
         fallback_cases = [
-            {"CanonicalLatin": "Unknown, Person", "CountryCodes": ["ZZ"]},  # Invalid country
-            {"CanonicalLatin": "Mixed, Script 李明", "CountryCodes": ["US"]},  # Mixed scripts
+            {
+                "CanonicalLatin": "Unknown, Person",
+                "CountryCodes": ["ZZ"],
+            },  # Invalid country
+            {
+                "CanonicalLatin": "Mixed, Script 李明",
+                "CountryCodes": ["US"],
+            },  # Mixed scripts
             {"CanonicalLatin": "Ambiguous, Name", "CountryCodes": []},  # No country
         ]
 
@@ -282,7 +292,9 @@ class TestRegionQualityGates:
 
         # Order keys should be deterministic
         for name, order_key in order_keys:
-            assert isinstance(order_key, str), f"Order key for {name} is not string: {order_key}"
+            assert isinstance(
+                order_key, str
+            ), f"Order key for {name} is not string: {order_key}"
             assert len(order_key) > 0, f"Empty order key for {name}"
 
 
@@ -336,7 +348,9 @@ class TestPerformanceQualityGates:
         memory_increase = peak_memory - initial_memory
 
         # Quality gate: Memory usage ≤ 2GB for processing
-        assert memory_increase <= 2048, f"Memory usage {memory_increase:.1f}MB exceeds 2GB limit"
+        assert (
+            memory_increase <= 2048
+        ), f"Memory usage {memory_increase:.1f}MB exceeds 2GB limit"
 
         # Clean up
         import shutil
@@ -348,7 +362,8 @@ class TestPerformanceQualityGates:
         # Test GlobalID generation speed
         generator = GlobalIDGenerator()
         entries = [
-            {"CanonicalNative": f"Test{i:06d}, Person", "BirthYear": 1950 + i} for i in range(1000)
+            {"CanonicalNative": f"Test{i:06d}, Person", "BirthYear": 1950 + i}
+            for i in range(1000)
         ]
 
         start_time = time.time()
@@ -408,7 +423,9 @@ class TestPerformanceQualityGates:
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             futures = [executor.submit(generate_batch, i) for i in range(10)]
-            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+            results = [
+                future.result() for future in concurrent.futures.as_completed(futures)
+            ]
 
         end_time = time.time()
         total_time = end_time - start_time

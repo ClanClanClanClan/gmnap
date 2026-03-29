@@ -34,7 +34,11 @@ def test_bayesian_initialization():
         from src.stage6_bayesian.src.graph.bayes_coherence import BayesCoherence
 
         config = {
-            "weights": {"betweenness_weight": 0.6, "authority_weight": 0.4, "threshold": 0.5},
+            "weights": {
+                "betweenness_weight": 0.6,
+                "authority_weight": 0.4,
+                "threshold": 0.5,
+            },
             "authorities": {
                 "Crossref": {"tier": 0, "confidence": 0.99},
                 "ORCID": {"tier": 0, "confidence": 0.98},
@@ -63,7 +67,13 @@ def test_bayesian_scoring():
         from src.stage6_bayesian.src.graph.bayes_coherence import BayesCoherence
 
         coherence = BayesCoherence(
-            {"weights": {"betweenness_weight": 0.7, "authority_weight": 0.3, "threshold": 0.5}}
+            {
+                "weights": {
+                    "betweenness_weight": 0.7,
+                    "authority_weight": 0.3,
+                    "threshold": 0.5,
+                }
+            }
         )
 
         # Test entries with relationships
@@ -141,7 +151,9 @@ def test_graph_construction():
 
         print("PASS Graph constructed and betweenness calculated")
         print("  Betweenness centrality scores:")
-        for node, score in sorted(betweenness.items(), key=lambda x: x[1], reverse=True):
+        for node, score in sorted(
+            betweenness.items(), key=lambda x: x[1], reverse=True
+        ):
             print(f"    - {node}: {score:.3f}")
 
         # Gauss should have highest betweenness (connects multiple communities)
@@ -207,7 +219,9 @@ def test_authority_confidence():
 def test_combined_scoring():
     """Test combined Bayesian scoring (betweenness + authority)"""
 
-    def calculate_bayesian_score(betweenness, authority_confidence, b_weight=0.6, a_weight=0.4):
+    def calculate_bayesian_score(
+        betweenness, authority_confidence, b_weight=0.6, a_weight=0.4
+    ):
         """Calculate combined Bayesian score"""
         return (b_weight * betweenness) + (a_weight * authority_confidence)
 

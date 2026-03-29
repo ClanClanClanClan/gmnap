@@ -40,7 +40,10 @@ def test_d1_validation():
     for name in test_names:
         print(f"\n=== Testing D1 validation for {name} ===")
 
-        test_entry = {"GlobalID": f"test_{name.replace(', ', '_')}", "CanonicalLatin": name}
+        test_entry = {
+            "GlobalID": f"test_{name.replace(', ', '_')}",
+            "CanonicalLatin": name,
+        }
 
         try:
             # Test cleaning

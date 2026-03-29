@@ -39,7 +39,9 @@ def test_missing_implementations():
     test_cases = [
         {
             "name": "R0 Fallback Processing",
-            "entry": {"CanonicalLatin": "Xyz123, Invalid"},  # Should fail region detection
+            "entry": {
+                "CanonicalLatin": "Xyz123, Invalid"
+            },  # Should fail region detection
             "should_fail": True,
             "reason": "No R0 processor exists for undetectable names",
         },
@@ -69,7 +71,10 @@ def test_missing_implementations():
         },
         {
             "name": "Territory Code Edge Cases",
-            "entry": {"CanonicalLatin": "Test, Name", "TerritoryCode": "XX"},  # Invalid code
+            "entry": {
+                "CanonicalLatin": "Test, Name",
+                "TerritoryCode": "XX",
+            },  # Invalid code
             "should_fail": True,
             "reason": "Invalid territory codes should be rejected",
         },
@@ -133,7 +138,9 @@ def test_missing_implementations():
                             "reason": test_case["reason"],
                         }
                     )
-                    print(f"  WARN  WRONG REGION: Expected {expected}, got {actual_region}")
+                    print(
+                        f"  WARN  WRONG REGION: Expected {expected}, got {actual_region}"
+                    )
                 else:
                     results["correct"].append(name)
                     print(f"  PASS CORRECT REGION: {actual_region}")

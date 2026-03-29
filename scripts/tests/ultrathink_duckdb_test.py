@@ -108,7 +108,11 @@ def test_collision_detection():
 
         # Test with entries that have collisions
         test_entries = [
-            {"GlobalID": "COLL-001", "CanonicalNative": "김민수", "CanonicalLatin": "Kim Min Su"},
+            {
+                "GlobalID": "COLL-001",
+                "CanonicalNative": "김민수",
+                "CanonicalLatin": "Kim Min Su",
+            },
             {
                 "GlobalID": "COLL-002",
                 "CanonicalNative": "金民秀",  # Different native
@@ -161,7 +165,9 @@ def test_performance_analytics():
 
         if perf_report:
             print(f"  ✅ Performance analytics work")
-            print(f"    • Throughput: {perf_report.get('throughput', 0):.0f} entries/sec")
+            print(
+                f"    • Throughput: {perf_report.get('throughput', 0):.0f} entries/sec"
+            )
             print(f"    • Slowest stage: {perf_report.get('slowest_stage', 'N/A')}")
             return True
         else:

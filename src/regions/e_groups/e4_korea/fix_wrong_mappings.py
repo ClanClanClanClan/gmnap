@@ -86,13 +86,17 @@ def test_specific_conversions():
     for eng, expected in test_cases:
         actual = eng2kor(eng)
         correct = actual == expected
-        print(f"  {eng:20} → {actual:10} {'✓' if correct else '✗ expected ' + expected}")
+        print(
+            f"  {eng:20} → {actual:10} {'✓' if correct else '✗ expected ' + expected}"
+        )
 
 
 def test_accuracy():
     """Get current accuracy numbers."""
     # Test mathematician
-    result = subprocess.run(["python3", "scripts/validate.py"], capture_output=True, text=True)
+    result = subprocess.run(
+        ["python3", "scripts/validate.py"], capture_output=True, text=True
+    )
     math_pass = int(result.stdout.split()[0].split("/")[0])
 
     # Test diverse
@@ -124,7 +128,9 @@ def main():
     if fix_mappings():
         # Rebuild FSTs
         print("\nRebuilding FSTs...")
-        subprocess.run(["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True)
+        subprocess.run(
+            ["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True
+        )
 
         # Test specific cases
         test_specific_conversions()
@@ -138,7 +144,9 @@ def main():
         # Report results
         print("\n" + "=" * 50)
         print("Results:")
-        print(f"  Mathematician: {math_before} → {math_after} ({math_after - math_before:+d})")
+        print(
+            f"  Mathematician: {math_before} → {math_after} ({math_after - math_before:+d})"
+        )
         print(f"  Diverse: {div_before} → {div_after} ({div_after - div_before:+d})")
     else:
         print("\nNo changes needed.")

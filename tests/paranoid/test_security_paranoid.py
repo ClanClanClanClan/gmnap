@@ -1,6 +1,11 @@
 import pytest
 
-SQLI = ["' OR '1'='1", "'; DROP TABLE mathematicians; --", "admin'--", "1' AND '1' = '1"]
+SQLI = [
+    "' OR '1'='1",
+    "'; DROP TABLE mathematicians; --",
+    "admin'--",
+    "1' AND '1' = '1",
+]
 BYPASS = [{"Authorization": "Bearer invalid"}, {"auth": {"$ne": None}}]
 
 

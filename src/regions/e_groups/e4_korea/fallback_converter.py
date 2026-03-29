@@ -71,7 +71,9 @@ class FallbackKoreanConverter:
 
     def _load_mappings(self):
         """Load syllable mappings from CSV file."""
-        csv_path = os.path.join(os.path.dirname(__file__), "resources", "rr_syllable_map.csv")
+        csv_path = os.path.join(
+            os.path.dirname(__file__), "resources", "rr_syllable_map.csv"
+        )
 
         if not os.path.exists(csv_path):
             return
@@ -88,16 +90,26 @@ class FallbackKoreanConverter:
                         hangul, latin, weight = row[0], row[1], float(row[2])
 
                         # For hangul->latin, pick highest weight (lowest negative number)
-                        if hangul not in hangul_mappings or weight > hangul_mappings[hangul][1]:
+                        if (
+                            hangul not in hangul_mappings
+                            or weight > hangul_mappings[hangul][1]
+                        ):
                             hangul_mappings[hangul] = (latin, weight)
 
                         # For latin->hangul, pick highest weight
-                        if latin not in latin_mappings or weight > latin_mappings[latin][1]:
+                        if (
+                            latin not in latin_mappings
+                            or weight > latin_mappings[latin][1]
+                        ):
                             latin_mappings[latin] = (hangul, weight)
 
             # Extract the best mappings
-            self.hangul_to_latin = {h: mapping[0] for h, mapping in hangul_mappings.items()}
-            self.latin_to_hangul = {l: mapping[0] for l, mapping in latin_mappings.items()}
+            self.hangul_to_latin = {
+                h: mapping[0] for h, mapping in hangul_mappings.items()
+            }
+            self.latin_to_hangul = {
+                l: mapping[0] for l, mapping in latin_mappings.items()
+            }
 
         except Exception:
             pass
@@ -120,7 +132,9 @@ class FallbackKoreanConverter:
             if not romanized_surname:
                 romanized_surname = self.hangul_to_latin.get(surname, surname)
                 # Capitalize
-                romanized_surname = romanized_surname.capitalize() if romanized_surname else surname
+                romanized_surname = (
+                    romanized_surname.capitalize() if romanized_surname else surname
+                )
 
             # Convert given name
             romanized_given = []
@@ -139,7 +153,9 @@ class FallbackKoreanConverter:
                 syllables = given_part.split("-")
                 if syllables:
                     # First syllable capitalized, rest lowercase
-                    fixed_syllables = [syllables[0].capitalize() if syllables[0] else syllables[0]]
+                    fixed_syllables = [
+                        syllables[0].capitalize() if syllables[0] else syllables[0]
+                    ]
                     fixed_syllables.extend(s.lower() if s else s for s in syllables[1:])
                     given_part = "-".join(fixed_syllables)
                 return f"{romanized_surname} {given_part}"

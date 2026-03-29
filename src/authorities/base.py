@@ -218,14 +218,18 @@ class QuotaManager:
     """
 
     def __init__(
-        self, source_manifest: Dict[str, Any], cache_dir: Optional[Union[str, Path]] = None
+        self,
+        source_manifest: Dict[str, Any],
+        cache_dir: Optional[Union[str, Path]] = None,
     ):
         self.source_manifest = source_manifest
         # Ensure cache_dir is always a Path object
         if cache_dir is None:
             self.cache_dir = Path("./cache")
         else:
-            self.cache_dir = Path(cache_dir) if not isinstance(cache_dir, Path) else cache_dir
+            self.cache_dir = (
+                Path(cache_dir) if not isinstance(cache_dir, Path) else cache_dir
+            )
         self.usage: Dict[str, Dict[str, Any]] = {}
         self._lock = asyncio.Lock()
         self._load_usage_state()
@@ -300,11 +304,19 @@ class QuotaManager:
 
             # Initialize if needed
             if service not in self.usage:
-                self.usage[service] = {"date": today, "used": 0, "quota": self._get_quota(service)}
+                self.usage[service] = {
+                    "date": today,
+                    "used": 0,
+                    "quota": self._get_quota(service),
+                }
 
             # Check date rollover
             if self.usage[service]["date"] != today:
-                self.usage[service] = {"date": today, "used": 0, "quota": self._get_quota(service)}
+                self.usage[service] = {
+                    "date": today,
+                    "used": 0,
+                    "quota": self._get_quota(service),
+                }
 
             # Check quota
             quota = self.usage[service]["quota"]
@@ -338,7 +350,9 @@ class QuotaManager:
                 "used": data["used"],
                 "quota": data["quota"],
                 "remaining": max(0, data["quota"] - data["used"]),
-                "percentage": (data["used"] / data["quota"] * 100) if data["quota"] > 0 else 0,
+                "percentage": (
+                    (data["used"] / data["quota"] * 100) if data["quota"] > 0 else 0
+                ),
             }
 
         return stats
@@ -371,7 +385,11 @@ class QuotaManager:
             List of FetchResults
         """
         # Group by service and respect tier priorities
-        tier_groups = {AuthorityTier.TIER_0: [], AuthorityTier.TIER_1: [], AuthorityTier.TIER_2: []}
+        tier_groups = {
+            AuthorityTier.TIER_0: [],
+            AuthorityTier.TIER_1: [],
+            AuthorityTier.TIER_2: [],
+        }
 
         for service, query in queries:
             if service in fetchers:
@@ -406,7 +424,10 @@ class QuotaManager:
                 for result in tier_results:
                     if isinstance(result, Exception):
                         results.append(
-                            FetchResult(status=FetchStatus.NETWORK_ERROR, error_message=str(result))
+                            FetchResult(
+                                status=FetchStatus.NETWORK_ERROR,
+                                error_message=str(result),
+                            )
                         )
                     else:
                         results.append(result)

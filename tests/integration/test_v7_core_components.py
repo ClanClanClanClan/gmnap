@@ -93,13 +93,18 @@ def test_duckdb_analytics():
         # Test basic operations
         test_entries = [
             {"GlobalID": "TEST001", "CanonicalLatin": "Test Name"},
-            {"GlobalID": "TEST002", "CanonicalLatin": "Test Name"},  # Duplicate for collision
+            {
+                "GlobalID": "TEST002",
+                "CanonicalLatin": "Test Name",
+            },  # Duplicate for collision
         ]
 
         analytics.load_entries(test_entries)
         suffixed, count = analytics.suffix_duplicates(test_entries)
 
-        print(f"PASS DuckDB processed {len(test_entries)} entries, found {count} duplicates")
+        print(
+            f"PASS DuckDB processed {len(test_entries)} entries, found {count} duplicates"
+        )
         assert len(suffixed) == len(test_entries)
 
     except ImportError:

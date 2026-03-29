@@ -609,7 +609,11 @@ class SurnamePatternDetector:
         for pattern_obj in self.patterns:
             if self._matches_pattern(surname, pattern_obj):
                 matches.append(
-                    (pattern_obj.region_code, pattern_obj.confidence, pattern_obj.description)
+                    (
+                        pattern_obj.region_code,
+                        pattern_obj.confidence,
+                        pattern_obj.description,
+                    )
                 )
 
         # Sort by confidence (highest first)
@@ -625,7 +629,10 @@ class SurnamePatternDetector:
             # For prefix, check full name with space
             return re.search(pattern_obj.pattern, surname, re.IGNORECASE) is not None
         elif pattern_obj.pattern_type == "contains":
-            return re.search(pattern_obj.pattern, surname, re.IGNORECASE | re.UNICODE) is not None
+            return (
+                re.search(pattern_obj.pattern, surname, re.IGNORECASE | re.UNICODE)
+                is not None
+            )
         return False
 
     def get_best_match(self, name: str) -> Optional[Tuple[str, float, str]]:

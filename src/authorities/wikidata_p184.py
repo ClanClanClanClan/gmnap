@@ -159,7 +159,9 @@ class WikidataP184Fetcher:
 
         try:
             async with self.session.get(
-                self.endpoint, params={"query": query, "format": "json"}, headers=headers
+                self.endpoint,
+                params={"query": query, "format": "json"},
+                headers=headers,
             ) as response:
                 if response.status != 200:
                     logger.warning(f"SPARQL query failed: {response.status}")
@@ -185,13 +187,17 @@ class WikidataP184Fetcher:
                     # Advisors
                     if "advisor" in binding:
                         advisor_id = binding["advisor"]["value"].split("/")[-1]
-                        advisor_label = binding.get("advisorLabel", {}).get("value", advisor_id)
+                        advisor_label = binding.get("advisorLabel", {}).get(
+                            "value", advisor_id
+                        )
                         advisors[advisor_id] = advisor_label
 
                     # Students
                     if "student" in binding:
                         student_id = binding["student"]["value"].split("/")[-1]
-                        student_label = binding.get("studentLabel", {}).get("value", student_id)
+                        student_label = binding.get("studentLabel", {}).get(
+                            "value", student_id
+                        )
                         students[student_id] = student_label
 
                     # Fields
@@ -201,18 +207,24 @@ class WikidataP184Fetcher:
                     # Institutions
                     if "institution" in binding:
                         inst_id = binding["institution"]["value"].split("/")[-1]
-                        inst_label = binding.get("institutionLabel", {}).get("value", inst_id)
+                        inst_label = binding.get("institutionLabel", {}).get(
+                            "value", inst_id
+                        )
                         institutions[inst_id] = inst_label
 
                     # Dates
                     if "birthYear" in binding:
                         try:
-                            authority_data.birth_year = int(float(binding["birthYear"]["value"]))
+                            authority_data.birth_year = int(
+                                float(binding["birthYear"]["value"])
+                            )
                         except:
                             pass
                     if "deathYear" in binding:
                         try:
-                            authority_data.death_year = int(float(binding["deathYear"]["value"]))
+                            authority_data.death_year = int(
+                                float(binding["deathYear"]["value"])
+                            )
                         except:
                             pass
 
@@ -248,7 +260,9 @@ class WikidataP184Fetcher:
             logger.error(f"Error fetching Wikidata entity {wikidata_id}: {e}")
             return None
 
-    async def _fetch_aliases(self, wikidata_id: str, authority_data: WikidataAuthorityData):
+    async def _fetch_aliases(
+        self, wikidata_id: str, authority_data: WikidataAuthorityData
+    ):
         """Fetch entity aliases/alternative names."""
         if not self.session:
             return
@@ -277,7 +291,9 @@ class WikidataP184Fetcher:
         except Exception as e:
             logger.error(f"Error fetching aliases for {wikidata_id}: {e}")
 
-    async def fetch_advisor_network(self, wikidata_id: str, depth: int = 2) -> Dict[str, Any]:
+    async def fetch_advisor_network(
+        self, wikidata_id: str, depth: int = 2
+    ) -> Dict[str, Any]:
         """
         Fetch advisor network (genealogy tree) to specified depth.
 
@@ -318,13 +334,25 @@ class WikidataP184Fetcher:
 
                 # Add advisor edges and queue for processing
                 for advisor in entity.doctoral_advisors:
-                    edges.append({"source": advisor["id"], "target": current_id, "type": "advisor"})
+                    edges.append(
+                        {
+                            "source": advisor["id"],
+                            "target": current_id,
+                            "type": "advisor",
+                        }
+                    )
                     if current_depth + 1 < depth:
                         to_process.append((advisor["id"], current_depth + 1))
 
                 # Add student edges and queue for processing
                 for student in entity.doctoral_students:
-                    edges.append({"source": current_id, "target": student["id"], "type": "advisor"})
+                    edges.append(
+                        {
+                            "source": current_id,
+                            "target": student["id"],
+                            "type": "advisor",
+                        }
+                    )
                     if current_depth + 1 < depth:
                         to_process.append((student["id"], current_depth + 1))
 
@@ -359,13 +387,21 @@ class WikidataP184Fetcher:
 
                 # Add advisor relationships
                 if entity.doctoral_advisors:
-                    entry["Advisors"] = [advisor["name"] for advisor in entity.doctoral_advisors]
-                    entry["AdvisorIDs"] = [advisor["id"] for advisor in entity.doctoral_advisors]
+                    entry["Advisors"] = [
+                        advisor["name"] for advisor in entity.doctoral_advisors
+                    ]
+                    entry["AdvisorIDs"] = [
+                        advisor["id"] for advisor in entity.doctoral_advisors
+                    ]
 
                 # Add student relationships
                 if entity.doctoral_students:
-                    entry["Students"] = [student["name"] for student in entity.doctoral_students]
-                    entry["StudentIDs"] = [student["id"] for student in entity.doctoral_students]
+                    entry["Students"] = [
+                        student["name"] for student in entity.doctoral_students
+                    ]
+                    entry["StudentIDs"] = [
+                        student["id"] for student in entity.doctoral_students
+                    ]
 
                 # Add other identifiers
                 if entity.identifiers:

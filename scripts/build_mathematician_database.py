@@ -199,7 +199,9 @@ class MathematicianDatabaseBuilder:
                 countries[country] = countries.get(country, 0) + 1
 
         logger.info(f"\n📊 Regional Distribution:")
-        for region, count in sorted(region_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
+        for region, count in sorted(
+            region_counts.items(), key=lambda x: x[1], reverse=True
+        )[:10]:
             logger.info(f"   {region}: {count}")
 
         logger.info(f"\n🔍 Detection Methods:")
@@ -207,7 +209,9 @@ class MathematicianDatabaseBuilder:
             logger.info(f"   {method}: {count}")
 
         logger.info(f"\n🌍 Top Countries:")
-        for country, count in sorted(countries.items(), key=lambda x: x[1], reverse=True)[:10]:
+        for country, count in sorted(
+            countries.items(), key=lambda x: x[1], reverse=True
+        )[:10]:
             logger.info(f"   {country}: {count}")
 
     async def build_genealogy_graph(self, entries: List[Dict]):
@@ -217,7 +221,9 @@ class MathematicianDatabaseBuilder:
         logger.info("=" * 80)
 
         logger.info("⏳ Genealogy graph construction requires:")
-        logger.info("   1. Authority sources with advisor data (ORCID ETD, Wikidata P184)")
+        logger.info(
+            "   1. Authority sources with advisor data (ORCID ETD, Wikidata P184)"
+        )
         logger.info("   2. Stage 4 implementation (Authority Enrichment)")
         logger.info("   3. Memgraph connection setup")
         logger.info("")

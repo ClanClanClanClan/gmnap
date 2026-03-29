@@ -6,7 +6,11 @@ from src.ops.scale_guard_service import ScaleGuardService, ScaleConfig
 
 def mk(n):
     return [
-        {"ID": f"entry{i:08d}", "CanonicalNative": "John Smith", "Region": "a1_anglo_sphere"}
+        {
+            "ID": f"entry{i:08d}",
+            "CanonicalNative": "John Smith",
+            "Region": "a1_anglo_sphere",
+        }
         for i in range(n)
     ]
 

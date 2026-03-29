@@ -52,7 +52,9 @@ class SystematicImprovementFramework:
         for dataset_name, test_script in datasets.items():
             print(f"Testing {dataset_name}...")
             try:
-                result = subprocess.run(["python3", test_script], capture_output=True, text=True)
+                result = subprocess.run(
+                    ["python3", test_script], capture_output=True, text=True
+                )
 
                 # Parse performance from output
                 performance = self._parse_performance(result.stdout, dataset_name)
@@ -68,7 +70,8 @@ class SystematicImprovementFramework:
 
         # Save baseline
         baseline_file = (
-            self.results_dir / f"baseline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            self.results_dir
+            / f"baseline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         )
         with open(baseline_file, "w") as f:
             json.dump(baseline, f, indent=2)
@@ -85,9 +88,7 @@ class SystematicImprovementFramework:
         baseline = self.capture_baseline_performance()
 
         # 2. Backup current mappings
-        backup_file = (
-            f"resources/rr_syllable_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        )
+        backup_file = f"resources/rr_syllable_map.csv.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         shutil.copy(self.mapping_file, backup_file)
         print(f"Created backup: {backup_file}")
 
@@ -108,7 +109,9 @@ class SystematicImprovementFramework:
                 print("✅ VALIDATION PASSED - Changes accepted")
 
                 # Log successful improvement
-                self._log_improvement(category, mappings, rationale, baseline, validation_result)
+                self._log_improvement(
+                    category, mappings, rationale, baseline, validation_result
+                )
 
                 return True
             else:
@@ -167,7 +170,9 @@ class SystematicImprovementFramework:
 
         for dataset_name, test_script in datasets.items():
             try:
-                result = subprocess.run(["python3", test_script], capture_output=True, text=True)
+                result = subprocess.run(
+                    ["python3", test_script], capture_output=True, text=True
+                )
 
                 performance = self._parse_performance(result.stdout, dataset_name)
                 validation_result["results"][dataset_name] = performance
@@ -219,7 +224,11 @@ class SystematicImprovementFramework:
                         fraction = parts[0]  # "691/733"
                         success, total = map(int, fraction.split("/"))
                         accuracy = (success / total) * 100
-                        return {"success": success, "total": total, "accuracy": accuracy}
+                        return {
+                            "success": success,
+                            "total": total,
+                            "accuracy": accuracy,
+                        }
 
         elif dataset_name == "diverse_dataset":
             # Look for "DIVERSE DATASET: 194/200 = 97.00%"
@@ -231,7 +240,11 @@ class SystematicImprovementFramework:
                             fraction = part
                             success, total = map(int, fraction.split("/"))
                             accuracy = (success / total) * 100
-                            return {"success": success, "total": total, "accuracy": accuracy}
+                            return {
+                                "success": success,
+                                "total": total,
+                                "accuracy": accuracy,
+                            }
 
         elif dataset_name == "independent_dataset":
             # Look for "Overall Performance: 153/165 = 92.73%"
@@ -243,12 +256,18 @@ class SystematicImprovementFramework:
                             fraction = part
                             success, total = map(int, fraction.split("/"))
                             accuracy = (success / total) * 100
-                            return {"success": success, "total": total, "accuracy": accuracy}
+                            return {
+                                "success": success,
+                                "total": total,
+                                "accuracy": accuracy,
+                            }
 
         # Fallback - return error
         return {"error": f"Could not parse performance from {dataset_name}"}
 
-    def _log_improvement(self, category, mappings, rationale, baseline, validation_result):
+    def _log_improvement(
+        self, category, mappings, rationale, baseline, validation_result
+    ):
         """Log successful improvement for tracking"""
         log_entry = {
             "timestamp": datetime.now().isoformat(),
@@ -258,11 +277,14 @@ class SystematicImprovementFramework:
             "mappings": mappings,
             "baseline_performance": baseline["performance"],
             "final_performance": validation_result["results"],
-            "improvement_summary": self._calculate_improvements(baseline, validation_result),
+            "improvement_summary": self._calculate_improvements(
+                baseline, validation_result
+            ),
         }
 
         log_file = (
-            self.results_dir / f"improvement_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            self.results_dir
+            / f"improvement_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         )
         with open(log_file, "w") as f:
             json.dump(log_entry, f, indent=2)

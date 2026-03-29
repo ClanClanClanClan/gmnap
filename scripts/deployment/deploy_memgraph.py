@@ -32,7 +32,14 @@ def stop_existing_memgraph():
     try:
         # Check for running containers
         result = subprocess.run(
-            ["docker", "ps", "--format", "{{.Names}}", "--filter", "name=gmnap-memgraph"],
+            [
+                "docker",
+                "ps",
+                "--format",
+                "{{.Names}}",
+                "--filter",
+                "name=gmnap-memgraph",
+            ],
             capture_output=True,
             text=True,
         )
@@ -170,7 +177,9 @@ def test_memgraph_connection():
 
             # Get metrics
             metrics = client.get_graph_metrics()
-            print(f"✅ Graph metrics retrieved: {metrics.total_mathematicians} mathematicians")
+            print(
+                f"✅ Graph metrics retrieved: {metrics.total_mathematicians} mathematicians"
+            )
 
             client.close()
             return True
@@ -198,7 +207,9 @@ def show_connection_info():
     print("  docker logs gmnap-memgraph        # View logs")
     print("  docker stop gmnap-memgraph        # Stop database")
     print("  docker start gmnap-memgraph       # Start database")
-    print("  docker exec -it gmnap-memgraph mgconsole --host 127.0.0.1 --port 7687 --use-ssl=false")
+    print(
+        "  docker exec -it gmnap-memgraph mgconsole --host 127.0.0.1 --port 7687 --use-ssl=false"
+    )
     print("=" * 60)
 
 
@@ -227,7 +238,9 @@ def main():
     # Test connection
     if not test_memgraph_connection():
         print("⚠️ Memgraph deployed but Python client connection failed")
-        print("   This might be normal - the container may need more time to initialize")
+        print(
+            "   This might be normal - the container may need more time to initialize"
+        )
 
     # Show connection info
     show_connection_info()

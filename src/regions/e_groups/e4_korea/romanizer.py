@@ -304,7 +304,9 @@ class ContextAwareRomanizer:
             sur_lat_rr = self._romanise_word(sur_ko, "rr_strict")
             # Apply international usage overrides for rr_common
             sur_lat = (
-                self.surname_overrides.get(sur_ko, None) if self.standard == "rr_common" else None
+                self.surname_overrides.get(sur_ko, None)
+                if self.standard == "rr_common"
+                else None
             )
             if not sur_lat:
                 # Special case: 이 → Lee in rr_common
@@ -321,9 +323,13 @@ class ContextAwareRomanizer:
 
         # Apply title transformations
         if structure.title_ko:
-            full_name_with_title = structure.surname_ko + structure.given_ko + structure.title_ko
+            full_name_with_title = (
+                structure.surname_ko + structure.given_ko + structure.title_ko
+            )
             full = _title_rewrite(
-                full_name_with_title, full, self.title_handling if self.standard != "mr" else "rr"
+                full_name_with_title,
+                full,
+                self.title_handling if self.standard != "mr" else "rr",
             )
 
         return full.strip()
@@ -360,7 +366,9 @@ class ContextAwareRomanizer:
     def _romanise_word(self, s: str, std: str) -> str:
         """Romanize word as sequence of syllables."""
         parts = [
-            _romanise_syllable(ch, "rr_strict" if std.startswith("rr") else "mr", "initial")
+            _romanise_syllable(
+                ch, "rr_strict" if std.startswith("rr") else "mr", "initial"
+            )
             for ch in s
         ]
         return "".join(parts)
@@ -374,6 +382,8 @@ def load_resources(base: str | Path) -> tuple[dict, dict, dict]:
     surname_overrides = json.loads(
         (base / "surname_overrides_common.json").read_text(encoding="utf-8")
     )
-    sino_overrides = json.loads((base / "sino_overrides.json").read_text(encoding="utf-8"))
+    sino_overrides = json.loads(
+        (base / "sino_overrides.json").read_text(encoding="utf-8")
+    )
 
     return compound, surname_overrides, sino_overrides

@@ -124,7 +124,9 @@ class PerformanceBenchmarker:
                 "system_specs": {
                     "cpu_count": psutil.cpu_count(),
                     "memory_total_mb": psutil.virtual_memory().total / 1024 / 1024,
-                    "memory_available_mb": psutil.virtual_memory().available / 1024 / 1024,
+                    "memory_available_mb": psutil.virtual_memory().available
+                    / 1024
+                    / 1024,
                 },
             }
         }
@@ -134,7 +136,9 @@ class PerformanceBenchmarker:
         results["pipeline_performance"] = pipeline_metrics
 
         # Test 2: Quality Gates Performance
-        quality_metrics = await self._benchmark_quality_gates(test_entries, initial_memory)
+        quality_metrics = await self._benchmark_quality_gates(
+            test_entries, initial_memory
+        )
         results["quality_gates_performance"] = quality_metrics
 
         # Test 3: End-to-End Performance
@@ -238,7 +242,9 @@ class PerformanceBenchmarker:
             "entries_failed": failed_entries,
             "processing_time_seconds": duration,
             "memory_delta_mb": end_memory - start_memory,
-            "throughput_entries_per_second": processed_entries / duration if duration > 0 else 0,
+            "throughput_entries_per_second": (
+                processed_entries / duration if duration > 0 else 0
+            ),
             "success_rate_percent": (
                 (processed_entries / len(entries)) * 100 if len(entries) > 0 else 0
             ),
@@ -283,7 +289,9 @@ class PerformanceBenchmarker:
                 ),
                 "validation_rate_percent": gate_result["summary"]["validation_rate"],
                 "average_time_per_entry_ms": (
-                    (duration / len(enriched_entries) * 1000) if len(enriched_entries) > 0 else 0
+                    (duration / len(enriched_entries) * 1000)
+                    if len(enriched_entries) > 0
+                    else 0
                 ),
             }
 
@@ -369,8 +377,12 @@ class PerformanceBenchmarker:
 
         # Project performance metrics
         projected_time_seconds = metrics.processing_time_seconds * scale_factor
-        projected_memory_mb = metrics.memory_usage_mb + (metrics.memory_delta_mb * scale_factor)
-        projected_throughput = metrics.throughput_entries_per_second  # Should remain constant
+        projected_memory_mb = metrics.memory_usage_mb + (
+            metrics.memory_delta_mb * scale_factor
+        )
+        projected_throughput = (
+            metrics.throughput_entries_per_second
+        )  # Should remain constant
 
         # Convert to readable formats
         projected_time_hours = projected_time_seconds / 3600
@@ -415,7 +427,8 @@ class PerformanceBenchmarker:
         # Processing Time Compliance
         projected_hours = projections["projected_processing_time"]["hours"]
         compliance_checks["processing_time"] = {
-            "compliant": projected_hours <= v7_requirements["max_processing_time_hours"],
+            "compliant": projected_hours
+            <= v7_requirements["max_processing_time_hours"],
             "projected": projected_hours,
             "threshold": v7_requirements["max_processing_time_hours"],
             "margin": v7_requirements["max_processing_time_hours"] - projected_hours,
@@ -450,7 +463,9 @@ class PerformanceBenchmarker:
 
         # Overall V7 Performance Compliance
         all_compliant = all(check["compliant"] for check in compliance_checks.values())
-        compliant_count = sum(1 for check in compliance_checks.values() if check["compliant"])
+        compliant_count = sum(
+            1 for check in compliance_checks.values() if check["compliant"]
+        )
         total_checks = len(compliance_checks)
         compliance_percentage = (compliant_count / total_checks) * 100
 

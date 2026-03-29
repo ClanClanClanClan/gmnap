@@ -30,7 +30,9 @@ except ImportError:
     _converter = FallbackKoreanConverter()
     eng2kor = _converter.eng2kor
     kor2eng = _converter.kor2eng
-    eng2kor_nbest = lambda name, n=3: [_converter.eng2kor(name)]  # Simple single result for now
+    eng2kor_nbest = lambda name, n=3: [
+        _converter.eng2kor(name)
+    ]  # Simple single result for now
 
     def _enhanced_dice(s1, s2):
         # Simple dice coefficient for fallback
@@ -38,7 +40,11 @@ except ImportError:
             return 0.0
         s1_set = set(s1.lower())
         s2_set = set(s2.lower())
-        return 2 * len(s1_set & s2_set) / (len(s1_set) + len(s2_set)) if (s1_set or s2_set) else 1.0
+        return (
+            2 * len(s1_set & s2_set) / (len(s1_set) + len(s2_set))
+            if (s1_set or s2_set)
+            else 1.0
+        )
 
 
 class KoreanConverterV7:

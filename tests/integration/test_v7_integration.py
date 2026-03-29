@@ -169,7 +169,9 @@ def test_v7_pipeline_components():
         gates = pipeline.quality_gates
         print(f"PASS Quality gates configured:")
         print(f"   - Duplicate GlobalID limit: {gates.duplicate_global_id}")
-        print(f"   - Runtime limit (1M entries): {gates.warm_cache_runtime_per_1M_min} min")
+        print(
+            f"   - Runtime limit (1M entries): {gates.warm_cache_runtime_per_1M_min} min"
+        )
         print(f"   - Idempotency requirement: {gates.idempotent_diff_bytes_max} bytes")
 
         return True
@@ -209,7 +211,9 @@ def main():
     if passed == total:
         print("\n🎉 All V7 compliance components successfully integrated!")
     elif passed >= total - 1:
-        print("\nPASS V7 compliance components mostly integrated (import issue pending)")
+        print(
+            "\nPASS V7 compliance components mostly integrated (import issue pending)"
+        )
     else:
         print("\nWARN  Some V7 compliance components need attention")
 

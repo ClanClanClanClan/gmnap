@@ -72,7 +72,11 @@ class TestGlobalID:
     @pytest.mark.timeout(15)
     def test_fallback_to_latin(self):
         """Test fallback to CanonicalLatin when Native is missing."""
-        entry1 = {"CanonicalNative": "", "CanonicalLatin": "John Smith", "BirthYear": 1950}
+        entry1 = {
+            "CanonicalNative": "",
+            "CanonicalLatin": "John Smith",
+            "BirthYear": 1950,
+        }
 
         entry2 = {"CanonicalLatin": "John Smith", "BirthYear": 1950}
 
@@ -138,14 +142,21 @@ class TestGlobalID:
         assert len(result["GlobalID"]) == 22
 
         # Should not overwrite existing GlobalID
-        entry_with_id = {"CanonicalNative": "Test Name", "GlobalID": "EXISTINGIDEXISTINGIDAA"}
+        entry_with_id = {
+            "CanonicalNative": "Test Name",
+            "GlobalID": "EXISTINGIDEXISTINGIDAA",
+        }
         result = compute_global_id_for_pipeline(entry_with_id.copy())
         assert result["GlobalID"] == "EXISTINGIDEXISTINGIDAA"
 
     @pytest.mark.timeout(15)
     def test_add_global_id(self):
         """Test add_global_id helper function."""
-        entry = {"CanonicalNative": "Emmy Noether", "BirthYear": 1882, "DeathYear": 1935}
+        entry = {
+            "CanonicalNative": "Emmy Noether",
+            "BirthYear": 1882,
+            "DeathYear": 1935,
+        }
 
         global_id_str = add_global_id(entry)
         assert "GlobalID" in entry
@@ -173,9 +184,17 @@ class TestGlobalID:
     def test_v7_compliance_examples(self):
         """Test with examples that should match V7 spec behavior."""
         # Test known mathematicians
-        euler = {"CanonicalNative": "Leonhard Euler", "BirthYear": 1707, "DeathYear": 1783}
+        euler = {
+            "CanonicalNative": "Leonhard Euler",
+            "BirthYear": 1707,
+            "DeathYear": 1783,
+        }
 
-        gauss = {"CanonicalNative": "Carl Friedrich Gauss", "BirthYear": 1777, "DeathYear": 1855}
+        gauss = {
+            "CanonicalNative": "Carl Friedrich Gauss",
+            "BirthYear": 1777,
+            "DeathYear": 1855,
+        }
 
         euler_id = generate_global_id(euler)
         gauss_id = generate_global_id(gauss)

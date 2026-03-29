@@ -30,7 +30,9 @@ class RealWorldValidator:
     """Validate HybridRegionManager on real mathematician data."""
 
     def __init__(self):
-        self.manager = HybridRegionManager(use_security=False)  # Disable security for speed
+        self.manager = HybridRegionManager(
+            use_security=False
+        )  # Disable security for speed
 
     def load_curated_names(self) -> List[Dict]:
         """Load 67 curated real mathematician names."""
@@ -63,7 +65,9 @@ class RealWorldValidator:
                 # Normalize region code (remove underscores, convert to uppercase)
                 region_code = entry["region"].upper().replace("_", "")
                 # Extract just the region prefix (e.g., A1 from A1_ANGLO_SPHERE)
-                region_prefix = region_code.split("_")[0] if "_" in region_code else region_code[:2]
+                region_prefix = (
+                    region_code.split("_")[0] if "_" in region_code else region_code[:2]
+                )
 
                 entries.append(
                     {
@@ -113,13 +117,19 @@ class RealWorldValidator:
             detection = self.manager.detect_region(entry)
 
             # Extract region codes (normalize)
-            expected = entry["Region"].upper().replace("_SYNTHETIC", "").replace("_", "")
+            expected = (
+                entry["Region"].upper().replace("_SYNTHETIC", "").replace("_", "")
+            )
             detected = detection.region_code.upper().replace("_", "")
 
             # For famous mathematicians, region might be like "A1_ANGLO_SPHERE"
             # Extract just the prefix (A1, B1, etc.)
-            expected_prefix = expected.split("_")[0] if "_" in expected else expected[:2]
-            detected_prefix = detected.split("_")[0] if "_" in detected else detected[:2]
+            expected_prefix = (
+                expected.split("_")[0] if "_" in expected else expected[:2]
+            )
+            detected_prefix = (
+                detected.split("_")[0] if "_" in detected else detected[:2]
+            )
 
             # Track regional performance
             results["regional_stats"][expected_prefix]["total"] += 1
@@ -179,22 +189,32 @@ class RealWorldValidator:
         for region, stats in sorted_regions:
             acc = (stats["correct"] / stats["total"] * 100) if stats["total"] > 0 else 0
             status = "✅" if acc >= 95 else "⚠️" if acc >= 90 else "❌"
-            print(f"  {status} {region}: {stats['correct']}/{stats['total']} = {acc:.1f}%")
+            print(
+                f"  {status} {region}: {stats['correct']}/{stats['total']} = {acc:.1f}%"
+            )
 
         # Confidence analysis
-        avg_confidence = sum(s["confidence"] for s in results["confidence_stats"]) / len(
-            results["confidence_stats"]
-        )
-        correct_conf = [s["confidence"] for s in results["confidence_stats"] if s["correct"]]
-        incorrect_conf = [s["confidence"] for s in results["confidence_stats"] if not s["correct"]]
+        avg_confidence = sum(
+            s["confidence"] for s in results["confidence_stats"]
+        ) / len(results["confidence_stats"])
+        correct_conf = [
+            s["confidence"] for s in results["confidence_stats"] if s["correct"]
+        ]
+        incorrect_conf = [
+            s["confidence"] for s in results["confidence_stats"] if not s["correct"]
+        ]
 
         print()
         print("Confidence Analysis:")
         print(f"  Average confidence: {avg_confidence:.3f}")
         if correct_conf:
-            print(f"  Correct predictions: {sum(correct_conf)/len(correct_conf):.3f} avg")
+            print(
+                f"  Correct predictions: {sum(correct_conf)/len(correct_conf):.3f} avg"
+            )
         if incorrect_conf:
-            print(f"  Incorrect predictions: {sum(incorrect_conf)/len(incorrect_conf):.3f} avg")
+            print(
+                f"  Incorrect predictions: {sum(incorrect_conf)/len(incorrect_conf):.3f} avg"
+            )
 
         # Top failures
         if results["failures"]:
@@ -202,8 +222,12 @@ class RealWorldValidator:
             print(f"Top 10 Failures (of {len(results['failures'])} total):")
             for i, failure in enumerate(results["failures"][:10], 1):
                 print(f"  {i}. {failure['name']}")
-                print(f"     Expected: {failure['expected']}, Got: {failure['detected']}")
-                print(f"     Confidence: {failure['confidence']:.3f}, Method: {failure['method']}")
+                print(
+                    f"     Expected: {failure['expected']}, Got: {failure['detected']}"
+                )
+                print(
+                    f"     Confidence: {failure['confidence']:.3f}, Method: {failure['method']}"
+                )
                 print(f"     Country: {failure['country']}")
 
     def determine_verdict(
@@ -327,14 +351,18 @@ def main():
 
     # Tier 2: Famous mathematicians (240 entries)
     famous_entries = validator.load_famous_mathematicians()
-    famous_results = validator.validate_dataset(famous_entries, "Famous Mathematicians (240)")
+    famous_results = validator.validate_dataset(
+        famous_entries, "Famous Mathematicians (240)"
+    )
     validator.print_results(famous_results, "Famous Mathematicians")
 
     # Tier 3: Math Genealogy sample (1000 entries)
     print("\n" + "=" * 80)
     print("Loading Math Genealogy sample (1000 entries)...")
     mgp_entries = validator.load_math_genealogy_sample(n=1000)
-    mgp_results = validator.validate_dataset(mgp_entries, "Math Genealogy Sample (1000)")
+    mgp_results = validator.validate_dataset(
+        mgp_entries, "Math Genealogy Sample (1000)"
+    )
     validator.print_results(mgp_results, "Math Genealogy Sample")
 
     # Final verdict

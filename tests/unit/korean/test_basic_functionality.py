@@ -39,7 +39,11 @@ def test_korean_processor_preserves_metadata():
     """Test that processor preserves other fields."""
     processor = E4KoreanProcessor()
 
-    input_data = {"CanonicalNative": "김민수", "GlobalID": "TEST-001", "ExtraField": "preserved"}
+    input_data = {
+        "CanonicalNative": "김민수",
+        "GlobalID": "TEST-001",
+        "ExtraField": "preserved",
+    }
 
     result = processor.process(input_data.copy())
     assert result["GlobalID"] == "TEST-001"

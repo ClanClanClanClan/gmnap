@@ -16,9 +16,7 @@ def remove_unknown_person_bandaid(file_path: str) -> bool:
             content = f.read()
 
         # Find validate method
-        validate_pattern = (
-            r"(def validate\(self, entry: Dict\[str, Any\]\) -> None:.*?)(\n    def |\n\nclass |\Z)"
-        )
+        validate_pattern = r"(def validate\(self, entry: Dict\[str, Any\]\) -> None:.*?)(\n    def |\n\nclass |\Z)"
         match = re.search(validate_pattern, content, re.DOTALL)
 
         if not match:
@@ -92,7 +90,9 @@ def remove_unknown_person_bandaid(file_path: str) -> bool:
                 return False
         return True
 '''
-                new_content = new_content[:insert_pos] + unicode_helper + new_content[insert_pos:]
+                new_content = (
+                    new_content[:insert_pos] + unicode_helper + new_content[insert_pos:]
+                )
 
         # Write back
         with open(file_path, "w", encoding="utf-8") as f:
@@ -119,10 +119,14 @@ def fix_validation_return_types(file_path: str) -> bool:
         )
 
         # Remove return True/False statements
-        content = re.sub(r"\n\s+return (True|False)\s*$", "", content, flags=re.MULTILINE)
+        content = re.sub(
+            r"\n\s+return (True|False)\s*$", "", content, flags=re.MULTILINE
+        )
 
         # Replace return False with raise
-        content = re.sub(r"return False", 'raise RegionRuleError("Validation failed")', content)
+        content = re.sub(
+            r"return False", 'raise RegionRuleError("Validation failed")', content
+        )
 
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)

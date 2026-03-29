@@ -62,7 +62,10 @@ def fix_e4_test_expectations():
         for i, line in enumerate(lines):
             # Add skip markers for problematic tests
             for test_name in skip_tests:
-                if f"def {test_name}(" in line and "@pytest.mark.skip" not in lines[i - 1]:
+                if (
+                    f"def {test_name}(" in line
+                    and "@pytest.mark.skip" not in lines[i - 1]
+                ):
                     new_lines.append(
                         '    @pytest.mark.skip(reason="Feature not implemented as expected")'
                     )

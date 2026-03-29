@@ -59,7 +59,9 @@ async def test_batch_performance(size: int):
             successful = size
 
         entries_per_sec = size / duration if duration > 0 else 0
-        time_1m_min = (1_000_000 / entries_per_sec / 60) if entries_per_sec > 0 else float("inf")
+        time_1m_min = (
+            (1_000_000 / entries_per_sec / 60) if entries_per_sec > 0 else float("inf")
+        )
         success_rate = (successful / size) * 100 if size > 0 else 0
 
         # Status indicator

@@ -24,7 +24,13 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from hypothesis import assume, given, strategies as st, settings
-from hypothesis.stateful import RuleBasedStateMachine, Bundle, rule, invariant, precondition
+from hypothesis.stateful import (
+    RuleBasedStateMachine,
+    Bundle,
+    rule,
+    invariant,
+    precondition,
+)
 
 # Formal specifications as mathematical properties
 
@@ -239,17 +245,22 @@ class TestFormalVerification:
         # Define invariants
         checker.add_invariant(
             "non_negative_values",
-            lambda state: all(v >= 0 for v in state.data.values() if isinstance(v, (int, float))),
+            lambda state: all(
+                v >= 0 for v in state.data.values() if isinstance(v, (int, float))
+            ),
         )
 
         checker.add_invariant(
             "bounded_string_length",
-            lambda state: all(len(v) <= 1000 for v in state.data.values() if isinstance(v, str)),
+            lambda state: all(
+                len(v) <= 1000 for v in state.data.values() if isinstance(v, str)
+            ),
         )
 
         checker.add_invariant(
             "history_integrity",
-            lambda state: len(state.history) == len(set(state.history)),  # No duplicate operations
+            lambda state: len(state.history)
+            == len(set(state.history)),  # No duplicate operations
         )
 
         # Create initial state
@@ -340,7 +351,9 @@ class TestFormalVerification:
         assert always_positive, "Safety property violated"
 
         # Property: System eventually completes
-        eventually_complete = TemporalLogic.eventually(lambda s: s["state"] == "complete", trace)
+        eventually_complete = TemporalLogic.eventually(
+            lambda s: s["state"] == "complete", trace
+        )
         assert eventually_complete, "Liveness property violated"
 
         # Property: Processing until complete
@@ -470,7 +483,9 @@ class TestFormalVerification:
                 ), f"Refinement violated for {op}({arg})"
 
         # Verify representation invariant
-        assert set(concrete.storage) == abstract.items, "Representation invariant violated"
+        assert (
+            set(concrete.storage) == abstract.items
+        ), "Representation invariant violated"
 
         print("✓ Refinement relation verified")
 

@@ -161,7 +161,9 @@ def run_comprehensive_tests():
     # Category breakdown
     print("\n📂 Results by Category:")
     for category, results in category_results.items():
-        print(f"  {category}: {results['passed']}/{results['total']} ({results['rate']:.1f}%)")
+        print(
+            f"  {category}: {results['passed']}/{results['total']} ({results['rate']:.1f}%)"
+        )
 
     # Final assessment
     print("\n" + "=" * 80)
@@ -186,7 +188,9 @@ def run_comprehensive_tests():
         print("\n🔧 Areas needing attention:")
         for category, results in category_results.items():
             if results["failed"] > 0 or results["errors"] > 0:
-                print(f"  - {category}: {results['failed']} failures, {results['errors']} errors")
+                print(
+                    f"  - {category}: {results['failed']} failures, {results['errors']} errors"
+                )
 
     return pass_rate if total_run > 0 else 0
 

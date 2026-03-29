@@ -36,7 +36,9 @@ class A3NordicBalticProcessor(RegionSpec):
 
         # Nordic/Baltic specific characters
         self.nordic_chars = set("åäöæøÅÄÖÆØáéíóúýÁÉÍÓÚÝðÐþÞ")  # Including Icelandic
-        self.baltic_chars = set("ąčęėįšųūžĄČĘĖĮŠŲŪŽõÕāēīūĀĒĪŪļķņģĻĶŅĢ")  # Including Latvian
+        self.baltic_chars = set(
+            "ąčęėįšųūžĄČĘĖĮŠŲŪŽõÕāēīūĀĒĪŪļķņģĻĶŅĢ"
+        )  # Including Latvian
         self.allowed_chars = self.nordic_chars | self.baltic_chars
 
         # Icelandic patronymic suffixes (Rule 8)
@@ -290,7 +292,9 @@ class A3NordicBalticProcessor(RegionSpec):
         # Add ASCII variant
         ascii_variant = self._generate_ascii_variant(canonical)
         if ascii_variant != canonical:
-            entry["Variants"]["Synthesised"].append({"str": ascii_variant, "type": "ascii-lossy"})
+            entry["Variants"]["Synthesised"].append(
+                {"str": ascii_variant, "type": "ascii-lossy"}
+            )
 
         # Add particle-drop variant for nobles
         if components.get("particle"):
@@ -449,7 +453,9 @@ class A3NordicBalticProcessor(RegionSpec):
             # Default to false for ambiguous cases
             return False
 
-        return any(name_lower.endswith(suffix) for suffix in self.patronymic_suffixes.keys())
+        return any(
+            name_lower.endswith(suffix) for suffix in self.patronymic_suffixes.keys()
+        )
 
     def _has_baltic_ending(self, name: str) -> bool:
         """Check if name has Baltic gendered ending."""
@@ -560,7 +566,9 @@ class A3NordicBalticProcessor(RegionSpec):
         if components.get("is_patronymic"):
             family = components.get("family_name", "")
             if not self._is_patronymic(family):
-                raise RegionRuleError(f"Marked as patronymic but doesn't match pattern: {family}")
+                raise RegionRuleError(
+                    f"Marked as patronymic but doesn't match pattern: {family}"
+                )
 
             # Excluded from surname collision stats (Rule 8)
             if "FamilyNameType" not in entry:
@@ -581,7 +589,9 @@ class A3NordicBalticProcessor(RegionSpec):
     def _is_valid_nordic_baltic_name(self, name: str) -> bool:
         """Check if name contains valid Nordic-Baltic characters."""
         # Allow basic Latin, Nordic/Baltic special characters, numbers, and common punctuation
-        allowed = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'")
+        allowed = set(
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ,.-'"
+        )
         allowed.update(self.allowed_chars)
         allowed.update("ðÐþÞ")  # Icelandic special
 

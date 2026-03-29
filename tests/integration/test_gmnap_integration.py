@@ -43,7 +43,9 @@ def test_converter_v6_integration():
 
     for english_name, expected_korean in test_cases:
         korean_result = converter.english_to_korean(english_name)
-        english_back = converter.korean_to_english(korean_result) if korean_result else None
+        english_back = (
+            converter.korean_to_english(korean_result) if korean_result else None
+        )
         accuracy = converter.validate_round_trip(english_name)
 
         print(f"  '{english_name}':")
@@ -57,7 +59,9 @@ def test_converter_v6_integration():
         else:
             print(f"    FAIL FAILED")
 
-    print(f"\n📊 Integration test results: {successful}/{total} ({successful/total*100:.1f}%)")
+    print(
+        f"\n📊 Integration test results: {successful}/{total} ({successful/total*100:.1f}%)"
+    )
 
     return successful > 0
 

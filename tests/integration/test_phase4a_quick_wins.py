@@ -33,26 +33,58 @@ def test_phase4a_improvements():
     test_cases = [
         # Original baseline tests (should still work)
         {"name": "김철수", "expected": "E4", "description": "Korean script"},
-        {"name": "山田太郎", "expected": "E3", "description": "Japanese enhanced patterns"},
-        {"name": "محمد الأحمد", "expected": "C3", "description": "Arabic Levantine patterns"},
+        {
+            "name": "山田太郎",
+            "expected": "E3",
+            "description": "Japanese enhanced patterns",
+        },
+        {
+            "name": "محمد الأحمد",
+            "expected": "C3",
+            "description": "Arabic Levantine patterns",
+        },
         {"name": "José García", "expected": "G1", "description": "Spanish language"},
-        {"name": "Jean Dupont", "expected": "A2", "description": "French language (Phase 3 fix)"},
-        {"name": "Wang Wei", "expected": "E1", "description": "Chinese surname pattern"},
+        {
+            "name": "Jean Dupont",
+            "expected": "A2",
+            "description": "French language (Phase 3 fix)",
+        },
+        {
+            "name": "Wang Wei",
+            "expected": "E1",
+            "description": "Chinese surname pattern",
+        },
         {"name": "Maria Silva", "expected": "A2", "description": "Portuguese surname"},
         {"name": "John Smith", "expected": "A1", "description": "English baseline"},
         {"name": "Иван Петров", "expected": "B1", "description": "Russian script"},
         {"name": "علی احمدی", "expected": "C2", "description": "Persian script"},
         # NEW PHASE 4A TESTS: Turkish detection
-        {"name": "Mehmet Yılmaz", "expected": "C1", "description": "Turkish surname pattern (NEW)"},
-        {"name": "Ayşe Kaya", "expected": "C1", "description": "Turkish surname pattern (NEW)"},
-        {"name": "Mustafa Özkan", "expected": "C1", "description": "Turkish surname pattern (NEW)"},
+        {
+            "name": "Mehmet Yılmaz",
+            "expected": "C1",
+            "description": "Turkish surname pattern (NEW)",
+        },
+        {
+            "name": "Ayşe Kaya",
+            "expected": "C1",
+            "description": "Turkish surname pattern (NEW)",
+        },
+        {
+            "name": "Mustafa Özkan",
+            "expected": "C1",
+            "description": "Turkish surname pattern (NEW)",
+        },
         # NEW PHASE 4A TESTS: Nordic detection
         {
             "name": "Lars Andersson",
             "expected": "A3",
             "description": "Swedish surname pattern (NEW)",
         },
-        {"name": "Erik Nielsen", "expected": "A3", "description": "Danish surname pattern (NEW)"},
+        {
+            "name": "Erik Nielsen",
+            "expected": "A3",
+            "description": "Danish surname pattern (NEW)",
+        },
         {
             "name": "Ingrid Hansen",
             "expected": "A3",
@@ -86,7 +118,9 @@ def test_phase4a_improvements():
             f"{i:2}. {status} {case['name']:15} -> {result.region_code:2} ({case['expected']:2}) {case['description']}"
         )
         if not is_correct:
-            print(f"     Method: {result.detection_method}, Confidence: {result.confidence:.2f}")
+            print(
+                f"     Method: {result.detection_method}, Confidence: {result.confidence:.2f}"
+            )
 
         results.append(
             {

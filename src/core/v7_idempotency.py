@@ -78,7 +78,9 @@ class V7IdempotencyChecker:
         byte_difference = len(bytes_first) - len(bytes_second)
         if byte_difference == 0 and bytes_first != bytes_second:
             # Same length but different content
-            byte_difference = sum(1 for a, b in zip(bytes_first, bytes_second) if a != b)
+            byte_difference = sum(
+                1 for a, b in zip(bytes_first, bytes_second) if a != b
+            )
 
         processing_time = int((datetime.now() - start_time).total_seconds() * 1000)
 
@@ -157,7 +159,9 @@ class V7IdempotencyChecker:
         """
         return hashlib.sha256(canonical_str.encode("utf-8")).hexdigest()
 
-    def _find_differences(self, canonical1: str, canonical2: str) -> List[Dict[str, Any]]:
+    def _find_differences(
+        self, canonical1: str, canonical2: str
+    ) -> List[Dict[str, Any]]:
         """
         Find differences between two canonical representations.
 
@@ -180,7 +184,11 @@ class V7IdempotencyChecker:
             # Check entry count
             if len(data1) != len(data2):
                 differences.append(
-                    {"type": "count_mismatch", "first": len(data1), "second": len(data2)}
+                    {
+                        "type": "count_mismatch",
+                        "first": len(data1),
+                        "second": len(data2),
+                    }
                 )
 
             # Compare entries by GlobalID
@@ -327,7 +335,9 @@ class V7IdempotencyChecker:
             self.logger.error(
                 f"❌ Pipeline is NOT idempotent ({result.byte_difference} byte difference)"
             )
-            self.logger.error(f"Differences found: {result.differences[:3]}")  # First 3 differences
+            self.logger.error(
+                f"Differences found: {result.differences[:3]}"
+            )  # First 3 differences
 
         return result.is_idempotent, details
 
@@ -366,7 +376,9 @@ class V7IdempotencyChecker:
 
 
 def create_idempotency_report(
-    checker: V7IdempotencyChecker, pipeline, test_entries: Optional[List[Dict[str, Any]]] = None
+    checker: V7IdempotencyChecker,
+    pipeline,
+    test_entries: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     """
     Create comprehensive idempotency report for V7 compliance.
@@ -403,14 +415,18 @@ def create_idempotency_report(
         }
 
     # Overall compliance
-    all_idempotent = all(test.get("is_idempotent", False) for test in report["tests"].values())
+    all_idempotent = all(
+        test.get("is_idempotent", False) for test in report["tests"].values()
+    )
 
     report["v7_compliant"] = all_idempotent
     report["summary"] = {
         "status": "✅ PASSED" if all_idempotent else "❌ FAILED",
         "requirement": "0-byte idempotency per V7 specification",
         "tests_run": len(report["tests"]),
-        "tests_passed": sum(1 for t in report["tests"].values() if t.get("is_idempotent", False)),
+        "tests_passed": sum(
+            1 for t in report["tests"].values() if t.get("is_idempotent", False)
+        ),
     }
 
     return report

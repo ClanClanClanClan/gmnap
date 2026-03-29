@@ -22,7 +22,9 @@ async def check_remaining_failures():
     results = await pipeline._stage_8_global_validate(stage5_results)
 
     print("=== REMAINING VALIDATION FAILURES ===")
-    print(f"Valid entries: {sum(1 for e in results if e.get('ValidationStatus') == 'VALID')}/12")
+    print(
+        f"Valid entries: {sum(1 for e in results if e.get('ValidationStatus') == 'VALID')}/12"
+    )
     print()
 
     failed_count = 0
@@ -37,7 +39,9 @@ async def check_remaining_failures():
             print(f"Failed #{failed_count}: {canonical}")
             print(f"  Native: {native}")
             print(f"  Region: {region}")
-            print(f"  Schema: {'✓' if validation_results.get('schema_valid', False) else '✗'}")
+            print(
+                f"  Schema: {'✓' if validation_results.get('schema_valid', False) else '✗'}"
+            )
             print(
                 f"  Roundtrip: {'✓' if validation_results.get('roundtrip_valid', False) else '✗'}"
             )

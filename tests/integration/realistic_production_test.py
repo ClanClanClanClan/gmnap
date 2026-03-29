@@ -93,13 +93,21 @@ class RealisticProductionTest:
                         ("Николаевич", "Nikolaevich"),
                         ("Сидоров", "Sidorov"),
                     ),
-                    (("Елена", "Elena"), ("Михайловна", "Mikhailovna"), ("Козлова", "Kozlova")),
+                    (
+                        ("Елена", "Elena"),
+                        ("Михайловна", "Mikhailovna"),
+                        ("Козлова", "Kozlova"),
+                    ),
                     (
                         ("Александр", "Aleksandr"),
                         ("Сергеевич", "Sergeevich"),
                         ("Новиков", "Novikov"),
                     ),
-                    (("Ольга", "Olga"), ("Дмитриевна", "Dmitrievna"), ("Волкова", "Volkova")),
+                    (
+                        ("Ольга", "Olga"),
+                        ("Дмитриевна", "Dmitrievna"),
+                        ("Волкова", "Volkova"),
+                    ),
                 ],
                 "country": "RU",
                 "region": "B1",
@@ -126,8 +134,16 @@ class RealisticProductionTest:
             {
                 "template": "{given} {father} {family}",
                 "patterns": [
-                    (("محمد", "Muhammad"), ("عبد الله", "Abdullah"), ("الأحمد", "Al-Ahmad")),
-                    (("فاطمة", "Fatima"), ("محمد", "Muhammad"), ("الزهراء", "Al-Zahra")),
+                    (
+                        ("محمد", "Muhammad"),
+                        ("عبد الله", "Abdullah"),
+                        ("الأحمد", "Al-Ahmad"),
+                    ),
+                    (
+                        ("فاطمة", "Fatima"),
+                        ("محمد", "Muhammad"),
+                        ("الزهراء", "Al-Zahra"),
+                    ),
                     (("أحمد", "Ahmad"), ("علي", "Ali"), ("الحسن", "Al-Hasan")),
                     (("عائشة", "Aisha"), ("أحمد", "Ahmad"), ("الخليل", "Al-Khalil")),
                     (("عمر", "Umar"), ("يوسف", "Yusuf"), ("المحمود", "Al-Mahmoud")),
@@ -216,7 +232,9 @@ class RealisticProductionTest:
                                 family=native_parts[2],
                             )
                             canonical_latin = template.format(
-                                given=latin_parts[0], middle=latin_parts[1], family=latin_parts[2]
+                                given=latin_parts[0],
+                                middle=latin_parts[1],
+                                family=latin_parts[2],
                             )
                         elif "patronymic" in template:
                             canonical_native = template.format(
@@ -236,15 +254,21 @@ class RealisticProductionTest:
                                 family=native_parts[2],
                             )
                             canonical_latin = template.format(
-                                given=latin_parts[0], father=latin_parts[1], family=latin_parts[2]
+                                given=latin_parts[0],
+                                father=latin_parts[1],
+                                family=latin_parts[2],
                             )
                 else:
                     # Single-form names (Latin script)
                     if len(names) == 2:
-                        canonical_name = template.format(given=names[0], family=names[1])
+                        canonical_name = template.format(
+                            given=names[0], family=names[1]
+                        )
                     elif len(names) == 3:
                         canonical_name = (
-                            template.format(given=names[0], middle=names[1], family=names[2])
+                            template.format(
+                                given=names[0], middle=names[1], family=names[2]
+                            )
                             if "middle" in template
                             else (
                                 template.format(
@@ -260,7 +284,9 @@ class RealisticProductionTest:
                     canonical_latin = canonical_name
 
                 # Add realistic data messiness (only to a small percentage)
-                if random.random() < 0.05:  # Reduced to 5% to avoid too many test failures
+                if (
+                    random.random() < 0.05
+                ):  # Reduced to 5% to avoid too many test failures
                     if script == "latin":
                         canonical_name = self._add_data_messiness(canonical_name)
                         canonical_native = canonical_name
@@ -298,7 +324,9 @@ class RealisticProductionTest:
                 region = pattern_set["region"]
                 country = pattern_set["country"]
 
-                dataset_stats["by_region"][region] = dataset_stats["by_region"].get(region, 0) + 1
+                dataset_stats["by_region"][region] = (
+                    dataset_stats["by_region"].get(region, 0) + 1
+                )
                 dataset_stats["by_country"][country] = (
                     dataset_stats["by_country"].get(country, 0) + 1
                 )
@@ -402,14 +430,18 @@ class RealisticProductionTest:
 
                 # Report results
                 if success:
-                    print(f"  ✅ Success: {duration:.1f}s ({entries_per_second:.2f} entries/sec)")
+                    print(
+                        f"  ✅ Success: {duration:.1f}s ({entries_per_second:.2f} entries/sec)"
+                    )
                     print(f"  📈 Memory: +{memory_increase:.1f}MB")
                     print(f"  🎯 Projected 1M: {projected_1m_minutes:.1f} minutes")
 
                     if projected_1m_minutes <= 30:
                         print(f"  🎉 MEETS TARGET!")
                     else:
-                        print(f"  ⚠️  {projected_1m_minutes/30:.1f}x slower than target")
+                        print(
+                            f"  ⚠️  {projected_1m_minutes/30:.1f}x slower than target"
+                        )
                 else:
                     print(f"  ❌ FAILED: {error}")
                     self.failed_tests.append(f"Scale test {size} entries: {error}")
@@ -424,27 +456,87 @@ class RealisticProductionTest:
         # Test names from ALL specified regions (not just implemented ones)
         test_cases = [
             # Implemented regions (should work)
-            {"name": "Smith, John", "country": "US", "expected": "A1", "implemented": True},
-            {"name": "Иванов Иван", "country": "RU", "expected": "B1", "implemented": True},
-            {"name": "راम प्रकाश शर्मा", "country": "IN", "expected": "D1", "implemented": True},
+            {
+                "name": "Smith, John",
+                "country": "US",
+                "expected": "A1",
+                "implemented": True,
+            },
+            {
+                "name": "Иванов Иван",
+                "country": "RU",
+                "expected": "B1",
+                "implemented": True,
+            },
+            {
+                "name": "راम प्रकाश शर्मा",
+                "country": "IN",
+                "expected": "D1",
+                "implemented": True,
+            },
             {"name": "王小明", "country": "CN", "expected": "E1", "implemented": True},
-            {"name": "محمد عبد الله", "country": "EG", "expected": "C3", "implemented": True},
-            {"name": "田中太郎", "country": "JP", "expected": "E3", "implemented": True},
-            {"name": "García López, José", "country": "MX", "expected": "G1", "implemented": True},
+            {
+                "name": "محمد عبد الله",
+                "country": "EG",
+                "expected": "C3",
+                "implemented": True,
+            },
+            {
+                "name": "田中太郎",
+                "country": "JP",
+                "expected": "E3",
+                "implemented": True,
+            },
+            {
+                "name": "García López, José",
+                "country": "MX",
+                "expected": "G1",
+                "implemented": True,
+            },
             # UNIMPLEMENTED regions (should expose gaps)
-            {"name": "Kowalski, Piotr", "country": "PL", "expected": "B2", "implemented": False},
-            {"name": "Müller, Hans", "country": "DE", "expected": "A2", "implemented": False},
+            {
+                "name": "Kowalski, Piotr",
+                "country": "PL",
+                "expected": "B2",
+                "implemented": False,
+            },
+            {
+                "name": "Müller, Hans",
+                "country": "DE",
+                "expected": "A2",
+                "implemented": False,
+            },
             {"name": "김철수", "country": "KR", "expected": "E4", "implemented": False},
-            {"name": "Öztürk, Ahmet", "country": "TR", "expected": "C1", "implemented": False},
+            {
+                "name": "Öztürk, Ahmet",
+                "country": "TR",
+                "expected": "C1",
+                "implemented": False,
+            },
             {
                 "name": "Silva, João",
                 "country": "BR",
                 "expected": "G1",
                 "implemented": False,
             },  # Boundary case
-            {"name": "রহমান আহমদ", "country": "BD", "expected": "D2", "implemented": False},
-            {"name": "Okonkwo, Chinua", "country": "NG", "expected": "F2", "implemented": False},
-            {"name": "Andersson, Lars", "country": "SE", "expected": "A4", "implemented": False},
+            {
+                "name": "রহমান আহমদ",
+                "country": "BD",
+                "expected": "D2",
+                "implemented": False,
+            },
+            {
+                "name": "Okonkwo, Chinua",
+                "country": "NG",
+                "expected": "F2",
+                "implemented": False,
+            },
+            {
+                "name": "Andersson, Lars",
+                "country": "SE",
+                "expected": "A4",
+                "implemented": False,
+            },
         ]
 
         coverage_results = {
@@ -535,7 +627,9 @@ class RealisticProductionTest:
         )
 
         total_regions_tested = len(test_cases)
-        coverage_percentage = coverage_results["implemented_total"] / total_regions_tested * 100
+        coverage_percentage = (
+            coverage_results["implemented_total"] / total_regions_tested * 100
+        )
 
         print(f"\n📊 COVERAGE ANALYSIS:")
         print(
@@ -671,7 +765,9 @@ class RealisticProductionTest:
 
                         config = GMNAPConfig()
                         config.cache.cache_dir = str(temp_path / "cache")
-                        config.database.db_path = str(temp_path / f"test_w{worker_id}_op{op_id}.db")
+                        config.database.db_path = str(
+                            temp_path / f"test_w{worker_id}_op{op_id}.db"
+                        )
 
                         start_time = time.time()
                         pipeline = GMNAPPipeline(config, PipelineMode.QUICK)
@@ -687,7 +783,9 @@ class RealisticProductionTest:
                         )
 
                 except Exception as e:
-                    worker_results["errors"].append({"operation_id": op_id, "error": str(e)})
+                    worker_results["errors"].append(
+                        {"operation_id": op_id, "error": str(e)}
+                    )
                     worker_results["operations"].append(
                         {"operation_id": op_id, "success": False, "error": str(e)}
                     )
@@ -701,7 +799,9 @@ class RealisticProductionTest:
         start_time = time.time()
 
         for worker_id in range(concurrent_results["workers"]):
-            worker = threading.Thread(target=worker_task, args=(worker_id, results_queue))
+            worker = threading.Thread(
+                target=worker_task, args=(worker_id, results_queue)
+            )
             workers.append(worker)
             worker.start()
 
@@ -784,7 +884,9 @@ class RealisticProductionTest:
             detection = pipeline.region_manager.detect_region(entry)
             return detection.region_code
         except Exception as e:
-            print(f"  Region detection failed for {entry.get('CanonicalLatin', 'unknown')}: {e}")
+            print(
+                f"  Region detection failed for {entry.get('CanonicalLatin', 'unknown')}: {e}"
+            )
             return "Z0"
 
     def run_comprehensive_realistic_tests(self) -> Dict[str, Any]:
@@ -939,7 +1041,9 @@ class RealisticProductionTest:
         if max_successful_size >= 500:
             print(f"✅ Deploy for datasets up to {max_successful_size:,} entries")
         else:
-            print(f"⚠️ Limit to demonstration/testing use (<{max_successful_size} entries)")
+            print(
+                f"⚠️ Limit to demonstration/testing use (<{max_successful_size} entries)"
+            )
 
         if best_performance > 30:
             print(f"⚠️ Expect {best_performance/30:.1f}x longer processing than target")
@@ -949,7 +1053,9 @@ class RealisticProductionTest:
             print(f"⚠️ {missing_percentage:.1f}% of global mathematicians not covered")
 
         if concurrent_success_rate < 95:
-            print(f"⚠️ Concurrent operations unreliable - use single-threaded deployment")
+            print(
+                f"⚠️ Concurrent operations unreliable - use single-threaded deployment"
+            )
 
 
 if __name__ == "__main__":

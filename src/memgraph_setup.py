@@ -173,8 +173,12 @@ class MemgraphManager:
             )
 
             return {
-                "ancestors": [self._path_to_dict(record["path"]) for record in ancestors],
-                "descendants": [self._path_to_dict(record["path"]) for record in descendants],
+                "ancestors": [
+                    self._path_to_dict(record["path"]) for record in ancestors
+                ],
+                "descendants": [
+                    self._path_to_dict(record["path"]) for record in descendants
+                ],
             }
 
     def _path_to_dict(self, path) -> List[Dict[str, Any]]:
@@ -202,9 +206,9 @@ class MemgraphManager:
         """
         with self.driver.session() as session:
             # Get total nodes
-            total_nodes = session.run("MATCH (n:Mathematician) RETURN count(n) as count").single()[
-                "count"
-            ]
+            total_nodes = session.run(
+                "MATCH (n:Mathematician) RETURN count(n) as count"
+            ).single()["count"]
 
             if total_nodes == 0:
                 return 0.0
@@ -244,7 +248,9 @@ class MemgraphManager:
             cycle_score = 1 - (len(cycles) / max(total_nodes, 1))
 
             # Weighted average
-            coherence = 0.4 * connectivity_score + 0.3 * distribution_score + 0.3 * cycle_score
+            coherence = (
+                0.4 * connectivity_score + 0.3 * distribution_score + 0.3 * cycle_score
+            )
 
             return coherence
 

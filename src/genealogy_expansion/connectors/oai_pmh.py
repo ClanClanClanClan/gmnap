@@ -27,7 +27,11 @@ class OaiPmhConnector(BaseConnector):
             token = None
             while True:
                 await self.rate.wait()
-                p = {"verb": "ListRecords", "resumptionToken": token} if token else params
+                p = (
+                    {"verb": "ListRecords", "resumptionToken": token}
+                    if token
+                    else params
+                )
                 async with s.get(base, params=p, timeout=60) as r:
                     r.raise_for_status()
                     xml_txt = await r.text()
@@ -35,7 +39,11 @@ class OaiPmhConnector(BaseConnector):
                     for rec in root.iter(f"{NS_OAI}record"):
                         yield {"_raw_xml": ET.tostring(rec, encoding="unicode")}
                     token_elem = root.find(f".//{NS_OAI}resumptionToken")
-                    token = token_elem.text if token_elem is not None and token_elem.text else None
+                    token = (
+                        token_elem.text
+                        if token_elem is not None and token_elem.text
+                        else None
+                    )
                     if not token:
                         break
 

@@ -41,7 +41,8 @@ def update_base_class(content: str) -> Tuple[str, bool]:
     # Update RegionRuleError import if needed
     if "from ...base import RegionRuleError" in content:
         content = content.replace(
-            "from ...base import RegionRuleError", "from ...base_enhanced import RegionRuleError"
+            "from ...base import RegionRuleError",
+            "from ...base_enhanced import RegionRuleError",
         )
         modified = True
     elif "from src.regions.base import RegionRuleError" in content:
@@ -93,7 +94,8 @@ def enhance_clean_method(content: str, region_code: str) -> Tuple[str, bool]:
             # Insert super().clean() call
             indentation = "        "  # 8 spaces for method body
             lines.insert(
-                insert_index, f"{indentation}# Apply enhanced base security and normalization"
+                insert_index,
+                f"{indentation}# Apply enhanced base security and normalization",
             )
             lines.insert(insert_index + 1, f"{indentation}super().clean(entry)")
             lines.insert(insert_index + 2, "")
@@ -143,7 +145,10 @@ def enhance_augment_method(content: str, region_code: str) -> Tuple[str, bool]:
         original_augment = augment_method
 
         # Check if it already has idempotency check
-        if "_augmented" not in augment_method and "super().augment(entry)" not in augment_method:
+        if (
+            "_augmented" not in augment_method
+            and "super().augment(entry)" not in augment_method
+        ):
             # Add idempotency check at the beginning
             lines = augment_method.split("\n")
 
@@ -252,8 +257,12 @@ def main():
     print("=" * 60)
 
     if updated_count > 0:
-        print("\n⚠️  IMPORTANT: Please run the psychotic test suite to verify A+ compliance:")
-        print("  PYTHONPATH=. python3 tests/integration/test_psychotic_paranoid_ultimate.py")
+        print(
+            "\n⚠️  IMPORTANT: Please run the psychotic test suite to verify A+ compliance:"
+        )
+        print(
+            "  PYTHONPATH=. python3 tests/integration/test_psychotic_paranoid_ultimate.py"
+        )
         print("\n📝 Backups created with .backup extension")
         print("  To restore: rename .backup files back to .py")
 

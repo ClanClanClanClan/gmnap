@@ -82,7 +82,12 @@ async def enrich_all(entries: List[Dict]) -> List[Dict]:
                 edges = r.get("Wikidata_P184") or []
                 if edges:
                     merged["Advisors"] = sorted(
-                        list({*(merged.get("Advisors") or []), *[edge["target"] for edge in edges]})
+                        list(
+                            {
+                                *(merged.get("Advisors") or []),
+                                *[edge["target"] for edge in edges],
+                            }
+                        )
                     )
         out.append(merged)
     return out

@@ -18,7 +18,9 @@ def generate_attribution_text() -> str:
     specs = load_specs()
     lines = []
     lines.append("ATTRIBUTION — Third-party sources and licences\n")
-    lines.append("This file is auto-generated based on specs_v7.yaml authority_sources.\n")
+    lines.append(
+        "This file is auto-generated based on specs_v7.yaml authority_sources.\n"
+    )
     sources = specs.get("authority_sources", []) or []
     for src in sources:
         name = src.get("service")

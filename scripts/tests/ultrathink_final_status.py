@@ -63,7 +63,12 @@ def run_test_categories():
         ),
     ]
 
-    overall_results = {"total_passed": 0, "total_failed": 0, "total_errors": 0, "categories": {}}
+    overall_results = {
+        "total_passed": 0,
+        "total_failed": 0,
+        "total_errors": 0,
+        "categories": {},
+    }
 
     for category_name, test_files in test_categories:
         print(f"\n📂 {category_name}")
@@ -79,10 +84,20 @@ def run_test_categories():
                 continue
 
             # Run test with timeout
-            cmd = [sys.executable, "-m", "pytest", test_file, "-q", "--tb=no", "--timeout=5"]
+            cmd = [
+                sys.executable,
+                "-m",
+                "pytest",
+                test_file,
+                "-q",
+                "--tb=no",
+                "--timeout=5",
+            ]
 
             try:
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=10, env=env)
+                result = subprocess.run(
+                    cmd, capture_output=True, text=True, timeout=10, env=env
+                )
 
                 output = result.stdout + result.stderr
 

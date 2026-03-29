@@ -256,7 +256,9 @@ class TestReportGenerator:
         # Parse memory test results for performance metrics
         memory_xml = self.parse_junit_xml("test-results-memory.xml")
         if "testcases" in memory_xml:
-            test_times = [case["time"] for case in memory_xml["testcases"] if case["time"] > 0]
+            test_times = [
+                case["time"] for case in memory_xml["testcases"] if case["time"] > 0
+            ]
             if test_times:
                 performance_data["memory_usage"] = {
                     "avg_test_time": statistics.mean(test_times),
@@ -266,9 +268,9 @@ class TestReportGenerator:
                 }
 
                 # Identify slowest tests
-                slowest = sorted(memory_xml["testcases"], key=lambda x: x["time"], reverse=True)[
-                    :10
-                ]
+                slowest = sorted(
+                    memory_xml["testcases"], key=lambda x: x["time"], reverse=True
+                )[:10]
                 performance_data["slowest_tests"] = [
                     {"name": test["name"], "time": test["time"]}
                     for test in slowest
@@ -279,12 +281,19 @@ class TestReportGenerator:
 
     def run_security_analysis(self) -> Dict[str, Any]:
         """Run additional security analysis."""
-        security_data = {"bandit_results": {}, "safety_results": {}, "dependency_scan": {}}
+        security_data = {
+            "bandit_results": {},
+            "safety_results": {},
+            "dependency_scan": {},
+        }
 
         # Run bandit if available
         try:
             result = subprocess.run(
-                ["bandit", "-r", "src/", "-f", "json"], capture_output=True, text=True, timeout=300
+                ["bandit", "-r", "src/", "-f", "json"],
+                capture_output=True,
+                text=True,
+                timeout=300,
             )
             if result.returncode == 0 or result.stdout:
                 try:
@@ -308,14 +317,21 @@ class TestReportGenerator:
                         ),
                     }
                 except json.JSONDecodeError:
-                    security_data["bandit_results"] = {"error": "Failed to parse bandit output"}
+                    security_data["bandit_results"] = {
+                        "error": "Failed to parse bandit output"
+                    }
         except (subprocess.TimeoutExpired, FileNotFoundError):
-            security_data["bandit_results"] = {"error": "Bandit not available or timed out"}
+            security_data["bandit_results"] = {
+                "error": "Bandit not available or timed out"
+            }
 
         # Run safety check if available
         try:
             result = subprocess.run(
-                ["safety", "check", "--json"], capture_output=True, text=True, timeout=300
+                ["safety", "check", "--json"],
+                capture_output=True,
+                text=True,
+                timeout=300,
             )
             if result.stdout:
                 try:
@@ -479,7 +495,9 @@ class TestReportGenerator:
         passed_tests = summary.get("passed_tests", 0)
         failed_tests = summary.get("failed_tests", 0)
 
-        success_percentage = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        success_percentage = (
+            (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        )
         overall_status = (
             "success"
             if success_percentage >= 90
@@ -508,9 +526,13 @@ class TestReportGenerator:
             lines_total=coverage.get("lines_valid", 0),
             security_issues=self.report_data["security"].get("total_issues", 0),
             security_status=(
-                "success" if self.report_data["security"].get("total_issues", 0) == 0 else "danger"
+                "success"
+                if self.report_data["security"].get("total_issues", 0) == 0
+                else "danger"
             ),
-            security_summary=self.report_data["security"].get("summary", "No issues found"),
+            security_summary=self.report_data["security"].get(
+                "summary", "No issues found"
+            ),
             avg_test_time=f"{self.report_data['performance'].get('avg_test_time', 0):.2f}",
             total_test_time=f"{self.report_data['performance'].get('total_time', 0):.2f}",
             test_details_tables=self._generate_test_details_tables(),
@@ -629,14 +651,18 @@ class TestReportGenerator:
             if "error" not in data:
                 by_type[test_type] = data
                 total_tests += data["tests"]
-                passed_tests += data["tests"] - data["failures"] - data["errors"] - data["skipped"]
+                passed_tests += (
+                    data["tests"] - data["failures"] - data["errors"] - data["skipped"]
+                )
                 failed_tests += data["failures"] + data["errors"]
 
         self.report_data["summary"] = {
             "total_tests": total_tests,
             "passed_tests": passed_tests,
             "failed_tests": failed_tests,
-            "success_rate": (passed_tests / total_tests * 100) if total_tests > 0 else 0,
+            "success_rate": (
+                (passed_tests / total_tests * 100) if total_tests > 0 else 0
+            ),
             "by_type": by_type,
         }
 
@@ -676,9 +702,13 @@ class TestReportGenerator:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Generate GMNAP test report")
-    parser.add_argument("--output-dir", default="test-reports", help="Output directory for reports")
     parser.add_argument(
-        "--skip-tests", action="store_true", help="Skip running tests, use existing results"
+        "--output-dir", default="test-reports", help="Output directory for reports"
+    )
+    parser.add_argument(
+        "--skip-tests",
+        action="store_true",
+        help="Skip running tests, use existing results",
     )
 
     args = parser.parse_args()

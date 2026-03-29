@@ -55,7 +55,9 @@ def test_write_and_diff(tmp_path):
     prev_dir = write_snapshot(prev_batch, out_root=str(out_root), run_hash="prev")
     curr_dir = write_snapshot(curr_batch, out_root=str(out_root), run_hash="curr")
     summary = diff_snapshots(prev_dir, curr_dir)
-    assert summary["added"] == 1 and summary["modified"] == 1 and summary["removed"] == 0
+    assert (
+        summary["added"] == 1 and summary["modified"] == 1 and summary["removed"] == 0
+    )
     sql = generate_sql_changelog(prev_dir, curr_dir)
     assert os.path.exists(sql)
     with open(sql, "r", encoding="utf-8") as f:

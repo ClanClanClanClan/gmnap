@@ -155,9 +155,15 @@ class V7MonitoringSystem:
             """)
 
             # Indexes for performance
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_metrics_timestamp ON metrics(timestamp)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_metrics_type ON metrics(metric_type)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_alerts_timestamp ON alerts(timestamp)")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_metrics_timestamp ON metrics(timestamp)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_metrics_type ON metrics(metric_type)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_alerts_timestamp ON alerts(timestamp)"
+            )
 
         self.logger.info(f"Metrics database initialized: {self.config.metrics_db_path}")
 
@@ -237,7 +243,9 @@ class V7MonitoringSystem:
         elif metric.metric_type == MetricType.SUCCESS_RATE:
             if metric.value < self.config.success_rate_min_threshold:
                 alert = Alert(
-                    level=AlertLevel.CRITICAL if metric.value < 90.0 else AlertLevel.ERROR,
+                    level=(
+                        AlertLevel.CRITICAL if metric.value < 90.0 else AlertLevel.ERROR
+                    ),
                     metric_type=metric.metric_type,
                     component=metric.component,
                     message=f"Low success rate: {metric.value:.1f}% (threshold: {self.config.success_rate_min_threshold}%)",
@@ -249,7 +257,9 @@ class V7MonitoringSystem:
         elif metric.metric_type == MetricType.ERROR_RATE:
             if metric.value > self.config.error_rate_max_threshold:
                 alert = Alert(
-                    level=AlertLevel.CRITICAL if metric.value > 20.0 else AlertLevel.ERROR,
+                    level=(
+                        AlertLevel.CRITICAL if metric.value > 20.0 else AlertLevel.ERROR
+                    ),
                     metric_type=metric.metric_type,
                     component=metric.component,
                     message=f"High error rate: {metric.value:.1f}% (threshold: {self.config.error_rate_max_threshold}%)",
@@ -345,9 +355,13 @@ class V7MonitoringSystem:
         # Determine overall health status
         if len(self._active_alerts) > 0:
             critical_alerts = [
-                a for a in self._active_alerts.values() if a.level == AlertLevel.CRITICAL
+                a
+                for a in self._active_alerts.values()
+                if a.level == AlertLevel.CRITICAL
             ]
-            error_alerts = [a for a in self._active_alerts.values() if a.level == AlertLevel.ERROR]
+            error_alerts = [
+                a for a in self._active_alerts.values() if a.level == AlertLevel.ERROR
+            ]
 
             if critical_alerts:
                 health["status"] = "critical"

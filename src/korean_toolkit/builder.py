@@ -84,7 +84,11 @@ class KoreanBuilder:
         with open(output, "w", encoding="utf-8") as f:
             json.dump(processed, f, ensure_ascii=False, indent=2)
 
-        return {"success": True, "total_mappings": len(processed), "output_file": output}
+        return {
+            "success": True,
+            "total_mappings": len(processed),
+            "output_file": output,
+        }
 
     def _build_lexicon(self, config: Dict) -> Dict[str, Any]:
         """
@@ -180,7 +184,9 @@ class KoreanBuilder:
                         "weight": float(mapping.get("weight", 1.0)),
                         "context": mapping.get("context", "").strip(),
                         "tags": [
-                            t.strip() for t in mapping.get("tags", "").split(",") if t.strip()
+                            t.strip()
+                            for t in mapping.get("tags", "").split(",")
+                            if t.strip()
                         ],
                     }
                 )

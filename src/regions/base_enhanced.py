@@ -147,7 +147,9 @@ class EnhancedRegionSpec(RegionSpec):
                         if code == 0x0000:
                             raise RegionRuleError("Null bytes detected")
                         elif code in [0x202A, 0x202B, 0x202C, 0x202D, 0x202E]:
-                            raise RegionRuleError("BIDI/directional override characters detected")
+                            raise RegionRuleError(
+                                "BIDI/directional override characters detected"
+                            )
                         elif code in [0x200B, 0x200C, 0x200D]:
                             raise RegionRuleError("Zero-width characters detected")
 
@@ -361,7 +363,11 @@ class EnhancedRegionSpec(RegionSpec):
                 raise RegionRuleError("Potential NoSQL injection detected")
 
         # Log4j / JNDI injection
-        if "${jndi:" in text.lower() or "${env:" in text.lower() or "${sys:" in text.lower():
+        if (
+            "${jndi:" in text.lower()
+            or "${env:" in text.lower()
+            or "${sys:" in text.lower()
+        ):
             raise RegionRuleError("Potential Log4j/JNDI injection detected")
 
         # CRLF injection (including after normalization)
@@ -450,14 +456,19 @@ class EnhancedRegionSpec(RegionSpec):
 
         if entry_id and canonical:
             # Normalize for consistent key (handles tabs, newlines, etc.)
-            normalized_canonical = re.sub(r"\s+", " ", canonical).strip() if canonical else ""
+            normalized_canonical = (
+                re.sub(r"\s+", " ", canonical).strip() if canonical else ""
+            )
             process_key = f"{self.code}:{entry_id}:{normalized_canonical}"
             if process_key in self._processed_entries:
                 return  # Already processed
             self._processed_entries.add(process_key)
 
     def add_variant(
-        self, entry: Dict[str, Any], variant: Dict[str, Any], variant_type: str = "Synthesised"
+        self,
+        entry: Dict[str, Any],
+        variant: Dict[str, Any],
+        variant_type: str = "Synthesised",
     ) -> None:
         """
         Add a variant only if it doesn't already exist.
@@ -475,7 +486,9 @@ class EnhancedRegionSpec(RegionSpec):
 
         # Check if this exact variant already exists
         for existing in variants_list:
-            if existing.get("str") == variant_str and existing.get("type") == variant.get("type"):
+            if existing.get("str") == variant_str and existing.get(
+                "type"
+            ) == variant.get("type"):
                 return  # Already exists, don't add
 
         # Add the variant

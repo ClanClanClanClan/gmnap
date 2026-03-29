@@ -50,7 +50,9 @@ for name, expected_region, description in test_cases:
     else:
         print(f"FAIL {description}")
         print(f"   {name} -> {result.region_code} (expected {expected_region})")
-        print(f"   Confidence: {result.confidence:.3f}, Method: {result.detection_method}")
+        print(
+            f"   Confidence: {result.confidence:.3f}, Method: {result.detection_method}"
+        )
         if result.metadata:
             print(f"   Metadata: {result.metadata}")
 

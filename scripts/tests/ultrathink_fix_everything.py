@@ -37,7 +37,9 @@ def fix_collection_errors():
     attribute_errors = re.findall(
         r"AttributeError: '(\w+)' object has no attribute '(\w+)'", errors
     )
-    import_errors = re.findall(r"ImportError: cannot import name '(\w+)' from '([^']+)'", errors)
+    import_errors = re.findall(
+        r"ImportError: cannot import name '(\w+)' from '([^']+)'", errors
+    )
     fst_errors = re.findall(r"_pywrapfst\.FstIOError: Read failed: ([^:]+)", errors)
 
     fixes_made = 0
@@ -114,9 +116,13 @@ def fix_region_manager_initialize():
                             # Find end of __init__
                             indent = len(lines[j]) - len(lines[j].lstrip())
                             for k in range(j + 1, len(lines)):
-                                if lines[k].strip() and not lines[k].startswith(" " * (indent + 4)):
+                                if lines[k].strip() and not lines[k].startswith(
+                                    " " * (indent + 4)
+                                ):
                                     # Insert initialize here
-                                    lines.insert(k, f"{' ' * indent}def initialize(self):")
+                                    lines.insert(
+                                        k, f"{' ' * indent}def initialize(self):"
+                                    )
                                     lines.insert(
                                         k + 1,
                                         f"{' ' * (indent + 4)}\"\"\"Initialize the region manager.\"\"\"",

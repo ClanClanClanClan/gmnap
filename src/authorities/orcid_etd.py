@@ -97,7 +97,9 @@ class ORCIDETDFetcher:
 
         try:
             url = f"{self.base_url}/search"
-            async with self.session.get(url, params=params, headers=headers) as response:
+            async with self.session.get(
+                url, params=params, headers=headers
+            ) as response:
                 if response.status == 200:
                     data = await response.json()
                     results = data.get("result", [])
@@ -145,7 +147,9 @@ class ORCIDETDFetcher:
             url = f"{self.base_url}/{orcid_id}/person"
             async with self.session.get(url, headers=headers) as response:
                 if response.status != 200:
-                    logger.warning(f"Failed to fetch ORCID {orcid_id}: {response.status}")
+                    logger.warning(
+                        f"Failed to fetch ORCID {orcid_id}: {response.status}"
+                    )
                     return None
 
                 person_data = await response.json()
@@ -288,9 +292,13 @@ class ORCIDETDFetcher:
                     work_summary = group.get("work-summary", [{}])[0]
                     works.append(
                         {
-                            "title": work_summary.get("title", {}).get("title", {}).get("value"),
+                            "title": work_summary.get("title", {})
+                            .get("title", {})
+                            .get("value"),
                             "type": work_summary.get("type"),
-                            "year": self._extract_year(work_summary.get("publication-date")),
+                            "year": self._extract_year(
+                                work_summary.get("publication-date")
+                            ),
                             "journal": (
                                 work_summary.get("journal-title", {}).get("value")
                                 if work_summary.get("journal-title")

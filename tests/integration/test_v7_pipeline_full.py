@@ -31,7 +31,11 @@ class V7IntegrationTest:
 
     def __init__(self):
         self.pipeline = None
-        self.results = {"timestamp": datetime.now().isoformat(), "tests": {}, "v7_compliance": {}}
+        self.results = {
+            "timestamp": datetime.now().isoformat(),
+            "tests": {},
+            "v7_compliance": {},
+        }
 
     async def setup(self):
         """Initialize pipeline and dependencies."""
@@ -131,8 +135,16 @@ class V7IntegrationTest:
         test_name = "edge_cases"
         test_entries = [
             # Tab/newline normalization
-            {"CanonicalLatin": "Test\tName", "GlobalID": "TEST001", "DetectedRegion": "A1"},
-            {"CanonicalLatin": "Test\nName", "GlobalID": "TEST002", "DetectedRegion": "A1"},
+            {
+                "CanonicalLatin": "Test\tName",
+                "GlobalID": "TEST001",
+                "DetectedRegion": "A1",
+            },
+            {
+                "CanonicalLatin": "Test\nName",
+                "GlobalID": "TEST002",
+                "DetectedRegion": "A1",
+            },
             # Single character name
             {"CanonicalLatin": "X", "GlobalID": "TEST003", "DetectedRegion": "A1"},
             # Empty Latin with native
@@ -175,12 +187,14 @@ class V7IntegrationTest:
             if "\t" in original.get("CanonicalLatin", "") or "\n" in original.get(
                 "CanonicalLatin", ""
             ):
-                if "\t" not in result.get("CanonicalLatin", "") and "\n" not in result.get(
+                if "\t" not in result.get(
                     "CanonicalLatin", ""
-                ):
+                ) and "\n" not in result.get("CanonicalLatin", ""):
                     passed += 1
                 else:
-                    failures.append(f"Tab/newline not normalized: {result.get('GlobalID')}")
+                    failures.append(
+                        f"Tab/newline not normalized: {result.get('GlobalID')}"
+                    )
             else:
                 passed += 1
 
@@ -205,7 +219,11 @@ class V7IntegrationTest:
         checker = V7IdempotencyChecker()
 
         test_entries = [
-            {"CanonicalLatin": "John Smith", "GlobalID": "IDEM001", "DetectedRegion": "A1"},
+            {
+                "CanonicalLatin": "John Smith",
+                "GlobalID": "IDEM001",
+                "DetectedRegion": "A1",
+            },
             {
                 "CanonicalLatin": "Marie Curie",
                 "CanonicalNative": "Maria Skłodowska",
@@ -271,8 +289,14 @@ class V7IntegrationTest:
             "score": validation_result["score"],
             "gates_passed": validation_result["summary"]["gates_passed"],
             "gates_run": validation_result["summary"]["gates_run"],
-            "errors": validation_result["errors"][:3] if validation_result["errors"] else [],
-            "warnings": validation_result["warnings"][:3] if validation_result["warnings"] else [],
+            "errors": (
+                validation_result["errors"][:3] if validation_result["errors"] else []
+            ),
+            "warnings": (
+                validation_result["warnings"][:3]
+                if validation_result["warnings"]
+                else []
+            ),
         }
 
         print(
@@ -319,7 +343,9 @@ class V7IntegrationTest:
             "performance_ratio": entries_per_second / v7_requirement,
         }
 
-        print(f"{'PASS' if passed else 'FAIL'} Performance: {entries_per_second:.1f} entries/sec")
+        print(
+            f"{'PASS' if passed else 'FAIL'} Performance: {entries_per_second:.1f} entries/sec"
+        )
         print(f"   V7 requirement: {v7_requirement} entries/sec")
         print(f"   Performance ratio: {entries_per_second/v7_requirement:.1f}x")
 

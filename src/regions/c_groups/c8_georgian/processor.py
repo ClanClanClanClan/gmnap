@@ -45,9 +45,17 @@ class C8_Georgian(RegionSpec):
 
         # Latin versions of suffixes
         self.latin_suffixes = {
-            "-shvili": {"georgian": "-შვილი", "meaning": "child of", "type": "patronymic"},
+            "-shvili": {
+                "georgian": "-შვილი",
+                "meaning": "child of",
+                "type": "patronymic",
+            },
             "-dze": {"georgian": "-ძე", "meaning": "son of", "type": "patronymic"},
-            "-adze": {"georgian": "-აძე", "meaning": "son of", "type": "patronymic"},  # variant
+            "-adze": {
+                "georgian": "-აძე",
+                "meaning": "son of",
+                "type": "patronymic",
+            },  # variant
             "-ia": {"georgian": "-ია", "meaning": "of/from", "type": "patronymic"},
             "-uri": {"georgian": "-ური", "meaning": "from", "type": "regional"},
             "-eli": {"georgian": "-ელი", "meaning": "from (place)", "type": "regional"},
@@ -275,7 +283,9 @@ class C8_Georgian(RegionSpec):
         if components.get("family_name") and components.get("given_name"):
             family_given = f"{components['family_name']}, {components['given_name']}"
             if family_given != canonical:
-                entry["Variants"]["Synthesised"].append({"str": family_given, "type": "order-swap"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": family_given, "type": "order-swap"}
+                )
 
     def _detect_georgian_script(self, text: str) -> bool:
         """Detect if text contains Georgian script characters."""
@@ -336,7 +346,10 @@ class C8_Georgian(RegionSpec):
 
         # Direct match
         if given_lower in self.georgian_given_names:
-            return {"georgian_given_name": given_part, "georgian_given_name_verified": True}
+            return {
+                "georgian_given_name": given_part,
+                "georgian_given_name_verified": True,
+            }
 
         # Check for variants (e.g., Giorgi/George)
         if given_lower == "george" and "giorgi" in self.georgian_given_names:

@@ -161,19 +161,27 @@ def generate_test_entry(index: int) -> Dict[str, Any]:
             [
                 n
                 for n in FIRST_NAMES
-                if any("\u1100" <= c <= "\u11ff" or "\uac00" <= c <= "\ud7af" for c in n)
+                if any(
+                    "\u1100" <= c <= "\u11ff" or "\uac00" <= c <= "\ud7af" for c in n
+                )
             ]
         )
         family = random.choice(
             [
                 n
                 for n in LAST_NAMES
-                if any("\u1100" <= c <= "\u11ff" or "\uac00" <= c <= "\ud7af" for c in n)
+                if any(
+                    "\u1100" <= c <= "\u11ff" or "\uac00" <= c <= "\ud7af" for c in n
+                )
             ]
         )
     elif index % 7 == 1:  # Chinese names
-        given = random.choice([n for n in FIRST_NAMES if any("\u4e00" <= c <= "\u9fff" for c in n)])
-        family = random.choice([n for n in LAST_NAMES if any("\u4e00" <= c <= "\u9fff" for c in n)])
+        given = random.choice(
+            [n for n in FIRST_NAMES if any("\u4e00" <= c <= "\u9fff" for c in n)]
+        )
+        family = random.choice(
+            [n for n in LAST_NAMES if any("\u4e00" <= c <= "\u9fff" for c in n)]
+        )
     elif index % 7 == 2:  # Japanese names
         given = random.choice(
             [
@@ -200,11 +208,19 @@ def generate_test_entry(index: int) -> Dict[str, Any]:
             ]
         )
     elif index % 7 == 3:  # Russian names
-        given = random.choice([n for n in FIRST_NAMES if any("\u0400" <= c <= "\u04ff" for c in n)])
-        family = random.choice([n for n in LAST_NAMES if any("\u0400" <= c <= "\u04ff" for c in n)])
+        given = random.choice(
+            [n for n in FIRST_NAMES if any("\u0400" <= c <= "\u04ff" for c in n)]
+        )
+        family = random.choice(
+            [n for n in LAST_NAMES if any("\u0400" <= c <= "\u04ff" for c in n)]
+        )
     elif index % 7 == 4:  # Arabic names
-        given = random.choice([n for n in FIRST_NAMES if any("\u0600" <= c <= "\u06ff" for c in n)])
-        family = random.choice([n for n in LAST_NAMES if any("\u0600" <= c <= "\u06ff" for c in n)])
+        given = random.choice(
+            [n for n in FIRST_NAMES if any("\u0600" <= c <= "\u06ff" for c in n)]
+        )
+        family = random.choice(
+            [n for n in LAST_NAMES if any("\u0600" <= c <= "\u06ff" for c in n)]
+        )
     else:  # Latin script names
         given = random.choice(
             [
@@ -214,7 +230,11 @@ def generate_test_entry(index: int) -> Dict[str, Any]:
             ]
         )
         family = random.choice(
-            [n for n in LAST_NAMES if all(c < "\u0080" or c in "áéíóúàèìòùâêîôûäëïöüñç" for c in n)]
+            [
+                n
+                for n in LAST_NAMES
+                if all(c < "\u0080" or c in "áéíóúàèìòùâêîôûäëïöüñç" for c in n)
+            ]
         )
 
     # Create simpler entry format
@@ -285,7 +305,9 @@ async def run_batch_test(batch_size: int, total_entries: int):
                         # Use metrics if available
                         processed += results["metrics"].get("processed", len(batch))
                         failed += results["metrics"].get("failed", 0)
-                        duplicates_detected += results["metrics"].get("duplicate_global_ids", 0)
+                        duplicates_detected += results["metrics"].get(
+                            "duplicate_global_ids", 0
+                        )
                     else:
                         # Assume all processed if no clear indication
                         processed += len(batch)
@@ -354,7 +376,11 @@ async def run_batch_test(batch_size: int, total_entries: int):
             else "Success Rate: 0%"
         )
         print(f"Duplicates Detected: {duplicates_detected:,}")
-        print(f"Peak Memory: {max(memory_usage):.1f} MB" if memory_usage else "Peak Memory: N/A")
+        print(
+            f"Peak Memory: {max(memory_usage):.1f} MB"
+            if memory_usage
+            else "Peak Memory: N/A"
+        )
         print(
             f"Avg Batch Time: {sum(batch_times)/len(batch_times):.2f}s"
             if batch_times
@@ -372,7 +398,9 @@ async def run_batch_test(batch_size: int, total_entries: int):
             "duplicates_detected": duplicates_detected,
             "total_time_seconds": total_time,
             "average_speed_per_sec": avg_speed,
-            "projected_1m_minutes": 1_000_000 / avg_speed / 60 if avg_speed > 0 else None,
+            "projected_1m_minutes": (
+                1_000_000 / avg_speed / 60 if avg_speed > 0 else None
+            ),
             "success_rate": success_count * 100 / processed if processed > 0 else 0,
             "peak_memory_mb": max(memory_usage) if memory_usage else 0,
             "batch_times": batch_times[:10],  # First 10 for reference

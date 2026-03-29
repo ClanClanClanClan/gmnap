@@ -106,7 +106,9 @@ def print_results(results):
     print("RESULTS - NAME ORIGIN VALIDATION (CORRECT METRIC)")
     print(f"{'='*80}\n")
 
-    print(f"Overall Accuracy: {results['correct']}/{results['total']} = {results['accuracy']:.2f}%")
+    print(
+        f"Overall Accuracy: {results['correct']}/{results['total']} = {results['accuracy']:.2f}%"
+    )
     print()
 
     # Regional breakdown
@@ -146,7 +148,9 @@ def print_results(results):
             print(f"\n  {i}. {failure['name']}")
             if failure.get("native"):
                 print(f"     Native: {failure['native']}")
-            print(f"     Expected: {failure['expected_origin']}, Got: {failure['detected_origin']}")
+            print(
+                f"     Expected: {failure['expected_origin']}, Got: {failure['detected_origin']}"
+            )
             print(f"     Model confidence: {failure['pred_confidence']:.3f}")
             print(f"     Source: {failure['source']}")
             if failure.get("notes"):
@@ -190,7 +194,9 @@ def print_verdict(results):
         print(f"🎯 Model is {improvement:.2f}pp BETTER than Phase 3 reported!")
         print(f"   Phase 3 validation was measuring the wrong thing.")
         print()
-        print("✅ The Phase 2 retrained model we built in Phase 3 is BETTER than we thought!")
+        print(
+            "✅ The Phase 2 retrained model we built in Phase 3 is BETTER than we thought!"
+        )
     else:
         print("⚠️  Model performance is similar to Phase 3")
         print("   Need to investigate discrepancies")

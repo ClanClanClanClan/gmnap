@@ -34,12 +34,17 @@ def generate_stats():
 
     # Calculate compliance percentages
     stats["compliance"] = {
-        "regions": round(stats["regions"]["implemented"] / stats["regions"]["total"] * 100, 1),
+        "regions": round(
+            stats["regions"]["implemented"] / stats["regions"]["total"] * 100, 1
+        ),
         "authorities": round(
             stats["authorities"]["implemented"] / stats["authorities"]["total"] * 100, 1
         ),
         "linguistic_rules": round(
-            stats["linguistic_rules"]["implemented"] / stats["linguistic_rules"]["total"] * 100, 1
+            stats["linguistic_rules"]["implemented"]
+            / stats["linguistic_rules"]["total"]
+            * 100,
+            1,
         ),
     }
 

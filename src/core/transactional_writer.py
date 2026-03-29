@@ -26,7 +26,11 @@ class TransactionalWriter:
 
                 async def _ops(tx):
                     for e in entries:
-                        props = {k: v for k, v in e.items() if k not in ("Advisors", "Students")}
+                        props = {
+                            k: v
+                            for k, v in e.items()
+                            if k not in ("Advisors", "Students")
+                        }
                         await tx.run(CREATE_NODE, GlobalID=e["GlobalID"], props=props)
                     for e in entries:
                         for adv in e.get("Advisors", []):

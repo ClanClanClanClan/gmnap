@@ -34,7 +34,9 @@ class RobustCollector:
         """Make HTTP request with exponential backoff retry."""
         for attempt in range(max_retries):
             try:
-                response = self.session.get(url, params=params, headers=headers, timeout=30)
+                response = self.session.get(
+                    url, params=params, headers=headers, timeout=30
+                )
                 if response.status_code == 200:
                     return response
                 elif response.status_code == 403 and attempt < max_retries - 1:
@@ -100,7 +102,9 @@ class RobustCollector:
                 if name:
                     # Extract institution info
                     institutions = author.get("last_known_institutions", [])
-                    country = institutions[0].get("country_code") if institutions else None
+                    country = (
+                        institutions[0].get("country_code") if institutions else None
+                    )
 
                     authors.append(
                         {
@@ -179,7 +183,11 @@ class RobustCollector:
         print(f"arXiv target: {arxiv_target}")
         print("=" * 80)
 
-        results = {"timestamp": datetime.now().isoformat(), "sources": {}, "all_profiles": []}
+        results = {
+            "timestamp": datetime.now().isoformat(),
+            "sources": {},
+            "all_profiles": [],
+        }
 
         # Collect OpenAlex
         try:
@@ -203,7 +211,8 @@ class RobustCollector:
 
         # Save results
         output_file = (
-            self.output_dir / f"robust_collection_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            self.output_dir
+            / f"robust_collection_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         )
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2, ensure_ascii=False)

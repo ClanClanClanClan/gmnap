@@ -73,7 +73,9 @@ def test_regional_bias_fix():
 
     # Lee, John should be classified as A1 (Anglo) due to "John" being an English given name
     if result.region_code == "A1":
-        print("PASS REGIONAL BIAS FIX: PASSED - 'Lee, John' correctly classified as A1 (Anglo)")
+        print(
+            "PASS REGIONAL BIAS FIX: PASSED - 'Lee, John' correctly classified as A1 (Anglo)"
+        )
         return True
     else:
         print(
@@ -129,9 +131,15 @@ def main():
     # Overall results
     print("\n" + "=" * 60)
     print("📊 VERIFICATION RESULTS:")
-    print(f"   Security Sanitization: {'PASS PASSED' if security_passed else 'FAIL FAILED'}")
-    print(f"   Regional Bias Fix: {'PASS PASSED' if bias_fix_passed else 'FAIL FAILED'}")
-    print(f"   Additional Cases: {'PASS PASSED' if additional_passed else 'FAIL FAILED'}")
+    print(
+        f"   Security Sanitization: {'PASS PASSED' if security_passed else 'FAIL FAILED'}"
+    )
+    print(
+        f"   Regional Bias Fix: {'PASS PASSED' if bias_fix_passed else 'FAIL FAILED'}"
+    )
+    print(
+        f"   Additional Cases: {'PASS PASSED' if additional_passed else 'FAIL FAILED'}"
+    )
 
     if security_passed and bias_fix_passed and additional_passed:
         print("\n🎉 ALL CRITICAL FIXES VERIFIED! Ready for hell-level testing.")

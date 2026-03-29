@@ -71,7 +71,10 @@ def test_rule_2_c3():
     print(f"Root form: {entry2['RegionalExtras'].get('root_form', 'none')}")
 
     # Test romanized form
-    entry3 = {"CanonicalLatin": "Ahmad al-Rashid", "RegionalExtras": {}}  # Romanized with al-
+    entry3 = {
+        "CanonicalLatin": "Ahmad al-Rashid",
+        "RegionalExtras": {},
+    }  # Romanized with al-
 
     processor.augment(entry3)
 
@@ -89,7 +92,10 @@ def test_rule_2_c4():
     processor = C4_ArabicGulf()
 
     # Test case 1: Gulf-style name with Al- prefix
-    entry1 = {"CanonicalLatin": "Khalid Al-Saud", "RegionalExtras": {}}  # Gulf royal name
+    entry1 = {
+        "CanonicalLatin": "Khalid Al-Saud",
+        "RegionalExtras": {},
+    }  # Gulf royal name
 
     processor.augment(entry1)
 
@@ -152,7 +158,9 @@ def test_rule_2_comprehensive():
 
         c3_article_info = c3_processor._analyze_definite_article(arabic_name)
         if c3_article_info:
-            print(f"  C3 - Type: {c3_article_info['type']}, Root: {c3_article_info['root']}")
+            print(
+                f"  C3 - Type: {c3_article_info['type']}, Root: {c3_article_info['root']}"
+            )
         else:
             print(f"  C3 - No article detected")
 
@@ -162,7 +170,9 @@ def test_rule_2_comprehensive():
 
         c4_article_info = c4_processor._analyze_definite_article(arabic_name)
         if c4_article_info:
-            print(f"  C4 - Type: {c4_article_info['type']}, Root: {c4_article_info['root']}")
+            print(
+                f"  C4 - Type: {c4_article_info['type']}, Root: {c4_article_info['root']}"
+            )
         else:
             print(f"  C4 - No article detected")
 

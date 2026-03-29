@@ -269,7 +269,9 @@ class ParanoidHellTestSuite:
             "' or 1=1 or ''='",
         ]
 
-        all_injections = sql_injections + command_injections + ldap_injections + xpath_injections
+        all_injections = (
+            sql_injections + command_injections + ldap_injections + xpath_injections
+        )
 
         for injection in all_injections:
             # Test as both parts of name
@@ -354,7 +356,9 @@ class ParanoidHellTestSuite:
 
         for test_name in script_mix_tests:
             # Some regions might accept mixed scripts
-            self._test_entry("B1", test_name, None, "script-mix")  # B1 allows some mixing
+            self._test_entry(
+                "B1", test_name, None, "script-mix"
+            )  # B1 allows some mixing
             self._test_entry("A1", test_name, False, "script-mix")  # A1 should reject
 
     @pytest.mark.timeout(15)
@@ -404,7 +408,9 @@ class ParanoidHellTestSuite:
             "Smith', John'",  # Apostrophes everywhere
         ]
 
-        all_boundary_tests = length_tests + component_tests + whitespace_tests + punctuation_tests
+        all_boundary_tests = (
+            length_tests + component_tests + whitespace_tests + punctuation_tests
+        )
 
         for test_name in all_boundary_tests:
             self._test_entry("A1", test_name, False, "boundary")
@@ -453,7 +459,12 @@ class ParanoidHellTestSuite:
         print("\nTesting concurrency chaos...")
 
         # Shared state for chaos
-        chaos_results = {"race_conditions": 0, "deadlocks": 0, "corruptions": 0, "exceptions": []}
+        chaos_results = {
+            "race_conditions": 0,
+            "deadlocks": 0,
+            "corruptions": 0,
+            "exceptions": [],
+        }
         lock = threading.Lock()
 
         def chaos_worker(worker_id, iterations):
@@ -493,7 +504,9 @@ class ParanoidHellTestSuite:
         start_time = time.time()
 
         for i in range(num_workers):
-            thread = threading.Thread(target=chaos_worker, args=(i, iterations_per_worker))
+            thread = threading.Thread(
+                target=chaos_worker, args=(i, iterations_per_worker)
+            )
             threads.append(thread)
             thread.start()
 
@@ -525,7 +538,9 @@ class ParanoidHellTestSuite:
         self.results["total_tests"] += 1
         if chaos_results["deadlocks"] > 0:
             self.results["failed"] += 1
-            self.record_error("Concurrency", f"Detected {chaos_results['deadlocks']} deadlocks")
+            self.record_error(
+                "Concurrency", f"Detected {chaos_results['deadlocks']} deadlocks"
+            )
         else:
             self.results["passed"] += 1
 
@@ -541,8 +556,12 @@ class ParanoidHellTestSuite:
         mega_variant_entry = {
             "CanonicalLatin": "Test, Name",
             "Variants": {
-                "Observed": [{"str": f"Variant{i}", "source": "test"} for i in range(1000)],
-                "Synthesised": [{"str": f"Synth{i}", "type": "test"} for i in range(1000)],
+                "Observed": [
+                    {"str": f"Variant{i}", "source": "test"} for i in range(1000)
+                ],
+                "Synthesised": [
+                    {"str": f"Synth{i}", "type": "test"} for i in range(1000)
+                ],
             },
         }
 
@@ -627,7 +646,9 @@ class ParanoidHellTestSuite:
                         pass
 
         # Launch corruption attempts
-        threads = [threading.Thread(target=corrupt_worker, args=(i,)) for i in range(10)]
+        threads = [
+            threading.Thread(target=corrupt_worker, args=(i,)) for i in range(10)
+        ]
         for t in threads:
             t.start()
         for t in threads:
@@ -692,7 +713,11 @@ class ParanoidHellTestSuite:
             # Chinese in Latin field
             {"CanonicalLatin": "王明", "CanonicalNative": "Wang Ming"},
             # Latin in Native field for non-Latin region
-            {"CanonicalLatin": "Test Name", "CanonicalNative": "Test Name", "RegionCode": "E1"},
+            {
+                "CanonicalLatin": "Test Name",
+                "CanonicalNative": "Test Name",
+                "RegionCode": "E1",
+            },
             # Mixed up Birth/Death years
             {"CanonicalLatin": "Test, Name", "BirthYear": 2000, "DeathYear": 1900},
             # Non-string in string field
@@ -706,7 +731,9 @@ class ParanoidHellTestSuite:
             try:
                 self.pipeline.process_entry(entry)
                 self.results["failed"] += 1
-                self.record_error("Field confusion", f"Accepted confused entry: {entry}")
+                self.record_error(
+                    "Field confusion", f"Accepted confused entry: {entry}"
+                )
             except:
                 self.results["passed"] += 1  # Good, it rejected it
 
@@ -775,7 +802,9 @@ class ParanoidHellTestSuite:
                 else:
                     entry = {"CanonicalLatin": name}
 
-                self._test_entry_with_adapter(adapter, entry, should_pass, f"{region_code}-edge")
+                self._test_entry_with_adapter(
+                    adapter, entry, should_pass, f"{region_code}-edge"
+                )
 
     @pytest.mark.timeout(15)
     def test_validation_bypass(self):
@@ -797,7 +826,10 @@ class ParanoidHellTestSuite:
             {"CanonicalLatin": ["Test", "Name"]},
             # Prototype pollution attempts
             {"__proto__": {"isAdmin": True}, "CanonicalLatin": "Test, Name"},
-            {"constructor": {"prototype": {"isAdmin": True}}, "CanonicalLatin": "Test, Name"},
+            {
+                "constructor": {"prototype": {"isAdmin": True}},
+                "CanonicalLatin": "Test, Name",
+            },
         ]
 
         for entry in bypass_attempts:
@@ -806,7 +838,9 @@ class ParanoidHellTestSuite:
                 result = self.pipeline.process_entry(entry)
                 # Check if bypass worked
                 if result.get("isAdmin") or result.get("__proto__"):
-                    self.results["security_issues"].append(f"Prototype pollution: {entry}")
+                    self.results["security_issues"].append(
+                        f"Prototype pollution: {entry}"
+                    )
                     self.results["failed"] += 1
                 else:
                     self.results["passed"] += 1
@@ -855,7 +889,9 @@ class ParanoidHellTestSuite:
 
             # Check for collisions
             if len(set(global_ids)) < len(global_ids):
-                self.results["data_integrity_issues"].append(f"GlobalID collision: {test_group}")
+                self.results["data_integrity_issues"].append(
+                    f"GlobalID collision: {test_group}"
+                )
 
     @pytest.mark.timeout(15)
     def test_kitchen_sink(self):
@@ -897,7 +933,9 @@ class ParanoidHellTestSuite:
         # Entry from hell #3: Type confusion festival
         chaos_entries.append(
             {
-                "CanonicalLatin": {"nested": {"deeply": {"nested": {"object": "value"}}}},
+                "CanonicalLatin": {
+                    "nested": {"deeply": {"nested": {"object": "value"}}}
+                },
                 "CanonicalNative": lambda x: "function_as_value",
                 "BirthYear": float("inf"),
                 "DeathYear": float("nan"),
@@ -920,7 +958,9 @@ class ParanoidHellTestSuite:
                 self.results["passed"] += 1
                 print(f"    ✓ Correctly rejected: {type(e).__name__}")
 
-    def _test_entry(self, region_code: str, name: str, expected: Optional[bool], test_type: str):
+    def _test_entry(
+        self, region_code: str, name: str, expected: Optional[bool], test_type: str
+    ):
         """Test a single entry with proper field detection."""
         adapter = v7_manager.get_adapter(region_code)
         if not adapter:
@@ -949,7 +989,9 @@ class ParanoidHellTestSuite:
                 # Should have failed but didn't
                 self.results["failed"] += 1
                 self.results["region_stats"][region_code]["failed"] += 1
-                self.record_error(f"{region_code}/{test_type}", f"Expected to fail: {entry}")
+                self.record_error(
+                    f"{region_code}/{test_type}", f"Expected to fail: {entry}"
+                )
             else:
                 # Success (or expected is True/None)
                 self.results["passed"] += 1
@@ -960,7 +1002,9 @@ class ParanoidHellTestSuite:
                 # Should have passed but didn't
                 self.results["failed"] += 1
                 self.results["region_stats"][region_code]["failed"] += 1
-                self.record_error(f"{region_code}/{test_type}", f"Expected to pass: {entry} - {e}")
+                self.record_error(
+                    f"{region_code}/{test_type}", f"Expected to pass: {entry} - {e}"
+                )
             else:
                 # Failure (expected or not)
                 self.results["passed"] += 1
@@ -1003,8 +1047,12 @@ class ParanoidHellTestSuite:
             return
 
         print(f"\nTotal Tests: {total}")
-        print(f"Passed: {self.results['passed']} ({self.results['passed']/total*100:.1f}%)")
-        print(f"Failed: {self.results['failed']} ({self.results['failed']/total*100:.1f}%)")
+        print(
+            f"Passed: {self.results['passed']} ({self.results['passed']/total*100:.1f}%)"
+        )
+        print(
+            f"Failed: {self.results['failed']} ({self.results['failed']/total*100:.1f}%)"
+        )
 
         # Security issues
         if self.results["security_issues"]:
@@ -1014,13 +1062,17 @@ class ParanoidHellTestSuite:
 
         # Data integrity issues
         if self.results["data_integrity_issues"]:
-            print(f"\nWARN  DATA INTEGRITY ISSUES ({len(self.results['data_integrity_issues'])}):")
+            print(
+                f"\nWARN  DATA INTEGRITY ISSUES ({len(self.results['data_integrity_issues'])}):"
+            )
             for issue in self.results["data_integrity_issues"][:5]:
                 print(f"  - {issue}")
 
         # Performance issues
         if self.results["performance_issues"]:
-            print(f"\n🐌 PERFORMANCE ISSUES ({len(self.results['performance_issues'])}):")
+            print(
+                f"\n🐌 PERFORMANCE ISSUES ({len(self.results['performance_issues'])}):"
+            )
             for issue in self.results["performance_issues"][:5]:
                 print(f"  - Pattern took {issue['time']:.3f}s")
 
@@ -1031,7 +1083,9 @@ class ParanoidHellTestSuite:
                 stats = self.results["region_stats"][region]
                 if stats["tests"] > 0:
                     pass_rate = stats["passed"] / stats["tests"] * 100
-                    print(f"  {region}: {stats['passed']}/{stats['tests']} ({pass_rate:.1f}%)")
+                    print(
+                        f"  {region}: {stats['passed']}/{stats['tests']} ({pass_rate:.1f}%)"
+                    )
 
         # Final verdict
         print("\n" + "=" * 60)
@@ -1048,7 +1102,9 @@ class ParanoidHellTestSuite:
         # Save detailed results
         with open("paranoid_test_results.json", "w") as f:
             # Clean up non-serializable data
-            clean_results = {k: v for k, v in self.results.items() if k not in ["region_stats"]}
+            clean_results = {
+                k: v for k, v in self.results.items() if k not in ["region_stats"]
+            }
             clean_results["region_stats"] = dict(self.results["region_stats"])
             json.dump(clean_results, f, indent=2, default=str)
         print("\nDetailed results saved to: paranoid_test_results.json")
@@ -1059,7 +1115,9 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="GMNAP Paranoid Hell Test Suite")
-    parser.add_argument("--level", type=int, default=10, help="Paranoia level 1-10 (default: 10)")
+    parser.add_argument(
+        "--level", type=int, default=10, help="Paranoia level 1-10 (default: 10)"
+    )
     args = parser.parse_args()
 
     suite = ParanoidHellTestSuite()

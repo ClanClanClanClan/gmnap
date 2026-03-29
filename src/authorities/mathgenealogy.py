@@ -85,7 +85,9 @@ class MathGenealogyAPI:
         content = soup.find("div", {"id": "paddingWrapper"})
         if content:
             # Extract degree type
-            degree_match = re.search(r"(Ph\.D\.|M\.A\.|M\.S\.|Dr\.|Habilitation)", content.text)
+            degree_match = re.search(
+                r"(Ph\.D\.|M\.A\.|M\.S\.|Dr\.|Habilitation)", content.text
+            )
             if degree_match:
                 degree = degree_match.group(1)
 
@@ -93,7 +95,9 @@ class MathGenealogyAPI:
             for line in content.text.split("\n"):
                 if degree and degree in line:
                     # Try to extract institution and year
-                    inst_match = re.search(rf"{re.escape(degree)}\s+([^0-9]+?)(\d{{4}})", line)
+                    inst_match = re.search(
+                        rf"{re.escape(degree)}\s+([^0-9]+?)(\d{{4}})", line
+                    )
                     if inst_match:
                         institution = inst_match.group(1).strip()
                         year = int(inst_match.group(2))
@@ -263,7 +267,9 @@ class MathGenealogyAPI:
         # Add academic genealogy
         if person.advisors or person.students:
             entry["AcademicGenealogy"] = {
-                "advisors": [{"name": name, "mgp_id": id} for name, id in person.advisors],
+                "advisors": [
+                    {"name": name, "mgp_id": id} for name, id in person.advisors
+                ],
                 "students": [
                     {"name": name, "mgp_id": id} for name, id in person.students[:10]
                 ],  # Limit to 10
@@ -298,7 +304,9 @@ async def test_mgp_api():
             # Get person details
             person = await api.get_person(mgp_id)
             if person:
-                print(f"Degree: {person.degree} from {person.institution} ({person.year})")
+                print(
+                    f"Degree: {person.degree} from {person.institution} ({person.year})"
+                )
                 print(f"Advisors: {len(person.advisors)}")
                 print(f"Students: {len(person.students)}")
 

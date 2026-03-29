@@ -49,7 +49,9 @@ try:
 
     # Test Korean region detection
     result = manager.detect_region({"name": "김민수"})
-    print(f"PASS Korean name detection: {result.region_code} (conf: {result.confidence:.3f})")
+    print(
+        f"PASS Korean name detection: {result.region_code} (conf: {result.confidence:.3f})"
+    )
 
 except Exception as e:
     print(f"FAIL Korean processor test failed: {e}")

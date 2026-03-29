@@ -45,7 +45,9 @@ class B3GreekProcessor(RegionSpec):
         # Final sigma
         self.final_sigma = "ς"
 
-        self.allowed_greek_chars = self.greek_chars | self.greek_diacritics | {self.final_sigma}
+        self.allowed_greek_chars = (
+            self.greek_chars | self.greek_diacritics | {self.final_sigma}
+        )
 
         # Latin characters used in romanisation
         self.latin_chars = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
@@ -385,12 +387,16 @@ class B3GreekProcessor(RegionSpec):
             # ELOT 743 transliteration
             elot_variant = self._transliterate_elot743(native)
             if elot_variant and elot_variant != canonical:
-                entry["Variants"]["Synthesised"].append({"str": elot_variant, "type": "elot-743"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": elot_variant, "type": "elot-743"}
+                )
 
             # ISO 843 transliteration
             iso_variant = self._transliterate_iso843(native)
             if iso_variant and iso_variant != canonical and iso_variant != elot_variant:
-                entry["Variants"]["Synthesised"].append({"str": iso_variant, "type": "iso-843"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": iso_variant, "type": "iso-843"}
+                )
 
         # Add genitive variants if applicable
         if components.get("has_genitive"):
@@ -432,7 +438,9 @@ class B3GreekProcessor(RegionSpec):
 
         return False
 
-    def _get_latinised_ancient_form(self, greek_native: str, current_latin: str) -> Optional[str]:
+    def _get_latinised_ancient_form(
+        self, greek_native: str, current_latin: str
+    ) -> Optional[str]:
         """
         Rule 25: Get Latinised canonical form for ancient Greek names.
 
@@ -814,7 +822,9 @@ class B3GreekProcessor(RegionSpec):
             # Native should be in Greek script
             if not all(c in self.allowed_greek_chars or c in " ,.-" for c in native):
                 invalid_chars = set(native) - self.allowed_greek_chars - set(" ,.-")
-                raise RegionRuleError(f"Invalid characters in Greek native form: {invalid_chars}")
+                raise RegionRuleError(
+                    f"Invalid characters in Greek native form: {invalid_chars}"
+                )
 
         if canonical:
             # Canonical Latin should not have Greek characters
@@ -825,7 +835,9 @@ class B3GreekProcessor(RegionSpec):
             allowed_latin = self.latin_chars | set(" ,.-'0123456789")
             if not all(c in allowed_latin for c in canonical):
                 invalid_chars = set(canonical) - allowed_latin
-                raise RegionRuleError(f"Invalid characters in Latin form: {invalid_chars}")
+                raise RegionRuleError(
+                    f"Invalid characters in Latin form: {invalid_chars}"
+                )
 
         # Validate structure
         if canonical and "," in canonical:

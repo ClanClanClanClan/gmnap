@@ -143,7 +143,12 @@ class SQLiteAnalytics:
                     INSERT INTO collisions (hash_value, global_id_1, global_id_2, collision_type)
                     VALUES (?, ?, ?, ?)
                 """,
-                    (canonical_latin, latin_map[canonical_latin], global_id, "canonical_latin"),
+                    (
+                        canonical_latin,
+                        latin_map[canonical_latin],
+                        global_id,
+                        "canonical_latin",
+                    ),
                 )
             else:
                 latin_map[canonical_latin] = global_id
@@ -165,7 +170,12 @@ class SQLiteAnalytics:
                     INSERT INTO collisions (hash_value, global_id_1, global_id_2, collision_type)
                     VALUES (?, ?, ?, ?)
                 """,
-                    (canonical_native, native_map[canonical_native], global_id, "canonical_native"),
+                    (
+                        canonical_native,
+                        native_map[canonical_native],
+                        global_id,
+                        "canonical_native",
+                    ),
                 )
             else:
                 native_map[canonical_native] = global_id
@@ -206,7 +216,9 @@ class SQLiteAnalytics:
         # Calculate collision rate
         total_entries = len(entries)
         total_collisions = sum(collision_types.values())
-        collision_rate = (total_collisions / total_entries * 100) if total_entries > 0 else 0
+        collision_rate = (
+            (total_collisions / total_entries * 100) if total_entries > 0 else 0
+        )
 
         return {
             "total_entries": total_entries,
@@ -216,7 +228,9 @@ class SQLiteAnalytics:
             "collisions": collisions[:10],  # First 10 for review
         }
 
-    def compute_field_distribution(self, entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def compute_field_distribution(
+        self, entries: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Compute field distribution statistics.
 
@@ -270,7 +284,9 @@ class SQLiteAnalytics:
             "field_distribution": distribution,
         }
 
-    def analyze_authority_coverage(self, entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def analyze_authority_coverage(
+        self, entries: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Analyze authority source coverage.
 
@@ -291,7 +307,9 @@ class SQLiteAnalytics:
                 entries_with_authority += 1
                 for source in authority_sources:
                     source_name = (
-                        source if isinstance(source, str) else source.get("source", "unknown")
+                        source
+                        if isinstance(source, str)
+                        else source.get("source", "unknown")
                     )
                     if source_name not in authority_stats:
                         authority_stats[source_name] = {"count": 0, "confidence_sum": 0}
@@ -304,8 +322,12 @@ class SQLiteAnalytics:
         # Calculate coverage percentages
         coverage_analysis = {}
         for source, stats in authority_stats.items():
-            coverage_pct = (stats["count"] / total_entries * 100) if total_entries > 0 else 0
-            avg_confidence = (stats["confidence_sum"] / stats["count"]) if stats["count"] > 0 else 0
+            coverage_pct = (
+                (stats["count"] / total_entries * 100) if total_entries > 0 else 0
+            )
+            avg_confidence = (
+                (stats["confidence_sum"] / stats["count"]) if stats["count"] > 0 else 0
+            )
 
             cursor.execute(
                 """
@@ -346,7 +368,11 @@ class SQLiteAnalytics:
         """
         total_coherence = 0
         coherence_count = 0
-        coherence_distribution = {"high": 0, "medium": 0, "low": 0}  # > 0.8  # 0.5 - 0.8  # < 0.5
+        coherence_distribution = {
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+        }  # > 0.8  # 0.5 - 0.8  # < 0.5
 
         for entry in entries:
             coherence = entry.get("GraphCoherence", 0)
@@ -361,7 +387,9 @@ class SQLiteAnalytics:
                 else:
                     coherence_distribution["low"] += 1
 
-        avg_coherence = (total_coherence / coherence_count) if coherence_count > 0 else 0
+        avg_coherence = (
+            (total_coherence / coherence_count) if coherence_count > 0 else 0
+        )
 
         return {
             "average_coherence": avg_coherence,
@@ -370,7 +398,9 @@ class SQLiteAnalytics:
             "meets_threshold": avg_coherence >= 0.85,  # V7 requirement
         }
 
-    def generate_analytics_report(self, entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def generate_analytics_report(
+        self, entries: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Generate comprehensive analytics report.
 

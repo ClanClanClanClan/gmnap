@@ -138,7 +138,12 @@ class GracefulDegradationManager:
             ),
             ServiceLevel.ESSENTIAL: ServiceProfile(
                 level=ServiceLevel.ESSENTIAL,
-                features_enabled={"region_detection", "name_processing", "validation", "caching"},
+                features_enabled={
+                    "region_detection",
+                    "name_processing",
+                    "validation",
+                    "caching",
+                },
                 max_concurrent_requests=200,
                 timeout_seconds=15.0,
                 cache_enabled=True,
@@ -195,7 +200,9 @@ class GracefulDegradationManager:
 
         # Update feature toggles
         profile = self.service_profiles[level]
-        all_features = set().union(*[p.features_enabled for p in self.service_profiles.values()])
+        all_features = set().union(
+            *[p.features_enabled for p in self.service_profiles.values()]
+        )
 
         for feature in all_features:
             self.feature_toggles[feature] = feature in profile.features_enabled
@@ -211,7 +218,8 @@ class GracefulDegradationManager:
         )
 
         self.logger.warning(
-            f"Service level changed: {previous_level.value} -> {level.value} " f"({reason})"
+            f"Service level changed: {previous_level.value} -> {level.value} "
+            f"({reason})"
         )
 
     def is_feature_enabled(self, feature: str) -> bool:
@@ -247,7 +255,9 @@ class LoadBalancer:
         self.current_endpoint_index = 0
 
         # Load balancing
-        self.strategy = LoadBalancingStrategy(self.config.get("strategy", "health_aware"))
+        self.strategy = LoadBalancingStrategy(
+            self.config.get("strategy", "health_aware")
+        )
         self.health_check_interval = self.config.get("health_check_interval", 30.0)
 
         # Graceful degradation
@@ -302,7 +312,9 @@ class LoadBalancer:
         logger.setLevel(logging.INFO)
 
         if not logger.handlers:
-            formatter = logging.Formatter("%(asctime)s [LOADBALANCER] %(levelname)s: %(message)s")
+            formatter = logging.Formatter(
+                "%(asctime)s [LOADBALANCER] %(levelname)s: %(message)s"
+            )
             console_handler = logging.StreamHandler()
             console_handler.setFormatter(formatter)
             logger.addHandler(console_handler)
@@ -335,7 +347,9 @@ class LoadBalancer:
         self.health_check_thread.start()
 
         # Start request processor
-        self.request_processor_thread = threading.Thread(target=self._request_processor_loop)
+        self.request_processor_thread = threading.Thread(
+            target=self._request_processor_loop
+        )
         self.request_processor_thread.daemon = True
         self.request_processor_thread.start()
 
@@ -392,7 +406,9 @@ class LoadBalancer:
         else:
             return random.choice(available_endpoints)
 
-    def _round_robin_selection(self, endpoints: List[ServiceEndpoint]) -> ServiceEndpoint:
+    def _round_robin_selection(
+        self, endpoints: List[ServiceEndpoint]
+    ) -> ServiceEndpoint:
         """Round-robin endpoint selection."""
         if not self.endpoint_order:
             return endpoints[0]
@@ -412,7 +428,9 @@ class LoadBalancer:
 
         return endpoints[0]  # Fallback
 
-    def _weighted_round_robin_selection(self, endpoints: List[ServiceEndpoint]) -> ServiceEndpoint:
+    def _weighted_round_robin_selection(
+        self, endpoints: List[ServiceEndpoint]
+    ) -> ServiceEndpoint:
         """Weighted round-robin selection."""
         total_weight = sum(ep.weight for ep in endpoints)
         if total_weight == 0:
@@ -428,15 +446,21 @@ class LoadBalancer:
 
         return endpoints[-1]
 
-    def _least_connections_selection(self, endpoints: List[ServiceEndpoint]) -> ServiceEndpoint:
+    def _least_connections_selection(
+        self, endpoints: List[ServiceEndpoint]
+    ) -> ServiceEndpoint:
         """Select endpoint with least active connections."""
         return min(endpoints, key=lambda ep: ep.active_connections)
 
-    def _least_response_time_selection(self, endpoints: List[ServiceEndpoint]) -> ServiceEndpoint:
+    def _least_response_time_selection(
+        self, endpoints: List[ServiceEndpoint]
+    ) -> ServiceEndpoint:
         """Select endpoint with lowest average response time."""
         return min(endpoints, key=lambda ep: ep.avg_response_time)
 
-    def _health_aware_selection(self, endpoints: List[ServiceEndpoint]) -> ServiceEndpoint:
+    def _health_aware_selection(
+        self, endpoints: List[ServiceEndpoint]
+    ) -> ServiceEndpoint:
         """Health-aware selection considering multiple factors."""
 
         def health_score(endpoint: ServiceEndpoint) -> float:
@@ -487,13 +511,16 @@ class LoadBalancer:
             endpoint.active_connections += 1
 
             # Simulate request execution (in real implementation, make HTTP call)
-            response = await self._execute_request(endpoint, request_data, current_profile)
+            response = await self._execute_request(
+                endpoint, request_data, current_profile
+            )
 
             # Record success
             endpoint.total_requests += 1
             response_time = time.time() - start_time
             endpoint.avg_response_time = (
-                endpoint.avg_response_time * (endpoint.total_requests - 1) + response_time
+                endpoint.avg_response_time * (endpoint.total_requests - 1)
+                + response_time
             ) / endpoint.total_requests
 
             self.request_history.append(
@@ -530,7 +557,10 @@ class LoadBalancer:
             endpoint.active_connections -= 1
 
     async def _execute_request(
-        self, endpoint: ServiceEndpoint, request_data: Dict[str, Any], profile: ServiceProfile
+        self,
+        endpoint: ServiceEndpoint,
+        request_data: Dict[str, Any],
+        profile: ServiceProfile,
     ) -> Dict[str, Any]:
         """Execute request against endpoint with service profile constraints."""
         # Simulate processing time based on service level
@@ -683,7 +713,9 @@ class LoadBalancer:
 
     def update_service_level(self, health_metrics: Dict[str, Any]):
         """Update service level based on health metrics."""
-        required_level = self.degradation_manager.evaluate_required_level(health_metrics)
+        required_level = self.degradation_manager.evaluate_required_level(
+            health_metrics
+        )
 
         if required_level != self.degradation_manager.current_level:
             reason = (

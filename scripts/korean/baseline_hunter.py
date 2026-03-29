@@ -3,9 +3,23 @@ from tempfile import TemporaryDirectory
 from tqdm import tqdm
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
-MATH_SCRIPT = REPO_ROOT / "src" / "gmnap" / "regions" / "e_groups" / "e4_korea" / "test_accuracy.py"
+MATH_SCRIPT = (
+    REPO_ROOT
+    / "src"
+    / "gmnap"
+    / "regions"
+    / "e_groups"
+    / "e4_korea"
+    / "test_accuracy.py"
+)
 DIVERSE_SCRIPT = (
-    REPO_ROOT / "src" / "gmnap" / "regions" / "e_groups" / "e4_korea" / "test_accuracy.py"
+    REPO_ROOT
+    / "src"
+    / "gmnap"
+    / "regions"
+    / "e_groups"
+    / "e4_korea"
+    / "test_accuracy.py"
 )
 BUILD_SCRIPT = (
     REPO_ROOT
@@ -21,7 +35,9 @@ RESULTS = {}
 
 
 def run(cmd, cwd=None, quiet=True):
-    kw = dict(cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    kw = dict(
+        cwd=cwd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
     proc = subprocess.run(cmd, **kw)
     if proc.returncode and not quiet:
         print(proc.stdout)
@@ -40,7 +56,9 @@ with TemporaryDirectory() as tmp:
     for sha in tqdm(all_shas, desc="Scanning commits"):
         run(f"git checkout {sha} --quiet", cwd=REPO_ROOT)
         # Clean build artefacts
-        models_path = REPO_ROOT / "src" / "gmnap" / "regions" / "e_groups" / "e4_korea" / "models"
+        models_path = (
+            REPO_ROOT / "src" / "gmnap" / "regions" / "e_groups" / "e4_korea" / "models"
+        )
         if models_path.exists():
             shutil.rmtree(models_path)
 
@@ -112,6 +130,8 @@ with TemporaryDirectory() as tmp:
 if RESULTS:
     best = max(RESULTS.items(), key=lambda kv: (kv[1][0] + kv[1][1]))
     print(json.dumps({"best_sha": best[0], "math": best[1][0], "div": best[1][1]}))
-    pathlib.Path(REPO_ROOT / "baseline_scan.json").write_text(json.dumps(RESULTS, indent=2))
+    pathlib.Path(REPO_ROOT / "baseline_scan.json").write_text(
+        json.dumps(RESULTS, indent=2)
+    )
 else:
     print("No valid results found")

@@ -18,7 +18,8 @@ from pathlib import Path
 
 class YAMLPatternExtractor:
     def __init__(
-        self, docs_path="/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/docs"
+        self,
+        docs_path="/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/docs",
     ):
         self.docs_path = Path(docs_path)
         self.patterns = defaultdict(set)
@@ -140,7 +141,9 @@ class YAMLPatternExtractor:
         key_patterns = [
             s
             for s in korean_surnames
-            if any(target in s for target in ["lee", "choi", "cho", "jang", "ahn", "baek"])
+            if any(
+                target in s for target in ["lee", "choi", "cho", "jang", "ahn", "baek"]
+            )
         ]
         if key_patterns:
             print(f"   🎯 Key patterns for A1→E4 fix: {key_patterns}")
@@ -186,7 +189,10 @@ class YAMLPatternExtractor:
         key_patterns = [
             s
             for s in slavic_surnames
-            if any(target in s for target in ["hájek", "novák", "wójcik", "banach", "sierpiński"])
+            if any(
+                target in s
+                for target in ["hájek", "novák", "wójcik", "banach", "sierpiński"]
+            )
         ]
         if key_patterns:
             print(f"   🎯 Key patterns for G1→B2 fix: {key_patterns}")
@@ -249,7 +255,9 @@ class YAMLPatternExtractor:
         print(f"   🇰🇷 Korean surnames: {len(korean)} (fixes Lee/Choi A1 issue)")
         print(f"   🇨🇿🇵🇱 Slavic surnames: {len(slavic)} (fixes Spanish confusion)")
 
-        print(f"\n🎯 TOTAL PHASE 1 PATTERNS: {len(hungarian) + len(korean) + len(slavic)}")
+        print(
+            f"\n🎯 TOTAL PHASE 1 PATTERNS: {len(hungarian) + len(korean) + len(slavic)}"
+        )
 
         return {
             "hungarian": hungarian,

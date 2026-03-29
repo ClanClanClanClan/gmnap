@@ -149,7 +149,9 @@ async def test_100_entries():
             "BayesianConfidence": sum(1 for r in results if "BayesianConfidence" in r),
         }
         for field, count in fields_present.items():
-            print(f"  • {field}: {count}/{len(results)} ({100*count/len(results):.1f}%)")
+            print(
+                f"  • {field}: {count}/{len(results)} ({100*count/len(results):.1f}%)"
+            )
 
         # Save results
         output_file = "test_100_results.json"

@@ -81,7 +81,9 @@ def run_test_verification():
                     }
                 )
 
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=10, env=env)
+                result = subprocess.run(
+                    cmd, capture_output=True, text=True, timeout=10, env=env
+                )
 
                 output = result.stdout + result.stderr
 
@@ -101,7 +103,10 @@ def run_test_verification():
                             env=env,
                         )
 
-                        if direct_result.returncode == 0 or "Success" in direct_result.stdout:
+                        if (
+                            direct_result.returncode == 0
+                            or "Success" in direct_result.stdout
+                        ):
                             results[category].append((test_file.name, "PASSED_DIRECT"))
                             print(f"  ✅ {test_file.name} - PASSED (direct run)")
                             working_tests += 1
@@ -118,7 +123,9 @@ def run_test_verification():
 
                     match = re.search(r"(\d+) failed", output)
                     if match:
-                        results[category].append((test_file.name, f"FAILED_{match.group(1)}"))
+                        results[category].append(
+                            (test_file.name, f"FAILED_{match.group(1)}")
+                        )
                         print(f"  ❌ {test_file.name} - {match.group(1)} tests failed")
                     else:
                         results[category].append((test_file.name, "FAILED"))
@@ -151,7 +158,11 @@ def run_test_verification():
     print(f"\nTotal tests checked: {total_tests}")
     print(f"✅ Working tests: {working_tests}")
     print(f"❌ Not working: {total_tests - working_tests}")
-    print(f"📈 Success rate: {(working_tests/total_tests*100):.1f}%" if total_tests > 0 else "0%")
+    print(
+        f"📈 Success rate: {(working_tests/total_tests*100):.1f}%"
+        if total_tests > 0
+        else "0%"
+    )
 
     # Category breakdown
     print("\n📂 By Category:")

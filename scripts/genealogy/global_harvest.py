@@ -35,8 +35,15 @@ from dataclasses import dataclass, asdict
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.genealogy.connectors.oai_generic import GenericOaiConnector, OaiConfig, OaiConnectorFactory
-from src.genealogy.connectors.wikidata_p184 import WikidataP184Connector, WikidataP184Config
+from src.genealogy.connectors.oai_generic import (
+    GenericOaiConnector,
+    OaiConfig,
+    OaiConnectorFactory,
+)
+from src.genealogy.connectors.wikidata_p184 import (
+    WikidataP184Connector,
+    WikidataP184Config,
+)
 
 
 @dataclass
@@ -140,19 +147,28 @@ class GlobalHarvester:
             elif connector_type == "sparql":
                 # Wikidata P184 or other SPARQL endpoints
                 config = WikidataP184Config(
-                    endpoint=source_config.get("endpoint", "https://query.wikidata.org/sparql"),
+                    endpoint=source_config.get(
+                        "endpoint", "https://query.wikidata.org/sparql"
+                    ),
                     rate_limit=source_config.get("rate_limit", 0.5),
                     timeout=source_config.get("timeout", 60),
                 )
                 connector = WikidataP184Connector(config)
             elif connector_type == "rest_api":
-                print(f"⚠️  REST API connectors not yet implemented (needed for CN, KR)")
+                print(
+                    f"⚠️  REST API connectors not yet implemented (needed for CN, KR)"
+                )
                 return HarvestResult(
                     source_id=source_id,
                     country=country,
                     status="skipped",
                     records_collected=0,
-                    errors=[{"type": "unsupported_connector", "connector_type": connector_type}],
+                    errors=[
+                        {
+                            "type": "unsupported_connector",
+                            "connector_type": connector_type,
+                        }
+                    ],
                     duration_seconds=0,
                     output_file="",
                 )
@@ -163,7 +179,9 @@ class GlobalHarvester:
                     country=country,
                     status="skipped",
                     records_collected=0,
-                    errors=[{"type": "unknown_connector", "connector_type": connector_type}],
+                    errors=[
+                        {"type": "unknown_connector", "connector_type": connector_type}
+                    ],
                     duration_seconds=0,
                     output_file="",
                 )
@@ -197,9 +215,12 @@ class GlobalHarvester:
                         print(f"  Progress: {len(records):,} records...")
                     if len(records) % self.checkpoint_every == 0:
                         checkpoint_file = (
-                            self.output_dir / f"{source_id}_checkpoint_{checkpoint_count}.json"
+                            self.output_dir
+                            / f"{source_id}_checkpoint_{checkpoint_count}.json"
                         )
-                        self._save_checkpoint(records[-self.checkpoint_every :], checkpoint_file)
+                        self._save_checkpoint(
+                            records[-self.checkpoint_every :], checkpoint_file
+                        )
                         checkpoint_count += 1
             else:
                 # OAI-PMH connectors support date range filtering
@@ -211,9 +232,12 @@ class GlobalHarvester:
                         print(f"  Progress: {len(records):,} records...")
                     if len(records) % self.checkpoint_every == 0:
                         checkpoint_file = (
-                            self.output_dir / f"{source_id}_checkpoint_{checkpoint_count}.json"
+                            self.output_dir
+                            / f"{source_id}_checkpoint_{checkpoint_count}.json"
                         )
-                        self._save_checkpoint(records[-self.checkpoint_every :], checkpoint_file)
+                        self._save_checkpoint(
+                            records[-self.checkpoint_every :], checkpoint_file
+                        )
                         checkpoint_count += 1
 
             # Save final output
@@ -261,7 +285,9 @@ class GlobalHarvester:
         with open(checkpoint_file, "w", encoding="utf-8") as f:
             json.dump(records, f, indent=2, ensure_ascii=False)
 
-    def _save_records(self, records: List[Dict], output_file: Path, source_config: Dict):
+    def _save_records(
+        self, records: List[Dict], output_file: Path, source_config: Dict
+    ):
         """Save harvested records with metadata."""
         output = {
             "source": source_config.get("name"),
@@ -311,7 +337,9 @@ class GlobalHarvester:
             self.results.append(result)
             self.total_records += result.records_collected
 
-    async def harvest_countries(self, countries: List[str], max_records_per_source: int = None):
+    async def harvest_countries(
+        self, countries: List[str], max_records_per_source: int = None
+    ):
         """Harvest specific countries."""
         sources = self.get_sources_by_country(countries)
 
@@ -442,12 +470,18 @@ async def main():
     parser = argparse.ArgumentParser(
         description="Global Genealogy Harvester - Multi-Country System"
     )
-    parser.add_argument("--tier", type=int, choices=[0, 1, 2, 3], help="Harvest specific tier only")
     parser.add_argument(
-        "--countries", type=str, help="Comma-separated list of country codes (e.g., FR,DE,UK)"
+        "--tier", type=int, choices=[0, 1, 2, 3], help="Harvest specific tier only"
     )
     parser.add_argument(
-        "--test", action="store_true", help="Test mode: harvest only 10 records per source"
+        "--countries",
+        type=str,
+        help="Comma-separated list of country codes (e.g., FR,DE,UK)",
+    )
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        help="Test mode: harvest only 10 records per source",
     )
     parser.add_argument(
         "--config",
@@ -465,7 +499,9 @@ async def main():
     args = parser.parse_args()
 
     # Create harvester
-    harvester = GlobalHarvester(config_file=Path(args.config), output_dir=Path(args.output_dir))
+    harvester = GlobalHarvester(
+        config_file=Path(args.config), output_dir=Path(args.output_dir)
+    )
 
     harvester.start_time = datetime.now()
     max_records = 10 if args.test else None

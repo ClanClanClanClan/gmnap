@@ -47,8 +47,18 @@ async def analyze_current_throughput():
 
         # Test multiple configurations
         test_configs = [
-            {"name": "Current Default", "batch_size": 100, "workers": 8, "db_batch": 50},
-            {"name": "High Concurrency", "batch_size": 200, "workers": 16, "db_batch": 100},
+            {
+                "name": "Current Default",
+                "batch_size": 100,
+                "workers": 8,
+                "db_batch": 50,
+            },
+            {
+                "name": "High Concurrency",
+                "batch_size": 200,
+                "workers": 16,
+                "db_batch": 100,
+            },
             {"name": "Low Latency", "batch_size": 50, "workers": 4, "db_batch": 25},
             {"name": "Balanced", "batch_size": 150, "workers": 12, "db_batch": 75},
         ]
@@ -66,7 +76,9 @@ async def analyze_current_throughput():
 
             # Run benchmark
             start_time = time.time()
-            benchmark_results = await benchmark_streaming_performance(1000, stream_config)
+            benchmark_results = await benchmark_streaming_performance(
+                1000, stream_config
+            )
             duration = time.time() - start_time
 
             # Extract performance metrics
@@ -99,7 +111,9 @@ async def analyze_current_throughput():
         print(f"   Configurations tested: {len(profiles)}")
         print(f"   Best configuration: {best_profile.configuration['name']}")
         print(f"   Peak throughput: {best_profile.entries_per_second:.1f} entries/sec")
-        print(f"   Peak hourly capacity: {best_profile.entries_per_hour:.0f} entries/hour")
+        print(
+            f"   Peak hourly capacity: {best_profile.entries_per_hour:.0f} entries/hour"
+        )
         print(f"   Best latency: {min(p.latency_ms for p in profiles):.1f}ms")
 
         return profiles, best_profile
@@ -117,7 +131,11 @@ async def test_cpu_optimization():
     print("\n🔧 TESTING: CPU optimization strategies")
 
     try:
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig, test_data_generator
+        from src.core.streaming_v7 import (
+            V7StreamingPipeline,
+            StreamingConfig,
+            test_data_generator,
+        )
 
         cpu_count = multiprocessing.cpu_count()
         print(f"   Available CPU cores: {cpu_count}")
@@ -188,7 +206,11 @@ async def test_batch_size_optimization():
     print("\n📦 TESTING: Batch size optimization")
 
     try:
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig, test_data_generator
+        from src.core.streaming_v7 import (
+            V7StreamingPipeline,
+            StreamingConfig,
+            test_data_generator,
+        )
 
         # Test different batch sizes
         batch_sizes = [25, 50, 100, 200, 500, 1000]
@@ -261,7 +283,11 @@ async def test_memory_optimization():
 
     try:
         import psutil
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig, test_data_generator
+        from src.core.streaming_v7 import (
+            V7StreamingPipeline,
+            StreamingConfig,
+            test_data_generator,
+        )
 
         # Test with memory monitoring
         def get_memory_usage():
@@ -307,20 +333,27 @@ async def test_memory_optimization():
                     "config": config["name"],
                     "throughput": throughput,
                     "memory_used_mb": memory_used,
-                    "memory_efficiency": throughput / max(memory_used, 1),  # entries/sec per MB
+                    "memory_efficiency": throughput
+                    / max(memory_used, 1),  # entries/sec per MB
                     "success_rate": metrics.success_rate,
                 }
             )
 
-            print(f"     {config['name']}: {throughput:.1f} entries/sec, {memory_used:.1f}MB used")
-            print(f"     Memory efficiency: {throughput / max(memory_used, 1):.2f} entries/sec/MB")
+            print(
+                f"     {config['name']}: {throughput:.1f} entries/sec, {memory_used:.1f}MB used"
+            )
+            print(
+                f"     Memory efficiency: {throughput / max(memory_used, 1):.2f} entries/sec/MB"
+            )
 
         # Find most memory-efficient configuration
         best_efficiency = max(results, key=lambda r: r["memory_efficiency"])
 
         print(f"\n✅ Memory optimization results:")
         print(f"   Most efficient: {best_efficiency['config']}")
-        print(f"   Efficiency: {best_efficiency['memory_efficiency']:.2f} entries/sec/MB")
+        print(
+            f"   Efficiency: {best_efficiency['memory_efficiency']:.2f} entries/sec/MB"
+        )
         print(f"   Memory used: {best_efficiency['memory_used_mb']:.1f}MB")
         print(f"   Throughput: {best_efficiency['throughput']:.1f} entries/sec")
 
@@ -343,7 +376,9 @@ async def create_optimized_configuration(cpu_result, batch_result, memory_result
         optimal_config = {
             "batch_size": batch_result["batch_size"] if batch_result else 150,
             "parallel_workers": cpu_result["workers"] if cpu_result else 12,
-            "database_batch_size": (batch_result["batch_size"] // 2) if batch_result else 75,
+            "database_batch_size": (
+                (batch_result["batch_size"] // 2) if batch_result else 75
+            ),
             "rate_limit_per_second": 10000,  # Increased from default
             "max_memory_mb": 2048,  # Conservative memory limit
             "checkpoint_interval": 2000,  # Less frequent checkpointing
@@ -356,7 +391,11 @@ async def create_optimized_configuration(cpu_result, batch_result, memory_result
             print(f"     {key}: {value}")
 
         # Test the optimized configuration
-        from src.core.streaming_v7 import V7StreamingPipeline, StreamingConfig, test_data_generator
+        from src.core.streaming_v7 import (
+            V7StreamingPipeline,
+            StreamingConfig,
+            test_data_generator,
+        )
 
         config = StreamingConfig(**optimal_config)
 
@@ -429,7 +468,9 @@ async def main():
         optimization_results["memory"] = memory_result
 
     # Phase 5: Ultimate optimized configuration
-    ultimate_result = await create_optimized_configuration(cpu_result, batch_result, memory_result)
+    ultimate_result = await create_optimized_configuration(
+        cpu_result, batch_result, memory_result
+    )
     if ultimate_result:
         optimization_results["ultimate"] = ultimate_result
 
@@ -457,7 +498,11 @@ async def main():
         print(f"   ✅ Memory efficient: {config['max_memory_mb']}MB limit")
 
         # Production readiness assessment
-        if perf["throughput"] > 500 and perf["success_rate"] >= 99.0 and perf["latency_ms"] <= 1000:
+        if (
+            perf["throughput"] > 500
+            and perf["success_rate"] >= 99.0
+            and perf["latency_ms"] <= 1000
+        ):
             print(f"\n🎉 V7 THROUGHPUT OPTIMIZATION: PRODUCTION EXCELLENCE ACHIEVED")
             print(f"   🚀 Ready for high-volume production deployment")
             return True

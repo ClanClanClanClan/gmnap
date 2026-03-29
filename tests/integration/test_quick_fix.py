@@ -7,7 +7,9 @@ Quick test to verify the pipeline fix works
 
 import sys
 
-sys.path.insert(0, "/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/src")
+sys.path.insert(
+    0, "/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/src"
+)
 
 from src.core.pipeline import GMNAPPipeline
 

@@ -20,7 +20,9 @@ for hangul, roman, weight, context, pos in mappings:
     print(f"Testing: {roman} → {hangul} (weight={weight}, pos={pos})")
 
     result = subprocess.run(
-        ["python3", "scripts/lint_weights.py", mapping_str], capture_output=True, text=True
+        ["python3", "scripts/lint_weights.py", mapping_str],
+        capture_output=True,
+        text=True,
     )
 
     if result.returncode != 0:

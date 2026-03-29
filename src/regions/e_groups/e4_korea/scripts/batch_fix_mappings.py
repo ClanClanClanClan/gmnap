@@ -37,7 +37,9 @@ print(f"\nAdded {added} mappings")
 
 # Rebuild FSTs
 print("\nRebuilding FSTs...")
-result = subprocess.run(["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True)
+result = subprocess.run(
+    ["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True
+)
 if result.returncode == 0:
     print("✓ FSTs rebuilt")
 else:

@@ -70,7 +70,9 @@ def canonicalise_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
 def to_canonical_bytes(batch: List[Dict[str, Any]]) -> bytes:
     """Stable bytes for idempotency / diff, with per‑entry canonicalisation and batch sort."""
     canon = [canonicalise_entry(e) for e in batch]
-    canon_sorted = sorted(canon, key=lambda e: (e.get("GlobalID", ""), e.get("Source", "")))
+    canon_sorted = sorted(
+        canon, key=lambda e: (e.get("GlobalID", ""), e.get("Source", ""))
+    )
     return json.dumps(
         canon_sorted, ensure_ascii=False, sort_keys=True, separators=(",", ":")
     ).encode("utf-8")

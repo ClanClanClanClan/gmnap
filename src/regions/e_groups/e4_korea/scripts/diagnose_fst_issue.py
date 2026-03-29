@@ -55,7 +55,9 @@ def diagnose_fst_build():
                     if len(row) >= 2 and not row[0].startswith("#"):
                         count_after += 1
 
-            print(f"\nAfter adding mapping: {count_after} (added {count_after - count_before})")
+            print(
+                f"\nAfter adding mapping: {count_after} (added {count_after - count_before})"
+            )
 
             # Check CSV for duplicates or issues
             print("\nChecking for CSV issues...")
@@ -73,7 +75,9 @@ def diagnose_fst_build():
             # Rebuild FSTs
             print("\nRebuilding FSTs...")
             result = subprocess.run(
-                ["python3", "scripts/build_fsts_multi.py"], capture_output=True, text=True
+                ["python3", "scripts/build_fsts_multi.py"],
+                capture_output=True,
+                text=True,
             )
 
             if result.returncode != 0:

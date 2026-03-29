@@ -103,7 +103,9 @@ async def test_authority_sources():
         else:
             print(f"  ❌ {source}: {status}")
 
-    print(f"\nTotal: {working_count}/{len(sources_status)} sources imported successfully")
+    print(
+        f"\nTotal: {working_count}/{len(sources_status)} sources imported successfully"
+    )
 
     # Test enricher integration
     print("\n2. Testing enricher integration...")
@@ -158,7 +160,8 @@ async def test_authority_sources():
                 found = True
                 if (
                     sources_status.get(
-                        check_name, sources_status.get(check_name.replace("arxiv", "arXiv"), "")
+                        check_name,
+                        sources_status.get(check_name.replace("arxiv", "arXiv"), ""),
                     )
                     == "IMPORTED"
                 ):

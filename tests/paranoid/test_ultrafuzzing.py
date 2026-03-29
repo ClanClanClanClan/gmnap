@@ -229,7 +229,9 @@ class TestUltraFuzzing:
             for char in chars:
                 test_str = f"Test{char}String"
                 try:
-                    result = self.validator.validate_string(test_str, f"unicode_{category}")
+                    result = self.validator.validate_string(
+                        test_str, f"unicode_{category}"
+                    )
                     assert result is not None
                 except:
                     pass  # Some categories might be rejected
@@ -385,7 +387,9 @@ class TestUltraFuzzing:
             except:
                 pass  # Format strings might be rejected
 
-    @given(st.lists(st.integers(min_value=0, max_value=1114111), min_size=0, max_size=100))
+    @given(
+        st.lists(st.integers(min_value=0, max_value=1114111), min_size=0, max_size=100)
+    )
     @settings(max_examples=500, deadline=1000)
     @pytest.mark.timeout(15)
     def test_fuzz_random_unicode_codepoints(self, codepoints):
@@ -452,7 +456,10 @@ class StatefulFuzzingTest(RuleBasedStateMachine):
         self.validated = {}
         self.counter = 0
 
-    @rule(text=st.text(), context=st.sampled_from(["test", "name", "general", "email", "url"]))
+    @rule(
+        text=st.text(),
+        context=st.sampled_from(["test", "name", "general", "email", "url"]),
+    )
     def validate_string(self, text, context):
         """Validate a string and track it"""
         self.counter += 1
@@ -490,7 +497,9 @@ class StatefulFuzzingTest(RuleBasedStateMachine):
             if entry["output"] is not None:
                 # Re-validate should give same result
                 try:
-                    result = self.validator.validate_string(entry["input"], entry["context"])
+                    result = self.validator.validate_string(
+                        entry["input"], entry["context"]
+                    )
                     assert result == entry["output"], "Validation not consistent"
                 except Exception as e:
                     assert entry["error"] is not None, "Error state changed"

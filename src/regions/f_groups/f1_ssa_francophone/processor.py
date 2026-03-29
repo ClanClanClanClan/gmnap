@@ -81,11 +81,15 @@ class F1_SSAFrancophone(RegionSpec):
             canonical = canonical.replace("\t", " ").replace("\n", " ")
 
         if self._has_security_risks(canonical):
-            raise RegionRuleError(f"Name contains dangerous characters: {canonical[:50]}...")
+            raise RegionRuleError(
+                f"Name contains dangerous characters: {canonical[:50]}..."
+            )
 
         # Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         # THEN handle legitimate edge cases
         if len(canonical.strip()) == 1:

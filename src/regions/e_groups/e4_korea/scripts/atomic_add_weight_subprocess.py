@@ -24,7 +24,9 @@ def acquire_lock(lockfile):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python3 atomic_add_weight_subprocess.py 'hangul,roman,weight,context,pos'")
+        print(
+            "Usage: python3 atomic_add_weight_subprocess.py 'hangul,roman,weight,context,pos'"
+        )
         sys.exit(1)
 
     weight_line = sys.argv[1]
@@ -36,7 +38,9 @@ def main():
 
     # Lint check with subprocess
     lint_result = subprocess.run(
-        ["python3", "scripts/lint_weights.py", weight_line], capture_output=True, text=True
+        ["python3", "scripts/lint_weights.py", weight_line],
+        capture_output=True,
+        text=True,
     )
 
     if lint_result.returncode != 0:
@@ -98,7 +102,9 @@ print('Park:', converter.eng2kor('Park'))""",
         # Check for regressions WITH SUBPROCESS
         print("\n🔍 Checking for regressions...")
         val_result = subprocess.run(
-            ["python3", "scripts/validate_regression.py"], capture_output=True, text=True
+            ["python3", "scripts/validate_regression.py"],
+            capture_output=True,
+            text=True,
         )
 
         if val_result.returncode != 0:

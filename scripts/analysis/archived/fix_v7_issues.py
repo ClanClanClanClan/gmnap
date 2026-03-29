@@ -190,7 +190,9 @@ async def verify_fixes():
         if korean_name == "Kim Jung-eun":
             print("  ✅ Korean processor: 김정은 → Kim Jung-eun")
         else:
-            print(f"  ❌ Korean processor: 김정은 → {korean_name} (expected: Kim Jung-eun)")
+            print(
+                f"  ❌ Korean processor: 김정은 → {korean_name} (expected: Kim Jung-eun)"
+            )
     except Exception as e:
         print(f"  ❌ Korean processor error: {e}")
 

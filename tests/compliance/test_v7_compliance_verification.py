@@ -67,7 +67,8 @@ class V7ComplianceVerifier:
                 module = getattr(self, module_name.lower().replace("_", ""))
             else:
                 spec = importlib.util.spec_from_file_location(
-                    module_name, Path(__file__).parent.parent.parent / "src" / f"{module_name}.py"
+                    module_name,
+                    Path(__file__).parent.parent.parent / "src" / f"{module_name}.py",
                 )
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
@@ -76,17 +77,23 @@ class V7ComplianceVerifier:
             for method in expected_methods:
                 if hasattr(module, method) or (
                     hasattr(module, "__class__")
-                    and any(hasattr(cls, method) for cls in inspect.getmro(module.__class__))
+                    and any(
+                        hasattr(cls, method) for cls in inspect.getmro(module.__class__)
+                    )
                 ):
                     result["methods_found"].append(method)
 
                     # Try to get source line numbers
                     try:
                         if hasattr(module, method):
-                            source_lines = inspect.getsourcelines(getattr(module, method))
+                            source_lines = inspect.getsourcelines(
+                                getattr(module, method)
+                            )
                             result["line_numbers"][method] = source_lines[1]
                         elif hasattr(module.__class__, method):
-                            source_lines = inspect.getsourcelines(getattr(module.__class__, method))
+                            source_lines = inspect.getsourcelines(
+                                getattr(module.__class__, method)
+                            )
                             result["line_numbers"][method] = source_lines[1]
                     except (OSError, TypeError):
                         pass  # Source not available
@@ -100,7 +107,9 @@ class V7ComplianceVerifier:
 
         return result
 
-    def check_pipeline_stage(self, stage_number: int, stage_name: str) -> Dict[str, Any]:
+    def check_pipeline_stage(
+        self, stage_number: int, stage_name: str
+    ) -> Dict[str, Any]:
         """Check if a specific pipeline stage is implemented"""
         result = {
             "stage": f"Stage {stage_number}: {stage_name}",
@@ -128,23 +137,33 @@ class V7ComplianceVerifier:
                         source_lines = inspect.getsourcelines(
                             getattr(self.pipeline, specific_method)
                         )
-                        result["evidence"].append(f"Implementation at line {source_lines[1]}")
+                        result["evidence"].append(
+                            f"Implementation at line {source_lines[1]}"
+                        )
                     except (OSError, TypeError):
                         result["evidence"].append("Source code accessible")
             else:
                 # For other stages, check for methods starting with the pattern
                 pipeline_methods = [
-                    method for method in dir(self.pipeline) if method.startswith(stage_method)
+                    method
+                    for method in dir(self.pipeline)
+                    if method.startswith(stage_method)
                 ]
                 if pipeline_methods:
                     result["implemented"] = True
-                    result["evidence"].append(f"Found stage methods: {', '.join(pipeline_methods)}")
+                    result["evidence"].append(
+                        f"Found stage methods: {', '.join(pipeline_methods)}"
+                    )
 
                     # Try to get source code evidence for the first method
                     try:
                         first_method = pipeline_methods[0]
-                        source_lines = inspect.getsourcelines(getattr(self.pipeline, first_method))
-                        result["evidence"].append(f"Implementation at line {source_lines[1]}")
+                        source_lines = inspect.getsourcelines(
+                            getattr(self.pipeline, first_method)
+                        )
+                        result["evidence"].append(
+                            f"Implementation at line {source_lines[1]}"
+                        )
                     except (OSError, TypeError):
                         result["evidence"].append("Source code accessible")
 
@@ -192,7 +211,9 @@ class V7ComplianceVerifier:
                     # Check if validator class exists in quality_gates module
                     from src.core.quality_gates import globals as qg_globals
 
-                    if validator in qg_globals() or hasattr(self.quality_gates, validator.lower()):
+                    if validator in qg_globals() or hasattr(
+                        self.quality_gates, validator.lower()
+                    ):
                         found_validators.append(validator)
                 except:
                     pass
@@ -326,9 +347,13 @@ class TestV7ComplianceVerification:
         quality_gates_result = verifier.verify_quality_gates()
 
         # Should find implementation in either location
-        implemented = pipeline_result["implemented"] or quality_gates_result["implemented"]
+        implemented = (
+            pipeline_result["implemented"] or quality_gates_result["implemented"]
+        )
 
-        assert implemented, "Round-trip validation not found in pipeline or quality gates"
+        assert (
+            implemented
+        ), "Round-trip validation not found in pipeline or quality gates"
 
         verifier.verification_results["roundtrip"] = {
             "pipeline": pipeline_result,
@@ -341,7 +366,11 @@ class TestV7ComplianceVerification:
         result = verifier.verify_implementation_exists(
             "pipeline_v7",
             "Graph Coherence Scoring",
-            ["calculate_graph_coherence", "graph_coherence_score", "coherence_validation"],
+            [
+                "calculate_graph_coherence",
+                "graph_coherence_score",
+                "coherence_validation",
+            ],
         )
 
         # This was documented as "Not Implemented" but should be found
@@ -354,7 +383,9 @@ class TestV7ComplianceVerification:
         """Verify Quality Gates system implementation"""
         result = verifier.verify_quality_gates()
 
-        assert result["implemented"], f"Quality gates not implemented: {result['evidence']}"
+        assert result[
+            "implemented"
+        ], f"Quality gates not implemented: {result['evidence']}"
         assert result["gate_count"] > 0, f"No quality gate validators found"
 
         verifier.verification_results["quality_gates"] = result
@@ -415,7 +446,9 @@ class TestV7ComplianceVerification:
         ]
 
         for feature in documented_as_unimplemented:
-            if feature in [r.get("feature", "") for r in verifier.verification_results.values()]:
+            if feature in [
+                r.get("feature", "") for r in verifier.verification_results.values()
+            ]:
                 report["documentation_discrepancies"].append(
                     {
                         "feature": feature,
@@ -431,9 +464,15 @@ class TestV7ComplianceVerification:
         assert report["verification_summary"]["total_features_tested"] > 0
 
         print(f"\nCompliance Verification Report Generated:")
-        print(f"Features tested: {report['verification_summary']['total_features_tested']}")
-        print(f"Implementation rate: {report['verification_summary']['implementation_rate']}")
-        print(f"Documentation discrepancies: {len(report['documentation_discrepancies'])}")
+        print(
+            f"Features tested: {report['verification_summary']['total_features_tested']}"
+        )
+        print(
+            f"Implementation rate: {report['verification_summary']['implementation_rate']}"
+        )
+        print(
+            f"Documentation discrepancies: {len(report['documentation_discrepancies'])}"
+        )
 
 
 @pytest.mark.asyncio
@@ -459,7 +498,9 @@ async def test_full_compliance_verification():
             # Other feature type
             if feature_id == "roundtrip":
                 result = verifier.verify_implementation_exists(
-                    "pipeline_v7", feature_name, ["validate_roundtrip", "dice_coefficient"]
+                    "pipeline_v7",
+                    feature_name,
+                    ["validate_roundtrip", "dice_coefficient"],
                 )
             elif feature_id == "graph_coherence":
                 result = verifier.verify_implementation_exists(
@@ -469,13 +510,17 @@ async def test_full_compliance_verification():
         results[feature_name] = result
 
         # Assert implementation exists (contradicting documentation)
-        assert result["implemented"], f"{feature_name} not found but should be implemented"
+        assert result[
+            "implemented"
+        ], f"{feature_name} not found but should be implemented"
 
     # Verify we found evidence for all critical features
     implemented_count = sum(1 for r in results.values() if r["implemented"])
     total_count = len(results)
 
-    print(f"\nCritical Feature Verification: {implemented_count}/{total_count} implemented")
+    print(
+        f"\nCritical Feature Verification: {implemented_count}/{total_count} implemented"
+    )
     for feature_name, result in results.items():
         status = "✓ FOUND" if result["implemented"] else "✗ NOT FOUND"
         print(f"  {status}: {feature_name}")

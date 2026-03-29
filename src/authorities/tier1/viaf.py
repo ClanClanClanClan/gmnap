@@ -91,10 +91,14 @@ class VIAFFetcher(AuthorityFetcher):
                     # Parse search results
                     results = []
                     if "searchRetrieveResponse" in data:
-                        records = data.get("searchRetrieveResponse", {}).get("records", [])
+                        records = data.get("searchRetrieveResponse", {}).get(
+                            "records", []
+                        )
                         for record in records:
                             if isinstance(record, dict):
-                                record_data = record.get("record", {}).get("recordData", {})
+                                record_data = record.get("record", {}).get(
+                                    "recordData", {}
+                                )
                                 if record_data:
                                     results.append(
                                         {
@@ -102,9 +106,9 @@ class VIAFFetcher(AuthorityFetcher):
                                             "name": record_data.get("mainHeadings", {})
                                             .get("data", [{}])[0]
                                             .get("text"),
-                                            "sources": record_data.get("sources", {}).get(
-                                                "source", []
-                                            ),
+                                            "sources": record_data.get(
+                                                "sources", {}
+                                            ).get("source", []),
                                         }
                                     )
                     return results

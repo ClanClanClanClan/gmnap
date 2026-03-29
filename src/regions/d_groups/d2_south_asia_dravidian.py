@@ -13,7 +13,9 @@ class D2SouthAsiaDravidian(RegionSpec):
 
     def __init__(self):
         super().__init__(
-            code="D2", yaml_files=[], scripts=["Tamil", "Latin"]  # TODO: Add actual YAML files,
+            code="D2",
+            yaml_files=[],
+            scripts=["Tamil", "Latin"],  # TODO: Add actual YAML files,
         )
 
     def clean(self, name: str) -> str:

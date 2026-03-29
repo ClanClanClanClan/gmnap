@@ -24,7 +24,9 @@ async def analyze_validation_failures():
     results = await pipeline._stage_8_global_validate(stage5_results)
 
     print(f"Total entries: {len(results)}")
-    print(f"Valid entries: {sum(1 for e in results if e.get('ValidationStatus') == 'VALID')}")
+    print(
+        f"Valid entries: {sum(1 for e in results if e.get('ValidationStatus') == 'VALID')}"
+    )
     print()
 
     # Analyze failures

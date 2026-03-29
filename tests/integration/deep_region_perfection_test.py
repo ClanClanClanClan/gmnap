@@ -68,7 +68,9 @@ def deep_test_region(region_code, test_cases):
                 results["failed"] += 1
 
         success_rate = (
-            results["passed"] / results["total_tests"] * 100 if results["total_tests"] > 0 else 0
+            results["passed"] / results["total_tests"] * 100
+            if results["total_tests"] > 0
+            else 0
         )
         results["success_rate"] = success_rate
         results["success"] = success_rate >= 100.0  # Require 100% for perfection
@@ -221,7 +223,9 @@ def perfection_audit():
             passed = results.get("passed", 0)
             total = results.get("total_tests", 0)
             rate = results.get("success_rate", 0)
-            print(f"FAIL {region}: NEEDS WORK - {passed}/{total} tests passed ({rate:.1f}%)")
+            print(
+                f"FAIL {region}: NEEDS WORK - {passed}/{total} tests passed ({rate:.1f}%)"
+            )
 
             # Show error message if it's a loading error
             if "error" in results:

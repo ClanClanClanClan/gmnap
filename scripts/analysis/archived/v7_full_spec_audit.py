@@ -26,12 +26,22 @@ def check_stage_implementations() -> Dict[str, Any]:
         (11, "IdempotencyCheck", "src/core/idempotency.py"),
     ]
 
-    results = {"total": len(stages_spec), "implemented": 0, "missing": [], "details": []}
+    results = {
+        "total": len(stages_spec),
+        "implemented": 0,
+        "missing": [],
+        "details": [],
+    }
 
     for stage_num, stage_name, expected_file in stages_spec:
         exists = os.path.exists(expected_file)
         results["details"].append(
-            {"stage": f"{stage_num}", "name": stage_name, "file": expected_file, "exists": exists}
+            {
+                "stage": f"{stage_num}",
+                "name": stage_name,
+                "file": expected_file,
+                "exists": exists,
+            }
         )
         if exists:
             results["implemented"] += 1
@@ -55,7 +65,10 @@ def check_quality_gates() -> Dict[str, Any]:
         test_entries = [
             {"GlobalID": "test-id-1", "CanonicalLatin": "Smith, John"},
             {"GlobalID": "test-id-1", "CanonicalLatin": "Smith, John"},  # duplicate
-            {"GlobalID": "test-id-1--1", "CanonicalLatin": "Smith, John"},  # suffixed, should pass
+            {
+                "GlobalID": "test-id-1--1",
+                "CanonicalLatin": "Smith, John",
+            },  # suffixed, should pass
         ]
 
         results["gates"]["duplicate_global_id"] = {
@@ -154,7 +167,12 @@ def check_korean_requirements() -> Dict[str, Any]:
             actual = result.get("CanonicalLatin", "")
             passed = actual == expected
             results["tests"].append(
-                {"input": native, "expected": expected, "actual": actual, "passed": passed}
+                {
+                    "input": native,
+                    "expected": expected,
+                    "actual": actual,
+                    "passed": passed,
+                }
             )
             if not passed:
                 results["compliance"] = False
@@ -203,7 +221,9 @@ def check_regional_coverage() -> Dict[str, Any]:
         if group_path.exists():
             results["groups"][group] = {"expected": len(regions), "found": 0}
             for region in regions:
-                if (group_path / region).exists() or (group_path / f"{region}.py").exists():
+                if (group_path / region).exists() or (
+                    group_path / f"{region}.py"
+                ).exists():
                     results["found"] += 1
                     results["groups"][group]["found"] += 1
                 else:
@@ -238,7 +258,11 @@ def check_data_model() -> Dict[str, Any]:
         validator = SchemaValidator()
 
         # Test with minimal valid entry
-        test_entry = {"GlobalID": "test-id", "CanonicalLatin": "Smith, John", "Confidence": 85}
+        test_entry = {
+            "GlobalID": "test-id",
+            "CanonicalLatin": "Smith, John",
+            "Confidence": 85,
+        }
 
         is_valid = validator.validate(test_entry)
         results["validation"] = "working" if is_valid else "failing"
@@ -280,8 +304,12 @@ def main():
         test = perf["tests"][0] if perf["tests"] else None
         if test:
             status = "✅" if test["meets_spec"] else "❌"
-            print(f"  {status} {test['speed']:.0f} entries/sec (need {perf['required_speed']:.0f})")
-            print(f"      Est. 1M time: {test['est_1m_minutes']:.0f} min (spec: ≤35 min)")
+            print(
+                f"  {status} {test['speed']:.0f} entries/sec (need {perf['required_speed']:.0f})"
+            )
+            print(
+                f"      Est. 1M time: {test['est_1m_minutes']:.0f} min (spec: ≤35 min)"
+            )
     else:
         print(f"  ❌ Error: {perf['error']}")
 
@@ -338,7 +366,9 @@ def main():
     print("\n" + "=" * 80)
     print("OVERALL V7 SPEC COMPLIANCE")
     print("=" * 80)
-    print(f"Score: {results['overall']['score']} ({results['overall']['percentage']:.0f}%)")
+    print(
+        f"Score: {results['overall']['score']} ({results['overall']['percentage']:.0f}%)"
+    )
     print(f"Status: {results['overall']['status']}")
 
     # Save results

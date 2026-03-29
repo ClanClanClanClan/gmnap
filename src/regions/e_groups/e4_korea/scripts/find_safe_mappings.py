@@ -72,7 +72,9 @@ for hangul, roman, pos in specific_checks:
             conflicts.append(f"{hangul}→{r}")
 
     if conflicts:
-        print(f"  ⚠️  {roman}→{hangul} (pos={pos}): Conflicts with {', '.join(conflicts)}")
+        print(
+            f"  ⚠️  {roman}→{hangul} (pos={pos}): Conflicts with {', '.join(conflicts)}"
+        )
     else:
         print(f"  ✅ {roman}→{hangul} (pos={pos}): SAFE TO ADD")
         safe_to_add.append((hangul, roman, pos))

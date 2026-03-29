@@ -64,7 +64,9 @@ class DBLPFetcher(AuthorityFetcher):
                 return await self._search_by_name(query)
 
         except asyncio.TimeoutError:
-            return FetchResult(status=FetchStatus.NETWORK_ERROR, error_message="Request timeout")
+            return FetchResult(
+                status=FetchStatus.NETWORK_ERROR, error_message="Request timeout"
+            )
 
         except Exception as e:
             self.logger.error(f"Fetch error: {e}")
@@ -93,7 +95,8 @@ class DBLPFetcher(AuthorityFetcher):
 
             elif response.status == 404:
                 return FetchResult(
-                    status=FetchStatus.NOT_FOUND, error_message="DBLP person ID not found"
+                    status=FetchStatus.NOT_FOUND,
+                    error_message="DBLP person ID not found",
                 )
 
             elif response.status == 429:
@@ -131,7 +134,8 @@ class DBLPFetcher(AuthorityFetcher):
 
                 if not search_results:
                     return FetchResult(
-                        status=FetchStatus.NOT_FOUND, error_message="No DBLP authors found"
+                        status=FetchStatus.NOT_FOUND,
+                        error_message="No DBLP authors found",
                     )
 
                 # Get best match and fetch full profile
@@ -177,7 +181,9 @@ class DBLPFetcher(AuthorityFetcher):
                 info = hit.find("info")
                 if info is not None:
                     author_data["name"] = (
-                        info.find("author").text if info.find("author") is not None else ""
+                        info.find("author").text
+                        if info.find("author") is not None
+                        else ""
                     )
 
                     # Extract DBLP URL/PID
@@ -208,7 +214,9 @@ class DBLPFetcher(AuthorityFetcher):
             if person is None:
                 # Fallback to basic data
                 return AuthorityData(
-                    source=self.service, source_id=person_id, canonical_name=f"DBLP_{person_id}"
+                    source=self.service,
+                    source_id=person_id,
+                    canonical_name=f"DBLP_{person_id}",
                 )
 
             # Get primary name
@@ -236,7 +244,9 @@ class DBLPFetcher(AuthorityFetcher):
                 # Count by publication type
                 for child in pub:
                     pub_type = child.tag
-                    publications["by_type"][pub_type] = publications["by_type"].get(pub_type, 0) + 1
+                    publications["by_type"][pub_type] = (
+                        publications["by_type"].get(pub_type, 0) + 1
+                    )
 
             # Extract years for timeline
             years = []
@@ -264,7 +274,9 @@ class DBLPFetcher(AuthorityFetcher):
         except ET.ParseError as e:
             self.logger.error(f"Failed to parse DBLP person XML: {e}")
             return AuthorityData(
-                source=self.service, source_id=person_id, canonical_name=f"DBLP_{person_id}"
+                source=self.service,
+                source_id=person_id,
+                canonical_name=f"DBLP_{person_id}",
             )
 
     def parse_search_result(self, result: Dict[str, Any]) -> AuthorityData:
@@ -313,7 +325,9 @@ class DBLPFetcher(AuthorityFetcher):
                 best_score = score
                 best_result = result
 
-        return best_result if best_score > 0.3 else results[0]  # 30% similarity threshold
+        return (
+            best_result if best_score > 0.3 else results[0]
+        )  # 30% similarity threshold
 
     def calculate_confidence(self, data: AuthorityData) -> float:
         """

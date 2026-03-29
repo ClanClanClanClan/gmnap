@@ -154,7 +154,9 @@ class AuthorityIntegrationTester:
                     )
                     print(f"    ✅ Found {len(orcid_results)} ORCID(s)")
                 else:
-                    results.append({"name": name, "orcids_found": 0, "first_orcid": None})
+                    results.append(
+                        {"name": name, "orcids_found": 0, "first_orcid": None}
+                    )
                     print(f"    ⚠️ No ORCID found")
 
                 time.sleep(0.5)  # Rate limiting
@@ -202,7 +204,9 @@ class AuthorityIntegrationTester:
                     )
                     print(f"    ✅ Found {len(papers)} papers")
                 else:
-                    results.append({"name": name, "papers_found": 0, "first_paper": None})
+                    results.append(
+                        {"name": name, "papers_found": 0, "first_paper": None}
+                    )
                     print(f"    ⚠️ No papers found")
 
                 time.sleep(0.5)  # Rate limiting
@@ -242,7 +246,9 @@ class AuthorityIntegrationTester:
                                     "id": authors[0].get("id"),
                                     "display_name": authors[0].get("display_name"),
                                     "works_count": authors[0].get("works_count"),
-                                    "h_index": authors[0].get("summary_stats", {}).get("h_index"),
+                                    "h_index": authors[0]
+                                    .get("summary_stats", {})
+                                    .get("h_index"),
                                 }
                                 if authors
                                 else None
@@ -251,7 +257,9 @@ class AuthorityIntegrationTester:
                     )
                     print(f"    ✅ Found {len(authors)} author(s)")
                 else:
-                    results.append({"name": name, "authors_found": 0, "first_author": None})
+                    results.append(
+                        {"name": name, "authors_found": 0, "first_author": None}
+                    )
                     print(f"    ⚠️ No authors found")
 
                 time.sleep(0.5)  # Rate limiting
@@ -340,7 +348,11 @@ class AuthorityIntegrationTester:
 
         except Exception as e:
             print(f"    ❌ Error: {str(e)}")
-            return {"status": "error", "batch_enrichment_working": False, "error": str(e)}
+            return {
+                "status": "error",
+                "batch_enrichment_working": False,
+                "error": str(e),
+            }
 
     def test_pipeline_integration(self) -> Dict[str, Any]:
         """Test authority enrichment in the V7 pipeline"""
@@ -390,7 +402,11 @@ class AuthorityIntegrationTester:
         except Exception as e:
             print(f"    ❌ Error: {str(e)}")
             traceback.print_exc()
-            return {"status": "error", "pipeline_integration_working": False, "error": str(e)}
+            return {
+                "status": "error",
+                "pipeline_integration_working": False,
+                "error": str(e),
+            }
 
     def run_all_tests(self):
         """Run all authority tests"""
@@ -418,7 +434,11 @@ class AuthorityIntegrationTester:
             except Exception as e:
                 print(f"\n❌ Test '{test_name}' crashed: {e}")
                 traceback.print_exc()
-                self.results[test_name] = {"status": "crash", "api_working": False, "error": str(e)}
+                self.results[test_name] = {
+                    "status": "crash",
+                    "api_working": False,
+                    "error": str(e),
+                }
 
         # Summary
         self.print_summary()
@@ -459,7 +479,9 @@ class AuthorityIntegrationTester:
             print(f"❌ Failed: {', '.join(failed_sources)}")
 
         # Save detailed results
-        report_file = f"authority_test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        report_file = (
+            f"authority_test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
         with open(report_file, "w") as f:
             json.dump(self.results, f, indent=2, default=str)
         print(f"\n📄 Detailed report saved to: {report_file}")

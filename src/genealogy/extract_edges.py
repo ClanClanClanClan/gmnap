@@ -246,8 +246,12 @@ class EdgeExtractor:
         print()
         print(f"  Edges:")
         print(f"    Raw edges extracted: {stats['total_edges_raw']:,}")
-        print(f"    Filtered out (institutions): {stats['filtered_out_institutions']:,}")
-        print(f"    Filtered out (low confidence): {stats['filtered_out_low_confidence']:,}")
+        print(
+            f"    Filtered out (institutions): {stats['filtered_out_institutions']:,}"
+        )
+        print(
+            f"    Filtered out (low confidence): {stats['filtered_out_low_confidence']:,}"
+        )
         print(f"    Final edges: {stats['edges_after_filtering']:,}")
         print()
 
@@ -328,7 +332,10 @@ def main():
     parser.add_argument("--input", required=True, help="Input harvest JSON file")
     parser.add_argument("--output", required=True, help="Output edges JSON file")
     parser.add_argument(
-        "--min-confidence", type=float, default=0.5, help="Minimum confidence score (default: 0.5)"
+        "--min-confidence",
+        type=float,
+        default=0.5,
+        help="Minimum confidence score (default: 0.5)",
     )
 
     args = parser.parse_args()

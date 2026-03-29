@@ -38,7 +38,11 @@ class RegionalProcessingVerifier:
         # Comprehensive test entries for each region
         self.test_entries = {
             "A1": [
-                {"CanonicalLatin": "Smith, John", "BirthYear": 1970, "Country": "United States"},
+                {
+                    "CanonicalLatin": "Smith, John",
+                    "BirthYear": 1970,
+                    "Country": "United States",
+                },
                 {
                     "CanonicalLatin": "Jones, Mary Elizabeth",
                     "BirthYear": 1985,
@@ -71,19 +75,55 @@ class RegionalProcessingVerifier:
                 },
             ],
             "C1": [
-                {"CanonicalLatin": "Özkan, Mehmet", "BirthYear": 1982, "Country": "Turkey"},
-                {"CanonicalLatin": "Yılmaz, Ayşe", "BirthYear": 1976, "Country": "Turkey"},
-                {"CanonicalLatin": "Demir, Fatma", "BirthYear": 1989, "Country": "Turkey"},
+                {
+                    "CanonicalLatin": "Özkan, Mehmet",
+                    "BirthYear": 1982,
+                    "Country": "Turkey",
+                },
+                {
+                    "CanonicalLatin": "Yılmaz, Ayşe",
+                    "BirthYear": 1976,
+                    "Country": "Turkey",
+                },
+                {
+                    "CanonicalLatin": "Demir, Fatma",
+                    "BirthYear": 1989,
+                    "Country": "Turkey",
+                },
             ],
             "D1": [
-                {"CanonicalLatin": "Sharma, Rajesh", "BirthYear": 1973, "Country": "India"},
-                {"CanonicalLatin": "Patel, Priya", "BirthYear": 1980, "Country": "India"},
-                {"CanonicalLatin": "Singh, Arjun", "BirthYear": 1967, "Country": "India"},
+                {
+                    "CanonicalLatin": "Sharma, Rajesh",
+                    "BirthYear": 1973,
+                    "Country": "India",
+                },
+                {
+                    "CanonicalLatin": "Patel, Priya",
+                    "BirthYear": 1980,
+                    "Country": "India",
+                },
+                {
+                    "CanonicalLatin": "Singh, Arjun",
+                    "BirthYear": 1967,
+                    "Country": "India",
+                },
             ],
             "B1": [
-                {"CanonicalLatin": "Petrov, Ivan", "BirthYear": 1979, "Country": "Russia"},
-                {"CanonicalLatin": "Kuznetsova, Elena", "BirthYear": 1984, "Country": "Russia"},
-                {"CanonicalLatin": "Volkov, Dmitri", "BirthYear": 1971, "Country": "Russia"},
+                {
+                    "CanonicalLatin": "Petrov, Ivan",
+                    "BirthYear": 1979,
+                    "Country": "Russia",
+                },
+                {
+                    "CanonicalLatin": "Kuznetsova, Elena",
+                    "BirthYear": 1984,
+                    "Country": "Russia",
+                },
+                {
+                    "CanonicalLatin": "Volkov, Dmitri",
+                    "BirthYear": 1971,
+                    "Country": "Russia",
+                },
             ],
         }
 
@@ -115,7 +155,9 @@ class RegionalProcessingVerifier:
                     self.logger.info(f"✅ {region_code}: WORKING")
                 else:
                     self.failed_regions.append(region_code)
-                    self.logger.warning(f"❌ {region_code}: FAILED - {region_result['error']}")
+                    self.logger.warning(
+                        f"❌ {region_code}: FAILED - {region_result['error']}"
+                    )
 
             except Exception as e:
                 error_msg = f"Verification test failed: {e}"
@@ -133,7 +175,9 @@ class RegionalProcessingVerifier:
         # Calculate verification success metrics
         total_target_regions = len(self.target_regions)
         success_rate = (
-            (working_count / total_target_regions) * 100 if total_target_regions > 0 else 0
+            (working_count / total_target_regions) * 100
+            if total_target_regions > 0
+            else 0
         )
         step_3_3_success = working_count >= 5  # Need at least 5 working
 
@@ -231,14 +275,18 @@ class RegionalProcessingVerifier:
                         if processed_entry.get("CanonicalLatin"):
                             entry_result["success"] = True
                             entry_result["processed_data"] = {
-                                "canonical_latin": processed_entry.get("CanonicalLatin"),
+                                "canonical_latin": processed_entry.get(
+                                    "CanonicalLatin"
+                                ),
                                 "global_id": processed_entry.get("GlobalID"),
                                 "has_native_script": "NativeScript" in processed_entry,
                                 "processed_fields": len(processed_entry.keys()),
                             }
                             successful_processing += 1
                         else:
-                            entry_result["error"] = "Processing returned empty or invalid result"
+                            entry_result["error"] = (
+                                "Processing returned empty or invalid result"
+                            )
                     else:
                         entry_result["error"] = "Region processor not available"
 
@@ -256,18 +304,25 @@ class RegionalProcessingVerifier:
             }
 
         # Determine if region is working
-        success_rate = (successful_processing / total_entries) * 100 if total_entries > 0 else 0
-        working = successful_processing > 0 and success_rate >= 70  # At least 70% success
+        success_rate = (
+            (successful_processing / total_entries) * 100 if total_entries > 0 else 0
+        )
+        working = (
+            successful_processing > 0 and success_rate >= 70
+        )  # At least 70% success
 
         # Calculate average metrics
         successful_tests = [r for r in test_results if r["success"]]
         avg_processing_time = (
-            sum(r["processing_time_ms"] for r in successful_tests) / len(successful_tests)
+            sum(r["processing_time_ms"] for r in successful_tests)
+            / len(successful_tests)
             if successful_tests
             else 0
         )
         avg_confidence = (
-            sum(r["confidence"] for r in test_results) / len(test_results) if test_results else 0
+            sum(r["confidence"] for r in test_results) / len(test_results)
+            if test_results
+            else 0
         )
 
         return {
@@ -278,7 +333,11 @@ class RegionalProcessingVerifier:
             "average_processing_time_ms": avg_processing_time,
             "average_confidence": avg_confidence,
             "test_results": test_results,
-            "error": None if working else f"Low success rate: {success_rate:.1f}% (need ≥70%)",
+            "error": (
+                None
+                if working
+                else f"Low success rate: {success_rate:.1f}% (need ≥70%)"
+            ),
         }
 
     async def _test_region_manager_functionality(
@@ -320,10 +379,14 @@ class RegionalProcessingVerifier:
                     pass
 
             detection_rate = (
-                (successful_detections / detection_tests) * 100 if detection_tests > 0 else 0
+                (successful_detections / detection_tests) * 100
+                if detection_tests > 0
+                else 0
             )
             loading_rate = (
-                (loaded_regions / min(len(available_regions), 10)) * 100 if available_regions else 0
+                (loaded_regions / min(len(available_regions), 10)) * 100
+                if available_regions
+                else 0
             )
 
             return {
@@ -357,11 +420,17 @@ class RegionalProcessingVerifier:
         base_compliance = 62.8  # From authority source integration
 
         # Calculate regional processing improvement
-        working_regions = verification_results["verification_summary"]["working_regions"]
-        success_rate = verification_results["verification_summary"]["success_rate_percent"]
+        working_regions = verification_results["verification_summary"][
+            "working_regions"
+        ]
+        success_rate = verification_results["verification_summary"][
+            "success_rate_percent"
+        ]
 
         # Regional boost based on working regions and success rate
-        regional_improvement = (success_rate / 100) * 8  # Up to 8% boost for 100% regional success
+        regional_improvement = (
+            success_rate / 100
+        ) * 8  # Up to 8% boost for 100% regional success
 
         # Updated V7 compliance
         new_compliance = base_compliance + regional_improvement

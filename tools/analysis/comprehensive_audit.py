@@ -91,7 +91,12 @@ class ComprehensiveAudit:
                 "test_type": "East-Slavic",
             },
             # E1 - Chinese Mainland
-            {"name": "王小明", "country": "CN", "expected_region": "E1", "test_type": "Chinese"},
+            {
+                "name": "王小明",
+                "country": "CN",
+                "expected_region": "E1",
+                "test_type": "Chinese",
+            },
             # C3 - Arabic Levant-Nile
             {
                 "name": "محمد عبد الله",
@@ -100,7 +105,12 @@ class ComprehensiveAudit:
                 "test_type": "Arabic",
             },
             # E3 - Japanese
-            {"name": "田中太郎", "country": "JP", "expected_region": "E3", "test_type": "Japanese"},
+            {
+                "name": "田中太郎",
+                "country": "JP",
+                "expected_region": "E3",
+                "test_type": "Japanese",
+            },
             # G1 - Latin America
             {
                 "name": "García López, José María",
@@ -160,7 +170,9 @@ class ComprehensiveAudit:
         )
 
         if accuracy < 100:
-            self.log_issue(f"Region detection accuracy is {accuracy:.1f}%, expected 100%")
+            self.log_issue(
+                f"Region detection accuracy is {accuracy:.1f}%, expected 100%"
+            )
 
         return accuracy >= 100
 
@@ -246,7 +258,9 @@ class ComprehensiveAudit:
                 )
                 return False
 
-            print(f"  ✅ Pipeline processed {result.total_entries} entries successfully")
+            print(
+                f"  ✅ Pipeline processed {result.total_entries} entries successfully"
+            )
             return True
 
         except Exception as e:
@@ -289,11 +303,15 @@ class ComprehensiveAudit:
             # Verify insertion
             stats = db.get_statistics()
             if not isinstance(stats, dict):
-                self.log_issue(f"Database get_statistics() returned {type(stats)}, expected dict")
+                self.log_issue(
+                    f"Database get_statistics() returned {type(stats)}, expected dict"
+                )
                 return False
 
             if stats.get("total_entries", 0) != 1:
-                self.log_issue(f"Database has {stats.get('total_entries', 0)} entries, expected 1")
+                self.log_issue(
+                    f"Database has {stats.get('total_entries', 0)} entries, expected 1"
+                )
                 return False
 
             print(f"  ✅ Database operations working correctly")
@@ -316,7 +334,11 @@ class ComprehensiveAudit:
             try:
                 for i in range(10):
                     key = f"worker_{worker_id}_item_{i}"
-                    data = {"worker_id": worker_id, "item_id": i, "timestamp": time.time()}
+                    data = {
+                        "worker_id": worker_id,
+                        "item_id": i,
+                        "timestamp": time.time(),
+                    }
 
                     # Write and read
                     cache.put("test_service", key, data)
@@ -334,7 +356,9 @@ class ComprehensiveAudit:
         results = []
 
         for i in range(num_workers):
-            thread = threading.Thread(target=lambda w=i: results.append(cache_worker(w)))
+            thread = threading.Thread(
+                target=lambda w=i: results.append(cache_worker(w))
+            )
             threads.append(thread)
             thread.start()
 
@@ -349,7 +373,9 @@ class ComprehensiveAudit:
             )
             return False
 
-        print(f"  ✅ Cache thread safety verified: {successful}/{num_workers} workers successful")
+        print(
+            f"  ✅ Cache thread safety verified: {successful}/{num_workers} workers successful"
+        )
         return True
 
     @audit_section("GLOBALID GENERATION INTEGRITY")
@@ -432,7 +458,9 @@ class ComprehensiveAudit:
                     processing_success += 1
                     print(f"  ✅ {region_name} processing successful")
                 else:
-                    self.log_issue(f"{region_name} processing did not add RegionalExtras")
+                    self.log_issue(
+                        f"{region_name} processing did not add RegionalExtras"
+                    )
 
             except Exception as e:
                 self.log_issue(f"{region_name} processing failed: {str(e)}")
@@ -462,7 +490,10 @@ class ComprehensiveAudit:
         start_time = time.time()
 
         for i in range(1000):
-            entry = {"CanonicalNative": f"Test{i:04d}, Person", "BirthYear": 1980 + (i % 50)}
+            entry = {
+                "CanonicalNative": f"Test{i:04d}, Person",
+                "BirthYear": 1980 + (i % 50),
+            }
             global_id = generator.generate(entry)
 
             if not global_id:

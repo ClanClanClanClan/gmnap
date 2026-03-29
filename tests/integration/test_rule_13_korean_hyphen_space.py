@@ -39,7 +39,9 @@ def test_rule_13_hyphen_to_space():
     print(f"Script: {entry1['RegionalExtras'].get('script', 'unknown')}")
     print(f"Family: {entry1['RegionalExtras'].get('romanized_family', 'none')}")
     print(f"Given: {entry1['RegionalExtras'].get('romanized_given', 'none')}")
-    print(f"Hyphenated given: {entry1['RegionalExtras'].get('hyphenated_given', False)}")
+    print(
+        f"Hyphenated given: {entry1['RegionalExtras'].get('hyphenated_given', False)}"
+    )
 
     # Check for space variants
     synthesised = entry1.get("Variants", {}).get("Synthesised", [])
@@ -69,7 +71,10 @@ def test_rule_13_space_to_hyphen():
     processor = E4KoreanProcessor()
 
     # Test case 1: Spaced given name
-    entry1 = {"CanonicalLatin": "Lee Dong ho", "RegionalExtras": {}}  # Space-separated given name
+    entry1 = {
+        "CanonicalLatin": "Lee Dong ho",
+        "RegionalExtras": {},
+    }  # Space-separated given name
 
     processor.augment(entry1)
 

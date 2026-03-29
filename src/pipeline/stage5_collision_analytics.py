@@ -24,7 +24,9 @@ def ensure_unique_global_ids(batch: List[Dict]) -> Tuple[List[Dict], Dict[str, i
             e2 = dict(e)
             e2["GlobalID"] = new_gid
             # remap advisor/edge refs in this entry
-            e2["Advisors"] = [(a if a != gid else new_gid) for a in (e.get("Advisors") or [])]
+            e2["Advisors"] = [
+                (a if a != gid else new_gid) for a in (e.get("Advisors") or [])
+            ]
             out.append(e2)
     # remap references across batch (simple pass)
     id_map = {old: new for old, arr in remap.items() for new in arr}

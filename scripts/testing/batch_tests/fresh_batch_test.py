@@ -14,7 +14,11 @@ from src.core.pipeline_v7 import V7Pipeline
 async def test_batch(size):
     """Test a single batch size and return actual results."""
     entries = [
-        {"ID": f"fresh_test_{i:08d}", "CanonicalNative": "Test Name", "Region": "a1_anglo_sphere"}
+        {
+            "ID": f"fresh_test_{i:08d}",
+            "CanonicalNative": "Test Name",
+            "Region": "a1_anglo_sphere",
+        }
         for i in range(size)
     ]
 

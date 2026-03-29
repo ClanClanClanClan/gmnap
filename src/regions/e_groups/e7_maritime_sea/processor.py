@@ -177,16 +177,72 @@ class E7MaritimeSEAProcessor(RegionSpec):
         # Chinese diaspora patterns (Singapore, Malaysia)
         self.chinese_diaspora_patterns = {
             "hokkien": {
-                "surnames": ["tan", "lim", "wong", "ong", "teo", "goh", "ng", "yeo", "koh", "sim"],
-                "given_patterns": ["ah", "beng", "seng", "hock", "chuan", "keng", "huat", "swee"],
+                "surnames": [
+                    "tan",
+                    "lim",
+                    "wong",
+                    "ong",
+                    "teo",
+                    "goh",
+                    "ng",
+                    "yeo",
+                    "koh",
+                    "sim",
+                ],
+                "given_patterns": [
+                    "ah",
+                    "beng",
+                    "seng",
+                    "hock",
+                    "chuan",
+                    "keng",
+                    "huat",
+                    "swee",
+                ],
             },
             "teochew": {
-                "surnames": ["li", "chen", "huang", "lin", "zheng", "xu", "hong", "zhuang"],
-                "given_patterns": ["wei", "ming", "qiang", "jun", "hui", "jie", "bin", "hao"],
+                "surnames": [
+                    "li",
+                    "chen",
+                    "huang",
+                    "lin",
+                    "zheng",
+                    "xu",
+                    "hong",
+                    "zhuang",
+                ],
+                "given_patterns": [
+                    "wei",
+                    "ming",
+                    "qiang",
+                    "jun",
+                    "hui",
+                    "jie",
+                    "bin",
+                    "hao",
+                ],
             },
             "cantonese": {
-                "surnames": ["chan", "leung", "cheung", "li", "ho", "ma", "yip", "fung"],
-                "given_patterns": ["wai", "ming", "fai", "kit", "chung", "yuen", "kin", "ho"],
+                "surnames": [
+                    "chan",
+                    "leung",
+                    "cheung",
+                    "li",
+                    "ho",
+                    "ma",
+                    "yip",
+                    "fung",
+                ],
+                "given_patterns": [
+                    "wai",
+                    "ming",
+                    "fai",
+                    "kit",
+                    "chung",
+                    "yuen",
+                    "kin",
+                    "ho",
+                ],
             },
             "common_patterns": {
                 "double_names": ["li li", "mei mei", "jin jin", "wei wei"],
@@ -271,7 +327,13 @@ class E7MaritimeSEAProcessor(RegionSpec):
             },
             "english": {
                 "adaptations": {"ph": "f", "th": "t", "ght": "t"},
-                "colonial_surnames": ["smith", "brown", "wilson", "johnson", "williams"],
+                "colonial_surnames": [
+                    "smith",
+                    "brown",
+                    "wilson",
+                    "johnson",
+                    "williams",
+                ],
             },
         }
 
@@ -292,7 +354,16 @@ class E7MaritimeSEAProcessor(RegionSpec):
                     "batam",
                     "denpasar",
                 ],
-                "universities": ["ui", "ugm", "itb", "its", "unpad", "undip", "unair", "upi"],
+                "universities": [
+                    "ui",
+                    "ugm",
+                    "itb",
+                    "its",
+                    "unpad",
+                    "undip",
+                    "unair",
+                    "upi",
+                ],
                 "institutions": ["bppt", "lipi", "batan", "lapan", "bmkg"],
             },
             "malaysia": {
@@ -308,7 +379,16 @@ class E7MaritimeSEAProcessor(RegionSpec):
                     "kuching",
                     "seremban",
                 ],
-                "universities": ["um", "upm", "ukm", "usm", "utm", "utp", "mmu", "sunway"],
+                "universities": [
+                    "um",
+                    "upm",
+                    "ukm",
+                    "usm",
+                    "utm",
+                    "utp",
+                    "mmu",
+                    "sunway",
+                ],
                 "institutions": ["mosti", "might", "mida", "mdec", "sirim"],
             },
             "philippines": {
@@ -326,7 +406,16 @@ class E7MaritimeSEAProcessor(RegionSpec):
                     "iloilo",
                     "marikina",
                 ],
-                "universities": ["up", "ateneo", "dlsu", "ust", "admu", "mapua", "feu", "pup"],
+                "universities": [
+                    "up",
+                    "ateneo",
+                    "dlsu",
+                    "ust",
+                    "admu",
+                    "mapua",
+                    "feu",
+                    "pup",
+                ],
                 "institutions": ["dost", "nast", "pnri", "itdi", "fnri"],
             },
             "singapore": {
@@ -641,7 +730,8 @@ class E7MaritimeSEAProcessor(RegionSpec):
             "primary_script": primary_script,
             "script_counts": script_counts,
             "cultural_background": cultural_background,
-            "is_mixed_script": sum(1 for count in script_counts.values() if count > 0) > 1,
+            "is_mixed_script": sum(1 for count in script_counts.values() if count > 0)
+            > 1,
         }
 
     def _detect_cultural_background(self, name: str) -> str:
@@ -672,7 +762,9 @@ class E7MaritimeSEAProcessor(RegionSpec):
 
         return "mixed_maritime_sea"
 
-    def _parse_name_structure(self, name: str, cultural_background: str) -> Dict[str, Any]:
+    def _parse_name_structure(
+        self, name: str, cultural_background: str
+    ) -> Dict[str, Any]:
         """Parse name structure based on cultural background."""
         structure = {}
 
@@ -864,7 +956,9 @@ class E7MaritimeSEAProcessor(RegionSpec):
 
         # Rule 30: Filipino maternal middle name
         if components.get("maternal_middle_name"):
-            entry["RegionalExtras"]["secondary_surname"] = components["maternal_middle_name"]
+            entry["RegionalExtras"]["secondary_surname"] = components[
+                "maternal_middle_name"
+            ]
 
     def _generate_romanization_variants(
         self, entry: Dict[str, Any], canonical: str, components: Dict[str, Any]
@@ -927,7 +1021,9 @@ class E7MaritimeSEAProcessor(RegionSpec):
         # Generate variant without patronymic
         no_patronymic = self._remove_patronymic_from_name(canonical, components)
         if no_patronymic and no_patronymic != canonical:
-            entry["Variants"]["Synthesised"].append({"str": no_patronymic, "type": "no-patronymic"})
+            entry["Variants"]["Synthesised"].append(
+                {"str": no_patronymic, "type": "no-patronymic"}
+            )
 
     def _generate_name_order_variants(
         self, entry: Dict[str, Any], canonical: str, components: Dict[str, Any]
@@ -1007,7 +1103,15 @@ class E7MaritimeSEAProcessor(RegionSpec):
         if len(words) == 1:
             return words[0] in self.indonesian_mononym_patterns or any(
                 words[0].endswith(pattern)
-                for pattern in ["harto", "karno", "wati", "joko", "bowo", "tanto", "noto"]
+                for pattern in [
+                    "harto",
+                    "karno",
+                    "wati",
+                    "joko",
+                    "bowo",
+                    "tanto",
+                    "noto",
+                ]
             )
         return False
 
@@ -1020,7 +1124,8 @@ class E7MaritimeSEAProcessor(RegionSpec):
         """Check for Islamic naming patterns."""
         words = name_lower.split()
         islamic_names = (
-            self.islamic_patterns["arabic_names"] | self.islamic_patterns["malay_islamic"]
+            self.islamic_patterns["arabic_names"]
+            | self.islamic_patterns["malay_islamic"]
         )
         return any(word in islamic_names for word in words)
 
@@ -1042,7 +1147,10 @@ class E7MaritimeSEAProcessor(RegionSpec):
     def _detect_colonial_influence(self, name_lower: str) -> Optional[str]:
         """Detect colonial influence in the name."""
         # Check Dutch patterns
-        if any(particle in name_lower for particle in self.colonial_patterns["dutch"]["surnames"]):
+        if any(
+            particle in name_lower
+            for particle in self.colonial_patterns["dutch"]["surnames"]
+        ):
             return "dutch"
 
         # Check Spanish patterns
@@ -1151,7 +1259,9 @@ class E7MaritimeSEAProcessor(RegionSpec):
         }
 
         filtered_words = [
-            word for word in words if word.lower().rstrip(".,") not in suffixes_to_remove
+            word
+            for word in words
+            if word.lower().rstrip(".,") not in suffixes_to_remove
         ]
 
         if len(filtered_words) == 1:
@@ -1203,7 +1313,9 @@ class E7MaritimeSEAProcessor(RegionSpec):
             "has_patronymic": True,
         }
 
-    def _remove_patronymic_from_name(self, name: str, components: Dict[str, Any]) -> Optional[str]:
+    def _remove_patronymic_from_name(
+        self, name: str, components: Dict[str, Any]
+    ) -> Optional[str]:
         """Remove patronymic from name to create variant."""
         patronymic_info = self._find_malay_patronymic(name)
         if not patronymic_info:
@@ -1264,11 +1376,15 @@ class E7MaritimeSEAProcessor(RegionSpec):
 
         # SECURITY: Check for dangerous characters first
         if self._has_security_risks(canonical):
-            raise RegionRuleError(f"Name contains dangerous characters: {canonical[:50]}...")
+            raise RegionRuleError(
+                f"Name contains dangerous characters: {canonical[:50]}..."
+            )
 
         # Check for reasonable length (prevent DoS attacks)
         if len(canonical) > 150:
-            raise RegionRuleError(f"Name too long: {len(canonical)} characters (max 150)")
+            raise RegionRuleError(
+                f"Name too long: {len(canonical)} characters (max 150)"
+            )
 
         # THEN handle legitimate edge cases
         if len(canonical.strip()) == 1:
@@ -1346,7 +1462,9 @@ class E7MaritimeSEAProcessor(RegionSpec):
             sort_key = given
         else:
             # Fallback to canonical
-            canonical = entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
+            canonical = entry.get("CanonicalLatin", "") or entry.get(
+                "CanonicalNative", ""
+            )
             sort_key = canonical
 
         # Normalize for sorting

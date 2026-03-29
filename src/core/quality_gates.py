@@ -163,7 +163,10 @@ class RoundtripValidator(QualityGate):
             passed=roundtrip_score >= self.threshold,
             score=roundtrip_score,
             gate_name=self.name,
-            details={"has_native_script": has_native, "roundtrip_possible": roundtrip_score >= 0.9},
+            details={
+                "has_native_script": has_native,
+                "roundtrip_possible": roundtrip_score >= 0.9,
+            },
             errors=errors,
             warnings=warnings,
         )
@@ -496,7 +499,9 @@ class ConsistencyVerifier(QualityGate):
         # Check date consistency
         if "UpdatedAt" in entry:
             try:
-                updated = datetime.fromisoformat(entry["UpdatedAt"].replace("Z", "+00:00"))
+                updated = datetime.fromisoformat(
+                    entry["UpdatedAt"].replace("Z", "+00:00")
+                )
                 if updated > datetime.now():
                     errors.append("UpdatedAt is in the future")
                     consistency_checks.append(False)
@@ -571,7 +576,9 @@ class AuthorityValidator(QualityGate):
                             errors.append(f"Invalid confidence from {source}: {conf}")
 
                     # Check for meaningful data
-                    if any(key in data for key in ["orcid", "publications", "affiliations"]):
+                    if any(
+                        key in data for key in ["orcid", "publications", "affiliations"]
+                    ):
                         valid_sources += 0.5  # Bonus for rich data
 
             if total_sources > 0:
@@ -649,7 +656,9 @@ class EnhancedQualityGates:
             "warnings": all_warnings,
             "summary": {
                 "gates_run": num_gates,
-                "gates_passed": sum(1 for r in results.values() if r.get("passed", False)),
+                "gates_passed": sum(
+                    1 for r in results.values() if r.get("passed", False)
+                ),
                 "average_score": avg_score,
                 "error_count": len(all_errors),
                 "warning_count": len(all_warnings),
@@ -662,7 +671,9 @@ class EnhancedQualityGates:
 
         for entry in entries:
             result = await self.validate_entry(entry)
-            results.append({"GlobalID": entry.get("GlobalID", ""), "validation": result})
+            results.append(
+                {"GlobalID": entry.get("GlobalID", ""), "validation": result}
+            )
 
         # Calculate batch statistics
         total_entries = len(entries)

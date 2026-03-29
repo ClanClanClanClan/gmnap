@@ -146,9 +146,9 @@ def load_fixtures():
             RETURN count(n) as count
         """).single()["count"]
 
-        all_nodes = session.run("MATCH (n:Mathematician) RETURN count(n) as count").single()[
-            "count"
-        ]
+        all_nodes = session.run(
+            "MATCH (n:Mathematician) RETURN count(n) as count"
+        ).single()["count"]
 
         fixture_edges = session.run("""
             MATCH ()-[r:DOCTORAL_ADVISOR]->()
@@ -164,7 +164,9 @@ def load_fixtures():
         print(f"✅ DOCTORAL_ADVISOR edges created: {fixture_edges}")
         print()
         print(f"Total Phase 2 database:")
-        print(f"  Nodes: {all_nodes} ({all_nodes - fixture_nodes} V7 + {fixture_nodes} fixtures)")
+        print(
+            f"  Nodes: {all_nodes} ({all_nodes - fixture_nodes} V7 + {fixture_nodes} fixtures)"
+        )
         print(f"  Edges: {all_edges}")
         print()
 

@@ -99,7 +99,9 @@ class UltraFinalRegionTester:
         compliance_results = self._test_v7_compliance(loaded_regions)
 
         # Compile results
-        self._compile_results(loaded_regions, processing_results, edge_results, compliance_results)
+        self._compile_results(
+            loaded_regions, processing_results, edge_results, compliance_results
+        )
 
         return self.results
 
@@ -124,7 +126,9 @@ class UltraFinalRegionTester:
                         }
                     )
             except Exception as e:
-                print(f"FAIL {region_code} ({region_name}): Loading error - {str(e)[:50]}...")
+                print(
+                    f"FAIL {region_code} ({region_name}): Loading error - {str(e)[:50]}..."
+                )
                 self.results["errors"].append(
                     {"region": region_code, "phase": "loading", "error": str(e)}
                 )
@@ -141,12 +145,21 @@ class UltraFinalRegionTester:
             # A-Group
             "A1": ("src.regions.a_groups.a1_anglo_sphere", "A1_AngloSphere"),
             "A2": ("src.regions.a_groups.a2_western_europe", "A2_WesternEurope"),
-            "A3": ("src.regions.a_groups.a3_nordic_baltic.processor", "A3NordicBalticProcessor"),
+            "A3": (
+                "src.regions.a_groups.a3_nordic_baltic.processor",
+                "A3NordicBalticProcessor",
+            ),
             "A4": ("src.regions.a_groups.a4_oceania.processor", "A4OceaniaProcessor"),
-            "A5": ("src.regions.a_groups.a5_caribbean.processor", "A5CaribbeanProcessor"),
+            "A5": (
+                "src.regions.a_groups.a5_caribbean.processor",
+                "A5CaribbeanProcessor",
+            ),
             # B-Group
             "B1": ("src.regions.b_groups.b1_east_slavic", "B1_EastSlavic"),
-            "B2": ("src.regions.b_groups.b2_south_slavic_central", "B2_SouthSlavicCentral"),
+            "B2": (
+                "src.regions.b_groups.b2_south_slavic_central",
+                "B2_SouthSlavicCentral",
+            ),
             "B3": ("src.regions.b_groups.b3_greek.processor", "B3GreekProcessor"),
             # C-Group
             "C1": ("src.regions.c_groups.c1_turkic.processor", "C1TurkicProcessor"),
@@ -159,16 +172,31 @@ class UltraFinalRegionTester:
             "C8": ("src.regions.c_groups.c8_georgian", "C8_Georgian"),
             "C9": ("src.regions.c_groups.c9_caucasus_turkic", "C9_CaucasusTurkic"),
             # D-Group
-            "D1": ("src.regions.d_groups.d1_south_asia_hindi_belt", "D1_SouthAsiaHindiBelt"),
-            "D2": ("src.regions.d_groups.d2_south_asia_dravidian", "D2_SouthAsiaDravidian"),
+            "D1": (
+                "src.regions.d_groups.d1_south_asia_hindi_belt",
+                "D1_SouthAsiaHindiBelt",
+            ),
+            "D2": (
+                "src.regions.d_groups.d2_south_asia_dravidian",
+                "D2_SouthAsiaDravidian",
+            ),
             "D3": ("src.regions.d_groups.d3_south_asia_bengali", "D3_SouthAsiaBengali"),
             "D4": ("src.regions.d_groups.d4_pakistan_urdu", "D4_PakistanUrdu"),
             "D5": ("src.regions.d_groups.d5_sinhala", "D5_Sinhala"),
             # E-Group
-            "E1": ("src.regions.e_groups.e1_sinophone_mainland", "E1_SinophoneMainland"),
-            "E2": ("src.regions.e_groups.e2_traditional_chinese", "E2_TraditionalChinese"),
+            "E1": (
+                "src.regions.e_groups.e1_sinophone_mainland",
+                "E1_SinophoneMainland",
+            ),
+            "E2": (
+                "src.regions.e_groups.e2_traditional_chinese",
+                "E2_TraditionalChinese",
+            ),
             "E3": ("src.regions.e_groups.e3_japan", "E3_Japan"),
-            "E4": ("src.regions.e_groups.e4_korea.processor_lightweight", "E4KoreanProcessor"),
+            "E4": (
+                "src.regions.e_groups.e4_korea.processor_lightweight",
+                "E4KoreanProcessor",
+            ),
             "E5": ("src.regions.e_groups.e5_vietnam", "E5_Vietnam"),
             "E6": ("src.regions.e_groups.e6_mainland_sea", "E6_MainlandSEA"),
             "E7": ("src.regions.e_groups.e7_maritime_sea", "E7_MaritimeSEA"),
@@ -180,7 +208,10 @@ class UltraFinalRegionTester:
             # G-Group
             "G1": ("src.regions.g_groups.g1_latin_america", "G1_LatinAmerica"),
             # Special
-            "H1": ("src.regions.special.h1_indigenous_americas", "H1_IndigenousAmericas"),
+            "H1": (
+                "src.regions.special.h1_indigenous_americas",
+                "H1_IndigenousAmericas",
+            ),
             "R0": ("src.regions.special.r0_global_diaspora", "R0_GlobalDiaspora"),
             "Z0": ("src.regions.special.z0_unknown_region", "Z0_UnknownRegion"),
         }
@@ -204,10 +235,19 @@ class UltraFinalRegionTester:
         # Test entries for different scripts
         test_entries = {
             "Latin": {"CanonicalLatin": "Smith, John", "CanonicalNative": ""},
-            "Cyrillic": {"CanonicalLatin": "Petrov, Ivan", "CanonicalNative": "Петров, Иван"},
-            "Arabic": {"CanonicalLatin": "Hassan, Ahmed", "CanonicalNative": "حسن، أحمد"},
+            "Cyrillic": {
+                "CanonicalLatin": "Petrov, Ivan",
+                "CanonicalNative": "Петров, Иван",
+            },
+            "Arabic": {
+                "CanonicalLatin": "Hassan, Ahmed",
+                "CanonicalNative": "حسن، أحمد",
+            },
             "CJK": {"CanonicalLatin": "Wang, Wei", "CanonicalNative": "王伟"},
-            "Devanagari": {"CanonicalLatin": "Kumar, Raj", "CanonicalNative": "कुमार, राज"},
+            "Devanagari": {
+                "CanonicalLatin": "Kumar, Raj",
+                "CanonicalNative": "कुमार, राज",
+            },
             "Greek": {
                 "CanonicalLatin": "Papadopoulos, Nikos",
                 "CanonicalNative": "Παπαδόπουλος, Νίκος",
@@ -273,7 +313,10 @@ class UltraFinalRegionTester:
         edge_cases = [
             ("empty_both", {"CanonicalLatin": "", "CanonicalNative": ""}),
             ("single_char", {"CanonicalLatin": "X", "CanonicalNative": ""}),
-            ("special_chars", {"CanonicalLatin": "O'Brien-Smith, Jr.", "CanonicalNative": ""}),
+            (
+                "special_chars",
+                {"CanonicalLatin": "O'Brien-Smith, Jr.", "CanonicalNative": ""},
+            ),
         ]
 
         results = {}
@@ -310,7 +353,9 @@ class UltraFinalRegionTester:
 
         return results
 
-    def _test_v7_compliance(self, regions: Dict[str, Any]) -> Dict[str, Dict[str, bool]]:
+    def _test_v7_compliance(
+        self, regions: Dict[str, Any]
+    ) -> Dict[str, Dict[str, bool]]:
         """Test V7 spec compliance for each region."""
         results = {}
 
@@ -333,7 +378,9 @@ class UltraFinalRegionTester:
 
         return results
 
-    def _compile_results(self, loaded: Dict, processing: Dict, edge_cases: Dict, compliance: Dict):
+    def _compile_results(
+        self, loaded: Dict, processing: Dict, edge_cases: Dict, compliance: Dict
+    ):
         """Compile all test results."""
         total_regions = len(self.ALL_REGIONS)
 
@@ -360,7 +407,11 @@ class UltraFinalRegionTester:
             group_coverage[group_name] = {
                 "loaded": loaded_in_group,
                 "total": total_in_group,
-                "percentage": (loaded_in_group / total_in_group * 100) if total_in_group > 0 else 0,
+                "percentage": (
+                    (loaded_in_group / total_in_group * 100)
+                    if total_in_group > 0
+                    else 0
+                ),
             }
 
         # Summary statistics
@@ -369,7 +420,11 @@ class UltraFinalRegionTester:
             "loaded": len(loaded),
             "processing_success": sum(processing.values()) if processing else 0,
             "all_edge_cases_pass": (
-                sum(1 for region_results in edge_cases.values() if all(region_results.values()))
+                sum(
+                    1
+                    for region_results in edge_cases.values()
+                    if all(region_results.values())
+                )
                 if edge_cases
                 else 0
             ),
@@ -432,11 +487,15 @@ def main():
     # Group coverage
     print("\n📈 COVERAGE BY GROUP:")
     for group, stats in results["coverage"]["by_group"].items():
-        print(f"  {group}: {stats['loaded']}/{stats['total']} ({stats['percentage']:.1f}%)")
+        print(
+            f"  {group}: {stats['loaded']}/{stats['total']} ({stats['percentage']:.1f}%)"
+        )
 
     # Missing regions
     if results["coverage"]["missing_regions"]:
-        print(f"\nWARN MISSING REGIONS ({len(results['coverage']['missing_regions'])}):")
+        print(
+            f"\nWARN MISSING REGIONS ({len(results['coverage']['missing_regions'])}):"
+        )
         print(f"  {', '.join(results['coverage']['missing_regions'])}")
 
     # Final verdict

@@ -156,7 +156,20 @@ class V7PerformanceBenchmark:
         ]
 
         scripts = ["Latin", "Latin", "Latin", "Cyrillic", "Han", "Arabic", "Greek"]
-        regions = ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D1", "E1", "E4"]
+        regions = [
+            "A1",
+            "A2",
+            "A3",
+            "B1",
+            "B2",
+            "B3",
+            "C1",
+            "C2",
+            "C3",
+            "D1",
+            "E1",
+            "E4",
+        ]
 
         for i in range(count):
             first = random.choice(first_names)
@@ -298,7 +311,9 @@ class V7PerformanceBenchmark:
                     "requests": stats["request_count"],
                     "time_total": elapsed,
                     "time_per_request": (
-                        elapsed / stats["request_count"] if stats["request_count"] > 0 else 0
+                        elapsed / stats["request_count"]
+                        if stats["request_count"] > 0
+                        else 0
                     ),
                     "daily_quota": stats["daily_quota"],
                 }
@@ -320,7 +335,9 @@ class V7PerformanceBenchmark:
                     "requests": stats["request_count"],
                     "time_total": elapsed,
                     "time_per_request": (
-                        elapsed / stats["request_count"] if stats["request_count"] > 0 else 0
+                        elapsed / stats["request_count"]
+                        if stats["request_count"] > 0
+                        else 0
                     ),
                     "daily_quota": stats["daily_quota"],
                 }
@@ -343,7 +360,9 @@ class V7PerformanceBenchmark:
                     "requests": stats["request_count"],
                     "time_total": elapsed,
                     "time_per_request": (
-                        elapsed / stats["request_count"] if stats["request_count"] > 0 else 0
+                        elapsed / stats["request_count"]
+                        if stats["request_count"] > 0
+                        else 0
                     ),
                     "daily_quota": stats["daily_quota"],
                 }
@@ -405,7 +424,9 @@ class V7PerformanceBenchmark:
             "within_sla": peak_rss <= self.sla["peak_rss_gb"],
         }
 
-    async def run_comprehensive_benchmark(self, entry_count: int = 10000) -> Dict[str, Any]:
+    async def run_comprehensive_benchmark(
+        self, entry_count: int = 10000
+    ) -> Dict[str, Any]:
         """
         Run comprehensive performance benchmark
 
@@ -477,15 +498,21 @@ class V7PerformanceBenchmark:
 
         # Idempotency SLA
         idemp_bytes = (
-            results["pipeline_stages"].get("stage11_idempotency", {}).get("diff_bytes", -1)
+            results["pipeline_stages"]
+            .get("stage11_idempotency", {})
+            .get("diff_bytes", -1)
         )
         compliance["idempotency"] = idemp_bytes <= self.sla["idempotent_diff_bytes_max"]
 
         # Graph coherence SLA
         coherence = (
-            results["pipeline_stages"].get("stage6_graph_consistency", {}).get("coherence_score", 0)
+            results["pipeline_stages"]
+            .get("stage6_graph_consistency", {})
+            .get("coherence_score", 0)
         )
-        compliance["graph_coherence"] = coherence >= self.sla["graph_coherence_score_min"]
+        compliance["graph_coherence"] = (
+            coherence >= self.sla["graph_coherence_score_min"]
+        )
 
         # Overall compliance
         compliance["overall"] = all(compliance.values())
@@ -501,8 +528,12 @@ class V7PerformanceBenchmark:
         # Overall performance
         print(f"\n📊 Overall Performance:")
         print(f"  Total time: {results['overall']['total_time_seconds']:.2f} seconds")
-        print(f"  Throughput: {results['overall']['throughput_per_second']:.0f} entries/second")
-        print(f"  Estimated for 1M: {results['overall']['estimated_time_per_1M']/60:.1f} minutes")
+        print(
+            f"  Throughput: {results['overall']['throughput_per_second']:.0f} entries/second"
+        )
+        print(
+            f"  Estimated for 1M: {results['overall']['estimated_time_per_1M']/60:.1f} minutes"
+        )
         if self.sla["runtime_per_1M"]:
             print(f"  SLA for 1M: {self.sla['runtime_per_1M']/60:.0f} minutes")
 
@@ -571,7 +602,9 @@ async def main():
 
     if mode not in ["Quick", "Full", "Extreme"]:
         print(f"Invalid mode: {mode}")
-        print("Usage: python benchmark_v7_performance.py [Quick|Full|Extreme] [entry_count]")
+        print(
+            "Usage: python benchmark_v7_performance.py [Quick|Full|Extreme] [entry_count]"
+        )
         return 1
 
     # Run benchmark

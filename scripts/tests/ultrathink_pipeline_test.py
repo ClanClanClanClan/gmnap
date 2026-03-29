@@ -40,7 +40,9 @@ def test_basic_pipeline():
             for entry in entries:
                 if entry.get("CanonicalLatin"):
                     latin_generated += 1
-                    print(f"    • {entry['CanonicalNative']} → {entry['CanonicalLatin']}")
+                    print(
+                        f"    • {entry['CanonicalNative']} → {entry['CanonicalLatin']}"
+                    )
 
             print(f"  ✅ Latin names generated: {latin_generated}/{len(entries)}")
             return True
@@ -89,7 +91,9 @@ def test_pipeline_stages():
             print(f"  ✅ Entries processed: {metrics.get('processed_entries', 0)}")
 
             if metrics.get("entries_per_second"):
-                print(f"  ✅ Performance: {metrics['entries_per_second']:.0f} entries/sec")
+                print(
+                    f"  ✅ Performance: {metrics['entries_per_second']:.0f} entries/sec"
+                )
             return True
         else:
             print(f"  ❌ No metrics in result")
@@ -121,8 +125,12 @@ def test_pipeline_with_large_batch():
 
         if result and "metrics" in result:
             metrics = result["metrics"]
-            print(f"  ✅ Processed {metrics.get('processed_entries', 0)} entries in {elapsed:.2f}s")
-            print(f"  ✅ Performance: {metrics.get('entries_per_second', 0):.0f} entries/sec")
+            print(
+                f"  ✅ Processed {metrics.get('processed_entries', 0)} entries in {elapsed:.2f}s"
+            )
+            print(
+                f"  ✅ Performance: {metrics.get('entries_per_second', 0):.0f} entries/sec"
+            )
 
             # Check for errors
             if "errors" in result and result["errors"]:

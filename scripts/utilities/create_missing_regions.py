@@ -322,7 +322,9 @@ def create_region_file(region_info):
     # Also create __init__.py if needed
     init_file = base_path / "__init__.py"
     if not init_file.exists():
-        init_file.write_text('"""Region processors for {} group."""'.format(region_info["group"]))
+        init_file.write_text(
+            '"""Region processors for {} group."""'.format(region_info["group"])
+        )
 
     return filepath
 
@@ -335,9 +337,15 @@ def update_pipeline_imports():
         module_name = (
             region["code"].lower()
             + "_"
-            + region["full_name"].lower().replace(" & ", "_").replace(" - ", "_").replace(" ", "_")
+            + region["full_name"]
+            .lower()
+            .replace(" & ", "_")
+            .replace(" - ", "_")
+            .replace(" ", "_")
         )
-        print(f"from src.regions.{region['group']}.{module_name} import {region['class_name']}")
+        print(
+            f"from src.regions.{region['group']}.{module_name} import {region['class_name']}"
+        )
 
     print("\n\nAnd register them:\n")
     for region in MISSING_REGIONS:

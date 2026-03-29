@@ -318,7 +318,9 @@ class E1_SinophoneMainland(RegionSpec):
                     if hasattr(self, "add_variant"):
                         self.add_variant(entry, {"str": pinyin, "type": "pinyin"})
                     else:
-                        entry["Variants"]["Synthesised"].append({"str": pinyin, "type": "pinyin"})
+                        entry["Variants"]["Synthesised"].append(
+                            {"str": pinyin, "type": "pinyin"}
+                        )
 
         # Add traditional character variant
         traditional = self._to_traditional(canonical)
@@ -327,7 +329,9 @@ class E1_SinophoneMainland(RegionSpec):
             if hasattr(self, "add_variant"):
                 self.add_variant(entry, {"str": traditional, "type": "traditional"})
             else:
-                entry["Variants"]["Synthesised"].append({"str": traditional, "type": "traditional"})
+                entry["Variants"]["Synthesised"].append(
+                    {"str": traditional, "type": "traditional"}
+                )
 
     def _extract_components(self, name: str) -> Dict[str, Any]:
         """Extract name components."""
@@ -561,7 +565,9 @@ class E1_SinophoneMainland(RegionSpec):
         # Rule 11: CJK Round-Trip validation (made more lenient for production)
         if canonical_native and canonical_latin:
             try:
-                dice_score = self._validate_cjk_roundtrip(canonical_native, canonical_latin)
+                dice_score = self._validate_cjk_roundtrip(
+                    canonical_native, canonical_latin
+                )
                 if dice_score < 0.97:  # V7 requirement: ≥97% match
                     self.logger.debug(
                         f"Low CJK round-trip score: {dice_score:.3f} < 0.97 for {canonical_native} / {canonical_latin}"
@@ -616,7 +622,9 @@ class E1_SinophoneMainland(RegionSpec):
 
         return key
 
-    def _validate_cjk_roundtrip(self, canonical_native: str, canonical_latin: str) -> float:
+    def _validate_cjk_roundtrip(
+        self, canonical_native: str, canonical_latin: str
+    ) -> float:
         """
         Rule 11: CJK Round-Trip validation with Dice coefficient.
 
@@ -643,8 +651,12 @@ class E1_SinophoneMainland(RegionSpec):
             reconstructed_cjk = self._pinyin_to_cjk(canonical_latin)
 
             # Step 3: Apply NFC casefold normalization as per V7 spec
-            original_normalized = unicodedata.normalize("NFC", canonical_native.casefold())
-            reconstructed_normalized = unicodedata.normalize("NFC", reconstructed_cjk.casefold())
+            original_normalized = unicodedata.normalize(
+                "NFC", canonical_native.casefold()
+            )
+            reconstructed_normalized = unicodedata.normalize(
+                "NFC", reconstructed_cjk.casefold()
+            )
 
             # Step 4: Calculate Dice coefficient
             dice_score = self._calculate_dice_coefficient(

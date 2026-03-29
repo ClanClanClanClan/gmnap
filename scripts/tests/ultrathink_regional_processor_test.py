@@ -136,7 +136,9 @@ def test_japanese_processor():
 def test_arabic_processor():
     """Test C3 Arabic processor"""
     try:
-        from src.regions.c_groups.c3_arabic_levant_nile.processor import C3ArabicLevantNileProcessor
+        from src.regions.c_groups.c3_arabic_levant_nile.processor import (
+            C3ArabicLevantNileProcessor,
+        )
 
         processor = C3ArabicLevantNileProcessor()
 

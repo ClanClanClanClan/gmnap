@@ -74,7 +74,13 @@ def validate_accuracy():
         dice_score = dice(norm(rr), norm(rr2))
 
         if dice_score < 0.97:
-            misses.append((k, "roundtrip", f"'{rr}' -> '{ko}' -> '{rr2}' (dice: {dice_score:.3f})"))
+            misses.append(
+                (
+                    k,
+                    "roundtrip",
+                    f"'{rr}' -> '{ko}' -> '{rr2}' (dice: {dice_score:.3f})",
+                )
+            )
             tot += 1
             continue
 

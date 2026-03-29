@@ -43,7 +43,9 @@ def process_mathematician_batch(batch_info: Dict[str, Any]) -> Dict[str, Any]:
                     region.validate(entry)
                     results["processed"] += 1
                 except Exception as e:
-                    results["errors"].append(f"Entry {entry.get('GlobalID', 'unknown')}: {e}")
+                    results["errors"].append(
+                        f"Entry {entry.get('GlobalID', 'unknown')}: {e}"
+                    )
             else:
                 results["errors"].append(
                     f"Failed to get region for entry {entry.get('GlobalID', 'unknown')}"
@@ -157,9 +159,13 @@ def test_thread_pool_scaling():
     for thread_count in thread_counts:
         start_time = time.time()
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=thread_count) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=thread_count
+        ) as executor:
             futures = [executor.submit(process_entry, entry) for entry in test_entries]
-            success_count = sum(1 for f in concurrent.futures.as_completed(futures) if f.result())
+            success_count = sum(
+                1 for f in concurrent.futures.as_completed(futures) if f.result()
+            )
 
         end_time = time.time()
         results[thread_count] = {
@@ -230,7 +236,11 @@ def test_stress_concurrent_load():
             except Exception as e:
                 worker_errors.append(f"Worker {worker_id}: {e}")
 
-        return {"worker_id": worker_id, "processed": worker_processed, "errors": worker_errors}
+        return {
+            "worker_id": worker_id,
+            "processed": worker_processed,
+            "errors": worker_errors,
+        }
 
     # Heavy concurrent load
     num_workers = 50  # Aggressive load

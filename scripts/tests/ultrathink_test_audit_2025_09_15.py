@@ -198,7 +198,9 @@ class TestAuditor:
         print(f"  📦 Import Error: {pct(summary['import_error'])}")
 
         # Save results
-        output_file = f"ultrathink_test_audit_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        output_file = (
+            f"ultrathink_test_audit_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
         with open(output_file, "w") as f:
             json.dump(self.results, f, indent=2)
         print(f"\nDetailed results: {output_file}")

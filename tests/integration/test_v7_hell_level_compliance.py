@@ -100,7 +100,9 @@ class V7HellLevelCompliance:
                 {"CanonicalLatin": "A" * 10000},  # Long name
                 {"CanonicalLatin": "John " + "Middle " * 1000 + "Doe"},  # Many parts
                 {"CanonicalLatin": "X" * 1000000},  # 1MB name
-                {"CanonicalLatin": json.dumps({"nested": {"data": "X" * 100000}})},  # Large JSON
+                {
+                    "CanonicalLatin": json.dumps({"nested": {"data": "X" * 100000}})
+                },  # Large JSON
             ],
         }
 
@@ -126,7 +128,8 @@ class V7HellLevelCompliance:
                         )
                         results.append(
                             {
-                                "payload": str(payload.get("CanonicalLatin", ""))[:50] + "...",
+                                "payload": str(payload.get("CanonicalLatin", ""))[:50]
+                                + "...",
                                 "blocked": False,
                                 "sanitized": sanitized,
                                 "passed": sanitized,
@@ -137,7 +140,8 @@ class V7HellLevelCompliance:
                         # No result = blocked
                         results.append(
                             {
-                                "payload": str(payload.get("CanonicalLatin", ""))[:50] + "...",
+                                "payload": str(payload.get("CanonicalLatin", ""))[:50]
+                                + "...",
                                 "blocked": True,
                                 "passed": True,
                                 "time": elapsed,
@@ -147,7 +151,8 @@ class V7HellLevelCompliance:
                     # Exception = blocked = good
                     results.append(
                         {
-                            "payload": str(payload.get("CanonicalLatin", ""))[:50] + "...",
+                            "payload": str(payload.get("CanonicalLatin", ""))[:50]
+                            + "...",
                             "blocked": True,
                             "passed": True,
                             "error": str(e)[:100],
@@ -315,7 +320,9 @@ class V7HellLevelCompliance:
                                 "expected": region_code,
                                 "detected": detected_region,
                                 "passed": detected_region == region_code,
-                                "variants": len(entry.get("Variants", {}).get("Synthesised", [])),
+                                "variants": len(
+                                    entry.get("Variants", {}).get("Synthesised", [])
+                                ),
                                 "has_extras": bool(entry.get("RegionalExtras")),
                             }
                         )
@@ -355,7 +362,10 @@ class V7HellLevelCompliance:
         test_entries = []
         for i in range(1000):
             test_entries.append(
-                {"CanonicalLatin": f"Test Mathematician {i}", "GlobalID": f"PERF{i:06d}"}
+                {
+                    "CanonicalLatin": f"Test Mathematician {i}",
+                    "GlobalID": f"PERF{i:06d}",
+                }
             )
 
         start_time = time.time()
@@ -389,7 +399,8 @@ class V7HellLevelCompliance:
         # Process 5 batches
         for batch in range(5):
             batch_entries = [
-                {"CanonicalLatin": f"Batch {batch} Mathematician {i}"} for i in range(200)
+                {"CanonicalLatin": f"Batch {batch} Mathematician {i}"}
+                for i in range(200)
             ]
             await self.pipeline.process(batch_entries)
 
@@ -461,7 +472,10 @@ class V7HellLevelCompliance:
                 },
             ],
             "unicode_edge_cases": [
-                {"CanonicalLatin": "🔬 Science Emoji Name 🧮", "description": "Emoji in name"},
+                {
+                    "CanonicalLatin": "🔬 Science Emoji Name 🧮",
+                    "description": "Emoji in name",
+                },
                 {
                     "CanonicalLatin": "Z̴̡̺̩̳̗̈́̈́̇ả̸̧̨̺̦̟̟̈́l̵̢̜̦̰̇g̷̱̝̈́̄̊̕o̶̭̊ ̸̨̛̺̬̇T̷̺̆ë̵́x̸̌t̸̾",
                     "description": "Zalgo text",
@@ -543,8 +557,12 @@ class V7HellLevelCompliance:
 
                     # Check complete processing
                     checks = {
-                        "region_detected": output.get("region_code") == mathematician["region"],
-                        "has_variants": len(output.get("Variants", {}).get("Synthesised", [])) > 0,
+                        "region_detected": output.get("region_code")
+                        == mathematician["region"],
+                        "has_variants": len(
+                            output.get("Variants", {}).get("Synthesised", [])
+                        )
+                        > 0,
                         "has_regional_extras": bool(output.get("RegionalExtras")),
                         "has_authority_data": bool(output.get("authority_data")),
                         "validation_passed": output.get("validation_status") == "valid",
@@ -563,11 +581,19 @@ class V7HellLevelCompliance:
                     )
                 else:
                     results.append(
-                        {"name": mathematician["name"], "passed": False, "error": "No result"}
+                        {
+                            "name": mathematician["name"],
+                            "passed": False,
+                            "error": "No result",
+                        }
                     )
             except Exception as e:
                 results.append(
-                    {"name": mathematician["name"], "passed": False, "error": str(e)[:100]}
+                    {
+                        "name": mathematician["name"],
+                        "passed": False,
+                        "error": str(e)[:100],
+                    }
                 )
 
         self.test_results["integration_tests"] = {
@@ -609,7 +635,9 @@ class V7HellLevelCompliance:
                 "total_tests": total_tests,
                 "passed_tests": passed_tests,
                 "failed_tests": total_tests - passed_tests,
-                "pass_rate": round((passed_tests / total_tests * 100) if total_tests > 0 else 0, 2),
+                "pass_rate": round(
+                    (passed_tests / total_tests * 100) if total_tests > 0 else 0, 2
+                ),
                 "overall_status": "COMPLIANT" if overall_compliant else "NON-COMPLIANT",
             },
             "compliance_scores": compliance,

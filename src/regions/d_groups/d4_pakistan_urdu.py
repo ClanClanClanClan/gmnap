@@ -13,7 +13,9 @@ class D4PakistanUrdu(RegionSpec):
 
     def __init__(self):
         super().__init__(
-            code="D4", yaml_files=[], scripts=["Arabic", "Latin"]  # TODO: Add actual YAML files,
+            code="D4",
+            yaml_files=[],
+            scripts=["Arabic", "Latin"],  # TODO: Add actual YAML files,
         )
 
     def clean(self, name: str) -> str:
