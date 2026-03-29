@@ -352,4 +352,3 @@ if __name__ == "__main__":
     print("   Access Memgraph Lab at: http://localhost:3000")
     print("   Bolt connection at: bolt://localhost:7687")
 import os
-
