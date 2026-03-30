@@ -3102,9 +3102,17 @@ class RegionManager:
         # Ensure regions are loaded
         self._ensure_regions_loaded()
 
-        # Create cache key from sanitized entry data
-        cache_key = sanitized_entry.get("CanonicalLatin", "") or sanitized_entry.get(
-            "CanonicalNative", ""
+        # Create cache key from sanitized entry data — include CountryCodes
+        # to avoid collisions when the same name appears with different CCs
+        # (e.g. "Lee, Bruce" with CC=US vs CC=KR must not share a cache slot).
+        cc = ",".join(sanitized_entry.get("CountryCodes", []))
+        cache_key = (
+            (
+                sanitized_entry.get("CanonicalLatin", "")
+                or sanitized_entry.get("CanonicalNative", "")
+            )
+            + "|"
+            + cc
         )
 
         # Check cache
