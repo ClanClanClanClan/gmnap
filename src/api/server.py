@@ -321,14 +321,18 @@ def create_app() -> FastAPI:
         if len(name) > 500:
             raise HTTPException(status_code=400, detail="Name too long (max 500 chars)")
         try:
+            from src.core.globalid import generate_global_id
             from src.regions.manager_optimized import RegionManager
 
             manager = RegionManager()
             entry = {"CanonicalLatin": name}
             result = manager.detect_region(entry)
 
+            gid = generate_global_id(entry)
+
             return {
                 "name": name,
+                "global_id": gid,
                 "region_code": result.region_code,
                 "confidence": result.confidence,
                 "detection_method": result.detection_method,

@@ -42,4 +42,4 @@ RUN mkdir -p /app/cache/gs /app/cache/bad_json /app/data
 ENV PYTHONPATH=/app/src:/app
 
 # Default command
-CMD ["python3.12", "-m", "src.core.pipeline"]
+CMD ["python3", "-m", "uvicorn", "src.api.server:app", "--host", "0.0.0.0", "--port", "8080"]

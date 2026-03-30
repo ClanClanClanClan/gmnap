@@ -445,12 +445,12 @@ class UniversalFetcher(AuthorityFetcher):
         if birth_date:
             try:
                 birth_year = int(birth_date[:4])
-            except:
+            except Exception:
                 pass
         if death_date:
             try:
                 death_year = int(death_date[:4])
-            except:
+            except Exception:
                 pass
 
         # Build identifiers

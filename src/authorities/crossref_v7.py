@@ -116,7 +116,7 @@ class CrossrefV7Fetcher(AuthorityFetcher):
                         cache.put(
                             "Crossref", f"author:{name}:{limit}", {"items": items}
                         )
-                    except:
+                    except Exception:
                         # Fallback to memory cache
                         self._cache[f"author:{name}:{limit}"] = items
 

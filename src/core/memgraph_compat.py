@@ -321,7 +321,7 @@ class MemgraphCompatibleClient:
                         scores[record["id"]] = record["score"]
                     if scores:
                         return scores
-                except:
+                except Exception:
                     # Fall back to approximation
                     pass
 
@@ -369,7 +369,7 @@ class MemgraphCompatibleClient:
             try:
                 cycles = list(nx.simple_cycles(self.nx_graph))
                 return [c for c in cycles if len(c) <= max_length]
-            except:
+            except Exception:
                 return []
 
         # Memgraph query

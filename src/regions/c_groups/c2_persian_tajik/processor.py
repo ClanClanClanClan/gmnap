@@ -572,14 +572,14 @@ class C2_PersianTajik(RegionSpec):
                 is_geographic = any(
                     second.endswith(ending) for ending in geographic_endings
                 )
-            except:
+            except Exception:
                 is_geographic = False
 
             try:
                 is_descriptive = any(
                     second.lower() in [word.lower() for word in descriptive_list]
                 )
-            except:
+            except Exception:
                 is_descriptive = False
 
             if is_geographic or is_descriptive:

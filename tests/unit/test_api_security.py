@@ -290,3 +290,49 @@ def test_oversized_request_body(paid_client):
         json={"entries": huge_entries},
     )
     assert resp.status_code == 400
+
+
+# ── API / Web UI Round-Trip ──────────────────────────────────────────
+
+
+def test_query_response_includes_global_id(paid_client, monkeypatch):
+    """GET /api/v1/query should return global_id in the response shape
+    expected by static/app.js."""
+    from unittest.mock import MagicMock
+
+    mock_result = MagicMock()
+    mock_result.region_code = "A1"
+    mock_result.confidence = 0.95
+    mock_result.detection_method = "script"
+    mock_result.metadata = {"script": "Latin"}
+
+    mock_mgr = MagicMock()
+    mock_mgr.detect_region.return_value = mock_result
+    mock_module = MagicMock()
+    mock_module.RegionManager.return_value = mock_mgr
+
+    monkeypatch.setitem(
+        __import__("sys").modules,
+        "src.regions.manager_optimized",
+        mock_module,
+    )
+
+    resp = paid_client.get("/api/v1/query", params={"name": "Euler, Leonhard"})
+    assert resp.status_code == 200
+
+    data = resp.json()
+
+    # Verify response shape matches what app.js expects
+    assert "name" in data, "Response must include 'name'"
+    assert "global_id" in data, "Response must include 'global_id'"
+    assert "region_code" in data, "Response must include 'region_code'"
+    assert "confidence" in data, "Response must include 'confidence'"
+    assert "detection_method" in data, "Response must include 'detection_method'"
+    assert "metadata" in data, "Response must include 'metadata'"
+
+    # Verify global_id is a non-empty string
+    assert isinstance(data["global_id"], str)
+    assert len(data["global_id"]) >= 22, "GlobalID should be at least 22 chars"
+
+    # Verify name round-trips correctly
+    assert data["name"] == "Euler, Leonhard"

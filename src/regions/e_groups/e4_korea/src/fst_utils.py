@@ -7,5 +7,5 @@ def first_output(fst: pn.Fst) -> str | None:
         if shortest.num_states() == 0:
             return None
         return shortest.string()
-    except:
+    except Exception:
         return None

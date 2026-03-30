@@ -190,7 +190,7 @@ class GlobalDeploymentManager:
         """Initialize Kubernetes clients"""
         try:
             config.load_incluster_config()  # Try in-cluster config first
-        except:
+        except Exception:
             try:
                 config.load_kube_config()  # Fall back to local config
             except Exception as e:

@@ -216,7 +216,7 @@ class GraphCoherenceScorer:
         try:
             cycles = list(nx.simple_cycles(graph.to_directed()))
             cycles_detected = len(cycles)
-        except:
+        except Exception:
             cycles_detected = 0  # Fallback for undirected graphs
 
         # Orphaned nodes (degree 0)
@@ -242,7 +242,7 @@ class GraphCoherenceScorer:
         density = nx.density(graph)
         try:
             clustering_coefficient = nx.average_clustering(graph)
-        except:
+        except Exception:
             clustering_coefficient = 0.0
 
         # Consistency violations (placeholder - would implement specific genealogy rules)

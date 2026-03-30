@@ -80,7 +80,7 @@ class SchemaValidator(QualityGate):
         if "UpdatedAt" in entry and entry["UpdatedAt"]:
             try:
                 datetime.fromisoformat(entry["UpdatedAt"].replace("Z", "+00:00"))
-            except:
+            except Exception:
                 errors.append(f"Invalid UpdatedAt format: {entry['UpdatedAt']}")
 
         # Validate Confidence range
@@ -507,7 +507,7 @@ class ConsistencyVerifier(QualityGate):
                     consistency_checks.append(False)
                 else:
                     consistency_checks.append(True)
-            except:
+            except Exception:
                 pass
 
         # Check numeric consistency

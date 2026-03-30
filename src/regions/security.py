@@ -265,7 +265,7 @@ class SecurityFilter:
                 # If URL decoding changed the string, scan the decoded version
                 self.scan_for_attacks(decoded, "URL-decoded content")
                 text = decoded
-        except:
+        except Exception:
             pass  # Keep original if decoding fails
 
         # Normalize Unicode if preserving international characters
