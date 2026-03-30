@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMNAP V7 - Global Mathematician Name Authority</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header role="banner">
+        <nav aria-label="Main navigation">
+            <div class="nav-brand">GMNAP V7</div>
+            <div class="nav-status">
+                <span id="api-status" class="status-indicator" role="status" aria-live="polite">
+                    Checking API...
+                </span>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main">
+        <section class="hero" aria-labelledby="hero-title">
+            <h1 id="hero-title">Global Mathematician Name Authority</h1>
+            <p class="hero-subtitle">Query, validate, and enrich mathematician name records across 37 regions</p>
+            <div class="search-container">
+                <label for="search-input" class="visually-hidden">Search mathematician names</label>
+                <input
+                    type="search"
+                    id="search-input"
+                    placeholder="Search mathematician names... (press / to focus)"
+                    autocomplete="off"
+                    aria-label="Search mathematician names"
+                    aria-describedby="search-hint"
+                >
+                <span id="search-hint" class="visually-hidden">Press slash to focus the search field. Results appear below.</span>
+                <button id="search-btn" type="button" aria-label="Submit search">Search</button>
+            </div>
+        </section>
+
+        <section class="features" aria-labelledby="features-title">
+            <h2 id="features-title" class="visually-hidden">Features</h2>
+            <div class="feature-grid">
+                <article class="feature-card">
+                    <h3>37 Regions</h3>
+                    <p>Full coverage across all linguistic and geographic regions with specialized processing rules.</p>
+                </article>
+                <article class="feature-card">
+                    <h3>9 Authority Sources</h3>
+                    <p>Enrichment from OpenAlex, Crossref, ORCID, HAL, GND, Wikidata, and more.</p>
+                </article>
+                <article class="feature-card">
+                    <h3>12-Stage Pipeline</h3>
+                    <p>Comprehensive processing from Unicode normalisation to schema validation.</p>
+                </article>
+                <article class="feature-card">
+                    <h3>GDPR Compliant</h3>
+                    <p>Built-in privacy controls with ShadowNode conversion and data masking.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="results-section" class="results-section" aria-labelledby="results-title" hidden>
+            <h2 id="results-title">Search Results</h2>
+            <div id="results-container" role="list" aria-label="Search results">
+            </div>
+            <div id="loading-spinner" class="spinner" hidden aria-label="Loading results">
+                <div class="spinner-ring"></div>
+            </div>
+            <div id="no-results" hidden>
+                <p>No results found. Try a different search term.</p>
+            </div>
+            <div id="error-message" hidden role="alert">
+                <p>Unable to connect to the API. Please check that the server is running.</p>
+            </div>
+        </section>
+
+        <aside id="detail-panel" class="detail-panel" role="dialog" aria-labelledby="detail-title" aria-modal="true" hidden>
+            <div class="detail-content">
+                <button id="detail-close" class="detail-close" aria-label="Close detail panel">&times;</button>
+                <h2 id="detail-title">Entry Details</h2>
+                <div id="detail-body"></div>
+            </div>
+        </aside>
+    </main>
+
+    <footer role="contentinfo">
+        <p>GMNAP V7 &mdash; Global Mathematician Name Authority Project</p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
