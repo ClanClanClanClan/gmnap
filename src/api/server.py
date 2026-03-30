@@ -318,6 +318,8 @@ def create_app() -> FastAPI:
         mode: str = Query("quick", description="Pipeline mode: quick/full/extreme"),
     ):
         """Query a single mathematician name for region detection & processing."""
+        if not name or not name.strip():
+            raise HTTPException(status_code=400, detail="Name must not be empty")
         if len(name) > 500:
             raise HTTPException(status_code=400, detail="Name too long (max 500 chars)")
         try:
@@ -328,7 +330,10 @@ def create_app() -> FastAPI:
             entry = {"CanonicalLatin": name}
             result = manager.detect_region(entry)
 
-            gid = generate_global_id(entry)
+            try:
+                gid = generate_global_id(entry)
+            except Exception:
+                gid = None
 
             return {
                 "name": name,
