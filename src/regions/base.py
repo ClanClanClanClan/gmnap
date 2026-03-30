@@ -907,7 +907,6 @@ TERRITORY_TO_REGION = {
     "BS": "A1",
     "DM": "A1",
     "GD": "A1",
-    "GY": "A1",
     "JM": "A1",
     "KN": "A1",
     "LC": "A1",
@@ -1016,7 +1015,6 @@ TERRITORY_TO_REGION = {
     "PS": "C3",
     "EG": "C3",
     "SD": "C3",
-    "SS": "C3",
     # C4 - Arabic Gulf
     "SA": "C4",
     "KW": "C4",

@@ -592,7 +592,6 @@ _STRONG = {
             "yn",
             "yev",
             "in",
-            "ler",
         },
         "surnames": {
             "ivanov",
@@ -3148,6 +3147,20 @@ class RegionManager:
         2. Surname Pattern Matching - >0.95 → early return
         3. Script Analysis (Priority Rules - Phase 1) - ≥0.60 → early return
         """
+        # HIGHEST PRIORITY: Country code → region mapping
+        country_codes = entry.get("CountryCodes", [])
+        if country_codes:
+            from src.regions.base import get_region_for_territory
+
+            region = get_region_for_territory(country_codes[0])
+            if region in self.IMPLEMENTED_REGIONS:
+                return RegionDetectionResult(
+                    region_code=region,
+                    confidence=0.85,
+                    detection_method="country-code",
+                    metadata={"country": country_codes[0]},
+                )
+
         # Phase 3: Authority detection (cache-only, synchronous)
         import os
 
@@ -3252,6 +3265,20 @@ class RegionManager:
         7. DOI Prefix / Diaspora Overlay
         8. Fallback (0.40-0.60)
         """
+        # HIGHEST PRIORITY: Country code → region mapping
+        country_codes = entry.get("CountryCodes", [])
+        if country_codes:
+            from src.regions.base import get_region_for_territory
+
+            region = get_region_for_territory(country_codes[0])
+            if region in self.IMPLEMENTED_REGIONS:
+                return RegionDetectionResult(
+                    region_code=region,
+                    confidence=0.85,
+                    detection_method="country-code",
+                    metadata={"country": country_codes[0]},
+                )
+
         # Phase 3: Authority detection (cached only in OFFLINE mode)
         result = await self._detect_by_external_authority(entry)
         if result and result.confidence >= 0.90:
