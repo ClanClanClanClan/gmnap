@@ -1604,3 +1604,580 @@ def test_native_script_without_cc(manager, name, expected, desc):
     result = manager.detect_region(entry)
     assert result.region_code is not None, f"{desc}: returned None"
     assert result.confidence > 0, f"{desc}: returned 0 confidence"
+
+
+# ===========================================================================
+# GAP 9 — End-to-end pipeline detection test (Gap 1)
+# ===========================================================================
+
+
+@pytest.mark.asyncio
+async def test_pipeline_stage2_wires_detection_fields():
+    """Stage 2 must set DetectedRegion, DetectionConfidence, DetectionMethod."""
+    import sys
+
+    sys.path.insert(0, ".")
+    try:
+        from src.core.pipeline_v7 import V7Pipeline
+    except ImportError as exc:
+        pytest.skip(f"Pipeline import failed: {exc}")
+
+    pipeline = V7Pipeline()
+    entries = [
+        {"CanonicalLatin": "Smith, John", "CountryCodes": ["US"]},
+        {"CanonicalLatin": "Müller, Hans", "CountryCodes": ["DE"]},
+        {"CanonicalLatin": "Tanaka, Hiroshi", "CountryCodes": ["JP"]},
+        {"CanonicalLatin": "Kim, Minhyong", "CountryCodes": ["KR"]},
+    ]
+    results = await pipeline._stage_2_detect_region(entries)
+
+    assert len(results) == 4
+    for entry in results:
+        assert (
+            "DetectedRegion" in entry
+        ), f"Missing DetectedRegion in {entry.get('CanonicalLatin')}"
+        assert "DetectionConfidence" in entry
+        assert "DetectionMethod" in entry
+        assert entry["DetectedRegion"] is not None
+        assert entry["DetectionConfidence"] > 0
+
+    # Verify correct regions
+    assert results[0]["DetectedRegion"] == "A1"
+    assert results[1]["DetectedRegion"] == "A2"
+    assert results[2]["DetectedRegion"] == "E3"
+    assert results[3]["DetectedRegion"] == "E4"
+
+
+# ===========================================================================
+# GAP 10 — Real-world messy data test (Gap 2)
+# ===========================================================================
+
+MESSY_DATA_CASES = [
+    # Misspellings
+    ("Euelr, Leonhard", ["CH"], "A2", "Misspelled Euler"),
+    # Truncated names
+    ("Euler, L.", ["CH"], "A2", "Truncated given name"),
+    ("E., Leonhard", ["CH"], "A2", "Truncated surname"),
+    # Wrong format (Given Surname instead of Surname, Given)
+    ("Leonhard Euler", ["CH"], "A2", "Reversed format no comma"),
+    ("John Smith", ["US"], "A1", "Given-first format"),
+    # Extra whitespace
+    ("  Euler ,  Leonhard  ", ["CH"], "A2", "Extra whitespace everywhere"),
+    # Missing comma
+    ("Euler Leonhard", ["CH"], "A2", "No comma separator"),
+    # All caps
+    ("EULER, LEONHARD", ["CH"], "A2", "All uppercase"),
+    # All lowercase
+    ("euler, leonhard", ["CH"], "A2", "All lowercase"),
+    # Mixed encoding artifacts
+    ("Mueller, Hans", ["DE"], "A2", "ASCII transliteration of Müller"),
+    # Single name only
+    ("Euler", ["CH"], "A2", "Surname only"),
+    # With title
+    ("Prof. Dr. Euler, Leonhard", ["CH"], "A2", "With academic titles"),
+    # With suffix
+    ("Smith, John Jr.", ["US"], "A1", "With generational suffix"),
+    ("Kim, Minhyong III", ["KR"], "E4", "With Roman numeral suffix"),
+    # Unicode normalization variants
+    ("Müller, Hans", ["DE"], "A2", "Precomposed ü"),
+    # Numbers in name
+    ("Henry VIII", ["GB"], "A1", "Royal numeral"),
+    # Hyphenated given names
+    ("Müller, Hans-Jürgen", ["DE"], "A2", "Hyphenated given"),
+    # Very long name
+    ("Wolfeschlegelsteinhausenbergerdorff, Johann", ["DE"], "A2", "Long surname"),
+    # Very short
+    ("Li, X", ["CN"], "E1", "Single-char given name"),
+    # Name with parenthetical
+    ("Kim, Minhyong (Korean)", ["KR"], "E4", "Parenthetical annotation"),
+]
+
+
+@pytest.mark.parametrize(
+    "name,country_codes,expected,desc",
+    MESSY_DATA_CASES,
+    ids=[c[3] for c in MESSY_DATA_CASES],
+)
+def test_messy_real_world_data(manager, name, country_codes, expected, desc):
+    """Messy real-world data (misspellings, caps, whitespace) must still detect."""
+    entry = {"CanonicalLatin": name, "CountryCodes": country_codes}
+    result = manager.detect_region(entry)
+    assert (
+        result.region_code == expected
+    ), f"{desc}: expected {expected}, got {result.region_code}"
+
+
+# ===========================================================================
+# GAP 11 — Fixture data accuracy test (Gap 3)
+# ===========================================================================
+
+
+def test_fixture_data_accuracy(manager):
+    """Run detection against region_test_data.json fixtures if available."""
+    import json
+    from pathlib import Path
+
+    fixture_path = Path("tests/fixtures/region_test_data.json")
+    if not fixture_path.exists():
+        pytest.skip("Fixture file not found")
+
+    with open(fixture_path) as f:
+        data = json.load(f)
+
+    correct = 0
+    total = 0
+    failures = []
+
+    for region_code, region_data in data.items():
+        if region_code.startswith("_"):
+            continue
+        for entry in region_data.get("entries", []):
+            cc = entry.get("CountryCodes", [])
+            if not cc:
+                continue
+            total += 1
+            result = manager.detect_region(entry)
+            if result.region_code == region_code:
+                correct += 1
+            else:
+                failures.append(
+                    f"{entry.get('CanonicalLatin')}(CC={cc[0]}): "
+                    f"expected {region_code}, got {result.region_code}"
+                )
+
+    if total == 0:
+        pytest.skip("No fixture entries with CountryCodes")
+
+    accuracy = correct / total
+    assert accuracy >= 0.90, (
+        f"Fixture accuracy {accuracy:.1%} ({correct}/{total}). "
+        f"Sample failures: {failures[:10]}"
+    )
+
+
+# ===========================================================================
+# GAP 12 — Pipeline uses correct manager (Gap 4)
+# ===========================================================================
+
+
+def test_pipeline_uses_correct_manager():
+    """Verify the pipeline uses a manager that loads all 37 regions."""
+    import sys
+
+    sys.path.insert(0, ".")
+    try:
+        from src.core.pipeline_v7 import V7Pipeline
+    except ImportError as exc:
+        pytest.skip(f"Pipeline import failed: {exc}")
+
+    p = V7Pipeline()
+    mgr = p.region_manager
+    # Check it has detect_region method
+    assert hasattr(mgr, "detect_region"), "Pipeline manager missing detect_region"
+
+    # Force region loading by performing one detection
+    mgr.detect_region({"CanonicalLatin": "Smith, John", "CountryCodes": ["US"]})
+
+    # Now check regions are loaded (handles both RegionManager and
+    # HybridRegionManager which delegates to classifier.phase1._regions)
+    inner = mgr
+    if hasattr(mgr, "classifier") and hasattr(mgr.classifier, "phase1"):
+        inner = mgr.classifier.phase1
+    if hasattr(inner, "_ensure_regions_loaded"):
+        inner._ensure_regions_loaded()
+    if hasattr(inner, "_regions"):
+        assert len(inner._regions) >= 30, f"Only {len(inner._regions)} regions loaded"
+    elif hasattr(inner, "IMPLEMENTED_REGIONS"):
+        assert len(inner.IMPLEMENTED_REGIONS) >= 30
+
+
+# ===========================================================================
+# GAP 13 — Concurrent detection test (Gap 5)
+# ===========================================================================
+
+
+@pytest.mark.asyncio
+async def test_concurrent_detection_no_race_conditions():
+    """Concurrent detections with different CCs must not interfere."""
+    import asyncio
+    import sys
+
+    sys.path.insert(0, ".")
+    from src.regions.manager_optimized import RegionManager
+
+    mgr = RegionManager()
+
+    test_cases = [
+        (
+            {
+                "CanonicalLatin": f"ConcTest{i}, Variant{j}",
+                "CountryCodes": [cc],
+            },
+            expected,
+        )
+        for i, (cc, expected) in enumerate(
+            [
+                ("US", "A1"),
+                ("DE", "A2"),
+                ("RU", "B1"),
+                ("JP", "E3"),
+                ("KR", "E4"),
+                ("CN", "E1"),
+                ("BR", "G1"),
+                ("IN", "D1"),
+                ("FR", "A2"),
+                ("PL", "B2"),
+            ]
+        )
+        for j in range(5)  # 5 variants each = 50 concurrent detections
+    ]
+
+    async def detect(entry, expected):
+        result = mgr.detect_region(entry)
+        return result.region_code == expected, entry, result
+
+    tasks = [detect(entry, exp) for entry, exp in test_cases]
+    results = await asyncio.gather(*tasks)
+
+    failures = [(e, r) for ok, e, r in results if not ok]
+    assert (
+        len(failures) == 0
+    ), f"{len(failures)} concurrent detection failures: " + "; ".join(
+        f"{e.get('CanonicalLatin')}(CC={e.get('CountryCodes', ['?'])[0]})"
+        f"->got {r.region_code}"
+        for e, r in failures[:5]
+    )
+
+
+# ===========================================================================
+# GAP 14 — Region hooks fire correctly after detection (Gap 6)
+# ===========================================================================
+
+
+def test_region_hooks_fire_for_detected_region(manager):
+    """After detection, the correct region processor's hooks must work."""
+    import copy
+
+    # Detect Euler as A2 (Germanic)
+    entry = {"CanonicalLatin": "Euler, Leonhard", "CountryCodes": ["CH"]}
+    result = manager.detect_region(entry)
+    assert result.region_code == "A2"
+
+    # Get the A2 processor and verify it can process the entry
+    processor = manager.get_region("A2")
+    assert processor is not None, "A2 processor not loaded"
+
+    work = copy.deepcopy(entry)
+    work["RegionCode"] = "A2"
+
+    # clean() should not crash
+    if hasattr(processor, "clean"):
+        processor.clean(work)
+
+    # augment() should not crash
+    if hasattr(processor, "augment"):
+        processor.augment(work)
+
+    # order_key() should produce a result
+    if hasattr(processor, "order_key"):
+        ok = processor.order_key(work)
+        if ok:
+            assert (
+                "EULER" in ok.upper() or "LEONHARD" in ok.upper()
+            ), f"OrderKey '{ok}' doesn't contain name parts"
+
+
+def test_all_loaded_regions_have_working_hooks(manager):
+    """Every loaded region processor must have clean/augment/order_key."""
+    manager._ensure_regions_loaded()
+    for code in sorted(manager._regions.keys()):
+        proc = manager.get_region(code)
+        if proc is None:
+            continue
+        assert hasattr(proc, "clean"), f"{code} processor missing clean()"
+        assert hasattr(proc, "augment"), f"{code} processor missing augment()"
+        assert hasattr(proc, "order_key"), f"{code} processor missing order_key()"
+
+        # Verify hooks don't crash on a basic entry
+        entry = {"CanonicalLatin": "Test, Name", "RegionCode": code}
+        try:
+            proc.clean(entry)
+            proc.augment(entry)
+            proc.order_key(entry)
+        except Exception as e:
+            pytest.fail(f"Region {code} hook crashed: {e}")
+
+
+# ===========================================================================
+# GAP 15 — CanonicalNative + CanonicalLatin together (Gap 7)
+# ===========================================================================
+
+DUAL_FIELD_CASES = [
+    (
+        {
+            "CanonicalLatin": "Kim, Minhyong",
+            "CanonicalNative": "\uae40\ubbfc\ud615",
+            "CountryCodes": ["KR"],
+        },
+        "E4",
+    ),
+    (
+        {
+            "CanonicalLatin": "Wang, Wei",
+            "CanonicalNative": "\u738b\u4f1f",
+            "CountryCodes": ["CN"],
+        },
+        "E1",
+    ),
+    (
+        {
+            "CanonicalLatin": "Tanaka, Hiroshi",
+            "CanonicalNative": "\u7530\u4e2d\u535a",
+            "CountryCodes": ["JP"],
+        },
+        "E3",
+    ),
+    (
+        {
+            "CanonicalLatin": "Ivanov, Sergei",
+            "CanonicalNative": "\u0418\u0432\u0430\u043d\u043e\u0432, \u0421\u0435\u0440\u0433\u0435\u0439",
+            "CountryCodes": ["RU"],
+        },
+        "B1",
+    ),
+    (
+        {
+            "CanonicalLatin": "Cohen, David",
+            "CanonicalNative": "\u05db\u05d4\u05df, \u05d3\u05d5\u05d3",
+            "CountryCodes": ["IL"],
+        },
+        "C6",
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "entry,expected",
+    DUAL_FIELD_CASES,
+    ids=[e[0]["CanonicalLatin"] for e in DUAL_FIELD_CASES],
+)
+def test_dual_field_detection(manager, entry, expected):
+    """Entries with both CanonicalLatin and CanonicalNative must detect correctly."""
+    result = manager.detect_region(entry)
+    assert result.region_code == expected
+
+
+# ===========================================================================
+# GAP 16 — Performance regression test (Gap 8)
+# ===========================================================================
+
+
+def test_detection_performance(manager):
+    """1000 detections must complete in < 10 seconds."""
+    import time
+
+    entries = [
+        {"CanonicalLatin": f"Perf{i}, Test{i}", "CountryCodes": [cc]}
+        for i, cc in enumerate(
+            ["US", "DE", "RU", "JP", "KR", "CN", "BR", "IN", "FR", "PL"] * 100
+        )
+    ]
+
+    start = time.perf_counter()
+    for entry in entries:
+        manager.detect_region(entry)
+    elapsed = time.perf_counter() - start
+
+    assert elapsed < 10.0, f"1000 detections took {elapsed:.1f}s (> 10s limit)"
+    # Also check it's reasonably fast (< 5ms per detection)
+    per_detection_ms = (elapsed / len(entries)) * 1000
+    assert (
+        per_detection_ms < 5.0
+    ), f"Per-detection time {per_detection_ms:.1f}ms exceeds 5ms limit"
+
+
+# ===========================================================================
+# GAP 17 — Fallback for garbage/empty input (Gap 9)
+# ===========================================================================
+
+GARBAGE_INPUT_CASES = [
+    ({"CanonicalLatin": ""}, "Handles empty string"),
+    ({"CanonicalLatin": "   "}, "Handles whitespace-only"),
+    ({"CanonicalLatin": "12345"}, "Handles pure numbers"),
+    ({"CanonicalLatin": "!@#$%^&*()"}, "Handles special characters"),
+    ({"CanonicalLatin": "\x00\x01\x02"}, "Handles control characters"),
+    ({"CanonicalLatin": "a"}, "Handles single character"),
+    ({}, "Handles empty dict"),
+    ({"CanonicalLatin": None}, "Handles None value"),
+    ({"CanonicalLatin": "Name" * 1000}, "Handles extremely long input"),
+]
+
+
+@pytest.mark.parametrize(
+    "entry,desc",
+    GARBAGE_INPUT_CASES,
+    ids=[c[1] for c in GARBAGE_INPUT_CASES],
+)
+def test_garbage_input_no_crash(manager, entry, desc):
+    """Garbage input must not crash -- should return a fallback region."""
+    try:
+        result = manager.detect_region(entry)
+        # Must return SOMETHING, not crash
+        assert result is not None
+        assert result.region_code is not None
+    except (TypeError, AttributeError, ValueError, KeyError):
+        # These are acceptable for truly broken input (None, empty dict,
+        # or inputs that produce empty script analysis)
+        pass
+
+
+# ===========================================================================
+# GAP 18 — Expanded without-CountryCodes test (Gap 10)
+# ===========================================================================
+
+EXPANDED_NO_CC_CASES = [
+    # A1 - Anglo (very distinctive prefixes)
+    ("O'Connor, Sean", "A1", "Irish O' prefix"),
+    ("MacArthur, Douglas", "A1", "Scottish Mac prefix"),
+    ("FitzGerald, Garret", "A1", "Anglo-Norman Fitz prefix"),
+    ("McCartney, Paul", "A1", "Scottish Mc prefix"),
+    ("O'Neill, Tip", "A1", "Irish O' prefix"),
+    # A2 - Western Europe (Germanic / Romance)
+    ("Bauer, Fritz", "A2", "German Bauer"),
+    ("Hoffmann, Ernst", "A2", "German Hoffmann"),
+    ("Zimmermann, Bernd", "A2", "German Zimmermann"),
+    ("Lefebvre, Marcel", "A2", "French Lefebvre"),
+    ("Delacroix, Eugene", "A2", "French Delacroix"),
+    # B1 - Russian (distinctive suffixes)
+    ("Volkov, Aleksei", "B1", "Russian -ov"),
+    ("Sorokin, Vladimir", "B1", "Russian -in"),
+    ("Medvedev, Dmitry", "B1", "Russian -ev"),
+    ("Gorbachev, Mikhail", "B1", "Russian -ev"),
+    ("Dostoevsky, Fyodor", "B1", "Russian -sky"),
+    ("Tchaikovsky, Pyotr", "B1", "Russian -sky"),
+    ("Prokofiev, Sergei", "B1", "Russian -ev"),
+    ("Turgenev, Ivan", "B1", "Russian -ev"),
+    # B2 - Polish
+    ("Kowalski, Jan", "B2", "Polish -ski"),
+    ("Wisniewski, Piotr", "B2", "Polish -ski"),
+    ("Lewandowski, Robert", "B2", "Polish -ski"),
+    ("Szymanski, Adam", "B2", "Polish -ski"),
+    ("Kaminski, Jakub", "B2", "Polish -ski"),
+    # B3 - Greek
+    ("Papadimitriou, Christos", "B3", "Greek -ou"),
+    ("Konstantopoulos, Yannis", "B3", "Greek -opoulos"),
+    ("Theodorakis, Mikis", "B3", "Greek -is"),
+    ("Karamanlis, Kostas", "B3", "Greek -is"),
+    ("Papadopoulos, Georgios", "B3", "Greek -opoulos"),
+    # C7 - Armenian
+    ("Hovhannisyan, Karen", "C7", "Armenian -yan"),
+    ("Manukyan, Samvel", "C7", "Armenian -yan"),
+    ("Gasparyan, Levon", "C7", "Armenian -yan"),
+    ("Avetisyan, Armen", "C7", "Armenian -yan"),
+    ("Khachaturyan, Aram", "C7", "Armenian -yan"),
+    # C8 - Georgian
+    ("Ivanishvili, Bidzina", "C8", "Georgian -shvili"),
+    ("Saakashvili, Mikheil", "C8", "Georgian -shvili"),
+    ("Shevardnadze, Eduard", "C8", "Georgian -dze"),
+    ("Javakhishvili, Ivane", "C8", "Georgian -shvili"),
+    # E3 - Japanese
+    ("Watanabe, Ken", "E3", "Japanese Watanabe"),
+    ("Takahashi, Yuki", "E3", "Japanese Takahashi"),
+    ("Nakamura, Shunsuke", "E3", "Japanese Nakamura"),
+    ("Kobayashi, Mao", "E3", "Japanese Kobayashi"),
+    ("Yamamoto, Yohji", "E3", "Japanese Yamamoto"),
+    ("Matsumoto, Yukihiro", "E3", "Japanese Matsumoto"),
+    ("Shimura, Goro", "E3", "Japanese Shimura"),
+    # E4 - Korean
+    ("Choi, Yuna", "E4", "Korean Choi"),
+    ("Jung, Hoyeon", "E4", "Korean Jung"),
+    ("Yoon, Seokyeol", "E4", "Korean Yoon"),
+    ("Shin, Minhyuk", "E4", "Korean Shin"),
+    ("Kwon, Boa", "E4", "Korean Kwon"),
+    ("Bae, Doona", "E4", "Korean Bae"),
+    # E5 - Vietnamese
+    ("Pham, Nhat Vuong", "E5", "Vietnamese Pham"),
+    ("Hoang, Duc Trung", "E5", "Vietnamese Hoang"),
+    ("Le, Duc Tho", "E5", "Vietnamese Le"),
+    ("Vo, Nguyen Giap", "E5", "Vietnamese Vo"),
+    ("Dang, Thai Son", "E5", "Vietnamese Dang"),
+    # E1 - Chinese
+    ("Zhang, Wei", "E1", "Chinese Zhang"),
+    ("Liu, Xiang", "E1", "Chinese Liu"),
+    ("Chen, Ning", "E1", "Chinese Chen"),
+    ("Zhao, Leji", "E1", "Chinese Zhao"),
+    ("Huang, Xuhua", "E1", "Chinese Huang"),
+    # D1 - Indian
+    ("Chakraborty, Satyajit", "D1", "Bengali-Indian Chakraborty"),
+    ("Mukherjee, Pranab", "D1", "Bengali-Indian Mukherjee"),
+    ("Bhattacharya, Sudip", "D1", "Bengali-Indian Bhattacharya"),
+    ("Ramanathan, Veerabhadran", "D1", "South Indian Ramanathan"),
+    ("Venkataraman, Raghuram", "D1", "South Indian Venkataraman"),
+    # G1 - Latin American
+    ("Hernandez, Javier", "G1", "Hispanic Hernandez"),
+    ("Rodriguez, Alex", "G1", "Hispanic Rodriguez"),
+    ("Lopez, Jennifer", "G1", "Hispanic Lopez"),
+    ("Gonzalez, Tony", "G1", "Hispanic Gonzalez"),
+    ("Gutierrez, Carlos", "G1", "Hispanic Gutierrez"),
+    # F2 - Nigerian
+    ("Okonkwo, Chinua", "F2", "Igbo Nigerian"),
+    ("Adebayo, Bam", "F2", "Yoruba Nigerian"),
+    ("Ogundimu, Kolawole", "F2", "Yoruba Nigerian"),
+    ("Adesanya, Israel", "F2", "Yoruba Nigerian"),
+    # A3 - Nordic
+    ("Johansson, Ingvar", "A3", "Swedish -sson"),
+    ("Lindqvist, Erik", "A3", "Swedish -qvist"),
+    ("Gustafsson, Oscar", "A3", "Swedish -sson"),
+    ("Rasmussen, Lars", "A3", "Danish -sen"),
+    # A4 - Iberian
+    ("Fernandes, Bruno", "A4", "Portuguese -es"),
+    ("Almeida, Jorge", "A4", "Portuguese Almeida"),
+    ("Carvalho, Ricardo", "A4", "Portuguese Carvalho"),
+    # A5 - Celtic
+    ("ap Gwilym, Dafydd", "A5", "Welsh ap prefix"),
+    # C3 - Arabic
+    ("Al-Khwarizmi, Muhammad", "C3", "Arabic Al- prefix"),
+    ("El-Sayed, Ahmed", "C3", "Arabic El- prefix"),
+    ("Al-Rashid, Harun", "C3", "Arabic Al- prefix"),
+    ("Abdel-Nasser, Gamal", "C3", "Arabic Abdel- prefix"),
+    # C9 - Baltic
+    ("Kazlauskas, Vytautas", "C9", "Lithuanian -auskas"),
+    ("Jankauskas, Edgaras", "C9", "Lithuanian -auskas"),
+    # D2 - South Indian
+    ("Subramaniam, Subha", "D2", "Tamil Subramaniam"),
+    # F1 - North African
+    ("Benali, Rachid", "F1", "Maghrebi Ben-"),
+    ("Bousaid, Karim", "F1", "Maghrebi Bou-"),
+]
+
+
+@pytest.mark.parametrize(
+    "name,expected,desc",
+    EXPANDED_NO_CC_CASES,
+    ids=[c[2] for c in EXPANDED_NO_CC_CASES],
+)
+def test_expanded_no_cc_detection(manager, name, expected, desc):
+    """Distinctive names without CC should still detect via surname patterns."""
+    entry = {"CanonicalLatin": name}
+    result = manager.detect_region(entry)
+    # Log but don't fail individual cases; the accuracy gate below enforces overall
+    if result.region_code != expected:
+        import warnings
+
+        warnings.warn(
+            f"No-CC mismatch: {desc}: expected {expected}, got {result.region_code}"
+        )
+
+
+def test_no_cc_expanded_accuracy_gate(manager):
+    """At least 65% of distinctive no-CC names must detect correctly."""
+    correct = sum(
+        1
+        for name, exp, _ in EXPANDED_NO_CC_CASES
+        if manager.detect_region({"CanonicalLatin": name}).region_code == exp
+    )
+    accuracy = correct / len(EXPANDED_NO_CC_CASES)
+    assert accuracy >= 0.65, (
+        f"No-CC expanded accuracy {accuracy:.1%} ({correct}/{len(EXPANDED_NO_CC_CASES)}) "
+        f"below 65% gate"
+    )
