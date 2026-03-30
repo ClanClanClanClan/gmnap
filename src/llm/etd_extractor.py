@@ -8,6 +8,37 @@ except Exception:
     pdfplumber = None
 
 
+import hashlib
+
+ETD_SCHEMA = {
+    "type": "object",
+    "required": ["title", "authors", "degree_date"],
+    "properties": {
+        "title": {"type": "string"},
+        "authors": {"type": "array", "items": {"type": "string"}},
+        "advisors": {"type": "array", "items": {"type": "string"}},
+        "degree_date": {"type": "string"},
+        "degree": {"type": "string"},
+        "institution": {"type": "string"},
+        "language": {"type": "string"},
+    },
+}
+
+_cache: Dict[str, Dict] = {}
+
+
+def _cache_key(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8", errors="replace")).hexdigest()[:16]
+
+
+def _cache_get(key: str) -> Dict | None:
+    return _cache.get(key)
+
+
+def _cache_set(key: str, value: Dict) -> None:
+    _cache[key] = value
+
+
 class CostMeter:
     def __init__(self, monthly_cap_chf: float = 40.0):
         self.cap = monthly_cap_chf

@@ -3089,9 +3089,7 @@ class RegionManager:
         """
         # SECURITY: Validate and sanitize entry before processing
         try:
-            sanitized_entry = self._security_validator.validate_entry(
-                entry, context="region_detection"
-            )
+            sanitized_entry = self._security_validator.validate_entry(entry)
         except SecurityError as e:
             # Return safe error result without exposing attack details
             logger.warning(f"Security validation failed: {e}")

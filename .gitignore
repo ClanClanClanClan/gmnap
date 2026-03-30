@@ -1,147 +1,127 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Virtual Environment
-venv/
-ENV/
-env/
-.venv/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Testing
-.tox/
-.coverage
-.coverage.*
-.cache
-.pytest_cache/
-htmlcov/
-.hypothesis/
-
-# Project specific
-cache/
 !cache/.gitkeep
-data/results/
-*.log
-*.bak
-*_backup*
-*_old*
-backup_before_cleanup*.tar.gz
-cleanup_report*.json
-cleanup_execution.log
-
-# Temporary files
-*.tmp
-temp/
-tmp/
-
+# Analysis and debug scripts (organized under scripts/)
 # Archive files (except in archive directory)
-/*.tar.gz
-/*.zip
-
-# Local configuration
-.env
-.env.local
-config/local/
-
-# Documentation builds
-docs/_build/
-docs/historical/*.tar.gz
-
-# Model files
-*.pkl
-*.h5
-*.model
-*.ftz
-
+# Audit result files (keep in docs/audits instead)
+# Cleanup folders
 # Database files
+# Documentation builds
+# IDE
+# Local configuration
+# Model files
+# Monitoring
+# Organized directory patterns - keep clean root
+# Output and logs directories
+# Performance test files (organized under data/test_results/)
+# Project specific
+# Python
+# Report files (organized under docs/reports/)
+# Temporary files
+# Test outputs (organized under data/)
+# Testing
+# Virtual Environment
+*$py.class
+*.bak
 *.db
+*.egg
+*.egg-info/
+*.ftz
+*.h5
+*.log
+*.model
+*.out
+*.pkl
+*.py[cod]
+*.pyc
+*.so
 *.sqlite
 *.sqlite3
-
-# Monitoring
-prometheus_data/
-grafana_data/
-
-# Output and logs directories
-output/
-logs/
-*.out
-
-# Audit result files (keep in docs/audits instead)
-/ULTRATHINK_*.md
+*.swo
+*.swp
+*.tmp
+*_backup*
+*_old*
+*conflicted copy*
+*~
+.DS_Store
+.Python
+.cache
+.cleanup_*/
+.coverage
+.coverage.*
+.eggs/
+.env
+.env.local
+.hypothesis/
+.idea/
+.installed.cfg
+.pytest_cache/
+.tox/
+.venv/
+.vscode/
+/*.tar.gz
+/*.zip
+/*_ANALYSIS*.md
+/*_REPORT*.md
+/*_SUMMARY*.md
+/*_audit_results*.json
+/*_batch_results*.json
+/*_test_results*.json
+/1m_*.json
+/BATCH_*.md
+/PERFORMANCE_*.md
 /ULTRATHINK_*.json
+/ULTRATHINK_*.md
+/analyze_*.py
+/audit_*.json
+/batch_*.json
+/batch_*.py
+/benchmark_*.py
+/comprehensive_*.json
+/comprehensive_*.py
+/debug_*.py
+/diagnose_*.py
+/fix_*.py
+/performance_*.py
+/quick_*.json
+/simple_*.json
+/test_*.py
+/test_outputs/
+/test_results/
+/tools/charts/
+/tools/logs/
+/tools/monitoring/
+/tools/output/
 /ultrathink_*.json
 /v7_reality_audit_*.json
-
-# Test outputs (organized under data/)
-/test_results/
-/test_outputs/
-/*_test_results*.json
-/*_batch_results*.json
-/*_audit_results*.json
-/batch_*.json
-/audit_*.json
-
-# Performance test files (organized under data/test_results/)
-/1m_*.json
-/comprehensive_*.json
-/simple_*.json
-/quick_*.json
-
-# Analysis and debug scripts (organized under scripts/)
-/analyze_*.py
-/debug_*.py
-/fix_*.py
-/test_*.py
-/benchmark_*.py
-/comprehensive_*.py
-/batch_*.py
-/performance_*.py
-/diagnose_*.py
-
-# Report files (organized under docs/reports/)
-/*_REPORT*.md
-/*_ANALYSIS*.md
-/*_SUMMARY*.md
-/PERFORMANCE_*.md
-/BATCH_*.md
-
-# Cleanup folders
-.cleanup_*/
-
-# Organized directory patterns - keep clean root
-/tools/logs/
-/tools/output/
-/tools/charts/
-/tools/monitoring/
+ENV/
+__pycache__/
+backup_before_cleanup*.tar.gz
+build/
+cache/
+cleanup_execution.log
+cleanup_report*.json
 config/authority_api_keys.yaml
-__pycache__/
-*.pyc
-__pycache__/
-*.pyc
+config/local/
+data/results/
+develop-eggs/
+dist/
+docs/_build/
+docs/historical/*.tar.gz
+downloads/
+eggs/
+env/
+grafana_data/
+htmlcov/
+lib/
+lib64/
+logs/
+output/
+parts/
+prometheus_data/
+sdist/
+temp/
+tmp/
+var/
+venv/
+wheels/
