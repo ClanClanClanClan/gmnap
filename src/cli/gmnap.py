@@ -27,9 +27,7 @@ def cli():
     default="quick",
     type=click.Choice(["quick", "full", "extreme"]),
 )
-@click.option(
-    "--json-output", "as_json", is_flag=True, help="Output raw JSON"
-)
+@click.option("--json-output", "as_json", is_flag=True, help="Output raw JSON")
 def query(name: str, mode: str, as_json: bool):
     """Query a mathematician name for region detection and processing."""
     if not name or not name.strip():
@@ -88,9 +86,7 @@ def query(name: str, mode: str, as_json: bool):
 
 
 @cli.command()
-@click.option(
-    "--id", "gid", required=True, help="GlobalID of the mathematician"
-)
+@click.option("--id", "gid", required=True, help="GlobalID of the mathematician")
 @click.option("--depth", default=3, type=int, help="Traversal depth")
 @click.option(
     "--format",
@@ -108,11 +104,7 @@ def lineage(gid: str, depth: int, fmt: str):
         sys.exit(1)
 
     if fmt == "json":
-        click.echo(
-            json.dumps(
-                {"root": gid, "depth": depth, "edges": edges}, indent=2
-            )
-        )
+        click.echo(json.dumps({"root": gid, "depth": depth, "edges": edges}, indent=2))
     elif fmt == "dot":
         click.echo(_edges_to_dot(gid, edges))
     elif fmt == "svg":
@@ -160,8 +152,7 @@ def lineage(gid: str, depth: int, fmt: str):
 @click.option(
     "--force-extreme",
     is_flag=True,
-    help="Enable tier-3 sources (GoogleScholar). "
-    "Requires YES_I_ACCEPT_GS_TOS=yes",
+    help="Enable tier-3 sources (GoogleScholar). " "Requires YES_I_ACCEPT_GS_TOS=yes",
 )
 def process(
     input_file: str,
@@ -194,9 +185,7 @@ def process(
     # Validate output path: must be relative, no traversal
     out_path = Path(output)
     if out_path.is_absolute():
-        click.echo(
-            "Error: output path must be relative, not absolute", err=True
-        )
+        click.echo("Error: output path must be relative, not absolute", err=True)
         sys.exit(1)
     try:
         resolved = (Path.cwd() / out_path).resolve()
@@ -272,9 +261,7 @@ def regions():
     type=click.IntRange(0, 2),
     help="Schema strict mode: 0=advisory, 1=quarantine, 2=reject",
 )
-@click.option(
-    "--json-output", "as_json", is_flag=True, help="Output raw JSON"
-)
+@click.option("--json-output", "as_json", is_flag=True, help="Output raw JSON")
 def validate(input_file: str, schema_strict: int, as_json: bool):
     """Validate an input file against the GMNAP v2.0 schema."""
     import os
@@ -341,9 +328,7 @@ def serve(host: str, port: int, workers: int):
     try:
         import uvicorn
     except ImportError:
-        click.echo(
-            "uvicorn required. Install with: pip install uvicorn", err=True
-        )
+        click.echo("uvicorn required. Install with: pip install uvicorn", err=True)
         sys.exit(1)
 
     click.echo(f"Starting GMNAP V7 API on {host}:{port}...")
@@ -384,8 +369,7 @@ def _load_input(path: str) -> list:
             chunk = fh.read(8192)
             if b"\x00" in chunk:
                 click.echo(
-                    "Error: binary file detected, "
-                    "expected JSON or YAML text",
+                    "Error: binary file detected, " "expected JSON or YAML text",
                     err=True,
                 )
                 return []
@@ -437,9 +421,7 @@ async def _run_pipeline(entries: list, mode: str, output_dir: str):
     pipeline = V7Pipeline(mode=mode_map[mode])
     result = await pipeline.process_batch(entries)
     entry_count = (
-        len(result.get("entries", []))
-        if isinstance(result, dict)
-        else len(result)
+        len(result.get("entries", [])) if isinstance(result, dict) else len(result)
     )
     passed = (
         result.get("quality_gates", {}).get("passed", "N/A")
@@ -490,9 +472,7 @@ def _traverse_local(
                         "relation": "doctoralAdvisor",
                     }
                     edges.append(edge)
-                    _traverse_local(
-                        adv, depth - 1, out_dir, edges, visited
-                    )
+                    _traverse_local(adv, depth - 1, out_dir, edges, visited)
         except Exception:
             continue
 
@@ -506,8 +486,7 @@ def _edges_to_dot(root: str, edges: list) -> str:
     ]
     for e in edges:
         lines.append(
-            f'  "{e["from"]}" -> "{e["to"]}" '
-            f'[label="{e.get("relation", "")}"];'
+            f'  "{e["from"]}" -> "{e["to"]}" ' f'[label="{e.get("relation", "")}"];'
         )
     lines.append("}")
     return "\n".join(lines)
