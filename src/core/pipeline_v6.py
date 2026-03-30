@@ -593,7 +593,7 @@ class GMNAPPipeline:
                             )
                             if cached_data:
                                 break
-                        except:
+                        except Exception:
                             continue
 
                 if cached_data:

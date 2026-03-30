@@ -16,7 +16,7 @@ for row in csv.reader(open("resources/rr_syllable_map.csv")):
     try:
         w = float(w)
         row[2] = f"{w:.4f}"
-    except:
+    except Exception:
         continue
     if key not in best or w < float(best[key][2]):  # Keep most negative (best) weight
         best[key] = row

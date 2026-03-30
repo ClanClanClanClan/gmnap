@@ -421,7 +421,7 @@ class CacheManager:
                 else:
                     original_size = compressed_size
                     compression_ratio = 1.0
-            except:
+            except Exception:
                 original_size = compressed_size
                 compression_ratio = 1.0
 

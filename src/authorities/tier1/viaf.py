@@ -196,7 +196,7 @@ class VIAFFetcher(AuthorityFetcher):
             main_headings = data.get("mainHeadings", {}).get("data", [])
             if main_headings:
                 return main_headings[0].get("text", "")
-        except:
+        except Exception:
             pass
         return ""
 
@@ -219,7 +219,7 @@ class VIAFFetcher(AuthorityFetcher):
                             name_parts.append(subfield.get("text", ""))
                     if name_parts:
                         variants.append(" ".join(name_parts))
-        except:
+        except Exception:
             pass
         return list(set(variants))
 
@@ -229,7 +229,7 @@ class VIAFFetcher(AuthorityFetcher):
             date_str = data.get(field, "")
             if date_str and len(date_str) >= 4:
                 return int(date_str[:4])
-        except:
+        except Exception:
             pass
         return None
 
@@ -246,7 +246,7 @@ class VIAFFetcher(AuthorityFetcher):
                     sid = source.get("sid", "")
                     if code and sid:
                         ids[code] = sid
-        except:
+        except Exception:
             pass
         return ids
 
@@ -260,6 +260,6 @@ class VIAFFetcher(AuthorityFetcher):
             for source in source_list:
                 if isinstance(source, dict) and "code" in source:
                     sources.append(source["code"])
-        except:
+        except Exception:
             pass
         return sources

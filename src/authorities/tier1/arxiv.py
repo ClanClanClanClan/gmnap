@@ -172,7 +172,7 @@ class ArXivFetcher(AuthorityFetcher):
                         )
                         years.append(pub_date.year)
                         paper["year"] = pub_date.year
-                    except:
+                    except Exception:
                         pass
 
                 # Authors (to find coauthors)

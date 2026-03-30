@@ -219,14 +219,14 @@ class WikidataP184Fetcher:
                             authority_data.birth_year = int(
                                 float(binding["birthYear"]["value"])
                             )
-                        except:
+                        except Exception:
                             pass
                     if "deathYear" in binding:
                         try:
                             authority_data.death_year = int(
                                 float(binding["deathYear"]["value"])
                             )
-                        except:
+                        except Exception:
                             pass
 
                     # Identifiers

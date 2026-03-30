@@ -1553,7 +1553,7 @@ class V7Pipeline:
             if self._genealogy_enricher and hasattr(self._genealogy_enricher, "close"):
                 try:
                     self._genealogy_enricher.close()
-                except:
+                except Exception:
                     pass
 
         return entries

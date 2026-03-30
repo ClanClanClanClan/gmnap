@@ -180,5 +180,6 @@
   "security/test_security_auth.py::TestSecurityEdgeCases::test_timing_attack_resistance": true,
   "unit/regions/test_region_e4.py::TestRegionE4::test_detection_romanized_korean": true,
   "unit/regions/test_region_e4.py::TestRegionE4::test_detection_ambiguous_cases": true,
-  "unit/test_debug_output.py::test_debug_output": true
+  "unit/test_debug_output.py::test_debug_output": true,
+  "unit/test_authority_manager.py": true
 }

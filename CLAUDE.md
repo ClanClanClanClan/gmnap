@@ -1,5 +1,5 @@
 # GMNAP v7 Current Development Status
-*Last Updated: 2026-03-25*
+*Last Updated: 2026-03-30*
 
 ## 🎯 System State (Honest Assessment)
 
@@ -12,10 +12,10 @@
 **Authority Enrichment**: 9 of 14 sources with real HTTP calls; 2 gated behind API keys; 3 deferred. DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms.
 **Region Config**: 37/37 YAML config files auto-loaded via lazy `ensure_yaml_loaded()` in base class
 **API Server**: FastAPI server with `/healthz`, `/readyz`, `/api/v1/query`, `/api/v1/lineage`, `/api/v1/process`, `/metrics`
-**CLI**: `query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve`
+**CLI**: `query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve` — fully implemented with input validation (100 MB size limit, binary detection, path traversal blocking)
 **Diaspora Detection**: Implemented — uses `config/diaspora.yaml` date ranges
 **Region Overlay Map**: Spec §2a wired — sub-national overrides (CH-FR, IN-HN, etc.)
-**Testing**: 718+ tests (unit + integration + API + GDPR + region + batch + retry + stage isolation)
+**Testing**: 730+ tests (unit + integration + API + GDPR + region + batch + retry + stage isolation + CLI hardening + web interface + nginx)
 **Test Fixtures**: 1,500 entries across all 37 regions
 
 ---
@@ -120,7 +120,7 @@ Live enrichment (OFFLINE=0) will be slower due to API rate limits.
 
 ## 📊 Testing
 
-- **718+ tests passing** (unit + integration + API + GDPR + retry + batch + stage isolation)
+- **730+ tests passing** (unit + integration + API + GDPR + retry + batch + stage isolation + CLI hardening + web interface + nginx)
 - **1,500 test fixtures** across all 37 regions
 - SEA roundtrip: Thai RTGS, Khmer UNGEGN, Lao MOICT 2019
 - Snapshot rollback: git revert coherence validated
