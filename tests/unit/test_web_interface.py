@@ -200,8 +200,9 @@ def test_js_no_console_log(js):
 def test_static_index_served():
     """Static index page should be served by FastAPI."""
     try:
-        from src.api.server import create_app
         from fastapi.testclient import TestClient
+
+        from src.api.server import create_app
 
         app = create_app()
         client = TestClient(app)
@@ -221,8 +222,9 @@ def test_static_index_served():
 def test_api_and_static_coexist():
     """API endpoints and static files should both work."""
     try:
-        from src.api.server import create_app
         from fastapi.testclient import TestClient
+
+        from src.api.server import create_app
 
         app = create_app()
         client = TestClient(app)
