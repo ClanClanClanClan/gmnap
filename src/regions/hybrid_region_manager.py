@@ -92,9 +92,7 @@ class HybridRegionManager:
         # Security validation (if enabled)
         if self.use_security:
             try:
-                sanitized_entry = self.security_validator.validate_entry(
-                    entry
-                )
+                sanitized_entry = self.security_validator.validate_entry(entry)
                 entry = sanitized_entry
             except (SecurityError, AttributeError) as e:
                 # Return safe error result without exposing attack details

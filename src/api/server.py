@@ -426,7 +426,16 @@ def create_app() -> FastAPI:
             report = await pipeline.process_batch(req.entries)
             elapsed = time.time() - start_t
 
-            entries = report.get("entries", [])
+            # Pipeline may return dict (with "entries" key) or list directly
+            if isinstance(report, dict):
+                entries = report.get("entries", [])
+                quality_gates = report.get("quality_gates", {})
+                metrics = report.get("metrics", {})
+            else:
+                entries = report if isinstance(report, list) else []
+                quality_gates = {}
+                metrics = {}
+
             if PROM_AVAILABLE:
                 PIPELINE_RUNS.labels(mode=req.mode).inc()
                 ENTRIES_PROCESSED.inc(len(entries))
@@ -441,8 +450,8 @@ def create_app() -> FastAPI:
                 "processed": len(entries),
                 "mode": req.mode,
                 "schema_strict": req.schema_strict,
-                "quality_gates": report.get("quality_gates", {}),
-                "metrics": report.get("metrics", {}),
+                "quality_gates": quality_gates,
+                "metrics": metrics,
                 "entries": page,
                 "offset": offset,
                 "limit": limit,
