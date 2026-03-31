@@ -61,13 +61,13 @@ jobs:
           echo '{}' > cache/api_costs.json
 
       - name: Unit tests
-        run: pytest tests/unit/ -v --tb=short --timeout=120 --ignore-glob="*debug*" --ignore-glob="*hell*" --ignore-glob="*ultra*" -p no:cacheprovider || true
+        run: pytest tests/unit/ -v --tb=short --timeout=120 --ignore-glob="*debug*" --ignore-glob="*hell*" --ignore-glob="*ultra*" -p no:cacheprovider
 
       - name: Property tests
-        run: pytest tests/property/ -v --tb=short --timeout=120 -p no:cacheprovider || true
+        run: pytest tests/property/ -v --tb=short --timeout=120 -p no:cacheprovider
 
       - name: Integration tests
-        run: pytest tests/integration/ -v --tb=short --timeout=120 --ignore-glob="*paranoid*" --ignore-glob="*hell*" --ignore-glob="*ultra*" --ignore-glob="*debug*" --ignore-glob="*comprehensive*" -p no:cacheprovider || true
+        run: pytest tests/integration/ -v --tb=short --timeout=120 --ignore-glob="*paranoid*" --ignore-glob="*hell*" --ignore-glob="*ultra*" --ignore-glob="*debug*" --ignore-glob="*comprehensive*" -p no:cacheprovider
 
       - name: Hardcore tests
         run: pytest tests/hardcore/ -v --tb=short --timeout=300 -p no:cacheprovider
