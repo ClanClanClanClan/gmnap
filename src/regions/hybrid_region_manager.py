@@ -93,7 +93,7 @@ class HybridRegionManager:
         if self.use_security:
             try:
                 sanitized_entry = self.security_validator.validate_entry(
-                    entry, context="region_detection"
+                    entry
                 )
                 entry = sanitized_entry
             except (SecurityError, AttributeError) as e:

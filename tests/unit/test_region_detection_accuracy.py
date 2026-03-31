@@ -2835,3 +2835,77 @@ def test_no_duplicate_entries():
     assert (
         len(duplicates) < 80
     ), f"Found {len(duplicates)} duplicate names: {duplicates[:10]}"
+
+
+# ---------------------------------------------------------------------------
+# Pipeline manager verification — tests the ACTUAL manager used in production
+# ---------------------------------------------------------------------------
+
+
+def test_hybrid_manager_matches_region_manager():
+    """HybridRegionManager (used by pipeline) must agree with RegionManager."""
+    import sys
+
+    sys.path.insert(0, ".")
+    try:
+        from src.regions.hybrid_region_manager import HybridRegionManager
+        from src.regions.manager_optimized import RegionManager
+    except ImportError:
+        pytest.skip("Cannot import both managers")
+
+    rm = RegionManager()
+    hm = HybridRegionManager()
+
+    # Test 20 names with CC — both managers must return same region
+    test_names = [
+        ("Euler, Leonhard", ["CH"]),
+        ("Kim, Minhyong", ["KR"]),
+        ("Ivanov, Sergei", ["RU"]),
+        ("Tanaka, Hiroshi", ["JP"]),
+        ("Smith, John", ["US"]),
+        ("Müller, Hans", ["DE"]),
+        ("Nguyen, Van Anh", ["VN"]),
+        ("Papadopoulos, Nikos", ["GR"]),
+        ("Petrosyan, Tigran", ["AM"]),
+        ("Ivanishvili, Bidzina", ["GE"]),
+        ("O'Brien, Conan", ["IE"]),
+        ("Garcia, Carlos", ["MX"]),
+        ("Cohen, David", ["IL"]),
+        ("Diallo, Mamadou", ["SN"]),
+        ("Okafor, Chukwu", ["NG"]),
+        ("Khan, Imran", ["PK"]),
+        ("Patel, Amit", ["IN"]),
+        ("Wang, Wei", ["CN"]),
+        ("Johansson, Sven", ["SE"]),
+        ("Kowalski, Piotr", ["PL"]),
+    ]
+    mismatches = []
+    for name, cc in test_names:
+        entry = {"CanonicalLatin": name, "CountryCodes": cc}
+        r_rm = rm.detect_region(entry)
+        r_hm = hm.detect_region(entry)
+        if r_rm.region_code != r_hm.region_code:
+            mismatches.append(
+                f"{name}(CC={cc[0]}): RM={r_rm.region_code} HM={r_hm.region_code}"
+            )
+
+    assert (
+        len(mismatches) == 0
+    ), f"Managers disagree on {len(mismatches)} entries:\n" + "\n".join(mismatches)
+
+
+def test_hybrid_manager_security_validation():
+    """HybridRegionManager must not crash on security validation."""
+    import sys
+
+    sys.path.insert(0, ".")
+    try:
+        from src.regions.hybrid_region_manager import HybridRegionManager
+    except ImportError:
+        pytest.skip("Cannot import HybridRegionManager")
+
+    hm = HybridRegionManager()
+    # Normal entry
+    r = hm.detect_region({"CanonicalLatin": "Smith, John", "CountryCodes": ["US"]})
+    assert r.region_code is not None
+    assert r.confidence > 0
