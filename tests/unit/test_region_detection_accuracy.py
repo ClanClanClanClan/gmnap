@@ -2196,7 +2196,9 @@ ALGORITHM_TEST_CASES = [
     ("McDonald, Ronald", "A1", "Scottish Mc prefix"),
     ("FitzPatrick, Sean", "A1", "Anglo-Norman Fitz prefix"),
     pytest.param(
-        "Worthington, Sam", "A1", "Anglo -ington suffix",
+        "Worthington, Sam",
+        "A1",
+        "Anglo -ington suffix",
         marks=pytest.mark.xfail(reason="-ington competes with E6 pattern"),
     ),
     ("Harrington, Edward", "A1", "Anglo -ington suffix"),
@@ -2360,7 +2362,11 @@ ALGORITHM_TEST_CASES = [
     ("Darbinyan, Arshak", "C7", "Armenian -yan"),
     ("Babayan, Sergey", "C7", "Armenian -yan"),
     # C8 - Georgian (-dze/-shvili are VERY distinctive)
-    ("Ivanishvili, Bidzina", "C8", "Georgian -shvili (ivan prefix no longer overrides)"),
+    (
+        "Ivanishvili, Bidzina",
+        "C8",
+        "Georgian -shvili (ivan prefix no longer overrides)",
+    ),
     ("Saakashvili, Mikheil", "C8", "Georgian -shvili"),
     ("Shevardnadze, Eduard", "C8", "Georgian -dze"),
     ("Zhvania, Zurab", "C8", "Georgian surname"),

@@ -70,13 +70,13 @@ _STRONG = {
         "surname_suffix": {
             "ington",  # Worthington, Wellington, Paddington
             "ingham",  # Buckingham, Cunningham, Birmingham
-            "onald",   # McDonald, MacDonald, Ronald
+            "onald",  # McDonald, MacDonald, Ronald
         },
         "surname_prefix": {  # Handled specially below
-            "o'",      # O'Brien, O'Sullivan, O'Malley
-            "mc",      # McGregor, McCartney, McDonald
-            "mac",     # MacDonald, MacLeod, MacArthur
-            "fitz",    # FitzGerald, FitzPatrick
+            "o'",  # O'Brien, O'Sullivan, O'Malley
+            "mc",  # McGregor, McCartney, McDonald
+            "mac",  # MacDonald, MacLeod, MacArthur
+            "fitz",  # FitzGerald, FitzPatrick
         },
         "surnames": {
             "smith",
@@ -2289,9 +2289,7 @@ def _score_priority_rules(
 
         # Strong: given name fragment (prefix/fragment, not substring anywhere)
         # ONLY match in non-surname tokens to prevent "ivanishvili" matching "ivan"
-        given_check_tokens = [
-            tok for tok in tokens if tok not in surname_candidates
-        ]
+        given_check_tokens = [tok for tok in tokens if tok not in surname_candidates]
         if not given_check_tokens:
             # Single-token names: skip given name matching entirely
             given_check_tokens = []
