@@ -42,8 +42,8 @@ from .base import REGION_CODES, RegionSpec, get_region_for_territory
 
 # Token extraction and word-boundary utilities for systematic pattern matching
 _WORD = re.compile(
-    r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?:-[A-Za-zÀ-ÖØ-öø-ÿ]+)?"
-)  # token incl. hyphenated
+    r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?:['-][A-Za-zÀ-ÖØ-öø-ÿ]+)*"
+)  # token incl. hyphenated (jae-in) and apostrophe (o'brien, o'sullivan)
 
 
 def _latin_tokens(name: str) -> list[str]:
@@ -67,6 +67,17 @@ def _wb(pattern: str) -> re.Pattern:
 _STRONG = {
     # ========== A GROUP: WESTERN/ANGLOPHONE ==========
     "A1": {  # Anglo-Sphere (USA, UK, Canada, Australia, New Zealand - core English)
+        "surname_suffix": {
+            "ington",  # Worthington, Wellington, Paddington
+            "ingham",  # Buckingham, Cunningham, Birmingham
+            "onald",   # McDonald, MacDonald, Ronald
+        },
+        "surname_prefix": {  # Handled specially below
+            "o'",      # O'Brien, O'Sullivan, O'Malley
+            "mc",      # McGregor, McCartney, McDonald
+            "mac",     # MacDonald, MacLeod, MacArthur
+            "fitz",    # FitzGerald, FitzPatrick
+        },
         "surnames": {
             "smith",
             "johnson",
@@ -2214,13 +2225,23 @@ def _score_priority_rules(
     # Build set of ALL known given name fragments across all regions
     # Used to prevent matching given names as surnames
     all_given_frags = set()
+    all_surname_suffixes = set()
     for region_patterns in _STRONG.values():
         all_given_frags.update(region_patterns.get("given_frag", set()))
+        all_surname_suffixes.update(region_patterns.get("surname_suffix", set()))
 
     # Helper: Check if token should be filtered as a given name
     # Only filter if: (1) exact match, OR (2) starts with long (4+) fragment
-    # This prevents short fragments like "san" from filtering "sanchez"
+    # BUT: never filter if token ends with a known surname suffix
+    # (prevents "ivanishvili" being classified as given name due to "ivan" prefix
+    #  when it actually ends with Georgian "-shvili" suffix)
     def is_given_name(tok):
+        # If token matches a LONG surname suffix (4+ chars), it's likely a surname
+        # Short suffixes like -is, -ov, -in are too common to override given name status
+        # (prevents "luis" being kept as surname due to Greek -is suffix)
+        for suf in all_surname_suffixes:
+            if tok.endswith(suf) and len(suf) >= 4 and len(tok) > len(suf) + 1:
+                return False
         for g in all_given_frags:
             if tok == g:  # Exact match
                 return True
@@ -2267,12 +2288,17 @@ def _score_priority_rules(
                 reasons[r].append(f"STRONG_SURNAME:{s}:{w:.2f}")
 
         # Strong: given name fragment (prefix/fragment, not substring anywhere)
-        # But don't match if the token is also a known surname (prevents "Ibrahimov" matching "ibrahim")
+        # ONLY match in non-surname tokens to prevent "ivanishvili" matching "ivan"
+        given_check_tokens = [
+            tok for tok in tokens if tok not in surname_candidates
+        ]
+        if not given_check_tokens:
+            # Single-token names: skip given name matching entirely
+            given_check_tokens = []
         for g in strong.get("given_frag", set()):
-            # Only count tokens that aren't already exact surname matches
             matched_tokens = [
                 tok
-                for tok in tokens
+                for tok in given_check_tokens
                 if tok.startswith(g) and tok not in strong.get("surnames", set())
             ]
             if matched_tokens:
@@ -2285,13 +2311,21 @@ def _score_priority_rules(
             reasons[r].append("STRONG_HYPHEN_GIVEN:2.50")
 
         # Strong: suffix patterns (Persian/Japanese/Slavic/Nordic/etc.)
+        # ONLY check surname candidates, not given names
+        # (prevents "luis" matching Greek -is suffix)
         for suf in strong.get("surname_suffix", set()):
-            if any(tok.endswith(suf) for tok in tokens):
+            if any(tok.endswith(suf) for tok in surname_candidates):
                 w = 2.5
                 if suf == "ian":
                     w = 1.5  # ambiguous with Armenian
                 scores[r] += w
                 reasons[r].append(f"STRONG_SURNAME_SUFFIX:{suf}:{w:.2f}")
+
+        # Strong: prefix patterns (Irish O', Scottish Mac/Mc, Anglo-Norman Fitz)
+        for pfx in strong.get("surname_prefix", set()):
+            if any(tok.startswith(pfx) for tok in surname_candidates):
+                scores[r] += 3.0
+                reasons[r].append(f"STRONG_SURNAME_PREFIX:{pfx}:3.00")
 
         for suf in strong.get("given_suffix", set()):
             if any(tok.endswith(suf) for tok in tokens):

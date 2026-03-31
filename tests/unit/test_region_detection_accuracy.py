@@ -2190,58 +2190,21 @@ def test_no_cc_expanded_accuracy_gate(manager):
 
 ALGORITHM_TEST_CASES = [
     # A1 - Anglo (Irish/Scottish prefixes are very distinctive)
-    pytest.param(
-        "O'Malley, Grace",
-        "A1",
-        "Irish O' prefix",
-        marks=pytest.mark.xfail(reason="O' prefix not caught without CC"),
-    ),
+    ("O'Malley, Grace", "A1", "Irish O' prefix"),
     ("O'Connell, Daniel", "A1", "Irish O' prefix"),
-    pytest.param(
-        "MacLeod, Angus",
-        "A1",
-        "Scottish Mac prefix",
-        marks=pytest.mark.xfail(reason="Mac prefix not caught without CC"),
-    ),
+    ("MacLeod, Angus", "A1", "Scottish Mac prefix"),
     ("McDonald, Ronald", "A1", "Scottish Mc prefix"),
+    ("FitzPatrick, Sean", "A1", "Anglo-Norman Fitz prefix"),
     pytest.param(
-        "FitzPatrick, Sean",
-        "A1",
-        "Anglo-Norman Fitz",
-        marks=pytest.mark.xfail(reason="Fitz prefix not caught without CC"),
-    ),
-    pytest.param(
-        "Worthington, Sam",
-        "A1",
-        "Anglo -ington suffix",
-        marks=pytest.mark.xfail(reason="-ington suffix not a detection rule"),
+        "Worthington, Sam", "A1", "Anglo -ington suffix",
+        marks=pytest.mark.xfail(reason="-ington competes with E6 pattern"),
     ),
     ("Harrington, Edward", "A1", "Anglo -ington suffix"),
-    pytest.param(
-        "Cunningham, Merce",
-        "A1",
-        "Anglo -ham suffix",
-        marks=pytest.mark.xfail(reason="-ham suffix not a detection rule"),
-    ),
+    ("Cunningham, Merce", "A1", "Anglo -ham suffix"),
     ("Buckingham, George", "A1", "Anglo -ham suffix"),
-    pytest.param(
-        "Wellington, Duke",
-        "A1",
-        "Anglo -ington suffix",
-        marks=pytest.mark.xfail(reason="-ington suffix not a detection rule"),
-    ),
-    pytest.param(
-        "Paddington, Bear",
-        "A1",
-        "Anglo -ington suffix",
-        marks=pytest.mark.xfail(reason="-ington suffix not a detection rule"),
-    ),
-    pytest.param(
-        "Birmingham, Jess",
-        "A1",
-        "Anglo -ham suffix",
-        marks=pytest.mark.xfail(reason="-ham suffix not a detection rule"),
-    ),
+    ("Wellington, Duke", "A1", "Anglo -ington suffix"),
+    ("Paddington, Bear", "A1", "Anglo -ington suffix"),
+    ("Birmingham, Jess", "A1", "Anglo -ham suffix"),
     # A2 - Germanic/Western (German -er/-mann, French -eux/-eau)
     ("Zimmermann, Fritz", "A2", "German -mann suffix"),
     ("Hoffmann, Ernst", "A2", "German -mann suffix"),
@@ -2397,12 +2360,7 @@ ALGORITHM_TEST_CASES = [
     ("Darbinyan, Arshak", "C7", "Armenian -yan"),
     ("Babayan, Sergey", "C7", "Armenian -yan"),
     # C8 - Georgian (-dze/-shvili are VERY distinctive)
-    pytest.param(
-        "Ivanishvili, Bidzina",
-        "C8",
-        "Georgian -shvili",
-        marks=pytest.mark.xfail(reason="-shvili not caught without CC"),
-    ),
+    ("Ivanishvili, Bidzina", "C8", "Georgian -shvili (ivan prefix no longer overrides)"),
     ("Saakashvili, Mikheil", "C8", "Georgian -shvili"),
     ("Shevardnadze, Eduard", "C8", "Georgian -dze"),
     ("Zhvania, Zurab", "C8", "Georgian surname"),
