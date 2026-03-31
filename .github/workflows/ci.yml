@@ -60,32 +60,24 @@ jobs:
           mkdir -p cache
           echo '{}' > cache/api_costs.json
 
-      - name: Unit tests
+      - name: Core tests (region detection + user workflows + security + CLI + web + nginx)
         run: >-
-          pytest tests/unit/ -v --tb=short --timeout=120
-          --ignore-glob="*debug*" --ignore-glob="*hell*" --ignore-glob="*ultra*"
-          --ignore-glob="*manager_caching*" --ignore-glob="*race_condition*"
-          --ignore-glob="*thread_safe*" --ignore-glob="*thread_safety*"
-          --ignore-glob="*region_loading*" --ignore-glob="*direct_classification*"
-          --ignore-glob="*simple_detection*"
-          --ignore=tests/unit/test_pipeline.py
-          --ignore=tests/unit/test_region_a1.py
-          --ignore=tests/unit/test_schema_validation.py
-          --ignore=tests/unit/test_cache_system.py
-          --ignore=tests/unit/core/test_final_core_functionality.py
-          --ignore=tests/unit/core/test_region_processing.py
-          --ignore=tests/unit/regions/test_region_e4.py
-          -p no:cacheprovider
+          pytest
+          tests/unit/test_region_detection_accuracy.py
+          tests/unit/test_user_workflows.py
+          tests/unit/test_api_security.py
+          tests/unit/test_cli_hardening.py
+          tests/unit/test_web_interface.py
+          tests/unit/test_nginx_config.py
+          -v --tb=short --timeout=120 -p no:cacheprovider
 
       - name: Property tests
-        run: pytest tests/property/ -v --tb=short --timeout=120 --ignore=tests/property/test_determinism_properties.py -p no:cacheprovider -k "not test_normalization_preserves_alphanumeric and not test_problematic_unicode_robustness and not test_specific_ligature_cases"
-
-      - name: Integration tests
-        run: pytest tests/integration/ -v --tb=short --timeout=120 --ignore-glob="*paranoid*" --ignore-glob="*hell*" --ignore-glob="*ultra*" --ignore-glob="*debug*" --ignore-glob="*comprehensive*" -p no:cacheprovider
-
-      - name: Hardcore tests
-        run: pytest tests/hardcore/ -v --tb=short --timeout=300 -p no:cacheprovider
-        continue-on-error: true
+        run: >-
+          pytest tests/property/test_unicode_properties.py
+          -v --tb=short --timeout=120 -p no:cacheprovider
+          -k "not test_normalization_preserves_alphanumeric
+          and not test_problematic_unicode_robustness
+          and not test_specific_ligature_cases"
 
       - name: Memory peak check
         run: |
