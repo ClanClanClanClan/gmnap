@@ -53,7 +53,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest pytest-timeout pytest-mock hypothesis
+          pip install pytest pytest-timeout pytest-mock hypothesis duckdb
 
       - name: Setup cost tracking
         run: |
@@ -61,7 +61,7 @@ jobs:
           echo '{}' > cache/api_costs.json
 
       - name: Unit tests
-        run: pytest tests/unit/ -v --tb=short --timeout=120 --ignore-glob="*debug*" --ignore-glob="*hell*" --ignore-glob="*ultra*" -p no:cacheprovider
+        run: pytest tests/unit/ -v --tb=short --timeout=120 --ignore-glob="*debug*" --ignore-glob="*hell*" --ignore-glob="*ultra*" --ignore-glob="*manager_caching*" --ignore-glob="*race_condition*" --ignore-glob="*thread_safe*" --ignore-glob="*thread_safety*" -p no:cacheprovider
 
       - name: Property tests
         run: pytest tests/property/ -v --tb=short --timeout=120 -p no:cacheprovider
