@@ -28,6 +28,24 @@
      * Return a country flag emoji for a region code (e.g. "E4" -> Korean flag).
      * Falls back to a globe if mapping unknown.
      */
+    var REGION_NAMES = {
+        A1: "Anglo-Sphere", A2: "Western Europe", A3: "Nordic-Baltic",
+        A4: "Oceania", A5: "Caribbean",
+        B1: "East Slavic", B2: "Central European", B3: "Hellenic",
+        C1: "Turkic", C2: "Persian-Tajik", C3: "Arabic Levant",
+        C4: "Arabic Gulf", C5: "Arabic Maghreb", C6: "Hebrew-Diaspora",
+        C7: "Armenian", C8: "Georgian", C9: "Caucasus-Turkic",
+        D1: "South Asia Indic", D2: "Dravidian", D3: "Bengali",
+        D4: "Pakistan-Urdu", D5: "Sinhala",
+        E1: "Chinese (Simplified)", E2: "Chinese (Traditional)",
+        E3: "Japanese", E4: "Korean", E5: "Vietnamese",
+        E6: "Mainland SE Asia", E7: "Maritime SE Asia",
+        F1: "Francophone Africa", F2: "Anglophone Africa",
+        F3: "Horn of Africa", F4: "Lusophone Africa",
+        G1: "Latin America", H1: "Historical",
+        R0: "Residual", Z0: "Quarantine"
+    };
+
     function countryFlag(regionCode) {
         var flags = {
             A1: "\uD83C\uDDEC\uD83C\uDDE7", A2: "\uD83C\uDDE9\uD83C\uDDEA",
@@ -213,7 +231,7 @@
 
     // Also trigger on input for live-search feel
     searchInput.addEventListener("input", function () {
-        if (searchInput.value.trim().length >= 3) {
+        if (searchInput.value.trim().length >= 4) {
             debouncedSearch(searchInput.value);
         }
     });
@@ -242,7 +260,7 @@
         card.innerHTML =
             '<div class="result-name">' + escapeHtml(name) + "</div>" +
             '<div class="result-meta">' +
-            "<span>" + escapeHtml(flag) + " Region " + escapeHtml(region) + "</span>" +
+            "<span>" + escapeHtml(flag) + " " + escapeHtml(REGION_NAMES[region] || region) + " (" + escapeHtml(region) + ")</span>" +
             '<span class="confidence-badge ' + escapeHtml(confClass) + '">' +
             escapeHtml(((conf) * 100).toFixed(1) + "%") + "</span>" +
             "<span>" + escapeHtml(method) + "</span>" +
@@ -280,7 +298,7 @@
         html += '<div class="profile-card">';
         html += '<div class="profile-header">';
         html += '<h2 class="profile-name">' + escapeHtml(name) + "</h2>";
-        html += '<div class="profile-region">' + escapeHtml(flag) + " Region " + escapeHtml(region);
+        html += '<div class="profile-region">' + escapeHtml(flag) + " " + escapeHtml(REGION_NAMES[region] || region) + " (" + escapeHtml(region) + ")";
         if (conf > 0) {
             html += ' &middot; ' + escapeHtml(((conf) * 100).toFixed(0) + "% confidence");
         }
@@ -299,7 +317,7 @@
         html += "</div>"; // profile-card
 
         // ── Advisors section ──
-        var advisors = entry.Advisors || entry.advisors || [];
+        var advisors = entry.Advisors || entry.advisors || entry.advisor_chain || [];
         if (advisors.length > 0) {
             html += '<div class="profile-card">';
             html += '<h3 class="section-title">Doctoral Advisor(s)</h3>';
@@ -325,7 +343,7 @@
         }
 
         // ── Authority Sources ──
-        var sources = entry.AuthoritySources || entry.authority_sources || [];
+        var sources = entry.Sources || entry.AuthoritySources || entry.authority_sources || [];
         if (sources.length > 0) {
             html += '<div class="profile-card">';
             html += '<h3 class="section-title">Authority Sources</h3>';
@@ -338,7 +356,14 @@
         }
 
         // ── Name Variants / Short Forms ──
-        var variants = entry.NameVariants || entry.name_variants || entry.ShortForms || entry.short_forms || [];
+        var variants = entry.ShortForms || entry.NameVariants || entry.name_variants || entry.short_forms || entry.Variants || [];
+        // If Variants is a dict with Observed/Synthesised, flatten it
+        if (variants && typeof variants === "object" && !Array.isArray(variants)) {
+            var flat = [];
+            if (variants.Observed) flat = flat.concat(variants.Observed);
+            if (variants.Synthesised) flat = flat.concat(variants.Synthesised);
+            variants = flat;
+        }
         if (variants.length > 0) {
             html += '<div class="profile-card">';
             html += '<h3 class="section-title">Name Variants</h3>';
@@ -370,11 +395,20 @@
 
         // ── Metadata (raw, collapsed) ──
         var metadata = entry.metadata || entry.Metadata || null;
-        if (metadata && typeof metadata === "object" && Object.keys(metadata).length > 0) {
-            html += '<div class="profile-card">';
-            html += '<h3 class="section-title">Detection Metadata</h3>';
-            html += '<pre class="metadata-raw">' + escapeHtml(JSON.stringify(metadata, null, 2)) + "</pre>";
-            html += "</div>";
+        if (metadata && typeof metadata === "object") {
+            var filtered = {};
+            var INTERNAL = ["_processor", "_region_processed", "GraphCoherence", "BayesianCoherence", "AuthorityConfidence", "BetweennessScore"];
+            for (var key in metadata) {
+                if (INTERNAL.indexOf(key) === -1) {
+                    filtered[key] = metadata[key];
+                }
+            }
+            if (Object.keys(filtered).length > 0) {
+                html += '<div class="profile-card">';
+                html += '<h3 class="section-title">Detection Metadata</h3>';
+                html += '<pre class="metadata-raw">' + escapeHtml(JSON.stringify(filtered, null, 2)) + "</pre>";
+                html += "</div>";
+            }
         }
 
         // ── Suggest Correction button ──
@@ -425,6 +459,10 @@
     corrForm.addEventListener("submit", function (e) {
         e.preventDefault();
 
+        var submitBtn = corrForm.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
+
         var payload = {
             original_name: corrOriginalName.value,
             correction_type: document.getElementById("corr-type").value,
@@ -445,9 +483,19 @@
             .then(function () {
                 corrDialog.close();
                 corrForm.reset();
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Submit Suggestion";
+                // Show brief thank-you
+                var msg = document.createElement("div");
+                msg.className = "toast";
+                msg.textContent = "Thank you! Your suggestion has been received.";
+                document.body.appendChild(msg);
+                setTimeout(function () { msg.remove(); }, 3000);
             })
             .catch(function (err) {
                 console.error("Correction submission error:", err);
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Submit Suggestion";
             });
     });
 

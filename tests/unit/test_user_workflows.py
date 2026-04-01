@@ -223,6 +223,41 @@ class TestCorrectionWorkflow:
         assert r.status_code == 200
         assert r.json()["status"] == "received"
 
+    def test_process_whitespace_only_rejected(self, client):
+        """Whitespace-only entries should be rejected, not crash."""
+        r = client.post(
+            "/api/v1/process",
+            json={
+                "entries": [{"CanonicalLatin": "   "}],
+                "mode": "quick",
+            },
+        )
+        assert r.status_code == 400
+
+    def test_suggest_empty_name_rejected(self, client):
+        """Empty original_name in correction should be rejected."""
+        r = client.post(
+            "/api/v1/suggest",
+            json={
+                "original_name": "",
+                "correction_type": "advisor",
+                "suggested_value": "Test Value",
+            },
+        )
+        assert r.status_code == 400
+
+    def test_suggest_empty_value_rejected(self, client):
+        """Empty suggested_value in correction should be rejected."""
+        r = client.post(
+            "/api/v1/suggest",
+            json={
+                "original_name": "Euler, Leonhard",
+                "correction_type": "advisor",
+                "suggested_value": "",
+            },
+        )
+        assert r.status_code == 400
+
 
 class TestWebUIWorkflow:
     """User opens browser -> sees search page -> searches -> gets results."""
