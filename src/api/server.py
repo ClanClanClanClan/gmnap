@@ -164,6 +164,14 @@ class HealthResponse(BaseModel):
     uptime_seconds: float = 0.0
 
 
+class CorrectionSuggestion(BaseModel):
+    original_name: str
+    correction_type: str  # advisor, institution, year, name, country, other
+    suggested_value: str
+    source_url: str = ""
+    submitter_note: str = ""
+
+
 # ---------------------------------------------------------------------------
 # App factory
 # ---------------------------------------------------------------------------
@@ -484,6 +492,36 @@ def create_app() -> FastAPI:
             "uptime_seconds": round(time.time() - _start_time, 1),
             "version": "7.0",
         }
+
+    # ------------------------------------------------------------------
+    # Correction suggestion endpoint
+    # ------------------------------------------------------------------
+    @app.post("/api/v1/suggest")
+    async def suggest_correction(suggestion: CorrectionSuggestion):
+        """Accept a user-submitted correction suggestion."""
+        import json
+        from datetime import datetime, timezone
+
+        corrections_dir = Path("data/corrections")
+        corrections_dir.mkdir(parents=True, exist_ok=True)
+
+        record = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "original_name": suggestion.original_name,
+            "correction_type": suggestion.correction_type,
+            "suggested_value": suggestion.suggested_value,
+            "source_url": suggestion.source_url,
+            "submitter_note": suggestion.submitter_note,
+        }
+
+        filename = (
+            f"{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+            f"_{suggestion.correction_type}.json"
+        )
+        filepath = corrections_dir / filename
+        filepath.write_text(json.dumps(record, indent=2, ensure_ascii=False))
+
+        return {"status": "received", "id": filename}
 
     # ------------------------------------------------------------------
     # Static files (web interface)

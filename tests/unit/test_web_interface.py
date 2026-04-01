@@ -54,6 +54,19 @@ def test_html_title_set(html):
     assert len(match.group(1)) > 3, "Title is too short"
 
 
+def test_html_has_profile_section(html):
+    """HTML must have a profile-view section for viewing mathematician profiles."""
+    assert 'id="profile-view"' in html, "Missing profile-view section"
+    assert 'id="profile-content"' in html, "Missing profile-content container"
+
+
+def test_html_has_correction_form(html):
+    """HTML must have a correction dialog for community suggestions."""
+    assert 'id="correction-dialog"' in html, "Missing correction-dialog element"
+    assert 'id="correction-form"' in html, "Missing correction-form"
+    assert "correction_type" in html, "Missing correction_type field"
+
+
 def test_html_accessibility_landmarks(html):
     """Must have proper ARIA landmarks."""
     assert 'role="banner"' in html, "Missing banner landmark (header)"
@@ -194,6 +207,28 @@ def test_js_no_console_log(js):
         ), f"console.log found on line {i}: {stripped}"
 
 
+def test_js_uses_process_endpoint(js):
+    """app.js must call /api/v1/process for enriched search results."""
+    assert "/api/v1/process" in js, "Must call /api/v1/process endpoint"
+
+
+def test_js_renders_advisor_section(js):
+    """app.js must have advisor rendering code."""
+    assert "advisor-card" in js, "Must render advisor cards"
+    assert "Advisors" in js or "advisors" in js, "Must reference advisor data"
+
+
+def test_js_correction_form_submit(js):
+    """app.js must submit correction form to /api/v1/suggest."""
+    assert "/api/v1/suggest" in js, "Must call /api/v1/suggest endpoint"
+    assert "correction_type" in js, "Must send correction_type"
+
+
+def test_js_renders_profile(js):
+    """app.js must have a renderProfile function."""
+    assert "renderProfile" in js, "Must have renderProfile function"
+
+
 # ── Integration Tests ─────────────────────────────────────────────────
 
 
@@ -214,7 +249,7 @@ def test_static_index_served():
             404,
         ), f"Unexpected status: {resp.status_code}"
         if resp.status_code == 200:
-            assert "GMNAP" in resp.text or "html" in resp.text.lower()
+            assert "MathLineage" in resp.text or "GMNAP" in resp.text or "html" in resp.text.lower()
     except ImportError:
         pytest.skip("FastAPI not available")
 

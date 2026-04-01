@@ -1,4 +1,4 @@
-/* GMNAP V7 - Web Interface Application */
+/* MathLineage - Mathematical Genealogy Browser */
 "use strict";
 
 (function () {
@@ -25,7 +25,7 @@
     // ── Utilities ────────────────────────────────────────────────────
 
     /**
-     * Return a country flag emoji for a region code (e.g. "E4" -> "").
+     * Return a country flag emoji for a region code (e.g. "E4" -> Korean flag).
      * Falls back to a globe if mapping unknown.
      */
     function countryFlag(regionCode) {
@@ -80,16 +80,47 @@
     // ── DOM Elements ─────────────────────────────────────────────────
 
     var searchInput = document.getElementById("search-input");
-    var searchBtn = document.getElementById("search-btn");
-    var resultsSection = document.getElementById("results-section");
-    var resultsContainer = document.getElementById("results-container");
-    var loadingSpinner = document.getElementById("loading-spinner");
-    var noResults = document.getElementById("no-results");
-    var errorMessage = document.getElementById("error-message");
     var apiStatus = document.getElementById("api-status");
-    var detailPanel = document.getElementById("detail-panel");
-    var detailBody = document.getElementById("detail-body");
-    var detailClose = document.getElementById("detail-close");
+
+    // Views
+    var landing = document.getElementById("landing");
+    var resultsView = document.getElementById("results-view");
+    var profileView = document.getElementById("profile-view");
+
+    // Results
+    var resultsTitle = document.getElementById("results-title");
+    var resultsList = document.getElementById("results-list");
+    var loadingEl = document.getElementById("loading");
+    var noResults = document.getElementById("no-results");
+    var errorMsg = document.getElementById("error-msg");
+    var backToLanding = document.getElementById("back-to-landing");
+
+    // Profile
+    var profileContent = document.getElementById("profile-content");
+    var backToResults = document.getElementById("back-to-results");
+
+    // Correction dialog
+    var corrDialog = document.getElementById("correction-dialog");
+    var corrForm = document.getElementById("correction-form");
+    var corrOriginalName = document.getElementById("corr-original-name");
+    var corrCancel = document.getElementById("corr-cancel");
+
+    // ── View management ──────────────────────────────────────────────
+
+    function showView(viewName) {
+        landing.hidden = viewName !== "landing";
+        resultsView.hidden = viewName !== "results";
+        profileView.hidden = viewName !== "profile";
+    }
+
+    backToLanding.addEventListener("click", function () {
+        showView("landing");
+        searchInput.value = "";
+    });
+
+    backToResults.addEventListener("click", function () {
+        showView("results");
+    });
 
     // ── API Health Check ─────────────────────────────────────────────
 
@@ -116,18 +147,30 @@
     checkApiHealth();
     setInterval(checkApiHealth, 30000);
 
-    // ── Search ───────────────────────────────────────────────────────
+    // ── Search (uses /api/v1/process for enriched data) ──────────────
+
+    var lastSearchResults = [];
 
     function performSearch(query) {
         if (!query || !query.trim()) return;
 
-        resultsSection.hidden = false;
-        loadingSpinner.hidden = false;
+        showView("results");
+        loadingEl.hidden = false;
         noResults.hidden = true;
-        errorMessage.hidden = true;
-        resultsContainer.innerHTML = "";
+        errorMsg.hidden = true;
+        resultsList.innerHTML = "";
+        resultsTitle.innerHTML = "Results for &ldquo;" + escapeHtml(query.trim()) + "&rdquo;";
 
-        fetch("/api/v1/query?name=" + encodeURIComponent(query.trim()))
+        var payload = {
+            entries: [{ CanonicalLatin: query.trim() }],
+            mode: "quick"
+        };
+
+        fetch("/api/v1/process", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
             .then(function (resp) {
                 if (!resp.ok) {
                     return resp.json().then(function (data) {
@@ -137,17 +180,21 @@
                 return resp.json();
             })
             .then(function (data) {
-                loadingSpinner.hidden = true;
-                if (!data || (!data.name && !data.region_code)) {
+                loadingEl.hidden = true;
+                var entries = data.entries || [];
+                lastSearchResults = entries;
+                if (entries.length === 0) {
                     noResults.hidden = false;
                     return;
                 }
-                renderResult(data);
+                for (var i = 0; i < entries.length; i++) {
+                    renderResultCard(entries[i]);
+                }
             })
             .catch(function (err) {
-                loadingSpinner.hidden = true;
+                loadingEl.hidden = true;
                 if (!isApiOnline) {
-                    errorMessage.hidden = false;
+                    errorMsg.hidden = false;
                 } else {
                     noResults.hidden = false;
                 }
@@ -157,14 +204,6 @@
 
     var debouncedSearch = debounce(performSearch, 300);
 
-    searchInput.addEventListener("input", function () {
-        debouncedSearch(searchInput.value);
-    });
-
-    searchBtn.addEventListener("click", function () {
-        performSearch(searchInput.value);
-    });
-
     searchInput.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -172,7 +211,14 @@
         }
     });
 
-    // ── Result Rendering ─────────────────────────────────────────────
+    // Also trigger on input for live-search feel
+    searchInput.addEventListener("input", function () {
+        if (searchInput.value.trim().length >= 3) {
+            debouncedSearch(searchInput.value);
+        }
+    });
+
+    // ── Result Card Rendering ────────────────────────────────────────
 
     function confidenceClass(score) {
         if (score >= 0.8) return "confidence-high";
@@ -180,102 +226,230 @@
         return "confidence-low";
     }
 
-    function renderResult(data) {
+    function renderResultCard(entry) {
         var card = document.createElement("div");
         card.className = "result-card";
         card.setAttribute("role", "listitem");
         card.setAttribute("tabindex", "0");
-        card.setAttribute("aria-label", "Result for " + escapeHtml(data.name));
 
-        var flag = countryFlag(data.region_code);
-        var confClass = confidenceClass(data.confidence || 0);
+        var name = entry.CanonicalLatin || entry.name || "Unknown";
+        var region = entry.DetectedRegion || entry.region_code || "";
+        var conf = entry.DetectionConfidence || entry.confidence || 0;
+        var method = entry.DetectionMethod || entry.detection_method || "";
+        var flag = countryFlag(region);
+        var confClass = confidenceClass(conf);
 
         card.innerHTML =
-            '<div class="result-name">' + escapeHtml(data.name) + "</div>" +
+            '<div class="result-name">' + escapeHtml(name) + "</div>" +
             '<div class="result-meta">' +
-            "<span>" + escapeHtml(flag) + " " + escapeHtml(data.region_code || "Unknown") + "</span>" +
+            "<span>" + escapeHtml(flag) + " Region " + escapeHtml(region) + "</span>" +
             '<span class="confidence-badge ' + escapeHtml(confClass) + '">' +
-            escapeHtml(((data.confidence || 0) * 100).toFixed(1) + "%") +
-            "</span>" +
-            "<span>" + escapeHtml(data.detection_method || "") + "</span>" +
+            escapeHtml(((conf) * 100).toFixed(1) + "%") + "</span>" +
+            "<span>" + escapeHtml(method) + "</span>" +
             "</div>";
 
         card.addEventListener("click", function () {
-            showDetail(data);
+            renderProfile(entry);
         });
         card.addEventListener("keydown", function (e) {
             if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                showDetail(data);
+                renderProfile(entry);
             }
         });
 
-        resultsContainer.appendChild(card);
+        resultsList.appendChild(card);
     }
 
-    // ── Detail Panel ─────────────────────────────────────────────────
+    // ── Profile Rendering ────────────────────────────────────────────
 
-    function showDetail(data) {
-        detailPanel.hidden = false;
+    function renderProfile(entry) {
+        showView("profile");
+
+        var name = entry.CanonicalLatin || entry.name || "Unknown";
+        var region = entry.DetectedRegion || entry.region_code || "";
+        var conf = entry.DetectionConfidence || entry.confidence || 0;
+        var flag = countryFlag(region);
+        var birthYear = entry.BirthYear || entry.birth_year || "";
+        var institution = entry.Institution || entry.institution || "";
+        var globalId = entry.GlobalID || entry.global_id || "";
 
         var html = "";
-        var fields = [
-            ["Name", data.name],
-            ["Region Code", data.region_code],
-            ["Confidence", ((data.confidence || 0) * 100).toFixed(1) + "%"],
-            ["Detection Method", data.detection_method],
-            ["GlobalID", data.global_id]
-        ];
 
-        for (var i = 0; i < fields.length; i++) {
-            var label = fields[i][0];
-            var value = fields[i][1];
-            if (value == null) continue;
-            html +=
-                '<div class="detail-field">' +
-                '<div class="detail-field-label">' + escapeHtml(label) + "</div>" +
-                '<div class="detail-field-value">' + escapeHtml(value);
+        // ── Name header ──
+        html += '<div class="profile-card">';
+        html += '<div class="profile-header">';
+        html += '<h2 class="profile-name">' + escapeHtml(name) + "</h2>";
+        html += '<div class="profile-region">' + escapeHtml(flag) + " Region " + escapeHtml(region);
+        if (conf > 0) {
+            html += ' &middot; ' + escapeHtml(((conf) * 100).toFixed(0) + "% confidence");
+        }
+        html += "</div>";
+        if (birthYear || institution) {
+            html += '<div class="profile-bio">';
+            if (birthYear) html += "Born: " + escapeHtml(String(birthYear));
+            if (birthYear && institution) html += " &middot; ";
+            if (institution) html += escapeHtml(institution);
+            html += "</div>";
+        }
+        if (globalId) {
+            html += '<div class="profile-id">GlobalID: <code>' + escapeHtml(globalId) + "</code></div>";
+        }
+        html += "</div>"; // profile-header
+        html += "</div>"; // profile-card
 
-            if (label === "GlobalID") {
-                html += '<button class="copy-btn" data-copy="' + escapeHtml(value) +
-                    '" aria-label="Copy GlobalID to clipboard">Copy</button>';
+        // ── Advisors section ──
+        var advisors = entry.Advisors || entry.advisors || [];
+        if (advisors.length > 0) {
+            html += '<div class="profile-card">';
+            html += '<h3 class="section-title">Doctoral Advisor(s)</h3>';
+            for (var i = 0; i < advisors.length; i++) {
+                var adv = advisors[i];
+                var advName = typeof adv === "string" ? adv : (adv.name || adv.CanonicalLatin || "");
+                var advInst = typeof adv === "object" ? (adv.institution || adv.Institution || "") : "";
+                var advYear = typeof adv === "object" ? (adv.year || adv.Year || "") : "";
+
+                html += '<div class="advisor-card" tabindex="0" data-advisor-name="' + escapeHtml(advName) + '">';
+                html += '<span class="advisor-arrow">&rarr;</span> ';
+                html += '<span class="advisor-name">' + escapeHtml(advName) + "</span>";
+                if (advInst || advYear) {
+                    html += '<div class="advisor-detail">';
+                    if (advInst) html += escapeHtml(advInst);
+                    if (advInst && advYear) html += ", ";
+                    if (advYear) html += "~" + escapeHtml(String(advYear));
+                    html += "</div>";
+                }
+                html += "</div>";
+            }
+            html += "</div>"; // profile-card
+        }
+
+        // ── Authority Sources ──
+        var sources = entry.AuthoritySources || entry.authority_sources || [];
+        if (sources.length > 0) {
+            html += '<div class="profile-card">';
+            html += '<h3 class="section-title">Authority Sources</h3>';
+            html += '<div class="source-badges">';
+            for (var s = 0; s < sources.length; s++) {
+                var srcName = typeof sources[s] === "string" ? sources[s] : (sources[s].name || sources[s].source || "");
+                html += '<span class="source-badge">' + escapeHtml(srcName) + "</span>";
             }
             html += "</div></div>";
         }
 
-        if (data.metadata) {
-            html += '<div class="detail-field">' +
-                '<div class="detail-field-label">Metadata</div>' +
-                '<div class="detail-field-value"><pre>' +
-                escapeHtml(JSON.stringify(data.metadata, null, 2)) +
-                "</pre></div></div>";
+        // ── Name Variants / Short Forms ──
+        var variants = entry.NameVariants || entry.name_variants || entry.ShortForms || entry.short_forms || [];
+        if (variants.length > 0) {
+            html += '<div class="profile-card">';
+            html += '<h3 class="section-title">Name Variants</h3>';
+            html += '<div class="variant-tags">';
+            for (var v = 0; v < variants.length; v++) {
+                var varName = typeof variants[v] === "string" ? variants[v] : (variants[v].form || "");
+                html += '<span class="variant-tag">' + escapeHtml(varName) + "</span>";
+            }
+            html += "</div></div>";
         }
 
-        detailBody.innerHTML = html;
+        // ── Ancestor chain (if available) ──
+        var ancestors = entry.AncestorChain || entry.ancestor_chain || [];
+        if (ancestors.length > 0) {
+            html += '<div class="profile-card">';
+            html += '<h3 class="section-title">Ancestor Chain</h3>';
+            html += '<div class="ancestor-chain">';
+            for (var a = 0; a < ancestors.length; a++) {
+                var ancName = typeof ancestors[a] === "string" ? ancestors[a] : (ancestors[a].name || "");
+                html += '<div class="ancestor-node">';
+                html += '<span class="ancestor-name">' + escapeHtml(ancName) + "</span>";
+                html += "</div>";
+                if (a < ancestors.length - 1) {
+                    html += '<div class="ancestor-connector"></div>';
+                }
+            }
+            html += "</div></div>";
+        }
 
-        // Bind copy buttons
-        var copyBtns = detailBody.querySelectorAll(".copy-btn");
-        for (var j = 0; j < copyBtns.length; j++) {
-            copyBtns[j].addEventListener("click", function (e) {
-                e.stopPropagation();
-                var text = this.getAttribute("data-copy");
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(text).catch(function (err) {
-                        console.error("Copy failed:", err);
-                    });
+        // ── Metadata (raw, collapsed) ──
+        var metadata = entry.metadata || entry.Metadata || null;
+        if (metadata && typeof metadata === "object" && Object.keys(metadata).length > 0) {
+            html += '<div class="profile-card">';
+            html += '<h3 class="section-title">Detection Metadata</h3>';
+            html += '<pre class="metadata-raw">' + escapeHtml(JSON.stringify(metadata, null, 2)) + "</pre>";
+            html += "</div>";
+        }
+
+        // ── Suggest Correction button ──
+        html += '<div class="profile-actions">';
+        html += '<button class="btn-correction" id="open-correction">Suggest Correction</button>';
+        html += "</div>";
+
+        profileContent.innerHTML = html;
+
+        // ── Bind advisor clicks ──
+        var advisorCards = profileContent.querySelectorAll(".advisor-card");
+        for (var ac = 0; ac < advisorCards.length; ac++) {
+            advisorCards[ac].addEventListener("click", function () {
+                var advName = this.getAttribute("data-advisor-name");
+                if (advName) {
+                    searchInput.value = advName;
+                    performSearch(advName);
+                }
+            });
+            advisorCards[ac].addEventListener("keydown", function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    var advName = this.getAttribute("data-advisor-name");
+                    if (advName) {
+                        searchInput.value = advName;
+                        performSearch(advName);
+                    }
                 }
             });
         }
 
-        searchInput.setAttribute("aria-expanded", "true");
+        // ── Bind correction button ──
+        var corrBtn = document.getElementById("open-correction");
+        if (corrBtn) {
+            corrBtn.addEventListener("click", function () {
+                corrOriginalName.value = name;
+                corrDialog.showModal();
+            });
+        }
     }
 
-    function closeDetail() {
-        detailPanel.hidden = true;
-        searchInput.setAttribute("aria-expanded", "false");
-    }
+    // ── Correction Dialog ────────────────────────────────────────────
 
-    detailClose.addEventListener("click", closeDetail);
+    corrCancel.addEventListener("click", function () {
+        corrDialog.close();
+    });
+
+    corrForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        var payload = {
+            original_name: corrOriginalName.value,
+            correction_type: document.getElementById("corr-type").value,
+            suggested_value: document.getElementById("corr-value").value,
+            source_url: document.getElementById("corr-source").value,
+            submitter_note: document.getElementById("corr-note").value
+        };
+
+        fetch("/api/v1/suggest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+            .then(function (resp) {
+                if (!resp.ok) throw new Error("Submission failed");
+                return resp.json();
+            })
+            .then(function () {
+                corrDialog.close();
+                corrForm.reset();
+            })
+            .catch(function (err) {
+                console.error("Correction submission error:", err);
+            });
+    });
 
     // ── Keyboard Shortcuts ───────────────────────────────────────────
 
@@ -283,20 +457,24 @@
         // "/" to focus search (only when not already in an input)
         if (e.key === "/" && document.activeElement !== searchInput &&
             document.activeElement.tagName !== "INPUT" &&
-            document.activeElement.tagName !== "TEXTAREA") {
+            document.activeElement.tagName !== "TEXTAREA" &&
+            document.activeElement.tagName !== "SELECT") {
             e.preventDefault();
             searchInput.focus();
         }
 
-        // Escape to close detail panel
+        // Escape to go back
         if (e.key === "Escape") {
-            if (!detailPanel.hidden) {
-                closeDetail();
+            if (!corrDialog.open && !profileView.hidden) {
+                showView("results");
+            } else if (!corrDialog.open && !resultsView.hidden) {
+                showView("landing");
+                searchInput.value = "";
             }
         }
     });
 
-    // Expose escapeHtml for testing
+    // Expose for testing
     window.escapeHtml = escapeHtml;
     window.countryFlag = countryFlag;
     window.formatDuration = formatDuration;
