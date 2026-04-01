@@ -60,7 +60,7 @@ jobs:
           mkdir -p cache
           echo '{}' > cache/api_costs.json
 
-      - name: Core tests (region detection + user workflows + security + CLI + web + nginx)
+      - name: Core tests (region detection + user workflows + security + CLI + web + nginx + golden)
         run: >-
           pytest
           tests/unit/test_region_detection_accuracy.py
@@ -69,6 +69,12 @@ jobs:
           tests/unit/test_cli_hardening.py
           tests/unit/test_web_interface.py
           tests/unit/test_nginx_config.py
+          tests/unit/test_golden_dataset.py
+          tests/unit/test_cache_system.py
+          tests/unit/test_pipeline.py
+          tests/unit/core/test_final_core_functionality.py
+          tests/unit/core/test_region_processing.py
+          tests/unit/regions/test_region_e4.py
           -v --tb=short --timeout=120 -p no:cacheprovider
 
       - name: Property tests

@@ -96,8 +96,8 @@ detection:
       description: "Korean family name first"
     
     - input: "John Kim"
-      expected: A1
-      description: "Western given name first"
+      possible: [A1, E4]
+      description: "Western given name + Korean surname — ambiguous"
     
     - input: "Park"
       possible: [A1, E4]
