@@ -1684,7 +1684,6 @@ _STRONG = {
             "rhee",
             "choe",
             "ha",
-            "son",
             "baek",
         },
         "given_frag": {
