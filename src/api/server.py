@@ -413,6 +413,13 @@ def create_app() -> FastAPI:
                 detail=f"Entries at indices {invalid[:10]} missing required field 'CanonicalLatin'",
             )
 
+        # Filter out entries with empty/whitespace CanonicalLatin
+        req_entries = [e for e in req.entries if e.get("CanonicalLatin", "").strip()]
+        if not req_entries:
+            raise HTTPException(
+                status_code=400, detail="No valid entries (all names empty)"
+            )
+
         try:
             # Note: GMNAP_SCHEMA_STRICT is read at pipeline init time.
             # Uvicorn runs async single-threaded, so this is safe for async,
@@ -431,7 +438,7 @@ def create_app() -> FastAPI:
             )
 
             start_t = time.time()
-            report = await pipeline.process_batch(req.entries)
+            report = await pipeline.process_batch(req_entries)
             elapsed = time.time() - start_t
 
             # Pipeline may return dict (with "entries" key) or list directly
@@ -499,6 +506,15 @@ def create_app() -> FastAPI:
     @app.post("/api/v1/suggest")
     async def suggest_correction(suggestion: CorrectionSuggestion):
         """Accept a user-submitted correction suggestion."""
+        if not suggestion.original_name.strip():
+            raise HTTPException(
+                status_code=400, detail="original_name must not be empty"
+            )
+        if not suggestion.suggested_value.strip():
+            raise HTTPException(
+                status_code=400, detail="suggested_value must not be empty"
+            )
+
         import json
         from datetime import datetime, timezone
 
