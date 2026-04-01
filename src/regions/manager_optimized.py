@@ -2216,9 +2216,7 @@ _DIASPORA_DOWNWEIGHT = {
 }
 
 
-def _score_priority_rules(
-    name, possible
-):
+def _score_priority_rules(name, possible):
     """
     Returns (region, confidence, debug) using priority lexicons.
     Confidence is 0.60–0.90 depending on strength/co-occurrence.
@@ -2688,9 +2686,7 @@ class RegionManager:
             "metadata": {"matched_signals": matched, "scores": scores},
         }
 
-    def load_ml_models(
-        self, fasttext_path=None, clf_path=None
-    ):
+    def load_ml_models(self, fasttext_path=None, clf_path=None):
         """Phase 2: Load ML models for ensemble detection."""
         if not FASTTEXT_AVAILABLE:
             logger.warning(

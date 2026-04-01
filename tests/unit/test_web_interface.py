@@ -249,7 +249,11 @@ def test_static_index_served():
             404,
         ), f"Unexpected status: {resp.status_code}"
         if resp.status_code == 200:
-            assert "MathLineage" in resp.text or "GMNAP" in resp.text or "html" in resp.text.lower()
+            assert (
+                "MathLineage" in resp.text
+                or "GMNAP" in resp.text
+                or "html" in resp.text.lower()
+            )
     except ImportError:
         pytest.skip("FastAPI not available")
 
