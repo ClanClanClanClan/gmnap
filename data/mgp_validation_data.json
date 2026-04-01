@@ -1,0 +1,215 @@
+[
+  {
+    "mgp_id": 38586,
+    "name": "Leonhard  Euler",
+    "thesis": "Dissertatio physica de sono",
+    "advisors": [
+      {
+        "name": "Johann  Bernoulli",
+        "mgp_id": 53410
+      }
+    ]
+  },
+  {
+    "mgp_id": 7298,
+    "name": "David  Hilbert",
+    "institution": "Universität Königsberg",
+    "year": 1885,
+    "thesis": "Über invariante Eigenschaften specieller binärer Formen, insbesondere der Kugelfunctionen",
+    "advisors": [
+      {
+        "name": "C. L. Ferdinand (Carl Louis) Lindemann",
+        "mgp_id": 7404
+      },
+      {
+        "name": "Heinrich Martin Weber",
+        "mgp_id": 16915
+      }
+    ]
+  },
+  {
+    "mgp_id": 6967,
+    "name": "Emmy Amalie Noether",
+    "institution": "Friedrich-Alexander-Universität Erlangen-Nürnberg",
+    "year": 1907,
+    "thesis": "Über die Bildung des Formensystems der ternären biquadratischen Form",
+    "advisors": [
+      {
+        "name": "Paul Albert Gordan",
+        "mgp_id": 15654
+      }
+    ]
+  },
+  {
+    "mgp_id": 18232,
+    "name": "Bernhard (Georg Friedrich Bernhard) Riemann",
+    "thesis": "Grundlagen für eine allgemeine Theorie der Funktionen einer veränderlichen complexen Größe",
+    "advisors": [
+      {
+        "name": "Carl Friedrich Gauß",
+        "mgp_id": 18231
+      }
+    ]
+  },
+  {
+    "mgp_id": 34227,
+    "name": "Henri  Poincaré",
+    "institution": "Université de Paris",
+    "year": 1879,
+    "thesis": "Sur les propriétés des fonctions définies par les équations différences",
+    "advisors": [
+      {
+        "name": "Charles  Hermite",
+        "mgp_id": 32960
+      }
+    ]
+  },
+  {
+    "mgp_id": 9696,
+    "name": "A. J. Wiles",
+    "institution": "University of Cambridge",
+    "year": 1979,
+    "thesis": "Reciprocity Laws and the Conjecture of Birch and Swinnerton-Dyer",
+    "advisors": [
+      {
+        "name": "John Henry Coates",
+        "mgp_id": 20324
+      }
+    ]
+  },
+  {
+    "mgp_id": 43967,
+    "name": "Terence Chi-Shen Tao",
+    "institution": "Princeton University",
+    "year": 1996,
+    "thesis": "Three Regularity Results in Harmonic Analysis",
+    "advisors": [
+      {
+        "name": "Elias Menachem Stein",
+        "mgp_id": 6454
+      }
+    ]
+  },
+  {
+    "mgp_id": 34222,
+    "name": "Jean-Pierre  Serre",
+    "institution": "Université Paris IV-Sorbonne",
+    "year": 1951,
+    "thesis": "Homologie singulière des espaces fibrés. Applications",
+    "advisors": [
+      {
+        "name": "Henri Paul Cartan",
+        "mgp_id": 49555
+      }
+    ]
+  },
+  {
+    "mgp_id": 31245,
+    "name": "Alexander  Grothendieck",
+    "institution": "Université Henri Poincaré Nancy 1",
+    "year": 1953,
+    "thesis": "Produits tensoriels topologiques et espaces nucleaires",
+    "advisors": [
+      {
+        "name": "Laurent  Schwartz",
+        "mgp_id": 34233
+      },
+      {
+        "name": "Jean Alexandre Eugène Dieudonné",
+        "mgp_id": 34219
+      }
+    ]
+  },
+  {
+    "mgp_id": 91561,
+    "name": "Srinivasa Aiyangar Ramanujan",
+    "institution": "(awarded as B.A. by Research) University of Cambridge",
+    "year": 1916,
+    "thesis": "Highly Composite Numbers",
+    "advisors": [
+      {
+        "name": "G. H. (Godfrey Harold) Hardy",
+        "mgp_id": 17806
+      },
+      {
+        "name": "John Edensor Littlewood",
+        "mgp_id": 10463
+      }
+    ]
+  },
+  {
+    "mgp_id": 12681,
+    "name": "Stefan  Banach",
+    "institution": "University of Lwów",
+    "year": 1920,
+    "thesis": "Sur les opérations dans les ensembles abstraits et leur application aux équations intégrales",
+    "advisors": [
+      {
+        "name": "Hugo Dyonizy Steinhaus",
+        "mgp_id": 7383
+      },
+      {
+        "name": "Kazimierz  Twardowski",
+        "mgp_id": 13344
+      }
+    ]
+  },
+  {
+    "mgp_id": 17806,
+    "name": "G. H. (Godfrey Harold) Hardy",
+    "thesis": "",
+    "advisors": [
+      {
+        "name": "Augustus Edward Hough Love",
+        "mgp_id": 31354
+      },
+      {
+        "name": "Edmund Taylor Whittaker",
+        "mgp_id": 18571
+      }
+    ]
+  },
+  {
+    "mgp_id": 84354,
+    "name": "Grigorii Yakovlevich Perelman",
+    "institution": "St. Petersburg State University",
+    "year": 1990,
+    "thesis": "Saddle Surfaces in Euclidean Spaces",
+    "advisors": [
+      {
+        "name": "Aleksandr Danilovich Alexandrov",
+        "mgp_id": 30638
+      },
+      {
+        "name": "Yuri Dmitrievich Burago",
+        "mgp_id": 84371
+      }
+    ]
+  },
+  {
+    "mgp_id": 91093,
+    "name": "Maryam  Mirzakhani",
+    "institution": "Harvard University",
+    "year": 2004,
+    "thesis": "Simple Geodesics on Hyperbolic Surfaces and Volume of the Moduli Space of Curves",
+    "advisors": [
+      {
+        "name": "Curtis Tracy McMullen",
+        "mgp_id": 12029
+      }
+    ]
+  },
+  {
+    "mgp_id": 53746,
+    "name": "Artur  Avila",
+    "institution": "Instituto de Matemática Pura e Aplicada",
+    "year": 2001,
+    "thesis": "Bifurcations of Unimodal Maps",
+    "advisors": [
+      {
+        "name": "Welington Celso de Melo",
+        "mgp_id": 24583
+      }
+    ]
+  }
+]
