@@ -3,88 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MathLineage — Mathematician Name Authority</title>
+    <title>MathLineage — Mathematical Genealogy</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <header role="banner">
         <nav aria-label="Main navigation">
-            <div class="nav-brand">MathLineage</div>
-            <div class="nav-status">
-                <span id="api-status" class="status-indicator" role="status" aria-live="polite">
-                    Checking API...
-                </span>
+            <a href="/" class="nav-brand">MathLineage</a>
+            <div class="search-bar">
+                <input type="search" id="search-input" placeholder="Search mathematicians..." autocomplete="off" aria-label="Search mathematicians">
+                <kbd class="search-shortcut">/</kbd>
             </div>
+            <span id="api-status" class="status-indicator" role="status" aria-live="polite">Checking...</span>
         </nav>
     </header>
 
     <main role="main">
-        <section class="hero" aria-labelledby="hero-title">
-            <h1 id="hero-title">Global Mathematician Name Authority</h1>
-            <p class="hero-subtitle">Query, validate, and enrich mathematician name records across 37 regions</p>
-            <div class="search-container">
-                <label for="search-input" class="visually-hidden">Search mathematician names</label>
-                <input
-                    type="search"
-                    id="search-input"
-                    placeholder="Search mathematician names... (press / to focus)"
-                    autocomplete="off"
-                    aria-label="Search mathematician names"
-                    aria-describedby="search-hint"
-                >
-                <span id="search-hint" class="visually-hidden">Press slash to focus the search field. Results appear below.</span>
-                <button id="search-btn" type="button" aria-label="Submit search">Search</button>
+        <!-- Landing view (shown by default) -->
+        <section id="landing" class="landing">
+            <div class="hero">
+                <h1>Mathematical Genealogy</h1>
+                <p class="subtitle">Trace doctoral advisor chains back through centuries. 37 regions, 9 authority sources, 500,000+ mathematicians.</p>
             </div>
-        </section>
-
-        <section class="features" aria-labelledby="features-title">
-            <h2 id="features-title" class="visually-hidden">Features</h2>
             <div class="feature-grid">
-                <article class="feature-card">
-                    <h3>37 Regions</h3>
-                    <p>Full coverage across all linguistic and geographic regions with specialized processing rules.</p>
-                </article>
-                <article class="feature-card">
-                    <h3>9 Authority Sources</h3>
-                    <p>Enrichment from OpenAlex, Crossref, ORCID, HAL, GND, Wikidata, and more.</p>
-                </article>
-                <article class="feature-card">
-                    <h3>12-Stage Pipeline</h3>
-                    <p>Comprehensive processing from Unicode normalisation to schema validation.</p>
-                </article>
-                <article class="feature-card">
-                    <h3>GDPR Compliant</h3>
-                    <p>Built-in privacy controls with ShadowNode conversion and data masking.</p>
-                </article>
+                <div class="feature-card">
+                    <h3>Global Coverage</h3>
+                    <p>Names from every culture and script -- Anglo-Saxon to CJK, Arabic patronymics to Dravidian initials.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Verified Sources</h3>
+                    <p>Cross-referenced with OpenAlex, Crossref, ORCID, zbMATH, Wikidata, HAL, GND.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Discover Lineage</h3>
+                    <p>Trace doctoral advisor chains -- who taught whom, and the lineage of mathematical ideas.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Community Driven</h3>
+                    <p>Suggest corrections and additions. Every record can be improved by the community.</p>
+                </div>
             </div>
         </section>
 
-        <section id="results-section" class="results-section" aria-labelledby="results-title" hidden>
-            <h2 id="results-title">Search Results</h2>
-            <div id="results-container" role="list" aria-label="Search results">
+        <!-- Results view (shown after search) -->
+        <section id="results-view" class="results-view" hidden>
+            <div class="results-header">
+                <h2 id="results-title">Results</h2>
+                <button id="back-to-landing" class="back-btn" aria-label="Back to home">&larr; Home</button>
             </div>
-            <div id="loading-spinner" class="spinner" hidden aria-label="Loading results">
+            <div id="results-list" role="list"></div>
+            <div id="loading" class="loading" hidden>
                 <div class="spinner-ring"></div>
+                <p>Processing through 12-stage pipeline...</p>
             </div>
-            <div id="no-results" hidden>
-                <p>No results found. Try a different search term.</p>
+            <div id="no-results" class="empty-state" hidden>
+                <p>No results found. Try a different name.</p>
             </div>
-            <div id="error-message" hidden role="alert">
-                <p>Unable to connect to the API. Please check that the server is running.</p>
+            <div id="error-msg" class="empty-state error" hidden role="alert">
+                <p>Unable to connect to the API server.</p>
+                <code>gmnap serve --port 8080</code>
             </div>
         </section>
 
-        <aside id="detail-panel" class="detail-panel" role="dialog" aria-labelledby="detail-title" aria-modal="true" hidden>
-            <div class="detail-content">
-                <button id="detail-close" class="detail-close" aria-label="Close detail panel">&times;</button>
-                <h2 id="detail-title">Entry Details</h2>
-                <div id="detail-body"></div>
-            </div>
-        </aside>
+        <!-- Profile view (shown when clicking a result) -->
+        <section id="profile-view" class="profile-view" hidden>
+            <button id="back-to-results" class="back-btn" aria-label="Back to results">&larr; Results</button>
+            <div id="profile-content"></div>
+        </section>
+
+        <!-- Correction modal -->
+        <dialog id="correction-dialog" class="correction-dialog">
+            <h2>Suggest a Correction</h2>
+            <form id="correction-form">
+                <input type="hidden" id="corr-original-name" name="original_name">
+                <label>What needs correcting?
+                    <select id="corr-type" name="correction_type" required>
+                        <option value="advisor">Advisor</option>
+                        <option value="institution">Institution</option>
+                        <option value="year">Year</option>
+                        <option value="name">Name spelling</option>
+                        <option value="country">Country</option>
+                        <option value="other">Other</option>
+                    </select>
+                </label>
+                <label>Suggested value
+                    <input type="text" id="corr-value" name="suggested_value" required placeholder="e.g., Bernoulli, Johann I">
+                </label>
+                <label>Source URL (optional)
+                    <input type="url" id="corr-source" name="source_url" placeholder="https://mathgenealogy.org/...">
+                </label>
+                <label>Notes (optional)
+                    <textarea id="corr-note" name="submitter_note" rows="3" placeholder="Additional context..."></textarea>
+                </label>
+                <div class="dialog-actions">
+                    <button type="button" id="corr-cancel" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Submit Suggestion</button>
+                </div>
+            </form>
+        </dialog>
     </main>
 
     <footer role="contentinfo">
-        <p>GMNAP V7 &mdash; Global Mathematician Name Authority Project</p>
+        <p>MathLineage — Mathematical Genealogy Project</p>
     </footer>
 
     <script src="/static/app.js"></script>

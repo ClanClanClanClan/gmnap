@@ -206,6 +206,24 @@ class TestQueryWorkflow:
         assert r.status_code != 500
 
 
+class TestCorrectionWorkflow:
+    """User submits a correction suggestion."""
+
+    def test_suggest_correction_endpoint(self, client):
+        r = client.post(
+            "/api/v1/suggest",
+            json={
+                "original_name": "Euler, Leonhard",
+                "correction_type": "advisor",
+                "suggested_value": "Bernoulli, Johann I",
+                "source_url": "https://mathgenealogy.org/id.php?id=38586",
+                "submitter_note": "Confirmed on MGP",
+            },
+        )
+        assert r.status_code == 200
+        assert r.json()["status"] == "received"
+
+
 class TestWebUIWorkflow:
     """User opens browser -> sees search page -> searches -> gets results."""
 

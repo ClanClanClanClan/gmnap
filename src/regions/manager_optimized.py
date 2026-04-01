@@ -2217,8 +2217,8 @@ _DIASPORA_DOWNWEIGHT = {
 
 
 def _score_priority_rules(
-    name: str, possible: list[str]
-) -> tuple[str | None, float, dict]:
+    name, possible
+):
     """
     Returns (region, confidence, debug) using priority lexicons.
     Confidence is 0.60–0.90 depending on strength/co-occurrence.
@@ -2689,7 +2689,7 @@ class RegionManager:
         }
 
     def load_ml_models(
-        self, fasttext_path: str | None = None, clf_path: str | None = None
+        self, fasttext_path=None, clf_path=None
     ):
         """Phase 2: Load ML models for ensemble detection."""
         if not FASTTEXT_AVAILABLE:

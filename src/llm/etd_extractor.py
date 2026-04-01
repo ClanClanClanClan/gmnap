@@ -31,7 +31,7 @@ def _cache_key(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8", errors="replace")).hexdigest()[:16]
 
 
-def _cache_get(key: str) -> Dict | None:
+def _cache_get(key: str):
     return _cache.get(key)
 
 
