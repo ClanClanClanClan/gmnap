@@ -2227,6 +2227,32 @@ for _region_code, _patterns in _STRONG.items():
         _GIVEN_TO_REGIONS[_g].add(_region_code)
 
 
+# Load learned features (auto-mined from labeled corpus)
+_LEARNED_FEATURES = None
+
+
+def _load_learned_features():
+    global _LEARNED_FEATURES
+    if _LEARNED_FEATURES is not None:
+        return _LEARNED_FEATURES
+    path = Path(__file__).parent.parent.parent / "config" / "learned_features.json"
+    if path.exists():
+        try:
+            import json
+
+            with open(path) as f:
+                _LEARNED_FEATURES = json.load(f)
+            logger.info(
+                f"Loaded {len(_LEARNED_FEATURES.get('surnames', {}))} learned surname features"
+            )
+        except Exception as e:
+            logger.warning(f"Failed to load learned features: {e}")
+            _LEARNED_FEATURES = {}
+    else:
+        _LEARNED_FEATURES = {}
+    return _LEARNED_FEATURES
+
+
 def _score_priority_rules(name, possible):
     """
     Returns (region, confidence, debug) using priority lexicons.
@@ -2423,6 +2449,58 @@ def _score_priority_rules(name, possible):
             if has_surname and has_given:
                 surname_scores[r] += 2.0
                 reasons[r].append("COMBO_GIVEN_SURNAME:2.00")
+
+    # ── Learned features pass ──
+    # Only use positive (supporting) log-odds and cap total contribution
+    # so learned features act as tiebreakers, not overrides of handcrafted rules.
+    # Only surname exact matches and given names are used; suffix/n-gram features
+    # are too noisy with a small training corpus and tend to give similar scores
+    # to all regions, destroying handcrafted margins.
+    learned = _load_learned_features()
+    if learned and learned.get("surnames"):
+        matched_handcrafted = set()  # track what handcrafted already matched
+        # Collect handcrafted-matched tokens to avoid double-counting
+        for r_reasons in reasons.values():
+            for reason_str in r_reasons:
+                if "STRONG_SURNAME:" in reason_str:
+                    parts = reason_str.split(":")
+                    if len(parts) >= 2:
+                        matched_handcrafted.add(parts[1])
+
+        for r in possible:
+            learned_surname_bump = 0.0
+            learned_given_bump = 0.0
+
+            # Learned surname exact matches
+            for tok in surname_candidates:
+                if tok not in matched_handcrafted:
+                    w = learned.get("surnames", {}).get(tok, {}).get(r, 0)
+                    if w > 0:
+                        learned_surname_bump += 0.5 * w
+
+            # Learned suffix matches (only long suffixes 4+ chars, and only if
+            # the suffix has weights for fewer than 10 regions to ensure specificity)
+            learned_suffixes = learned.get("suffixes", {})
+            for tok in surname_candidates:
+                for suf in [tok[-n:] for n in (4, 5) if len(tok) >= n]:
+                    suf_weights = learned_suffixes.get(suf, {})
+                    # Only use discriminative suffixes (appear in few regions)
+                    pos_regions = sum(1 for v in suf_weights.values() if v > 0)
+                    if pos_regions <= 8:
+                        w = suf_weights.get(r, 0)
+                        if w > 0:
+                            learned_surname_bump += 0.2 * w
+
+            # Learned given name weights
+            for tok in given_check_tokens:
+                w = learned.get("given_names", {}).get(tok, {}).get(r, 0)
+                if w > 0:
+                    learned_given_bump += 0.2 * w
+
+            # Cap learned contribution so it cannot override handcrafted signals
+            # Keep caps low: learned features are tiebreakers, not primary evidence
+            surname_scores[r] += min(learned_surname_bump, 0.4)
+            given_scores[r] += min(learned_given_bump, 0.3)
 
     # Combine channels: surnames dominate (1.0x), given names are weak tiebreakers (0.35x)
     scores = {r: 1.0 * surname_scores[r] + 0.35 * given_scores[r] for r in possible}
