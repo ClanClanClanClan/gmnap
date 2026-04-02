@@ -592,6 +592,8 @@ _STRONG = {
         "surname_suffix": {
             "ov",
             "ova",
+            "ev",
+            "eva",
             "enko",
             "ski",
             "sky",
@@ -2215,6 +2217,15 @@ _DIASPORA_DOWNWEIGHT = {
     ("F4", "rodriguez"): 0.7,
 }
 
+# Build reverse index: given name → set of regions that contain it
+# Used for ambiguity weighting (IDF-like)
+from collections import defaultdict as _defaultdict
+
+_GIVEN_TO_REGIONS = _defaultdict(set)
+for _region_code, _patterns in _STRONG.items():
+    for _g in _patterns.get("given_frag", set()):
+        _GIVEN_TO_REGIONS[_g].add(_region_code)
+
 
 def _score_priority_rules(name, possible):
     """
@@ -2282,7 +2293,8 @@ def _score_priority_rules(name, possible):
 
     surname_tokens_str = " ".join(surname_candidates)
 
-    scores: dict[str, float] = {r: 0.0 for r in possible}
+    surname_scores: dict[str, float] = {r: 0.0 for r in possible}
+    given_scores: dict[str, float] = {r: 0.0 for r in possible}
     reasons: dict[str, list[str]] = {r: [] for r in possible}
 
     for r in possible:
@@ -2295,7 +2307,7 @@ def _score_priority_rules(name, possible):
             if _wb(s).search(surname_tokens_str):
                 w = 5.0
                 w *= _DIASPORA_DOWNWEIGHT.get((r, s), 1.0)
-                scores[r] += w
+                surname_scores[r] += w
                 reasons[r].append(f"STRONG_SURNAME:{s}:{w:.2f}")
 
         # Strong: given name fragment (prefix/fragment, not substring anywhere)
@@ -2305,18 +2317,31 @@ def _score_priority_rules(name, possible):
             # Single-token names: skip given name matching entirely
             given_check_tokens = []
         for g in strong.get("given_frag", set()):
-            matched_tokens = [
-                tok
-                for tok in given_check_tokens
-                if tok.startswith(g) and tok not in strong.get("surnames", set())
-            ]
-            if matched_tokens:
-                scores[r] += 3.0
-                reasons[r].append(f"STRONG_GIVEN:{g}:3.00")
+            matched = False
+            for tok in given_check_tokens:
+                if tok == g:
+                    matched = True
+                    break
+                # Also match exact hyphen-parts: "jae-in" matches "jae" and "in"
+                if "-" in tok:
+                    for part in tok.split("-"):
+                        if part == g:
+                            matched = True
+                            break
+                if matched:
+                    break
+            if matched and tok not in strong.get("surnames", set()):
+                # Ambiguity weighting: names appearing in many regions get lower weight
+                ambiguity = len(_GIVEN_TO_REGIONS.get(g, {r}))
+                if ambiguity >= 4:
+                    continue  # too ambiguous across regions, skip
+                w = 2.0 / ambiguity
+                given_scores[r] += w
+                reasons[r].append(f"STRONG_GIVEN:{g}:{w:.2f}")
 
         # Strong: hyphenated given for Korean
         if strong.get("hyphen_given") and any("-" in tok for tok in tokens):
-            scores[r] += 2.5
+            given_scores[r] += 2.5
             reasons[r].append("STRONG_HYPHEN_GIVEN:2.50")
 
         # Strong: suffix patterns (Persian/Japanese/Slavic/Nordic/etc.)
@@ -2327,48 +2352,48 @@ def _score_priority_rules(name, possible):
                 w = 2.5
                 if suf == "ian":
                     w = 1.5  # ambiguous with Armenian
-                scores[r] += w
+                surname_scores[r] += w
                 reasons[r].append(f"STRONG_SURNAME_SUFFIX:{suf}:{w:.2f}")
 
         # Strong: prefix patterns (Irish O', Scottish Mac/Mc, Anglo-Norman Fitz)
         for pfx in strong.get("surname_prefix", set()):
             if any(tok.startswith(pfx) for tok in surname_candidates):
-                scores[r] += 3.0
+                surname_scores[r] += 3.0
                 reasons[r].append(f"STRONG_SURNAME_PREFIX:{pfx}:3.00")
 
         for suf in strong.get("given_suffix", set()):
             if any(tok.endswith(suf) for tok in tokens):
-                scores[r] += 2.0
+                given_scores[r] += 2.0
                 reasons[r].append(f"STRONG_GIVEN_SUFFIX:{suf}:2.00")
 
         # Strong: prefix patterns (Arabic al-, el-, ben-, bou-)
         for pref in strong.get("surname_prefix", set()):
             if any(tok.startswith(pref) for tok in tokens):
-                scores[r] += 3.0
+                surname_scores[r] += 3.0
                 reasons[r].append(f"STRONG_SURNAME_PREFIX:{pref}:3.00")
 
         # Strong: particles (de, van, von, saint, etc.)
         for p in strong.get("particles", set()):
             if _wb(p).search(name_l):
-                scores[r] += 2.0
+                surname_scores[r] += 2.0
                 reasons[r].append(f"STRONG_PARTICLE:{p}:2.00")
 
         # Medium indicators
         # FIXED: Check surname candidates (first/last), excluding known given names
         for s in medium.get("surnames", set()):
             if _wb(s).search(surname_tokens_str):
-                scores[r] += 1.5
+                surname_scores[r] += 1.5
                 reasons[r].append(f"MEDIUM_SURNAME:{s}:1.50")
         for p in medium.get("particles", set()):
             if _wb(p).search(name_l):
-                scores[r] += 0.8
+                surname_scores[r] += 0.8
                 reasons[r].append(f"MEDIUM_PARTICLE:{p}:0.80")
 
         # Hispanic diaspora surnames (for A1) - even lower weight
         # FIXED: Check surname candidates (first/last), excluding known given names
         for s in medium.get("hispanic_diaspora", set()):
             if _wb(s).search(surname_tokens_str):
-                scores[r] += 1.0
+                surname_scores[r] += 1.0
                 reasons[r].append(f"MEDIUM_HISPANIC_DIASPORA:{s}:1.00")
 
         # Combination bonus: given+surname co-occurrence (all regions with both patterns)
@@ -2396,34 +2421,57 @@ def _score_priority_rules(name, possible):
                 for g in strong.get("given_frag", set())
             )
             if has_surname and has_given:
-                scores[r] += 2.0
+                surname_scores[r] += 2.0
                 reasons[r].append("COMBO_GIVEN_SURNAME:2.00")
 
-    # Normalize by candidate count to avoid 'larger DB wins' artifact
-    if scores:
-        mx = max(scores.values())
-        if mx <= 0:
-            metadata = (
-                {"reason": "no_signal", "scores": scores}
-                if verbose
-                else {"reason": "no_signal"}
-            )
-            return (None, 0.0, metadata)
-        # Winner and calibrated confidence
-        winner = max(scores.items(), key=lambda kv: kv[1])[0]
-        # Map score to 0.60–0.90 band
-        conf = 0.60 + min(0.30, (scores[winner] / (scores[winner] + 5.0)) * 0.30)
+    # Combine channels: surnames dominate (1.0x), given names are weak tiebreakers (0.35x)
+    scores = {r: 1.0 * surname_scores[r] + 0.35 * given_scores[r] for r in possible}
 
-        # Build metadata (verbose mode includes full audit trail)
-        metadata = {"reasons": reasons[winner]}
-        if verbose:
-            metadata["all_scores"] = scores
-            metadata["all_reasons"] = {k: v for k, v in reasons.items() if v}
-            metadata["tokens"] = tokens
-            metadata["name_normalized"] = name_l
+    # Find winner
+    sorted_regions = sorted(scores.items(), key=lambda x: -x[1])
+    if not sorted_regions or sorted_regions[0][1] <= 0:
+        metadata = (
+            {"reason": "no_signal", "scores": scores}
+            if verbose
+            else {"reason": "no_signal"}
+        )
+        return (None, 0.0, metadata)
 
-        return (winner, conf, metadata)
-    return (None, 0.0, {"reason": "no_scores"})
+    best_region = sorted_regions[0][0]
+    best_score = sorted_regions[0][1]
+    second_score = sorted_regions[1][1] if len(sorted_regions) > 1 else 0
+    margin = best_score - second_score
+
+    # Abstain if evidence is too weak or margin too small
+    if best_score < 0.5 or margin < 0.3:
+        return (
+            None,
+            0.0,
+            {
+                "reason": "low_score_or_margin",
+                "best_score": best_score,
+                "margin": margin,
+            },
+        )
+
+    # Calibrate confidence
+    conf = 0.60 + min(0.30, (best_score / (best_score + 5.0)) * 0.30)
+
+    # Build metadata (verbose mode includes full audit trail)
+    debug = {
+        "reasons": reasons.get(best_region, []),
+        "best_score": best_score,
+        "margin": margin,
+        "surname_score": surname_scores.get(best_region, 0),
+        "given_score": given_scores.get(best_region, 0),
+    }
+    if verbose:
+        debug["all_scores"] = scores
+        debug["all_reasons"] = {k: v for k, v in reasons.items() if v}
+        debug["tokens"] = tokens
+        debug["name_normalized"] = name_l
+
+    return (best_region, conf, debug)
 
 
 def _nudge_by_doi_affiliation(entry, region, conf) -> float:
@@ -3247,10 +3295,13 @@ class RegionManager:
 
         # Phase 1: Script Analysis with priority rules
         result = self._detect_by_script(entry)
-        if result and result.confidence >= 0.60:
-            # PHASE 3 FIX 2: Apply affiliation tie-breaking
-            result = self._apply_affiliation_tiebreak(entry, result)
-            return result
+        if result:
+            # If scorer explicitly abstained, respect that — return R0
+            if result.detection_method in ("scorer-abstain", "weak-evidence-abstain"):
+                return result
+            if result.confidence >= 0.60:
+                result = self._apply_affiliation_tiebreak(entry, result)
+                return result
 
         # Phase 1: ICU processing with priority rules
         result = self._detect_by_icu(entry)
@@ -3456,7 +3507,27 @@ class RegionManager:
 
         # Fallback to OLD priority rules if signals don't match script-compatible regions
         region, conf, dbg = _score_priority_rules(name, possible)
+        # If scorer explicitly abstained (margin too low or weak evidence), return R0
+        if region is None and dbg.get("reason") in ("low_score_or_margin", "no_scores"):
+            return RegionDetectionResult(
+                region_code="R0",
+                confidence=0.20,
+                detection_method="scorer-abstain",
+                metadata=dbg,
+            )
         if region and conf >= 0.60:
+            # Fix 4: Don't force a Latin-script winner with weak evidence
+            raw_score = dbg.get("best_score", 0)
+            if raw_score < 2.0:
+                return RegionDetectionResult(
+                    region_code="R0",
+                    confidence=0.20,
+                    detection_method="weak-evidence-abstain",
+                    metadata={
+                        "reasons": dbg.get("reasons", []),
+                        "best_score": raw_score,
+                    },
+                )
             dom_ratio = min(1.0, dom_count / total)
             final_conf = min(0.90, 0.5 * dom_ratio + 0.5 * conf)
             final_conf = _nudge_by_doi_affiliation(entry, region, final_conf)
