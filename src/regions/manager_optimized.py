@@ -3273,6 +3273,7 @@ class RegionManager:
         # to avoid collisions when the same name appears with different CCs
         # (e.g. "Lee, Bruce" with CC=US vs CC=KR must not share a cache slot).
         cc = ",".join(sanitized_entry.get("CountryCodes", []))
+        inst = sanitized_entry.get("Institution", "")
         cache_key = (
             (
                 sanitized_entry.get("CanonicalLatin", "")
@@ -3280,6 +3281,8 @@ class RegionManager:
             )
             + "|"
             + cc
+            + "|"
+            + inst
         )
 
         # Check cache
@@ -3335,6 +3338,11 @@ class RegionManager:
                     detection_method="country-code",
                     metadata={"country": country_codes[0]},
                 )
+
+        # HIGH PRIORITY: Institution/affiliation → country via ROR
+        result = self._detect_by_affiliation(entry)
+        if result and result.confidence >= 0.80:
+            return result
 
         # Phase 3: Authority detection (cache-only, synchronous)
         import os
@@ -3456,6 +3464,11 @@ class RegionManager:
                     detection_method="country-code",
                     metadata={"country": country_codes[0]},
                 )
+
+        # HIGH PRIORITY: Institution/affiliation → country via ROR
+        result = self._detect_by_affiliation(entry)
+        if result and result.confidence >= 0.80:
+            return result
 
         # Phase 3: Authority detection (cached only in OFFLINE mode)
         result = await self._detect_by_external_authority(entry)
@@ -4121,13 +4134,32 @@ class RegionManager:
     def _detect_by_affiliation(
         self, entry: Dict[str, Any]
     ) -> Optional[RegionDetectionResult]:
-        """Detect region based on affiliation information."""
-        affiliations = entry.get("Affiliations", [])
-        if not affiliations:
-            return None
+        """Detect region from institution/affiliation using ROR lookup."""
+        # Try Institution field first (common in pipeline output)
+        institution = entry.get("Institution") or entry.get("institution") or ""
+        if institution:
+            try:
+                from src.collectors.ror_client import get_ror_lookup
 
-        # Extract country from affiliation
-        # This is a simplified version - real implementation would be more sophisticated
+                ror = get_ror_lookup()
+                cc = ror.lookup(institution)
+                if cc:
+                    region = get_region_for_territory(cc)
+                    if region and region in self.IMPLEMENTED_REGIONS:
+                        return RegionDetectionResult(
+                            region_code=region,
+                            confidence=0.85,
+                            detection_method="ror-affiliation",
+                            metadata={
+                                "institution": institution,
+                                "country": cc,
+                            },
+                        )
+            except ImportError:
+                pass
+
+        # Try Affiliations list (structured with country field)
+        affiliations = entry.get("Affiliations", [])
         for affiliation in affiliations:
             if isinstance(affiliation, dict):
                 country = affiliation.get("country")
@@ -4136,8 +4168,8 @@ class RegionManager:
                     if region and region in self.IMPLEMENTED_REGIONS:
                         return RegionDetectionResult(
                             region_code=region,
-                            confidence=0.8,
-                            detection_method="affiliation",
+                            confidence=0.80,
+                            detection_method="affiliation-country",
                             metadata={
                                 "country": country,
                                 "affiliation": affiliation.get("name"),
