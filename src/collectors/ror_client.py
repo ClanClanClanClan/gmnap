@@ -1,6 +1,7 @@
 """ROR institution → country lookup (curated top-500 + fuzzy matching)."""
 
 from __future__ import annotations
+
 import logging
 import re
 import unicodedata
