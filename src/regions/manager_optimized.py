@@ -837,6 +837,15 @@ _STRONG = {
             "tursunov",
             "ergashev",
             "rakhmonov",
+            "abbasov",
+            "musayev",
+            "guliyev",
+            "rustamov",
+            "babayev",
+            "novruzov",
+            "suleymanov",
+            "akhundov",
+            "gasimov",
         },
         "given_frag": {
             "mehmet",
@@ -862,6 +871,12 @@ _STRONG = {
             "farida",
             "leyla",
             "nurlan",
+            "rashad",
+            "vugar",
+            "tural",
+            "aysel",
+            "gunay",
+            "nigar",
             "timur",
             "ruslan",
             "alisher",
@@ -1206,41 +1221,43 @@ _STRONG = {
             "natia",
         },
     },
-    "C9": {  # Caucasus Turkic (Azeri, Kumyk, Nogai)
+    "C9": {  # Baltic (Lithuanian, Latvian)
+        "surname_suffix": {
+            "auskas",
+            "aitis",
+            "evicius",
+            "unas",
+            "enas",
+            "onis",
+            "utis",
+        },
         "surnames": {
-            "aliyev",
-            "hasanov",
-            "mammadov",
-            "huseynov",
-            "ismailov",
-            "rahimov",
-            "abbasov",
-            "karimov",
-            "ibrahimov",
-            "musayev",
-            "guliyev",
-            "rustamov",
-            "babayev",
-            "novruzov",
-            "suleymanov",
-            "akhundov",
-            "gasimov",
+            "kazlauskas",
+            "jankauskas",
+            "petrauskas",
+            "stankevicius",
+            "berzins",
+            "ozolins",
+            "liepa",
+            "paulauskas",
+            "butkus",
+            "ramanauskas",
+            "grinius",
+            "landsbergis",
+            "brazauskas",
+            "adamkus",
         },
         "given_frag": {
-            "eldar",
-            "javid",
-            "rashad",
-            "samir",
-            "vugar",
-            "tural",
-            "farid",
-            "aysel",
-            "gunay",
-            "leyla",
-            "nigar",
-            "sevinj",
-            "narmin",
-            "aytan",
+            "vytautas",
+            "mindaugas",
+            "giedrius",
+            "jonas",
+            "antanas",
+            "rasa",
+            "daiva",
+            "janis",
+            "aldis",
+            "edgaras",
         },
     },
     # ========== D GROUP: SOUTH ASIA ==========
@@ -2151,15 +2168,47 @@ SIGNATURE_SUFFIXES = {
     "stein",  # A2 Germanic (very distinctive)
 }
 
+# Tier 2: Medium suffixes — fire GROUP by themselves, need corroboration for LEAF.
+# Longer, more specific suffixes that ARE diagnostic for a leaf.
+MEDIUM_SUFFIXES_TO_LEAF = {
+    # Slavic Central (B2) — Polish/Czech
+    "owski": "B2",
+    "ewski": "B2",
+    "inski": "B2",
+    "anski": "B2",
+    "wicz": "B2",
+    # Slavic East (B1) — Russian
+    "evsky": "B1",
+    "ovsky": "B1",
+    "insky": "B1",
+    # Baltic (C9) — Lithuanian
+    "auskas": "C9",
+    "aitis": "C9",
+    "evicius": "C9",
+}
+
+# Bare short suffixes that only fire a GROUP, never a leaf alone.
+MEDIUM_SUFFIXES_TO_GROUP = {
+    "ski": "SLAVIC_CENTRAL",
+    "sky": "SLAVIC_EAST",
+    "ou": "HELLENIC",
+    "is": "HELLENIC",
+}
+
+MEDIUM_SUFFIX_WEIGHT_GROUP = 1.2  # weight for group-level boost
+MEDIUM_SUFFIX_WEIGHT_LEAF = 1.0  # additional weight if corroborated
+
 REGION_GROUPS = {
     "ANGLO_SPHERE": ["A1"],
     "GERMANIC_WESTERN": ["A2"],
     "NORDIC_BALTIC": ["A3"],
-    "OCEANIA_CARIBBEAN": ["A4", "A5"],
+    "OCEANIA_PACIFIC": ["A4"],
+    "CARIBBEAN_FRENCH": ["A5"],
     "SLAVIC_EAST": ["B1"],
     "SLAVIC_CENTRAL": ["B2"],
     "HELLENIC": ["B3"],
-    "TURKIC": ["C1", "C9"],
+    "TURKIC": ["C1"],
+    "BALTIC": ["C9"],
     "PERSIAN": ["C2"],
     "ARABIC": ["C3", "C4", "C5"],
     "HEBREW": ["C6"],
@@ -2476,6 +2525,44 @@ def _score_priority_rules(name, possible):
                 surname_scores[r] += 2.0
                 reasons[r].append("COMBO_GIVEN_SURNAME:2.00")
 
+    # ── Medium suffix tier (Tier 2) ──
+    # Fires group (1.2) by itself. Fires leaf (+1.0) only if corroborated later.
+    medium_leaf_hits = {}  # {leaf: [token, ...]} for later corroboration check
+    for tok in surname_candidates:
+        # Skip if a signature suffix already matched this token
+        if any(
+            tok.endswith(sig) and len(tok) > len(sig) + 1 for sig in SIGNATURE_SUFFIXES
+        ):
+            continue
+        # Longer medium suffixes → specific leaf hint
+        matched_medium = False
+        for suf, leaf in sorted(
+            MEDIUM_SUFFIXES_TO_LEAF.items(), key=lambda x: -len(x[0])
+        ):
+            if tok.endswith(suf) and len(tok) > len(suf) + 1:
+                group = LEAF_TO_GROUP.get(leaf)
+                if group:
+                    for r in possible:
+                        if LEAF_TO_GROUP.get(r) == group:
+                            surname_scores[r] += MEDIUM_SUFFIX_WEIGHT_GROUP
+                            reasons[r].append(
+                                f"MEDIUM_SUFFIX:{suf}:{MEDIUM_SUFFIX_WEIGHT_GROUP:.2f}"
+                            )
+                    medium_leaf_hits.setdefault(leaf, []).append(tok)
+                matched_medium = True
+                break  # longest match wins
+        if not matched_medium:
+            # Bare short suffixes → group only
+            for suf, group in MEDIUM_SUFFIXES_TO_GROUP.items():
+                if tok.endswith(suf) and len(tok) > len(suf) + 1:
+                    for r in possible:
+                        if LEAF_TO_GROUP.get(r) == group:
+                            surname_scores[r] += MEDIUM_SUFFIX_WEIGHT_GROUP
+                            reasons[r].append(
+                                f"MEDIUM_SUFFIX_GROUP:{suf}:{MEDIUM_SUFFIX_WEIGHT_GROUP:.2f}"
+                            )
+                    break
+
     # ── Learned features pass ──
     # Only use positive (supporting) log-odds and cap total contribution
     # so learned features act as tiebreakers, not overrides of handcrafted rules.
@@ -2525,8 +2612,33 @@ def _score_priority_rules(name, possible):
 
             # Cap learned contribution so it cannot override handcrafted signals
             # Keep caps low: learned features are tiebreakers, not primary evidence
-            surname_scores[r] += min(learned_surname_bump, 0.4)
+            learned_bump_capped = min(learned_surname_bump, 0.4)
+            surname_scores[r] += learned_bump_capped
             given_scores[r] += min(learned_given_bump, 0.3)
+
+            # Medium suffix corroboration: if learned features agree with a medium
+            # suffix leaf hit, promote from group to leaf
+            if r in medium_leaf_hits and learned_bump_capped > 0.05:
+                surname_scores[r] += MEDIUM_SUFFIX_WEIGHT_LEAF
+                reasons[r].append(
+                    f"MEDIUM_SUFFIX_CORROBORATED:{medium_leaf_hits[r][0]}:"
+                    f"{MEDIUM_SUFFIX_WEIGHT_LEAF:.2f}"
+                )
+
+    # Medium suffix corroboration from STRONG_SURNAME matches
+    for leaf, toks in medium_leaf_hits.items():
+        if leaf in possible and any(
+            "STRONG_SURNAME:" in r for r in reasons.get(leaf, [])
+        ):
+            # Already corroborated by a strong surname match
+            if not any(
+                "MEDIUM_SUFFIX_CORROBORATED" in r for r in reasons.get(leaf, [])
+            ):
+                surname_scores[leaf] += MEDIUM_SUFFIX_WEIGHT_LEAF
+                reasons[leaf].append(
+                    f"MEDIUM_SUFFIX_CORROBORATED:{toks[0]}:"
+                    f"{MEDIUM_SUFFIX_WEIGHT_LEAF:.2f}"
+                )
 
     # Combine channels: surnames dominate (1.0x), given names are weak tiebreakers (0.35x)
     scores = {r: 1.0 * surname_scores[r] + 0.35 * given_scores[r] for r in possible}
@@ -2546,6 +2658,9 @@ def _score_priority_rules(name, possible):
     second_score = sorted_regions[1][1] if len(sorted_regions) > 1 else 0
     margin = best_score - second_score
 
+    # Build candidates list (top-5 scored regions with positive scores)
+    candidates = [[r, round(s, 3)] for r, s in sorted_regions[:5] if s > 0]
+
     # Expert rule: given-name-only evidence NEVER produces leaf prediction
     best_surname = surname_scores.get(best_region, 0)
     best_given = given_scores.get(best_region, 0)
@@ -2559,6 +2674,7 @@ def _score_priority_rules(name, possible):
                 "best_region": best_region,
                 "group": group,
                 "given_score": best_given,
+                "candidates": candidates,
             },
         )
 
@@ -2571,6 +2687,9 @@ def _score_priority_rules(name, possible):
                 "reason": "low_score_or_margin",
                 "best_score": best_score,
                 "margin": margin,
+                "best_region": best_region,
+                "group": LEAF_TO_GROUP.get(best_region),
+                "candidates": candidates,
             },
         )
 
@@ -2584,6 +2703,7 @@ def _score_priority_rules(name, possible):
         "margin": margin,
         "surname_score": surname_scores.get(best_region, 0),
         "given_score": given_scores.get(best_region, 0),
+        "candidates": candidates,
     }
     if verbose:
         debug["all_scores"] = scores
@@ -2671,6 +2791,8 @@ class RegionDetectionResult:
     group_region: Optional[str] = None
     candidates: Optional[List[Any]] = None
     conflict: bool = False
+    # Phase 3: resolution level ("leaf", "group", or "abstain")
+    resolution_level: Optional[str] = None
 
 
 class RegionManager:
@@ -2758,9 +2880,11 @@ class RegionManager:
         self._clf = None
         # Phase 3 Authority cache (SizedLRU with ~10MB limit)
         self._authority_cache = SizedLRU(max_bytes=10 * 1024 * 1024)
-        # Phase 2 Step 7: Surname fastText model (lazy loaded)
+        # Phase 2 Step 7: Surname fastText model (lazy loaded, Python or CLI)
         self._surname_ft = None
         self._surname_ft_attempted = False
+        self._surname_ft_cli_path = None
+        self._surname_ft_model_path = None
         self._initialize_core()
 
     def _load_signal_sets(self):
@@ -3248,7 +3372,7 @@ class RegionManager:
                 if r in self.IMPLEMENTED_REGIONS
             ],
             "Cyrillic": [
-                r for r in ["B1", "B2", "C1", "C9"] if r in self.IMPLEMENTED_REGIONS
+                r for r in ["B1", "B2", "C1"] if r in self.IMPLEMENTED_REGIONS
             ],
             "Greek": [r for r in ["B3"] if r in self.IMPLEMENTED_REGIONS],
             "Arabic": [
@@ -3542,6 +3666,15 @@ class RegionManager:
             if hint_region:
                 group = LEAF_TO_GROUP.get(hint_region)
 
+        # Determine resolution level
+        if primary[0] in ("R0", "Z0"):
+            resolution = "group" if group else "abstain"
+        else:
+            resolution = "leaf"
+
+        # Extract candidates from scorer metadata
+        candidates = primary[3].get("candidates")
+
         return RegionDetectionResult(
             region_code=primary[0],
             confidence=primary[1],
@@ -3551,6 +3684,8 @@ class RegionManager:
             name_region=name[0],
             group_region=group,
             conflict=conflict,
+            resolution_level=resolution,
+            candidates=candidates,
         )
 
     def _infer_name_origin_fast(self, entry: Dict[str, Any]):
@@ -3643,16 +3778,19 @@ class RegionManager:
             return None
         self._surname_ft_attempted = True
 
-        if not FASTTEXT_AVAILABLE:
-            return None
-
         # Try multiple paths for the surname classifier
-        candidates = [
+        model_candidates = [
             Path("data/ml_training/surname_classifier.ftz"),
             Path("data/ml_training/surname_classifier.bin"),
             self.config_dir / "surname_classifier.ftz",
             self.config_dir / "surname_classifier.bin",
         ]
+
+        if not FASTTEXT_AVAILABLE:
+            # Fallback: try CLI binary
+            return self._load_surname_fasttext_cli(model_candidates)
+
+        candidates = model_candidates
         for path in candidates:
             if path.exists():
                 try:
@@ -3675,6 +3813,61 @@ class RegionManager:
 
         logger.debug("No surname fastText model found (graceful fallback)")
         return None
+
+    def _load_surname_fasttext_cli(self, model_candidates):
+        """Fallback: use fasttext CLI binary instead of Python module."""
+        import shutil
+
+        cli_path = shutil.which("fasttext")
+        if not cli_path:
+            for p in ["/usr/local/bin/fasttext", "/opt/homebrew/bin/fasttext"]:
+                if Path(p).exists():
+                    cli_path = p
+                    break
+        if not cli_path:
+            return None
+
+        model_path = None
+        for p in model_candidates:
+            if p.exists():
+                model_path = str(p)
+                break
+        if not model_path:
+            return None
+
+        self._surname_ft_cli_path = cli_path
+        self._surname_ft_model_path = model_path
+        self._surname_ft = "CLI_MODE"
+        logger.info(f"Using fasttext CLI at {cli_path} with model {model_path}")
+        return self._surname_ft
+
+    def _predict_via_cli(self, text):
+        """Call fasttext predict-prob via subprocess."""
+        import subprocess
+
+        try:
+            result = subprocess.run(
+                [
+                    self._surname_ft_cli_path,
+                    "predict-prob",
+                    self._surname_ft_model_path,
+                    "-",
+                    "2",
+                ],
+                input=text,
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            parts = result.stdout.strip().split()
+            if len(parts) >= 2:
+                label = parts[0].replace("__label__", "")
+                p1 = float(parts[1])
+                p2 = float(parts[3]) if len(parts) > 3 else 0.0
+                return label, p1, p2
+        except Exception as e:
+            logger.debug(f"fasttext CLI prediction failed: {e}")
+        return None, 0.0, 0.0
 
     def _detect_by_surname_fasttext(
         self, entry: Dict[str, Any]
@@ -3708,21 +3901,36 @@ class RegionManager:
                 return None  # signature suffix already handled by rules
 
         try:
-            pred = model.predict(surname_lower, k=1)
-            if pred and len(pred[0]) > 0:
-                label = pred[0][0].replace("__label__", "")
-                prob = float(pred[1][0])
-                if prob >= 0.50 and label in self.IMPLEMENTED_REGIONS:
-                    return RegionDetectionResult(
-                        region_code=label,
-                        confidence=min(0.75, prob * 0.80),  # cap at 0.75
-                        detection_method="surname-fasttext",
-                        metadata={
-                            "surname": surname_lower,
-                            "ft_prob": prob,
-                            "ft_label": label,
-                        },
-                    )
+            if model == "CLI_MODE":
+                label, p1, p2 = self._predict_via_cli(surname_lower)
+            else:
+                pred = model.predict(surname_lower, k=2)
+                if pred and len(pred[0]) > 0:
+                    label = pred[0][0].replace("__label__", "")
+                    p1 = float(pred[1][0])
+                    p2 = float(pred[1][1]) if len(pred[1]) > 1 else 0.0
+                else:
+                    return None
+
+            # Expert criteria: p1 >= 0.50 AND margin p1-p2 >= 0.15
+            if (
+                label
+                and p1 >= 0.50
+                and (p1 - p2) >= 0.15
+                and label in self.IMPLEMENTED_REGIONS
+            ):
+                return RegionDetectionResult(
+                    region_code=label,
+                    confidence=min(0.75, p1 * 0.80),
+                    detection_method="surname-fasttext",
+                    metadata={
+                        "surname": surname_lower,
+                        "ft_prob": p1,
+                        "ft_prob2": p2,
+                        "ft_label": label,
+                        "ft_mode": "cli" if model == "CLI_MODE" else "python",
+                    },
+                )
         except Exception as e:
             logger.debug(f"Surname fastText prediction failed: {e}")
 
@@ -5123,17 +5331,6 @@ class RegionManager:
                 "jansons",
                 "pētersons",
                 "kļaviņš",
-                # Lithuanian
-                "kazlauskas",
-                "petrauskas",
-                "stankevičius",
-                "jankauskas",
-                "žukauskas",
-                "butkus",
-                "paulauskas",
-                "gudauskas",
-                "mockus",
-                "rimkus",
                 # Hungarian (mathematicians and common surnames)
                 "erdős",
                 "rényi",
@@ -6079,8 +6276,8 @@ class RegionManager:
             "C7": ("src.regions.c_groups.c7_armenian.processor", "C7_Armenian"),
             "C8": ("src.regions.c_groups.c8_georgian.processor", "C8_Georgian"),
             "C9": (
-                "src.regions.c_groups.c9_caucasus_turkic.processor",
-                "C9_CaucasusTurkic",
+                "src.regions.c_groups.c9_baltic.processor",
+                "C9_Baltic",
             ),
             # D-groups (South Asia)
             "D1": (
