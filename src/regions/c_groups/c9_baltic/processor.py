@@ -30,14 +30,50 @@ class C9_Baltic(RegionSpec):
 
         # Lithuanian diacritical characters
         self.lithuanian_chars = {
-            "ą", "č", "ę", "ė", "į", "š", "ų", "ū", "ž",
-            "Ą", "Č", "Ę", "Ė", "Į", "Š", "Ų", "Ū", "Ž",
+            "ą",
+            "č",
+            "ę",
+            "ė",
+            "į",
+            "š",
+            "ų",
+            "ū",
+            "ž",
+            "Ą",
+            "Č",
+            "Ę",
+            "Ė",
+            "Į",
+            "Š",
+            "Ų",
+            "Ū",
+            "Ž",
         }
 
         # Latvian diacritical characters
         self.latvian_chars = {
-            "ā", "č", "ē", "ģ", "ī", "ķ", "ļ", "ņ", "š", "ū", "ž",
-            "Ā", "Č", "Ē", "Ģ", "Ī", "Ķ", "Ļ", "Ņ", "Š", "Ū", "Ž",
+            "ā",
+            "č",
+            "ē",
+            "ģ",
+            "ī",
+            "ķ",
+            "ļ",
+            "ņ",
+            "š",
+            "ū",
+            "ž",
+            "Ā",
+            "Č",
+            "Ē",
+            "Ģ",
+            "Ī",
+            "Ķ",
+            "Ļ",
+            "Ņ",
+            "Š",
+            "Ū",
+            "Ž",
         }
 
         # Lithuanian masculine surname suffixes and their feminine counterparts
@@ -57,18 +93,36 @@ class C9_Baltic(RegionSpec):
 
         # Latvian surname suffixes
         self.lv_surname_suffixes = {
-            "iņš", "iņa",  # masculine, feminine
-            "āns", "āne",
-            "bergs", "berga",
-            "sons", "sone",
+            "iņš",
+            "iņa",  # masculine, feminine
+            "āns",
+            "āne",
+            "bergs",
+            "berga",
+            "sons",
+            "sone",
         }
 
         # Academic titles
         self.titles = {
-            "prof", "prof.", "profesorius", "profesore",
-            "dr", "dr.", "daktaras", "daktarė",
-            "doc", "doc.", "docentas", "docentė",
-            "mr", "mr.", "mrs", "mrs.", "ms", "ms.",
+            "prof",
+            "prof.",
+            "profesorius",
+            "profesore",
+            "dr",
+            "dr.",
+            "daktaras",
+            "daktarė",
+            "doc",
+            "doc.",
+            "docentas",
+            "docentė",
+            "mr",
+            "mr.",
+            "mrs",
+            "mrs.",
+            "ms",
+            "ms.",
         }
 
     def clean(self, entry: Dict[str, Any]) -> None:
@@ -191,16 +245,34 @@ class C9_Baltic(RegionSpec):
         family_lower = family.lower()
 
         # Lithuanian feminine markers
-        if any(family_lower.endswith(s) for s in [
-            "ienė", "aitė", "ytė", "ūtė", "utė",
-            "auskienė", "auskaitė", "aitienė", "aitytė",
-        ]):
+        if any(
+            family_lower.endswith(s)
+            for s in [
+                "ienė",
+                "aitė",
+                "ytė",
+                "ūtė",
+                "utė",
+                "auskienė",
+                "auskaitė",
+                "aitienė",
+                "aitytė",
+            ]
+        ):
             return "female"
 
         # Lithuanian masculine markers
-        if any(family_lower.endswith(s) for s in [
-            "auskas", "aitis", "ūnas", "ėnas", "onis", "utis",
-        ]):
+        if any(
+            family_lower.endswith(s)
+            for s in [
+                "auskas",
+                "aitis",
+                "ūnas",
+                "ėnas",
+                "onis",
+                "utis",
+            ]
+        ):
             return "male"
 
         # Latvian feminine
@@ -215,14 +287,38 @@ class C9_Baltic(RegionSpec):
 
     def _generate_ascii_variant(self, name: str) -> str:
         translit = {
-            "ą": "a", "č": "c", "ę": "e", "ė": "e", "į": "i",
-            "š": "s", "ų": "u", "ū": "u", "ž": "z",
-            "Ą": "A", "Č": "C", "Ę": "E", "Ė": "E", "Į": "I",
-            "Š": "S", "Ų": "U", "Ū": "U", "Ž": "Z",
-            "ā": "a", "ē": "e", "ģ": "g", "ī": "i", "ķ": "k",
-            "ļ": "l", "ņ": "n",
-            "Ā": "A", "Ē": "E", "Ģ": "G", "Ī": "I", "Ķ": "K",
-            "Ļ": "L", "Ņ": "N",
+            "ą": "a",
+            "č": "c",
+            "ę": "e",
+            "ė": "e",
+            "į": "i",
+            "š": "s",
+            "ų": "u",
+            "ū": "u",
+            "ž": "z",
+            "Ą": "A",
+            "Č": "C",
+            "Ę": "E",
+            "Ė": "E",
+            "Į": "I",
+            "Š": "S",
+            "Ų": "U",
+            "Ū": "U",
+            "Ž": "Z",
+            "ā": "a",
+            "ē": "e",
+            "ģ": "g",
+            "ī": "i",
+            "ķ": "k",
+            "ļ": "l",
+            "ņ": "n",
+            "Ā": "A",
+            "Ē": "E",
+            "Ģ": "G",
+            "Ī": "I",
+            "Ķ": "K",
+            "Ļ": "L",
+            "Ņ": "N",
         }
         result = name
         for src, dst in translit.items():
@@ -254,11 +350,27 @@ class C9_Baltic(RegionSpec):
 
     def _has_valid_unicode_categories(self, text: str) -> bool:
         valid_categories = {
-            "Lu", "Ll", "Lt", "Lm", "Lo",
-            "Nd", "Nl", "No",
-            "Zs", "Zl", "Zp",
-            "Pc", "Pd", "Pe", "Pf", "Pi", "Po", "Ps",
-            "Mn", "Mc", "Me",
+            "Lu",
+            "Ll",
+            "Lt",
+            "Lm",
+            "Lo",
+            "Nd",
+            "Nl",
+            "No",
+            "Zs",
+            "Zl",
+            "Zp",
+            "Pc",
+            "Pd",
+            "Pe",
+            "Pf",
+            "Pi",
+            "Po",
+            "Ps",
+            "Mn",
+            "Mc",
+            "Me",
         }
         return all(unicodedata.category(char) in valid_categories for char in text)
 
@@ -267,8 +379,7 @@ class C9_Baltic(RegionSpec):
         family = self._extract_family_name(canonical) or canonical
         family_normalized = unicodedata.normalize("NFD", family.lower())
         family_clean = "".join(
-            char for char in family_normalized
-            if unicodedata.category(char) != "Mn"
+            char for char in family_normalized if unicodedata.category(char) != "Mn"
         )
         return family_clean
 

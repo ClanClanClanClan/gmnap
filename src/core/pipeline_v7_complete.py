@@ -388,6 +388,13 @@ class V7PipelineComplete:
                 entry["_detection_method"] = result.detection_method
                 entry["_region_metadata"] = result.metadata
 
+                # Phase 2: Expose geo/name split for downstream analysis
+                if hasattr(result, "geo_region"):
+                    entry["GeoRegion"] = result.geo_region
+                    entry["NameRegion"] = result.name_region
+                    entry["RegionConflict"] = result.conflict
+                    entry["RegionGroup"] = result.group_region
+
             except Exception as e:
                 logger.warning(f"Region detection failed: {e}")
                 entry["_detected_region"] = "XX"  # Unknown
