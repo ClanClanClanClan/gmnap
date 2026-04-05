@@ -220,15 +220,10 @@ _STRONG = {
             "stein",
             "berg",
             "feld",
-            "schmidt",
-            "schneider",
-            "ato",
-            "ini",
             "elli",
             "otti",
             "ucci",
             "acci",
-            "ovena",
         },
         "surnames": {
             "müller",
@@ -350,7 +345,7 @@ _STRONG = {
         },
     },
     "A3": {  # Nordic-Baltic (Sweden, Norway, Denmark, Finland, Iceland, Baltic states)
-        "surname_suffix": {"son", "sen", "sson", "sdóttir", "sdotter"},
+        "surname_suffix": {"sen", "sson", "sdóttir", "sdotter"},
         "surnames": {
             "andersson",
             "johansson",
@@ -595,16 +590,8 @@ _STRONG = {
             "ev",
             "eva",
             "enko",
-            "ski",
-            "sky",
-            "skaya",
-            "ovski",
-            "ovsky",
             "evich",
             "ovich",
-            "yn",
-            "yev",
-            "in",
         },
         "surnames": {
             "ivanov",
@@ -671,10 +658,6 @@ _STRONG = {
     },
     "B2": {  # South Slavic & Central (Polish, Czech, Slovak, Croatian, Serbian, Slovenian)
         "surname_suffix": {
-            "ski",
-            "ska",
-            "cki",
-            "cka",
             "wicz",
             "wski",
             "owski",
@@ -682,12 +665,8 @@ _STRONG = {
             "ová",
             "ský",
             "ček",
-            "ek",
-            "ák",
-            "ić",
             "ović",
             "ević",
-            "vić",
         },
         "surnames": {
             "nowak",
@@ -759,7 +738,7 @@ _STRONG = {
         },
     },
     "B3": {  # Greek & Cypriot
-        "surname_suffix": {"os", "as", "is", "ou", "poulos", "akis", "opoulos", "ides"},
+        "surname_suffix": {"poulos", "akis", "opoulos", "ides"},
         "surnames": {
             "papadopoulos",
             "papadakis",
@@ -890,7 +869,7 @@ _STRONG = {
         },
     },
     "C2": {  # Persian-Tajik
-        "surname_suffix": {"zadeh", "pour", "nejad", "nouri", "ighi", "ani"},
+        "surname_suffix": {"zadeh", "pour", "nejad", "khani"},
         "surnames": {
             "hosseini",
             "ahmadi",
@@ -906,6 +885,7 @@ _STRONG = {
             "bagheri",
             "sadeghi",
             "khalighi",
+            "mirzakhani",
         },
         "given_frag": {
             "mohammad",
@@ -1186,7 +1166,7 @@ _STRONG = {
         },
     },
     "C8": {  # Georgian
-        "surname_suffix": {"dze", "shvili", "adze", "ia", "ani", "uri"},
+        "surname_suffix": {"dze", "shvili", "adze"},
         "surnames": {
             "beridze",
             "gelashvili",
@@ -1580,7 +1560,7 @@ _STRONG = {
         "hyphen_given": True,
     },
     "E3": {  # Japanese
-        "surname_suffix": {"moto", "kawa", "zaki", "hara", "mura", "yama", "da", "ta"},
+        "surname_suffix": {"moto", "kawa", "zaki", "hara", "mura", "yama"},
         "given_suffix": {
             "taro",
             "jiro",
@@ -2068,7 +2048,7 @@ _STRONG = {
     },
     # ========== G GROUP: LATIN AMERICA ==========
     "G1": {  # Latin America (Spanish & Portuguese Americas)
-        "surname_suffix": {"ez", "az", "iz", "oz", "es", "os"},
+        "surname_suffix": {"ez", "az", "iz", "oz"},
         "surnames": {
             "garcia",
             "rodriguez",
@@ -2143,6 +2123,58 @@ _STRONG = {
         },
     },
 }
+
+# Near-diagnostic suffixes -- kept in handcrafted with full weight.
+# Expert recommendation: only signature markers stay curated.
+SIGNATURE_SUFFIXES = {
+    "opoulos",
+    "poulos",
+    "akis",
+    "ides",  # B3 Greek
+    "shvili",
+    "dze",
+    "adze",  # C8 Georgian
+    "yan",  # C7 Armenian
+    "ov",
+    "ova",
+    "ev",
+    "eva",
+    "enko",
+    "evich",
+    "ovich",  # B1 East Slavic
+    "sson",
+    "sen",  # A3 Nordic
+    "zadeh",
+    "pour",
+    "nejad",  # C2 Persian
+    "mann",
+    "stein",  # A2 Germanic (very distinctive)
+}
+
+REGION_GROUPS = {
+    "ANGLO_SPHERE": ["A1"],
+    "GERMANIC_WESTERN": ["A2"],
+    "NORDIC_BALTIC": ["A3"],
+    "OCEANIA_CARIBBEAN": ["A4", "A5"],
+    "SLAVIC_EAST": ["B1"],
+    "SLAVIC_CENTRAL": ["B2"],
+    "HELLENIC": ["B3"],
+    "TURKIC": ["C1", "C9"],
+    "PERSIAN": ["C2"],
+    "ARABIC": ["C3", "C4", "C5"],
+    "HEBREW": ["C6"],
+    "ARMENIAN": ["C7"],
+    "GEORGIAN": ["C8"],
+    "SOUTH_ASIAN": ["D1", "D2", "D3", "D4", "D5"],
+    "SINOPHONE": ["E1", "E2"],
+    "JAPANESE": ["E3"],
+    "KOREAN": ["E4"],
+    "VIETNAMESE": ["E5"],
+    "SEA": ["E6", "E7"],
+    "SSA": ["F1", "F2", "F3", "F4"],
+    "LATIN_AMERICAN": ["G1"],
+}
+LEAF_TO_GROUP = {leaf: g for g, leaves in REGION_GROUPS.items() for leaf in leaves}
 
 _MEDIUM = {
     "E1": {"surnames": {"sun", "zhou", "gao", "wu", "xu", "zhu", "deng", "mao", "cai"}},
@@ -2520,6 +2552,22 @@ def _score_priority_rules(name, possible):
     second_score = sorted_regions[1][1] if len(sorted_regions) > 1 else 0
     margin = best_score - second_score
 
+    # Expert rule: given-name-only evidence NEVER produces leaf prediction
+    best_surname = surname_scores.get(best_region, 0)
+    best_given = given_scores.get(best_region, 0)
+    if best_surname <= 0 and best_given > 0:
+        group = LEAF_TO_GROUP.get(best_region)
+        return (
+            None,
+            0.0,
+            {
+                "reason": "given_only_no_surname",
+                "best_region": best_region,
+                "group": group,
+                "given_score": best_given,
+            },
+        )
+
     # Abstain if evidence is too weak or margin too small
     if best_score < 0.5 or margin < 0.3:
         return (
@@ -2623,6 +2671,12 @@ class RegionDetectionResult:
     confidence: float
     detection_method: str
     metadata: Dict[str, Any] = field(default_factory=dict)
+    # Phase 2 fields (backward compatible -- all optional)
+    geo_region: Optional[str] = None
+    name_region: Optional[str] = None
+    group_region: Optional[str] = None
+    candidates: Optional[List[Any]] = None
+    conflict: bool = False
 
 
 class RegionManager:
@@ -2710,6 +2764,9 @@ class RegionManager:
         self._clf = None
         # Phase 3 Authority cache (SizedLRU with ~10MB limit)
         self._authority_cache = SizedLRU(max_bytes=10 * 1024 * 1024)
+        # Phase 2 Step 7: Surname fastText model (lazy loaded)
+        self._surname_ft = None
+        self._surname_ft_attempted = False
         self._initialize_core()
 
     def _load_signal_sets(self):
@@ -3312,38 +3369,115 @@ class RegionManager:
 
         return result
 
-    def _detect_region_uncached_sync(
-        self, entry: Dict[str, Any]
-    ) -> RegionDetectionResult:
-        """
-        Synchronous version of region detection.
-        Used when called from async context to avoid nested event loops.
-
-        Expert-specified cascade (Phase 1-3):
-        0. Authority (Phase 3) - ≥0.90 → early return (cache-only, no async needed)
-        1. ML Ensemble (Phase 2) - ≥0.85 → early return
-        2. Surname Pattern Matching - >0.95 → early return
-        3. Script Analysis (Priority Rules - Phase 1) - ≥0.60 → early return
-        """
-        # HIGHEST PRIORITY: Country code → region mapping
+    def _infer_geo(self, entry: Dict[str, Any]):
+        """Geographic inference: CC -> ROR -> structured affiliation -> DOI."""
+        # CountryCodes
         country_codes = entry.get("CountryCodes", [])
         if country_codes:
-            from src.regions.base import get_region_for_territory
-
             region = get_region_for_territory(country_codes[0])
             if region in self.IMPLEMENTED_REGIONS:
-                return RegionDetectionResult(
-                    region_code=region,
-                    confidence=0.85,
-                    detection_method="country-code",
-                    metadata={"country": country_codes[0]},
-                )
+                return (region, 0.85, "country-code", {"country": country_codes[0]})
 
-        # HIGH PRIORITY: Institution/affiliation → country via ROR
+        # Institution/ROR
         result = self._detect_by_affiliation(entry)
         if result and result.confidence >= 0.80:
-            return result
+            return (
+                result.region_code,
+                result.confidence,
+                result.detection_method,
+                result.metadata,
+            )
 
+        # DOI prefix
+        result = self._detect_by_doi(entry)
+        if result:
+            return (
+                result.region_code,
+                result.confidence,
+                result.detection_method,
+                result.metadata,
+            )
+
+        return None
+
+    def _run_name_origin_cascade(self, entry: Dict[str, Any]):
+        """Shared name-origin cascade used by both sync and async paths.
+
+        Returns a (region, confidence, method, metadata) tuple.
+        """
+        # Surname exact match (high confidence)
+        result = self._detect_by_surname(entry)
+        if result and result.confidence >= 0.95:
+            return (
+                result.region_code,
+                result.confidence,
+                result.detection_method,
+                result.metadata,
+            )
+
+        # Hybrid CJK name detection
+        result = self._detect_hybrid_name(entry)
+        if result and result.confidence >= 0.95:
+            return (
+                result.region_code,
+                result.confidence,
+                result.detection_method,
+                result.metadata,
+            )
+
+        # Script + priority rules
+        result = self._detect_by_script(entry)
+        if result:
+            if result.detection_method in ("scorer-abstain", "weak-evidence-abstain"):
+                pass  # Continue to next step
+            elif result.detection_method == "script":
+                pass  # Generic script fallback is unreliable for name-origin; skip
+            elif result.confidence >= 0.60:
+                result = self._apply_affiliation_tiebreak(entry, result)
+                return (
+                    result.region_code,
+                    result.confidence,
+                    result.detection_method,
+                    result.metadata,
+                )
+
+        # ICU processing
+        result = self._detect_by_icu(entry)
+        if result and result.confidence >= 0.60:
+            result = self._apply_affiliation_tiebreak(entry, result)
+            return (
+                result.region_code,
+                result.confidence,
+                result.detection_method,
+                result.metadata,
+            )
+
+        # FastText language detection
+        if self.lang_detector:
+            result = self._detect_by_language(entry)
+            if result and result.confidence >= 0.7:
+                return (
+                    result.region_code,
+                    result.confidence,
+                    result.detection_method,
+                    result.metadata,
+                )
+
+        # Surname fastText model (Step 7 - lazy loaded)
+        result = self._detect_by_surname_fasttext(entry)
+        if result:
+            return (
+                result.region_code,
+                result.confidence,
+                result.detection_method,
+                result.metadata,
+            )
+
+        # Terminal: R0 (never A1)
+        return ("R0", 0.10, "name-abstain", {})
+
+    def _infer_name_origin(self, entry: Dict[str, Any]):
+        """Name-origin inference: patterns -> scorer -> ML -> R0 (terminal)."""
         # Phase 3: Authority detection (cache-only, synchronous)
         import os
 
@@ -3351,213 +3485,214 @@ class RegionManager:
             gid = entry.get("GlobalID") or entry.get("ID")
             if gid:
                 hit = self._authority_cache.get(gid)
-                if hit:
-                    result = RegionDetectionResult(
-                        region_code=hit["region"],
-                        confidence=hit["conf"],
-                        detection_method=f"auth-{hit['source']}",
-                        metadata={
-                            "authority_source": hit.get("source"),
-                            "cached": True,
-                        },
+                if hit and hit.get("conf", 0) >= 0.90:
+                    return (
+                        hit["region"],
+                        hit["conf"],
+                        f"auth-{hit['source']}",
+                        {"authority_source": hit.get("source"), "cached": True},
                     )
-                    if result.confidence >= 0.90:
-                        return result
 
         # Phase 2: ML ensemble (returns None if models not loaded)
         result = self._detect_by_ml_ensemble(entry)
         if result and result.confidence >= 0.85:
-            return result
+            return (
+                result.region_code,
+                result.confidence,
+                result.detection_method,
+                result.metadata,
+            )
 
-        # PHASE 3 FIX 1: Hybrid name detection (CJK surname + Latin given)
-        result = self._detect_hybrid_name(entry)
-        if result and result.confidence >= 0.95:
-            return result
+        return self._run_name_origin_cascade(entry)
 
-        # Phase 1: Surname pattern matching (only if very confident)
-        result = self._detect_by_surname(entry)
-        if result and result.confidence > 0.95:
-            return result
+    @staticmethod
+    def _merge_geo_name(geo, name):
+        """Merge geo and name-origin inference into a final result.
 
-        # Phase 1: Script Analysis with priority rules
-        result = self._detect_by_script(entry)
-        if result:
-            # If scorer explicitly abstained, respect that — return R0
-            if result.detection_method in ("scorer-abstain", "weak-evidence-abstain"):
-                return result
-            if result.confidence >= 0.60:
-                result = self._apply_affiliation_tiebreak(entry, result)
-                return result
+        Priority logic:
+        - Name origin is primary when it has strong signal
+        - Geo (esp. CountryCode) wins when name is R0 or in same group
+        - When they conflict, prefer name but flag as conflict
+        - When geo comes from country-code and name is weak, prefer geo
+        """
+        # Name origin is primary
+        if name[0] != "R0":
+            primary = name
+        elif geo:
+            primary = geo
+        else:
+            primary = ("R0", 0.10, "terminal-abstain", {})
 
-        # Phase 1: ICU processing with priority rules
-        result = self._detect_by_icu(entry)
-        if result and result.confidence >= 0.60:
-            # PHASE 3 FIX 2: Apply affiliation tie-breaking
-            result = self._apply_affiliation_tiebreak(entry, result)
-            return result
+        conflict = geo is not None and name[0] != "R0" and geo[0] != name[0]
 
-        # FastText language detection
-        if self.lang_detector:
-            result = self._detect_by_language(entry)
-            if result and result.confidence >= 0.7:
-                return result
-
-        # Affiliation hints
-        result = self._detect_by_affiliation(entry)
-        if result:
-            return result
-
-        # DOI prefix
-        result = self._detect_by_doi(entry)
-        if result:
-            return result
-
-        # Diaspora overlay
-        result = self._detect_by_diaspora(entry)
-        if result:
-            return result
-
-        # Fallback based on country code
-        country_codes = entry.get("CountryCodes", [])
-        if country_codes:
-            region = get_region_for_territory(country_codes[0])
-            if region in self.IMPLEMENTED_REGIONS:
-                return RegionDetectionResult(
-                    region_code=region,
-                    confidence=0.3,
-                    detection_method="country-fallback",
-                    metadata={},
-                )
-
-        # Last resort
-        return RegionDetectionResult(
-            region_code="R0", confidence=0.1, detection_method="fallback", metadata={}
+        # When geo is from explicit CC and name is not from a high-trust
+        # method (surname exact, hybrid-cjk, ML-ensemble), prefer geo.
+        # CC is explicit ground truth; scorer-based methods can be wrong.
+        _high_trust_name_methods = (
+            "surname",
+            "hybrid-cjk-surname",
+            "ml-ensemble",
+            "ror-affiliation",
+            "affiliation-country",
         )
+        if (
+            conflict
+            and geo is not None
+            and geo[2] == "country-code"
+            and not any(name[2].startswith(m) for m in _high_trust_name_methods)
+        ):
+            # Geo from CC wins over scorer-based name detection
+            primary = geo
+
+        return RegionDetectionResult(
+            region_code=primary[0],
+            confidence=primary[1],
+            detection_method=primary[2],
+            metadata=primary[3],
+            geo_region=geo[0] if geo else None,
+            name_region=name[0],
+            group_region=LEAF_TO_GROUP.get(primary[0]),
+            conflict=conflict,
+        )
+
+    def _detect_region_uncached_sync(
+        self, entry: Dict[str, Any]
+    ) -> RegionDetectionResult:
+        """
+        Synchronous version of region detection.
+        Uses split geo/name-origin inference (Phase 2 architectural refactor).
+        """
+        geo = self._infer_geo(entry)
+        name = self._infer_name_origin(entry)
+        return self._merge_geo_name(geo, name)
+
+    async def _infer_name_origin_async(self, entry: Dict[str, Any]):
+        """Async name-origin inference: authority -> patterns -> scorer -> ML -> R0."""
+        # Phase 3: Authority detection (async, cached only in OFFLINE mode)
+        result = await self._detect_by_external_authority(entry)
+        if result and result.confidence >= 0.90:
+            return (
+                result.region_code,
+                result.confidence,
+                result.detection_method,
+                result.metadata,
+            )
+
+        # Phase 2: ML ensemble (returns None if models not loaded)
+        result = self._detect_by_ml_ensemble(entry)
+        if result and result.confidence >= 0.85:
+            return (
+                result.region_code,
+                result.confidence,
+                result.detection_method,
+                result.metadata,
+            )
+
+        return self._run_name_origin_cascade(entry)
 
     async def _detect_region_uncached_async(
         self, entry: Dict[str, Any]
     ) -> RegionDetectionResult:
         """
-        Detect region for an entry using V7-compliant multi-stage detection.
-
-        Expert-specified cascade (Phase 1-3):
-        0. Authority (Phase 3) - ≥0.90 → early return
-        1. ML Ensemble (Phase 2) - ≥0.85 → early return
-        2. Surname Pattern Matching - >0.95 → early return
-        3. Script Analysis (Priority Rules - Phase 1) - ≥0.60 → early return
-        4. ICU Processing (Priority Rules - Phase 1) - ≥0.60 → early return
-        5. FastText Language Detection
-        6. Affiliation Hints
-        7. DOI Prefix / Diaspora Overlay
-        8. Fallback (0.40-0.60)
+        Async version of region detection.
+        Uses split geo/name-origin inference (Phase 2 architectural refactor).
         """
-        # HIGHEST PRIORITY: Country code → region mapping
-        country_codes = entry.get("CountryCodes", [])
-        if country_codes:
-            from src.regions.base import get_region_for_territory
+        geo = self._infer_geo(entry)
+        name = await self._infer_name_origin_async(entry)
+        return self._merge_geo_name(geo, name)
 
-            region = get_region_for_territory(country_codes[0])
-            if region in self.IMPLEMENTED_REGIONS:
-                return RegionDetectionResult(
-                    region_code=region,
-                    confidence=0.85,
-                    detection_method="country-code",
-                    metadata={"country": country_codes[0]},
-                )
+    def _load_surname_fasttext(self):
+        """Lazy load surname fastText classifier model."""
+        if self._surname_ft is not None:
+            return self._surname_ft
+        if self._surname_ft_attempted:
+            return None
+        self._surname_ft_attempted = True
 
-        # HIGH PRIORITY: Institution/affiliation → country via ROR
-        result = self._detect_by_affiliation(entry)
-        if result and result.confidence >= 0.80:
-            return result
+        if not FASTTEXT_AVAILABLE:
+            return None
 
-        # Phase 3: Authority detection (cached only in OFFLINE mode)
-        result = await self._detect_by_external_authority(entry)
-        if result and result.confidence >= 0.90:
-            return result
+        # Try multiple paths for the surname classifier
+        candidates = [
+            Path("data/ml_training/surname_classifier.ftz"),
+            Path("data/ml_training/surname_classifier.bin"),
+            self.config_dir / "surname_classifier.ftz",
+            self.config_dir / "surname_classifier.bin",
+        ]
+        for path in candidates:
+            if path.exists():
+                try:
+                    import os
+                    import sys
 
-        # Phase 2: ML ensemble (returns None if models not loaded)
-        result = self._detect_by_ml_ensemble(entry)
-        if result and result.confidence >= 0.85:
-            return result
+                    old_stderr = sys.stderr
+                    try:
+                        sys.stderr = open(os.devnull, "w")
+                        self._surname_ft = fasttext.load_model(str(path))
+                    finally:
+                        sys.stderr.close()
+                        sys.stderr = old_stderr
+                    logger.info(f"Loaded surname fastText model from {path}")
+                    return self._surname_ft
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to load surname fastText model from {path}: {e}"
+                    )
 
-        # PHASE 3 FIX 1: Hybrid name detection (CJK surname + Latin given)
-        # Expert: "CJK surname trumps Anglo given name"
-        # This must happen BEFORE general surname matching to avoid false A1 classification
-        result = self._detect_hybrid_name(entry)
-        if result and result.confidence >= 0.95:
-            return result
+        logger.debug("No surname fastText model found (graceful fallback)")
+        return None
 
-        # Phase 1: Surname pattern matching (only if very confident)
-        # Threshold > 0.95 so priority rules in script/ICU can handle most cases
-        result = self._detect_by_surname(entry)
-        if result and result.confidence > 0.95:
-            return result
+    def _detect_by_surname_fasttext(
+        self, entry: Dict[str, Any]
+    ) -> Optional[RegionDetectionResult]:
+        """
+        Phase 2 Step 7: Use surname fastText model as fallback when rules abstain.
+        Only used if prediction prob >= 0.50 AND not overriding a signature suffix.
+        """
+        model = self._load_surname_fasttext()
+        if model is None:
+            return None
 
-        # Phase 1: Script Analysis with priority rules
-        result = self._detect_by_script(entry)
-        if result and result.confidence >= 0.60:
-            # PHASE 3 FIX 2: Apply affiliation tie-breaking for ambiguous families
-            # Expert: "Use affiliation ONLY for tie-breaking within families (A2/G1, E1/E2, C3/C4/C5)"
-            result = self._apply_affiliation_tiebreak(entry, result)
-            return result
+        name = entry.get("CanonicalLatin") or entry.get("CanonicalNative") or ""
+        if not name:
+            return None
 
-        # Phase 1: ICU processing with priority rules
-        result = self._detect_by_icu(entry)
-        if result and result.confidence >= 0.60:
-            # PHASE 3 FIX 2: Apply affiliation tie-breaking for ambiguous families
-            result = self._apply_affiliation_tiebreak(entry, result)
-            return result
-
-        # FastText language detection
-        if self.lang_detector:
-            result = self._detect_by_language(entry)
-            if result and result.confidence >= 0.7:
-                return result
-
-        # Affiliation hints
-        result = self._detect_by_affiliation(entry)
-        if result:
-            return result
-
-        # DOI prefix
-        result = self._detect_by_doi(entry)
-        if result:
-            return result
-
-        # Diaspora overlay
-        result = self._detect_by_diaspora(entry)
-        if result:
-            return result
-
-        # Fallback based on country code
-        country_codes = entry.get("CountryCodes", [])
-        if country_codes:
-            region = get_region_for_territory(country_codes[0])
-            # Only return if it's an implemented region
-            if region in self.IMPLEMENTED_REGIONS:
-                return RegionDetectionResult(
-                    region_code=region,
-                    confidence=0.3,
-                    detection_method="country-fallback",
-                    metadata={"country": country_codes[0]},
-                )
-
-        # Default fallback - but only if A1 is implemented
-        if "A1" in self.IMPLEMENTED_REGIONS:
-            return RegionDetectionResult(
-                region_code="A1",
-                confidence=0.1,
-                detection_method="default-fallback",
-                metadata={},
-            )
+        # Extract surname for prediction
+        if "," in name:
+            surname = name.split(",")[0].strip()
         else:
-            # No implemented regions available - should not happen
-            return RegionDetectionResult(
-                region_code="Z0",
-                confidence=0.0,
-                detection_method="no-regions",
-                metadata={},
-            )
+            parts = name.strip().split()
+            surname = parts[-1] if parts else name
+
+        surname_lower = surname.lower().strip()
+        if not surname_lower or len(surname_lower) < 2:
+            return None
+
+        # Check if surname ends with a signature suffix -- if so, do not override
+        for suf in SIGNATURE_SUFFIXES:
+            if surname_lower.endswith(suf) and len(surname_lower) > len(suf) + 1:
+                return None  # signature suffix already handled by rules
+
+        try:
+            pred = model.predict(surname_lower, k=1)
+            if pred and len(pred[0]) > 0:
+                label = pred[0][0].replace("__label__", "")
+                prob = float(pred[1][0])
+                if prob >= 0.50 and label in self.IMPLEMENTED_REGIONS:
+                    return RegionDetectionResult(
+                        region_code=label,
+                        confidence=min(0.75, prob * 0.80),  # cap at 0.75
+                        detection_method="surname-fasttext",
+                        metadata={
+                            "surname": surname_lower,
+                            "ft_prob": prob,
+                            "ft_label": label,
+                        },
+                    )
+        except Exception as e:
+            logger.debug(f"Surname fastText prediction failed: {e}")
+
+        return None
 
     def _detect_by_script(
         self, entry: Dict[str, Any]
@@ -5190,6 +5325,7 @@ class RegionManager:
                 "biruni",
                 "khwarizmi",
                 "karaji",
+                "mirzakhani",
                 # Tajik
                 "rahmonov",
                 "safarov",
