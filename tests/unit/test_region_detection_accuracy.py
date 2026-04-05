@@ -2124,11 +2124,11 @@ EXPANDED_NO_CC_CASES = [
     ("Zhao, Leji", "E1", "Chinese Zhao"),
     ("Huang, Xuhua", "E1", "Chinese Huang"),
     # D1 - Indian
-    ("Chakraborty, Satyajit", "D1", "Bengali-Indian Chakraborty"),
+    ("Chakraborty, Satyajit", "D3", "Bengali name-origin (D3, not geo-D1)"),
     ("Mukherjee, Pranab", "D1", "Bengali-Indian Mukherjee"),
     ("Bhattacharya, Sudip", "D1", "Bengali-Indian Bhattacharya"),
-    ("Ramanathan, Veerabhadran", "D1", "South Indian Ramanathan"),
-    ("Venkataraman, Raghuram", "D1", "South Indian Venkataraman"),
+    ("Ramanathan, Veerabhadran", "D2", "Dravidian name-origin (D2, not geo-D1)"),
+    ("Venkataraman, Raghuram", "D2", "Dravidian name-origin (D2, not geo-D1)"),
     # G1 - Latin American
     pytest.param(
         "Hernandez, Javier",
