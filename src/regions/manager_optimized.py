@@ -211,6 +211,11 @@ _STRONG = {
             "kimberly",
             "emily",
             "donna",
+            "alex",
+            "tony",
+            "sam",
+            "ben",
+            "nick",
         },
     },
     "A2": {  # Western Europe (German, French, Italian, Dutch, Belgian, Swiss, Austrian, Portuguese)
@@ -1368,6 +1373,11 @@ _STRONG = {
             "namboothiri",
             "panicker",
             "nandakumar",
+            "venkataraman",
+            "srinivasan",
+            "chandrasekaran",
+            "subramaniam",
+            "balakrishnan",
         },
         "given_frag": {
             "venkatesh",
@@ -2260,6 +2270,30 @@ MEDIUM_SUFFIXES_TO_GROUP = {
 MEDIUM_SUFFIX_WEIGHT_GROUP = 1.2  # weight for group-level boost
 MEDIUM_SUFFIX_WEIGHT_LEAF = 1.0  # additional weight if corroborated
 
+# Hispanic surnames shared between A1 (diaspora) and G1 (Latin American).
+# These bypass surname exact-match to let the scorer evaluate given-name evidence.
+_HISPANIC_SHARED_SURNAMES = {
+    "garcia",
+    "rodriguez",
+    "martinez",
+    "hernandez",
+    "lopez",
+    "gonzalez",
+    "perez",
+    "sanchez",
+    "ramirez",
+    "torres",
+    "flores",
+    "rivera",
+    "gomez",
+    "diaz",
+    "cruz",
+    "morales",
+    "reyes",
+    "gutierrez",
+    "ortiz",
+}
+
 REGION_GROUPS = {
     "ANGLO_SPHERE": ["A1"],
     "GERMANIC_WESTERN": ["A2"],
@@ -2736,6 +2770,30 @@ def _score_priority_rules(name, possible):
 
     # Build candidates list (top-5 scored regions with positive scores)
     candidates = [[r, round(s, 3)] for r, s in sorted_regions[:5] if s > 0]
+
+    # Mixed-name abstain: when a shared Hispanic surname appears with
+    # an Anglo-identified given name, this is a genuine diaspora ambiguity.
+    # Abstain with candidates rather than forcing a leaf.
+    has_hispanic_surname = any(
+        tok in _HISPANIC_SHARED_SURNAMES for tok in surname_candidates
+    )
+    has_anglo_given = any("STRONG_GIVEN" in r for r in reasons.get("A1", []))
+    if (
+        has_hispanic_surname
+        and has_anglo_given
+        and "A1" in possible
+        and "G1" in possible
+    ):
+        return (
+            None,
+            0.0,
+            {
+                "reason": "mixed_anglo_hispanic",
+                "candidates": candidates,
+                "best_region": best_region,
+                "group": "HISPANIC_ANGLO_MIXED",
+            },
+        )
 
     # Expert rule: given-name-only evidence NEVER produces leaf prediction
     best_surname = surname_scores.get(best_region, 0)
@@ -3602,12 +3660,18 @@ class RegionManager:
         # Surname exact match (high confidence)
         result = self._detect_by_surname(entry)
         if result and result.confidence >= 0.95:
-            return (
-                result.region_code,
-                result.confidence,
-                result.detection_method,
-                result.metadata,
-            )
+            # A1/G1 mixed-name check: if surname matches G1 but is also
+            # a common Hispanic-in-A1 name, skip to scorer for disambiguation
+            surname = result.metadata.get("surname", "")
+            if result.region_code == "G1" and surname in _HISPANIC_SHARED_SURNAMES:
+                pass  # let the scorer handle A1/G1 competition
+            else:
+                return (
+                    result.region_code,
+                    result.confidence,
+                    result.detection_method,
+                    result.metadata,
+                )
 
         # Hybrid CJK name detection
         result = self._detect_hybrid_name(entry)
@@ -3666,15 +3730,49 @@ class RegionManager:
                     result.metadata,
                 )
 
-        # Surname fastText model (Step 7 - lazy loaded)
-        result = self._detect_by_surname_fasttext(entry)
-        if result:
-            return (
-                result.region_code,
-                result.confidence,
-                result.detection_method,
-                result.metadata,
-            )
+        # Surname fastText model (Step 7 - lazy loaded, same-group gated)
+        ft_result = self._detect_by_surname_fasttext(entry)
+        if ft_result:
+            ft_group = LEAF_TO_GROUP.get(ft_result.region_code)
+            rules_group = scorer_hint.get("group")
+
+            if rules_group is not None:
+                # Rules identified a group — fastText must agree
+                if ft_group == rules_group:
+                    # Same group: accept with tighter threshold
+                    if (
+                        ft_result.metadata.get("ft_prob", 0) >= 0.70
+                        and (
+                            ft_result.metadata.get("ft_prob", 0)
+                            - ft_result.metadata.get("ft_prob2", 0)
+                        )
+                        >= 0.20
+                    ):
+                        ft_result.metadata["gated"] = "same_group"
+                        return (
+                            ft_result.region_code,
+                            ft_result.confidence,
+                            ft_result.detection_method,
+                            ft_result.metadata,
+                        )
+                # Different group: reject fastText, keep rules group hint
+            else:
+                # No rules group at all — fastText is only signal, require high conf
+                if (
+                    ft_result.metadata.get("ft_prob", 0) >= 0.80
+                    and (
+                        ft_result.metadata.get("ft_prob", 0)
+                        - ft_result.metadata.get("ft_prob2", 0)
+                    )
+                    >= 0.25
+                ):
+                    ft_result.metadata["gated"] = "ft_only_high_conf"
+                    return (
+                        ft_result.region_code,
+                        ft_result.confidence,
+                        ft_result.detection_method,
+                        ft_result.metadata,
+                    )
 
         # Terminal: R0 (never A1). Include scorer hints for group-level output.
         return ("R0", 0.10, "name-abstain", scorer_hint)
@@ -4057,6 +4155,7 @@ class RegionManager:
             "no_scores",
             "no_signal",
             "given_only_no_surname",
+            "mixed_anglo_hispanic",
         ):
             return RegionDetectionResult(
                 region_code="R0",
@@ -5107,20 +5206,14 @@ class RegionManager:
         # Only add patterns for implemented regions
         if "A1" in self.IMPLEMENTED_REGIONS:
             self.surname_patterns["A1"] = {
-                # Common Anglo surnames
+                # Common Anglo surnames (Hispanic names removed — handled by scorer)
                 "smith",
                 "johnson",
                 "williams",
                 "brown",
                 "jones",
-                "garcia",
                 "miller",
                 "davis",
-                "rodriguez",
-                "martinez",
-                "hernandez",
-                "lopez",
-                "gonzalez",
                 "wilson",
                 "anderson",
                 "thomas",
