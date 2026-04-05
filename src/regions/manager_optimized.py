@@ -3430,8 +3430,11 @@ class RegionManager:
         if result:
             if result.detection_method in ("scorer-abstain", "weak-evidence-abstain"):
                 pass  # Continue to next step
-            elif result.detection_method == "script":
-                pass  # Generic script fallback is unreliable for name-origin; skip
+            elif (
+                result.detection_method == "script"
+                and result.metadata.get("script") == "Latin"
+            ):
+                pass  # Latin script fallback is unreliable for name-origin; skip
             elif result.confidence >= 0.60:
                 result = self._apply_affiliation_tiebreak(entry, result)
                 return (
@@ -3510,39 +3513,23 @@ class RegionManager:
         """Merge geo and name-origin inference into a final result.
 
         Priority logic:
-        - Name origin is primary when it has strong signal
-        - Geo (esp. CountryCode) wins when name is R0 or in same group
-        - When they conflict, prefer name but flag as conflict
-        - When geo comes from country-code and name is weak, prefer geo
+        - CC-based geo is explicit ground truth → always primary for region_code
+        - Name-origin goes into name_region for diaspora detection
+        - When no CC, name-origin is primary
+        - Conflict flagged when geo and name disagree
         """
-        # Name origin is primary
-        if name[0] != "R0":
+        conflict = geo is not None and name[0] != "R0" and geo[0] != name[0]
+
+        # CC-based geo is explicit ground truth — always wins for region_code.
+        # Name-origin is preserved in name_region for diaspora detection.
+        if geo is not None and geo[2] == "country-code":
+            primary = geo
+        elif name[0] != "R0":
             primary = name
-        elif geo:
+        elif geo is not None:
             primary = geo
         else:
             primary = ("R0", 0.10, "terminal-abstain", {})
-
-        conflict = geo is not None and name[0] != "R0" and geo[0] != name[0]
-
-        # When geo is from explicit CC and name is not from a high-trust
-        # method (surname exact, hybrid-cjk, ML-ensemble), prefer geo.
-        # CC is explicit ground truth; scorer-based methods can be wrong.
-        _high_trust_name_methods = (
-            "surname",
-            "hybrid-cjk-surname",
-            "ml-ensemble",
-            "ror-affiliation",
-            "affiliation-country",
-        )
-        if (
-            conflict
-            and geo is not None
-            and geo[2] == "country-code"
-            and not any(name[2].startswith(m) for m in _high_trust_name_methods)
-        ):
-            # Geo from CC wins over scorer-based name detection
-            primary = geo
 
         return RegionDetectionResult(
             region_code=primary[0],
@@ -3555,6 +3542,33 @@ class RegionManager:
             conflict=conflict,
         )
 
+    def _infer_name_origin_fast(self, entry: Dict[str, Any]):
+        """Fast name-origin check: signature suffixes + surname exact only.
+
+        Used when CC provides definitive geo — we only need diaspora flags,
+        not full scorer resolution.  O(1) per entry instead of O(features).
+        """
+        # Surname exact match (high confidence, fast lookup)
+        result = self._detect_by_surname(entry)
+        if result and result.confidence >= 0.95:
+            return (
+                result.region_code,
+                result.confidence,
+                result.detection_method,
+                result.metadata,
+            )
+        # Hybrid CJK name detection (fast)
+        result = self._detect_hybrid_name(entry)
+        if result and result.confidence >= 0.95:
+            return (
+                result.region_code,
+                result.confidence,
+                result.detection_method,
+                result.metadata,
+            )
+        # No strong name signal — abstain
+        return ("R0", 0.10, "name-fast-abstain", {})
+
     def _detect_region_uncached_sync(
         self, entry: Dict[str, Any]
     ) -> RegionDetectionResult:
@@ -3563,7 +3577,12 @@ class RegionManager:
         Uses split geo/name-origin inference (Phase 2 architectural refactor).
         """
         geo = self._infer_geo(entry)
-        name = self._infer_name_origin(entry)
+        # Fast path: when CC provides definitive geo, skip full scorer.
+        # Only run fast name-origin (surname exact + CJK) for diaspora detection.
+        if geo is not None and geo[2] == "country-code":
+            name = self._infer_name_origin_fast(entry)
+        else:
+            name = self._infer_name_origin(entry)
         return self._merge_geo_name(geo, name)
 
     async def _infer_name_origin_async(self, entry: Dict[str, Any]):
@@ -3598,7 +3617,11 @@ class RegionManager:
         Uses split geo/name-origin inference (Phase 2 architectural refactor).
         """
         geo = self._infer_geo(entry)
-        name = await self._infer_name_origin_async(entry)
+        # Fast path: when CC provides definitive geo, skip full scorer.
+        if geo is not None and geo[2] == "country-code":
+            name = self._infer_name_origin_fast(entry)
+        else:
+            name = await self._infer_name_origin_async(entry)
         return self._merge_geo_name(geo, name)
 
     def _load_surname_fasttext(self):
