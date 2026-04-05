@@ -104,7 +104,6 @@ REGION_TEST_CASES = [
     ("Niemi, Antti", ["FI"], "A3", "Common Finnish surname"),
     ("Jonsson, Bjarni", ["IS"], "A3", "Icelandic patronymic"),
     ("Sigurdsson, Jon", ["IS"], "A3", "Icelandic patronymic"),
-    ("Kazlauskas, Vytautas", ["LT"], "A3", "Most common Lithuanian"),
     ("Berzins, Janis", ["LV"], "A3", "Common Latvian surname"),
     ("Tamm, Igor", ["EE"], "A3", "Estonian physicist surname"),
     ("Svensson, Ulf", ["SE"], "A3", "Common Swedish -sson"),
@@ -370,6 +369,24 @@ REGION_TEST_CASES = [
     ("Kipiani, David", ["GE"], "C8", "Georgian surname"),
     ("Javakhishvili, Ivane", ["GE"], "C8", "Georgian -shvili"),
     ("Tsereteli, Zurab", ["GE"], "C8", "Georgian surname"),
+    # ======================================================================
+    # C9 - Baltic (LT)
+    # ======================================================================
+    ("Kazlauskas, Vytautas", ["LT"], "C9", "Most common Lithuanian"),
+    ("Jankauskas, Edgaras", ["LT"], "C9", "Lithuanian -auskas"),
+    ("Petrauskas, Virgilijus", ["LT"], "C9", "Lithuanian -auskas"),
+    ("Paulauskas, Arturas", ["LT"], "C9", "Lithuanian -auskas"),
+    ("Butkus, Dick", ["LT"], "C9", "Lithuanian surname"),
+    ("Landsbergis, Vytautas", ["LT"], "C9", "Lithuanian political leader"),
+    ("Brazauskas, Algirdas", ["LT"], "C9", "Lithuanian -auskas"),
+    ("Adamkus, Valdas", ["LT"], "C9", "Lithuanian -us suffix"),
+    ("Grinius, Kazys", ["LT"], "C9", "Lithuanian -us suffix"),
+    ("Ramanauskas, Adolfas", ["LT"], "C9", "Lithuanian -auskas"),
+    ("Stankevicius, Ceslovas", ["LT"], "C9", "Lithuanian -evicius"),
+    ("Mockus, Antanas", ["LT"], "C9", "Lithuanian -us suffix"),
+    ("Rimkus, Petras", ["LT"], "C9", "Lithuanian -us suffix"),
+    ("Gudauskas, Rokas", ["LT"], "C9", "Lithuanian -auskas"),
+    ("Sabonis, Arvydas", ["LT"], "C9", "Lithuanian -onis suffix"),
     # ======================================================================
     # D1 - South Asia Indic (IN, NP, BT)
     # ======================================================================
@@ -768,7 +785,7 @@ ALL_37_REGIONS = {
 # territory codes. C9 territories (KG, KZ, UZ) map to C1. D2 is sub-regional
 # within IN (→D1). H1, R0, Z0 have no territory mapping.
 
-REGIONS_WITH_TERRITORY_CODES = ALL_37_REGIONS - {"C9", "D2", "H1", "R0", "Z0"}
+REGIONS_WITH_TERRITORY_CODES = ALL_37_REGIONS - {"D2", "H1", "R0", "Z0"}
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,34 @@
+# C9 Baltic Region Configuration
+# Baltic: Lithuanian, Latvian naming patterns
+
+schema_version: "7.0"
+region_code: "C9"
+region_name: "Baltic"
+
+# Regional characteristics
+iso_territories: [LT]
+primary_scripts: ["Latin"]
+distinct_features: "Lithuanian/Latvian diacritics; gendered surname suffixes; patronymic traditions"
+
+# Processing configuration
+canonical_order: "Family, Given"
+mixed_scripts: false
+romanisation_standards: ["ISO 9"]
+
+# Regional processing rules
+processing_rules:
+  baltic_handling: true
+  diacritical_processing: true
+  gendered_suffix_detection: true
+
+# Validation thresholds
+validation_rules:
+  min_confidence: 0.7
+  max_length: 150
+  require_family_name: true
+  allow_single_names: false
+
+# Quality control
+quality_thresholds:
+  detector_confidence_min: 0.5
+  processing_accuracy_min: 0.95

@@ -861,7 +861,7 @@ REGION_CODES = {
     "C6": "Hebrew & Diaspora",
     "C7": "Armenian",
     "C8": "Georgian",
-    "C9": "Caucasus-Turkic",
+    "C9": "Baltic",
     # D Groups - South Asia
     "D1": "South Asia - Hindi Belt",
     "D2": "South Asia - Dravidian",
@@ -949,7 +949,7 @@ TERRITORY_TO_REGION = {
     "AX": "A3",
     "EE": "A3",
     "LV": "A3",
-    "LT": "A3",
+    "LT": "C9",
     # A4 - Oceania Island States
     "FJ": "A4",
     "PG": "A4",
