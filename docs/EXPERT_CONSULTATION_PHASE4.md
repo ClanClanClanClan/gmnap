@@ -1,11 +1,60 @@
-# Expert Consultation Phase 4: Remaining Precision Gaps
+# Expert Consultation Phase 4 (Updated): Benchmark Crisis + Remaining Gaps
 
 **Date:** 2026-04-06
-**Context:** All Phase 3 recommendations implemented. This document details the remaining 11 wrong-leaf predictions preventing us from reaching the expert's target KPIs.
+**Context:** Phase 4 changes implemented (fastText gate, mixed-name abstain, label fixes). But large-scale evaluation reveals a fundamental benchmark problem: our KPIs were measured on a 91-name hand-picked "distinctive" set, which gave inflated numbers. Real-world evaluation on 843 Wikidata names shows much lower performance — primarily because Wikidata labels are geo-citizenship, not name-origin.
 
 ---
 
-## 1. Current KPIs (Post Phase 3 Implementation)
+## 0. THE BENCHMARK PROBLEM (Critical)
+
+### Small test set gave misleading KPIs
+
+| Eval Set | Size | Leaf Precision | Coverage | Group-or-better |
+|----------|------|---------------|----------|-----------------|
+| Hand-picked distinctive (91) | 91 | **96%** | 93% | 93% |
+| Wikidata stratified (843) | 843 | **56%** | 53% | 41% |
+
+The 91-name set was curated to have "distinctive" names with clear onomastic signals (Dostoevsky, Kazlauskas, Papadimitriou). Real-world names include many that are ambiguous (common surnames, immigrants, mixed heritage).
+
+### The core issue: geo-citizenship labels ≠ name-origin labels
+
+Many Wikidata "errors" are actually the system CORRECTLY detecting name-origin:
+
+| Name | Wikidata Label | Our Detection | Analysis |
+|------|---------------|---------------|----------|
+| Schwinger, Julian | A1 (US citizen) | A2 (Germanic) | German-origin surname. System is correct for name-origin. |
+| Fischer, Charlotte Froese | A1 (Canadian) | A2 (Germanic) | German surname. Correct name-origin. |
+| Klimovsky, Gregorio | G1 (Argentina) | B1 (Slavic) | Slavic surname in Argentina. Correct name-origin. |
+| Shestakov, I. | G1 (Brazil) | B1 (Slavic) | Russian name in Brazil. Correct name-origin. |
+| Yuanhua, Sun | A1 (Ming dynasty→US) | E1 (Chinese) | Chinese name. Correct name-origin. |
+| Cordeiro, G. M. | G1 (Brazil) | A2 (Germanic) | Portuguese surname. Correct for A2 (PT→A2). |
+
+### Per-region analysis on 843 names
+
+| Region | Total | Correct | R0 | Wrong | Prec | Notes |
+|--------|-------|---------|----|----|------|-------|
+| A1 | 50 | 18 | 18 | 14 | 56% | Many immigrants: German, Chinese, Slavic, Greek names with US/UK citizenship |
+| A2 | 50 | 16 | 25 | 9 | 64% | French/Italian names often abstain (R0); some route to wrong sub-region |
+| B1 | 50 | 24 | 18 | 8 | 75% | Good: Slavic suffixes work. Abstains on non-distinctive Russian names |
+| B2 | 50 | 6 | 26 | 18 | 25% | Many Polish names go to B1 (Slavic overlap). -ski fires SLAVIC_CENTRAL group but B1 beats B2 |
+| E3 | 50 | 32 | 15 | 3 | 91% | Best performer: Japanese surname database is comprehensive |
+| G1 | 50 | 9 | 19 | 22 | 29% | Many Latin American immigrants from Europe: German, Slavic, Italian surnames in Brazil/Argentina |
+| C6 | 50 | 8 | 16 | 26 | 23% | Hebrew/Israeli names often detected as other regions (Russian/German origin of Israeli mathematicians) |
+| C1 | 50 | 3 | 28 | 19 | 13% | Turkic names poorly covered |
+
+### What this means
+
+1. **We cannot evaluate name-origin performance using citizenship labels.** The expert explicitly warned about this: "NamePrism excluded immigration countries like US, Canada, Australia from its nationality-labeled training data."
+
+2. **A proper name-origin benchmark requires hand-labeled data** where the label reflects onomastic origin, not geo-citizenship. This is expensive but necessary for honest evaluation.
+
+3. **Our 91-name distinctive set IS a reasonable name-origin benchmark** for the specific patterns it tests. But it's too small and too easy. We need 500+ hand-labeled name-origin entries.
+
+4. **The system works as designed** — it detects name-origin, not citizenship. When it says "Schwinger→A2", that's correct onomastic classification, even though the citizenship label says A1.
+
+---
+
+## 1. Current KPIs (Post Phase 4 Implementation)
 
 | Metric | Value | Expert Target | Gap |
 |--------|-------|---------------|-----|
