@@ -1963,7 +1963,7 @@ DUAL_FIELD_CASES = [
 def test_dual_field_detection(manager, entry, expected):
     """Entries with both CanonicalLatin and CanonicalNative must detect correctly."""
     result = manager.detect_region(entry)
-    _check_region(result, expected, f"dual-field")
+    _check_region(result, expected, "dual-field")
 
 
 # ===========================================================================
