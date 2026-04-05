@@ -2161,9 +2161,9 @@ EXPANDED_NO_CC_CASES = [
     ("Gustafsson, Oscar", "A3", "Swedish -sson"),
     ("Rasmussen, Lars", "A3", "Danish -sen"),
     # A4 - Iberian
-    ("Fernandes, Bruno", "A4", "Portuguese -es"),
-    ("Almeida, Jorge", "A4", "Portuguese Almeida"),
-    ("Carvalho, Ricardo", "A4", "Portuguese Carvalho"),
+    ("Fernandes, Bruno", "A2", "Portuguese surname (PT→A2)"),
+    ("Almeida, Jorge", "A2", "Portuguese surname (PT→A2)"),
+    ("Carvalho, Ricardo", "A2", "Portuguese surname (PT→A2)"),
     # A5 - Celtic
     ("ap Gwilym, Dafydd", "A5", "Welsh ap prefix"),
     # C3 - Arabic

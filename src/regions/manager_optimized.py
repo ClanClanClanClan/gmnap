@@ -213,7 +213,7 @@ _STRONG = {
             "donna",
         },
     },
-    "A2": {  # Western Europe (German, French, Italian, Dutch, Belgian, Swiss, Austrian)
+    "A2": {  # Western Europe (German, French, Italian, Dutch, Belgian, Swiss, Austrian, Portuguese)
         "surname_suffix": {
             "mann",
             "hofer",
@@ -224,6 +224,11 @@ _STRONG = {
             "otti",
             "ucci",
             "acci",
+            # Portuguese-specific suffixes (not shared with Spanish)
+            "eiro",
+            "eira",
+            "inho",
+            "inha",
         },
         "surnames": {
             "müller",
@@ -300,6 +305,21 @@ _STRONG = {
             "abate",
             "bracci",
             "tovena",
+            # Portuguese surnames (PT → A2)
+            "pinto",
+            "soares",
+            "correia",
+            "teixeira",
+            "gomes",
+            "lopes",
+            "pereira",
+            "almeida",
+            "carvalho",
+            "ferreira",
+            "coelho",
+            "nogueira",
+            "figueiredo",
+            "azevedo",
         },
         "particles": {
             "van",
@@ -342,6 +362,20 @@ _STRONG = {
             "lars",
             "erik",
             "hendrik",
+            # Portuguese given names
+            "joao",
+            "goncalo",
+            "nuno",
+            "rui",
+            "filipe",
+            "diogo",
+            "ines",
+            "tiago",
+            "catarina",
+            "margarida",
+            "duarte",
+            "vasco",
+            "bernardo",
         },
     },
     "A3": {  # Nordic-Baltic (Sweden, Norway, Denmark, Finland, Iceland, Baltic states)
@@ -1867,8 +1901,25 @@ _STRONG = {
         },
     },
     # ========== F GROUP: SUB-SAHARAN AFRICA ==========
-    "F1": {  # SSA Francophone (Senegal, Mali, Burkina Faso, Côte d'Ivoire, etc.)
+    "F1": {  # SSA Francophone + North African Maghreb (Senegal, Mali, Algeria, Morocco, Tunisia)
+        "surname_prefix": {"ben", "bou"},
         "surnames": {
+            # Maghreb surnames
+            "benali",
+            "bousaid",
+            "bouzid",
+            "belkacem",
+            "benamara",
+            "khelifi",
+            "messaoudi",
+            "boudiaf",
+            "slimani",
+            "mebarki",
+            "hamidi",
+            "djebbar",
+            "zeroual",
+            "bouteflika",
+            # West African surnames
             "diop",
             "ndiaye",
             "fall",
@@ -1909,10 +1960,28 @@ _STRONG = {
             "bakary",
             "cheikh",
             "lamine",
+            # Maghreb given names
+            "rachid",
+            "driss",
+            "nabil",
+            "youssef",
+            "khadija",
+            "houria",
+            "zineb",
+            "said",
+            "tahar",
+            "larbi",
         },
     },
     "F2": {  # SSA Anglophone (Nigeria, Ghana, Kenya, Uganda, Tanzania, Zimbabwe)
+        "surname_prefix": {"ade", "ola", "ogun", "ojo"},
         "surnames": {
+            "adesanya",
+            "ogundimu",
+            "adeyemi",
+            "olaniyan",
+            "ogundipe",
+            "afolabi",
             "okonkwo",
             "nwankwo",
             "eze",
@@ -2088,13 +2157,6 @@ _STRONG = {
             "gutiérrez",
             "ortiz",
             "mendoza",
-            "silva",
-            "santos",
-            "oliveira",
-            "souza",
-            "costa",
-            "ferreira",
-            "alves",
         },
         "given_frag": {
             "josé",
@@ -2260,6 +2322,20 @@ _MEDIUM = {
     "A2": {
         "particles": {"de", "del", "van", "von", "da", "di", "du", "la", "le"},
         "surnames": {"haas", "hahn", "kurz", "lang", "moser", "pohl", "roth", "sauer"},
+    },
+    "G1": {
+        # Shared Lusophone surnames (demoted from _STRONG to _MEDIUM)
+        "surnames": {
+            "silva",
+            "santos",
+            "oliveira",
+            "souza",
+            "costa",
+            "ferreira",
+            "alves",
+            "pereira",
+            "lopes",
+        },
     },
     "A3": {
         "surnames": {"berg", "lund", "dahl", "holmberg", "strand", "lindqvist", "holm"}
@@ -5238,6 +5314,27 @@ class RegionManager:
                 "borsuk",
                 "ulam",
                 "zygmund",
+                # Portuguese (PT → A2)
+                "silva",
+                "santos",
+                "oliveira",
+                "rodrigues",
+                "almeida",
+                "fernandes",
+                "carvalho",
+                "gomes",
+                "martins",
+                "pinto",
+                "soares",
+                "correia",
+                "teixeira",
+                "ferreira",
+                "lopes",
+                "pereira",
+                "coelho",
+                "nogueira",
+                "figueiredo",
+                "azevedo",
             }
 
         if "A3" in self.IMPLEMENTED_REGIONS:
