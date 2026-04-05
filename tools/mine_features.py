@@ -118,6 +118,112 @@ COUNTRY_NAME_TO_CODE = {
     "Azerbaijan": "AZ",
     "Kazakhstan": "KZ",
     "Uzbekistan": "UZ",
+    # Historical polities from Wikidata
+    "Kingdom of Italy": "IT",
+    "United Kingdom of Great Britain and Ireland": "GB",
+    "Kingdom of the Netherlands": "NL",
+    "Empire of Japan": "JP",
+    "British Raj": "IN",
+    "Kingdom of Denmark": "DK",
+    "People's Republic of China": "CN",
+    "Dominion of India": "IN",
+    "Kingdom of Great Britain": "GB",
+    "Ukraine": "UA",
+    "Kingdom of England": "GB",
+    "Austrian Empire": "AT",
+    "Slovenia": "SI",
+    "Cisleithania": "AT",
+    "Ottoman Empire": "TR",
+    "Qing dynasty": "CN",
+    "Serbia": "RS",
+    "Dutch Republic": "NL",
+    "Austria–Hungary": "AT",
+    "Austria-Hungary": "AT",
+    "Socialist Federal Republic of Yugoslavia": "RS",
+    "Bulgaria": "BG",
+    "Abbasid Caliphate": "IQ",
+    "Kingdom of Yugoslavia": "RS",
+    "Polish–Lithuanian Commonwealth": "PL",
+    "Polish-Lithuanian Commonwealth": "PL",
+    "Weimar Republic": "DE",
+    "German Democratic Republic": "DE",
+    "Russian Socialist Federative Soviet Republic": "RU",
+    "Slovakia": "SK",
+    "Kingdom of Serbs, Croats and Slovenes": "RS",
+    "Belarus": "BY",
+    "Byzantine Empire": "GR",
+    "Second Polish Republic": "PL",
+    "Republic of China": "CN",
+    "Kingdom of Portugal": "PT",
+    "Kingdom of Saxony": "DE",
+    "Nazi Germany": "DE",
+    "Taiwan": "TW",
+    "Kingdom of Bavaria": "DE",
+    "Kingdom of Scotland": "GB",
+    "Classical Athens": "GR",
+    "Congress Poland": "PL",
+    "Uruguay": "UY",
+    "Habsburg monarchy": "AT",
+    "Grand Duchy of Finland": "FI",
+    "Moldova": "MD",
+    "Kingdom of Württemberg": "DE",
+    "Electorate of Saxony": "DE",
+    "Ancient Rome": "IT",
+    "Papal States": "IT",
+    "Albania": "AL",
+    "Russian Soviet Federative Socialist Republic": "RU",
+    "Luxembourg": "LU",
+    "Cuba": "CU",
+    "Grand Duchy of Baden": "DE",
+    "Kingdom of Hanover": "DE",
+    "Grand Duchy of Tuscany": "IT",
+    "Habsburg Netherlands": "BE",
+    "Ming dynasty": "CN",
+    "Republic of Florence": "IT",
+    "Duchy of Württemberg": "DE",
+    "Kingdom of Romania": "RO",
+    "Republic of Geneva": "CH",
+    "Crown of Aragon": "ES",
+    "Ukrainian People's Republic": "UA",
+    "Croatia": "HR",
+    "Republic of India": "IN",
+    "Republic of Korea": "KR",
+    "North Korea": "KR",
+    "Myanmar": "MM",
+    "Cambodia": "KH",
+    "Iceland": "IS",
+    "Costa Rica": "CR",
+    "Panama": "PA",
+    "Ecuador": "EC",
+    "Paraguay": "PY",
+    "Bolivia": "BO",
+    "Honduras": "HN",
+    "Guatemala": "GT",
+    "Dominican Republic": "DO",
+    "Puerto Rico": "PR",
+    "Jamaica": "JM",
+    "Trinidad and Tobago": "TT",
+    "Barbados": "BB",
+    "Sudan": "SD",
+    "Cameroon": "CM",
+    "Senegal": "SN",
+    "Mali": "ML",
+    "Ivory Coast": "CI",
+    "Côte d'Ivoire": "CI",
+    "Uganda": "UG",
+    "Zimbabwe": "ZW",
+    "Mozambique": "MZ",
+    "Angola": "AO",
+    "Botswana": "BW",
+    "Namibia": "NA",
+    "Rwanda": "RW",
+    "Qatar": "QA",
+    "United Arab Emirates": "AE",
+    "Oman": "OM",
+    "Kuwait": "KW",
+    "Bahrain": "BH",
+    "Yemen": "YE",
+    "Libya": "LY",
 }
 
 # ── Mining parameters ──
@@ -191,18 +297,23 @@ def load_data():
                 if region:
                     entries.append((tokenize(surname), tokenize(given), region, cc))
 
-    # 2. Wikidata (has country name -> CC mapping)
+    # 2. Wikidata (has country name -> CC mapping, or direct CountryCode)
     wiki_path = Path("data/wikidata_mathematicians.json")
+    n_wiki = 0
     if wiki_path.exists():
         with open(wiki_path) as f:
             for e in json.load(f):
-                country = e.get("Country", "")
-                cc = COUNTRY_NAME_TO_CODE.get(country)
+                # Try direct CC first, then country name mapping
+                cc = e.get("CountryCode") or COUNTRY_NAME_TO_CODE.get(
+                    e.get("Country", "")
+                )
                 if not cc:
                     continue
                 region = get_region_for_territory(cc)
                 surname, given = parse_surname_given(e["CanonicalLatin"])
                 entries.append((tokenize(surname), tokenize(given), region, cc))
+                n_wiki += 1
+        print(f"  Wikidata: {n_wiki} entries")
 
     # 3. OpenAlex robust collection
     oalex_path = Path(
