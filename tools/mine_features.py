@@ -15,6 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.regions.base import get_region_for_territory
+from src.regions.manager_optimized import SIGNATURE_SUFFIXES, LEAF_TO_GROUP
 
 # Country name -> ISO mapping for Wikidata
 COUNTRY_NAME_TO_CODE = {
@@ -61,8 +62,9 @@ COUNTRY_NAME_TO_CODE = {
 
 ALPHA = 0.5  # Laplace smoothing
 MIN_COUNT = 2
-MIN_WEIGHT = 0.3
+MIN_WEIGHT = 0.15  # lowered to allow signed (negative) weights with shrinkage
 MAX_REGION_FRAC = 0.6  # skip features in >60% of regions
+SHRINKAGE = 0.8  # multiply raw log-odds to reduce overfitting
 
 
 def normalize(name):
@@ -157,7 +159,63 @@ def load_data():
                 surname, given = parse_surname_given(name)
                 entries.append((tokenize(surname), tokenize(given), region))
 
+    # 4. OpenAlex 15K batch (fetched via scripts/data/fetch_openalex_training.py)
+    n0 = len(entries)
+    oalex_15k = Path("data/ml_training/openalex_10k_mathematicians.json")
+    if oalex_15k.exists():
+        with open(oalex_15k) as f:
+            for e in json.load(f):
+                cc = e.get("country_code")
+                if not cc:
+                    continue
+                region = get_region_for_territory(cc)
+                name = e.get("name", "")
+                surname, given = parse_surname_given(name)
+                entries.append((tokenize(surname), tokenize(given), region))
+        print(f"  OpenAlex 15K: {len(entries) - n0} entries")
+
     return entries
+
+
+def filter_disagreements(entries):
+    """Remove entries where a signature suffix points to a different region than the label.
+
+    This prevents noisy labels from polluting learned features.
+    """
+    # Build suffix -> expected region mapping from SIGNATURE_SUFFIXES
+    # We need to know which region each suffix belongs to
+    from src.regions.manager_optimized import _STRONG
+
+    suffix_to_region = {}
+    for region_code, patterns in _STRONG.items():
+        for suf in patterns.get("surname_suffix", set()):
+            if suf in SIGNATURE_SUFFIXES:
+                suffix_to_region[suf] = region_code
+
+    filtered = []
+    skipped = 0
+    for surname_toks, given_toks, region in entries:
+        disagreement = False
+        for tok in surname_toks:
+            for suf, suf_region in suffix_to_region.items():
+                if tok.endswith(suf) and len(tok) > len(suf) + 1:
+                    # Signature suffix found -- check if it disagrees with label
+                    # Allow same group (e.g. B1 suffix with B1 label)
+                    suf_group = LEAF_TO_GROUP.get(suf_region)
+                    label_group = LEAF_TO_GROUP.get(region)
+                    if suf_group and label_group and suf_group != label_group:
+                        disagreement = True
+                        break
+            if disagreement:
+                break
+        if not disagreement:
+            filtered.append((surname_toks, given_toks, region))
+        else:
+            skipped += 1
+
+    if skipped > 0:
+        print(f"  Filtered {skipped} entries with signature-suffix disagreements")
+    return filtered
 
 
 def compute_log_odds(feature_region_counts, region_totals, all_regions):
@@ -188,6 +246,10 @@ def compute_log_odds(feature_region_counts, region_totals, all_regions):
 
             w = math.log(p_feature_given_region) - math.log(p_feature_overall)
 
+            # Apply shrinkage to reduce overfitting
+            w *= SHRINKAGE
+
+            # Allow both positive and negative weights (signed)
             if abs(w) >= MIN_WEIGHT:
                 weights[r] = round(w, 3)
 
@@ -200,6 +262,10 @@ def compute_log_odds(feature_region_counts, region_totals, all_regions):
 def main():
     entries = load_data()
     print(f"Loaded {len(entries)} labeled entries")
+
+    # Phase 2: Filter disagreements (signature suffix -> different region than label)
+    entries = filter_disagreements(entries)
+    print(f"After filtering: {len(entries)} entries")
 
     all_regions = sorted(set(r for _, _, r in entries))
     region_totals = Counter(r for _, _, r in entries)
