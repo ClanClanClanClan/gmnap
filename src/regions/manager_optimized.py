@@ -2424,12 +2424,6 @@ def _score_priority_rules(name, possible):
                 given_scores[r] += 2.0
                 reasons[r].append(f"STRONG_GIVEN_SUFFIX:{suf}:2.00")
 
-        # Strong: prefix patterns (Arabic al-, el-, ben-, bou-)
-        for pref in strong.get("surname_prefix", set()):
-            if any(tok.startswith(pref) for tok in tokens):
-                surname_scores[r] += 3.0
-                reasons[r].append(f"STRONG_SURNAME_PREFIX:{pref}:3.00")
-
         # Strong: particles (de, van, von, saint, etc.)
         for p in strong.get("particles", set()):
             if _wb(p).search(name_l):
@@ -3426,10 +3420,16 @@ class RegionManager:
             )
 
         # Script + priority rules
+        scorer_hint = {}  # Capture group/candidate hints from scorer abstentions
         result = self._detect_by_script(entry)
         if result:
             if result.detection_method in ("scorer-abstain", "weak-evidence-abstain"):
-                pass  # Continue to next step
+                # Capture group hint from scorer for terminal R0 metadata
+                scorer_hint = {
+                    k: v
+                    for k, v in result.metadata.items()
+                    if k in ("group", "best_region", "best_score", "margin", "reason")
+                }
             elif (
                 result.detection_method == "script"
                 and result.metadata.get("script") == "Latin"
@@ -3476,8 +3476,8 @@ class RegionManager:
                 result.metadata,
             )
 
-        # Terminal: R0 (never A1)
-        return ("R0", 0.10, "name-abstain", {})
+        # Terminal: R0 (never A1). Include scorer hints for group-level output.
+        return ("R0", 0.10, "name-abstain", scorer_hint)
 
     def _infer_name_origin(self, entry: Dict[str, Any]):
         """Name-origin inference: patterns -> scorer -> ML -> R0 (terminal)."""
@@ -3529,7 +3529,18 @@ class RegionManager:
         elif geo is not None:
             primary = geo
         else:
-            primary = ("R0", 0.10, "terminal-abstain", {})
+            # Use name tuple directly to preserve scorer hints (group, best_region)
+            primary = name
+
+        # Surface group_region: from LEAF_TO_GROUP for known regions,
+        # or from scorer hints when R0 (the scorer may know the group
+        # even when it can't determine the leaf).
+        group = LEAF_TO_GROUP.get(primary[0])
+        if not group and primary[0] == "R0":
+            # Check scorer hints for group-level output
+            hint_region = primary[3].get("best_region")
+            if hint_region:
+                group = LEAF_TO_GROUP.get(hint_region)
 
         return RegionDetectionResult(
             region_code=primary[0],
@@ -3538,7 +3549,7 @@ class RegionManager:
             metadata=primary[3],
             geo_region=geo[0] if geo else None,
             name_region=name[0],
-            group_region=LEAF_TO_GROUP.get(primary[0]),
+            group_region=group,
             conflict=conflict,
         )
 
@@ -3757,7 +3768,12 @@ class RegionManager:
         # Fallback to OLD priority rules if signals don't match script-compatible regions
         region, conf, dbg = _score_priority_rules(name, possible)
         # If scorer explicitly abstained (margin too low or weak evidence), return R0
-        if region is None and dbg.get("reason") in ("low_score_or_margin", "no_scores"):
+        if region is None and dbg.get("reason") in (
+            "low_score_or_margin",
+            "no_scores",
+            "no_signal",
+            "given_only_no_surname",
+        ):
             return RegionDetectionResult(
                 region_code="R0",
                 confidence=0.20,
