@@ -238,7 +238,6 @@ class C9_Baltic(RegionSpec):
         return None
 
     def _detect_gender(self, name: str) -> Optional[str]:
-        name_lower = name.lower()
         family = self._extract_family_name(name)
         if not family:
             return None
