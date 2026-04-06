@@ -60,8 +60,7 @@ docs = [
 ]
 
 [project.scripts]
-gmnap = "gmnap.cli.main:main"
-gmnap-pipeline = "gmnap.core.pipeline_v7:cli_main"
+gmnap = "src.cli.gmnap:cli"
 
 [tool.black]
 line-length = 88
