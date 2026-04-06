@@ -1,22 +1,21 @@
-# GMNAP v7 Current Development Status
-*Last Updated: 2026-03-31*
+# GMNAP v7 / MathLineage — Current Development Status
+*Last Updated: 2026-04-06*
 
 ## 🎯 System State (Honest Assessment)
 
 **Pipeline**: 12-stage pipeline (stages 0–8 async, 9–11 sync) — all stages wired and executing
-**Regional Coverage**: 37/37 regions fully implemented (100%)
-**Linguistic Rules**: 34 implemented (10 core normalisation + 17 regional validation + 7 region-specific)
+**Regional Coverage**: 37/37 regions fully implemented (100%), 38 processor files
+**Region Detection**: Split geo/name-origin architecture with three-tier suffix system, fastText CLI tiebreaker, same-group gate. Expert-validated as production-ready.
 **Security**: Injection attack blocking validated
-**Performance**: ~3,000 entries/sec at 100K+ scale OFFLINE mode (measured); ~5.4 min/1M actual. See benchmark table below.
+**Performance**: ~3,000 entries/sec at 100K+ scale OFFLINE mode (measured); ~5.4 min/1M actual
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
-**Authority Enrichment**: 9 of 14 sources with real HTTP calls; 2 gated behind API keys; 3 deferred. DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms.
+**Authority Enrichment**: 9 adapters with real HTTP calls; 2 gated behind API keys; 3 deferred
 **Region Config**: 37/37 YAML config files auto-loaded via lazy `ensure_yaml_loaded()` in base class
-**API Server**: FastAPI server with `/healthz`, `/readyz`, `/api/v1/query`, `/api/v1/lineage`, `/api/v1/process`, `/metrics`
-**CLI**: `query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve` — fully implemented with input validation (100 MB size limit, binary detection, path traversal blocking)
-**Diaspora Detection**: Implemented — uses `config/diaspora.yaml` date ranges
-**Region Overlay Map**: Spec §2a wired — sub-national overrides (CH-FR, IN-HN, etc.)
-**Testing**: 1,090+ tests (1,060 region detection accuracy + 30 end-to-end workflow + unit + integration + API + GDPR + CLI + web + nginx)
-**Test Fixtures**: 1,500 entries across all 37 regions
+**API Server**: FastAPI server with 8 endpoints (/healthz, /readyz, /api/v1/query, /api/v1/lineage, /api/v1/process, /api/v1/suggest, /metrics, /)
+**CLI**: `serve` and `version` via `gmnap` entry point; full 7-command CLI in `src/cli/gmnap.py` (query, lineage, process, sources, regions, validate, serve) but NOT wired to the main entry point
+**Diaspora Detection**: Implemented — split geo_region vs name_region with conflict flag
+**Testing**: 1,792 tests collected (CI runs ~1,740 across 13 test files); 843-entry adjudicated benchmark
+**Test Fixtures**: 500 golden dataset + 843 name-origin benchmark + 10,724 Wikidata mathematicians
 
 ---
 
@@ -27,7 +26,7 @@ All stages execute in sequence with real code:
 - Stage 0: Config/credential validation
 - Stage 1: Unicode normalisation (NFC→NFKD→fold→NFC)
 - Stage 1b: LLM thesis extraction (graceful fallback if unavailable)
-- Stage 2: Region detection (FastText + script + diaspora overlay + region overlay map)
+- Stage 2: Region detection (split geo/name-origin, three-tier suffixes, fastText CLI, same-group gate)
 - Stage 3: Region hooks (clean→augment→validate→order_key per region)
 - Stage 4: Authority enrichment (9 adapters with real HTTP; DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms)
 - Stage 5: Collision analytics (DuckDB + in-memory fallback)
@@ -118,14 +117,40 @@ Live enrichment (OFFLINE=0) will be slower due to API rate limits.
 
 ---
 
+## 📊 Region Detection (Expert-Validated, Production-Ready)
+
+Architecture: split geo/name-origin branches, hierarchical selective classification.
+- **Geo branch**: CC → ROR → DOI (100% accurate when CC provided)
+- **Name-origin branch**: surname exact → CJK hybrid → 3-tier scorer → fastText CLI (same-group gated) → R0
+- **Output**: `region_code`, `geo_region`, `name_region`, `group_region`, `resolution_level`, `candidates`, `conflict`
+
+### Detection KPIs (843-entry adjudicated benchmark)
+| Metric | Value | Notes |
+|--------|-------|-------|
+| MGP ground truth (15 names, no CC) | 15/15 = 100% | All via surname exact or fastText |
+| CC-based geo accuracy | 216/216 = 100% | All territory mappings correct |
+| Adjudicated leaf precision (523 entries) | 482/482 = 100% | Zero wrong emitted leaves |
+| Adjudicated coverage | 482/523 = 92.2% | 41 honest R0 abstentions |
+| Adjudicated group-or-better | 523/523 = 100% | |
+| Full 843 vs geo labels (informational) | 56% | NOT a name-origin KPI — citizenship ≠ name-origin |
+| Classifier errors (genuine) | ~50/843 = 6% | Soviet suffixes, historical boundaries |
+| Abstention rate | 235/843 = 28% | Coverage ceiling for name-only classification |
+
+### Key Constants
+- SIGNATURE_SUFFIXES: 22 (fire leaf at 2.5)
+- MEDIUM_SUFFIXES_TO_LEAF: 11 (fire group at 1.2, leaf at +1.0 if corroborated)
+- MEDIUM_SUFFIXES_TO_GROUP: 4 (bare -ski/-sky/-ou/-is → group only)
+- REGION_GROUPS: 23 groups, 34 leaves
+- ft_name_classifier.ftz: 50MB quantized model (23K aligned training entries)
+- Same-group gate: fastText can only refine within scorer's group, never cross groups
+
 ## 📊 Testing
 
-- **1,090+ tests passing** (1,060 region detection accuracy + 30 end-to-end user workflows + unit + integration + API + GDPR + CLI + web + nginx)
-- **1,500 test fixtures** across all 37 regions
-- SEA roundtrip: Thai RTGS, Khmer UNGEGN, Lao MOICT 2019
-- Snapshot rollback: git revert coherence validated
-- 2M synthetic stress test available (`make stress`)
-- CI runs: unit, property, integration, hardcore, secret scan, cost guard
+- **1,792 tests collected** (CI runs ~1,740 across 13 test files)
+- **500 golden dataset entries** with verified regions
+- **843 adjudicated benchmark entries** from Wikidata (three-track evaluation)
+- **10,724 Wikidata mathematicians** + **15,120 OpenAlex entries** as training data
+- CI: lint (black 26.3.1 + ruff 0.15.8 + isort), unit tests, property tests, secret scan, cost guard
 
 ---
 
@@ -133,12 +158,9 @@ Live enrichment (OFFLINE=0) will be slower due to API rate limits.
 
 ### CLI
 ```bash
-gmnap serve --port 8080          # Start API server
-gmnap query "Euler, Leonhard"    # Single name lookup
-gmnap process input.json --mode full  # Batch processing
-gmnap validate input.json        # Schema validation only
-gmnap sources                    # List authority sources
-gmnap regions                    # List supported regions
+gmnap serve --port 8080          # Start API server (main entry point)
+# Full CLI commands exist in src/cli/gmnap.py but are NOT wired to the gmnap entry point:
+# query, lineage, process, sources, regions, validate
 ```
 
 ### Docker Compose
@@ -162,3 +184,6 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 
 - ❌ "14 authority sources fully working" — 9 have real HTTP code; 2 need API keys; 3 deferred
 - ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly
+- ❌ "Full CLI with 7 commands" — only `serve` and `version` are wired to the entry point; query/lineage/process/sources/regions/validate exist in src/cli/gmnap.py but are NOT accessible via `gmnap` command
+- ❌ "100% name-origin accuracy" — 100% emitted-leaf precision on adjudicated set, but 28% abstention rate; 56% on raw citizenship labels (wrong metric for name-origin)
+- ❌ "1,090 tests" — actual count is 1,792 collected, ~1,740 run by CI
