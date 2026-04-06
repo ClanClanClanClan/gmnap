@@ -22,6 +22,51 @@
             .replace(/`/g, "&#96;");
     }
 
+    // ── Hashcash PoW (V7 spec s12: 18-bit for free tier) ──────────
+
+    /**
+     * Generate a hashcash stamp with the required number of leading zero bits.
+     * Uses SubtleCrypto SHA-1 for speed in modern browsers.
+     * @param {number} bits - Required leading zero bits (default 18).
+     * @returns {Promise<string>} The hashcash stamp string.
+     */
+    async function generateHashcash(bits) {
+        bits = bits || 18;
+        var date = new Date().toISOString().slice(2, 10).replace(/-/g, "");
+        var rand = Math.random().toString(36).substring(2, 10);
+        var counter = 0;
+        while (true) {
+            var stamp = "1:" + bits + ":" + date + ":gmnap-api::" + rand + ":" + counter.toString(16);
+            var data = new TextEncoder().encode(stamp);
+            var hash = await crypto.subtle.digest("SHA-1", data);
+            var arr = new Uint8Array(hash);
+            // Count leading zero bits
+            var zeroBits = 0;
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i] === 0) { zeroBits += 8; }
+                else {
+                    var b = arr[i];
+                    while ((b & 0x80) === 0) { zeroBits++; b <<= 1; }
+                    break;
+                }
+            }
+            if (zeroBits >= bits) return stamp;
+            counter++;
+        }
+    }
+
+    /**
+     * Fetch wrapper that automatically adds hashcash header.
+     */
+    async function apiFetch(url, options) {
+        options = options || {};
+        options.headers = options.headers || {};
+        if (!options.headers["X-Hashcash"]) {
+            options.headers["X-Hashcash"] = await generateHashcash(18);
+        }
+        return fetch(url, options);
+    }
+
     // ── Utilities ────────────────────────────────────────────────────
 
     /**
@@ -47,26 +92,42 @@
     };
 
     function countryFlag(regionCode) {
+        // Representative flags for each region
         var flags = {
-            A1: "\uD83C\uDDEC\uD83C\uDDE7", A2: "\uD83C\uDDE9\uD83C\uDDEA",
-            A3: "\uD83C\uDDEB\uD83C\uDDF7", A4: "\uD83C\uDDEA\uD83C\uDDF8",
-            A5: "\uD83C\uDDF5\uD83C\uDDF9",
-            B1: "\uD83C\uDDF7\uD83C\uDDFA", B2: "\uD83C\uDDFA\uD83C\uDDE6",
-            B3: "\uD83C\uDDF5\uD83C\uDDF1",
-            C1: "\uD83C\uDDF0\uD83C\uDDFF", C2: "\uD83C\uDDF9\uD83C\uDDF7",
-            C3: "\uD83C\uDDEE\uD83C\uDDF7", C4: "\uD83C\uDDE6\uD83C\uDDEA",
-            C5: "\uD83C\uDDEE\uD83C\uDDF1", C6: "\uD83C\uDDEA\uD83C\uDDF9",
-            C7: "\uD83C\uDDEC\uD83C\uDDEA", C8: "\uD83C\uDDE6\uD83C\uDDF2",
-            C9: "\uD83C\uDDEC\uD83C\uDDF7",
-            D1: "\uD83C\uDDEE\uD83C\uDDF3", D2: "\uD83C\uDDEE\uD83C\uDDF3",
-            D3: "\uD83C\uDDE7\uD83C\uDDE9", D4: "\uD83C\uDDF5\uD83C\uDDF0",
-            D5: "\uD83C\uDDF1\uD83C\uDDF0",
-            E1: "\uD83C\uDDE8\uD83C\uDDF3", E2: "\uD83C\uDDEF\uD83C\uDDF5",
-            E3: "\uD83C\uDDF9\uD83C\uDDFC", E4: "\uD83C\uDDF0\uD83C\uDDF7",
-            E5: "\uD83C\uDDFB\uD83C\uDDF3", E6: "\uD83C\uDDF9\uD83C\uDDED",
-            E7: "\uD83C\uDDEE\uD83C\uDDE9",
-            F1: "\uD83C\uDDF3\uD83C\uDDEC", F2: "\uD83C\uDDFF\uD83C\uDDE6",
-            F3: "\uD83C\uDDEA\uD83C\uDDF9", F4: "\uD83C\uDDE8\uD83C\uDDE9"
+            A1: "\uD83C\uDDEC\uD83C\uDDE7", // GB - Anglo
+            A2: "\uD83C\uDDE9\uD83C\uDDEA", // DE - Western Europe
+            A3: "\uD83C\uDDF8\uD83C\uDDEA", // SE - Nordic
+            A4: "\uD83C\uDDEB\uD83C\uDDEF", // FJ - Oceania Pacific
+            A5: "\uD83C\uDDEC\uD83C\uDDF5", // GP - Caribbean French
+            B1: "\uD83C\uDDF7\uD83C\uDDFA", // RU - Slavic East
+            B2: "\uD83C\uDDF5\uD83C\uDDF1", // PL - Slavic Central
+            B3: "\uD83C\uDDEC\uD83C\uDDF7", // GR - Hellenic
+            C1: "\uD83C\uDDF9\uD83C\uDDF7", // TR - Turkic
+            C2: "\uD83C\uDDEE\uD83C\uDDF7", // IR - Persian
+            C3: "\uD83C\uDDEA\uD83C\uDDEC", // EG - Arabic Levant/Nile
+            C4: "\uD83C\uDDE6\uD83C\uDDEA", // AE - Arabic Gulf
+            C5: "\uD83C\uDDE9\uD83C\uDDFF", // DZ - Arabic Maghreb
+            C6: "\uD83C\uDDEE\uD83C\uDDF1", // IL - Hebrew
+            C7: "\uD83C\uDDE6\uD83C\uDDF2", // AM - Armenian
+            C8: "\uD83C\uDDEC\uD83C\uDDEA", // GE - Georgian
+            C9: "\uD83C\uDDF1\uD83C\uDDF9", // LT - Baltic
+            D1: "\uD83C\uDDEE\uD83C\uDDF3", // IN - South Asian Hindi
+            D2: "\uD83C\uDDEE\uD83C\uDDF3", // IN - South Asian Dravidian
+            D3: "\uD83C\uDDE7\uD83C\uDDE9", // BD - Bengali
+            D4: "\uD83C\uDDF5\uD83C\uDDF0", // PK - Pakistani
+            D5: "\uD83C\uDDF1\uD83C\uDDF0", // LK - Sri Lankan
+            E1: "\uD83C\uDDE8\uD83C\uDDF3", // CN - Chinese
+            E2: "\uD83C\uDDF9\uD83C\uDDFC", // TW - Chinese (Traditional)
+            E3: "\uD83C\uDDEF\uD83C\uDDF5", // JP - Japanese
+            E4: "\uD83C\uDDF0\uD83C\uDDF7", // KR - Korean
+            E5: "\uD83C\uDDFB\uD83C\uDDF3", // VN - Vietnamese
+            E6: "\uD83C\uDDF9\uD83C\uDDED", // TH - Thai/SEA
+            E7: "\uD83C\uDDEE\uD83C\uDDE9", // ID - Indonesian/SEA
+            F1: "\uD83C\uDDF8\uD83C\uDDF3", // SN - SSA Francophone
+            F2: "\uD83C\uDDF3\uD83C\uDDEC", // NG - SSA Anglophone
+            F3: "\uD83C\uDDEA\uD83C\uDDF9", // ET - Horn of Africa
+            F4: "\uD83C\uDDFF\uD83C\uDDE6", // ZA - Southern Africa
+            G1: "\uD83C\uDDE7\uD83C\uDDF7"  // BR - Latin American
         };
         return flags[regionCode] || "\uD83C\uDF0D";
     }
@@ -184,7 +245,7 @@
             mode: "quick"
         };
 
-        fetch("/api/v1/process", {
+        apiFetch("/api/v1/process", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -471,7 +532,7 @@
             submitter_note: document.getElementById("corr-note").value
         };
 
-        fetch("/api/v1/suggest", {
+        apiFetch("/api/v1/suggest", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)

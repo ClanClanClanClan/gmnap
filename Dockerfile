@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM python:3.12-slim
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -6,19 +6,13 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    python3.12 \
-    python3.12-dev \
-    python3.12-venv \
-    python3-pip \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libicu-dev \
     zstd \
-    duckdb \
     sqlite3 \
     git \
     curl \
-    wget \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -30,7 +24,7 @@ RUN wget -q https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bi
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
-RUN python3.12 -m pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY . .
