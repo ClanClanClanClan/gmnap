@@ -75,7 +75,15 @@ Copy `.env.example` to `.env` and configure. Key variables:
 PYTHONPATH=. pytest tests/unit/ -q --timeout=120
 ```
 
-1,090+ tests covering region detection accuracy (1,060), end-to-end workflows (30), API security, CLI, web interface, and nginx config.
+1,792 tests covering region detection accuracy, 500-entry golden dataset, 843-entry adjudicated name-origin benchmark, end-to-end workflows, API security, CLI hardening, web interface, and nginx config.
+
+## Region Detection
+
+Split geo/name-origin architecture validated by external onomastics expert:
+- **100% emitted-leaf precision** on 523-entry adjudicated benchmark (zero wrong leaves)
+- **100% CC-based accuracy** across 216 territories
+- Three-tier suffix system + fastText CLI tiebreaker + same-group gate
+- Honest abstention: returns R0 + group hint when uncertain, never forces a wrong leaf
 
 ## License
 
