@@ -3954,10 +3954,12 @@ class RegionManager:
 
         # Try multiple paths for the surname classifier
         model_candidates = [
+            Path("data/ml_training/ft_name_classifier.ftz"),
+            Path("data/ml_training/ft_name_classifier.bin"),
             Path("data/ml_training/surname_classifier.ftz"),
             Path("data/ml_training/surname_classifier.bin"),
+            self.config_dir / "ft_name_classifier.ftz",
             self.config_dir / "surname_classifier.ftz",
-            self.config_dir / "surname_classifier.bin",
         ]
 
         if not FASTTEXT_AVAILABLE:
