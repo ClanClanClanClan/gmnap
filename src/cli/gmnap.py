@@ -63,10 +63,24 @@ def query(name: str, mode: str, as_json: bool):
             if ok:
                 work["OrderKey"] = ok
 
+        # Parse family/given if not already set by processor
+        canonical = work.get("CanonicalLatin", name)
+        family = work.get("FamilyName", "")
+        given = work.get("GivenName", "")
+        if not family and "," in canonical:
+            parts = canonical.split(",", 1)
+            family = parts[0].strip()
+            given = parts[1].strip() if len(parts) > 1 else ""
+        elif not family:
+            parts = canonical.strip().split()
+            if len(parts) >= 2:
+                family = parts[-1]
+                given = " ".join(parts[:-1])
+
         result["processed"] = {
-            "CanonicalLatin": work.get("CanonicalLatin", name),
-            "FamilyName": work.get("FamilyName", ""),
-            "GivenName": work.get("GivenName", ""),
+            "CanonicalLatin": canonical,
+            "FamilyName": family,
+            "GivenName": given,
             "OrderKey": work.get("OrderKey", ""),
             "FamilyNameType": work.get("FamilyNameType", "surname"),
         }
