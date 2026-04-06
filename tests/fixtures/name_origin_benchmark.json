@@ -19,18 +19,17 @@
     "full_name": "Suppes, Patrick",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "A1",
+    "expected_group": "ANGLO_SPHERE",
     "acceptable_leaves": [
-      "A2",
       "A1"
     ],
     "geo_label": "A1",
     "geo_country": "United States",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Abbe, Cleveland",
@@ -62,7 +61,7 @@
     "detected_leaf": "R0",
     "detected_group": "ANGLO_SPHERE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Seymour, Paul",
@@ -133,18 +132,17 @@
     "full_name": "Yuanhua, Sun",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "E1",
-    "expected_group": "SINOPHONE",
+    "expected_leaf": "A1",
+    "expected_group": "ANGLO_SPHERE",
     "acceptable_leaves": [
-      "E1",
       "A1"
     ],
     "geo_label": "A1",
     "geo_country": "Ming dynasty",
     "detected_leaf": "E1",
     "detected_group": "SINOPHONE",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": "classifier_error",
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Kilburn, Tom",
@@ -198,18 +196,17 @@
     "full_name": "Apel, Willi",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "A1",
+    "expected_group": "ANGLO_SPHERE",
     "acceptable_leaves": [
-      "A2",
       "A1"
     ],
     "geo_label": "A1",
     "geo_country": "United States",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Titchmarsh, Edward Charles",
@@ -241,7 +238,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Whittaker, John Macnaghten",
@@ -290,7 +287,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Jones, Burton Wadsworth",
@@ -322,7 +319,7 @@
     "detected_leaf": "R0",
     "detected_group": "ANGLO_SPHERE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Downey, Rod",
@@ -354,24 +351,23 @@
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "high"
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Renchen, Wu",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "E1",
-    "expected_group": "SINOPHONE",
+    "expected_leaf": "A1",
+    "expected_group": "ANGLO_SPHERE",
     "acceptable_leaves": [
-      "E1",
       "A1"
     ],
     "geo_label": "A1",
     "geo_country": "Ming dynasty",
     "detected_leaf": "E1",
     "detected_group": "SINOPHONE",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": "classifier_error",
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Barnard, George Alfred",
@@ -387,24 +383,23 @@
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "high"
+    "adjudication_confidence": "medium"
   },
   {
     "full_name": "Agol, Ian",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "A1",
+    "expected_group": "ANGLO_SPHERE",
     "acceptable_leaves": [
-      "A2",
       "A1"
     ],
     "geo_label": "A1",
     "geo_country": "United States",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Dinneen, Michael",
@@ -436,7 +431,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Mestel, Leon",
@@ -452,7 +447,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Fischer, Charlotte Froese",
@@ -485,7 +480,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Gardner, Gerald",
@@ -539,18 +534,17 @@
     "full_name": "Noll, Landon Curt",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "A1",
+    "expected_group": "ANGLO_SPHERE",
     "acceptable_leaves": [
-      "A2",
       "A1"
     ],
     "geo_label": "A1",
     "geo_country": "United States",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Schwinger, Julian",
@@ -632,7 +626,7 @@
     "detected_leaf": "R0",
     "detected_group": "ANGLO_SPHERE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Hogben, Lancelot",
@@ -648,7 +642,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Royle, Gordon",
@@ -664,7 +658,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Dod, Albert Baldwin",
@@ -680,7 +674,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Hunt, Gilbert Agnew",
@@ -713,7 +707,7 @@
     "detected_leaf": "R0",
     "detected_group": "ANGLO_SPHERE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Gaitsgory, Dennis",
@@ -827,7 +821,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Willers, Friedrich Adolf",
@@ -843,7 +837,7 @@
     "detected_leaf": "R0",
     "detected_group": "GERMANIC_WESTERN",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Giroux, Emmanuel",
@@ -859,7 +853,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Perrin, Daniel",
@@ -891,7 +885,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Gräffe, Karl Heinrich",
@@ -907,7 +901,7 @@
     "detected_leaf": "R0",
     "detected_group": "GERMANIC_WESTERN",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Brotier, André-Charles",
@@ -948,14 +942,13 @@
     "expected_leaf": "A2",
     "expected_group": "GERMANIC_WESTERN",
     "acceptable_leaves": [
-      "A2",
-      "B2"
+      "A2"
     ],
     "geo_label": "A2",
     "geo_country": "Austria–Hungary",
     "detected_leaf": "B2",
     "detected_group": "SLAVIC_CENTRAL",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -988,7 +981,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Bendegem, Jean Paul Van",
@@ -1068,24 +1061,24 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Green, George",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "A1",
+    "expected_group": "ANGLO_SPHERE",
     "acceptable_leaves": [
-      "A2",
-      "A1"
+      "A1",
+      "A2"
     ],
     "geo_label": "A2",
     "geo_country": "United Kingdom of Great Britain and Ireland",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": "immigrant_diaspora",
+    "adjudication_confidence": "medium"
   },
   {
     "full_name": "Rouquier, Raphaël",
@@ -1107,18 +1100,18 @@
     "full_name": "Ellis, Alexander John",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "B3",
+    "expected_group": "HELLENIC",
     "acceptable_leaves": [
-      "A2",
-      "B3"
+      "B3",
+      "A2"
     ],
     "geo_label": "A2",
     "geo_country": "United Kingdom of Great Britain and Ireland",
     "detected_leaf": "B3",
     "detected_group": "HELLENIC",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": "immigrant_diaspora",
+    "adjudication_confidence": "medium"
   },
   {
     "full_name": "Waldhausen, Friedhelm",
@@ -1127,14 +1120,13 @@
     "expected_leaf": "A2",
     "expected_group": "GERMANIC_WESTERN",
     "acceptable_leaves": [
-      "A2",
-      "A3"
+      "A2"
     ],
     "geo_label": "A2",
     "geo_country": "Germany",
     "detected_leaf": "A3",
     "detected_group": "NORDIC_BALTIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -1167,7 +1159,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Auscher, Pascal",
@@ -1183,7 +1175,7 @@
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
     "ambiguous_reason": null,
-    "adjudication_confidence": "high"
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Wolf, Rudolf",
@@ -1256,14 +1248,13 @@
     "expected_leaf": "A2",
     "expected_group": "GERMANIC_WESTERN",
     "acceptable_leaves": [
-      "A2",
-      "A3"
+      "A2"
     ],
     "geo_label": "A2",
     "geo_country": "Germany",
     "detected_leaf": "A3",
     "detected_group": "NORDIC_BALTIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -1302,18 +1293,18 @@
     "full_name": "Dixon, Arthur Lee",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "E4",
+    "expected_group": "KOREAN",
     "acceptable_leaves": [
-      "A2",
-      "E4"
+      "E4",
+      "A2"
     ],
     "geo_label": "A2",
     "geo_country": "United Kingdom of Great Britain and Ireland",
     "detected_leaf": "E4",
     "detected_group": "KOREAN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": "immigrant_diaspora",
+    "adjudication_confidence": "medium"
   },
   {
     "full_name": "Toni, Paolo",
@@ -1354,15 +1345,14 @@
     "expected_leaf": "A2",
     "expected_group": "GERMANIC_WESTERN",
     "acceptable_leaves": [
-      "A2",
-      "A1"
+      "A2"
     ],
     "geo_label": "A2",
     "geo_country": "France",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Amodeo, Federico",
@@ -1378,7 +1368,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Arrighi, Gino",
@@ -1394,7 +1384,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Szabó, István",
@@ -1435,14 +1425,13 @@
     "expected_leaf": "A2",
     "expected_group": "GERMANIC_WESTERN",
     "acceptable_leaves": [
-      "A2",
-      "C6"
+      "A2"
     ],
     "geo_label": "A2",
     "geo_country": "Switzerland",
     "detected_leaf": "C6",
     "detected_group": "HEBREW",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -1459,7 +1448,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Kan, Daniel",
@@ -1484,14 +1473,13 @@
     "expected_leaf": "A2",
     "expected_group": "GERMANIC_WESTERN",
     "acceptable_leaves": [
-      "A2",
-      "A5"
+      "A2"
     ],
     "geo_label": "A2",
     "geo_country": "France",
     "detected_leaf": "A5",
     "detected_group": "CARIBBEAN_FRENCH",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -1556,7 +1544,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Hecke, Erich",
@@ -1604,7 +1592,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Prym, Friedrich",
@@ -1620,7 +1608,7 @@
     "detected_leaf": "R0",
     "detected_group": "GERMANIC_WESTERN",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Hartmanis, Juris",
@@ -1629,14 +1617,13 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "B3"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Latvia",
     "detected_leaf": "B3",
     "detected_group": "HELLENIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -1646,14 +1633,13 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "F2"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Sweden",
     "detected_leaf": "F2",
     "detected_group": "SSA",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -1686,7 +1672,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Vuorinen, Matti",
@@ -1718,7 +1704,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Rydberg, Johannes",
@@ -1727,14 +1713,13 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A2"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Sweden",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -1783,7 +1768,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Peetre, Jaak",
@@ -1792,15 +1777,14 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A2"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Estonia",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Gustafsson, Bertil",
@@ -1864,7 +1848,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Eklund, Hjalmar Magnus",
@@ -1880,7 +1864,7 @@
     "detected_leaf": "R0",
     "detected_group": "NORDIC_BALTIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Heiberg, Johan Ludvig",
@@ -1889,14 +1873,13 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A2"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Kingdom of Denmark",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -1906,14 +1889,13 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A2"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Norway",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -1930,7 +1912,7 @@
     "detected_leaf": "R0",
     "detected_group": "NORDIC_BALTIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Linzbach, Jacob",
@@ -1978,7 +1960,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Kobb, Gustaf",
@@ -1994,7 +1976,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Bartholin, Christopher",
@@ -2019,14 +2001,13 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A2"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Kingdom of Denmark",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -2036,15 +2017,14 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A1"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Sweden",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Riesel, Hans",
@@ -2053,14 +2033,13 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A2"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Sweden",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -2093,7 +2072,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Olson, Hjalmar",
@@ -2102,14 +2081,13 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A1"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Sweden",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -2174,7 +2152,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Gamborg, V.E.",
@@ -2199,15 +2177,14 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A2"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Sweden",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Jakobsen, Thomas",
@@ -2264,14 +2241,13 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A2"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Kingdom of Denmark",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -2288,7 +2264,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Duhre, Anders Gabriel",
@@ -2304,7 +2280,7 @@
     "detected_leaf": "R0",
     "detected_group": "NORDIC_BALTIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Kaasalainen, Mikko",
@@ -2345,14 +2321,13 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A2"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Latvia",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -2378,14 +2353,13 @@
     "expected_leaf": "A3",
     "expected_group": "NORDIC_BALTIC",
     "acceptable_leaves": [
-      "A3",
-      "A2"
+      "A3"
     ],
     "geo_label": "A3",
     "geo_country": "Sweden",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -2402,7 +2376,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Wiemer, Anders",
@@ -2418,7 +2392,7 @@
     "detected_leaf": "R0",
     "detected_group": "NORDIC_BALTIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Vucāns, Jānis",
@@ -2466,7 +2440,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Skopin, Alexander",
@@ -2482,7 +2456,7 @@
     "detected_leaf": "R0",
     "detected_group": "SLAVIC_EAST",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Smirnov, Vladimir",
@@ -2571,14 +2545,13 @@
     "expected_leaf": "B1",
     "expected_group": "SLAVIC_EAST",
     "acceptable_leaves": [
-      "B1",
-      "A2"
+      "B1"
     ],
     "geo_label": "B1",
     "geo_country": "Russian Empire",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -2636,15 +2609,14 @@
     "expected_leaf": "B1",
     "expected_group": "SLAVIC_EAST",
     "acceptable_leaves": [
-      "B1",
-      "A2"
+      "B1"
     ],
     "geo_label": "B1",
     "geo_country": "Soviet Union",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Popova, Natalya",
@@ -2676,7 +2648,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Zelmanov, Efim",
@@ -2708,7 +2680,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Adian, Sergei",
@@ -2772,7 +2744,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Kulikow, Walentin Stepanowitsch",
@@ -2788,7 +2760,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Mihalev, Alexander",
@@ -2813,14 +2785,13 @@
     "expected_leaf": "B1",
     "expected_group": "SLAVIC_EAST",
     "acceptable_leaves": [
-      "B1",
-      "B2"
+      "B1"
     ],
     "geo_label": "B1",
     "geo_country": "Soviet Union",
     "detected_leaf": "B2",
     "detected_group": "SLAVIC_CENTRAL",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -2862,15 +2833,14 @@
     "expected_leaf": "B1",
     "expected_group": "SLAVIC_EAST",
     "acceptable_leaves": [
-      "B1",
-      "A2"
+      "B1"
     ],
     "geo_label": "B1",
     "geo_country": "Soviet Union",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Zubov, Vladimir",
@@ -2918,7 +2888,7 @@
     "detected_leaf": "R0",
     "detected_group": "SLAVIC_EAST",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Kublanovskaya, Vera",
@@ -2991,14 +2961,13 @@
     "expected_leaf": "B1",
     "expected_group": "SLAVIC_EAST",
     "acceptable_leaves": [
-      "B1",
-      "C8"
+      "B1"
     ],
     "geo_label": "B1",
     "geo_country": "Russian Empire",
     "detected_leaf": "C8",
     "detected_group": "GEORGIAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -3095,7 +3064,7 @@
     "detected_leaf": "R0",
     "detected_group": "SLAVIC_EAST",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Berkovich, Yevgeny",
@@ -3120,14 +3089,13 @@
     "expected_leaf": "B1",
     "expected_group": "SLAVIC_EAST",
     "acceptable_leaves": [
-      "B1",
-      "F3"
+      "B1"
     ],
     "geo_label": "B1",
     "geo_country": "Soviet Union",
     "detected_leaf": "F3",
     "detected_group": "SSA",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -3153,14 +3121,13 @@
     "expected_leaf": "B1",
     "expected_group": "SLAVIC_EAST",
     "acceptable_leaves": [
-      "B1",
-      "A2"
+      "B1"
     ],
     "geo_label": "B1",
     "geo_country": "Russian Socialist Federative Soviet Republic",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -3193,7 +3160,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Freiman, Gregory",
@@ -3202,14 +3169,13 @@
     "expected_leaf": "B1",
     "expected_group": "SLAVIC_EAST",
     "acceptable_leaves": [
-      "B1",
-      "A2"
+      "B1"
     ],
     "geo_label": "B1",
     "geo_country": "Soviet Union",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -3226,7 +3192,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Lyusternik, Lazar",
@@ -3242,7 +3208,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Körmendy, Ágoston",
@@ -3258,7 +3224,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Calude, Cristian",
@@ -3267,15 +3233,14 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A2"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Romania",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Cipot, Rudi",
@@ -3284,15 +3249,14 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A2"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Slovenia",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Krasnodębski, Ryszard",
@@ -3340,7 +3304,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Węglarz, Jan",
@@ -3349,14 +3313,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A2"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Poland",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -3373,7 +3336,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Botea, Nicolae",
@@ -3421,7 +3384,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Ene, Horia",
@@ -3430,14 +3393,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "B3"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Romania",
     "detected_leaf": "B3",
     "detected_group": "HELLENIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -3470,7 +3432,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Marciniak, Zbigniew",
@@ -3495,14 +3457,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "B1"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Bulgaria",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -3512,15 +3473,14 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A1"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Romania",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Hočevar, Franc",
@@ -3552,7 +3512,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Traczyk, Tadeusz",
@@ -3568,7 +3528,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Nušl, František",
@@ -3609,14 +3569,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A2"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Romania",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -3649,7 +3608,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Sochocki, Julian",
@@ -3681,7 +3640,7 @@
     "detected_leaf": "R0",
     "detected_group": "SLAVIC_CENTRAL",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Otto, Edward",
@@ -3706,14 +3665,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A2"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Ottoman Empire",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -3723,15 +3681,14 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A3"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Polish–Lithuanian Commonwealth",
     "detected_leaf": "A3",
     "detected_group": "NORDIC_BALTIC",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Totik, Vilmos",
@@ -3747,7 +3704,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Kőnig, Dénes",
@@ -3756,15 +3713,14 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A2"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Hungary",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Leśniewski, Stanisław",
@@ -3789,14 +3745,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "B3"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Romania",
     "detected_leaf": "B3",
     "detected_group": "HELLENIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -3854,14 +3809,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A2"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Polish–Lithuanian Commonwealth",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -3878,7 +3832,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Szegő, Gábor",
@@ -3887,14 +3841,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A2"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Hungary",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -3904,14 +3857,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "B1"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Czechoslovakia",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -3928,7 +3880,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Fiszdon, Wladyslaw",
@@ -3944,7 +3896,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Stern, Abraham",
@@ -3953,14 +3905,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "C6"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Congress Poland",
     "detected_leaf": "C6",
     "detected_group": "HEBREW",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -3986,15 +3937,14 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A2"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Poland",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Tóth, Bálint",
@@ -4003,14 +3953,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A2"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Hungary",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -4027,7 +3976,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Dirac, Gabriel Andrew",
@@ -4036,14 +3985,13 @@
     "expected_leaf": "B2",
     "expected_group": "SLAVIC_CENTRAL",
     "acceptable_leaves": [
-      "B2",
-      "A1"
+      "B2"
     ],
     "geo_label": "B2",
     "geo_country": "Hungary",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -4060,7 +4008,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Plakidis, Stavros",
@@ -4140,7 +4088,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Miletus, Isidore of",
@@ -4149,14 +4097,13 @@
     "expected_leaf": "B3",
     "expected_group": "HELLENIC",
     "acceptable_leaves": [
-      "B3",
-      "A2"
+      "B3"
     ],
     "geo_label": "B3",
     "geo_country": "Byzantine Empire",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -4173,7 +4120,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Papasoglu, Panos",
@@ -4189,7 +4136,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Christodoulou, Demetrios",
@@ -4221,7 +4168,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Erotikos, Theophilos",
@@ -4246,15 +4193,14 @@
     "expected_leaf": "B3",
     "expected_group": "HELLENIC",
     "acceptable_leaves": [
-      "B3",
-      "A1"
+      "B3"
     ],
     "geo_label": "B3",
     "geo_country": "Byzantine Empire",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Argyris, Ioannis",
@@ -4302,7 +4248,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Carathéodory, Konstantinos",
@@ -4318,7 +4264,7 @@
     "detected_leaf": "B3",
     "detected_group": "HELLENIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "high"
+    "adjudication_confidence": "medium"
   },
   {
     "full_name": "Bertsekas, Dimitri",
@@ -4414,7 +4360,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Apostolidis, Nikolaos",
@@ -4446,7 +4392,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Karabatzos, Georgios",
@@ -4462,7 +4408,7 @@
     "detected_leaf": "R0",
     "detected_group": "HELLENIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Fokas, Athanasios S.",
@@ -4494,7 +4440,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Argyropoulos, Timoleon",
@@ -4542,7 +4488,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Papadimitriou, Christos",
@@ -4574,7 +4520,7 @@
     "detected_leaf": "R0",
     "detected_group": "HELLENIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Tralles, Anthemius of",
@@ -4583,14 +4529,13 @@
     "expected_leaf": "B3",
     "expected_group": "HELLENIC",
     "acceptable_leaves": [
-      "B3",
-      "A2"
+      "B3"
     ],
     "geo_label": "B3",
     "geo_country": "Byzantine Empire",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -4655,7 +4600,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Rassias, Themistocles M.",
@@ -4671,7 +4616,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Lakon, Vassilios",
@@ -4760,14 +4705,13 @@
     "expected_leaf": "B3",
     "expected_group": "HELLENIC",
     "acceptable_leaves": [
-      "B3",
-      "H1"
+      "B3"
     ],
     "geo_label": "B3",
     "geo_country": "Byzantine Empire",
     "detected_leaf": "H1",
     "detected_group": null,
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -4800,7 +4744,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Euclid",
@@ -4809,14 +4753,13 @@
     "expected_leaf": "B3",
     "expected_group": "HELLENIC",
     "acceptable_leaves": [
-      "B3",
-      "H1"
+      "B3"
     ],
     "geo_label": "B3",
     "geo_country": "Classical Athens",
     "detected_leaf": "H1",
     "detected_group": null,
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -4833,7 +4776,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Proclus",
@@ -4874,14 +4817,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Kazakhstan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -4898,7 +4840,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Jūmağūlov, Baqytjan",
@@ -4907,14 +4849,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Kazakhstan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -4963,7 +4904,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Akansu, Ali Naci",
@@ -5036,14 +4977,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Azerbaijan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5053,14 +4993,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Azerbaijan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5070,14 +5009,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Kazakhstan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5087,14 +5025,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Azerbaijan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5104,14 +5041,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Azerbaijan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5137,14 +5073,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "C7"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Turkey",
     "detected_leaf": "C7",
     "detected_group": "ARMENIAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5161,7 +5096,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Cerrahoğlu, Ömer",
@@ -5186,14 +5121,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Turkey",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5210,7 +5144,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Başar, Tamer",
@@ -5235,14 +5169,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "G1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Turkey",
     "detected_leaf": "G1",
     "detected_group": "LATIN_AMERICAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5284,14 +5217,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "A2"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Turkey",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -5301,14 +5233,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Azerbaijan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5366,14 +5297,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "C2"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Azerbaijan",
     "detected_leaf": "C2",
     "detected_group": "PERSIAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5383,14 +5313,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Azerbaijan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5496,14 +5425,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Kazakhstan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5545,14 +5473,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Kazakhstan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5610,14 +5537,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Azerbaijan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5627,14 +5553,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Azerbaijan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5676,14 +5601,13 @@
     "expected_leaf": "C1",
     "expected_group": "TURKIC",
     "acceptable_leaves": [
-      "C1",
-      "B1"
+      "C1"
     ],
     "geo_label": "C1",
     "geo_country": "Azerbaijan",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5700,7 +5624,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Abkar, Ali",
@@ -5725,14 +5649,13 @@
     "expected_leaf": "C2",
     "expected_group": "PERSIAN",
     "acceptable_leaves": [
-      "C2",
-      "A3"
+      "C2"
     ],
     "geo_label": "C2",
     "geo_country": "Iran",
     "detected_leaf": "A3",
     "detected_group": "NORDIC_BALTIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5797,7 +5720,7 @@
     "detected_leaf": "R0",
     "detected_group": "PERSIAN",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Ghaffari, Abolghasem",
@@ -5813,7 +5736,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Birkar, Caucher",
@@ -5838,14 +5761,13 @@
     "expected_leaf": "C2",
     "expected_group": "PERSIAN",
     "acceptable_leaves": [
-      "C2",
-      "A5"
+      "C2"
     ],
     "geo_label": "C2",
     "geo_country": "Iran",
     "detected_leaf": "A5",
     "detected_group": "CARIBBEAN_FRENCH",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -5926,7 +5848,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Sadeghi, Reza",
@@ -5974,7 +5896,7 @@
     "detected_leaf": "R0",
     "detected_group": "PERSIAN",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Shahidi, Freydoon",
@@ -6006,7 +5928,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Al-Isfahani",
@@ -6038,7 +5960,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Bijankhan, Mahmood",
@@ -6054,7 +5976,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Shahriyari, Parwiz",
@@ -6063,14 +5985,13 @@
     "expected_leaf": "C2",
     "expected_group": "PERSIAN",
     "acceptable_leaves": [
-      "C2",
-      "G1"
+      "C2"
     ],
     "geo_label": "C2",
     "geo_country": "Iran",
     "detected_leaf": "G1",
     "detected_group": "LATIN_AMERICAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -6135,7 +6056,7 @@
     "detected_leaf": "R0",
     "detected_group": "PERSIAN",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Abbasbandy, Saeid",
@@ -6151,7 +6072,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Zakeri, Hossein",
@@ -6167,7 +6088,7 @@
     "detected_leaf": "R0",
     "detected_group": "PERSIAN",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Mojtahedi, Mohammad Ali",
@@ -6215,7 +6136,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Al-Nagawri",
@@ -6263,7 +6184,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Takloo-Bighash, Ramin",
@@ -6311,7 +6232,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Najafi, Mohammad Ali",
@@ -6343,7 +6264,7 @@
     "detected_leaf": "R0",
     "detected_group": "PERSIAN",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Elmahboub, Widad Ibrahim",
@@ -6384,14 +6305,13 @@
     "expected_leaf": "C3",
     "expected_group": "ARABIC",
     "acceptable_leaves": [
-      "C3",
-      "G1"
+      "C3"
     ],
     "geo_label": "C3",
     "geo_country": "Iraq",
     "detected_leaf": "G1",
     "detected_group": "LATIN_AMERICAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -6408,7 +6328,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "al-Tusi, Nasir al-Din",
@@ -6417,14 +6337,13 @@
     "expected_leaf": "C3",
     "expected_group": "ARABIC",
     "acceptable_leaves": [
-      "C3",
-      "C2"
+      "C3"
     ],
     "geo_label": "C3",
     "geo_country": "Abbasid Caliphate",
     "detected_leaf": "C2",
     "detected_group": "PERSIAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -6482,14 +6401,13 @@
     "expected_leaf": "C3",
     "expected_group": "ARABIC",
     "acceptable_leaves": [
-      "C3",
-      "A1"
+      "C3"
     ],
     "geo_label": "C3",
     "geo_country": "Iraq",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -6499,14 +6417,13 @@
     "expected_leaf": "C3",
     "expected_group": "ARABIC",
     "acceptable_leaves": [
-      "C3",
-      "H1"
+      "C3"
     ],
     "geo_label": "C3",
     "geo_country": "Abbasid Caliphate",
     "detected_leaf": "H1",
     "detected_group": null,
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -6523,7 +6440,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "al-Jawharī, Al-Abbās ibn Said",
@@ -6539,7 +6456,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Ismail, Mourad",
@@ -6587,7 +6504,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Al-Qatrawani",
@@ -6603,7 +6520,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Kazim, Masoumeh Muhammad",
@@ -6635,7 +6552,7 @@
     "detected_leaf": "C3",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "high"
+    "adjudication_confidence": "medium"
   },
   {
     "full_name": "al-Fazārī, Muḥammad ibn Ibrāhīm",
@@ -6651,7 +6568,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Sinan, Ibrahim ibn",
@@ -6740,14 +6657,13 @@
     "expected_leaf": "C3",
     "expected_group": "ARABIC",
     "acceptable_leaves": [
-      "C3",
-      "C2"
+      "C3"
     ],
     "geo_label": "C3",
     "geo_country": "Abbasid Caliphate",
     "detected_leaf": "C2",
     "detected_group": "PERSIAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -6780,7 +6696,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Elgamal, Taher",
@@ -6812,7 +6728,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "al‐Marwarrūdhī, Khālid ibn ʿAbd al‐Malik",
@@ -6828,7 +6744,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Loève, Michel",
@@ -6860,7 +6776,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Taleb, Nassim Nicholas",
@@ -6917,14 +6833,13 @@
     "expected_leaf": "C3",
     "expected_group": "ARABIC",
     "acceptable_leaves": [
-      "C3",
-      "B3"
+      "C3"
     ],
     "geo_label": "C3",
     "geo_country": "Egypt",
     "detected_leaf": "B3",
     "detected_group": "HELLENIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -6947,10 +6862,9 @@
     "full_name": "al-Sabi', Ibrahim ibn Hilal",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "C4",
+    "expected_leaf": "C3",
     "expected_group": "ARABIC",
     "acceptable_leaves": [
-      "C4",
       "C3"
     ],
     "geo_label": "C3",
@@ -6958,7 +6872,7 @@
     "detected_leaf": "C4",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "al-Qassas, Darwish",
@@ -6990,7 +6904,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "al-Yaʿqubi",
@@ -7006,7 +6920,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Ali, Sind ibn",
@@ -7015,14 +6929,13 @@
     "expected_leaf": "C3",
     "expected_group": "ARABIC",
     "acceptable_leaves": [
-      "C3",
-      "C2"
+      "C3"
     ],
     "geo_label": "C3",
     "geo_country": "Abbasid Caliphate",
     "detected_leaf": "C2",
     "detected_group": "PERSIAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -7064,14 +6977,13 @@
     "expected_leaf": "C4",
     "expected_group": "ARABIC",
     "acceptable_leaves": [
-      "C4",
-      "E7"
+      "C4"
     ],
     "geo_label": "C4",
     "geo_country": "Saudi Arabia",
     "detected_leaf": "E7",
     "detected_group": "SEA",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -7169,7 +7081,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Benis-Sinaceur, Hourya",
@@ -7185,7 +7097,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "al-Alami, Abd as-Salam ibn Muhammad",
@@ -7201,7 +7113,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Laouar, Abdelhamid",
@@ -7210,14 +7122,13 @@
     "expected_leaf": "C5",
     "expected_group": "ARABIC",
     "acceptable_leaves": [
-      "C5",
-      "A2"
+      "C5"
     ],
     "geo_label": "C5",
     "geo_country": "Algeria",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -7234,7 +7145,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "al-Hassar, Abu Bakr",
@@ -7250,7 +7161,7 @@
     "detected_leaf": "R0",
     "detected_group": "ARABIC",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Masmoudi, Nader",
@@ -7291,14 +7202,13 @@
     "expected_leaf": "C5",
     "expected_group": "ARABIC",
     "acceptable_leaves": [
-      "C5",
-      "F1"
+      "C5"
     ],
     "geo_label": "C5",
     "geo_country": "Algeria",
     "detected_leaf": "F1",
     "detected_group": "SSA",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -7322,18 +7232,17 @@
     "full_name": "Milman, Vitali",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A2",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Leviatan, Dany",
@@ -7349,7 +7258,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Chudnovsky, Maria",
@@ -7464,7 +7373,7 @@
     "detected_leaf": "C6",
     "detected_group": "HEBREW",
     "ambiguous_reason": null,
-    "adjudication_confidence": "high"
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Alon, Noga",
@@ -7518,18 +7427,17 @@
     "full_name": "Hebroni, Pessach",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A2",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Biham, Eli",
@@ -7545,7 +7453,7 @@
     "detected_leaf": "R0",
     "detected_group": "HEBREW",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Boneh, Dan",
@@ -7568,18 +7476,17 @@
     "full_name": "Strelitz, Shlomo",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A1",
-    "expected_group": "ANGLO_SPHERE",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A1",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Chaueka, Yaacov",
@@ -7602,18 +7509,17 @@
     "full_name": "Brandt, Achi",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A2",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Corry, Leo",
@@ -7629,7 +7535,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Rudnick, Zeev",
@@ -7652,18 +7558,17 @@
     "full_name": "Leibowitz, Greta",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A1",
-    "expected_group": "ANGLO_SPHERE",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A1",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Aspis, Aharon",
@@ -7735,18 +7640,17 @@
     "full_name": "Fekete, Michael",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A1",
-    "expected_group": "ANGLO_SPHERE",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A1",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Kohlberg, Elon",
@@ -7802,18 +7706,17 @@
     "full_name": "Hershkowitz, Daniel",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A1",
-    "expected_group": "ANGLO_SPHERE",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A1",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Katz, Mikhail",
@@ -7845,24 +7748,23 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Fraenkel, Aviezri",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A2",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Avron, Arnon",
@@ -7894,7 +7796,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Rosenau, Philip",
@@ -7949,52 +7851,49 @@
     "full_name": "Galil, Zvi",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A2",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Ziegler, Zvi",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A2",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Yekutieli, Amnon",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A2",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Arad, Zvi",
@@ -8010,7 +7909,7 @@
     "detected_leaf": "C6",
     "detected_group": "HEBREW",
     "ambiguous_reason": null,
-    "adjudication_confidence": "high"
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Ṭoledano, Shelomoh",
@@ -8074,7 +7973,7 @@
     "detected_leaf": "C6",
     "detected_group": "HEBREW",
     "ambiguous_reason": null,
-    "adjudication_confidence": "high"
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Mansour, Toufik",
@@ -8097,18 +7996,17 @@
     "full_name": "Gal, Shmuel",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "C6",
+    "expected_group": "HEBREW",
     "acceptable_leaves": [
-      "A2",
       "C6"
     ],
     "geo_label": "C6",
     "geo_country": "Israel",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Hrushovski, Ehud",
@@ -8198,14 +8096,13 @@
     "expected_leaf": "C7",
     "expected_group": "ARMENIAN",
     "acceptable_leaves": [
-      "C7",
-      "B1"
+      "C7"
     ],
     "geo_label": "C7",
     "geo_country": "Armenia",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -8359,14 +8256,13 @@
     "expected_leaf": "C8",
     "expected_group": "GEORGIAN",
     "acceptable_leaves": [
-      "C8",
-      "B1"
+      "C8"
     ],
     "geo_label": "C8",
     "geo_country": "Georgia",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -8632,14 +8528,13 @@
     "expected_leaf": "C9",
     "expected_group": "BALTIC",
     "acceptable_leaves": [
-      "C9",
-      "B3"
+      "C9"
     ],
     "geo_label": "C9",
     "geo_country": "Lithuania",
     "detected_leaf": "B3",
     "detected_group": "HELLENIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -8704,7 +8599,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Kubilius, Jonas",
@@ -8729,14 +8624,13 @@
     "expected_leaf": "C9",
     "expected_group": "BALTIC",
     "acceptable_leaves": [
-      "C9",
-      "B3"
+      "C9"
     ],
     "geo_label": "C9",
     "geo_country": "Lithuania",
     "detected_leaf": "B3",
     "detected_group": "HELLENIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -8762,14 +8656,13 @@
     "expected_leaf": "C9",
     "expected_group": "BALTIC",
     "acceptable_leaves": [
-      "C9",
-      "A1"
+      "C9"
     ],
     "geo_label": "C9",
     "geo_country": "Lithuania",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -9020,14 +8913,13 @@
     "expected_leaf": "D1",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D1",
-      "B1"
+      "D1"
     ],
     "geo_label": "D1",
     "geo_country": "British Raj",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -9060,7 +8952,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Rao, R. Ranga",
@@ -9108,7 +9000,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Subbarao, Mathukumalli V.",
@@ -9124,7 +9016,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Agarwal, Pankaj K.",
@@ -9165,14 +9057,13 @@
     "expected_leaf": "D1",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D1",
-      "C7"
+      "D1"
     ],
     "geo_label": "D1",
     "geo_country": "British Raj",
     "detected_leaf": "C7",
     "detected_group": "ARMENIAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -9237,7 +9128,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Jain, Padam Chand",
@@ -9279,14 +9170,13 @@
     "expected_leaf": "D1",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D1",
-      "B1"
+      "D1"
     ],
     "geo_label": "D1",
     "geo_country": "India",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -9303,7 +9193,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Sarma, K. V.",
@@ -9319,7 +9209,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Vaidyanathaswamy, Ramaswamy S.",
@@ -9335,7 +9225,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Gadgil, Sulochana",
@@ -9383,7 +9273,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Pingala",
@@ -9392,15 +9282,14 @@
     "expected_leaf": "D1",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D1",
-      "A2"
+      "D1"
     ],
     "geo_label": "D1",
     "geo_country": "India",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Kumaraswamy, Poondi",
@@ -9432,7 +9321,7 @@
     "detected_leaf": "R0",
     "detected_group": "SOUTH_ASIAN",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Prasad, Ganesh",
@@ -9465,7 +9354,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Shukla, Jang Bahadur",
@@ -9474,14 +9363,13 @@
     "expected_leaf": "D1",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D1",
-      "E4"
+      "D1"
     ],
     "geo_label": "D1",
     "geo_country": "India",
     "detected_leaf": "E4",
     "detected_group": "KOREAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -9498,7 +9386,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Joshi, Kedar",
@@ -9530,7 +9418,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Ramanujam, C. P.",
@@ -9644,7 +9532,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Mukherjee, Shyamaprasad",
@@ -9676,7 +9564,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Rahman, Mizan",
@@ -9685,14 +9573,13 @@
     "expected_leaf": "D3",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D3",
-      "C3"
+      "D3"
     ],
     "geo_label": "D3",
     "geo_country": "Bangladesh",
     "detected_leaf": "C3",
     "detected_group": "ARABIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -9709,7 +9596,7 @@
     "detected_leaf": "D4",
     "detected_group": "SOUTH_ASIAN",
     "ambiguous_reason": null,
-    "adjudication_confidence": "high"
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Yousuf, Muhammad",
@@ -9747,10 +9634,9 @@
     "full_name": "Shah, Tasneem M.",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "D1",
+    "expected_leaf": "D4",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D1",
       "D4"
     ],
     "geo_label": "D4",
@@ -9767,14 +9653,13 @@
     "expected_leaf": "D4",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D4",
-      "C3"
+      "D4"
     ],
     "geo_label": "D4",
     "geo_country": "Pakistan",
     "detected_leaf": "C3",
     "detected_group": "ARABIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -9800,14 +9685,13 @@
     "expected_leaf": "D4",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D4",
-      "C3"
+      "D4"
     ],
     "geo_label": "D4",
     "geo_country": "Pakistan",
     "detected_leaf": "C3",
     "detected_group": "ARABIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -9817,14 +9701,13 @@
     "expected_leaf": "D4",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D4",
-      "C3"
+      "D4"
     ],
     "geo_label": "D4",
     "geo_country": "Pakistan",
     "detected_leaf": "C3",
     "detected_group": "ARABIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -9866,14 +9749,13 @@
     "expected_leaf": "D4",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D4",
-      "G1"
+      "D4"
     ],
     "geo_label": "D4",
     "geo_country": "Pakistan",
     "detected_leaf": "G1",
     "detected_group": "LATIN_AMERICAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -9883,14 +9765,13 @@
     "expected_leaf": "D4",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D4",
-      "C2"
+      "D4"
     ],
     "geo_label": "D4",
     "geo_country": "Pakistan",
     "detected_leaf": "C2",
     "detected_group": "PERSIAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -9916,14 +9797,13 @@
     "expected_leaf": "D5",
     "expected_group": "SOUTH_ASIAN",
     "acceptable_leaves": [
-      "D5",
-      "A2"
+      "D5"
     ],
     "geo_label": "D5",
     "geo_country": "Sri Lanka",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -9972,7 +9852,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Wei-zang, Chien",
@@ -9988,7 +9868,7 @@
     "detected_leaf": "R0",
     "detected_group": "SINOPHONE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Deng, Gu",
@@ -10013,14 +9893,13 @@
     "expected_leaf": "E1",
     "expected_group": "SINOPHONE",
     "acceptable_leaves": [
-      "E1",
-      "E4"
+      "E1"
     ],
     "geo_label": "E1",
     "geo_country": "People's Republic of China",
     "detected_leaf": "E4",
     "detected_group": "KOREAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -10085,7 +9964,7 @@
     "detected_leaf": "R0",
     "detected_group": "SINOPHONE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Zhou, Xin",
@@ -10165,7 +10044,7 @@
     "detected_leaf": "R0",
     "detected_group": "SINOPHONE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Ji, Yu",
@@ -10213,7 +10092,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Pengda, Zhao",
@@ -10318,15 +10197,14 @@
     "expected_leaf": "E1",
     "expected_group": "SINOPHONE",
     "acceptable_leaves": [
-      "E1",
-      "A2"
+      "E1"
     ],
     "geo_label": "E1",
     "geo_country": "Qing dynasty",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Zhao, Ke",
@@ -10391,7 +10269,7 @@
     "detected_leaf": "R0",
     "detected_group": "SINOPHONE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Tingcan, Yu",
@@ -10487,7 +10365,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Haichang, Hu",
@@ -10503,7 +10381,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Li, Chen",
@@ -10528,14 +10406,13 @@
     "expected_leaf": "E1",
     "expected_group": "SINOPHONE",
     "acceptable_leaves": [
-      "E1",
-      "E6"
+      "E1"
     ],
     "geo_label": "E1",
     "geo_country": "Qing dynasty",
     "detected_leaf": "E6",
     "detected_group": "SEA",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -10552,7 +10429,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Yuan, Ya-xiang",
@@ -10593,14 +10470,13 @@
     "expected_leaf": "E1",
     "expected_group": "SINOPHONE",
     "acceptable_leaves": [
-      "E1",
-      "A2"
+      "E1"
     ],
     "geo_label": "E1",
     "geo_country": "People's Republic of China",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -10729,7 +10605,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Deng, Gu",
@@ -10754,14 +10630,13 @@
     "expected_leaf": "E1",
     "expected_group": "SINOPHONE",
     "acceptable_leaves": [
-      "E1",
-      "E4"
+      "E1"
     ],
     "geo_label": "E1",
     "geo_country": "People's Republic of China",
     "detected_leaf": "E4",
     "detected_group": "KOREAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -10869,14 +10744,13 @@
     "expected_leaf": "E2",
     "expected_group": "SINOPHONE",
     "acceptable_leaves": [
-      "E2",
-      "E4"
+      "E2"
     ],
     "geo_label": "E2",
     "geo_country": "Taiwan",
     "detected_leaf": "E4",
     "detected_group": "KOREAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -10909,7 +10783,7 @@
     "detected_leaf": "R0",
     "detected_group": "SINOPHONE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Chow, Hung Ching",
@@ -11053,7 +10927,7 @@
     "detected_leaf": "R0",
     "detected_group": "JAPANESE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Tanzō, Takenouchi",
@@ -11062,15 +10936,14 @@
     "expected_leaf": "E3",
     "expected_group": "JAPANESE",
     "acceptable_leaves": [
-      "E3",
-      "A2"
+      "E3"
     ],
     "geo_label": "E3",
     "geo_country": "Japan",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Narita, Masao",
@@ -11086,7 +10959,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Ōtake, Kōichirō",
@@ -11134,7 +11007,7 @@
     "detected_leaf": "R0",
     "detected_group": "JAPANESE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "medium"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Shimauchi, Takakazu",
@@ -11239,14 +11112,13 @@
     "expected_leaf": "E3",
     "expected_group": "JAPANESE",
     "acceptable_leaves": [
-      "E3",
-      "B3"
+      "E3"
     ],
     "geo_label": "E3",
     "geo_country": "Japan",
     "detected_leaf": "B3",
     "detected_group": "HELLENIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -11375,7 +11247,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Takeuti, Gaisi",
@@ -11391,7 +11263,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Konno, Takeo",
@@ -11471,7 +11343,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Nakamura, Gisaku",
@@ -11551,7 +11423,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Matsunaga, Yoshisuke",
@@ -11576,14 +11448,13 @@
     "expected_leaf": "E3",
     "expected_group": "JAPANESE",
     "acceptable_leaves": [
-      "E3",
-      "E4"
+      "E3"
     ],
     "geo_label": "E3",
     "geo_country": "Japan",
     "detected_leaf": "E4",
     "detected_group": "KOREAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -11616,7 +11487,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Itō, Yoshiaki",
@@ -11680,7 +11551,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Suzuki, Haruo",
@@ -11744,7 +11615,7 @@
     "detected_leaf": "E3",
     "detected_group": "JAPANESE",
     "ambiguous_reason": null,
-    "adjudication_confidence": "high"
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Tsukamoto, Akitake",
@@ -11945,14 +11816,13 @@
     "expected_leaf": "E5",
     "expected_group": "VIETNAMESE",
     "acceptable_leaves": [
-      "E5",
-      "E4"
+      "E5"
     ],
     "geo_label": "E5",
     "geo_country": "Vietnam",
     "detected_leaf": "E4",
     "detected_group": "KOREAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -12122,14 +11992,13 @@
     "expected_leaf": "E5",
     "expected_group": "VIETNAMESE",
     "acceptable_leaves": [
-      "E5",
-      "E4"
+      "E5"
     ],
     "geo_label": "E5",
     "geo_country": "Vietnam",
     "detected_leaf": "E4",
     "detected_group": "KOREAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -12226,7 +12095,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Wade, Aissa",
@@ -12267,14 +12136,13 @@
     "expected_leaf": "F1",
     "expected_group": "SSA",
     "acceptable_leaves": [
-      "F1",
-      "A1"
+      "F1"
     ],
     "geo_label": "F1",
     "geo_country": "Senegal",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": null,
     "adjudication_confidence": "low"
   },
   {
@@ -12387,7 +12255,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Ogana, Wandera",
@@ -12499,7 +12367,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Iyahen, Sunday",
@@ -12524,14 +12392,13 @@
     "expected_leaf": "F2",
     "expected_group": "SSA",
     "acceptable_leaves": [
-      "F2",
-      "A1"
+      "F2"
     ],
     "geo_label": "F2",
     "geo_country": "Ghana",
     "detected_leaf": "A1",
     "detected_group": "ANGLO_SPHERE",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -12541,14 +12408,13 @@
     "expected_leaf": "F2",
     "expected_group": "SSA",
     "acceptable_leaves": [
-      "F2",
-      "C7"
+      "F2"
     ],
     "geo_label": "F2",
     "geo_country": "Nigeria",
     "detected_leaf": "C7",
     "detected_group": "ARMENIAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -12654,15 +12520,14 @@
     "expected_leaf": "F2",
     "expected_group": "SSA",
     "acceptable_leaves": [
-      "F2",
-      "A2"
+      "F2"
     ],
     "geo_label": "F2",
     "geo_country": "Nigeria",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "needs_review",
-    "adjudication_confidence": "low"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Balogun, Bola",
@@ -12726,7 +12591,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Tejumola, Haroon",
@@ -12742,7 +12607,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Ahsan, Riaz",
@@ -12751,14 +12616,13 @@
     "expected_leaf": "F2",
     "expected_group": "SSA",
     "acceptable_leaves": [
-      "F2",
-      "G1"
+      "F2"
     ],
     "geo_label": "F2",
     "geo_country": "Nigeria",
     "detected_leaf": "G1",
     "detected_group": "LATIN_AMERICAN",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -12768,14 +12632,13 @@
     "expected_leaf": "F2",
     "expected_group": "SSA",
     "acceptable_leaves": [
-      "F2",
-      "B3"
+      "F2"
     ],
     "geo_label": "F2",
     "geo_country": "Ghana",
     "detected_leaf": "B3",
     "detected_group": "HELLENIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -12833,14 +12696,13 @@
     "expected_leaf": "F3",
     "expected_group": "SSA",
     "acceptable_leaves": [
-      "F3",
-      "C3"
+      "F3"
     ],
     "geo_label": "F3",
     "geo_country": "Ethiopia",
     "detected_leaf": "C3",
     "detected_group": "ARABIC",
-    "ambiguous_reason": "needs_review",
+    "ambiguous_reason": "classifier_error",
     "adjudication_confidence": "low"
   },
   {
@@ -12889,7 +12751,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Queiroz, Ruy de",
@@ -13152,7 +13014,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Rodiles, Antonio",
@@ -13184,7 +13046,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Spinadel, Vera de",
@@ -13217,41 +13079,39 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Villarreal, Federico",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "G1",
+    "expected_group": "LATIN_AMERICAN",
     "acceptable_leaves": [
-      "A2",
       "G1"
     ],
     "geo_label": "G1",
     "geo_country": "Peru",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Valle, Enrique Guzmán y",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "B1",
-    "expected_group": "SLAVIC_EAST",
+    "expected_leaf": "G1",
+    "expected_group": "LATIN_AMERICAN",
     "acceptable_leaves": [
-      "B1",
       "G1"
     ],
     "geo_label": "G1",
     "geo_country": "Peru",
     "detected_leaf": "B1",
     "detected_group": "SLAVIC_EAST",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Moreno, Carlos J.",
@@ -13289,18 +13149,17 @@
     "full_name": "Castilla, Alberto",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "G1",
+    "expected_group": "LATIN_AMERICAN",
     "acceptable_leaves": [
-      "A2",
       "G1"
     ],
     "geo_label": "G1",
     "geo_country": "Colombia",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Gutiérrez, Juan María",
@@ -13370,18 +13229,17 @@
     "full_name": "XIV, Leo",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "E1",
-    "expected_group": "SINOPHONE",
+    "expected_leaf": "G1",
+    "expected_group": "LATIN_AMERICAN",
     "acceptable_leaves": [
-      "E1",
       "G1"
     ],
     "geo_label": "G1",
     "geo_country": "Peru",
     "detected_leaf": "E1",
     "detected_group": "SINOPHONE",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Viera, Yusnier",
@@ -13403,18 +13261,17 @@
     "full_name": "Reiche, Maria",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "G1",
+    "expected_group": "LATIN_AMERICAN",
     "acceptable_leaves": [
-      "A2",
       "G1"
     ],
     "geo_label": "G1",
     "geo_country": "Peru",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   },
   {
     "full_name": "Ribenboim, Paulo",
@@ -13430,7 +13287,7 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Biggeri, Carlos",
@@ -13485,18 +13342,17 @@
     "full_name": "Recht, Lázaro",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "G1",
+    "expected_group": "LATIN_AMERICAN",
     "acceptable_leaves": [
-      "A2",
       "G1"
     ],
     "geo_label": "G1",
     "geo_country": "Argentina",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Garro, José Martín",
@@ -13534,18 +13390,17 @@
     "full_name": "Escalante, Jaime",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "G1",
+    "expected_group": "LATIN_AMERICAN",
     "acceptable_leaves": [
-      "A2",
       "G1"
     ],
     "geo_label": "G1",
     "geo_country": "Bolivia",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Quirós, Lucas de",
@@ -13568,18 +13423,17 @@
     "full_name": "Franca, Leopoldo Penna",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "G1",
+    "expected_group": "LATIN_AMERICAN",
     "acceptable_leaves": [
-      "A2",
       "G1"
     ],
     "geo_label": "G1",
     "geo_country": "Brazil",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Awerbuch-Friedlander, Tamara",
@@ -13662,23 +13516,22 @@
     "detected_leaf": "R0",
     "detected_group": null,
     "ambiguous_reason": null,
-    "adjudication_confidence": "low"
+    "adjudication_confidence": "high"
   },
   {
     "full_name": "Pinzón, Mario Laserna",
     "task": "name_origin",
     "expected_mode": "leaf",
-    "expected_leaf": "A2",
-    "expected_group": "GERMANIC_WESTERN",
+    "expected_leaf": "G1",
+    "expected_group": "LATIN_AMERICAN",
     "acceptable_leaves": [
-      "A2",
       "G1"
     ],
     "geo_label": "G1",
     "geo_country": "Colombia",
     "detected_leaf": "A2",
     "detected_group": "GERMANIC_WESTERN",
-    "ambiguous_reason": "immigrant_diaspora",
-    "adjudication_confidence": "medium"
+    "ambiguous_reason": null,
+    "adjudication_confidence": "low"
   }
 ]
