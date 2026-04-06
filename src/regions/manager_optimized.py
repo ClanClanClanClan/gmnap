@@ -2795,6 +2795,31 @@ def _score_priority_rules(name, possible):
             },
         )
 
+    # Sovietized Turkic mixed-name rule: Slavic surname suffix (-ov/-ev)
+    # with Turkic given name evidence → hybrid, abstain with candidates.
+    has_slavic_surname = any(
+        "STRONG_SURNAME_SUFFIX:" in r
+        and any(s in r for s in ("ov:", "ev:", "enko:", "ovich:", "evich:"))
+        for r in reasons.get("B1", [])
+    )
+    has_turkic_given = any("STRONG_GIVEN" in r for r in reasons.get("C1", []))
+    if (
+        has_slavic_surname
+        and has_turkic_given
+        and best_region == "B1"
+        and "C1" in possible
+    ):
+        return (
+            None,
+            0.0,
+            {
+                "reason": "sovietized_turkic",
+                "candidates": candidates,
+                "best_region": best_region,
+                "group": "SOVIETIZED_TURKIC_MIXED",
+            },
+        )
+
     # Expert rule: given-name-only evidence NEVER produces leaf prediction
     best_surname = surname_scores.get(best_region, 0)
     best_given = given_scores.get(best_region, 0)
@@ -4158,6 +4183,7 @@ class RegionManager:
             "no_signal",
             "given_only_no_surname",
             "mixed_anglo_hispanic",
+            "sovietized_turkic",
         ):
             return RegionDetectionResult(
                 region_code="R0",

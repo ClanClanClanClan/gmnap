@@ -989,7 +989,7 @@ TERRITORY_TO_REGION = {
     "PL": "B2",
     "CZ": "B2",
     "SK": "B2",
-    "HU": "B2",
+    "HU": "A2",  # Hungarian is Uralic, not Slavic; names are in A2 patterns
     "RO": "B2",
     "AL": "B2",
     "XK": "B2",
