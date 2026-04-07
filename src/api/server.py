@@ -367,32 +367,44 @@ def create_app() -> FastAPI:
         """Query academic genealogy lineage for a GlobalID."""
         bolt_uri = os.getenv("MEMGRAPH_BOLT", "bolt://localhost:7687")
 
+        # Try neo4j first
         try:
             from src.genealogy.query import lineage_to_dot, query_lineage
 
             result = query_lineage(global_id, depth=depth, bolt_uri=bolt_uri)
-            if not result:
-                raise HTTPException(status_code=404, detail="GlobalID not found")
+            if result:
+                if format == "dot":
+                    from starlette.responses import PlainTextResponse
 
-            if format == "dot":
-                from starlette.responses import PlainTextResponse
-
-                return PlainTextResponse(
-                    lineage_to_dot(result), media_type="text/vnd.graphviz"
-                )
-
-            return result
-        except ImportError as exc:
-            logger.warning("Genealogy import failed: %s", exc)
-            raise HTTPException(
-                status_code=501,
-                detail="Genealogy module not available — install neo4j driver",
-            )
-        except HTTPException:
-            raise
+                    return PlainTextResponse(
+                        lineage_to_dot(result), media_type="text/vnd.graphviz"
+                    )
+                return result
+        except ImportError:
+            pass  # Fall through to local YAML
         except Exception as e:
-            logger.error(f"Lineage error: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail="Internal server error")
+            logger.debug(f"Neo4j lineage query failed: {e}")
+
+        # Fallback: local YAML files (from pipeline output)
+        try:
+            from src.cli.gmnap import _query_lineage_graph
+
+            edges = _query_lineage_graph(global_id, depth)
+            if edges:
+                result = {"root": global_id, "depth": depth, "edges": edges}
+                if format == "dot":
+                    from src.cli.gmnap import _edges_to_dot
+                    from starlette.responses import PlainTextResponse
+
+                    return PlainTextResponse(
+                        _edges_to_dot(global_id, edges),
+                        media_type="text/vnd.graphviz",
+                    )
+                return result
+        except Exception as e:
+            logger.debug(f"Local YAML lineage failed: {e}")
+
+        raise HTTPException(status_code=404, detail="GlobalID not found")
 
     # ------------------------------------------------------------------
     # Batch processing endpoint

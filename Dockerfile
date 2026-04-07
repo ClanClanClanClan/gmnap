@@ -19,8 +19,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create app directory
 WORKDIR /app
 
-# Install FastText language identification model
-RUN wget -q https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin -O /app/lid.176.bin
+# Compile FastText CLI binary (346KB, needed for surname classification)
+RUN git clone --depth 1 https://github.com/facebookresearch/fastText.git /tmp/fasttext-build \
+    && cd /tmp/fasttext-build && make -j$(nproc) \
+    && cp /tmp/fasttext-build/fasttext /usr/local/bin/fasttext \
+    && rm -rf /tmp/fasttext-build
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .

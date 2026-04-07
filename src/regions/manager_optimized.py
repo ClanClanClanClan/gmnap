@@ -4021,7 +4021,13 @@ class RegionManager:
 
         cli_path = shutil.which("fasttext")
         if not cli_path:
-            for p in ["/usr/local/bin/fasttext", "/opt/homebrew/bin/fasttext"]:
+            home = Path.home()
+            for p in [
+                "/usr/local/bin/fasttext",
+                "/opt/homebrew/bin/fasttext",
+                str(home / ".local" / "bin" / "fasttext"),
+                "bin/fasttext",
+            ]:
                 if Path(p).exists():
                     cli_path = p
                     break

@@ -75,6 +75,7 @@ jobs:
           tests/unit/core/test_final_core_functionality.py
           tests/unit/core/test_region_processing.py
           tests/unit/regions/test_region_e4.py
+          tests/unit/test_benchmark_evaluation.py
           -v --tb=short --timeout=120 -p no:cacheprovider
 
       - name: Property tests

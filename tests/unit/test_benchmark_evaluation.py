@@ -21,8 +21,18 @@ BENCHMARK_PATH = (
 
 @pytest.fixture(scope="module")
 def benchmark_data():
+    import os
+    import random
+
     with open(BENCHMARK_PATH) as f:
-        return json.load(f)
+        data = json.load(f)
+
+    # In CI: use a smaller sample to avoid timeouts
+    if os.environ.get("CI"):
+        random.seed(42)
+        data = random.sample(data, min(100, len(data)))
+
+    return data
 
 
 @pytest.fixture(scope="module")

@@ -1276,7 +1276,9 @@ class V7Pipeline:
 
         # Apply schema validation if available
         try:
-            from src.validation.schema_validator import SchemaValidator
+            from src.validation.schema_validator import (
+                V7SchemaValidator as SchemaValidator,
+            )
 
             validator = SchemaValidator()
 
@@ -1288,7 +1290,10 @@ class V7Pipeline:
                         entry["Status"] = "success"
                     continue
 
-                errors = validator.validate_entry(entry)
+                validate_fn = getattr(
+                    validator, "validate_entry", validator.validate
+                )
+                errors = validate_fn(entry)
                 if errors:
                     entry["ValidationErrors"] = errors
                     entry["Status"] = "failed_validation"
