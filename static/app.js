@@ -38,7 +38,7 @@
         while (true) {
             var stamp = "1:" + bits + ":" + date + ":gmnap-api::" + rand + ":" + counter.toString(16);
             var data = new TextEncoder().encode(stamp);
-            var hash = await crypto.subtle.digest("SHA-1", data);
+            var hash = await crypto.subtle.digest("SHA-256", data);
             var arr = new Uint8Array(hash);
             // Count leading zero bits
             var zeroBits = 0;

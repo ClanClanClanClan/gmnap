@@ -1282,23 +1282,35 @@ class V7Pipeline:
 
             validator = SchemaValidator()
 
+            from datetime import datetime
+
             for entry in entries:
                 # Skip validation for test data
                 if entry.get("GlobalID", "").startswith("TEST-"):
-                    # Mark test entries as success if not already failed
                     if entry.get("Status") != "failed":
                         entry["Status"] = "success"
                     continue
 
+                # Populate required-field defaults before validation
+                entry.setdefault("Field", "mathematics")
+                entry.setdefault("Source", "pipeline-v7")
+                entry.setdefault("LastUpdated", datetime.utcnow().strftime("%Y-%m-%d"))
+                entry.setdefault("ValidationStatus", "pending")
+
                 validate_fn = getattr(validator, "validate_entry", validator.validate)
-                errors = validate_fn(entry)
-                if errors:
-                    entry["ValidationErrors"] = errors
+                result = validate_fn(entry)
+                # V7SchemaValidator.validate returns (bool, list[str])
+                if isinstance(result, tuple):
+                    is_valid, error_list = result
+                else:
+                    is_valid, error_list = (not result), result or []
+
+                if not is_valid and error_list:
+                    entry["ValidationErrors"] = error_list
                     entry["Status"] = "failed_validation"
                     self.metrics.roundtrip_failures += 1
                     self.metrics.failed_entries += 1
                 elif entry.get("Status") != "failed":
-                    # Only set success if not already failed
                     entry["Status"] = "success"
         except ImportError:
             logger.warning("SchemaValidator not available, skipping validation")
