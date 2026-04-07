@@ -393,8 +393,9 @@ def create_app() -> FastAPI:
             if edges:
                 result = {"root": global_id, "depth": depth, "edges": edges}
                 if format == "dot":
-                    from src.cli.gmnap import _edges_to_dot
                     from starlette.responses import PlainTextResponse
+
+                    from src.cli.gmnap import _edges_to_dot
 
                     return PlainTextResponse(
                         _edges_to_dot(global_id, edges),
