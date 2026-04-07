@@ -1290,9 +1290,7 @@ class V7Pipeline:
                         entry["Status"] = "success"
                     continue
 
-                validate_fn = getattr(
-                    validator, "validate_entry", validator.validate
-                )
+                validate_fn = getattr(validator, "validate_entry", validator.validate)
                 errors = validate_fn(entry)
                 if errors:
                     entry["ValidationErrors"] = errors
