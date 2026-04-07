@@ -252,6 +252,47 @@ def sources():
             click.echo(f"  {name:20s} [{lic}]")
 
 
+_REGION_NAMES = {
+    "A1": "Anglo-Sphere",
+    "A2": "Western Europe",
+    "A3": "Nordic-Baltic",
+    "A4": "Oceania Pacific",
+    "A5": "Caribbean & French Overseas",
+    "B1": "Slavic East (Russian)",
+    "B2": "Slavic Central (Polish/Czech)",
+    "B3": "Hellenic (Greek)",
+    "C1": "Turkic",
+    "C2": "Persian",
+    "C3": "Arabic Levant & Nile",
+    "C4": "Arabic Gulf",
+    "C5": "Arabic Maghreb",
+    "C6": "Hebrew & Diaspora",
+    "C7": "Armenian",
+    "C8": "Georgian",
+    "C9": "Baltic (Lithuanian/Latvian)",
+    "D1": "South Asian Hindi Belt",
+    "D2": "South Asian Dravidian",
+    "D3": "Bengali",
+    "D4": "Pakistani",
+    "D5": "Sri Lankan",
+    "E1": "Chinese (Simplified)",
+    "E2": "Chinese (Traditional)",
+    "E3": "Japanese",
+    "E4": "Korean",
+    "E5": "Vietnamese",
+    "E6": "Thai & Mainland SEA",
+    "E7": "Maritime SEA",
+    "F1": "SSA Francophone & Maghreb",
+    "F2": "SSA Anglophone",
+    "F3": "Horn of Africa",
+    "F4": "Southern & Lusophone Africa",
+    "G1": "Latin American",
+    "H1": "Historical",
+    "R0": "Residual / Unknown",
+    "Z0": "Quarantine",
+}
+
+
 @cli.command()
 def regions():
     """List all supported region codes."""
@@ -262,8 +303,7 @@ def regions():
     codes = sorted(mgr.IMPLEMENTED_REGIONS)
     click.echo(f"Supported regions ({len(codes)}):")
     for code in codes:
-        p = mgr.get_region(code)
-        name = getattr(p, "REGION_NAME", code) if p else code
+        name = _REGION_NAMES.get(code, code)
         click.echo(f"  {code}: {name}")
 
 
