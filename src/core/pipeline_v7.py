@@ -722,7 +722,14 @@ class V7Pipeline:
                 )
                 logger.info("Genealogy graph populated successfully")
             except Exception as e:
-                logger.warning(f"Genealogy processing failed: {e}")
+                # Connection errors are expected when Memgraph/Neo4j isn't
+                # running (typical for local CLI / demo use); keep those
+                # quiet. Any other failure stays visible.
+                msg = str(e).lower()
+                if "couldn't connect" in msg or "connection refused" in msg:
+                    logger.debug(f"Genealogy graph not available: {e}")
+                else:
+                    logger.warning(f"Genealogy processing failed: {e}")
                 # Continue with pipeline even if genealogy fails
 
         # Final stages

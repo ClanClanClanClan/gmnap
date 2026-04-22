@@ -63,27 +63,47 @@ def query(name: str, mode: str, as_json: bool):
             if ok:
                 work["OrderKey"] = ok
 
-        # Parse family/given if not already set by processor
-        canonical = work.get("CanonicalLatin", name)
+        # Parse family/given while preserving the original input case
+        # (processor.clean() lowercases work["CanonicalLatin"])
         family = work.get("FamilyName", "")
         given = work.get("GivenName", "")
-        if not family and "," in canonical:
-            parts = canonical.split(",", 1)
+        if not family and "," in name:
+            parts = name.split(",", 1)
             family = parts[0].strip()
             given = parts[1].strip() if len(parts) > 1 else ""
         elif not family:
-            parts = canonical.strip().split()
+            parts = name.strip().split()
             if len(parts) >= 2:
                 family = parts[-1]
                 given = " ".join(parts[:-1])
 
         result["processed"] = {
-            "CanonicalLatin": canonical,
+            "CanonicalLatin": name,
             "FamilyName": family,
             "GivenName": given,
             "OrderKey": work.get("OrderKey", ""),
             "FamilyNameType": work.get("FamilyNameType", "surname"),
         }
+
+    # Curated genealogy enrichment (Advisors/Institution/BirthYear/...)
+    try:
+        from src.core.genealogy_lookup import GenealogyLookup
+
+        enrichable = {"CanonicalLatin": name}
+        GenealogyLookup().enrich(enrichable)
+        for field in (
+            "BirthYear",
+            "DeathYear",
+            "Institution",
+            "Country",
+            "Thesis",
+            "ThesisYear",
+            "Advisors",
+        ):
+            if field in enrichable:
+                result[field] = enrichable[field]
+    except Exception:
+        pass
 
     if as_json:
         click.echo(json.dumps(result, indent=2, ensure_ascii=False))
@@ -97,6 +117,14 @@ def query(name: str, mode: str, as_json: bool):
             click.echo(f"Given:      {p['GivenName']}")
             click.echo(f"OrderKey:   {p['OrderKey']}")
             click.echo(f"Type:       {p['FamilyNameType']}")
+        if result.get("BirthYear"):
+            click.echo(f"Born:       {result['BirthYear']}")
+        if result.get("Institution"):
+            click.echo(f"Institution: {result['Institution']}")
+        if result.get("Advisors"):
+            advisors = result["Advisors"]
+            names = [a.get("name", str(a)) for a in advisors]
+            click.echo(f"Advisors:   {', '.join(names)}")
 
 
 @cli.command()

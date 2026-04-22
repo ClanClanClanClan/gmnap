@@ -343,14 +343,29 @@ def create_app() -> FastAPI:
             except Exception:
                 gid = None
 
-            return {
+            response = {
                 "name": name,
+                "CanonicalLatin": name,
                 "global_id": gid,
+                "GlobalID": gid,
                 "region_code": result.region_code,
+                "DetectedRegion": result.region_code,
                 "confidence": result.confidence,
+                "DetectionConfidence": result.confidence,
                 "detection_method": result.detection_method,
+                "DetectionMethod": result.detection_method,
                 "metadata": result.metadata,
             }
+
+            # Enrich with curated genealogy data (Advisors/Institution/BirthYear)
+            try:
+                from src.core.genealogy_lookup import GenealogyLookup
+
+                GenealogyLookup().enrich(response)
+            except Exception as exc:
+                logger.debug("Genealogy enrichment skipped: %s", exc)
+
+            return response
         except Exception as e:
             logger.error(f"Query error: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail="Internal server error")
@@ -404,6 +419,27 @@ def create_app() -> FastAPI:
                 return result
         except Exception as e:
             logger.debug(f"Local YAML lineage failed: {e}")
+
+        # Final fallback: curated genealogy enrichment JSON.
+        # Accepts either a GlobalID or a canonical name (optionally with
+        # 'name:' prefix, e.g. /api/v1/lineage/name:euler,+leonhard).
+        try:
+            from src.core.genealogy_lookup import GenealogyLookup
+
+            edges = GenealogyLookup().traverse_lineage(global_id, depth)
+            if edges:
+                if format == "dot":
+                    from starlette.responses import PlainTextResponse
+
+                    from src.cli.gmnap import _edges_to_dot
+
+                    return PlainTextResponse(
+                        _edges_to_dot(global_id, edges),
+                        media_type="text/vnd.graphviz",
+                    )
+                return {"root": global_id, "depth": depth, "edges": edges}
+        except Exception as e:
+            logger.debug(f"Enrichment lineage failed: {e}")
 
         raise HTTPException(status_code=404, detail="GlobalID not found")
 
@@ -473,6 +509,17 @@ def create_app() -> FastAPI:
             limit = max(1, min(req.limit, 10000))
             offset = max(0, req.offset)
             page = entries[offset : offset + limit]
+
+            # Enrich each returned entry with curated genealogy data
+            try:
+                from src.core.genealogy_lookup import GenealogyLookup
+
+                lookup = GenealogyLookup()
+                for entry in page:
+                    if isinstance(entry, dict):
+                        lookup.enrich(entry)
+            except Exception as exc:
+                logger.debug("Genealogy enrichment skipped: %s", exc)
 
             return {
                 "processed": len(entries),
