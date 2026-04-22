@@ -94,26 +94,29 @@ Tier 0 sources (OpenAlex, Crossref, ORCID, Crossref_Thesis) call APIs directly.
 37/37 YAML config files exist and are auto-loaded via lazy `ensure_yaml_loaded()` in base class.
 `_apply_yaml_overrides()` merges YAML keys onto processor attributes before first hook call.
 
-### Performance (Measured 2026-03-29)
-Benchmarks run OFFLINE mode (GMNAP_NO_NETWORK=1), Python 3.12, Apple M1.
-Realistic diverse data: 37 regions, unique (name, year) pairs, 100% output retained (no dedup collapse).
-| Batch Size | Elapsed | Entries/sec | Projected 1M | Peak RSS | Retained |
-|------------|---------|-------------|--------------|----------|----------|
-| 1,000 | 1.5s | 688/s | 24 min | 0.32 GB | 100% |
-| 10,000 | 16.2s | 616/s | 27 min | 0.36 GB | 100% |
-| 100,000 | 30.7s | 3,256/s | 5.1 min | 0.71 GB | 100% |
-| 1,000,000 | 325.8s | 3,069/s | 5.4 min | 3.41 GB | 100% |
+### Performance (Measured 2026-04-22, Python 3.12, Apple M1, OFFLINE)
 
-Run with: `PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000,100000,1000000`
+Numbers below are from `tools/run_benchmark.py` on synthetic names
+(`Surname{i}, Given{i}` with rotated country codes). Real-world names
+with signature suffixes hit the fastText tiebreaker far less often, so
+the full-pipeline row is a lower bound.
 
-**Optimisations applied** (cumulative 75x speedup from original baseline):
-1. Pre-compiled jsonschema validator (stage 8: 90% → <0.1%)
-2. Singleton authority adapters (eliminates per-call httpx.AsyncClient creation)
-3. Single-pass canonicalisation for stages 9-11 (eliminates 5x redundant deep-sort)
-4. Hash-based idempotency (replaces full serialisation + byte-diff)
-5. Skip per-entry YAML files for batches >10K (JSON-only output)
+| Path | Throughput | 1 M projection | RSS @10 k |
+|---|---|---|---|
+| `RegionManager.detect_region` (single stage) | ~3,700 / s | 4.5 min | — |
+| `V7Pipeline.process_batch` (rules-only, no fastText) | ~980 / s | 17 min | 166 MB |
+| `V7Pipeline.process_batch` (full, fastText CLI tiebreaker) | ~190 / s | 90 min | 348 MB |
 
-Live enrichment (OFFLINE=0) will be slower due to API rate limits.
+Reproduce with:
+```bash
+PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000
+```
+
+The dramatic gap between detection-only and full pipeline is because
+synthetic names never hit a handcrafted rule, so the fastText CLI is
+invoked per entry via subprocess. With real names the gap is much
+smaller. Live authority enrichment (OFFLINE=0) is slower still because
+tier-0 APIs rate-limit.
 
 ---
 
@@ -173,15 +176,20 @@ gmnap validate input.json        # Schema validation
 ```
 
 ### Genealogy enrichment
-Curated `data/genealogy_enrichment.json` (51 famous mathematicians, seeded
-from `data/mgp_validation_data.json` + transitive advisors) enriches API /
-CLI output with BirthYear / Institution / Advisors. Same data backs the
-`/api/v1/lineage/{id}` endpoint as a third fallback after neo4j and
-`out/yaml/` lookups. `name:` prefix on the path parameter lets users query
-by canonical name instead of GlobalID.
+Curated `data/genealogy_enrichment.json` (~6,200 mathematicians: 15 MGP
+seed + 25 curated stubs + 4,362 Wikidata SPARQL P184 entries + transitive
+advisor stubs) enriches API / CLI output with BirthYear / Institution /
+Advisors. Same data backs the `/api/v1/lineage/{id}` endpoint as a third
+fallback after neo4j and `out/yaml/` lookups. `name:` prefix on the path
+parameter lets users query by canonical name instead of GlobalID.
+Name matching is diacritic-insensitive (`Erdős`↔`Erdos`), handles
+parenthetical aliases, hyphenated given names, and Dutch/German name
+particles (`von Neumann`↔`Neumann … von`).
 ```bash
 curl "localhost:8080/api/v1/lineage/name:Hilbert,%20David?depth=3"
 ```
+Rebuild: `python3 scripts/data/fetch_wikidata_genealogy.py` (optional
+refetch) then `PYTHONPATH=. python3 tools/build_genealogy_enrichment.py`.
 
 ### Docker Compose
 ```bash
@@ -206,4 +214,5 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 - ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly
 - ❌ "100% name-origin accuracy" — 100% emitted-leaf precision on adjudicated set, but 28% abstention rate; 56% on raw citizenship labels (wrong metric for name-origin)
 - ❌ "1,090 tests" — actual count is 1,792 collected, ~1,740 run by CI
-- ❌ "Genealogy data for every mathematician" — curated enrichment covers ~50 famous names (MGP seed); others pass through without Advisors/Institution/BirthYear
+- ❌ "Genealogy data for every mathematician" — enrichment covers ~6,200 entries (MGP seed + Wikidata SPARQL P184); many active/obscure mathematicians aren't in Wikidata's P184 graph and pass through without advisor data
+- ❌ "3,000 entries/sec on the full pipeline" — that's detection-only. Full `process_batch` with fastText CLI subprocess is ~190/s on synthetic names; ~980/s rules-only. See Performance table for details.

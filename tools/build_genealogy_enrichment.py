@@ -37,13 +37,66 @@ from __future__ import annotations
 import json
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.core.global_id import generate_global_id
 
+
+def _strip_diacritics(text: str) -> str:
+    if not text:
+        return text
+    return "".join(
+        ch
+        for ch in unicodedata.normalize("NFD", text)
+        if unicodedata.category(ch) != "Mn"
+    )
+
+
+_NAME_PARTICLES = frozenset(
+    (
+        "von",
+        "van",
+        "de",
+        "del",
+        "della",
+        "di",
+        "du",
+        "da",
+        "den",
+        "der",
+        "le",
+        "la",
+        "ten",
+        "ter",
+        "af",
+        "av",
+        "zu",
+        "zum",
+        "zur",
+    )
+)
+
+
+def _fold_particles(key: str) -> str:
+    if "," not in key:
+        return key
+    surname, given = key.split(",", 1)
+    surname_tokens = surname.strip().split()
+    particles: list[str] = []
+    while surname_tokens and surname_tokens[0] in _NAME_PARTICLES:
+        particles.append(surname_tokens.pop(0))
+    if not particles or not surname_tokens:
+        return key
+    new_surname = " ".join(surname_tokens)
+    new_given = (given.strip() + " " + " ".join(particles)).strip()
+    return f"{new_surname}, {new_given}"
+
+
 MGP_SOURCE = Path("data/mgp_validation_data.json")
+WIKIDATA_GENEALOGY = Path("data/wikidata_genealogy.json")
 OUTPUT = Path("data/genealogy_enrichment.json")
 
 # Best-effort hand-curated birth years + countries for advisors we know
@@ -309,12 +362,15 @@ def normalize_key(name: str) -> str:
         return ""
     # Drop parenthetical aliases: "G. H. (Godfrey Harold) Hardy" → "G. H. Hardy"
     name = re.sub(r"\s*\([^)]*\)", "", name)
+    # Strip diacritics so 'Erdős' and 'Erdos' normalize to the same key
+    name = _strip_diacritics(name)
     name = re.sub(r"\s+", " ", name.strip().lower())
     if "," not in name:
         parts = name.split()
         if len(parts) >= 2:
             name = f"{parts[-1]}, {' '.join(parts[:-1])}"
     name = re.sub(r"\s+,", ",", name).strip(" ,")
+    name = _fold_particles(name)
     return name
 
 
@@ -396,16 +452,88 @@ def build() -> dict:
             stub_copy.setdefault("Source", "curated stub")
             by_name[key] = stub_copy
 
+    # 2b. Merge in the Wikidata genealogy dataset (thousands of
+    # mathematicians with doctoral advisor chains + birth dates +
+    # institutions). MGP + stubs still win for overlapping fields so
+    # the curated labels stay authoritative on famous names.
+    if WIKIDATA_GENEALOGY.exists():
+        wiki_entries = json.loads(WIKIDATA_GENEALOGY.read_text(encoding="utf-8"))
+        added = 0
+        enriched = 0
+        for e in wiki_entries:
+            if not e.get("CanonicalLatin"):
+                continue
+            key = normalize_key(e["CanonicalLatin"])
+            if not key:
+                continue
+            advisors = [
+                {"name": a["name"]} for a in e.get("Advisors", []) if a.get("name")
+            ]
+            institutions = e.get("Institutions") or []
+            institution = institutions[0] if institutions else None
+            if key in by_name:
+                rec = by_name[key]
+                if advisors and not rec.get("Advisors"):
+                    rec["Advisors"] = advisors
+                    enriched += 1
+                for field, value in (
+                    ("BirthYear", e.get("BirthYear")),
+                    ("DeathYear", e.get("DeathYear")),
+                    ("Country", e.get("Country")),
+                    ("Institution", institution),
+                ):
+                    if value and not rec.get(field):
+                        rec[field] = value
+                # Track source so downstream users can see where it came from
+                if rec.get("Source") == "MGP validation seed":
+                    pass
+                else:
+                    rec["Source"] = rec.get("Source", "") + "+Wikidata"
+            else:
+                record = {
+                    "CanonicalLatin": e["CanonicalLatin"],
+                    "Source": "Wikidata",
+                }
+                if e.get("BirthYear"):
+                    record["BirthYear"] = e["BirthYear"]
+                if e.get("DeathYear"):
+                    record["DeathYear"] = e["DeathYear"]
+                if e.get("Country"):
+                    record["Country"] = e["Country"]
+                if institution:
+                    record["Institution"] = institution
+                if advisors:
+                    record["Advisors"] = advisors
+                by_name[key] = record
+                added += 1
+        print(
+            f"Wikidata merge: +{added} new entries, enriched {enriched} "
+            f"existing entries"
+        )
+
     # 3. Ensure every referenced advisor has at least a stub entry so
     # chain traversal can find it (otherwise it becomes a dead end).
-    referenced = set()
+    # Preserve proper-case display names when we have them — walk the
+    # Advisors lists first to collect the nicest CanonicalLatin we saw
+    # for each normalized key.
+    referenced_display: dict[str, str] = {}
     for record in list(by_name.values()):
-        for adv in record.get("Advisors", []):
-            referenced.add(normalize_key(adv["name"]))
+        for adv in record.get("Advisors", []) or []:
+            name = adv.get("name") if isinstance(adv, dict) else adv
+            if not name:
+                continue
+            key = normalize_key(name)
+            if not key:
+                continue
+            # Prefer the longest / most-cased display we've seen
+            candidate = to_canonical_latin(name)
+            current = referenced_display.get(key, "")
+            if len(candidate) > len(current):
+                referenced_display[key] = candidate
 
-    for adv_key in referenced - set(by_name):
+    for adv_key in set(referenced_display) - set(by_name):
         by_name[adv_key] = {
-            "CanonicalLatin": to_canonical_latin(adv_key.replace(",", ", ")),
+            "CanonicalLatin": referenced_display[adv_key] or adv_key,
             "Source": "referenced advisor (no metadata)",
         }
 
