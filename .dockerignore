@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+
+# Large model files (gitignored anyway, but also kept out of build context
+# so a local build doesn't pick them up and bloat the image).
+data/ml_training/*.bin
+data/ml_training/*.ftz
+data/ml_training/*.vec
+
+# Editor / OS
+.vscode
+.idea
+.DS_Store
+
+# Dropbox sync artifacts — should never leak into an image
+*conflicted*
+*conflicted copy*
+
+# Local dev output
+out/
+cache/
+archive/
+.claude/
+
+# Tests + docs aren't runtime deps
+tests/.pytest_cache

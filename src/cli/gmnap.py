@@ -345,7 +345,13 @@ def regions():
 )
 @click.option("--json-output", "as_json", is_flag=True, help="Output raw JSON")
 def validate(input_file: str, schema_strict: int, as_json: bool):
-    """Validate an input file against the GMNAP v2.0 schema."""
+    """Validate an input file against the GMNAP v7 schema.
+
+    Uses the same V7SchemaValidator that pipeline Stage 8 runs, so the
+    CLI and the pipeline agree on what a valid entry looks like. Required
+    fields: GlobalID, CanonicalLatin, Field, Source, LastUpdated,
+    ValidationStatus.
+    """
     import os
 
     sys.path.insert(0, ".")
@@ -356,16 +362,22 @@ def validate(input_file: str, schema_strict: int, as_json: bool):
         click.echo(f"No entries found in {input_file}", err=True)
         sys.exit(1)
 
-    from src.validation.schema import SchemaValidator
+    from src.validation.schema_validator import V7SchemaValidator
 
-    validator = SchemaValidator()
+    validator = V7SchemaValidator()
     total = 0
     errors_found = 0
     all_errors = []
 
     for i, entry in enumerate(data if isinstance(data, list) else [data]):
         total += 1
-        is_valid, errors = validator.validate_entry(entry)
+        if not isinstance(entry, dict):
+            errors_found += 1
+            all_errors.append(
+                {"entry": f"entry_{i}", "errors": ["Entry must be an object"]}
+            )
+            continue
+        is_valid, errors = validator.validate(entry)
         if not is_valid:
             errors_found += 1
             name = entry.get("CanonicalLatin", f"entry_{i}")
@@ -386,7 +398,7 @@ def validate(input_file: str, schema_strict: int, as_json: bool):
             )
         )
     else:
-        click.echo(f"Validated {total} entries against schema v2.0")
+        click.echo(f"Validated {total} entries against schema v7.0")
         click.echo(f"  Valid:   {total - errors_found}")
         click.echo(f"  Invalid: {errors_found}")
         if all_errors:

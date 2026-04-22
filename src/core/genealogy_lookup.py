@@ -16,10 +16,78 @@ from __future__ import annotations
 import json
 import logging
 import re
+import unicodedata
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
+
+
+def _strip_diacritics(text: str) -> str:
+    """'Erdős' → 'Erdos', 'Poincaré' → 'Poincare'.
+
+    Decompose to NFD then drop combining marks. Keeps ordinary letters
+    and hyphens/apostrophes/punctuation intact so the result is still
+    readable ASCII.
+    """
+    if not text:
+        return text
+    return "".join(
+        ch
+        for ch in unicodedata.normalize("NFD", text)
+        if unicodedata.category(ch) != "Mn"
+    )
+
+
+# Lowercase name particles that may appear either stuck to the surname
+# ('von Neumann') or trailing the given name ('Neumann, John von').
+# Normalizing these to the second form collapses both variants onto the
+# same key.
+_NAME_PARTICLES = frozenset(
+    (
+        "von",
+        "van",
+        "de",
+        "del",
+        "della",
+        "di",
+        "du",
+        "da",
+        "den",
+        "der",
+        "le",
+        "la",
+        "ten",
+        "ter",
+        "af",
+        "av",
+        "zu",
+        "zum",
+        "zur",
+    )
+)
+
+
+def _fold_particles(key: str) -> str:
+    """Move leading particles off the surname side onto the given side.
+
+    'von neumann, john' → 'neumann, john von'
+    'de witt, jan' → 'witt, jan de'
+    Idempotent; leaves keys without particles unchanged.
+    """
+    if "," not in key:
+        return key
+    surname, given = key.split(",", 1)
+    surname_tokens = surname.strip().split()
+    particles: list[str] = []
+    while surname_tokens and surname_tokens[0] in _NAME_PARTICLES:
+        particles.append(surname_tokens.pop(0))
+    if not particles or not surname_tokens:
+        return key
+    new_surname = " ".join(surname_tokens)
+    new_given = (given.strip() + " " + " ".join(particles)).strip()
+    return f"{new_surname}, {new_given}"
+
 
 _ENRICHMENT_FIELDS = (
     "BirthYear",
@@ -35,14 +103,17 @@ _ENRICHMENT_FIELDS = (
 def _normalize_key(name: str) -> str:
     """Match the normalization used when the enrichment file was built.
 
-    Lowercase, collapse whitespace, strip parenthetical aliases
-    (e.g. 'G. H. (Godfrey Harold) Hardy' → 'hardy, g. h.'), and reorder
-    'First Last' to 'last, first'.
+    Lowercase, strip diacritics (so 'Erdős' ↔ 'Erdos' and 'Poincaré' ↔
+    'Poincare' collapse), collapse whitespace, strip parenthetical
+    aliases (e.g. 'G. H. (Godfrey Harold) Hardy' → 'hardy, g. h.'), and
+    reorder 'First Last' to 'last, first'.
     """
     if not name:
         return ""
     # Drop parenthetical aliases before any other processing
     name = re.sub(r"\s*\([^)]*\)", "", name)
+    # Strip diacritics BEFORE lowercasing so the category filter sees Mn
+    name = _strip_diacritics(name)
     name = re.sub(r"\s+", " ", name.strip().lower())
     if "," not in name:
         parts = name.split()
@@ -50,7 +121,20 @@ def _normalize_key(name: str) -> str:
             name = f"{parts[-1]}, {' '.join(parts[:-1])}"
     # Trim any trailing stray punctuation left after paren removal
     name = re.sub(r"\s+,", ",", name).strip(" ,")
+    # Normalize particle placement (Dutch/German cataloging convention)
+    name = _fold_particles(name)
     return name
+
+
+def _split_given_tokens(given_part: str) -> set[str]:
+    """Split a given-name string on whitespace AND hyphens.
+
+    Used by token-set matching so 'Joseph-Louis' contains 'joseph' and
+    'louis' as separate matchable tokens. Also drops single-character
+    tokens (initials like 'c.', 'l.') to avoid spurious matches.
+    """
+    tokens = re.split(r"[\s\-]+", given_part.strip())
+    return {t for t in tokens if len(t) > 1}
 
 
 def _short_key(full_key: str) -> str:
@@ -157,14 +241,16 @@ class GenealogyLookup:
         """Match on same surname + overlapping given-name tokens.
 
         Handles stored aliases like 'Lindemann, C. L. Ferdinand' being
-        queried as 'Lindemann, Ferdinand'. Only returns a hit when exactly
-        one stored entry matches, to avoid silently picking a wrong record.
+        queried as 'Lindemann, Ferdinand', and hyphenated forms like
+        'Lagrange, Joseph-Louis' matching 'Lagrange, Joseph'. Only returns
+        a hit when exactly one stored entry matches, so an ambiguous query
+        stays a miss.
         """
         if "," not in key:
             return None
         q_surname, q_given = key.split(",", 1)
         q_surname = q_surname.strip()
-        q_tokens = set(q_given.strip().split())
+        q_tokens = _split_given_tokens(q_given)
         if not q_tokens:
             return None
         matches = []
@@ -174,7 +260,7 @@ class GenealogyLookup:
             f_surname, f_given = full_key.split(",", 1)
             if f_surname.strip() != q_surname:
                 continue
-            f_tokens = set(f_given.strip().split())
+            f_tokens = _split_given_tokens(f_given)
             if not f_tokens:
                 continue
             # Accept when one set is a subset of the other (shared tokens

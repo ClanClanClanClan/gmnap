@@ -30,10 +30,23 @@ just with lower name-origin accuracy on hard cases.
 - **37 Regions**: Full linguistic processing (clean/augment/validate/order_key) for Anglo, Germanic, Slavic, Arabic, CJK, South Asian, African, and more
 - **9 Authority Sources**: OpenAlex, Crossref, ORCID, HAL, GND, Wikidata, zbMATH, OAI, Crossref Thesis
 - **12-Stage Pipeline**: Unicode normalization → region detection → authority enrichment → collision analytics → schema validation → output
-- **3,000 entries/sec** offline mode (measured on Apple M1, 1M entries in 5.4 min)
+- **Genealogy Enrichment**: ~6,200 mathematicians with advisor chains, birth years, and institutions (seeded from MGP + Wikidata SPARQL)
 - **Web Interface**: Dark-themed SPA at localhost:8080
 - **API**: REST endpoints with rate limiting, hashcash PoW, Prometheus metrics
 - **GDPR Compliant**: ShadowNode conversion, birth year masking
+
+### Measured Performance (OFFLINE mode, Apple M1)
+
+| Operation | Throughput | 1 M projection |
+|---|---|---|
+| `RegionManager.detect_region` (single stage, in-process) | ~3,700 / s | ~4.5 min |
+| `V7Pipeline.process_batch` (rules-only, fastText missing) | ~980 / s | ~17 min |
+| `V7Pipeline.process_batch` (full pipeline + fastText CLI tiebreaker) | ~190 / s | ~90 min |
+
+Synthetic-name benchmarks always trigger the fastText tiebreaker because
+nothing matches the rules; real-world names with clear signature suffixes
+hit fastText far less often. Reproduce with
+`PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000`.
 
 ## API Endpoints
 
@@ -92,22 +105,36 @@ Split geo/name-origin architecture validated by external onomastics expert:
 
 ## Genealogy Enrichment
 
-A curated `data/genealogy_enrichment.json` file (51 entries, seeded from
-the Math Genealogy Project with transitive advisor chains) provides real
-BirthYear / Institution / Advisors for famous mathematicians. API and CLI
-responses are enriched automatically when a match is found; unknown names
-pass through unchanged.
+`data/genealogy_enrichment.json` (~6,200 mathematicians) backs the
+Advisors / Institution / BirthYear fields in CLI and API responses.
+Sources, in order of priority:
 
-The lineage endpoint resolves chains from either a GlobalID or a
-canonical name:
+1. `data/mgp_validation_data.json` — 15 canonical demo entries from the
+   Math Genealogy Project.
+2. Hand-curated stubs in `tools/build_genealogy_enrichment.py` for
+   transitive advisors like Johann Bernoulli and Pfaff.
+3. `data/wikidata_genealogy.json` — 4,385 mathematicians fetched from
+   Wikidata SPARQL (`P184` doctoral advisor, `P569` birth date, `P69`
+   institution). Fetched with `scripts/data/fetch_wikidata_genealogy.py`.
+
+Name matching is diacritic-insensitive (`Erdős` ↔ `Erdos`) and handles
+given-name order, parenthetical aliases, hyphenated compounds, and
+Dutch/German particles (`von Neumann` ↔ `Neumann … von`). Unknown names
+pass through without fake data.
+
+The lineage endpoint accepts either a GlobalID or a canonical name:
 
 ```bash
 curl "localhost:8080/api/v1/lineage/name:Euler,%20Leonhard?depth=3"
 # Returns Euler → Johann Bernoulli → Jacob Bernoulli
 ```
 
-Extend the dataset by editing `tools/build_genealogy_enrichment.py` and
-running `PYTHONPATH=. python3 tools/build_genealogy_enrichment.py`.
+Rebuild after editing sources:
+
+```bash
+python3 scripts/data/fetch_wikidata_genealogy.py   # optional, hits Wikidata SPARQL
+PYTHONPATH=. python3 tools/build_genealogy_enrichment.py
+```
 
 ## License
 
