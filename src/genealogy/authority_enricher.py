@@ -34,7 +34,10 @@ class AuthorityEnricher:
         advisors: List[Dict[str, Any]] = []
 
         if offline:
-            advisors = self._stub_advisors(name)
+            # Prefer curated real data over the fake smoke-test stub; the
+            # stub was leaking 'Advisor 1'/'STUB-1' placeholders into real
+            # pipeline output.
+            advisors = self._curated_advisors(name) or self._stub_advisors(name)
         else:
             tasks = []
             if self.wikidata.enabled:
@@ -77,9 +80,52 @@ class AuthorityEnricher:
         self.cache.setex(cache_key, 30 * 24 * 3600, json.dumps(norm))
         return entry
 
-    def _stub_advisors(self, name: Optional[str]) -> List[Dict[str, Any]]:
-        # Deterministic offline stub for smoke tests
+    def _curated_advisors(self, name: Optional[str]) -> List[Dict[str, Any]]:
+        """Return real advisors from data/genealogy_enrichment.json if any."""
         if not name:
+            return []
+        try:
+            from src.core.genealogy_lookup import GenealogyLookup
+
+            record = GenealogyLookup().lookup_by_name(name)
+        except Exception:
+            return []
+        if not record:
+            return []
+        advisors = record.get("Advisors") or []
+        normalized: List[Dict[str, Any]] = []
+        for a in advisors:
+            if isinstance(a, dict):
+                adv_name = a.get("name") or a.get("advisor_name")
+                adv_id = str(a.get("mgp_id") or a.get("advisor_id") or "")
+            else:
+                adv_name = str(a)
+                adv_id = ""
+            if not adv_name:
+                continue
+            normalized.append(
+                {
+                    "advisor_name": adv_name,
+                    "advisor_id": adv_id,
+                    "relation_type": "doctoralAdvisor",
+                    "degree_date": record.get("ThesisYear"),
+                    "institution": record.get("Institution"),
+                    "birth_year": None,
+                    "confidence": 0.95,
+                    "sources": [record.get("Source", "curated")],
+                }
+            )
+        return normalized
+
+    def _stub_advisors(self, name: Optional[str]) -> List[Dict[str, Any]]:
+        """Deprecated smoke-test stub.
+
+        Kept only as a final fallback for legacy tests that explicitly rely
+        on a deterministic non-empty advisor list for random names. Returns
+        an empty list by default; set GMNAP_OFFLINE_STUB_ADVISORS=1 to
+        re-enable the old 'Advisor 1 / STUB-1' placeholder behavior.
+        """
+        if not name or os.getenv("GMNAP_OFFLINE_STUB_ADVISORS") != "1":
             return []
         h = sum(ord(c) for c in name) % 3
         if h == 0:

@@ -7,18 +7,23 @@ Processes mathematician names across 37 linguistic regions, detecting geographic
 ## Quick Start
 
 ```bash
-# Install
-pip install -r requirements.txt
+# One-time setup (pip install + compile fasttext CLI; ~30 seconds)
+make setup
 
-# Query a name
-PYTHONPATH=. python -m src.cli.gmnap query "Euler, Leonhard"
+# Query a name (region + genealogy + institution)
+gmnap query "Euler, Leonhard"
 
 # Start the API server
-PYTHONPATH=. python -m src.cli.gmnap serve --port 8080
+gmnap serve --port 8080
 
-# Open web UI
+# Open the web UI
 open http://localhost:8080
 ```
+
+`make setup` is the recommended path. For a minimal install without the
+fasttext tiebreaker (rules-based detection only) run
+`pip install -r requirements.txt` instead; the CLI and API still work,
+just with lower name-origin accuracy on hard cases.
 
 ## Features
 
@@ -84,6 +89,25 @@ Split geo/name-origin architecture validated by external onomastics expert:
 - **100% CC-based accuracy** across 216 territories
 - Three-tier suffix system + fastText CLI tiebreaker + same-group gate
 - Honest abstention: returns R0 + group hint when uncertain, never forces a wrong leaf
+
+## Genealogy Enrichment
+
+A curated `data/genealogy_enrichment.json` file (51 entries, seeded from
+the Math Genealogy Project with transitive advisor chains) provides real
+BirthYear / Institution / Advisors for famous mathematicians. API and CLI
+responses are enriched automatically when a match is found; unknown names
+pass through unchanged.
+
+The lineage endpoint resolves chains from either a GlobalID or a
+canonical name:
+
+```bash
+curl "localhost:8080/api/v1/lineage/name:Euler,%20Leonhard?depth=3"
+# Returns Euler → Johann Bernoulli → Jacob Bernoulli
+```
+
+Extend the dataset by editing `tools/build_genealogy_enrichment.py` and
+running `PYTHONPATH=. python3 tools/build_genealogy_enrichment.py`.
 
 ## License
 

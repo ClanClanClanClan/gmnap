@@ -156,11 +156,31 @@ Architecture: split geo/name-origin branches, hierarchical selective classificat
 
 ## 🔧 Production Deployment
 
-### CLI
+### One-time setup
 ```bash
-gmnap serve --port 8080          # Start API server (main entry point)
-# Full CLI commands exist in src/cli/gmnap.py but are NOT wired to the gmnap entry point:
-# query, lineage, process, sources, regions, validate
+make setup                       # pip install + compile fasttext (~30s)
+```
+
+### CLI (all 7 commands wired via `src.cli.gmnap:cli`)
+```bash
+gmnap serve --port 8080          # Start API server
+gmnap query "Euler, Leonhard"    # Region + advisors + institution + birth year
+gmnap process input.json         # Batch pipeline
+gmnap lineage --id GID           # Advisor chain
+gmnap sources                    # List authority tiers
+gmnap regions                    # List 37 regions with names
+gmnap validate input.json        # Schema validation
+```
+
+### Genealogy enrichment
+Curated `data/genealogy_enrichment.json` (51 famous mathematicians, seeded
+from `data/mgp_validation_data.json` + transitive advisors) enriches API /
+CLI output with BirthYear / Institution / Advisors. Same data backs the
+`/api/v1/lineage/{id}` endpoint as a third fallback after neo4j and
+`out/yaml/` lookups. `name:` prefix on the path parameter lets users query
+by canonical name instead of GlobalID.
+```bash
+curl "localhost:8080/api/v1/lineage/name:Hilbert,%20David?depth=3"
 ```
 
 ### Docker Compose
@@ -184,6 +204,6 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 
 - ❌ "14 authority sources fully working" — 9 have real HTTP code; 2 need API keys; 3 deferred
 - ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly
-- ❌ "Full CLI with 7 commands" — only `serve` and `version` are wired to the entry point; query/lineage/process/sources/regions/validate exist in src/cli/gmnap.py but are NOT accessible via `gmnap` command
 - ❌ "100% name-origin accuracy" — 100% emitted-leaf precision on adjudicated set, but 28% abstention rate; 56% on raw citizenship labels (wrong metric for name-origin)
 - ❌ "1,090 tests" — actual count is 1,792 collected, ~1,740 run by CI
+- ❌ "Genealogy data for every mathematician" — curated enrichment covers ~50 famous names (MGP seed); others pass through without Advisors/Institution/BirthYear

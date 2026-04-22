@@ -1,11 +1,13 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help quick full extreme test lint update-sources clean audit
+.PHONY: help setup install-fasttext quick full extreme test lint update-sources clean audit
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
 	@echo ""
 	@echo "Available targets:"
+	@echo "  setup        - One-time setup (pip install + compile fasttext)"
+	@echo "  install-fasttext - Compile the fasttext CLI binary"
 	@echo "  quick        - Run pipeline in Quick mode (tier-0 APIs only)"
 	@echo "  full         - Run pipeline in Full mode (tier-0 + tier-1)"
 	@echo "  extreme      - Run pipeline in Extreme mode (all tiers)"
@@ -14,6 +16,17 @@ help:
 	@echo "  audit        - Run comprehensive audit"
 	@echo "  update-sources - Update authority source configurations"
 	@echo "  clean        - Clean cache and temporary files"
+
+# One-time setup for a fresh clone
+setup:
+	pip install -r requirements.txt
+	@bash scripts/install_fasttext.sh || \
+		echo "⚠️  fasttext install skipped; rules-only detection will be used."
+	@echo ""
+	@echo "Setup complete. Try:  gmnap query \"Euler, Leonhard\""
+
+install-fasttext:
+	@bash scripts/install_fasttext.sh
 
 # Pipeline execution modes
 quick:

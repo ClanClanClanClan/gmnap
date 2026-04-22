@@ -125,3 +125,8 @@ tmp/
 var/
 venv/
 wheels/
+data/corrections/
+data/ml_training/ft_name_classifier.bin
+data/ml_training/ft_name_classifier.vec
+data/ml_training/fullname_classifier.bin
+data/ml_training/surname_classifier.bin

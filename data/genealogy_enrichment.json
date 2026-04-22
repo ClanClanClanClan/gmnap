@@ -1,0 +1,594 @@
+{
+  "by_global_id": {
+    "2IJXACKXZKDQA2YGBBK45Y": "lojasiewicz, stanislaw",
+    "36SFAB45KWJMFLU6XEHWPI": "dieudonné, jean alexandre eugène",
+    "3NUANHOYUEQ6ALKDX7O5QO": "alexandrov, aleksandr danilovich",
+    "3VQR22IYTKRH4ZDB2ZZNY6": "hermite, charles",
+    "4AUWBOSHE6IWC3NROVQLAJ": "gauß, carl friedrich",
+    "4MNKJ4EATSFZ76CEWMCQK7": "mcmullen, curtis tracy",
+    "5BNLJNRFE4TYHHYLOWLGSO": "hardy, g. h.",
+    "5NEL4ILPKM64ATYUAZNREQ": "perelman, grigori",
+    "7EQGNHFC3NKVBVWHDF7YJQ": "steinhaus, hugo dyonizy",
+    "7TEVSPXMJ65RFBY4FSYDZU": "banach, stefan",
+    "AO2ZVZV7QD4AXSKAMUDBSC": "steklov, vladimir andreevich",
+    "AO545TCL2X4JF7TKKDCWZ3": "poincaré, henri",
+    "AWZLKKNROR5P6RYQ6DXRIB": "pfaff, johann friedrich",
+    "C5JURFIAOTJGSCPTFYNY35": "whittaker, edmund taylor",
+    "DITYZY4Y3VWZG2MN6HIQ63": "cartan, henri",
+    "DN5OUDXDIZ3U52F5PKSVBW": "cartan, henri paul",
+    "E2VPGW6UZGBU6QW3AJNBFW": "kellogg, oliver dimon",
+    "ESATSOTPQZOHSULSOVAFK6": "littlewood, john edensor",
+    "ESCYCGOH6PQFHHC3VSCHGF": "gauss, carl friedrich",
+    "EXFMD7ZWA3ZR3GHKBEAPKK": "grothendieck, alexander",
+    "FBX23ZZBLNWZTBKJC6AKRM": "noether, emmy amalie",
+    "FR7ATAIIBLLLSNMHVFO254": "bott, raoul",
+    "FYQOCYTGT7UHZAPNF25GCU": "love, augustus edward hough",
+    "GHWDHUGYTKCAYPI2MASU5I": "poincare, henri",
+    "GPQXJT5KIFARO4SDI24VGO": "burago, yuri dmitrievich",
+    "IQLBJZSY5T2CDUAJUQLVWL": "knapp, anthony william",
+    "JCX2JNXNPUWDYGCMFYGSAJ": "stein, elias menachem",
+    "KEC34SNIYM5DKIEO6L7Y4S": "bernoulli, johann",
+    "LBPRANLEB2CTLNTIJOIKT6": "weber, heinrich martin",
+    "LHUEFBZFHNFWDL72OPTQCJ": "melo, welington celso de",
+    "LXUYJU4SRLAXQAMG6GC5TM": "avila, artur",
+    "LZBV2WG762LKFJZZLBWMBP": "mirzakhani, maryam",
+    "MUYOCAIXP4VXQWUMK6EODA": "gordan, paul albert",
+    "OTDGWXC3AXBDSPYPQB2R7K": "coates, john henry",
+    "P3DDCQRKLVIYYXTSZYWY74": "bernoulli, jacob",
+    "PDQLAMNE7JPYSSGRONCWMT": "klein, felix",
+    "PE4NYD3QOZLIX7U6Q2SDL3": "stallings, john robert",
+    "PUH5P7MVKJ5VHDGC7BLMV2": "lindstedt, anders",
+    "Q7ILQT3ZHWKDUKSNBIINB6": "serre, jean-pierre",
+    "R72FLO3JGKV4LMDJFWVJLU": "lindemann, c. l. ferdinand",
+    "RRZWIVYHWNVFWXX3YRDLTS": "twardowski, kazimierz",
+    "SPOFZAW7LFACTIQDATVHLU": "tao, terence chi-shen",
+    "TB5PT66OO2PZFLCR64IBXK": "wiles, andrew john",
+    "TXMANROSMI5YSK64E6ISIB": "ramanujan, srinivasa aiyangar",
+    "UZREA7ATQCZIHZ6HNHVDMO": "perelman, grigorii yakovlevich",
+    "XILCYE7URERL5PCTQB7TBI": "schwartz, laurent",
+    "YBTA65IM77IIP3KZS2EP4U": "hilbert, david",
+    "YFBQE2DAJYZLWE6M2Q37JW": "hedrick, earle raymond",
+    "YXE7H6ABG3FXWX2BQNLP2K": "riemann, bernhard",
+    "ZFV7MQROPMBLKWDTQVJDBT": "smale, stephen",
+    "ZHFI47ZLKC55YHT26763RS": "euler, leonhard"
+  },
+  "by_name": {
+    "alexandrov, aleksandr danilovich": {
+      "CanonicalLatin": "alexandrov, aleksandr danilovich",
+      "GlobalID": "3NUANHOYUEQ6ALKDX7O5QO",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "avila, artur": {
+      "Advisors": [
+        {
+          "mgp_id": 24583,
+          "name": "Melo, Welington Celso de"
+        }
+      ],
+      "BirthYear": 1979,
+      "CanonicalLatin": "Avila, Artur",
+      "Country": "Brazil",
+      "GlobalID": "LXUYJU4SRLAXQAMG6GC5TM",
+      "Institution": "Instituto de Matemática Pura e Aplicada",
+      "Source": "MGP validation seed",
+      "Thesis": "Bifurcations of Unimodal Maps",
+      "ThesisYear": 2001
+    },
+    "banach, stefan": {
+      "Advisors": [
+        {
+          "mgp_id": 7383,
+          "name": "Steinhaus, Hugo Dyonizy"
+        },
+        {
+          "mgp_id": 13344,
+          "name": "Twardowski, Kazimierz"
+        }
+      ],
+      "BirthYear": 1892,
+      "CanonicalLatin": "Banach, Stefan",
+      "Country": "Poland",
+      "DeathYear": 1945,
+      "GlobalID": "7TEVSPXMJ65RFBY4FSYDZU",
+      "Institution": "University of Lwów",
+      "Source": "MGP validation seed",
+      "Thesis": "Sur les opérations dans les ensembles abstraits et leur application aux équations intégrales",
+      "ThesisYear": 1920
+    },
+    "bernoulli, jacob": {
+      "BirthYear": 1655,
+      "CanonicalLatin": "Bernoulli, Jacob",
+      "Country": "Switzerland",
+      "DeathYear": 1705,
+      "GlobalID": "P3DDCQRKLVIYYXTSZYWY74",
+      "Institution": "University of Basel",
+      "Source": "curated stub"
+    },
+    "bernoulli, johann": {
+      "Advisors": [
+        {
+          "name": "Bernoulli, Jacob"
+        }
+      ],
+      "BirthYear": 1667,
+      "CanonicalLatin": "Bernoulli, Johann",
+      "Country": "Switzerland",
+      "DeathYear": 1748,
+      "GlobalID": "KEC34SNIYM5DKIEO6L7Y4S",
+      "Institution": "University of Basel",
+      "Source": "curated stub"
+    },
+    "bott, raoul": {
+      "BirthYear": 1923,
+      "CanonicalLatin": "Bott, Raoul",
+      "Country": "United States",
+      "DeathYear": 2005,
+      "GlobalID": "FR7ATAIIBLLLSNMHVFO254",
+      "Source": "curated stub"
+    },
+    "burago, yuri dmitrievich": {
+      "CanonicalLatin": "burago, yuri dmitrievich",
+      "GlobalID": "GPQXJT5KIFARO4SDI24VGO",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "cartan, henri": {
+      "BirthYear": 1904,
+      "CanonicalLatin": "Cartan, Henri",
+      "Country": "France",
+      "DeathYear": 2008,
+      "GlobalID": "DITYZY4Y3VWZG2MN6HIQ63",
+      "Institution": "École Normale Supérieure",
+      "Source": "curated stub"
+    },
+    "cartan, henri paul": {
+      "CanonicalLatin": "cartan, henri paul",
+      "GlobalID": "DN5OUDXDIZ3U52F5PKSVBW",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "coates, john henry": {
+      "BirthYear": 1945,
+      "CanonicalLatin": "Coates, John Henry",
+      "Country": "United Kingdom",
+      "DeathYear": 2022,
+      "GlobalID": "OTDGWXC3AXBDSPYPQB2R7K",
+      "Institution": "University of Cambridge",
+      "Source": "curated stub"
+    },
+    "dieudonné, jean alexandre eugène": {
+      "CanonicalLatin": "dieudonné, jean alexandre eugène",
+      "GlobalID": "36SFAB45KWJMFLU6XEHWPI",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "euler, leonhard": {
+      "Advisors": [
+        {
+          "mgp_id": 53410,
+          "name": "Bernoulli, Johann"
+        }
+      ],
+      "BirthYear": 1707,
+      "CanonicalLatin": "Euler, Leonhard",
+      "Country": "Switzerland",
+      "DeathYear": 1783,
+      "GlobalID": "ZHFI47ZLKC55YHT26763RS",
+      "Institution": "University of Basel",
+      "Source": "MGP validation seed",
+      "Thesis": "Dissertatio physica de sono"
+    },
+    "gauss, carl friedrich": {
+      "Advisors": [
+        {
+          "name": "Pfaff, Johann Friedrich"
+        }
+      ],
+      "BirthYear": 1777,
+      "CanonicalLatin": "Gauss, Carl Friedrich",
+      "Country": "Germany",
+      "DeathYear": 1855,
+      "GlobalID": "ESCYCGOH6PQFHHC3VSCHGF",
+      "Institution": "Universität Helmstedt",
+      "Source": "curated stub"
+    },
+    "gauß, carl friedrich": {
+      "CanonicalLatin": "gauß, carl friedrich",
+      "GlobalID": "4AUWBOSHE6IWC3NROVQLAJ",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "gordan, paul albert": {
+      "BirthYear": 1837,
+      "CanonicalLatin": "Gordan, Paul Albert",
+      "Country": "Germany",
+      "DeathYear": 1912,
+      "GlobalID": "MUYOCAIXP4VXQWUMK6EODA",
+      "Source": "curated stub"
+    },
+    "grothendieck, alexander": {
+      "Advisors": [
+        {
+          "mgp_id": 34233,
+          "name": "Schwartz, Laurent"
+        },
+        {
+          "mgp_id": 34219,
+          "name": "Dieudonné, Jean Alexandre Eugène"
+        }
+      ],
+      "BirthYear": 1928,
+      "CanonicalLatin": "Grothendieck, Alexander",
+      "Country": "France",
+      "DeathYear": 2014,
+      "GlobalID": "EXFMD7ZWA3ZR3GHKBEAPKK",
+      "Institution": "Université Henri Poincaré Nancy 1",
+      "Source": "MGP validation seed",
+      "Thesis": "Produits tensoriels topologiques et espaces nucleaires",
+      "ThesisYear": 1953
+    },
+    "hardy, g. h.": {
+      "Advisors": [
+        {
+          "mgp_id": 31354,
+          "name": "Love, Augustus Edward Hough"
+        },
+        {
+          "mgp_id": 18571,
+          "name": "Whittaker, Edmund Taylor"
+        }
+      ],
+      "BirthYear": 1877,
+      "CanonicalLatin": "Hardy, G. H.",
+      "Country": "United Kingdom",
+      "DeathYear": 1947,
+      "GlobalID": "5BNLJNRFE4TYHHYLOWLGSO",
+      "Institution": "Trinity College, Cambridge",
+      "Source": "MGP validation seed"
+    },
+    "hedrick, earle raymond": {
+      "BirthYear": 1876,
+      "CanonicalLatin": "Hedrick, Earle Raymond",
+      "Country": "United States",
+      "DeathYear": 1943,
+      "GlobalID": "YFBQE2DAJYZLWE6M2Q37JW",
+      "Source": "curated stub"
+    },
+    "hermite, charles": {
+      "BirthYear": 1822,
+      "CanonicalLatin": "Hermite, Charles",
+      "Country": "France",
+      "DeathYear": 1901,
+      "GlobalID": "3VQR22IYTKRH4ZDB2ZZNY6",
+      "Source": "curated stub"
+    },
+    "hilbert, david": {
+      "Advisors": [
+        {
+          "mgp_id": 7404,
+          "name": "Lindemann, C. L. Ferdinand"
+        },
+        {
+          "mgp_id": 16915,
+          "name": "Weber, Heinrich Martin"
+        }
+      ],
+      "BirthYear": 1862,
+      "CanonicalLatin": "Hilbert, David",
+      "Country": "Germany",
+      "DeathYear": 1943,
+      "GlobalID": "YBTA65IM77IIP3KZS2EP4U",
+      "Institution": "Universität Königsberg",
+      "Source": "MGP validation seed",
+      "Thesis": "Über invariante Eigenschaften specieller binärer Formen, insbesondere der Kugelfunctionen",
+      "ThesisYear": 1885
+    },
+    "kellogg, oliver dimon": {
+      "BirthYear": 1878,
+      "CanonicalLatin": "Kellogg, Oliver Dimon",
+      "Country": "United States",
+      "DeathYear": 1932,
+      "GlobalID": "E2VPGW6UZGBU6QW3AJNBFW",
+      "Source": "curated stub"
+    },
+    "klein, felix": {
+      "BirthYear": 1849,
+      "CanonicalLatin": "Klein, Felix",
+      "Country": "Germany",
+      "DeathYear": 1925,
+      "GlobalID": "PDQLAMNE7JPYSSGRONCWMT",
+      "Institution": "Universität Bonn",
+      "Source": "curated stub"
+    },
+    "knapp, anthony william": {
+      "BirthYear": 1941,
+      "CanonicalLatin": "Knapp, Anthony William",
+      "Country": "United States",
+      "GlobalID": "IQLBJZSY5T2CDUAJUQLVWL",
+      "Institution": "Stony Brook University",
+      "Source": "curated stub"
+    },
+    "lindemann, c. l. ferdinand": {
+      "BirthYear": 1852,
+      "CanonicalLatin": "Lindemann, Ferdinand",
+      "Country": "Germany",
+      "DeathYear": 1939,
+      "GlobalID": "R72FLO3JGKV4LMDJFWVJLU",
+      "Source": "curated stub"
+    },
+    "lindstedt, anders": {
+      "BirthYear": 1854,
+      "CanonicalLatin": "Lindstedt, Anders",
+      "Country": "Sweden",
+      "DeathYear": 1939,
+      "GlobalID": "PUH5P7MVKJ5VHDGC7BLMV2",
+      "Source": "curated stub"
+    },
+    "littlewood, john edensor": {
+      "CanonicalLatin": "littlewood, john edensor",
+      "GlobalID": "ESATSOTPQZOHSULSOVAFK6",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "lojasiewicz, stanislaw": {
+      "BirthYear": 1926,
+      "CanonicalLatin": "Łojasiewicz, Stanisław",
+      "Country": "Poland",
+      "DeathYear": 2002,
+      "GlobalID": "2IJXACKXZKDQA2YGBBK45Y",
+      "Source": "curated stub"
+    },
+    "love, augustus edward hough": {
+      "CanonicalLatin": "love, augustus edward hough",
+      "GlobalID": "FYQOCYTGT7UHZAPNF25GCU",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "mcmullen, curtis tracy": {
+      "CanonicalLatin": "mcmullen, curtis tracy",
+      "GlobalID": "4MNKJ4EATSFZ76CEWMCQK7",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "melo, welington celso de": {
+      "CanonicalLatin": "melo, welington celso de",
+      "GlobalID": "LHUEFBZFHNFWDL72OPTQCJ",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "mirzakhani, maryam": {
+      "Advisors": [
+        {
+          "mgp_id": 12029,
+          "name": "McMullen, Curtis Tracy"
+        }
+      ],
+      "BirthYear": 1977,
+      "CanonicalLatin": "Mirzakhani, Maryam",
+      "Country": "Iran",
+      "DeathYear": 2017,
+      "GlobalID": "LZBV2WG762LKFJZZLBWMBP",
+      "Institution": "Harvard University",
+      "Source": "MGP validation seed",
+      "Thesis": "Simple Geodesics on Hyperbolic Surfaces and Volume of the Moduli Space of Curves",
+      "ThesisYear": 2004
+    },
+    "noether, emmy amalie": {
+      "Advisors": [
+        {
+          "mgp_id": 15654,
+          "name": "Gordan, Paul Albert"
+        }
+      ],
+      "BirthYear": 1882,
+      "CanonicalLatin": "Noether, Emmy Amalie",
+      "Country": "Germany",
+      "DeathYear": 1935,
+      "GlobalID": "FBX23ZZBLNWZTBKJC6AKRM",
+      "Institution": "Friedrich-Alexander-Universität Erlangen-Nürnberg",
+      "Source": "MGP validation seed",
+      "Thesis": "Über die Bildung des Formensystems der ternären biquadratischen Form",
+      "ThesisYear": 1907
+    },
+    "perelman, grigori": {
+      "BirthYear": 1966,
+      "CanonicalLatin": "Perelman, Grigori",
+      "Country": "Russia",
+      "GlobalID": "5NEL4ILPKM64ATYUAZNREQ",
+      "Institution": "Steklov Institute of Mathematics",
+      "Source": "curated stub"
+    },
+    "perelman, grigorii yakovlevich": {
+      "Advisors": [
+        {
+          "mgp_id": 30638,
+          "name": "Alexandrov, Aleksandr Danilovich"
+        },
+        {
+          "mgp_id": 84371,
+          "name": "Burago, Yuri Dmitrievich"
+        }
+      ],
+      "BirthYear": 1966,
+      "CanonicalLatin": "Perelman, Grigorii Yakovlevich",
+      "Country": "Russia",
+      "GlobalID": "UZREA7ATQCZIHZ6HNHVDMO",
+      "Institution": "St. Petersburg State University",
+      "Source": "MGP validation seed",
+      "Thesis": "Saddle Surfaces in Euclidean Spaces",
+      "ThesisYear": 1990
+    },
+    "pfaff, johann friedrich": {
+      "BirthYear": 1765,
+      "CanonicalLatin": "Pfaff, Johann Friedrich",
+      "Country": "Germany",
+      "DeathYear": 1825,
+      "GlobalID": "AWZLKKNROR5P6RYQ6DXRIB",
+      "Source": "curated stub"
+    },
+    "poincare, henri": {
+      "BirthYear": 1854,
+      "CanonicalLatin": "Poincaré, Henri",
+      "Country": "France",
+      "DeathYear": 1912,
+      "GlobalID": "GHWDHUGYTKCAYPI2MASU5I",
+      "Institution": "École Polytechnique",
+      "Source": "curated stub"
+    },
+    "poincaré, henri": {
+      "Advisors": [
+        {
+          "mgp_id": 32960,
+          "name": "Hermite, Charles"
+        }
+      ],
+      "CanonicalLatin": "Poincaré, Henri",
+      "GlobalID": "AO545TCL2X4JF7TKKDCWZ3",
+      "Institution": "Université de Paris",
+      "Source": "MGP validation seed",
+      "Thesis": "Sur les propriétés des fonctions définies par les équations différences",
+      "ThesisYear": 1879
+    },
+    "ramanujan, srinivasa aiyangar": {
+      "Advisors": [
+        {
+          "mgp_id": 17806,
+          "name": "Hardy, G. H."
+        },
+        {
+          "mgp_id": 10463,
+          "name": "Littlewood, John Edensor"
+        }
+      ],
+      "BirthYear": 1887,
+      "CanonicalLatin": "Ramanujan, Srinivasa Aiyangar",
+      "Country": "India",
+      "DeathYear": 1920,
+      "GlobalID": "TXMANROSMI5YSK64E6ISIB",
+      "Institution": "(awarded as B.A. by Research) University of Cambridge",
+      "Source": "MGP validation seed",
+      "Thesis": "Highly Composite Numbers",
+      "ThesisYear": 1916
+    },
+    "riemann, bernhard": {
+      "Advisors": [
+        {
+          "mgp_id": 18231,
+          "name": "Gauß, Carl Friedrich"
+        }
+      ],
+      "BirthYear": 1826,
+      "CanonicalLatin": "Riemann, Bernhard",
+      "Country": "Germany",
+      "DeathYear": 1866,
+      "GlobalID": "YXE7H6ABG3FXWX2BQNLP2K",
+      "Source": "MGP validation seed",
+      "Thesis": "Grundlagen für eine allgemeine Theorie der Funktionen einer veränderlichen complexen Größe"
+    },
+    "schwartz, laurent": {
+      "BirthYear": 1915,
+      "CanonicalLatin": "Schwartz, Laurent",
+      "Country": "France",
+      "DeathYear": 2002,
+      "GlobalID": "XILCYE7URERL5PCTQB7TBI",
+      "Source": "curated stub"
+    },
+    "serre, jean-pierre": {
+      "Advisors": [
+        {
+          "mgp_id": 49555,
+          "name": "Cartan, Henri Paul"
+        }
+      ],
+      "BirthYear": 1926,
+      "CanonicalLatin": "Serre, Jean-Pierre",
+      "Country": "France",
+      "GlobalID": "Q7ILQT3ZHWKDUKSNBIINB6",
+      "Institution": "Université Paris IV-Sorbonne",
+      "Source": "MGP validation seed",
+      "Thesis": "Homologie singulière des espaces fibrés. Applications",
+      "ThesisYear": 1951
+    },
+    "smale, stephen": {
+      "BirthYear": 1930,
+      "CanonicalLatin": "Smale, Stephen",
+      "Country": "United States",
+      "GlobalID": "ZFV7MQROPMBLKWDTQVJDBT",
+      "Source": "curated stub"
+    },
+    "stallings, john robert": {
+      "BirthYear": 1935,
+      "CanonicalLatin": "Stallings, John Robert",
+      "Country": "United States",
+      "DeathYear": 2008,
+      "GlobalID": "PE4NYD3QOZLIX7U6Q2SDL3",
+      "Source": "curated stub"
+    },
+    "stein, elias menachem": {
+      "BirthYear": 1931,
+      "CanonicalLatin": "Stein, Elias",
+      "Country": "United States",
+      "DeathYear": 2018,
+      "GlobalID": "JCX2JNXNPUWDYGCMFYGSAJ",
+      "Institution": "Princeton University",
+      "Source": "curated stub"
+    },
+    "steinhaus, hugo dyonizy": {
+      "CanonicalLatin": "steinhaus, hugo dyonizy",
+      "GlobalID": "7EQGNHFC3NKVBVWHDF7YJQ",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "steklov, vladimir andreevich": {
+      "BirthYear": 1864,
+      "CanonicalLatin": "Steklov, Vladimir Andreevich",
+      "Country": "Russia",
+      "DeathYear": 1926,
+      "GlobalID": "AO2ZVZV7QD4AXSKAMUDBSC",
+      "Source": "curated stub"
+    },
+    "tao, terence chi-shen": {
+      "Advisors": [
+        {
+          "mgp_id": 6454,
+          "name": "Stein, Elias Menachem"
+        }
+      ],
+      "BirthYear": 1975,
+      "CanonicalLatin": "Tao, Terence Chi-Shen",
+      "Country": "Australia",
+      "GlobalID": "SPOFZAW7LFACTIQDATVHLU",
+      "Institution": "Princeton University",
+      "Source": "MGP validation seed",
+      "Thesis": "Three Regularity Results in Harmonic Analysis",
+      "ThesisYear": 1996
+    },
+    "twardowski, kazimierz": {
+      "CanonicalLatin": "twardowski, kazimierz",
+      "GlobalID": "RRZWIVYHWNVFWXX3YRDLTS",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "weber, heinrich martin": {
+      "BirthYear": 1842,
+      "CanonicalLatin": "Weber, Heinrich Martin",
+      "Country": "Germany",
+      "DeathYear": 1913,
+      "GlobalID": "LBPRANLEB2CTLNTIJOIKT6",
+      "Source": "curated stub"
+    },
+    "whittaker, edmund taylor": {
+      "CanonicalLatin": "whittaker, edmund taylor",
+      "GlobalID": "C5JURFIAOTJGSCPTFYNY35",
+      "Source": "referenced advisor (no metadata)"
+    },
+    "wiles, andrew john": {
+      "Advisors": [
+        {
+          "mgp_id": 20324,
+          "name": "Coates, John Henry"
+        }
+      ],
+      "BirthYear": 1953,
+      "CanonicalLatin": "Wiles, Andrew John",
+      "Country": "United Kingdom",
+      "GlobalID": "TB5PT66OO2PZFLCR64IBXK",
+      "Institution": "University of Cambridge",
+      "Source": "MGP validation seed",
+      "Thesis": "Reciprocity Laws and the Conjecture of Birch and Swinnerton-Dyer",
+      "ThesisYear": 1979
+    }
+  },
+  "source_count": 51,
+  "version": "1.0"
+}
