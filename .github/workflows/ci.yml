@@ -55,6 +55,9 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-timeout pytest-mock hypothesis duckdb pytest-asyncio
 
+      - name: Compile fasttext CLI binary
+        run: bash scripts/install_fasttext.sh /usr/local/bin/fasttext
+
       - name: Setup cost tracking
         run: |
           mkdir -p cache
