@@ -517,14 +517,28 @@ async def _run_pipeline(entries: list, mode: str, output_dir: str):
 
 
 def _query_lineage_graph(gid: str, depth: int) -> list:
-    """Query lineage from graph DB or local YAML files."""
+    """Query lineage from local YAML output, then the curated enrichment.
+
+    Accepts `gid` as a GlobalID or a canonical name (optionally prefixed
+    with ``name:`` to match the API convention). Returns an edge list in
+    the same format as ``/api/v1/lineage``.
+    """
+    # First try local YAML (pipeline output)
     out = Path("out/yaml")
     if out.exists():
         edges: list = []
         visited: set = set()
         _traverse_local(gid, depth, out, edges, visited)
-        return edges
-    return []
+        if edges:
+            return edges
+
+    # Fallback: curated genealogy enrichment JSON
+    try:
+        from src.core.genealogy_lookup import GenealogyLookup
+
+        return GenealogyLookup().traverse_lineage(gid, depth)
+    except Exception:
+        return []
 
 
 def _traverse_local(
