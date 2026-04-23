@@ -25,10 +25,7 @@ import pytest
 
 from src.regions.manager_optimized import FastTextCLIWorker
 
-
-FT_CLI = shutil.which("fasttext") or str(
-    Path.home() / ".local" / "bin" / "fasttext"
-)
+FT_CLI = shutil.which("fasttext") or str(Path.home() / ".local" / "bin" / "fasttext")
 MODEL = Path("data/ml_training/ft_name_classifier.ftz")
 
 pytestmark = pytest.mark.skipif(
@@ -46,7 +43,9 @@ def worker():
 
 def test_single_prediction_returns_label_and_probs(worker):
     label, p1, p2 = worker.predict("euler")
-    assert label is not None and label.startswith(("A", "B", "C", "D", "E", "F", "G", "H", "R", "Z"))
+    assert label is not None and label.startswith(
+        ("A", "B", "C", "D", "E", "F", "G", "H", "R", "Z")
+    )
     assert 0.0 <= p2 <= p1 <= 1.0
 
 
@@ -62,9 +61,9 @@ def test_many_predictions_stay_in_sync(worker):
     for s, (label, _, _) in zip(inputs, results):
         by_input.setdefault(s, set()).add(label or "")
     for s, labels in by_input.items():
-        assert len(labels) == 1, (
-            f"worker desynced: {s!r} produced multiple labels {labels}"
-        )
+        assert (
+            len(labels) == 1
+        ), f"worker desynced: {s!r} produced multiple labels {labels}"
 
 
 def test_newline_in_input_is_sanitised(worker):
@@ -83,8 +82,7 @@ def test_empty_input_returns_none_without_spawning_subprocess():
 
 
 def test_respawn_after_subprocess_death(worker):
-    """If the child dies, the next predict() should respawn and succeed.
-    """
+    """If the child dies, the next predict() should respawn and succeed."""
     # Warm up the worker so _proc is set
     worker.predict("euler")
     assert worker._proc is not None
