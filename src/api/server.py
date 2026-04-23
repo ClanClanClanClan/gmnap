@@ -384,15 +384,30 @@ def create_app() -> FastAPI:
         depth: int = Query(3, ge=1, le=10),
         format: str = Query("json", description="Output format: json/dot/svg"),
     ):
-        """Query academic genealogy lineage for a GlobalID."""
+        """Query academic genealogy lineage for a GlobalID or name."""
         bolt_uri = os.getenv("MEMGRAPH_BOLT", "bolt://localhost:7687")
+        bolt_user = os.getenv("MEMGRAPH_USER", "")
+        bolt_pass = os.getenv("MEMGRAPH_PASSWORD", "")
 
-        # Try neo4j first
+        # Try Memgraph first (when reachable). query_lineage returns
+        # None on driver/connection failures so we fall straight through.
         try:
             from src.genealogy.query import lineage_to_dot, query_lineage
 
-            result = query_lineage(global_id, depth=depth, bolt_uri=bolt_uri)
-            if result:
+            result = query_lineage(
+                global_id,
+                depth=depth,
+                bolt_uri=bolt_uri,
+                user=bolt_user,
+                password=bolt_pass,
+            )
+            # Accept the graph answer only when it actually produced edges.
+            # An empty-edges response from Memgraph means "we have the
+            # store up but no record for this person" — prefer the
+            # curated JSON fallback below, which might still match by
+            # name (GlobalID schemes differ between pipeline and
+            # enrichment, see genealogy_lookup).
+            if result and result.get("edges"):
                 if format == "dot":
                     from starlette.responses import PlainTextResponse
 
@@ -403,7 +418,7 @@ def create_app() -> FastAPI:
         except ImportError:
             pass  # Fall through to local YAML
         except Exception as e:
-            logger.debug(f"Neo4j lineage query failed: {e}")
+            logger.debug(f"Memgraph lineage query failed: {e}")
 
         # Fallback: local YAML files (from pipeline output)
         try:
