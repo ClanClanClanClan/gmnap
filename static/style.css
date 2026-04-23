@@ -34,6 +34,14 @@
     padding: 0;
 }
 
+/* Restore the `hidden` attribute universally. Author rules like
+   `.loading { display: flex }` override the UA stylesheet, so we re-assert
+   it here with `!important` to keep `el.hidden = true` semantics intact
+   (matches [hidden] specificity and beats any display:flex/grid/block). */
+[hidden] {
+    display: none !important;
+}
+
 body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
@@ -531,6 +539,133 @@ nav {
     overflow-x: auto;
     max-height: 300px;
     overflow-y: auto;
+}
+
+/* ── Genealogy tree ──────────────────────────────────────────────── */
+
+.genealogy-tree-panel {
+    overflow: hidden;
+}
+
+.tree-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.tree-header .section-title {
+    margin-bottom: 0;
+}
+
+.tree-depth-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.tree-depth-label select {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    padding: 0.2rem 0.4rem;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+}
+
+.tree-status {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding: 0.25rem 0;
+    min-height: 1.2em;
+}
+
+.tree-empty {
+    font-style: italic;
+}
+
+.tree-error {
+    color: var(--error);
+}
+
+.genealogy-tree-svg {
+    width: 100%;
+    min-height: 240px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: grab;
+    touch-action: none;
+    /* Always leave a stable height so pan/zoom target isn't zero */
+    display: block;
+}
+
+.genealogy-tree-svg:active {
+    cursor: grabbing;
+}
+
+.tree-link {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 1.5px;
+}
+
+.tree-node circle {
+    fill: var(--text-muted);
+    stroke: var(--bg-card);
+    stroke-width: 2px;
+    transition: fill var(--transition), r var(--transition);
+}
+
+.tree-node text {
+    fill: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    pointer-events: none;
+    user-select: none;
+}
+
+.tree-node-root circle {
+    fill: var(--accent);
+}
+
+.tree-node-root text {
+    fill: var(--text-primary);
+    font-weight: 600;
+}
+
+.tree-node-cycle circle {
+    fill: var(--warning);
+}
+
+.tree-node:hover circle {
+    fill: var(--accent-hover);
+    r: 7;
+}
+
+.tree-node:focus-visible circle {
+    stroke: var(--focus-ring);
+}
+
+.tree-node {
+    cursor: pointer;
+}
+
+.tree-node-root {
+    cursor: default;
+}
+
+.tree-hint {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    text-align: right;
+    font-style: italic;
 }
 
 /* Profile actions */

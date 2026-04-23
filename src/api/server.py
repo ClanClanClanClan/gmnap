@@ -176,7 +176,12 @@ class CorrectionSuggestion(BaseModel):
 # App factory
 # ---------------------------------------------------------------------------
 _start_time = time.time()
-_rate_limiter = RateLimiter()
+# Env overrides let ops and the browser-smoke harness raise the ceiling
+# without restarting behind a load balancer. Defaults preserve the V7
+# spec §12 free-tier limit of 60/min.
+_free_rpm = int(os.getenv("GMNAP_FREE_RPM", "60"))
+_paid_rpm = int(os.getenv("GMNAP_PAID_RPM", "10000"))
+_rate_limiter = RateLimiter(free_rpm=_free_rpm, paid_rpm=_paid_rpm)
 
 # Bearer tokens for paid tier (loaded from env)
 _PAID_TOKENS = set(

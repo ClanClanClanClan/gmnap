@@ -25,8 +25,19 @@
     // ── Hashcash PoW (V7 spec s12: 18-bit for free tier) ──────────
 
     /**
-     * Generate a hashcash stamp with the required number of leading zero bits.
-     * Uses SubtleCrypto SHA-1 for speed in modern browsers.
+     * Generate a hashcash stamp with the required number of leading
+     * zero bits (V7 spec §12, free tier: 18 bits).
+     *
+     * Batches 256 candidate stamps per Promise.all so the per-digest
+     * Promise/await overhead is amortized across many SHA-256 calls.
+     * The naive one-await-per-hash loop spends most of its time in
+     * Promise/microtask plumbing — batched, 18-bit mining completes in
+     * roughly 1 s on a modern CPU instead of 10+ s.
+     *
+     * Over-work in the final batch is bounded by the batch size (up to
+     * 255 extra hashes), negligible compared to the expected ~262 144
+     * iterations for 18 bits.
+     *
      * @param {number} bits - Required leading zero bits (default 18).
      * @returns {Promise<string>} The hashcash stamp string.
      */
@@ -34,24 +45,33 @@
         bits = bits || 18;
         var date = new Date().toISOString().slice(2, 10).replace(/-/g, "");
         var rand = Math.random().toString(36).substring(2, 10);
+        var prefix = "1:" + bits + ":" + date + ":gmnap-api::" + rand + ":";
+
+        var encoder = new TextEncoder();  // hoisted — one allocation total
+        var batch = 256;
         var counter = 0;
         while (true) {
-            var stamp = "1:" + bits + ":" + date + ":gmnap-api::" + rand + ":" + counter.toString(16);
-            var data = new TextEncoder().encode(stamp);
-            var hash = await crypto.subtle.digest("SHA-256", data);
-            var arr = new Uint8Array(hash);
-            // Count leading zero bits
-            var zeroBits = 0;
-            for (var i = 0; i < arr.length; i++) {
-                if (arr[i] === 0) { zeroBits += 8; }
-                else {
-                    var b = arr[i];
-                    while ((b & 0x80) === 0) { zeroBits++; b <<= 1; }
-                    break;
-                }
+            var stamps = new Array(batch);
+            var promises = new Array(batch);
+            for (var i = 0; i < batch; i++) {
+                stamps[i] = prefix + (counter + i).toString(16);
+                promises[i] = crypto.subtle.digest("SHA-256", encoder.encode(stamps[i]));
             }
-            if (zeroBits >= bits) return stamp;
-            counter++;
+            var hashes = await Promise.all(promises);
+            for (var j = 0; j < batch; j++) {
+                var arr = new Uint8Array(hashes[j]);
+                var zeroBits = 0;
+                for (var k = 0; k < arr.length; k++) {
+                    if (arr[k] === 0) { zeroBits += 8; }
+                    else {
+                        var b = arr[k];
+                        while ((b & 0x80) === 0) { zeroBits++; b <<= 1; }
+                        break;
+                    }
+                }
+                if (zeroBits >= bits) return stamps[j];
+            }
+            counter += batch;
         }
     }
 
@@ -403,6 +423,24 @@
             html += "</div>"; // profile-card
         }
 
+        // ── Genealogy tree (rendered async after DOM insertion) ──
+        if (advisors.length > 0) {
+            html += '<div class="profile-card genealogy-tree-panel" id="genealogy-tree-panel">';
+            html += '<div class="tree-header">';
+            html += '<h3 class="section-title">Advisor Tree</h3>';
+            html += '<label class="tree-depth-label">Depth ';
+            html += '<select id="tree-depth" aria-label="Tree depth">';
+            html += '<option value="3">3</option>';
+            html += '<option value="5" selected>5</option>';
+            html += '<option value="8">8</option>';
+            html += "</select></label>";
+            html += "</div>";
+            html += '<div class="tree-status" id="tree-status">Loading tree&hellip;</div>';
+            html += '<svg id="genealogy-tree-svg" class="genealogy-tree-svg" aria-label="Doctoral advisor tree" role="img"></svg>';
+            html += '<div class="tree-hint">Scroll to zoom, drag to pan. Click a node to open it.</div>';
+            html += "</div>";
+        }
+
         // ── Authority Sources ──
         var sources = entry.Sources || entry.AuthoritySources || entry.authority_sources || [];
         if (sources.length > 0) {
@@ -509,6 +547,252 @@
                 corrDialog.showModal();
             });
         }
+
+        // ── Render genealogy tree (async; after DOM insertion) ──
+        if (advisors.length > 0) {
+            var depthSel = document.getElementById("tree-depth");
+            if (depthSel) {
+                depthSel.addEventListener("change", function () {
+                    renderGenealogyTree(entry, parseInt(depthSel.value, 10) || 5);
+                });
+            }
+            renderGenealogyTree(entry, 5);
+        }
+    }
+
+    // ── Genealogy tree rendering (d3 v7) ───────────────────────────
+
+    /**
+     * Build a hierarchy from the flat edge list returned by
+     * /api/v1/lineage. Each edge is {from, to, relation}. The root
+     * is the person the caller queried. We duplicate shared ancestors
+     * at each occurrence (d3.hierarchy requires a strict tree).
+     */
+    function edgesToHierarchy(rootId, edges) {
+        // Build adjacency: from -> [to, to, ...]
+        var childrenOf = {};
+        for (var i = 0; i < edges.length; i++) {
+            var e = edges[i];
+            if (!e || !e.from || !e.to) continue;
+            (childrenOf[e.from] = childrenOf[e.from] || []).push(e.to);
+        }
+        // Recursively build tree, duplicating shared nodes (DAG → tree).
+        // Guard against cycles with a per-path visited set.
+        function build(id, pathSet) {
+            var node = { id: id, name: id, children: [] };
+            if (pathSet[id]) {
+                // Cycle — stop expansion at this node but keep the label.
+                node.isCycle = true;
+                return node;
+            }
+            var nextPath = Object.assign({}, pathSet);
+            nextPath[id] = true;
+            var kids = childrenOf[id] || [];
+            for (var j = 0; j < kids.length; j++) {
+                node.children.push(build(kids[j], nextPath));
+            }
+            return node;
+        }
+        return build(rootId, {});
+    }
+
+    /**
+     * Fetch the lineage for this entry and render an SVG tree.
+     * Silently no-ops if d3 is missing (e.g. offline asset blocked).
+     */
+    function renderGenealogyTree(entry, depth) {
+        var svg = document.getElementById("genealogy-tree-svg");
+        var statusEl = document.getElementById("tree-status");
+        if (!svg || !statusEl) return;
+        if (typeof d3 === "undefined") {
+            statusEl.textContent = "Tree library failed to load.";
+            statusEl.className = "tree-status tree-error";
+            svg.hidden = true;
+            return;
+        }
+
+        statusEl.textContent = "Loading tree\u2026";
+        statusEl.className = "tree-status";
+        // Clear any previous render
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+        var canonical = entry.CanonicalLatin || entry.name || "";
+        // Prefer name-based lookup: pipeline GlobalIDs don't match the curated
+        // genealogy enrichment keys (Wikidata-sourced), but CanonicalLatin does.
+        // Fall through to GlobalID only if we have no name.
+        var rootId = canonical ? ("name:" + canonical)
+            : (entry.GlobalID || entry.global_id || "");
+        if (!rootId) {
+            statusEl.textContent = "No identifier for lineage lookup.";
+            statusEl.className = "tree-status tree-empty";
+            svg.hidden = true;
+            return;
+        }
+        var url = "/api/v1/lineage/" + encodeURIComponent(rootId) + "?depth=" + encodeURIComponent(depth);
+
+        apiFetch(url)
+            .then(function (resp) {
+                if (resp.status === 404) {
+                    statusEl.textContent = "No advisor chain available for this record.";
+                    statusEl.className = "tree-status tree-empty";
+                    svg.hidden = true;
+                    return null;
+                }
+                if (!resp.ok) {
+                    throw new Error("Lineage fetch failed: " + resp.status);
+                }
+                return resp.json();
+            })
+            .then(function (data) {
+                if (!data) return;
+                var edges = (data && data.edges) || [];
+                if (edges.length === 0) {
+                    statusEl.textContent = "No advisor chain available for this record.";
+                    statusEl.className = "tree-status tree-empty";
+                    svg.hidden = true;
+                    return;
+                }
+                svg.hidden = false;
+                statusEl.textContent = "";
+                // Server returns edges with the display name as endpoints
+                // (not "name:..." form). Use the first edge's from, or
+                // the stripped root, to match.
+                var treeRoot = (data.root || rootId).replace(/^name:/, "");
+                if (edges[0] && edges[0].from) treeRoot = edges[0].from;
+                drawTree(svg, treeRoot, edges);
+            })
+            .catch(function (err) {
+                console.error("Tree render error:", err);
+                statusEl.textContent = "Failed to load advisor tree.";
+                statusEl.className = "tree-status tree-error";
+                svg.hidden = true;
+            });
+    }
+
+    /**
+     * Lay out a d3.hierarchy and render nodes/links into the SVG.
+     * Orientation: root at top, ancestors downward.
+     */
+    function drawTree(svgEl, rootId, edges) {
+        var hierData = edgesToHierarchy(rootId, edges);
+        var root = d3.hierarchy(hierData);
+
+        // Measure container — the SVG inherits CSS width, but we need numeric
+        // dimensions for d3.tree().size().
+        var width = svgEl.clientWidth || 760;
+        var descendants = root.descendants();
+        var leafCount = Math.max(1, root.leaves().length);
+        var depth = root.height || 1;
+        var nodeVSpacing = 70;   // vertical px per depth level
+        var height = Math.max(240, (depth + 1) * nodeVSpacing + 40);
+
+        // Compute a comfortable width: at least the container, but wider if
+        // we have many leaves so labels don't collide.
+        var minPxPerLeaf = 160;
+        var contentWidth = Math.max(width - 40, leafCount * minPxPerLeaf);
+
+        var treeLayout = d3.tree().size([contentWidth, height - 60]);
+        treeLayout(root);
+
+        // d3.tree places the root at y=0; we want root at top with children
+        // below, which is already the default when using .size([w, h]).
+
+        // Set up svg
+        var svg = d3.select(svgEl);
+        svg.attr("viewBox", "0 0 " + width + " " + height)
+            .attr("preserveAspectRatio", "xMidYMin meet")
+            .attr("height", height);
+
+        // A group that we'll transform with zoom/pan.
+        var g = svg.append("g").attr("class", "tree-viewport");
+
+        // Center the tree horizontally inside the svg viewport if smaller
+        var xOffset = 20;
+        if (contentWidth < width - 40) {
+            xOffset = (width - contentWidth) / 2;
+        }
+        g.attr("transform", "translate(" + xOffset + "," + 30 + ")");
+
+        // Links
+        var linkGen = d3.linkVertical().x(function (d) { return d.x; }).y(function (d) { return d.y; });
+        g.append("g")
+            .attr("class", "tree-links")
+            .selectAll("path")
+            .data(root.links())
+            .join("path")
+            .attr("class", "tree-link")
+            .attr("d", linkGen);
+
+        // Nodes
+        var nodeG = g.append("g")
+            .attr("class", "tree-nodes")
+            .selectAll("g")
+            .data(descendants)
+            .join("g")
+            .attr("class", function (d) {
+                var cls = "tree-node";
+                if (d.depth === 0) cls += " tree-node-root";
+                if (d.data.isCycle) cls += " tree-node-cycle";
+                return cls;
+            })
+            .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; })
+            .attr("tabindex", "0")
+            .attr("role", "button")
+            .attr("aria-label", function (d) { return d.data.name; });
+
+        nodeG.append("circle").attr("r", 6);
+
+        nodeG.append("text")
+            .attr("dy", "1.6em")
+            .attr("text-anchor", "middle")
+            .text(function (d) {
+                var label = labelFromId(d.data.name);
+                if (label.length > 28) label = label.slice(0, 26) + "\u2026";
+                return label;
+            });
+
+        // Full-name tooltip
+        nodeG.append("title").text(function (d) { return d.data.name; });
+
+        // Click → search that node
+        nodeG.on("click", function (_event, d) {
+            if (d.depth === 0) return; // root is already open
+            var label = labelFromId(d.data.name);
+            if (!label) return;
+            searchInput.value = label;
+            performSearch(label);
+        });
+        nodeG.on("keydown", function (event, d) {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                if (d.depth === 0) return;
+                var label = labelFromId(d.data.name);
+                if (!label) return;
+                searchInput.value = label;
+                performSearch(label);
+            }
+        });
+
+        // Zoom/pan
+        var zoom = d3.zoom()
+            .scaleExtent([0.4, 3])
+            .on("zoom", function (event) {
+                g.attr("transform", event.transform);
+            });
+        svg.call(zoom);
+        // Initialize transform so wheel zoom is smooth from current position
+        svg.call(zoom.transform, d3.zoomIdentity.translate(xOffset, 30));
+    }
+
+    /**
+     * Turn an advisor node id into a human-readable label.
+     * GlobalIDs are opaque; `name:Euler, Leonhard` → `Euler, Leonhard`;
+     * plain strings pass through.
+     */
+    function labelFromId(id) {
+        if (!id) return "";
+        if (id.indexOf("name:") === 0) return id.slice(5);
+        return id;
     }
 
     // ── Correction Dialog ────────────────────────────────────────────

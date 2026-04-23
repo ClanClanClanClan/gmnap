@@ -25,6 +25,11 @@ fasttext tiebreaker (rules-based detection only) run
 `pip install -r requirements.txt` instead; the CLI and API still work,
 just with lower name-origin accuracy on hard cases.
 
+For a step-by-step reviewer walkthrough (CLI + web UI + API, with
+screenshots), see **[DEMO.md](DEMO.md)**. For the architecture
+one-pager covering the five design decisions an evaluator asks about,
+see **[ARCHITECTURE.md](ARCHITECTURE.md)**.
+
 ## Features
 
 - **37 Regions**: Full linguistic processing (clean/augment/validate/order_key) for Anglo, Germanic, Slavic, Arabic, CJK, South Asian, African, and more
@@ -41,11 +46,15 @@ just with lower name-origin accuracy on hard cases.
 |---|---|---|
 | `RegionManager.detect_region` (single stage, in-process) | ~3,700 / s | ~4.5 min |
 | `V7Pipeline.process_batch` (rules-only, fastText missing) | ~980 / s | ~17 min |
-| `V7Pipeline.process_batch` (full pipeline + fastText CLI tiebreaker) | ~190 / s | ~90 min |
+| `V7Pipeline.process_batch` (full, Python fastText module) | ~240 / s | ~70 min |
+| `V7Pipeline.process_batch` (full, persistent fastText CLI worker) | ~430 / s | ~39 min |
 
 Synthetic-name benchmarks always trigger the fastText tiebreaker because
 nothing matches the rules; real-world names with clear signature suffixes
-hit fastText far less often. Reproduce with
+hit fastText far less often. The **persistent CLI worker** (spawned once
+per process and fed queries over stdin) is ~60× faster per tiebreaker
+call than the legacy `subprocess.run` pattern, which yields the ~2.3×
+end-to-end gain visible in the last row. Reproduce with
 `PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000`.
 
 ## API Endpoints

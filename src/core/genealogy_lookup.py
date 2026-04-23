@@ -306,9 +306,16 @@ class GenealogyLookup:
     def traverse_lineage(self, start: str, depth: int) -> List[Dict[str, str]]:
         """Build advisor edges starting from `start` (GlobalID or name).
 
-        Returns a list of `{from, to, relation}` edges. Each hop represents
-        a 'doctoralAdvisor' relation. Stops at `depth` levels, or when a
-        node has no advisors, or when a cycle would form.
+        Returns a list of ``{from, to, relation}`` edges. Each hop
+        represents a 'doctoralAdvisor' relation. Stops at ``depth``
+        levels, or when a node has no advisors, or when a cycle would
+        form.
+
+        Edge endpoints are the canonical display names of each person
+        (e.g. ``"Bernoulli, Johann"``) rather than opaque internal
+        GlobalIDs — the web UI renders these verbatim. The root uses
+        the caller's input, stripped of any ``name:`` prefix, so the
+        response's ``root`` field matches the query.
         """
         edges: List[Dict[str, str]] = []
         visited: set[str] = set()
@@ -316,11 +323,16 @@ class GenealogyLookup:
         if root_key is None:
             return edges
 
-        # Use the caller's identifier for the root node so the response
-        # 'root' matches their query.
-        queue: List[tuple[str, str, int]] = [(root_key, start, depth)]
+        root_label = start[5:] if start.startswith("name:") else start
+        # If the caller passed an opaque GlobalID, substitute the record's
+        # CanonicalLatin so the root node is readable instead of a hash.
+        if root_key in self._by_name:
+            root_record = self._by_name[root_key]
+            root_label = root_record.get("CanonicalLatin") or root_label
+
+        queue: List[tuple[str, str, int]] = [(root_key, root_label, depth)]
         while queue:
-            key, from_id, remaining = queue.pop(0)
+            key, from_label, remaining = queue.pop(0)
             if remaining <= 0 or key in visited:
                 continue
             visited.add(key)
@@ -332,11 +344,14 @@ class GenealogyLookup:
                 if not adv_name:
                     continue
                 adv_key = _normalize_key(adv_name)
+                # Prefer the stored canonical casing over the inbound string
+                # (advisor name is sometimes a short form while the stored
+                # record has the full one).
                 adv_record = self._by_name.get(adv_key, {})
-                adv_id = adv_record.get("GlobalID") or adv_name
+                adv_label = adv_record.get("CanonicalLatin") or adv_name
                 edges.append(
-                    {"from": from_id, "to": adv_id, "relation": "doctoralAdvisor"}
+                    {"from": from_label, "to": adv_label, "relation": "doctoralAdvisor"}
                 )
                 if adv_key in self._by_name:
-                    queue.append((adv_key, adv_id, remaining - 1))
+                    queue.append((adv_key, adv_label, remaining - 1))
         return edges
