@@ -1,0 +1,6 @@
+# Dev-only dependencies. Not needed for production.
+# Install with:  pip install -r requirements-dev.txt
+
+# Browser smoke-test harness (tools/browser_smoke.py).
+# Install the Chromium browser after:  playwright install chromium
+playwright>=1.45

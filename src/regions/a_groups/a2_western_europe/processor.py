@@ -584,39 +584,27 @@ class A2_WesternEurope(RegionSpec):
 
     def apply_unicode_fold_exceptions(self, text: str) -> str:
         """
-        Apply Unicode case folding with Western European exceptions.
+        Handle Western European fold exceptions WITHOUT lowercasing.
 
-        Handles special cases like German sharp-s (ß/ẞ) normalization:
-        - ß (lowercase sharp-s) → ss (double s)
-        - ẞ (capital sharp-s) → SS (double S)
+        The base contract for this method is ligature/sharp-s expansion
+        only — it is called from ``normalize_unicode_secure`` which runs
+        on the display field ``CanonicalLatin``. An unconditional
+        ``casefold()`` here would destroy case information ("Euler" →
+        "euler") and was caught by the browser-smoke harness.
 
-        This ensures proper Western European name handling for:
-        - German surnames (Weiß → Weiss, Großmann → Grossmann)
-        - International compatibility (ASCII-safe variants)
-        - Proper sorting and matching behavior
+        Handled:
+        - ß (U+00DF) → ss
+        - ẞ (U+1E9E) → SS
 
-        Args:
-            text: Text to apply case folding to
-
-        Returns:
-            Text with case folding applied and exceptions handled
+        Case preservation is retained so downstream display, ordering,
+        and comparison logic (which have their own explicit casefold
+        calls) still behave correctly.
         """
         if not text:
             return text
 
-        # Apply standard Unicode case folding first
-        result = text.casefold()
-
-        # Handle German sharp-s exceptions specifically
-        # ß (U+00DF) → ss
-        result = result.replace("ß", "ss")
-
-        # ẞ (U+1E9E) → SS (this should already be handled by casefold, but ensure consistency)
-        result = result.replace("ẞ", "SS")
-
-        # Handle other Western European case folding exceptions as needed
-        # (Add more as requirements emerge)
-
+        # Sharp-s expansion, case-preserving.
+        result = text.replace("ß", "ss").replace("ẞ", "SS")
         return result
 
     def _has_security_risks(self, name: str) -> bool:

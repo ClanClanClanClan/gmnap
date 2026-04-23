@@ -103,6 +103,47 @@ jobs:
           assert rss_gb <= limit, f'Memory peak {rss_gb:.2f} GB exceeds {limit} GB limit'
           "
 
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: gmnap:ci
+          # No cache for ship-readiness audit — we want the cold-build
+          # path to stay green.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke-test the container
+        run: |
+          set -euo pipefail
+          # Run detached; health-check /readyz, then shut down. If the
+          # image can't come up in 30s, fail the job rather than hang CI.
+          docker run -d --rm --name gmnap-ci \
+            -p 8080:8080 \
+            -e OFFLINE=1 -e GMNAP_FREE_RPM=10000 \
+            gmnap:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8080/readyz >/dev/null; then
+              echo "Ready after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://localhost:8080/healthz | grep '"status":"ok"'
+          docker logs gmnap-ci | tail -50
+          docker stop gmnap-ci
+
   secret-scan:
     runs-on: ubuntu-latest
     steps:

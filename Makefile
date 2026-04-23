@@ -1,6 +1,6 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help setup install-fasttext quick full extreme test lint update-sources clean audit
+.PHONY: help setup install-fasttext quick full extreme test lint update-sources clean audit browser-test
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
@@ -47,6 +47,13 @@ test-hardcore:
 
 test-integration:
 	PYTHONPATH=. pytest tests/integration/ -v
+
+# Adversarial browser-smoke harness. Spawns uvicorn on a free port, drives
+# Chromium through ~25 scenarios, writes docs/browser_audit.md.
+browser-test:
+	pip install -r requirements-dev.txt
+	playwright install --with-deps chromium
+	PYTHONPATH=. python3 tools/browser_smoke.py --headless
 
 # Code quality
 lint:
