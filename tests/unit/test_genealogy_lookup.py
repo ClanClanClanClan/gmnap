@@ -24,8 +24,8 @@ import pytest
 
 from src.core.genealogy_lookup import (
     GenealogyLookup,
-    _normalize_key,
     _fold_particles,
+    _normalize_key,
     _strip_diacritics,
 )
 
@@ -161,9 +161,9 @@ class TestTraverseLineageContract:
         assert len(edges) >= 2
         # Both should be human names, not hashes
         for name in tos:
-            assert "," in name or " " in name, (
-                f"edge target looks like an opaque ID: {name!r}"
-            )
+            assert (
+                "," in name or " " in name
+            ), f"edge target looks like an opaque ID: {name!r}"
 
     def test_no_edges_for_unknown_root(self, lookup):
         assert lookup.traverse_lineage("name:Zzxqvwn, Notreal", depth=3) == []

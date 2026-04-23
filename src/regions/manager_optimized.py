@@ -3016,8 +3016,8 @@ class FastTextCLIWorker:
                         self._cli_path,
                         "predict-prob",
                         self._model_path,
-                        "-",   # read from stdin
-                        "2",   # top-k = 2 (p1, p2)
+                        "-",  # read from stdin
+                        "2",  # top-k = 2 (p1, p2)
                     ],
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
