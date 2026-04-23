@@ -88,12 +88,32 @@ MERGE (src)-[r:DOCTORAL_ADVISOR]->(adv)
 # ─── Loader ────────────────────────────────────────────────────────────
 
 
-def _run_safe(session, stmt: str) -> None:
-    """Run a statement; ignore "already exists" style errors."""
+def _run_schema(session, stmt: str) -> None:
+    """Run a schema statement.
+
+    On first load: must succeed. On re-runs: Memgraph throws
+    "constraint/index already exists", which we swallow. Any OTHER
+    error (e.g. syntax error against a non-matching Memgraph version)
+    is loud so operators notice that uniqueness is not being enforced.
+    """
     try:
         session.run(stmt).consume()
-    except Exception as exc:  # Memgraph throws on duplicate constraints
-        logger.debug("ignored: %s (%s)", stmt, exc)
+    except Exception as exc:
+        msg = str(exc).lower()
+        if "already exists" in msg or "already defined" in msg or "duplicate" in msg:
+            logger.debug("schema already present: %s", stmt.strip())
+            return
+        # Loud: this is either the wrong Memgraph version or a real
+        # connectivity problem. Re-raising would abort the whole load;
+        # logging at warning keeps the data-load going but surfaces the
+        # problem in operator output.
+        logger.warning(
+            "Schema statement failed (%s): %s\n"
+            "→ Uniqueness / index may NOT be enforced. "
+            "Check Memgraph version compatibility.",
+            exc,
+            stmt.strip(),
+        )
 
 
 def load(
@@ -126,9 +146,9 @@ def load(
 
     with driver.session() as session:
         # Schema setup (idempotent)
-        _run_safe(session, CONSTRAINT_KEY)
-        _run_safe(session, INDEX_GID)
-        _run_safe(session, INDEX_NAME)
+        _run_schema(session, CONSTRAINT_KEY)
+        _run_schema(session, INDEX_GID)
+        _run_schema(session, INDEX_NAME)
 
         # Phase 1: upsert persons. Batch via explicit transactions.
         batch: list[dict] = []

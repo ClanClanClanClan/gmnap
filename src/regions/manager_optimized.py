@@ -15,6 +15,7 @@ _V7_OPTIMIZED = True
 
 import atexit
 import logging
+import os
 import re
 import subprocess
 import threading
@@ -2982,8 +2983,17 @@ class FastTextCLIWorker:
 
     @classmethod
     def get(cls, cli_path: str, model_path: str) -> "FastTextCLIWorker":
-        """Return the singleton worker for this CLI/model pair."""
-        key = (cli_path, model_path)
+        """Return the singleton worker for this CLI/model pair.
+
+        Paths are resolved via ``realpath`` + ``expanduser`` so a
+        caller that passes ``~/.local/bin/fasttext`` doesn't spawn a
+        second subprocess alongside one that passed the absolute form
+        or a symlinked equivalent.
+        """
+        key = (
+            os.path.realpath(os.path.expanduser(cli_path)),
+            os.path.realpath(os.path.expanduser(model_path)),
+        )
         with cls._instances_lock:
             w = cls._instances.get(key)
             if w is None:
@@ -3035,6 +3045,13 @@ class FastTextCLIWorker:
                 self._shutdown_registered = True
             return True
 
+    # Hard cap on input length. fastText treats the input as a document
+    # and we need it to fit in one line of the subprocess stdin pipe;
+    # PIPE_BUF is typically 64 KB on Linux / 4 KB on macOS, so keep
+    # individual messages well under that to avoid flush-vs-readline
+    # deadlocks. Surnames are single tokens so 4 KB is generous.
+    _MAX_INPUT_LEN = 4096
+
     def predict(self, text: str) -> Tuple[Optional[str], float, float]:
         """One-shot prediction. Returns ``(label, p1, p2)`` or
         ``(None, 0.0, 0.0)`` on any failure. Safe to call concurrently.
@@ -3042,16 +3059,31 @@ class FastTextCLIWorker:
         safe = (text or "").replace("\n", " ").replace("\r", " ").strip()
         if not safe:
             return None, 0.0, 0.0
+        # Cap length before feeding the subprocess (see _MAX_INPUT_LEN)
+        if len(safe) > self._MAX_INPUT_LEN:
+            safe = safe[: self._MAX_INPUT_LEN]
 
         for attempt in (1, 2):
             if not self._ensure_running():
                 return None, 0.0, 0.0
             try:
                 with self._io_lock:
-                    assert self._proc and self._proc.stdin and self._proc.stdout
-                    self._proc.stdin.write(safe + "\n")
-                    self._proc.stdin.flush()
-                    line = self._proc.stdout.readline()
+                    # Re-read _proc UNDER the lock — shutdown() (also
+                    # holding this lock) may have nulled it between
+                    # _ensure_running() and here. Don't use assert:
+                    # python -O strips it and we'd crash on None.write.
+                    proc = self._proc
+                    if (
+                        proc is None
+                        or proc.stdin is None
+                        or proc.stdout is None
+                        or proc.poll() is not None
+                    ):
+                        self._proc = None
+                        continue
+                    proc.stdin.write(safe + "\n")
+                    proc.stdin.flush()
+                    line = proc.stdout.readline()
                 if not line:
                     # EOF — child exited. Retry once.
                     self._proc = None
@@ -3063,21 +3095,28 @@ class FastTextCLIWorker:
                 p1 = float(parts[1])
                 p2 = float(parts[3]) if len(parts) > 3 else 0.0
                 return label, p1, p2
-            except (BrokenPipeError, OSError) as exc:
+            except (BrokenPipeError, OSError, ValueError, AttributeError) as exc:
+                # AttributeError: proc died and a reference went stale.
+                # ValueError: "I/O on closed file" from a concurrent
+                # shutdown — retry with a fresh subprocess.
                 logger.debug(
                     "FastText CLI worker I/O failure (attempt %d): %s", attempt, exc
                 )
                 self._proc = None
                 continue
-            except ValueError:
-                # malformed stdout; don't respawn, just abstain
-                return None, 0.0, 0.0
         return None, 0.0, 0.0
 
     def shutdown(self) -> None:
-        """Close the subprocess cleanly. Safe to call multiple times."""
-        proc = self._proc
-        self._proc = None
+        """Close the subprocess cleanly. Safe to call multiple times.
+
+        Acquires ``_io_lock`` so in-flight ``predict()`` calls cannot
+        race the close: either they finish their write+readline first,
+        or shutdown wins and they observe the null ``_proc`` on their
+        next iteration (and abstain).
+        """
+        with self._io_lock:
+            proc = self._proc
+            self._proc = None
         if proc is None:
             return
         try:

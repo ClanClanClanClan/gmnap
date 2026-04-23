@@ -401,13 +401,16 @@ def create_app() -> FastAPI:
                 user=bolt_user,
                 password=bolt_pass,
             )
-            # Accept the graph answer only when it actually produced edges.
-            # An empty-edges response from Memgraph means "we have the
-            # store up but no record for this person" — prefer the
-            # curated JSON fallback below, which might still match by
-            # name (GlobalID schemes differ between pipeline and
-            # enrichment, see genealogy_lookup).
-            if result and result.get("edges"):
+            # Accept the graph answer when Memgraph actually resolved
+            # the root (``root_name`` is set by query_lineage only when
+            # the WHERE clause matched). A matched-root-with-empty-edges
+            # response is a LEGITIMATE leaf: the person is in the graph
+            # and has no known advisors. Previously this branch gated
+            # on edges-present, which silently returned stale YAML for
+            # graph-resident leaves. Unmatched roots (no root_name)
+            # still fall through so the curated-JSON path can match by
+            # alternative key formats.
+            if result and result.get("root_name"):
                 if format == "dot":
                     from starlette.responses import PlainTextResponse
 

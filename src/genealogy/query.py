@@ -217,7 +217,9 @@ def query_lineage(
                 raw=raw,
             ).single()
             if not root_row:
-                drv.close()
+                # Root not found — return shape matches "reachable store,
+                # no such person" so the server handler can distinguish
+                # it from "store unreachable" (None).
                 return {"root": start, "depth": depth, "edges": []}
             root_name = root_row["name"] or raw
 
@@ -229,9 +231,10 @@ def query_lineage(
                     edges.append({"from": frm, "to": to, "relation": "doctoralAdvisor"})
     except (Neo4jError, ServiceUnavailable, OSError) as exc:
         logger.debug("Memgraph lineage query failed: %s", exc)
-        drv.close()
         return None
     finally:
+        # neo4j-driver 5.x Driver.close() is idempotent (internally marks
+        # _closed), so a single call in finally covers all exit paths.
         try:
             drv.close()
         except Exception:

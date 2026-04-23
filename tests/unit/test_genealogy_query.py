@@ -140,19 +140,41 @@ class TestQueryLineage:
         }
 
     def test_returns_empty_edges_when_root_missing(self):
-        drv, _ = _mock_driver_returning("", [])
+        drv, session = _mock_driver_returning("", [])
         with patch("src.genealogy.query._driver", return_value=drv):
             r = query_lineage("Nobody, Unknown", depth=3)
         assert r == {"root": "Nobody, Unknown", "depth": 3, "edges": []}
+        # Verify the root-lookup query actually ran, and no traversal
+        # query followed (early-return short-circuit).
+        assert (
+            session.run.call_count == 1
+        ), f"expected single root-lookup, got {session.run.call_count} calls"
+        root_cypher = session.run.call_args_list[0].args[0]
+        assert "MATCH (p:Person)" in root_cypher
+        assert "RETURN p.name" in root_cypher
 
-    def test_depth_clamped_to_10(self):
-        # Confirm the cypher substitution doesn't blow up with huge
-        # depths (the server caps at 10, but this is the module's own
-        # defence). We only check that no exception is raised.
-        drv, _ = _mock_driver_returning("Euler, Leonhard", [])
+    def test_depth_clamped_to_10_in_cypher(self):
+        # Confirm the depth substitution is CLAMPED to 10 even for a
+        # huge depth request — otherwise a `*1..999` pattern would kill
+        # the graph server.
+        drv, session = _mock_driver_returning("Euler, Leonhard", [])
         with patch("src.genealogy.query._driver", return_value=drv):
             r = query_lineage("Euler, Leonhard", depth=999)
         assert r is not None
+        # Two calls: root lookup, then traversal. Inspect traversal.
+        assert session.run.call_count == 2
+        traversal_cypher = session.run.call_args_list[1].args[0]
+        assert (
+            "*1..10" in traversal_cypher
+        ), f"expected depth clamp to 10, got cypher:\n{traversal_cypher}"
+        assert "*1..999" not in traversal_cypher
+
+    def test_depth_one_passes_one_to_cypher(self):
+        drv, session = _mock_driver_returning("Euler, Leonhard", [])
+        with patch("src.genealogy.query._driver", return_value=drv):
+            query_lineage("Euler, Leonhard", depth=1)
+        traversal_cypher = session.run.call_args_list[1].args[0]
+        assert "*1..1" in traversal_cypher
 
     def test_skips_rows_missing_fields(self):
         drv, _ = _mock_driver_returning(
