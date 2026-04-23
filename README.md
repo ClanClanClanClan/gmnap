@@ -35,7 +35,7 @@ see **[ARCHITECTURE.md](ARCHITECTURE.md)**.
 - **37 Regions**: Full linguistic processing (clean/augment/validate/order_key) for Anglo, Germanic, Slavic, Arabic, CJK, South Asian, African, and more
 - **9 Authority Sources**: OpenAlex, Crossref, ORCID, HAL, GND, Wikidata, zbMATH, OAI, Crossref Thesis
 - **12-Stage Pipeline**: Unicode normalization → region detection → authority enrichment → collision analytics → schema validation → output
-- **Genealogy Enrichment**: ~6,200 mathematicians with advisor chains, birth years, and institutions (seeded from MGP + Wikidata SPARQL)
+- **Genealogy Enrichment**: ~20,600 mathematicians with advisor chains, birth years, and institutions (seeded from MGP + Wikidata SPARQL)
 - **Web Interface**: Dark-themed SPA at localhost:8080
 - **API**: REST endpoints with rate limiting, hashcash PoW, Prometheus metrics
 - **GDPR Compliant**: ShadowNode conversion, birth year masking
@@ -114,7 +114,7 @@ Split geo/name-origin architecture validated by external onomastics expert:
 
 ## Genealogy Enrichment
 
-`data/genealogy_enrichment.json` (~6,200 mathematicians) backs the
+`data/genealogy_enrichment.json` (~20,600 mathematicians) backs the
 Advisors / Institution / BirthYear fields in CLI and API responses.
 Sources, in order of priority:
 
@@ -125,6 +125,10 @@ Sources, in order of priority:
 3. `data/wikidata_genealogy.json` — 4,385 mathematicians fetched from
    Wikidata SPARQL (`P184` doctoral advisor, `P569` birth date, `P69`
    institution). Fetched with `scripts/data/fetch_wikidata_genealogy.py`.
+4. `data/ml_training/openalex_10k_mathematicians.json` — 15,120
+   OpenAlex author records giving `Institution` + `Country` coverage
+   for working mathematicians the Wikidata P184 query misses
+   (people without a formally-recorded doctoral advisor).
 
 Name matching is diacritic-insensitive (`Erdős` ↔ `Erdos`) and handles
 given-name order, parenthetical aliases, hyphenated compounds, and

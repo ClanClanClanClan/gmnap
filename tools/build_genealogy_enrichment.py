@@ -97,7 +97,41 @@ def _fold_particles(key: str) -> str:
 
 MGP_SOURCE = Path("data/mgp_validation_data.json")
 WIKIDATA_GENEALOGY = Path("data/wikidata_genealogy.json")
+# OpenAlex-sourced 15k author affiliations — gives us Institution +
+# Country for thousands of mathematicians the Wikidata P184 query
+# misses (those without a recorded doctoral advisor). No advisor
+# chains here, but a valuable coverage boost.
+OPENALEX_AFFILIATIONS = Path("data/ml_training/openalex_10k_mathematicians.json")
 OUTPUT = Path("data/genealogy_enrichment.json")
+
+# ISO-3166 alpha-2 → English country name. Vendored minimal mapping
+# covering ~95% of OpenAlex's 118 country codes. Falls back to the
+# raw 2-letter code for unknown entries.
+_CC_TO_COUNTRY: dict[str, str] = {
+    "AE": "United Arab Emirates", "AR": "Argentina", "AT": "Austria",
+    "AU": "Australia", "BD": "Bangladesh", "BE": "Belgium",
+    "BG": "Bulgaria", "BR": "Brazil", "BY": "Belarus",
+    "CA": "Canada", "CH": "Switzerland", "CL": "Chile",
+    "CN": "China", "CO": "Colombia", "CZ": "Czech Republic",
+    "DE": "Germany", "DK": "Denmark", "EE": "Estonia",
+    "EG": "Egypt", "ES": "Spain", "FI": "Finland",
+    "FR": "France", "GB": "United Kingdom", "GR": "Greece",
+    "HK": "Hong Kong", "HR": "Croatia", "HU": "Hungary",
+    "ID": "Indonesia", "IE": "Ireland", "IL": "Israel",
+    "IN": "India", "IR": "Iran", "IS": "Iceland",
+    "IT": "Italy", "JP": "Japan", "KR": "South Korea",
+    "KW": "Kuwait", "LT": "Lithuania", "LU": "Luxembourg",
+    "LV": "Latvia", "MA": "Morocco", "MX": "Mexico",
+    "MY": "Malaysia", "NG": "Nigeria", "NL": "Netherlands",
+    "NO": "Norway", "NZ": "New Zealand", "PE": "Peru",
+    "PH": "Philippines", "PK": "Pakistan", "PL": "Poland",
+    "PT": "Portugal", "RO": "Romania", "RS": "Serbia",
+    "RU": "Russia", "SA": "Saudi Arabia", "SE": "Sweden",
+    "SG": "Singapore", "SI": "Slovenia", "SK": "Slovakia",
+    "TH": "Thailand", "TR": "Turkey", "TW": "Taiwan",
+    "UA": "Ukraine", "US": "United States", "VE": "Venezuela",
+    "VN": "Vietnam", "ZA": "South Africa",
+}
 
 # Best-effort hand-curated birth years + countries for advisors we know
 # about but who are not in the MGP seed.  All entries use the project's
@@ -508,6 +542,57 @@ def build() -> dict:
                 added += 1
         print(
             f"Wikidata merge: +{added} new entries, enriched {enriched} "
+            f"existing entries"
+        )
+
+    # 2c. Merge in the OpenAlex affiliations dataset (15 k entries).
+    # This is Institution + Country only — no advisor chains — but
+    # covers thousands of working mathematicians the P184 query
+    # skips because they don't have a recorded doctoral advisor on
+    # Wikidata. Existing MGP / curated / Wikidata data wins on all
+    # overlapping fields.
+    if OPENALEX_AFFILIATIONS.exists():
+        oa_entries = json.loads(OPENALEX_AFFILIATIONS.read_text(encoding="utf-8"))
+        added = 0
+        enriched = 0
+        for e in oa_entries:
+            name = e.get("name")
+            if not name:
+                continue
+            key = normalize_key(name)
+            if not key:
+                continue
+            institution = e.get("institution") or None
+            cc = e.get("country_code") or ""
+            country = _CC_TO_COUNTRY.get(cc, cc) or None
+
+            if key in by_name:
+                rec = by_name[key]
+                filled = False
+                for field, value in (("Institution", institution), ("Country", country)):
+                    if value and not rec.get(field):
+                        rec[field] = value
+                        filled = True
+                if filled:
+                    enriched += 1
+                    # Mark as OpenAlex-augmented (idempotent — don't
+                    # dedupe-concat, just add the tag once).
+                    src = rec.get("Source") or ""
+                    if "OpenAlex" not in src:
+                        rec["Source"] = (src + "+OpenAlex") if src else "OpenAlex"
+            else:
+                record: dict = {
+                    "CanonicalLatin": to_canonical_latin(name),
+                    "Source": "OpenAlex",
+                }
+                if institution:
+                    record["Institution"] = institution
+                if country:
+                    record["Country"] = country
+                by_name[key] = record
+                added += 1
+        print(
+            f"OpenAlex merge: +{added} new entries, enriched {enriched} "
             f"existing entries"
         )
 
