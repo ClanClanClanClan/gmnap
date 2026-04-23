@@ -127,3 +127,59 @@ def test_shutdown_idempotent(worker):
     # Second shutdown must not raise
     worker.shutdown()
     assert worker._proc is None
+
+
+def test_predict_with_dead_proc_returns_null_tuple(worker):
+    """Simulate the failure mode that crashed under ``python -O``:
+    ``_ensure_running`` returns True but ``_proc`` has been externally
+    nulled before the critical section. The old code had an ``assert``
+    that got stripped by the optimizer and then crashed with
+    ``AttributeError: 'NoneType' object has no attribute 'stdin'``.
+    The hardened path must silently return ``(None, 0.0, 0.0)``.
+    """
+    # Warm up so _proc exists, then stub _ensure_running to pretend
+    # the subprocess is alive even though we've nulled the handle.
+    worker.predict("euler")
+    worker._proc = None
+    worker._ensure_running = lambda: True
+    r = worker.predict("mueller")
+    assert r == (None, 0.0, 0.0)
+
+
+def test_predict_caps_absurdly_long_input(worker):
+    """Input larger than a pipe buffer would deadlock the worker
+    (the write blocks waiting for a reader while the reader is
+    blocked behind the same io_lock). The hardened predict caps at
+    _MAX_INPUT_LEN before hitting the subprocess."""
+    # 100 KB surname — way beyond any pipe buffer
+    huge = "x" * 100_000
+    # Should not hang; returns within a normal prediction latency.
+    import time
+
+    t0 = time.time()
+    r = worker.predict(huge)
+    dt = time.time() - t0
+    assert dt < 3.0, f"worker hung on long input ({dt:.1f}s)"
+    # Result is label-ish (or None if the truncated form is gibberish);
+    # we just require no exception + non-hang.
+    assert r is not None
+
+
+def test_singleton_normalises_paths():
+    """Different spellings of the same path must not spawn duplicate
+    subprocesses. The singleton dict keys on ``realpath(expanduser(...))``.
+    """
+    import os
+
+    # The Path.home() form expanduser is a no-op, so also try the
+    # tilde form explicitly. Both should hit the same key.
+    a = FastTextCLIWorker.get(FT_CLI, str(MODEL))
+    home = str(Path.home())
+    if FT_CLI.startswith(home):
+        tilded = "~" + FT_CLI[len(home) :]
+        b = FastTextCLIWorker.get(tilded, str(MODEL))
+        assert a is b, "tilde-vs-absolute spawned two workers"
+    # Also try a relative dot-less-path form where possible
+    absolute = os.path.realpath(FT_CLI)
+    c = FastTextCLIWorker.get(absolute, str(MODEL))
+    assert a is c
