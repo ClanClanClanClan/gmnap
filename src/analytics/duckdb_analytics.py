@@ -84,7 +84,17 @@ class DuckDBAnalytics:
             Otherwise: List of (original_id, suffixed_id) tuples
         """
         if self.skipped:
-            return (entries, 0) if entries else []
+            # Return a 2-tuple whenever the caller passed ``entries``
+            # (even when the list is empty). Previously this returned a
+            # bare ``[]`` for empty-list inputs, which broke callers
+            # doing ``entries, n = analytics.suffix_duplicates(entries)``
+            # with ``ValueError: not enough values to unpack``. This
+            # path fires whenever Stage 2 strips all entries (e.g.
+            # security rejected them) and Stage 5 then unpacks the
+            # result.
+            if entries is not None:
+                return (entries, 0)
+            return []
 
         out = []
         # Only consider entries with non-empty order_key as potential duplicates

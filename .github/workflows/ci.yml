@@ -82,6 +82,7 @@ jobs:
           tests/unit/test_genealogy_lookup.py
           tests/unit/test_fasttext_cli_worker.py
           tests/unit/test_genealogy_query.py
+          tests/unit/test_duckdb_analytics_shape.py
           -v --tb=short --timeout=120 -p no:cacheprovider
 
       - name: Property tests

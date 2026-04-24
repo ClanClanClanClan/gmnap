@@ -163,17 +163,35 @@
 
     /**
      * Debounce a function call.
+     *
+     * The returned function exposes ``.cancel()`` so callers can
+     * invalidate a pending invocation — e.g. when a user hits Enter
+     * (which fires performSearch immediately) or clicks a result
+     * card (which opens the profile view), we must kill any in-flight
+     * debounced search, otherwise it will fire 300 ms later,
+     * showView("results") will hide the open profile, and any UI
+     * assertion that was waiting for a profile-internal element
+     * (`#open-correction`, `#tree-depth`) suddenly sees a non-visible
+     * element.
      */
     function debounce(fn, delay) {
         var timer = null;
-        return function () {
+        function debounced() {
             var args = arguments;
             var ctx = this;
             if (timer) clearTimeout(timer);
             timer = setTimeout(function () {
+                timer = null;
                 fn.apply(ctx, args);
             }, delay);
+        }
+        debounced.cancel = function () {
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
         };
+        return debounced;
     }
 
     // ── DOM Elements ─────────────────────────────────────────────────
@@ -306,6 +324,9 @@
     searchInput.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
             e.preventDefault();
+            // Kill any pending debounced search so it can't fire
+            // AFTER the user navigates to a result profile.
+            debouncedSearch.cancel();
             performSearch(searchInput.value);
         }
     });
@@ -363,6 +384,10 @@
     // ── Profile Rendering ────────────────────────────────────────────
 
     function renderProfile(entry) {
+        // Cancel any pending debounced search — otherwise it would
+        // fire after profile opens and showView("results") would yank
+        // the user back to the results list. See debounce() docstring.
+        debouncedSearch.cancel();
         showView("profile");
 
         var name = entry.CanonicalLatin || entry.name || "Unknown";
