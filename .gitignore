@@ -130,3 +130,12 @@ data/ml_training/ft_name_classifier.bin
 data/ml_training/ft_name_classifier.vec
 data/ml_training/fullname_classifier.bin
 data/ml_training/surname_classifier.bin
+
+# Pytest cache was accidentally committed at the repo root-level
+# tests/ subdirectory. Untracked in commit <next>. The root-level
+# .pytest_cache/ already ignores its own; this adds the nested path.
+tests/.pytest_cache/
+
+# Per-run browser screenshots from tools/browser_smoke.py. The
+# curated demo shots live under docs/screenshots/ (no nested dir).
+docs/screenshots/browser_audit/
