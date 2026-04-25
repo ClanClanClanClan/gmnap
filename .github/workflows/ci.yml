@@ -185,12 +185,15 @@ jobs:
           done
           echo "memgraph did not become ready in 60s"; exit 1
       - name: Run live integration tests
+        timeout-minutes: 8
         env:
           MEMGRAPH_BOLT: bolt://localhost:7687
           PYTHONPATH: .
         run: |
+          # --timeout=360 covers the loader fixture worst case (~3-5
+          # min on cold GHA runners doing 30k MERGEs).
           pytest tests/integration/test_memgraph_e2e.py -v --tb=short \
-            --timeout=180 -p no:cacheprovider
+            --timeout=360 -p no:cacheprovider
 
   browser-test:
     # 31-scenario adversarial Playwright harness. Spawns uvicorn,
