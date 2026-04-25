@@ -144,15 +144,24 @@ jobs:
     # against the real graph. Catches schema-vs-query drift that
     # mocked unit tests can't see.
     #
-    # Image: memgraph/memgraph-platform:2.12 — same as docker-compose
-    # uses. The lighter `memgraph/memgraph:2.12` tag isn't published
-    # on Docker Hub. Default connection has empty password unless
-    # MEMGRAPH_USER/PASSWORD env vars create one (we don't here).
+    # Image: memgraph/memgraph:2.22.1 — the most recent 2.x tag (3.x
+    # bumped Cypher syntax to Neo4j-5-style "CREATE CONSTRAINT FOR …
+    # REQUIRE … IS UNIQUE", which would break the loader's
+    # "CREATE CONSTRAINT ON … ASSERT … IS UNIQUE" statements).
+    #
+    # Neither memgraph/memgraph:2.12 nor memgraph/memgraph-platform:2.12
+    # are published on Docker Hub (verified via the registry API), so
+    # the docker-compose.yml's pin is technically broken too — left
+    # untouched here because that's a user-facing concern outside this
+    # CI patch.
+    #
+    # Default connection has empty password unless MEMGRAPH_USER/
+    # PASSWORD env vars create one (we don't, here).
     runs-on: ubuntu-latest
     needs: lint
     services:
       memgraph:
-        image: memgraph/memgraph-platform:2.12
+        image: memgraph/memgraph:2.22.1
         ports:
           - 7687:7687
         # Memgraph's docker image doesn't ship a HEALTHCHECK by
