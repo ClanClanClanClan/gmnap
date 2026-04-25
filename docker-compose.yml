@@ -16,8 +16,13 @@ services:
       - memgraph_data:/var/lib/memgraph
       - memgraph_log:/var/log/memgraph
       - memgraph_etc:/etc/memgraph
-      - ./init_memgraph.cypher:/var/lib/memgraph/init.cypher:ro
-    command: ["--init-file=/var/lib/memgraph/init.cypher", "--storage-gc-cycle-sec=30"]
+    # No --init-file: schema (constraint on :Person.key, indexes on
+    # :Person.global_id and :Person.name) is created idempotently by
+    # tools/load_memgraph_from_enrichment.py on every load. The
+    # earlier init_memgraph.cypher used a `:Mathematician` label and
+    # pre-seeded sample nodes that disagreed with the loader's
+    # `:Person` schema, producing two disjoint subgraphs.
+    command: ["--storage-gc-cycle-sec=30"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "echo 'RETURN 1;' | /usr/lib/memgraph/mgconsole --host localhost --port 7687 --username gmnap --password v7_lineage || exit 1"]
