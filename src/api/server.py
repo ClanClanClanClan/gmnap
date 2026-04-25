@@ -300,19 +300,34 @@ def create_app() -> FastAPI:
 
     @app.get("/readyz", response_model=HealthResponse)
     async def readyz():
-        """Readiness probe — checks graph DB if configured."""
+        """Readiness probe — performs a real Bolt handshake.
+
+        The earlier implementation opened a raw TCP socket and accepted
+        any handshake response as "ready". That returned 200 even when
+        Memgraph was alive but auth was broken, the storage was
+        corrupt, or the Bolt protocol upgrade was rejected. Here we
+        delegate to ``src.genealogy.query._driver`` which calls
+        ``verify_connectivity()`` under a 2-second timeout — the same
+        path the lineage endpoint uses.
+        """
         graph_ok = True
         bolt_uri = os.getenv("MEMGRAPH_BOLT", "")
         if bolt_uri:
-            try:
-                # Attempt a connection check
-                import socket
+            from src.genealogy.query import _driver
 
-                host, port = bolt_uri.replace("bolt://", "").split(":")
-                s = socket.create_connection((host, int(port)), timeout=2)
-                s.close()
-            except Exception:
+            drv = _driver(
+                bolt_uri,
+                user=os.getenv("MEMGRAPH_USER", ""),
+                password=os.getenv("MEMGRAPH_PASSWORD", ""),
+                timeout=2.0,
+            )
+            if drv is None:
                 graph_ok = False
+            else:
+                try:
+                    drv.close()
+                except Exception:
+                    pass
 
         if not graph_ok:
             raise HTTPException(status_code=503, detail="Graph DB not ready")

@@ -224,16 +224,26 @@ def process(
             sys.exit(1)
         os.environ["GMNAP_FORCE_EXTREME"] = "1"
 
-    # Validate output path: must be relative, no traversal
+    # Validate output path: must be relative, no traversal.
+    # Friendly error includes a copy-pasteable suggested fix so a
+    # reviewer following DEMO.md doesn't bounce off this guard.
     out_path = Path(output)
     if out_path.is_absolute():
-        click.echo("Error: output path must be relative, not absolute", err=True)
+        click.echo(
+            "Error: --output must be a relative path under the working "
+            "directory.\n"
+            f"  Got:  {output}\n"
+            "  Try:  out/result.json   (or any path inside the repo)",
+            err=True,
+        )
         sys.exit(1)
     try:
         resolved = (Path.cwd() / out_path).resolve()
         if not str(resolved).startswith(str(Path.cwd().resolve())):
             click.echo(
-                "Error: output path traversal escapes working directory",
+                "Error: --output path escapes the working directory.\n"
+                f"  Got:  {output}\n"
+                "  Try:  out/result.json   (no leading '../' segments)",
                 err=True,
             )
             sys.exit(1)

@@ -245,3 +245,55 @@ class TestImport:
         mod = importlib.import_module("src.genealogy.query")
         assert hasattr(mod, "query_lineage")
         assert hasattr(mod, "lineage_to_dot")
+
+
+# --- /readyz Bolt probe contract ---------------------------------------
+
+
+class TestReadyzBoltProbe:
+    """`/readyz` now uses ``_driver()`` for its Memgraph check.
+
+    Previously it opened a raw TCP socket and treated any handshake
+    response as "ready" — passed even when Memgraph was alive but
+    auth was broken. These tests pin the new contract:
+
+    - With ``MEMGRAPH_BOLT`` unset → readiness skipped, returns 200.
+    - With it set and ``_driver`` returning a driver → 200.
+    - With it set and ``_driver`` returning None (driver missing OR
+      bolt port closed OR auth failed) → 503.
+    """
+
+    def _make_app(self):
+        # Local import — avoids module-load cost on tests that don't
+        # need the FastAPI factory.
+        from fastapi.testclient import TestClient
+
+        from src.api.server import create_app
+
+        return TestClient(create_app())
+
+    def test_passes_when_memgraph_unset(self, monkeypatch):
+        monkeypatch.delenv("MEMGRAPH_BOLT", raising=False)
+        client = self._make_app()
+        r = client.get("/readyz")
+        assert r.status_code == 200
+        assert r.json()["status"] == "ready"
+
+    def test_503_when_driver_returns_none(self, monkeypatch):
+        monkeypatch.setenv("MEMGRAPH_BOLT", "bolt://localhost:7687")
+        with patch("src.genealogy.query._driver", return_value=None):
+            client = self._make_app()
+            r = client.get("/readyz")
+        assert r.status_code == 503
+        assert r.json()["detail"] == "Graph DB not ready"
+
+    def test_200_when_driver_returns_real(self, monkeypatch):
+        monkeypatch.setenv("MEMGRAPH_BOLT", "bolt://localhost:7687")
+        fake = MagicMock()
+        fake.close.return_value = None
+        with patch("src.genealogy.query._driver", return_value=fake):
+            client = self._make_app()
+            r = client.get("/readyz")
+        assert r.status_code == 200
+        # Must close the driver to avoid leaking connections
+        fake.close.assert_called_once()
