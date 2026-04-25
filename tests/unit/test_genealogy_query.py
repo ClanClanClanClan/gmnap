@@ -265,12 +265,16 @@ class TestReadyzBoltProbe:
 
     def _make_app(self):
         # Local import — avoids module-load cost on tests that don't
-        # need the FastAPI factory.
+        # need the FastAPI factory. Reset the module-level rate limiter
+        # state too, otherwise sequential tests in this class share a
+        # sliding window and earlier tests' /readyz calls trigger 429
+        # for later tests on busy CI.
         from fastapi.testclient import TestClient
 
-        from src.api.server import create_app
+        from src.api import server as srv
 
-        return TestClient(create_app())
+        srv._rate_limiter._windows.clear()
+        return TestClient(srv.create_app())
 
     def test_passes_when_memgraph_unset(self, monkeypatch):
         monkeypatch.delenv("MEMGRAPH_BOLT", raising=False)
