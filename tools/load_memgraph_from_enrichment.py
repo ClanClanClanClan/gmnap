@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 """Load ``data/genealogy_enrichment.json`` into Memgraph.
 
+**Canonical schema definition.** This file is the single source of
+truth for the Memgraph schema the lineage path queries: a
+``UNIQUE`` constraint on ``:Person.key`` and indexes on
+``:Person.global_id`` and ``:Person.name``. ``src/genealogy/query.py``
+reads exactly that schema, and there is no separate init file —
+``docker-compose.yml`` no longer mounts one. Re-run this loader
+after any ``data/genealogy_enrichment.json`` rebuild; the schema
+statements are idempotent (constraint-already-exists is swallowed).
+
 Idempotent: re-running updates existing nodes/edges via MERGE rather
 than duplicating. Creates one ``:Person`` node per entry and one
 ``-[:DOCTORAL_ADVISOR]->`` edge per advisor relation.
