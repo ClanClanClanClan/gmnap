@@ -143,11 +143,16 @@ jobs:
     # a sidecar, runs the loader, hits /api/v1/lineage and /readyz
     # against the real graph. Catches schema-vs-query drift that
     # mocked unit tests can't see.
+    #
+    # Image: memgraph/memgraph-platform:2.12 — same as docker-compose
+    # uses. The lighter `memgraph/memgraph:2.12` tag isn't published
+    # on Docker Hub. Default connection has empty password unless
+    # MEMGRAPH_USER/PASSWORD env vars create one (we don't here).
     runs-on: ubuntu-latest
     needs: lint
     services:
       memgraph:
-        image: memgraph/memgraph:2.12
+        image: memgraph/memgraph-platform:2.12
         ports:
           - 7687:7687
         # Memgraph's docker image doesn't ship a HEALTHCHECK by
