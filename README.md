@@ -28,7 +28,8 @@ just with lower name-origin accuracy on hard cases.
 For a step-by-step reviewer walkthrough (CLI + web UI + API, with
 screenshots), see **[DEMO.md](DEMO.md)**. For the architecture
 one-pager covering the five design decisions an evaluator asks about,
-see **[ARCHITECTURE.md](ARCHITECTURE.md)**.
+see **[ARCHITECTURE.md](ARCHITECTURE.md)**. For the running list of
+changes, see **[CHANGELOG.md](CHANGELOG.md)**.
 
 ## Features
 
