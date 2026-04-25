@@ -172,6 +172,44 @@ jobs:
           pytest tests/integration/test_memgraph_e2e.py -v --tb=short \
             --timeout=180 -p no:cacheprovider
 
+  browser-test:
+    # 31-scenario adversarial Playwright harness. Spawns uvicorn,
+    # drives a real headless Chromium against it: XSS, Unicode,
+    # responsive viewports, server-500 mid-flight, rapid-fire,
+    # tree-depth navigation. The harness already caught a debounce
+    # race that hid the profile under the user — wiring it into CI
+    # so the next class of UI regression fails the PR, not the demo.
+    #
+    # Local run: ~80s on M1. Budget 4 min on slower GHA runners.
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Install runtime + dev deps
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      - name: Install Chromium
+        run: playwright install --with-deps chromium
+      - name: Run adversarial browser harness
+        timeout-minutes: 6
+        env:
+          PYTHONPATH: .
+        run: python3 tools/browser_smoke.py --headless
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-audit
+          path: |
+            docs/browser_audit.md
+            docs/screenshots/browser_audit/
+          retention-days: 7
+          if-no-files-found: warn
+
   docker-build:
     runs-on: ubuntu-latest
     needs: lint
