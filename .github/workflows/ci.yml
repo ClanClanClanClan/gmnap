@@ -107,6 +107,7 @@ jobs:
           tests/unit/test_thread_safe_demo.py
           tests/unit/test_unicode_handler.py
           tests/unit/test_validation_rules.py
+          tests/integration/test_memgraph_e2e.py
           -v --tb=short --timeout=120 -p no:cacheprovider
 
       - name: Property tests
@@ -130,6 +131,46 @@ jobs:
           print(f'Peak RSS: {rss_gb:.2f} GB (limit: {limit} GB)')
           assert rss_gb <= limit, f'Memory peak {rss_gb:.2f} GB exceeds {limit} GB limit'
           "
+
+  memgraph-test:
+    # End-to-end live-Memgraph integration. Spins up Memgraph 2.12 as
+    # a sidecar, runs the loader, hits /api/v1/lineage and /readyz
+    # against the real graph. Catches schema-vs-query drift that
+    # mocked unit tests can't see.
+    runs-on: ubuntu-latest
+    needs: lint
+    services:
+      memgraph:
+        image: memgraph/memgraph:2.12
+        ports:
+          - 7687:7687
+        # Memgraph's docker image doesn't ship a HEALTHCHECK by
+        # default; the wait-for-Bolt step below polls a TCP connect
+        # which is sufficient for our purposes.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Install runtime deps
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-timeout
+      - name: Wait for Memgraph Bolt to accept connections
+        run: |
+          for i in $(seq 1 30); do
+            python3 -c "import socket; socket.create_connection(('localhost',7687),timeout=2).close()" \
+              && { echo "memgraph ready after ${i}s"; exit 0; }
+            sleep 2
+          done
+          echo "memgraph did not become ready in 60s"; exit 1
+      - name: Run live integration tests
+        env:
+          MEMGRAPH_BOLT: bolt://localhost:7687
+          PYTHONPATH: .
+        run: |
+          pytest tests/integration/test_memgraph_e2e.py -v --tb=short \
+            --timeout=180 -p no:cacheprovider
 
   docker-build:
     runs-on: ubuntu-latest
