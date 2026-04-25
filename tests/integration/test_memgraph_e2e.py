@@ -72,13 +72,17 @@ def loaded_memgraph() -> Generator[str, None, None]:
         "--password",
         password,
     ]
+    # Loader does ~30 k MERGEs (20 k :Person + ~4 k advisor edges).
+    # On GitHub Actions runners with cold Memgraph caches this takes
+    # ≈ 90-180 s; cap at 5 minutes to stay below the test job's
+    # overall 6-minute budget.
     proc = subprocess.run(
         cmd,
         cwd=str(REPO),
         env={**os.environ, "PYTHONPATH": str(REPO)},
         capture_output=True,
         text=True,
-        timeout=120,
+        timeout=300,
     )
     assert proc.returncode == 0, (
         f"loader failed (rc={proc.returncode}):\n"
