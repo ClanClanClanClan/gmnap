@@ -63,6 +63,17 @@ jobs:
           mkdir -p cache
           echo '{}' > cache/api_costs.json
 
+      # NOTE: 5 tracked test files are intentionally NOT in this list
+      # because they import `src.regions.manager` (legacy path; not
+      # `manager_optimized`) which does `import fasttext` at module
+      # load. The CI runtime deliberately omits the `fasttext` Python
+      # module (OOMs in the Docker build per requirements.txt). These
+      # tests still pass locally where the module is installed:
+      #   tests/unit/core/test_region_loading.py
+      #   tests/unit/test_direct_classification.py
+      #   tests/unit/test_manager_caching.py
+      #   tests/unit/test_simple_detection.py
+      #   tests/unit/test_thread_safe_demo.py
       - name: Core tests (region detection + user workflows + security + CLI + web + nginx + golden)
         run: >-
           pytest
@@ -102,17 +113,6 @@ jobs:
           tests/unit/test_surname_detection.py
           tests/unit/test_unicode_handler.py
           tests/unit/test_validation_rules.py
-          # NOTE: 5 files removed because they import `src.regions.manager`
-          # (legacy, not `manager_optimized`) which does `import fasttext`
-          # at module load. The CI runtime deliberately omits the
-          # `fasttext` Python module (it OOMs in the Docker build, see
-          # requirements.txt). These tests still pass locally where the
-          # module is installed:
-          #   tests/unit/core/test_region_loading.py
-          #   tests/unit/test_direct_classification.py
-          #   tests/unit/test_manager_caching.py
-          #   tests/unit/test_simple_detection.py
-          #   tests/unit/test_thread_safe_demo.py
           tests/integration/test_memgraph_e2e.py
           -v --tb=short --timeout=120 -p no:cacheprovider
 
