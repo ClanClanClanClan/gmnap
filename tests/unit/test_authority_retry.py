@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
 
 import httpx
 import pytest
-from unittest.mock import patch
 
 from src.authority.common import retry_with_backoff
 

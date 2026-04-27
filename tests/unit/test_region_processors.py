@@ -5,10 +5,11 @@ Tests that all implemented region processors have the required interface
 and handle representative names correctly.
 """
 
-import pytest
 from unittest.mock import patch
 
-from src.regions.base import RegionSpec, _YAML_CACHE
+import pytest
+
+from src.regions.base import _YAML_CACHE, RegionSpec
 from src.regions.manager_optimized import RegionManager
 
 
