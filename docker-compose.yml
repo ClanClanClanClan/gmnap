@@ -3,15 +3,20 @@ version: '3.8'
 services:
   # Memgraph graph database for academic genealogy
   memgraph:
-    # memgraph-platform compound tags include both the DB and Memgraph
-    # Lab in one image (Lab is exposed on port 3000 below). The plain
-    # "2.12" tag never existed on Docker Hub; use the compound form.
-    image: memgraph/memgraph-platform:2.14.1-memgraph2.14.1-lab2.11.1
+    # Pinned to memgraph/memgraph:2.22.1 — the same tag the CI
+    # `memgraph-test` job uses, so the integration tests CI runs
+    # exercise the same Memgraph version users get from
+    # `docker compose up`. Earlier docker-compose used the compound
+    # memgraph-platform:2.14.1-memgraph2.14.1-lab2.11.1 tag (which
+    # bundles Memgraph Lab on port 3000), but version-skew between
+    # CI and the local stack would mask Cypher dialect drift between
+    # 2.14 and 2.22. Drop Lab from the prod stack — anyone who wants
+    # the visual UI can run it as a separate `docker run -p 3000:3000
+    # memgraph/lab` against the same Bolt port.
+    image: memgraph/memgraph:2.22.1
     container_name: gmnap_memgraph
     ports:
       - "7687:7687"  # Bolt protocol
-      - "7444:7444"  # HTTPS for Memgraph Lab
-      - "3000:3000"  # HTTP for Memgraph Lab
     environment:
       - MEMGRAPH_USER=gmnap
       - MEMGRAPH_PASSWORD=v7_lineage
@@ -28,7 +33,9 @@ services:
     command: ["--storage-gc-cycle-sec=30"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "echo 'RETURN 1;' | /usr/lib/memgraph/mgconsole --host localhost --port 7687 --username gmnap --password v7_lineage || exit 1"]
+      # plain memgraph image's mgconsole lives at /usr/bin/mgconsole;
+      # the platform image's was at /usr/lib/memgraph/mgconsole.
+      test: ["CMD-SHELL", "echo 'RETURN 1;' | mgconsole --host localhost --port 7687 --username gmnap --password v7_lineage || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
