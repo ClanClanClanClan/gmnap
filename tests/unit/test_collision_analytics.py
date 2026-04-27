@@ -8,13 +8,11 @@ GlobalID suffixing, and edge CSV generation.
 import tempfile
 from pathlib import Path
 
-
 from src.pipeline.stage5_collision_analytics import (
     _load_registry,
     _save_registry,
     stage5_collision_analytics,
 )
-
 
 # ── In-Batch Dedup ───────────────────────────────────────────────────────
 
@@ -79,14 +77,22 @@ class TestCrossBatchCollision:
         with tempfile.TemporaryDirectory() as workdir:
             # First batch
             entries1 = [
-                {"GlobalID": "A" * 22, "CanonicalLatin": "Smith, John", "BirthYear": 1975},
+                {
+                    "GlobalID": "A" * 22,
+                    "CanonicalLatin": "Smith, John",
+                    "BirthYear": 1975,
+                },
             ]
             out1, _ = stage5_collision_analytics(entries1, workdir=workdir)
             assert out1[0]["GlobalID"] == "A" * 22
 
             # Second batch with same GlobalID
             entries2 = [
-                {"GlobalID": "A" * 22, "CanonicalLatin": "Smith, John Jr", "BirthYear": 1975},
+                {
+                    "GlobalID": "A" * 22,
+                    "CanonicalLatin": "Smith, John Jr",
+                    "BirthYear": 1975,
+                },
             ]
             out2, metrics2 = stage5_collision_analytics(entries2, workdir=workdir)
             # Should have been suffixed

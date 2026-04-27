@@ -1,12 +1,12 @@
 """Unit tests for GDPR compliance module."""
 
 from src.core.gdpr import (
-    mark_gdpr_fields,
+    PERSONAL_DATA_FIELDS,
     apply_birth_year_privacy,
-    scrub_sources,
     apply_drop_personal,
     gdpr_pipeline,
-    PERSONAL_DATA_FIELDS,
+    mark_gdpr_fields,
+    scrub_sources,
 )
 
 
@@ -67,7 +67,10 @@ class TestScrubSources:
         assert "OpenAlex" in entry["AuthorityIDs"]
 
     def test_no_scrubber_sources_unchanged(self):
-        entry = {"_sources": ["OpenAlex", "Crossref"], "AuthorityIDs": {"OpenAlex": "x"}}
+        entry = {
+            "_sources": ["OpenAlex", "Crossref"],
+            "AuthorityIDs": {"OpenAlex": "x"},
+        }
         scrub_sources(entry)
         assert entry["_sources"] == ["OpenAlex", "Crossref"]
 

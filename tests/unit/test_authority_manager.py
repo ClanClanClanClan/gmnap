@@ -11,7 +11,6 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-
 from src.authority.manager_tier01 import (
     TIER_HANDLERS,
     _cache_get,
@@ -190,7 +189,9 @@ class TestWikidataP184:
             "results": {
                 "bindings": [
                     {
-                        "advisor": {"value": "http://www.wikidata.org/entity/Q131tried"},
+                        "advisor": {
+                            "value": "http://www.wikidata.org/entity/Q131tried"
+                        },
                         "advisorLabel": {"value": "Johann Bernoulli"},
                     },
                 ]
@@ -258,7 +259,13 @@ class TestCrossrefThesis:
 
     def test_cached_result(self):
         entry = {"CanonicalLatin": "Test, User"}
-        cached = {"Crossref_Thesis": {"works": 1, "match": True, "source_id": "10.1234/thesis"}}
+        cached = {
+            "Crossref_Thesis": {
+                "works": 1,
+                "match": True,
+                "source_id": "10.1234/thesis",
+            }
+        }
         with tempfile.TemporaryDirectory() as tmpdir:
             with patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)):
                 ck = _cache_key("crossref_thesis", {"name": "Test, User"})

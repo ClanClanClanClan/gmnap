@@ -9,7 +9,6 @@ import pytest
 
 from src.quality.gates import QualityGateChecker, dice
 
-
 # ── Dice coefficient ─────────────────────────────────────────────────────
 
 
