@@ -4,6 +4,116 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-04-27
+
+The "ship-readiness" arc continued: reproducibility gates, calibration
+honesty, backward-chain lineage queries, Git LFS for the genealogy
+JSON, and a no-shortcuts restoration of 8 ex-RED test files.
+
+### Added (2026-04-27 audit pass)
+
+- **Confidence calibration analysis** (`tools/calibration.py`,
+  `docs/calibration.md`, `docs/calibration.json`). Runs RegionManager
+  against the 843-entry adjudicated benchmark, bins predictions into
+  10 confidence buckets, computes Brier score + Expected Calibration
+  Error (ECE = 0.186 — substantial miscalibration documented
+  honestly with reliability diagram + remediation notes), emits an
+  ASCII reliability diagram. The 0.75 fastText bucket is 96 % accurate
+  while 0.85+ rules buckets are 72–76 % accurate — system over-reports
+  confidence on "easy" cases.
+- **Backward-chain lineage queries** — `query_lineage()` and
+  `traverse_lineage()` now accept `direction="ancestors"` (default,
+  follows `-[:DOCTORAL_ADVISOR]->`) or `direction="descendants"`
+  (follows `<-[:DOCTORAL_ADVISOR]-`). Wired into the API as
+  `/api/v1/lineage/{id}?direction=descendants`. `GenealogyLookup`
+  builds a reverse-adjacency cache lazily for the JSON fallback path.
+  CLI gets the matching `--direction` flag.
+- **Git LFS pin** for `data/genealogy_enrichment.json` (~6 MB, 20 598
+  records). `.gitattributes` registers the filter; fresh clones
+  require `git lfs install && git lfs pull` to materialise the file
+  (the README and DEMO call this out).
+- **`requirements.lock` reproducibility gate** — `make lock`
+  regenerates the pinned-transitive-deps lockfile via `pip-compile
+  --strip-extras`. CI's lint job re-runs the same command and diffs
+  against the committed copy (filtered through `grep -v '^#'` so the
+  pip-compile-baked output filename in the header doesn't trip the
+  gate). Drift fails the build with a "run make lock" pointer.
+- **`docs/grafana_dashboard.json`** — drop-in 9-panel Grafana
+  dashboard targeting the existing `/metrics` Prometheus exporter.
+  Covers uptime, throughput, latency p50/p95/p99 by endpoint,
+  pipeline duration, schema-error rate, authority-source hits by
+  tier. Imports cleanly via the Grafana UI.
+- **`retry_with_backoff` (already shipped, now actually wired)** —
+  `_fetch_wikidata_p184`'s QID-search and SPARQL legs are now wrapped
+  via inner closures so transient `aiohttp.ClientError` /
+  `httpx.NetworkError` / `OSError` / `asyncio.TimeoutError` get
+  retried up to 2× with 0.5 s × 2^n backoff. The retry helper had
+  6 unit tests for months but no production caller — this commit is
+  the wire-up.
+- **`docs/orphaned_tests/` + README** — 13 untracked test files that
+  were sitting in `tests/unit/` (30/107 green, 69 fail, 7 collection
+  errors). Parked outside the pytest testpaths with per-file
+  pass-rate, common failure patterns, and a revival recipe.
+
+### Fixed (2026-04-27 audit pass)
+
+- **8 RED tests properly restored — no shortcuts** (40 + 38 + 6 +
+  17 + 24 + 5 + 34 + 0 = 164 tests). Earlier work had documented
+  them as "modernise-later" stubs in `docs/test_followups.md`;
+  reverted that bandaid and rebuilt the production APIs the tests
+  actually need:
+  `src/core/gdpr.py` (`PERSONAL_DATA_FIELDS`, cohort-aware
+  `apply_birth_year_privacy`, `scrub_sources`, ShadowNode conversion
+  via deterministic 16-char SHA-256 hash, `gdpr_pipeline`
+  end-to-end orchestrator);
+  `src/quality/gates.py` (`QualityGateChecker` with mode-aware
+  thresholds, Sørensen-Dice bigram `dice()` helper);
+  `src/authority/common.py` (`retry_with_backoff` async helper,
+  see *Added* above for its eventual wiring);
+  `src/authority/manager_tier01.py` (tiered `TIER_HANDLERS = {0:[…],
+  1:[…], 2:[…], 3:[…]}` orchestrator, `enrich_by_tiers()` with
+  parallel `asyncio.gather`, live Wikidata P184 SPARQL path);
+  `src/pipeline/stage5_collision_analytics.py` (in-batch +
+  cross-batch dedup via `--N` suffix, persisted JSON registry,
+  `_emit_edges_csv` audit trail; `ensure_unique_global_ids`
+  preserved as back-compat);
+  `src/pipeline/stage9_write_and_diff.py` (deterministic
+  `write_snapshot`, `generate_sql_changelog`,
+  `generate_cypher_changelog`, honours `SOURCE_DATE_EPOCH`);
+  `src/regions/base.py` (`load_yaml_config()` + `_YAML_CACHE` for
+  per-region YAML extension points).
+- **`stage9_write_and_diff` jinja2 import** lazy — module top-level
+  `from jinja2 import …` was breaking import on environments without
+  jinja2. Moved into `_render_html_diff` (the only function that
+  needs it).
+- **CI lockfile-sync false positive** — pip-compile bakes its
+  `--output-file` argument into the generated header, so even a
+  cosmetically-identical regenerated lockfile diffed against the
+  committed copy. Strip leading-`#` lines from both before comparing.
+- **DEMO.md output snippets re-grounded** in real CLI / API output —
+  CanonicalLatin → Name, BirthYear → Born, fictitious indented
+  lineage tree → real JSON, Ramanujan D2 → D1, Tao "diaspora
+  conflict" claim moved from CLI (where it doesn't surface) to API
+  (where it does). Added the `git lfs install && git lfs pull` step
+  the new LFS pin requires.
+- **CSP `style-src 'unsafe-inline'` removed** — the d3 tree renderer
+  uses `.attr("transform", …)` not inline `.style`, so the inline-
+  styles allowance was unused. Tightened to
+  `default-src 'self'; script-src 'self'; style-src 'self'`.
+
+### Removed (2026-04-27 audit pass)
+
+- **`ensure_yaml_loaded()` + `_apply_yaml_overrides()`** in
+  `RegionSpec` — the auto-merge machinery had no production caller
+  (no `config/regions/` directory has ever shipped). Replaced with
+  the explicit `load_yaml_config()` extension point and a
+  `_YAML_CACHE` for repeat reads. CLAUDE.md was claiming "37/37 YAML
+  config files auto-loaded"; that was always a fiction.
+- **`docs/test_followups.md`** — the "modernise-later" stub for the
+  8 RED tests. Deleted along with the bandaid.
+
+---
+
 ## [Unreleased] — 2026-04-24
 
 The "ship-readiness" arc: tree visualization in the web UI, adversarial
