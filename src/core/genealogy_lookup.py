@@ -303,20 +303,36 @@ class GenealogyLookup:
                 entry[field] = record[field]
         return entry
 
-    def traverse_lineage(self, start: str, depth: int) -> List[Dict[str, str]]:
+    def traverse_lineage(
+        self,
+        start: str,
+        depth: int,
+        direction: str = "ancestors",
+    ) -> List[Dict[str, str]]:
         """Build advisor edges starting from `start` (GlobalID or name).
 
         Returns a list of ``{from, to, relation}`` edges. Each hop
         represents a 'doctoralAdvisor' relation. Stops at ``depth``
-        levels, or when a node has no advisors, or when a cycle would
-        form.
+        levels, or when a node has no neighbours in the requested
+        direction, or when a cycle would form.
 
         Edge endpoints are the canonical display names of each person
         (e.g. ``"Bernoulli, Johann"``) rather than opaque internal
         GlobalIDs — the web UI renders these verbatim. The root uses
         the caller's input, stripped of any ``name:`` prefix, so the
         response's ``root`` field matches the query.
+
+        ``direction``:
+          - ``"ancestors"`` (default): walks each node's ``Advisors``
+            list — the doctoral chain back through time.
+          - ``"descendants"``: walks the inverse — every record in the
+            enrichment whose own ``Advisors`` list points back at the
+            current node — i.e. that person's known students.
         """
+        if direction not in ("ancestors", "descendants"):
+            raise ValueError(
+                f"direction must be 'ancestors' or 'descendants', got {direction!r}"
+            )
         edges: List[Dict[str, str]] = []
         visited: set[str] = set()
         root_key = self._resolve(start)
@@ -330,28 +346,80 @@ class GenealogyLookup:
             root_record = self._by_name[root_key]
             root_label = root_record.get("CanonicalLatin") or root_label
 
+        # Build the reverse adjacency lazily — only for the descendants
+        # path (ancestors uses the forward Advisors list directly).
+        children_of = self._children_index() if direction == "descendants" else None
+
         queue: List[tuple[str, str, int]] = [(root_key, root_label, depth)]
         while queue:
             key, from_label, remaining = queue.pop(0)
             if remaining <= 0 or key in visited:
                 continue
             visited.add(key)
-            record = self._by_name.get(key)
-            if not record:
-                continue
+
+            if direction == "ancestors":
+                record = self._by_name.get(key)
+                if not record:
+                    continue
+                neighbours: list[tuple[str, str]] = []
+                for adv in record.get("Advisors", []) or []:
+                    adv_name = adv.get("name") if isinstance(adv, dict) else adv
+                    if not adv_name:
+                        continue
+                    nk = _normalize_key(adv_name)
+                    nrec = self._by_name.get(nk, {})
+                    nlabel = nrec.get("CanonicalLatin") or adv_name
+                    neighbours.append((nk, nlabel))
+                # Edge: child → advisor
+                for nk, nlabel in neighbours:
+                    edges.append(
+                        {
+                            "from": from_label,
+                            "to": nlabel,
+                            "relation": "doctoralAdvisor",
+                        }
+                    )
+                    if nk in self._by_name:
+                        queue.append((nk, nlabel, remaining - 1))
+            else:  # descendants
+                # `children_of[key]` is the list of (student_key,
+                # student_label) tuples whose Advisors list pointed at
+                # the current node.
+                students = (children_of or {}).get(key, [])
+                for sk, slabel in students:
+                    # Edge: advisor → student (still doctoralAdvisor:
+                    # the advisor advised the student).
+                    edges.append(
+                        {
+                            "from": from_label,
+                            "to": slabel,
+                            "relation": "doctoralAdvisor",
+                        }
+                    )
+                    if sk not in visited:
+                        queue.append((sk, slabel, remaining - 1))
+        return edges
+
+    def _children_index(self) -> Dict[str, List[tuple[str, str]]]:
+        """Lazy reverse-adjacency: parent_key → [(child_key, child_label), …].
+
+        Built once on first access and cached on the singleton. Walks
+        every record's ``Advisors`` list and emits an entry per back-
+        reference. Cost: O(n × avg_advisors); on the 20 k-entry
+        enrichment file it completes in well under a second on M1.
+        """
+        if getattr(self, "_children_cache", None) is not None:
+            return self._children_cache  # type: ignore[return-value]
+        cache: Dict[str, List[tuple[str, str]]] = {}
+        for child_key, record in self._by_name.items():
+            child_label = record.get("CanonicalLatin") or child_key
             for adv in record.get("Advisors", []) or []:
                 adv_name = adv.get("name") if isinstance(adv, dict) else adv
                 if not adv_name:
                     continue
-                adv_key = _normalize_key(adv_name)
-                # Prefer the stored canonical casing over the inbound string
-                # (advisor name is sometimes a short form while the stored
-                # record has the full one).
-                adv_record = self._by_name.get(adv_key, {})
-                adv_label = adv_record.get("CanonicalLatin") or adv_name
-                edges.append(
-                    {"from": from_label, "to": adv_label, "relation": "doctoralAdvisor"}
-                )
-                if adv_key in self._by_name:
-                    queue.append((adv_key, adv_label, remaining - 1))
-        return edges
+                parent_key = _normalize_key(adv_name)
+                if not parent_key:
+                    continue
+                cache.setdefault(parent_key, []).append((child_key, child_label))
+        self._children_cache = cache  # type: ignore[attr-defined]
+        return cache

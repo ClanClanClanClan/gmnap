@@ -20,6 +20,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from src.genealogy.query import (
     _fold_particles,
     _normalize_key,
@@ -82,7 +84,12 @@ class TestDriverFailurePath:
         # driver session.
         with patch("src.genealogy.query._driver") as d:
             result = query_lineage("Euler, Leonhard", depth=0)
-            assert result == {"root": "Euler, Leonhard", "depth": 0, "edges": []}
+            assert result == {
+                "root": "Euler, Leonhard",
+                "depth": 0,
+                "direction": "ancestors",
+                "edges": [],
+            }
             d.assert_not_called()
 
 
@@ -143,7 +150,12 @@ class TestQueryLineage:
         drv, session = _mock_driver_returning("", [])
         with patch("src.genealogy.query._driver", return_value=drv):
             r = query_lineage("Nobody, Unknown", depth=3)
-        assert r == {"root": "Nobody, Unknown", "depth": 3, "edges": []}
+        assert r == {
+            "root": "Nobody, Unknown",
+            "depth": 3,
+            "direction": "ancestors",
+            "edges": [],
+        }
         # Verify the root-lookup query actually ran, and no traversal
         # query followed (early-return short-circuit).
         assert (
@@ -175,6 +187,21 @@ class TestQueryLineage:
             query_lineage("Euler, Leonhard", depth=1)
         traversal_cypher = session.run.call_args_list[1].args[0]
         assert "*1..1" in traversal_cypher
+
+    def test_descendants_inverts_cypher_arrow(self):
+        """direction='descendants' must produce `<-[:DOCTORAL_ADVISOR…]-`
+        in the traversal Cypher (not `-[:…]->`). Inspect the actual
+        Cypher passed to session.run."""
+        drv, session = _mock_driver_returning("Bernoulli, Johann", [])
+        with patch("src.genealogy.query._driver", return_value=drv):
+            query_lineage("Bernoulli, Johann", depth=3, direction="descendants")
+        traversal_cypher = session.run.call_args_list[1].args[0]
+        assert "<-[:DOCTORAL_ADVISOR*1..3]-" in traversal_cypher
+        assert "-[:DOCTORAL_ADVISOR*1..3]->" not in traversal_cypher
+
+    def test_invalid_direction_raises(self):
+        with pytest.raises(ValueError):
+            query_lineage("Euler, Leonhard", depth=1, direction="sideways")
 
     def test_skips_rows_missing_fields(self):
         drv, _ = _mock_driver_returning(

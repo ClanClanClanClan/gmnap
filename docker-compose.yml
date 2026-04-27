@@ -3,7 +3,10 @@ version: '3.8'
 services:
   # Memgraph graph database for academic genealogy
   memgraph:
-    image: memgraph/memgraph-platform:2.12
+    # memgraph-platform compound tags include both the DB and Memgraph
+    # Lab in one image (Lab is exposed on port 3000 below). The plain
+    # "2.12" tag never existed on Docker Hub; use the compound form.
+    image: memgraph/memgraph-platform:2.14.1-memgraph2.14.1-lab2.11.1
     container_name: gmnap_memgraph
     ports:
       - "7687:7687"  # Bolt protocol
