@@ -58,17 +58,36 @@ def canonical_query_key(obj: Dict[str, Any]) -> str:
 # Errors we treat as transient — worth backing off and retrying.
 # Anything else (ValueError, KeyError, application-level exceptions)
 # raises immediately so a real bug isn't masked by 3 silent retries.
+#
+# Both httpx and aiohttp are in use in the codebase (httpx for the
+# adapter shims under ``src/authority/*_adapter.py``; aiohttp for the
+# genealogy connectors and the inline Wikidata SPARQL call in
+# ``manager_tier01._fetch_wikidata_p184``). We pick up whichever
+# exception classes are importable so a single retry helper covers
+# both stacks.
 def _transient_excs() -> tuple:
-    if httpx is None:
-        return (asyncio.TimeoutError, OSError)
-    return (
-        httpx.TimeoutException,
-        httpx.ConnectError,
-        httpx.ReadError,
-        httpx.RemoteProtocolError,
-        asyncio.TimeoutError,
-        OSError,
-    )
+    excs: list = [asyncio.TimeoutError, OSError]
+    if httpx is not None:
+        excs.extend(
+            [
+                httpx.TimeoutException,
+                httpx.ConnectError,
+                httpx.ReadError,
+                httpx.RemoteProtocolError,
+            ]
+        )
+    try:
+        import aiohttp  # type: ignore
+
+        # ClientError is the base class for *all* aiohttp client-side
+        # failures (connection drop, DNS, server disconnect, payload
+        # decode). It does NOT cover ServerDisconnectedError exception
+        # paths that surface as RuntimeError, so we add asyncio's
+        # TimeoutError above as belt-and-braces.
+        excs.append(aiohttp.ClientError)
+    except ImportError:
+        pass
+    return tuple(excs)
 
 
 async def retry_with_backoff(

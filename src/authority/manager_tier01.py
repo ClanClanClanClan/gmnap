@@ -140,28 +140,36 @@ async def _fetch_wikidata_p184(entry: Dict) -> Dict:
     if OFFLINE:
         return {"Wikidata_P184": {"hit": False, "edges": []}}
     # Live path: search for the QID, then run the SPARQL doctoral-
-    # advisor query. Network errors propagate to the caller's
-    # retry_with_backoff (handled in src/authority/common.py).
+    # advisor query. Both legs are wrapped in retry_with_backoff
+    # because Wikidata's public endpoint regularly throws transient
+    # 503s under load (typically resolved on the next attempt) — a
+    # naive single-shot would poison entire batches of enrichment.
     try:
         import aiohttp  # type: ignore
     except ImportError:
         return {"Wikidata_P184": {"hit": False, "reason": "no_aiohttp", "edges": []}}
+
+    from .common import retry_with_backoff
 
     async with aiohttp.ClientSession() as session:
         search_url = (
             "https://www.wikidata.org/w/api.php?"
             "action=wbsearchentities&format=json&language=en&search=" + name
         )
-        async with session.get(search_url) as resp:
-            if resp.status != 200:
-                return {
-                    "Wikidata_P184": {
-                        "hit": False,
-                        "reason": "search_http_error",
-                        "edges": [],
-                    }
+
+        async def _do_search():
+            async with session.get(search_url) as resp:
+                return resp.status, (await resp.json() if resp.status == 200 else None)
+
+        status, sd = await retry_with_backoff(_do_search, max_retries=2, base_delay=0.5)
+        if status != 200 or sd is None:
+            return {
+                "Wikidata_P184": {
+                    "hit": False,
+                    "reason": "search_http_error",
+                    "edges": [],
                 }
-            sd = await resp.json()
+            }
         hits = sd.get("search") or []
         if not hits:
             result = {"Wikidata_P184": {"hit": False, "edges": []}}
@@ -175,17 +183,21 @@ async def _fetch_wikidata_p184(entry: Dict) -> Dict:
             'SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } }'
         )
         sparql_url = "https://query.wikidata.org/sparql?format=json&query=" + sparql
-        async with session.get(sparql_url) as resp:
-            if resp.status != 200:
-                return {
-                    "Wikidata_P184": {
-                        "hit": False,
-                        "reason": "sparql_http_error",
-                        "wikidata_id": qid,
-                        "edges": [],
-                    }
+
+        async def _do_sparql():
+            async with session.get(sparql_url) as resp:
+                return resp.status, (await resp.json() if resp.status == 200 else None)
+
+        status, qd = await retry_with_backoff(_do_sparql, max_retries=2, base_delay=0.5)
+        if status != 200 or qd is None:
+            return {
+                "Wikidata_P184": {
+                    "hit": False,
+                    "reason": "sparql_http_error",
+                    "wikidata_id": qid,
+                    "edges": [],
                 }
-            qd = await resp.json()
+            }
 
     edges = []
     for binding in (qd.get("results") or {}).get("bindings", []):
