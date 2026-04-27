@@ -173,14 +173,29 @@ def query_lineage(
     bolt_uri: Optional[str] = None,
     user: Optional[str] = None,
     password: Optional[str] = None,
+    direction: str = "ancestors",
 ) -> Optional[Dict[str, Any]]:
-    """Query the graph store for up to `depth` advisor hops from `start`.
+    """Query the graph store for up to ``depth`` advisor hops from
+    ``start``.
+
+    ``direction``:
+      - ``"ancestors"`` (default) — follow ``-[:DOCTORAL_ADVISOR]->`` to
+        the queried person's advisors, advisor's advisors, etc.
+        Edges are emitted as ``{from: child, to: advisor}``.
+      - ``"descendants"`` — follow ``<-[:DOCTORAL_ADVISOR]-`` to the
+        queried person's students, students' students, etc. Edges are
+        emitted as ``{from: advisor, to: student}`` so the chain still
+        reads top-down.
 
     Returns a serialisable dict or ``None`` if the store can't be
     reached / the driver isn't installed.
     """
     if depth <= 0:
-        return {"root": start, "depth": depth, "edges": []}
+        return {"root": start, "depth": depth, "edges": [], "direction": direction}
+    if direction not in ("ancestors", "descendants"):
+        raise ValueError(
+            f"direction must be 'ancestors' or 'descendants', got {direction!r}"
+        )
     bolt_uri = bolt_uri or os.getenv("MEMGRAPH_BOLT", "bolt://localhost:7687")
     user = user if user is not None else os.getenv("MEMGRAPH_USER", "")
     password = password if password is not None else os.getenv("MEMGRAPH_PASSWORD", "")
@@ -193,15 +208,23 @@ def query_lineage(
     # key OR by global_id. If either matches, traverse.
     raw = start[5:] if start.startswith("name:") else start
     key = _normalize_key(raw)
-    cypher = """
+    # Variable-length pattern direction is set by which side of the
+    # relationship the arrow lives on. Cypher injection is impossible
+    # because `direction` is validated against a hard allowlist above.
+    arrow = (
+        "-[:DOCTORAL_ADVISOR*1..%d]->"
+        if direction == "ancestors"
+        else "<-[:DOCTORAL_ADVISOR*1..%d]-"
+    ) % int(max(1, min(depth, 10)))
+    cypher = f"""
         MATCH (p:Person)
         WHERE p.key = $key OR p.global_id = $gid OR p.name = $raw
         WITH p LIMIT 1
-        MATCH path = (p)-[:DOCTORAL_ADVISOR*1..%d]->(a:Person)
+        MATCH path = (p){arrow}(a:Person)
         UNWIND relationships(path) AS r
         WITH DISTINCT startNode(r) AS src, endNode(r) AS dst
         RETURN src.name AS from_name, dst.name AS to_name
-    """ % int(max(1, min(depth, 10)))
+    """
 
     edges: List[Dict[str, str]] = []
     root_name = raw
@@ -220,7 +243,12 @@ def query_lineage(
                 # Root not found — return shape matches "reachable store,
                 # no such person" so the server handler can distinguish
                 # it from "store unreachable" (None).
-                return {"root": start, "depth": depth, "edges": []}
+                return {
+                    "root": start,
+                    "depth": depth,
+                    "direction": direction,
+                    "edges": [],
+                }
             root_name = root_row["name"] or raw
 
             result = session.run(cypher, key=key, gid=raw, raw=raw)
@@ -240,7 +268,13 @@ def query_lineage(
         except Exception:
             pass
 
-    return {"root": start, "root_name": root_name, "depth": depth, "edges": edges}
+    return {
+        "root": start,
+        "root_name": root_name,
+        "depth": depth,
+        "direction": direction,
+        "edges": edges,
+    }
 
 
 def lineage_to_dot(result: Dict[str, Any]) -> str:

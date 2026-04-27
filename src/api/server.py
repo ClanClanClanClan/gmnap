@@ -397,9 +397,21 @@ def create_app() -> FastAPI:
     async def get_lineage(
         global_id: str,
         depth: int = Query(3, ge=1, le=10),
+        direction: str = Query(
+            "ancestors",
+            pattern="^(ancestors|descendants)$",
+            description="ancestors = walk up the advisor chain; "
+            "descendants = walk down the student chain",
+        ),
         format: str = Query("json", description="Output format: json/dot/svg"),
     ):
-        """Query academic genealogy lineage for a GlobalID or name."""
+        """Query academic genealogy lineage for a GlobalID or name.
+
+        ``direction=ancestors`` (default) walks ``advisor-of-me``;
+        ``direction=descendants`` walks ``student-of-me`` so a query
+        for "Hilbert" returns his ~76 known students rather than his
+        2 advisors.
+        """
         bolt_uri = os.getenv("MEMGRAPH_BOLT", "bolt://localhost:7687")
         bolt_user = os.getenv("MEMGRAPH_USER", "")
         bolt_pass = os.getenv("MEMGRAPH_PASSWORD", "")
@@ -415,6 +427,7 @@ def create_app() -> FastAPI:
                 bolt_uri=bolt_uri,
                 user=bolt_user,
                 password=bolt_pass,
+                direction=direction,
             )
             # Accept the graph answer when Memgraph actually resolved
             # the root (``root_name`` is set by query_lineage only when
@@ -438,13 +451,24 @@ def create_app() -> FastAPI:
         except Exception as e:
             logger.debug(f"Memgraph lineage query failed: {e}")
 
-        # Fallback: local YAML files (from pipeline output)
+        # Fallback: local YAML files (from pipeline output).
+        # The YAML walker only knows ancestor edges, so skip this
+        # branch when the caller asked for descendants.
         try:
             from src.cli.gmnap import _query_lineage_graph
 
-            edges = _query_lineage_graph(global_id, depth)
+            edges = (
+                _query_lineage_graph(global_id, depth)
+                if direction == "ancestors"
+                else None
+            )
             if edges:
-                result = {"root": global_id, "depth": depth, "edges": edges}
+                result = {
+                    "root": global_id,
+                    "depth": depth,
+                    "direction": direction,
+                    "edges": edges,
+                }
                 if format == "dot":
                     from starlette.responses import PlainTextResponse
 
@@ -464,7 +488,9 @@ def create_app() -> FastAPI:
         try:
             from src.core.genealogy_lookup import GenealogyLookup
 
-            edges = GenealogyLookup().traverse_lineage(global_id, depth)
+            edges = GenealogyLookup().traverse_lineage(
+                global_id, depth, direction=direction
+            )
             if edges:
                 if format == "dot":
                     from starlette.responses import PlainTextResponse
@@ -475,7 +501,12 @@ def create_app() -> FastAPI:
                         _edges_to_dot(global_id, edges),
                         media_type="text/vnd.graphviz",
                     )
-                return {"root": global_id, "depth": depth, "edges": edges}
+                return {
+                    "root": global_id,
+                    "depth": depth,
+                    "direction": direction,
+                    "edges": edges,
+                }
         except Exception as e:
             logger.debug(f"Enrichment lineage failed: {e}")
 

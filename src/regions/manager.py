@@ -13,9 +13,24 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore", message=".*load_model does not return.*")
-    import fasttext
+# fasttext is an optional ML dependency: it OOMs in Docker compilation
+# (see requirements.txt) and is therefore intentionally absent in CI
+# and minimal-install environments. The newer `manager_optimized.py`
+# already wraps the import defensively; mirror that here so consumers
+# of the legacy `manager.py` (pipeline_v6, streaming_v7, the 5
+# fasttext-importing tests previously skipped from CI) collect
+# cleanly without it. Functions that need the model still call
+# `get_fasttext_model()` which returns None when the module is
+# missing, and callers degrade to rules-only detection.
+try:
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*load_model does not return.*")
+        import fasttext
+
+    FASTTEXT_AVAILABLE = True
+except ImportError:
+    fasttext = None  # type: ignore[assignment]
+    FASTTEXT_AVAILABLE = False
 
 from src.core.unicode_handler import UnicodeNormalizer
 
@@ -38,6 +53,12 @@ def get_fasttext_model(config_dir: Path = Path("./config")):
 
     if _fasttext_load_attempted:
         # Already tried and failed, don't try again
+        return None
+
+    # Module unavailable (CI / minimal install) — record the attempt
+    # and short-circuit so callers fall back to rules-only detection.
+    if not FASTTEXT_AVAILABLE:
+        _fasttext_load_attempted = True
         return None
 
     _fasttext_load_attempted = True

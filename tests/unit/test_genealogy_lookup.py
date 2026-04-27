@@ -176,3 +176,34 @@ class TestTraverseLineageContract:
         edges = lookup.traverse_lineage("Euler, Leonhard", depth=1)
         assert edges
         assert edges[0]["from"] == "Euler, Leonhard"
+
+    def test_descendants_direction_returns_students(self, lookup):
+        """Bernoulli, Johann is the recorded advisor of Euler, Leonhard
+        in the curated MGP seed. A descendants query for "Bernoulli,
+        Johann" should therefore include the back-edge to Euler.
+        """
+        edges = lookup.traverse_lineage(
+            "name:Bernoulli, Johann", depth=1, direction="descendants"
+        )
+        assert edges, "Bernoulli, Johann must have at least one student"
+        # Edge orientation in descendants: from = advisor, to = student
+        pairs = {(e["from"], e["to"]) for e in edges}
+        assert (
+            "Bernoulli, Johann",
+            "Euler, Leonhard",
+        ) in pairs, f"expected back-edge to Euler, got {pairs}"
+        # All edges should still use the doctoralAdvisor relation
+        for e in edges:
+            assert e["relation"] == "doctoralAdvisor"
+
+    def test_descendants_unknown_root(self, lookup):
+        edges = lookup.traverse_lineage(
+            "name:Zzxqvwn, Notreal", depth=2, direction="descendants"
+        )
+        assert edges == []
+
+    def test_invalid_direction_raises(self, lookup):
+        with pytest.raises(ValueError, match="ancestors|descendants"):
+            lookup.traverse_lineage(
+                "name:Euler, Leonhard", depth=1, direction="sideways"
+            )
