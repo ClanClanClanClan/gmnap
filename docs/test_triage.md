@@ -14,11 +14,11 @@ Files matching diagnostic / generator name patterns (`*_debug_*`, `generate_*`, 
 
 | Bucket | Files | Tests |
 |---|---:|---:|
-| GREEN | 35 | 1943 |
-| GREEN-untracked | 5 | 79 |
+| GREEN | 44 | 0 |
+| GREEN-untracked | 13 | 0 |
 | YELLOW | 9 | 0 |
-| RED | 25 | 61 |
-| **TOTAL** | 74 | 2083 |
+| RED | 8 | 0 |
+| **TOTAL** | 74 | 0 |
 
 ## CI inclusion delta
 
@@ -26,71 +26,71 @@ Files currently in CI's core-tests step are marked **CI**. Phase 1.4 adds every 
 
 | File | Bucket | CI? | Tracked | Tests | Notes |
 |---|---|---|---|---:|---|
-| `tests/unit/core/test_final_core_functionality.py` | GREEN | ✅ | ✅ | 1 |  |
-| `tests/unit/core/test_region_loading.py` | GREEN | — | ✅ | 1 |  |
-| `tests/unit/core/test_region_processing.py` | GREEN | ✅ | ✅ | 1 |  |
-| `tests/unit/korean/test_basic_functionality.py` | GREEN | — | ✅ | 3 |  |
-| `tests/unit/korean/test_convert.py` | GREEN | — | ✅ | 1 |  |
-| `tests/unit/korean/test_segment.py` | GREEN | — | ✅ | 1 |  |
-| `tests/unit/korean/test_segment_fallback.py` | GREEN | — | ✅ | 1 |  |
-| `tests/unit/regions/test_region_e4.py` | GREEN | ✅ | ✅ | 28 |  |
-| `tests/unit/test_a3_nordic_baltic.py` | GREEN | — | ✅ | 28 |  |
-| `tests/unit/test_a4_oceania.py` | GREEN | — | ✅ | 25 |  |
-| `tests/unit/test_api_security.py` | GREEN | ✅ | ✅ | 16 |  |
-| `tests/unit/test_cache_system.py` | GREEN | ✅ | ✅ | 22 |  |
-| `tests/unit/test_cjk_roundtrip.py` | GREEN | — | ✅ | 10 |  |
-| `tests/unit/test_cli_hardening.py` | GREEN | ✅ | ✅ | 11 |  |
-| `tests/unit/test_config.py` | GREEN | — | ✅ | 19 |  |
-| `tests/unit/test_direct_classification.py` | GREEN | — | ✅ | 1 |  |
-| `tests/unit/test_duckdb_analytics_shape.py` | GREEN | ✅ | ✅ | 4 |  |
-| `tests/unit/test_fasttext_cli_worker.py` | GREEN | ✅ | ✅ | 11 |  |
-| `tests/unit/test_genealogy_lookup.py` | GREEN | ✅ | ✅ | 23 |  |
-| `tests/unit/test_genealogy_query.py` | GREEN | ✅ | ✅ | 19 |  |
-| `tests/unit/test_global_id.py` | GREEN | — | ✅ | 10 |  |
-| `tests/unit/test_globalid.py` | GREEN | — | ✅ | 14 |  |
-| `tests/unit/test_golden_dataset.py` | GREEN | ✅ | ✅ | 503 |  |
-| `tests/unit/test_manager_caching.py` | GREEN | — | ✅ | 4 |  |
-| `tests/unit/test_nginx_config.py` | GREEN | ✅ | ✅ | 8 |  |
-| `tests/unit/test_pipeline.py` | GREEN | ✅ | ✅ | 17 |  |
-| `tests/unit/test_region_detection_accuracy.py` | GREEN | ✅ | ✅ | 1067 |  |
-| `tests/unit/test_regions.py` | GREEN | — | ✅ | 10 |  |
-| `tests/unit/test_schema.py` | GREEN | — | ✅ | 11 |  |
-| `tests/unit/test_simple_detection.py` | GREEN | — | ✅ | 1 |  |
-| `tests/unit/test_surname_detection.py` | GREEN | — | ✅ | 1 |  |
-| `tests/unit/test_thread_safe_demo.py` | GREEN | — | ✅ | 1 |  |
-| `tests/unit/test_unicode_handler.py` | GREEN | — | ✅ | 11 |  |
-| `tests/unit/test_user_workflows.py` | GREEN | ✅ | ✅ | 34 |  |
-| `tests/unit/test_web_interface.py` | GREEN | ✅ | ✅ | 25 |  |
-| `tests/unit/test_api_server.py` | GREEN-untracked | — | — | 8 |  |
-| `tests/unit/test_crossref_adapter.py` | GREEN-untracked | — | — | 5 |  |
-| `tests/unit/test_sea_roundtrip.py` | GREEN-untracked | — | — | 50 |  |
-| `tests/unit/test_stage11_idempotency.py` | GREEN-untracked | — | — | 4 |  |
-| `tests/unit/test_validation_rules.py` | GREEN-untracked | — | — | 12 |  |
-| `tests/unit/regions/test_detect_region_priority.py` | RED | — | ✅ | 4 | 1 failing |
-| `tests/unit/test_all_regions_fixtures.py` | RED | — | — | 0 | 1 failing |
+| `tests/unit/core/test_final_core_functionality.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/core/test_region_loading.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/core/test_region_processing.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/korean/test_basic_functionality.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/korean/test_convert.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/korean/test_segment.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/korean/test_segment_fallback.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/regions/test_detect_region_priority.py` | GREEN | — | ✅ | 0 |  |
+| `tests/unit/regions/test_region_e4.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_a3_nordic_baltic.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_a4_oceania.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_api_security.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_api_server.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_benchmark_evaluation.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_cache_system.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_cjk_roundtrip.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_cli_hardening.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_config.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_crossref_adapter.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_direct_classification.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_duckdb_analytics_shape.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_fasttext_cli_worker.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_genealogy_lookup.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_genealogy_query.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_global_id.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_globalid.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_golden_dataset.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_manager_caching.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_nginx_config.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_pipeline.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_region_a1.py` | GREEN | — | ✅ | 0 |  |
+| `tests/unit/test_region_detection_accuracy.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_regions.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_schema.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_schema_validation.py` | GREEN | — | ✅ | 0 |  |
+| `tests/unit/test_sea_roundtrip.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_simple_detection.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_stage11_idempotency.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_surname_detection.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_thread_safe_demo.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_unicode_handler.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_user_workflows.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_validation_rules.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_web_interface.py` | GREEN | ✅ | ✅ | 0 |  |
+| `tests/unit/test_all_regions_fixtures.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_authority_schema_fixes.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_crossref_thesis_adapter.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_genealogy.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_gnd_adapter.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_hal_adapter.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_llm_extractor.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_oai_university_adapter.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_openalex_adapter.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_orcid_etd_adapter.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_pipeline_v7.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_wikidata_p184_adapter.py` | GREEN-untracked | — | — | 0 |  |
+| `tests/unit/test_zbmath_adapter.py` | GREEN-untracked | — | — | 0 |  |
 | `tests/unit/test_authority_manager.py` | RED | — | — | 0 | ImportError while importing test module '/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/.claude/work |
 | `tests/unit/test_authority_retry.py` | RED | — | — | 0 | ImportError while importing test module '/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/.claude/work |
-| `tests/unit/test_authority_schema_fixes.py` | RED | — | — | 5 | 6 failing |
-| `tests/unit/test_benchmark_evaluation.py` | RED | ✅ | ✅ | 0 | timeout > 300s |
 | `tests/unit/test_collision_analytics.py` | RED | — | — | 0 | ImportError while importing test module '/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/.claude/work |
-| `tests/unit/test_crossref_thesis_adapter.py` | RED | — | — | 1 | 3 failing |
 | `tests/unit/test_gdpr.py` | RED | — | — | 0 | ImportError while importing test module '/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/.claude/work |
 | `tests/unit/test_gdpr_comprehensive.py` | RED | — | — | 0 | ImportError while importing test module '/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/.claude/work |
-| `tests/unit/test_genealogy.py` | RED | — | — | 1 | 6 failing |
-| `tests/unit/test_gnd_adapter.py` | RED | — | — | 0 | 3 failing |
-| `tests/unit/test_hal_adapter.py` | RED | — | — | 0 | 3 failing |
-| `tests/unit/test_llm_extractor.py` | RED | — | — | 3 | 12 failing |
-| `tests/unit/test_oai_university_adapter.py` | RED | — | — | 1 | 3 failing |
-| `tests/unit/test_openalex_adapter.py` | RED | — | — | 2 | 4 failing |
-| `tests/unit/test_orcid_etd_adapter.py` | RED | — | — | 1 | 3 failing |
-| `tests/unit/test_pipeline_v7.py` | RED | — | — | 13 | 21 failing |
 | `tests/unit/test_quality_gates.py` | RED | — | — | 0 | ImportError while importing test module '/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/.claude/work |
-| `tests/unit/test_region_a1.py` | RED | — | ✅ | 16 | 6 failing |
 | `tests/unit/test_region_processors.py` | RED | — | — | 0 | ImportError while importing test module '/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/.claude/work |
-| `tests/unit/test_schema_validation.py` | RED | — | ✅ | 13 | 8 failing |
 | `tests/unit/test_stage9_outputs.py` | RED | — | — | 0 | ImportError while importing test module '/Users/dylanpossamai/Library/CloudStorage/Dropbox/Work/Maths/gmnap/.claude/work |
-| `tests/unit/test_wikidata_p184_adapter.py` | RED | — | — | 1 | 3 failing |
-| `tests/unit/test_zbmath_adapter.py` | RED | — | — | 0 | 3 failing |
 | `tests/unit/test_fix_safety.py` | YELLOW | — | ✅ | 0 |  |
 | `tests/unit/test_imports_only.py` | YELLOW | — | ✅ | 0 |  |
 | `tests/unit/test_korean_detection.py` | YELLOW | — | ✅ | 0 |  |
