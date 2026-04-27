@@ -5,11 +5,10 @@ from __future__ import annotations
 import json
 import pathlib
 
-
 from src.pipeline.stage9_write_and_diff import (
-    write_snapshot,
-    generate_sql_changelog,
     generate_cypher_changelog,
+    generate_sql_changelog,
+    write_snapshot,
 )
 
 
@@ -92,7 +91,9 @@ class TestChangelogs:
             out_path=str(tmp_path / "changelog.sql"),
         )
         sql_content = pathlib.Path(sql_path).read_text(encoding="utf-8")
-        assert "INSERT" in sql_content, f"Expected INSERT in SQL changelog:\n{sql_content}"
+        assert (
+            "INSERT" in sql_content
+        ), f"Expected INSERT in SQL changelog:\n{sql_content}"
 
     def test_cypher_changelog_produces_merges(self, tmp_path, monkeypatch):
         """Cypher changelog for new entries contains MERGE statements."""
@@ -108,4 +109,6 @@ class TestChangelogs:
             out_path=str(tmp_path / "changelog.cypher"),
         )
         cypher_content = pathlib.Path(cypher_path).read_text(encoding="utf-8")
-        assert "MERGE" in cypher_content, f"Expected MERGE in Cypher changelog:\n{cypher_content}"
+        assert (
+            "MERGE" in cypher_content
+        ), f"Expected MERGE in Cypher changelog:\n{cypher_content}"

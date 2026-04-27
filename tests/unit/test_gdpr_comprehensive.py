@@ -7,15 +7,14 @@ source scrubbing, ShadowNode conversion, and the end-to-end gdpr_pipeline.
 import pytest
 
 from src.core.gdpr import (
-    mark_gdpr_fields,
+    MIN_COHORT_SIZE,
+    PERSONAL_DATA_FIELDS,
     apply_birth_year_privacy,
-    scrub_sources,
     apply_drop_personal,
     gdpr_pipeline,
-    PERSONAL_DATA_FIELDS,
-    MIN_COHORT_SIZE,
+    mark_gdpr_fields,
+    scrub_sources,
 )
-
 
 # ---------------------------------------------------------------------------
 # mark_gdpr_fields
@@ -97,10 +96,12 @@ class TestBirthYearPrivacy:
     def test_mixed_cohorts(self):
         """Different regions should have independent cohort counts."""
         small = [
-            {"CanonicalLatin": f"S{i}", "BirthYear": 1980, "DetectedRegion": "A1"} for i in range(2)
+            {"CanonicalLatin": f"S{i}", "BirthYear": 1980, "DetectedRegion": "A1"}
+            for i in range(2)
         ]
         large = [
-            {"CanonicalLatin": f"L{i}", "BirthYear": 1980, "DetectedRegion": "B2"} for i in range(6)
+            {"CanonicalLatin": f"L{i}", "BirthYear": 1980, "DetectedRegion": "B2"}
+            for i in range(6)
         ]
         result = apply_birth_year_privacy(small + large)
         # A1 cohort (size 2) should be masked
