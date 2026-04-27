@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -39,11 +41,25 @@ jobs:
       - name: yamllint
         run: yamllint -d relaxed config/ docs/*.yaml 2>/dev/null || true
 
+      # Reproducibility gate: regenerate the lockfile and verify it
+      # matches what's committed. If a contributor edited
+      # requirements.txt without running `make lock`, this catches it.
+      - name: Lockfile in sync
+        run: |
+          pip install --quiet pip-tools==7.4.1
+          pip-compile --quiet --strip-extras --output-file=requirements.lock.ci requirements.txt
+          if ! diff -u requirements.lock requirements.lock.ci; then
+            echo "::error::requirements.lock is stale. Run 'make lock' and commit the result."
+            exit 1
+          fi
+
   test:
     runs-on: ubuntu-latest
     needs: lint
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -86,22 +102,30 @@ jobs:
           tests/unit/test_a3_nordic_baltic.py
           tests/unit/test_a4_oceania.py
           tests/unit/test_api_server.py
+          tests/unit/test_authority_manager.py
+          tests/unit/test_authority_retry.py
           tests/unit/test_benchmark_evaluation.py
           tests/unit/test_cjk_roundtrip.py
+          tests/unit/test_collision_analytics.py
           tests/unit/test_config.py
           tests/unit/test_crossref_adapter.py
           tests/unit/test_direct_classification.py
           tests/unit/test_duckdb_analytics_shape.py
           tests/unit/test_fasttext_cli_worker.py
+          tests/unit/test_gdpr.py
+          tests/unit/test_gdpr_comprehensive.py
           tests/unit/test_genealogy_lookup.py
           tests/unit/test_genealogy_query.py
           tests/unit/test_global_id.py
           tests/unit/test_globalid.py
           tests/unit/test_manager_caching.py
+          tests/unit/test_quality_gates.py
+          tests/unit/test_region_processors.py
           tests/unit/test_regions.py
           tests/unit/test_schema.py
           tests/unit/test_sea_roundtrip.py
           tests/unit/test_simple_detection.py
+          tests/unit/test_stage9_outputs.py
           tests/unit/test_stage11_idempotency.py
           tests/unit/test_surname_detection.py
           tests/unit/test_thread_safe_demo.py
@@ -163,6 +187,8 @@ jobs:
         # which is sufficient for our purposes.
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
       - name: Setup Python
         uses: actions/setup-python@v5
         with: { python-version: "3.12" }
@@ -202,6 +228,8 @@ jobs:
     needs: lint
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
       - name: Setup Python
         uses: actions/setup-python@v5
         with: { python-version: "3.12" }
@@ -232,6 +260,8 @@ jobs:
     needs: lint
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -273,6 +303,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          lfs: true
+        with:
           fetch-depth: 0
 
       - name: TruffleHog secret scan
@@ -284,6 +316,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Setup Python
         uses: actions/setup-python@v5

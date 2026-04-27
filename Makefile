@@ -1,6 +1,6 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help setup install-fasttext quick full extreme test lint update-sources clean audit browser-test
+.PHONY: help setup install-fasttext quick full extreme test lint update-sources clean audit browser-test lock
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
@@ -54,6 +54,13 @@ browser-test:
 	pip install -r requirements-dev.txt
 	playwright install --with-deps chromium
 	PYTHONPATH=. python3 tools/browser_smoke.py --headless
+
+# Regenerate the pinned-transitive-deps lockfile from requirements.txt.
+# Run after editing requirements.txt; commit both files together so a
+# fresh `pip install -r requirements.lock` reproduces the dependency
+# graph the CI ran against. Requires `pip install pip-tools`.
+lock:
+	pip-compile --strip-extras --output-file=requirements.lock requirements.txt
 
 # Code quality
 lint:
