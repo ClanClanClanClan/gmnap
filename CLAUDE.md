@@ -1,5 +1,5 @@
 # GMNAP v7 / MathLineage — Current Development Status
-*Last Updated: 2026-04-06*
+*Last Updated: 2026-04-27*
 
 ## 🎯 System State (Honest Assessment)
 
@@ -10,7 +10,7 @@
 **Performance**: ~3,000 entries/sec at 100K+ scale OFFLINE mode (measured); ~5.4 min/1M actual
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
 **Authority Enrichment**: 9 adapters with real HTTP calls; 2 gated behind API keys; 3 deferred
-**Region Config**: 37/37 YAML config files auto-loaded via lazy `ensure_yaml_loaded()` in base class
+**Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. The on-disk directory `config/regions/` is currently empty — every region falls back to its hardcoded defaults — so the loader is dormant in practice but tested and ready
 **API Server**: FastAPI server with 8 endpoints (/healthz, /readyz, /api/v1/query, /api/v1/lineage, /api/v1/process, /api/v1/suggest, /metrics, /)
 **CLI**: `serve` and `version` via `gmnap` entry point; full 7-command CLI in `src/cli/gmnap.py` (query, lineage, process, sources, regions, validate, serve) but NOT wired to the main entry point
 **Diaspora Detection**: Implemented — split geo_region vs name_region with conflict flag
@@ -90,9 +90,21 @@ All 8 V7 quality gates implemented with mode-specific thresholds.
 **CRITICAL**: `OFFLINE=1` is the default for tier 1+ sources. Set `OFFLINE=0` for full enrichment.
 Tier 0 sources (OpenAlex, Crossref, ORCID, Crossref_Thesis) call APIs directly.
 
-### YAML Config: All 37 Regions Auto-Loaded
-37/37 YAML config files exist and are auto-loaded via lazy `ensure_yaml_loaded()` in base class.
-`_apply_yaml_overrides()` merges YAML keys onto processor attributes before first hook call.
+### YAML Config: extension point only, currently dormant
+`RegionSpec.load_yaml_config()` reads `config/regions/<lowercase_code>.yaml`
+and caches the result in the module-level `_YAML_CACHE`. Tests verify
+the loader (`tests/unit/test_region_processors.py::TestYAMLConfigLoader`).
+
+In practice the directory `config/regions/` does **not** currently
+exist in the repo — every region falls back to the hardcoded
+defaults set in its processor's `__init__`. The loader is wired and
+ready; populate the directory if/when YAML-driven overrides become
+the right way to tune a particular region.
+
+The previous "ensure_yaml_loaded() / _apply_yaml_overrides()"
+auto-merge machinery was removed in the 2026-04-27 audit because it
+had no production caller. Reinstating it would require both the
+YAMLs and a hook in each processor's pre-call path.
 
 ### Performance (Measured 2026-04-22, Python 3.12, Apple M1, OFFLINE)
 
