@@ -77,6 +77,98 @@ def _offline_skip(adapter_name: str) -> Dict[str, Any]:
     return {adapter_name: {"hit": False}}
 
 
+async def _call_canonical_fetcher(
+    fetcher_path: str,
+    fetcher_class: str,
+    source_name: str,
+    name: str,
+    *,
+    extra_config: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
+    """Delegate to the canonical Fetcher class in src/authorities/.
+
+    The real HTTP code lives there (under tier0/, tier1/, tier2/ as
+    `AuthorityFetcher` subclasses); the `_fetch_*` functions in this
+    module are the V7 tier orchestrator's adapter shims. Until this
+    helper landed, the shims silently returned ``{hit: False}`` even
+    when ``OFFLINE=0``, so the live HTTP path was unreachable from
+    `pipeline_v7.py`'s enrichment stage.
+
+    Args
+    ----
+    fetcher_path
+        Dotted import path of the module, e.g.
+        ``"src.authorities.tier0.openalex"``.
+    fetcher_class
+        Class name inside that module, e.g. ``"OpenAlexFetcher"``.
+    source_name
+        The key used in the orchestrator's response dict
+        (``"OpenAlex"``, ``"GND"``, …).
+    name
+        The mathematician name to query.
+    extra_config
+        Per-source config (e.g. an API key). Falls back to ``{}``.
+
+    Returns
+    -------
+    Dict shaped ``{source_name: {hit, …}}``. On any importable but
+    runtime-failing path (network down, parse error, missing optional
+    dependency) we degrade to ``{hit: False, reason: …}`` rather than
+    raising, so a single source's failure doesn't poison the batch.
+    """
+    from importlib import import_module
+
+    from .common import retry_with_backoff
+
+    try:
+        module = import_module(fetcher_path)
+        cls = getattr(module, fetcher_class)
+    except (ImportError, AttributeError) as exc:
+        return {source_name: {"hit": False, "reason": f"fetcher_unavailable:{exc}"}}
+
+    fetcher = cls(extra_config or {})
+
+    try:
+        result = await retry_with_backoff(
+            lambda: fetcher.fetch(name), max_retries=2, base_delay=0.5
+        )
+    except Exception as exc:  # noqa: BLE001 — defensive batch isolation
+        return {
+            source_name: {"hit": False, "reason": f"fetch_error:{type(exc).__name__}"}
+        }
+    finally:
+        # AuthorityFetcher holds an aiohttp.ClientSession; release it
+        # so we don't leak connections across batches.
+        try:
+            close = getattr(fetcher, "close", None)
+            if close is not None:
+                maybe_coro = close()
+                if hasattr(maybe_coro, "__await__"):
+                    await maybe_coro
+        except Exception:
+            pass
+
+    # FetchResult is the canonical shape: status enum + optional data.
+    status = getattr(result, "status", None)
+    status_value = getattr(status, "value", str(status)) if status else "unknown"
+    if status_value != "success" or result.data is None:
+        return {source_name: {"hit": False, "reason": f"status:{status_value}"}}
+
+    data = result.data
+    return {
+        source_name: {
+            "hit": True,
+            "source_id": getattr(data, "source_id", None),
+            "canonical_name": getattr(data, "canonical_name", None),
+            "affiliations": getattr(data, "affiliations", []),
+            "identifiers": getattr(data, "identifiers", {}),
+            "birth_year": getattr(data, "birth_year", None),
+            "death_year": getattr(data, "death_year", None),
+            "countries": getattr(data, "countries", []),
+        }
+    }
+
+
 # ---------------------------------------------------------------------------
 # Tier 0 — free, no auth
 # ---------------------------------------------------------------------------
@@ -86,29 +178,51 @@ async def _fetch_openalex(entry: Dict) -> Dict:
     name = (entry.get("CanonicalLatin") or "").strip()
     if not name:
         return _no_name("OpenAlex")
+    ck = _cache_key("openalex", {"name": name})
+    cached = _cache_get(ck)
+    if cached is not None:
+        return cached
     if OFFLINE:
         return _offline_skip("OpenAlex")
-    # Live path lives in src.authority.openalex_adapter; this stub
-    # exists so the tier wiring is testable offline.
-    return _offline_skip("OpenAlex")
+    result = await _call_canonical_fetcher(
+        "src.authorities.tier0.openalex", "OpenAlexFetcher", "OpenAlex", name
+    )
+    _cache_set(ck, result)
+    return result
 
 
 async def _fetch_crossref(entry: Dict) -> Dict:
     name = (entry.get("CanonicalLatin") or "").strip()
     if not name:
         return _no_name("Crossref")
+    ck = _cache_key("crossref", {"name": name})
+    cached = _cache_get(ck)
+    if cached is not None:
+        return cached
     if OFFLINE:
         return _offline_skip("Crossref")
-    return _offline_skip("Crossref")
+    result = await _call_canonical_fetcher(
+        "src.authorities.tier0.crossref", "CrossrefFetcher", "Crossref", name
+    )
+    _cache_set(ck, result)
+    return result
 
 
 async def _fetch_orcid_etd(entry: Dict) -> Dict:
     name = (entry.get("CanonicalLatin") or "").strip()
     if not name:
         return _no_name("ORCID_ETD")
+    ck = _cache_key("orcid_etd", {"name": name})
+    cached = _cache_get(ck)
+    if cached is not None:
+        return cached
     if OFFLINE:
         return _offline_skip("ORCID_ETD")
-    return _offline_skip("ORCID_ETD")
+    result = await _call_canonical_fetcher(
+        "src.authorities.tier0.orcid_etd", "ORCIDETDFetcher", "ORCID_ETD", name
+    )
+    _cache_set(ck, result)
+    return result
 
 
 async def _fetch_crossref_thesis(entry: Dict) -> Dict:
@@ -121,7 +235,14 @@ async def _fetch_crossref_thesis(entry: Dict) -> Dict:
         return cached
     if OFFLINE:
         return {"Crossref_Thesis": {"hit": False, "match": False, "works": 0}}
-    return {"Crossref_Thesis": {"hit": False, "match": False, "works": 0}}
+    result = await _call_canonical_fetcher(
+        "src.authorities.tier0.crossref_thesis",
+        "CrossrefThesisFetcher",
+        "Crossref_Thesis",
+        name,
+    )
+    _cache_set(ck, result)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -214,30 +335,71 @@ async def _fetch_gnd(entry: Dict) -> Dict:
     name = (entry.get("CanonicalLatin") or "").strip()
     if not name:
         return _no_name("GND")
-    return _offline_skip("GND")
+    ck = _cache_key("gnd", {"name": name})
+    cached = _cache_get(ck)
+    if cached is not None:
+        return cached
+    if OFFLINE:
+        return _offline_skip("GND")
+    result = await _call_canonical_fetcher(
+        "src.authorities.tier1.gnd", "GNDFetcher", "GND", name
+    )
+    _cache_set(ck, result)
+    return result
 
 
 async def _fetch_zbmath(entry: Dict) -> Dict:
     name = (entry.get("CanonicalLatin") or "").strip()
     if not name:
         return _no_name("zbMATH_Open")
-    return _offline_skip("zbMATH_Open")
+    ck = _cache_key("zbmath", {"name": name})
+    cached = _cache_get(ck)
+    if cached is not None:
+        return cached
+    if OFFLINE:
+        return _offline_skip("zbMATH_Open")
+    result = await _call_canonical_fetcher(
+        "src.authorities.tier0.zbmath", "ZbMATHFetcher", "zbMATH_Open", name
+    )
+    _cache_set(ck, result)
+    return result
 
 
 async def _fetch_hal(entry: Dict) -> Dict:
     name = (entry.get("CanonicalLatin") or "").strip()
     if not name:
         return _no_name("HAL")
-    return _offline_skip("HAL")
+    ck = _cache_key("hal", {"name": name})
+    cached = _cache_get(ck)
+    if cached is not None:
+        return cached
+    if OFFLINE:
+        return _offline_skip("HAL")
+    result = await _call_canonical_fetcher(
+        "src.authorities.tier1.hal", "HALFetcher", "HAL", name
+    )
+    _cache_set(ck, result)
+    return result
 
 
 async def _fetch_oai_university(entry: Dict) -> Dict:
     name = (entry.get("CanonicalLatin") or "").strip()
     if not name:
         return _no_name("OAI_University")
+    ck = _cache_key("oai_university", {"name": name})
+    cached = _cache_get(ck)
+    if cached is not None:
+        return cached
     if OFFLINE:
         return _offline_skip("OAI_University")
-    return _offline_skip("OAI_University")
+    result = await _call_canonical_fetcher(
+        "src.authorities.tier1.oai_university",
+        "OAIUniversityFetcher",
+        "OAI_University",
+        name,
+    )
+    _cache_set(ck, result)
+    return result
 
 
 # ---------------------------------------------------------------------------
