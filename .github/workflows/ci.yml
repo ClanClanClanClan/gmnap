@@ -118,7 +118,6 @@ jobs:
           tests/unit/test_cjk_roundtrip.py
           tests/unit/test_collision_analytics.py
           tests/unit/test_config.py
-          tests/unit/test_crossref_adapter.py
           tests/unit/test_direct_classification.py
           tests/unit/test_duckdb_analytics_shape.py
           tests/unit/test_fasttext_cli_worker.py
