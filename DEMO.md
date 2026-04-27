@@ -8,15 +8,24 @@ as shown, see **Troubleshooting** at the bottom.
 
 ```bash
 git clone <repo> gmnap && cd gmnap
-make setup                 # pip install + compile fasttext CLI (~30s)
-gmnap serve --port 8080    # start API + web UI
-open http://localhost:8080 # (or point a browser at it)
+git lfs install && git lfs pull        # one-time: pull genealogy JSON
+make setup                              # pip install + compile fasttext CLI (~30s)
+gmnap serve --port 8080                 # start API + web UI
+open http://localhost:8080              # (or point a browser at it)
 ```
 
 `make setup` is the recommended path. For a minimal install without the
 fasttext tiebreaker (rules-based region detection only), run
 `pip install -r requirements.txt` instead; the CLI and API still work,
 just with lower name-origin accuracy on hard cases.
+
+**Git LFS is required** — `data/genealogy_enrichment.json` (~6 MB) is
+tracked via LFS. Without `git lfs pull` you'll see a 130-byte pointer
+stub in place of the real JSON and lineage queries will return empty.
+
+For an exact-pin install matching what CI runs against, use
+`pip install -r requirements.lock` (transitive versions pinned by
+`make lock` / `pip-compile`).
 
 ---
 
@@ -29,53 +38,99 @@ processing. Five representative queries:
 
 ```bash
 $ gmnap query "Euler, Leonhard"
-CanonicalLatin: Euler, Leonhard
-Region:         A2 (Western Europe)
-Confidence:     0.95
-BirthYear:      1707
-Institution:    University of Basel
-Advisors:       Bernoulli, Johann
+Name:        Euler, Leonhard
+Region:      A2
+Confidence:  0.95
+Family:      Euler
+Given:       Leonhard
+OrderKey:    EULER, LEONHARD
+Type:        surname
+Born:        1707
+Institution: University of Basel
+Advisors:    Bernoulli, Johann
 ```
 
-### Kolmogorov — Cyrillic script, geo-via-suffix
+`Region: A2` is the Western-Europe leaf in the 37-region taxonomy; run
+`gmnap regions` for the full table. `Type: surname` means the leaf
+fired off the curated surname dictionary (no fastText tiebreaker
+needed). `Born / Institution / Advisors` come from the genealogy
+enrichment file.
+
+### Kolmogorov — Cyrillic input, suffix-driven detection
 
 ```bash
 $ gmnap query "Колмогоров, Андрей"
-CanonicalLatin: Kolmogorov, Andrei
-Region:         B1 (East Slavic)
-Confidence:     0.98
-DetectionMethod: signature_suffix (-ov)
+Name:       Колмогоров, Андрей
+Region:     B1
+Confidence: 0.95
+Family:     Колмогоров
+Given:      Андрей
+OrderKey:   ANDREY KOLMOGOROV
+Type:       surname
 ```
 
-### Tao — Chinese-heritage in the Anglosphere (diaspora conflict)
+The `-ов` signature suffix lands B1 (East Slavic) without consulting
+fastText. `OrderKey` is romanised for sort stability across scripts.
+
+### Tao — Chinese-heritage surname
 
 ```bash
 $ gmnap query "Tao, Terence"
-CanonicalLatin: Tao, Terence
-GeoRegion:      A1  (Anglo-Sphere, via publication affiliation)
-NameRegion:     E1  (Chinese, via surname)
-Conflict:       diaspora
+Name:        Tao, Terence
+Region:      E1
+Confidence:  0.95
+Family:      Tao
+Given:       Terence
+OrderKey:    TAO TERENCE
+Type:        surname
+Born:        1975
+Institution: Princeton University
+Advisors:    Stein, Elias Menachem
 ```
 
-### Ramanujan — Dravidian, no advisor record
+The CLI surfaces the *name-origin* leaf (E1, Chinese). The pipeline
+also tracks `geo_region` from publication affiliation, exposed as a
+separate field on the API (`/api/v1/query` returns both `geo_region`
+and `name_region` plus a `conflict: diaspora` flag when they differ).
+
+### Ramanujan — South Asian
 
 ```bash
 $ gmnap query "Ramanujan, Srinivasa"
-CanonicalLatin: Ramanujan, Srinivasa
-Region:         D2 (Dravidian)
-Confidence:     0.91
+Name:        Ramanujan, Srinivasa
+Region:      D1
+Confidence:  0.95
+Family:      Ramanujan
+Given:       Srinivasa
+OrderKey:    SRINIVASA RAMANUJAN
+Type:        surname
+Born:        1887
+Institution: University of Cambridge
+Advisors:    Hardy, G.H., Littlewood, John Edensor
 ```
 
-### Lineage of Euler, depth 5
+D1 is the Indo-Aryan leaf; D2 (Dravidian) covers Tamil/Telugu/Kannada/
+Malayalam-rooted surnames. `Ramanujan` lands D1 because the surname
+shares the Indo-Aryan honorific stem.
+
+### Lineage of Euler, depth 5 (JSON output)
 
 ```bash
 $ gmnap lineage --id "name:Euler, Leonhard" --depth 5
-Euler, Leonhard
-  → Bernoulli, Johann
-    → Bernoulli, Jacob
-      → Malebranche, Nicolas
-      → Werenfels, Peter
+{
+  "root": "name:Euler, Leonhard",
+  "depth": 5,
+  "edges": [
+    {"from": "Euler, Leonhard",   "to": "Bernoulli, Johann",   "relation": "doctoralAdvisor"},
+    {"from": "Bernoulli, Johann", "to": "Bernoulli, Jacob",    "relation": "doctoralAdvisor"},
+    {"from": "Bernoulli, Jacob",  "to": "Malebranche, Nicolas","relation": "doctoralAdvisor"},
+    {"from": "Bernoulli, Jacob",  "to": "Werenfels, Peter",    "relation": "doctoralAdvisor"}
+  ]
+}
 ```
+
+`gmnap lineage --format dot` and `--format svg` are also wired if you
+want a graphviz-renderable view instead.
 
 ---
 
@@ -211,16 +266,26 @@ Response:
 - **Region detection is honest.** Every result returns a confidence and
   method. On the 523-entry adjudicated benchmark we have 100% leaf
   precision with 92% coverage — 28% honest R0 abstention rather than
-  forcing wrong answers.
-- **Genealogy is seeded + enriched.** 6,172 mathematicians with advisor
-  chains, sourced from the MGP validation set plus Wikidata SPARQL
-  (P184 doctoral advisor). Name matching is diacritic-insensitive and
-  handles Dutch/German particles, hyphenated given names, and
-  parenthetical aliases.
+  forcing wrong answers. Calibration is documented in
+  `docs/calibration.md` (ECE = 0.186 — the system over-reports its
+  confidence on easy cases; the reliability diagram and remediation
+  notes are committed alongside the raw data).
+- **Genealogy is seeded + enriched.** ~20,600 mathematicians: ~4,400
+  with full doctoral-advisor chains (15 MGP-curated + 4,385 Wikidata
+  SPARQL P184) plus ~16,200 records from OpenAlex with Institution +
+  Country only. Name matching is diacritic-insensitive (`Erdős` ↔
+  `Erdos`) and handles Dutch/German particles (`von Neumann` ↔
+  `Neumann … von`), hyphenated given names, and parenthetical aliases.
 - **The web UI has been stress-tested.** `tools/browser_smoke.py`
-  runs 29 adversarial scenarios against a real Chromium (XSS, Unicode,
-  responsive, keyboard, rapid-fire, tree interaction, network
-  resilience) with zero console errors.
+  runs **31** adversarial scenarios against a real Chromium (XSS,
+  Unicode, responsive, keyboard, rapid-fire, tree interaction, network
+  resilience) — wired into CI on every push, so regressions like the
+  debounce race that hid the profile under the user fail the PR
+  rather than reach the demo.
+- **Reproducibility gates.** `requirements.lock` is regenerated by CI
+  on every push and diffed against the committed copy — drift trips
+  the lint job. Git LFS pins the 6 MB enrichment file to a content
+  hash. `make lock` is the only supported way to update either.
 
 ---
 

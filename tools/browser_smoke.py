@@ -13,7 +13,7 @@ which is sync HTTP with no JS runtime. That bypasses:
 * console errors and uncaught exceptions
 
 This harness spawns ``gmnap serve`` on a free port, drives it with a real
-Chromium via Playwright, and runs ~25 adversarial scenarios. Any unhandled
+Chromium via Playwright, and runs 31 adversarial scenarios. Any unhandled
 console error or uncaught exception fails the run. Screenshots for each
 scenario land in ``docs/screenshots/browser_audit/``.
 
@@ -138,8 +138,18 @@ def _start_server(port: int) -> subprocess.Popen:
     # Pin a quieter log level so stderr doesn't overflow our capture buffer.
     env["GMNAP_LOG_LEVEL"] = "WARNING"
 
-    cmd = [sys.executable, "-m", "uvicorn", "src.api.server:app",
-           "--host", "127.0.0.1", "--port", str(port), "--log-level", "warning"]
+    cmd = [
+        sys.executable,
+        "-m",
+        "uvicorn",
+        "src.api.server:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        str(port),
+        "--log-level",
+        "warning",
+    ]
     return subprocess.Popen(
         cmd,
         cwd=str(REPO),
@@ -308,7 +318,6 @@ def scenario_xss(page: Page, base: str, payload: str):
         )
 
 
-
 def scenario_unicode(page: Page, base: str, text: str):
     page.goto(base)
     _search_and_wait(page, text)
@@ -318,7 +327,7 @@ def scenario_unicode(page: Page, base: str, text: str):
         # check for a *visible* terminal (result card, unhidden empty
         # state, or unhidden error state) or we'd pass on 500s.
         ".result-card, #no-results:not([hidden]), #error-msg:not([hidden])",
-        timeout=8000
+        timeout=8000,
     )
 
 
@@ -335,7 +344,7 @@ def scenario_edge_input(page: Page, base: str, value: str, label: str):
     page.wait_for_selector(
         # Visible terminal — see rationale in scenario_unicode.
         ".result-card, #no-results:not([hidden]), #error-msg:not([hidden])",
-        timeout=10000
+        timeout=10000,
     )
 
 
@@ -343,14 +352,31 @@ def scenario_rapid_fire(page: Page, base: str):
     """25 sequential queries paced to stay under 60 rpm."""
     page.goto(base)
     names = [
-        "Euler, Leonhard", "Gauss, Carl", "Newton, Isaac", "Hilbert, David",
-        "Poincaré, Henri", "Riemann, Bernhard", "Cauchy, Augustin",
-        "Lagrange, Joseph", "Laplace, Pierre", "Fourier, Joseph",
-        "Tao, Terence", "Erdős, Paul", "Mirzakhani, Maryam",
-        "Kolmogorov, Andrey", "Ramanujan, Srinivasa", "Wiles, Andrew",
-        "Perelman, Grigori", "Turing, Alan", "von Neumann, John",
-        "Chern, Shiing-Shen", "Grothendieck, Alexander", "Serre, Jean-Pierre",
-        "Atiyah, Michael", "Deligne, Pierre", "Connes, Alain",
+        "Euler, Leonhard",
+        "Gauss, Carl",
+        "Newton, Isaac",
+        "Hilbert, David",
+        "Poincaré, Henri",
+        "Riemann, Bernhard",
+        "Cauchy, Augustin",
+        "Lagrange, Joseph",
+        "Laplace, Pierre",
+        "Fourier, Joseph",
+        "Tao, Terence",
+        "Erdős, Paul",
+        "Mirzakhani, Maryam",
+        "Kolmogorov, Andrey",
+        "Ramanujan, Srinivasa",
+        "Wiles, Andrew",
+        "Perelman, Grigori",
+        "Turing, Alan",
+        "von Neumann, John",
+        "Chern, Shiing-Shen",
+        "Grothendieck, Alexander",
+        "Serre, Jean-Pierre",
+        "Atiyah, Michael",
+        "Deligne, Pierre",
+        "Connes, Alain",
     ]
     for n in names:
         _search_and_wait(page, n, timeout_ms=10000)
@@ -380,9 +406,9 @@ def scenario_responsive(page: Page, base: str, size: tuple[int, int], label: str
     scroll_w = page.evaluate("document.documentElement.scrollWidth")
     client_w = page.evaluate("document.documentElement.clientWidth")
     # Allow a 2-pixel fudge for sub-pixel antialiasing.
-    assert scroll_w - client_w <= 2, (
-        f"{label}: horizontal scroll (scroll {scroll_w} > client {client_w})"
-    )
+    assert (
+        scroll_w - client_w <= 2
+    ), f"{label}: horizontal scroll (scroll {scroll_w} > client {client_w})"
 
 
 def scenario_correction_form(page: Page, base: str):
@@ -398,9 +424,9 @@ def scenario_correction_form(page: Page, base: str):
     page.click('#correction-dialog button[type="submit"]')
     # Give the form a beat to NOT submit
     page.wait_for_timeout(500)
-    assert page.is_visible("#correction-dialog[open]"), (
-        "HTML5 validation should have kept dialog open"
-    )
+    assert page.is_visible(
+        "#correction-dialog[open]"
+    ), "HTML5 validation should have kept dialog open"
     # The required input should now report invalid
     invalid = page.evaluate(
         "document.getElementById('corr-value').validity.valueMissing"
@@ -455,9 +481,9 @@ def scenario_tree_depth(page: Page, base: str):
         if len(lineage_calls) > initial_url_count:
             break
         page.wait_for_timeout(200)
-    assert len(lineage_calls) > initial_url_count, (
-        "depth-selector change did not trigger a new /api/v1/lineage call"
-    )
+    assert (
+        len(lineage_calls) > initial_url_count
+    ), "depth-selector change did not trigger a new /api/v1/lineage call"
     last_url = lineage_calls[-1]
     assert "depth=3" in last_url, f"new lineage call not at depth=3: {last_url}"
 
@@ -466,13 +492,13 @@ def scenario_tree_depth(page: Page, base: str):
     depth3_nodes = len(page.query_selector_all("#genealogy-tree-svg g.tree-node"))
     # depth=3 should have <= as many nodes as depth=5 (can be equal
     # when the chain is shorter than 3). Never more.
-    assert depth3_nodes <= depth5_nodes, (
-        f"depth=3 rendered {depth3_nodes} nodes, more than depth=5 ({depth5_nodes})"
-    )
+    assert (
+        depth3_nodes <= depth5_nodes
+    ), f"depth=3 rendered {depth3_nodes} nodes, more than depth=5 ({depth5_nodes})"
     # And the tree panel stays visible.
-    assert page.is_visible("#genealogy-tree-svg") or page.is_visible(".tree-status"), (
-        "tree panel disappeared after depth change"
-    )
+    assert page.is_visible("#genealogy-tree-svg") or page.is_visible(
+        ".tree-status"
+    ), "tree panel disappeared after depth change"
 
 
 def scenario_network_500(page: Page, base: str):
@@ -488,8 +514,11 @@ def scenario_network_500(page: Page, base: str):
     # Intercept the next /api/v1/process call and return 500.
     def _handler(route):
         if route.request.url.endswith("/api/v1/process"):
-            route.fulfill(status=500, body='{"detail": "injected-failure"}',
-                          content_type="application/json")
+            route.fulfill(
+                status=500,
+                body='{"detail": "injected-failure"}',
+                content_type="application/json",
+            )
         else:
             route.continue_()
 
@@ -516,7 +545,7 @@ def scenario_unknown_name(page: Page, base: str):
         # check for a *visible* terminal (result card, unhidden empty
         # state, or unhidden error state) or we'd pass on 500s.
         ".result-card, #no-results:not([hidden]), #error-msg:not([hidden])",
-        timeout=8000
+        timeout=8000,
     )
 
 
@@ -528,8 +557,12 @@ def _run_scenario(
 ) -> ScenarioResult:
     browser: Browser = kwargs.pop("browser")
     base: str = kwargs.pop("base")
-    snap_id: str = kwargs.pop("snap_id", re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_"))
-    context: BrowserContext = browser.new_context(viewport={"width": 1440, "height": 900})
+    snap_id: str = kwargs.pop(
+        "snap_id", re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+    )
+    context: BrowserContext = browser.new_context(
+        viewport={"width": 1440, "height": 900}
+    )
     page = context.new_page()
     errors: list[str] = []
     messages: list[str] = []
@@ -671,7 +704,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--headless", action="store_true", default=True)
     parser.add_argument("--headed", dest="headless", action="store_false")
-    parser.add_argument("--filter", help="only run scenarios whose names match this regex")
+    parser.add_argument(
+        "--filter", help="only run scenarios whose names match this regex"
+    )
     parser.add_argument(
         "--junit-xml", type=Path, help="write JUnit XML for CI consumption"
     )
@@ -689,7 +724,9 @@ def main() -> int:
         browser = pw.chromium.launch(headless=args.headless)
         try:
             for idx, (name, fn, a, kw) in enumerate(scenarios):
-                print(f"[{idx + 1:>2}/{len(scenarios)}] {name} ... ", end="", flush=True)
+                print(
+                    f"[{idx + 1:>2}/{len(scenarios)}] {name} ... ", end="", flush=True
+                )
                 kw = dict(kw)
                 kw.update(browser=browser, base=base)
                 res = _run_scenario(name, fn, *a, **kw)
@@ -726,13 +763,12 @@ def _write_junit(results: list[ScenarioResult], path: Path) -> None:
     )
     for r in results:
         tc = ET.SubElement(
-            suite, "testcase",
+            suite,
+            "testcase",
             attrib={"name": r.name, "time": f"{r.duration_ms / 1000:.3f}"},
         )
         if not r.passed:
-            failure = ET.SubElement(
-                tc, "failure", attrib={"message": r.note[:200]}
-            )
+            failure = ET.SubElement(tc, "failure", attrib={"message": r.note[:200]})
             failure.text = "\n".join(r.errors)
     path.parent.mkdir(parents=True, exist_ok=True)
     ET.ElementTree(suite).write(path, encoding="utf-8", xml_declaration=True)
