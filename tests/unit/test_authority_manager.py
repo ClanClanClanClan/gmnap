@@ -228,13 +228,13 @@ class TestWikidataP184:
             async def __aexit__(self, *args):
                 pass
 
-        with (
-            patch("src.authority.manager_tier01.OFFLINE", False),
-            tempfile.TemporaryDirectory() as tmpdir,
-            patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)),
-            patch("aiohttp.ClientSession", return_value=MockSession()),
-        ):
-            result = _run(_fetch_wikidata_p184(entry))
+        # Project targets py38 — parenthesized `with` is py310+, so
+        # use nested context managers instead.
+        with patch("src.authority.manager_tier01.OFFLINE", False):
+            with tempfile.TemporaryDirectory() as tmpdir:
+                with patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)):
+                    with patch("aiohttp.ClientSession", return_value=MockSession()):
+                        result = _run(_fetch_wikidata_p184(entry))
 
         assert result["Wikidata_P184"]["hit"] is True
         assert result["Wikidata_P184"]["wikidata_id"] == "Q7604"
@@ -335,11 +335,10 @@ class TestDimensions:
 
     def test_offline_returns_no_hit(self):
         entry = {"CanonicalLatin": "Smith, John"}
-        with (
-            patch("src.authority.manager_tier01.OFFLINE", True),
-            patch.dict(os.environ, {"DIMENSIONS_API_KEY": "test_key"}),
-        ):
-            result = _run(_fetch_dimensions(entry))
+        # py38-compatible nested context (project pyproject pins py38).
+        with patch("src.authority.manager_tier01.OFFLINE", True):
+            with patch.dict(os.environ, {"DIMENSIONS_API_KEY": "test_key"}):
+                result = _run(_fetch_dimensions(entry))
         assert result["Dimensions"]["hit"] is False
 
 
