@@ -1,0 +1,143 @@
+{
+  "$schema_doc": "Grafana dashboard for GMNAP V7 — drop-in JSON. Import via Grafana UI: Dashboards → New → Import → paste this file. Targets a Prometheus datasource named ${DS_PROMETHEUS}; change to your actual datasource name.",
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Uptime",
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "targets": [
+        {"expr": "gmnap_uptime_seconds", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}}
+    },
+    {
+      "type": "stat",
+      "title": "Entries processed (rate / 5m)",
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+      "targets": [
+        {"expr": "rate(gmnap_entries_processed_total[5m])", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "ops"}}
+    },
+    {
+      "type": "stat",
+      "title": "Pipeline runs (5m)",
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+      "targets": [
+        {"expr": "sum by (mode) (rate(gmnap_pipeline_runs_total[5m]))", "refId": "A"}
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Schema-validation error rate (5m)",
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+      "targets": [
+        {"expr": "rate(gmnap_schema_errors_total[5m])", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": 0}, {"color": "red", "value": 0.1}]}}}
+    },
+    {
+      "type": "timeseries",
+      "title": "API requests / second by endpoint",
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "targets": [
+        {"expr": "sum by (endpoint) (rate(gmnap_api_requests_total[5m]))", "legendFormat": "{{endpoint}}", "refId": "A"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "API requests by status (rate / 5m)",
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "targets": [
+        {"expr": "sum by (status) (rate(gmnap_api_requests_total[5m]))", "legendFormat": "{{status}}", "refId": "A"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "API latency p50 / p95 / p99 (s)",
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "targets": [
+        {"expr": "histogram_quantile(0.50, sum by (le, endpoint) (rate(gmnap_api_request_duration_seconds_bucket[5m])))", "legendFormat": "p50 {{endpoint}}", "refId": "A"},
+        {"expr": "histogram_quantile(0.95, sum by (le, endpoint) (rate(gmnap_api_request_duration_seconds_bucket[5m])))", "legendFormat": "p95 {{endpoint}}", "refId": "B"},
+        {"expr": "histogram_quantile(0.99, sum by (le, endpoint) (rate(gmnap_api_request_duration_seconds_bucket[5m])))", "legendFormat": "p99 {{endpoint}}", "refId": "C"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Pipeline duration distribution (s)",
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "targets": [
+        {"expr": "histogram_quantile(0.50, sum by (le) (rate(gmnap_pipeline_duration_seconds_bucket[5m])))", "legendFormat": "p50", "refId": "A"},
+        {"expr": "histogram_quantile(0.95, sum by (le) (rate(gmnap_pipeline_duration_seconds_bucket[5m])))", "legendFormat": "p95", "refId": "B"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Authority-source hit rate by tier",
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 20},
+      "targets": [
+        {"expr": "sum by (source, tier) (rate(gmnap_authority_hits_total[5m]))", "legendFormat": "{{tier}}/{{source}}", "refId": "A"}
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["gmnap", "v7"],
+  "templating": {
+    "list": [
+      {
+        "current": {"selected": false, "text": "Prometheus", "value": "PBFA97CFB590B2093"},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Prometheus datasource",
+        "multi": false,
+        "name": "DS_PROMETHEUS",
+        "options": [],
+        "query": "prometheus",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {"from": "now-6h", "to": "now"},
+  "timepicker": {},
+  "timezone": "",
+  "title": "GMNAP V7",
+  "uid": "gmnap-v7",
+  "version": 1,
+  "weekStart": ""
+}

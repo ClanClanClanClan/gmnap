@@ -25,6 +25,15 @@ fasttext tiebreaker (rules-based detection only) run
 `pip install -r requirements.txt` instead; the CLI and API still work,
 just with lower name-origin accuracy on hard cases.
 
+For a reproducible install matching exactly the dependency graph CI
+runs against, use `pip install -r requirements.lock` (transitive
+versions pinned by `make lock` / `pip-compile`).
+
+**Git LFS.** `data/genealogy_enrichment.json` (~6 MB) is tracked via
+Git LFS. After cloning, run `git lfs install && git lfs pull` once
+to materialise the file (a fresh clone retrieves the LFS pointer by
+default and you'll see a 130-byte stub instead of the real JSON).
+
 For a step-by-step reviewer walkthrough (CLI + web UI + API, with
 screenshots), see **[DEMO.md](DEMO.md)**. For the architecture
 one-pager covering the five design decisions an evaluator asks about,

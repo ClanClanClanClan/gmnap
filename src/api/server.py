@@ -214,8 +214,14 @@ def create_app() -> FastAPI:
     @app.middleware("http")
     async def security_headers(request: Request, call_next):
         response = await call_next(request)
+        # CSP: deny all inline scripts AND inline styles. Verified by
+        # grepping static/index.html (no `style="…"`), static/app.js
+        # (no `.style()` d3 calls, no `el.style.X = …`), and the d3
+        # tree-renderer (uses `.attr("transform", …)` not `.style`).
+        # If a future change adds an inline style, it'll fail in the
+        # browser visibly rather than silently — exactly what we want.
         response.headers["Content-Security-Policy"] = (
-            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+            "default-src 'self'; script-src 'self'; style-src 'self'"
         )
         response.headers["Strict-Transport-Security"] = (
             "max-age=31536000; includeSubDomains"
