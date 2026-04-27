@@ -26,7 +26,18 @@ time:
 | `test_pipeline_v7.py`              | 13 / 21 / 0 |
 | `test_wikidata_p184_adapter.py`    | 1 / 3 / 0 |
 | `test_zbmath_adapter.py`           | 0 / 3 / 0 |
+| `test_crossref_adapter.py`         | tests-dead-code (production `CrossrefAdapter` deleted 2026-04-27) |
 | **Total**                          | **30 / 69 / 7** |
+
+`test_crossref_adapter.py` was moved here on 2026-04-27 alongside
+the deletion of `src/authority/crossref_adapter.py` (plus 12 other
+confirmed-dead files in the singular `src/authority/` package). The
+test itself was passing, but it was the only remaining caller of
+the dead adapter — so the test was dead-code-testing-dead-code.
+The canonical Crossref implementation lives at
+`src/authorities/tier0/crossref.py:CrossrefFetcher` and is
+exercised by the live-pipeline integration tests rather than by a
+narrow unit test.
 
 Every file is **less than 50 % green**. Adding any of them to CI as-is
 would either fail the pipeline (most) or silently mask regressions
