@@ -7,8 +7,13 @@ import os
 import pathlib
 from typing import Any, Dict, List, Tuple
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-
+# jinja2 is only needed by `_render_html_diff` (the optional HTML
+# changelog renderer). The new public APIs (`write_snapshot`,
+# `generate_sql_changelog`, `generate_cypher_changelog`) and the
+# legacy monolithic `write_and_diff` function don't touch it. Defer
+# the import so importing this module on a runtime that doesn't ship
+# jinja2 (e.g. CI that only installs the slim runtime requirements)
+# stays viable.
 from ..ops.diff_utils import compute_entry_diffs
 from ..ops.metrics import WRITE_DIFF_CHANGED_ENTRIES
 from ..ops.yaml_deterministic import canonicalise_entry, dump_yaml_deterministic
@@ -75,6 +80,9 @@ def _render_html_diff(
     diff_payload: Dict[str, Any],
     run_hash: str,
 ) -> str:
+    # Lazy import — see module-level note. Only this codepath needs jinja2.
+    from jinja2 import Environment, FileSystemLoader, select_autoescape
+
     env = Environment(
         loader=FileSystemLoader(template_dir), autoescape=select_autoescape()
     )
