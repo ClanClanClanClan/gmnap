@@ -46,7 +46,11 @@ jobs:
       # requirements.txt without running `make lock`, this catches it.
       - name: Lockfile in sync
         run: |
-          pip install --quiet pip-tools==7.4.1
+          # Pin pip-tools 7.5.3 — earlier 7.x is broken against modern
+          # pip's PackageFinder API ("'PackageFinder' object has no
+          # attribute 'allow_all_prereleases'"). Local Makefile lock
+          # target uses the same version so the diff is reproducible.
+          pip install --quiet pip-tools==7.5.3
           pip-compile --quiet --strip-extras --output-file=requirements.lock.ci requirements.txt
           if ! diff -u requirements.lock requirements.lock.ci; then
             echo "::error::requirements.lock is stale. Run 'make lock' and commit the result."

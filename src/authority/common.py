@@ -48,3 +48,60 @@ class AuthorityContext:
 
 def canonical_query_key(obj: Dict[str, Any]) -> str:
     return json.dumps(obj, sort_keys=True, separators=(",", ":"))
+
+
+# ---------------------------------------------------------------------------
+# Transient-error retry helper (used by every authority adapter)
+# ---------------------------------------------------------------------------
+
+
+# Errors we treat as transient — worth backing off and retrying.
+# Anything else (ValueError, KeyError, application-level exceptions)
+# raises immediately so a real bug isn't masked by 3 silent retries.
+def _transient_excs() -> tuple:
+    if httpx is None:
+        return (asyncio.TimeoutError, OSError)
+    return (
+        httpx.TimeoutException,
+        httpx.ConnectError,
+        httpx.ReadError,
+        httpx.RemoteProtocolError,
+        asyncio.TimeoutError,
+        OSError,
+    )
+
+
+async def retry_with_backoff(
+    func,
+    *,
+    max_retries: int = 3,
+    base_delay: float = 1.0,
+):
+    """Call ``func()`` with exponential-backoff retries on transient
+    network errors.
+
+    - ``max_retries`` is the number of retries *after* the initial
+      attempt (so total attempts = max_retries + 1).
+    - Backoff schedule: ``base_delay * 2 ** attempt`` for ``attempt``
+      ∈ [0, max_retries-1].
+    - Only ``httpx.TimeoutException``, ``httpx.ConnectError``,
+      ``httpx.ReadError``, ``httpx.RemoteProtocolError``, ``OSError``
+      and ``asyncio.TimeoutError`` are retried. Everything else
+      propagates on the first raise.
+
+    Used by every authority adapter as the wrapper around its outer
+    HTTP call so a single transient hiccup doesn't poison a 1 000-
+    entry batch.
+    """
+    transient = _transient_excs()
+    last_exc: Exception | None = None
+    for attempt in range(max_retries + 1):
+        try:
+            return await func()
+        except transient as exc:
+            last_exc = exc
+            if attempt >= max_retries:
+                raise
+            await asyncio.sleep(base_delay * (2**attempt))
+    # Should be unreachable — the loop either returns or raises.
+    raise last_exc if last_exc else RuntimeError("retry_with_backoff: no attempts")
