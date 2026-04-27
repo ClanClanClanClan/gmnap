@@ -131,22 +131,36 @@ def query(name: str, mode: str, as_json: bool):
 @click.option("--id", "gid", required=True, help="GlobalID of the mathematician")
 @click.option("--depth", default=3, type=int, help="Traversal depth")
 @click.option(
+    "--direction",
+    default="ancestors",
+    type=click.Choice(["ancestors", "descendants"]),
+    help=(
+        "Walk direction. 'ancestors' (default) follows advisor-of-me; "
+        "'descendants' follows student-of-me."
+    ),
+)
+@click.option(
     "--format",
     "fmt",
     default="json",
     type=click.Choice(["json", "dot", "svg"]),
 )
-def lineage(gid: str, depth: int, fmt: str):
+def lineage(gid: str, depth: int, direction: str, fmt: str):
     """Query academic genealogy lineage for a mathematician."""
     sys.path.insert(0, ".")
-    edges = _query_lineage_graph(gid, depth)
+    edges = _query_lineage_graph(gid, depth, direction=direction)
 
     if not edges:
         click.echo(f"No lineage data found for {gid}", err=True)
         sys.exit(1)
 
     if fmt == "json":
-        click.echo(json.dumps({"root": gid, "depth": depth, "edges": edges}, indent=2))
+        click.echo(
+            json.dumps(
+                {"root": gid, "depth": depth, "direction": direction, "edges": edges},
+                indent=2,
+            )
+        )
     elif fmt == "dot":
         click.echo(_edges_to_dot(gid, edges))
     elif fmt == "svg":
@@ -538,27 +552,38 @@ async def _run_pipeline(entries: list, mode: str, output_dir: str):
     )
 
 
-def _query_lineage_graph(gid: str, depth: int) -> list:
+def _query_lineage_graph(gid: str, depth: int, *, direction: str = "ancestors") -> list:
     """Query lineage from local YAML output, then the curated enrichment.
 
     Accepts `gid` as a GlobalID or a canonical name (optionally prefixed
     with ``name:`` to match the API convention). Returns an edge list in
     the same format as ``/api/v1/lineage``.
-    """
-    # First try local YAML (pipeline output)
-    out = Path("out/yaml")
-    if out.exists():
-        edges: list = []
-        visited: set = set()
-        _traverse_local(gid, depth, out, edges, visited)
-        if edges:
-            return edges
 
-    # Fallback: curated genealogy enrichment JSON
+    ``direction`` is one of:
+      - ``"ancestors"`` (default): walk advisor-of-me, advisor-of-advisor, …
+      - ``"descendants"``:        walk student-of-me, student-of-student, …
+
+    The local-YAML pipeline output only carries forward (Advisors)
+    adjacency, so descendants traversal skips it and goes straight to
+    GenealogyLookup, which builds a reverse-adjacency cache from the
+    curated enrichment JSON.
+    """
+    # First try local YAML (pipeline output) — ancestors only;
+    # _traverse_local walks `Advisors` lists, which is forward-only.
+    if direction == "ancestors":
+        out = Path("out/yaml")
+        if out.exists():
+            edges: list = []
+            visited: set = set()
+            _traverse_local(gid, depth, out, edges, visited)
+            if edges:
+                return edges
+
+    # Fallback: curated genealogy enrichment JSON.
     try:
         from src.core.genealogy_lookup import GenealogyLookup
 
-        return GenealogyLookup().traverse_lineage(gid, depth)
+        return GenealogyLookup().traverse_lineage(gid, depth, direction=direction)
     except Exception:
         return []
 
