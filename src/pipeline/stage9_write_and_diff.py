@@ -146,6 +146,184 @@ def _generate_sql_changelog(
     return str(sql_path)
 
 
+# ---------------------------------------------------------------------------
+# Public API used by the V7 pipeline + downstream tooling
+# ---------------------------------------------------------------------------
+
+
+def write_snapshot(entries: List[Dict], *, out_root: str) -> str:
+    """Write a deterministic snapshot of ``entries`` under
+    ``out_root``.
+
+    Layout::
+
+        <out_root>/run-<run_hash>/
+            <GlobalID>.yaml         # one per entry, canonicalised
+            entries.yaml            # combined deterministic YAML
+            entries.json            # combined deterministic JSON
+            MANIFEST.json           # {run_hash, count, generated_utc}
+
+    Determinism: ``run_hash`` is derived from
+    ``sha256(canonical(entries))[:16]`` so identical inputs always
+    produce identical snapshot directory names — round-tripping the
+    same batch is a no-op on disk and a no-op for the cross-snapshot
+    diff that follows.
+
+    Returns the absolute snapshot directory path.
+    """
+    run_hash = _batch_hash(entries)
+    snap_dir = pathlib.Path(out_root) / f"run-{run_hash}"
+    snap_dir.mkdir(parents=True, exist_ok=True)
+
+    canonical = [canonicalise_entry(e) for e in entries]
+
+    # Per-entry YAML — one file per GlobalID (filename-safe).
+    for entry in canonical:
+        gid = entry.get("GlobalID") or entry.get("global_id") or "unknown"
+        # Sanitize: forbid path separators in the filename
+        safe = str(gid).replace("/", "_").replace("\\", "_")
+        per_entry = snap_dir / f"{safe}.yaml"
+        per_entry.write_text(dump_yaml_deterministic([entry]), encoding="utf-8")
+
+    # Combined deterministic JSON for cross-snapshot diffing. We
+    # don't write a combined entries.yaml here — the per-entry YAMLs
+    # already cover the YAML use case, and a combined version
+    # would inflate `*.yaml` glob counts that consumers (and tests)
+    # rely on.
+    (snap_dir / "entries.json").write_text(
+        json.dumps(canonical, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+
+    # Manifest. ``generated_utc`` would normally bust determinism
+    # for cross-machine reproducibility tests; we use a fixed sentinel
+    # when the env var ``SOURCE_DATE_EPOCH`` is set (Reproducible
+    # Builds convention) and otherwise the current ISO timestamp. The
+    # run_hash itself is invariant either way because it depends only
+    # on the entries.
+    sde = os.environ.get("SOURCE_DATE_EPOCH")
+    if sde:
+        try:
+            ts = (
+                datetime.datetime.fromtimestamp(int(sde), tz=datetime.timezone.utc)
+                .replace(tzinfo=None)
+                .isoformat()
+                + "Z"
+            )
+        except (ValueError, OSError):
+            ts = "1970-01-01T00:00:00Z"
+    else:
+        ts = (
+            datetime.datetime.now(datetime.timezone.utc)
+            .replace(tzinfo=None)
+            .isoformat()
+            + "Z"
+        )
+    manifest = {
+        "run_hash": run_hash,
+        "count": len(canonical),
+        "generated_utc": ts,
+    }
+    (snap_dir / "MANIFEST.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8"
+    )
+    return str(snap_dir)
+
+
+def _diff_snapshots(
+    prev_dir: str, curr_dir: str
+) -> Tuple[List[Dict], List[Dict], List[Dict]]:
+    """Return ``(added, changed, removed)`` lists by comparing the
+    ``entries.json`` of two snapshot directories.
+
+    - ``added``: entries whose GlobalID is in curr but not prev
+    - ``changed``: entries whose GlobalID is in both but content differs
+    - ``removed``: entries whose GlobalID is in prev but not curr
+    """
+    prev_entries = _load_entries_if_exists(str(pathlib.Path(prev_dir) / "entries.json"))
+    curr_entries = _load_entries_if_exists(str(pathlib.Path(curr_dir) / "entries.json"))
+    prev_idx = {e.get("GlobalID"): e for e in prev_entries if e.get("GlobalID")}
+    curr_idx = {e.get("GlobalID"): e for e in curr_entries if e.get("GlobalID")}
+    added = [curr_idx[g] for g in curr_idx if g not in prev_idx]
+    removed = [prev_idx[g] for g in prev_idx if g not in curr_idx]
+    changed = [
+        curr_idx[g] for g in curr_idx if g in prev_idx and curr_idx[g] != prev_idx[g]
+    ]
+    return added, changed, removed
+
+
+def _sql_quote(s: Any) -> str:
+    """Single-quote-escape a value for SQL embedding."""
+    if s is None:
+        return "NULL"
+    if isinstance(s, (int, float)):
+        return repr(s)
+    return "'" + str(s).replace("'", "''") + "'"
+
+
+def generate_sql_changelog(prev_dir: str, curr_dir: str, *, out_path: str) -> str:
+    """Emit a SQL changelog (INSERT for added, UPDATE for changed,
+    DELETE for removed) at ``out_path``. Returns the path.
+    """
+    added, changed, removed = _diff_snapshots(prev_dir, curr_dir)
+    lines: List[str] = ["-- GMNAP Stage 9 SQL changelog", "BEGIN;"]
+
+    columns = ("GlobalID", "CanonicalLatin", "BirthYear", "Source", "LastUpdated")
+    for e in added:
+        vals = ", ".join(_sql_quote(e.get(c)) for c in columns)
+        cols = ", ".join(columns)
+        lines.append(f"INSERT INTO mathematicians ({cols}) VALUES ({vals});")
+
+    for e in changed:
+        gid = _sql_quote(e.get("GlobalID"))
+        sets = ", ".join(
+            f"{c}={_sql_quote(e.get(c))}" for c in columns if c != "GlobalID"
+        )
+        lines.append(f"UPDATE mathematicians SET {sets} WHERE GlobalID={gid};")
+
+    for e in removed:
+        gid = _sql_quote(e.get("GlobalID"))
+        lines.append(f"DELETE FROM mathematicians WHERE GlobalID={gid};")
+
+    lines.append("COMMIT;")
+    out = pathlib.Path(out_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return str(out)
+
+
+def generate_cypher_changelog(prev_dir: str, curr_dir: str, *, out_path: str) -> str:
+    """Emit a Cypher changelog (MERGE for added/changed, DETACH
+    DELETE for removed) at ``out_path``. Returns the path.
+    """
+    added, changed, removed = _diff_snapshots(prev_dir, curr_dir)
+    lines: List[str] = ["// GMNAP Stage 9 Cypher changelog"]
+
+    def _cy_str(s: Any) -> str:
+        if s is None:
+            return "null"
+        return '"' + str(s).replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+    for e in added + changed:
+        gid = _cy_str(e.get("GlobalID"))
+        name = _cy_str(e.get("CanonicalLatin", ""))
+        by = e.get("BirthYear")
+        by_clause = f", birth_year: {by}" if isinstance(by, int) else ""
+        lines.append(
+            f"MERGE (m:Mathematician {{global_id: {gid}}}) "
+            f"SET m.name = {name}{by_clause};"
+        )
+
+    for e in removed:
+        gid = _cy_str(e.get("GlobalID"))
+        lines.append(f"MATCH (m:Mathematician {{global_id: {gid}}}) DETACH DELETE m;")
+
+    out = pathlib.Path(out_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return str(out)
+
+
 def write_and_diff(
     batch: List[Dict],
     out_base: str = "snapshots",

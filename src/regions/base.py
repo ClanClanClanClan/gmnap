@@ -7,12 +7,32 @@ Enforces V7 linguistic rules (IDs 1-34) and quality gates.
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional
 
 from .security import SecurityError, secure_clean_name, secure_validate_entry
 from .validation_rules import ValidationResult, regional_validator
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# YAML config loader (per-region overrides)
+# ---------------------------------------------------------------------------
+#
+# Each region processor can ship a YAML file at
+# `<_REGION_CONFIG_DIR>/<lowercase code>.yaml` carrying override
+# values (titles, particles, romanisation maps, …) so non-coders can
+# tune the rules without touching Python. ``load_yaml_config`` is the
+# entry point; results are cached in ``_YAML_CACHE`` keyed by region
+# code so a 100k-entry batch isn't re-parsing the same YAML 100k times.
+#
+# ``clear_yaml_cache`` (classmethod on ``RegionSpec``) drops the cache;
+# tests exercise this between fixtures, and ops can call it from a
+# debug endpoint to hot-reload config.
+
+_REGION_CONFIG_DIR: Path = Path("config/regions")
+_YAML_CACHE: Dict[str, Dict[str, Any]] = {}
 
 
 class RegionRuleError(Exception):
@@ -44,6 +64,45 @@ class RegionSpec(ABC):
         if self.romanisation_standards is None:
             self.romanisation_standards = []
         self.logger = logging.getLogger(f"regions.{self.code}")
+
+    # ------------------------------------------------------------------
+    # YAML config loading
+    # ------------------------------------------------------------------
+
+    def load_yaml_config(self) -> Dict[str, Any]:
+        """Load this region's YAML override file (if any) with caching.
+
+        Looks for ``<_REGION_CONFIG_DIR>/<lowercase code>.yaml``. On
+        a cache hit returns the same dict (so identity comparison
+        ``cfg1 is cfg2`` holds). On a missing or malformed file
+        returns ``{}`` and logs at debug level — never raises, never
+        blocks the processor.
+        """
+        if self.code in _YAML_CACHE:
+            return _YAML_CACHE[self.code]
+        path = _REGION_CONFIG_DIR / f"{self.code.lower()}.yaml"
+        if not path.exists():
+            cfg: Dict[str, Any] = {}
+            _YAML_CACHE[self.code] = cfg
+            return cfg
+        try:
+            import yaml as _yaml  # local import keeps cold-start light
+
+            data = _yaml.safe_load(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            logger.debug("YAML config for %s unreadable: %s", self.code, exc)
+            data = None
+        if not isinstance(data, dict):
+            data = {}
+        _YAML_CACHE[self.code] = data
+        return data
+
+    @classmethod
+    def clear_yaml_cache(cls) -> None:
+        """Drop every cached YAML config. Tests use this between
+        fixtures; ops can wire it to a debug endpoint for hot reload.
+        """
+        _YAML_CACHE.clear()
 
     # Security methods (available to all processors)
     def security_validate(self, entry: Dict[str, Any]) -> None:
