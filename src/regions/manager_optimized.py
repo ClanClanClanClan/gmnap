@@ -14,6 +14,7 @@ Performance improvements:
 _V7_OPTIMIZED = True
 
 import atexit
+import dataclasses
 import logging
 import os
 import re
@@ -3839,6 +3840,20 @@ class RegionManager:
         except RuntimeError:
             # No running loop - safe to use asyncio.run()
             result = asyncio.run(self._detect_region_uncached_async(sanitized_entry))
+
+        # Optional confidence calibration (PAV isotonic, opt-in via
+        # GMNAP_CALIBRATE_CONFIDENCE=1). When disabled, this is a
+        # no-op identity. Applied *before* caching so cached values
+        # already carry the calibrated score.
+        if result is not None and getattr(result, "confidence", None) is not None:
+            from src.regions.calibration import apply as _apply_calibration
+
+            calibrated = _apply_calibration(float(result.confidence))
+            if calibrated != result.confidence:
+                # RegionDetectionResult is a dataclass; build a new
+                # one with the calibrated confidence rather than
+                # mutating in place (the cache holds references).
+                result = dataclasses.replace(result, confidence=calibrated)
 
         # Cache result
         if cache_key:
