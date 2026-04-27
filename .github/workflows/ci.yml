@@ -52,7 +52,13 @@ jobs:
           # target uses the same version so the diff is reproducible.
           pip install --quiet pip-tools==7.5.3
           pip-compile --quiet --strip-extras --output-file=requirements.lock.ci requirements.txt
-          if ! diff -u requirements.lock requirements.lock.ci; then
+          # pip-compile bakes the output filename into the header
+          # comment, so a raw diff between requirements.lock (committed)
+          # and requirements.lock.ci (regenerated) always trips on that
+          # one cosmetic line. Strip leading-# header lines from both
+          # before comparing — only the resolved-pin body matters for
+          # reproducibility.
+          if ! diff -u <(grep -v '^#' requirements.lock) <(grep -v '^#' requirements.lock.ci); then
             echo "::error::requirements.lock is stale. Run 'make lock' and commit the result."
             exit 1
           fi
