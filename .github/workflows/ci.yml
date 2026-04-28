@@ -251,7 +251,7 @@ jobs:
           tests/unit/korean/test_segment_fallback.py
           tests/unit/core/test_region_loading.py
           tests/unit/regions/test_region_e4.py
-          --cov=src --cov-report=xml:coverage.xml --cov-report=term:skip-covered
+          --cov=src --cov-branch --cov-report=xml:coverage.xml --cov-report=term:skip-covered
           --cov-fail-under=17
           -q --timeout=240 -p no:cacheprovider
 

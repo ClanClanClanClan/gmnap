@@ -51,35 +51,41 @@ OUT_JSON = REPO / "docs" / "risk_coverage.json"
 
 # Default grids. Smaller --quick grid for fast iteration.
 FULL_GRID = {
-    "scorer_score":  [0.40, 0.50, 0.60],
+    "scorer_score": [0.40, 0.50, 0.60],
     "scorer_margin": [0.20, 0.30, 0.40, 0.50],
-    "ft_p1":         [0.50, 0.60, 0.70],
-    "ft_margin":     [0.15, 0.20, 0.25],
+    "ft_p1": [0.50, 0.60, 0.70],
+    "ft_margin": [0.15, 0.20, 0.25],
 }
 QUICK_GRID = {
-    "scorer_score":  [0.50, 0.60],
+    "scorer_score": [0.50, 0.60],
     "scorer_margin": [0.30, 0.40],
-    "ft_p1":         [0.50, 0.70],
-    "ft_margin":     [0.15, 0.20],
+    "ft_p1": [0.50, 0.70],
+    "ft_margin": [0.15, 0.20],
 }
 
 PROD_POINT = {
-    "scorer_score":  0.50,
+    "scorer_score": 0.50,
     "scorer_margin": 0.30,
-    "ft_p1":         0.50,
-    "ft_margin":     0.15,
+    "ft_p1": 0.50,
+    "ft_margin": 0.15,
 }
 
 
-_RUN_POINT_SRC = textwrap.dedent(
-    """
+_RUN_POINT_SRC = textwrap.dedent("""
     import json, os, sys
     from pathlib import Path
 
     sys.path.insert(0, {repo!r})
     from src.regions.manager_optimized import RegionManager
+    from src.regions.benchmark_split import load_train, load_test, load_all
 
-    bench = json.load(open({bench!r}))
+    _split = os.environ.get("GMNAP_RC_SPLIT", "train")
+    if _split == "test":
+        bench = load_test()
+    elif _split == "all":
+        bench = load_all()
+    else:
+        bench = load_train()
     mgr = RegionManager()
 
     emitted_leaf = 0
@@ -127,8 +133,7 @@ _RUN_POINT_SRC = textwrap.dedent(
         "leaf_precision": round(leaf_precision, 4),
         "group_precision": round(group_precision, 4),
     }}))
-    """
-)
+    """)
 
 
 def _run_point(
@@ -137,29 +142,46 @@ def _run_point(
     ft_p1: float,
     ft_margin: float,
     sample: int | None = None,
+    split: str = "train",
 ) -> dict:
+    """Run a single operating-point evaluation.
+
+    ``split`` selects which subset of the adjudicated benchmark the
+    point is evaluated on:
+
+      - ``"train"`` (default): the ~675-entry train side. Use this
+        when sweeping a grid — picking thresholds against the train
+        set keeps the test set unseen until final evaluation.
+      - ``"test"``: the 168-entry held-out side. Use this only after
+        choosing a single operating point on train, to report the
+        honest out-of-sample numbers.
+      - ``"all"``: the full 843 entries. Back-compat for callers
+        that haven't migrated; numbers from this mode are
+        in-sample by construction.
+    """
     env = os.environ.copy()
     env["PYTHONPATH"] = str(REPO)
-    env["GMNAP_SCORER_MIN_SCORE"]  = f"{scorer_score:.4f}"
+    env["GMNAP_SCORER_MIN_SCORE"] = f"{scorer_score:.4f}"
     env["GMNAP_SCORER_MIN_MARGIN"] = f"{scorer_margin:.4f}"
-    env["GMNAP_FASTTEXT_P1"]       = f"{ft_p1:.4f}"
-    env["GMNAP_FASTTEXT_MARGIN"]   = f"{ft_margin:.4f}"
+    env["GMNAP_FASTTEXT_P1"] = f"{ft_p1:.4f}"
+    env["GMNAP_FASTTEXT_MARGIN"] = f"{ft_margin:.4f}"
     env["OFFLINE"] = "1"
     env["GMNAP_LOG_LEVEL"] = "ERROR"
+    env["GMNAP_RC_SPLIT"] = split
 
-    bench_path = BENCHMARK
-    src = _RUN_POINT_SRC.format(repo=str(REPO), bench=str(bench_path))
+    src = _RUN_POINT_SRC.format(repo=str(REPO))
     if sample:
-        # Truncate benchmark in-memory via a sample wrapper
         src = src.replace(
-            "bench = json.load(open(",
-            f"bench = json.load(open(",
+            "mgr = RegionManager()",
+            f"mgr = RegionManager(); bench = bench[:{sample}]",
         )
-        src = src.replace("mgr = RegionManager()", f"mgr = RegionManager(); bench = bench[:{sample}]")
     t0 = time.time()
     proc = subprocess.run(
         [sys.executable, "-c", src],
-        env=env, capture_output=True, text=True, timeout=900,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=900,
     )
     dt = time.time() - t0
     if proc.returncode != 0:
@@ -171,7 +193,19 @@ def _run_point(
     return out
 
 
-def _sweep(grid: dict, sample: int | None = None) -> list[dict]:
+def _sweep(
+    grid: dict,
+    sample: int | None = None,
+    split: str = "train",
+) -> list[dict]:
+    """Grid sweep on the requested split (default 'train').
+
+    Tuning thresholds against ``train`` keeps the held-out test set
+    unseen — every coverage / leaf-precision number reported during
+    the sweep is a train-set number; the *one* point you decide to
+    deploy then gets re-evaluated on ``test`` for the honest
+    out-of-sample read.
+    """
     combos = list(itertools.product(*grid.values()))
     results = []
     for i, combo in enumerate(combos):
@@ -184,11 +218,13 @@ def _sweep(grid: dict, sample: int | None = None) -> list[dict]:
                 ft_p1=params["ft_p1"],
                 ft_margin=params["ft_margin"],
                 sample=sample,
+                split=split,
             )
         except Exception as exc:
             print(f"FAIL {exc}")
             continue
         r.update(params)
+        r["split"] = split
         results.append(r)
         print(
             f"cov={r['coverage']:.3f} lp={r['leaf_precision']:.3f} "
@@ -205,8 +241,10 @@ def _is_dominated(point: dict, others: list[dict]) -> bool:
         if (
             o["coverage"] >= point["coverage"]
             and o["leaf_precision"] >= point["leaf_precision"]
-            and (o["coverage"] > point["coverage"]
-                 or o["leaf_precision"] > point["leaf_precision"])
+            and (
+                o["coverage"] > point["coverage"]
+                or o["leaf_precision"] > point["leaf_precision"]
+            )
         ):
             return True
     return False
@@ -318,15 +356,31 @@ def _write_markdown(results: list[dict], grid_name: str, sample: int | None) -> 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--quick", action="store_true", help="use 2×2×2×2 grid")
-    parser.add_argument("--sample", type=int, default=None,
-                        help="only evaluate first N benchmark entries")
+    parser.add_argument(
+        "--sample",
+        type=int,
+        default=None,
+        help="only evaluate first N benchmark entries",
+    )
+    parser.add_argument(
+        "--split",
+        choices=("train", "test", "all"),
+        default="train",
+        help=(
+            "which subset of the adjudicated benchmark to sweep on. "
+            "'train' (default) keeps the test set unseen — sweep on it "
+            "to pick a threshold honestly, then re-run with --split=test "
+            "at the chosen point to verify out-of-sample. 'all' is the "
+            "old in-sample behaviour, kept for back-compat."
+        ),
+    )
     args = parser.parse_args()
 
     grid = QUICK_GRID if args.quick else FULL_GRID
     grid_name = "quick (16 points)" if args.quick else "full (108 points)"
 
-    print(f"Running RC curve sweep: {grid_name}")
-    results = _sweep(grid, sample=args.sample)
+    print(f"Running RC curve sweep: {grid_name}, split={args.split}")
+    results = _sweep(grid, sample=args.sample, split=args.split)
     if not results:
         print("No successful runs.", file=sys.stderr)
         return 1
@@ -337,8 +391,10 @@ def main() -> int:
 
     print()
     print(f"Wrote {OUT_MD.relative_to(REPO)} + {OUT_JSON.relative_to(REPO)}")
-    print(f"Points: {len(results)}. Best leaf_prec: "
-          f"{max(r['leaf_precision'] for r in results):.3f}")
+    print(
+        f"Points: {len(results)}. Best leaf_prec: "
+        f"{max(r['leaf_precision'] for r in results):.3f}"
+    )
     return 0
 
 
