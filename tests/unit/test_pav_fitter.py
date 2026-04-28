@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from tools.calibration import _apply_isotonic, _pav_fit
+from tools.calibration import _apply_isotonic, _kfold_cv_metrics, _pav_fit
 
 
 def _means_monotone_nondecreasing(knots):
@@ -212,3 +212,59 @@ def test_gmnap_shaped_data_two_clean_knots():
     )
     _thresholds_strictly_increasing(knots)
     _means_monotone_nondecreasing(knots)
+
+
+# ── K-fold CV metrics ──────────────────────────────────────────────
+
+
+def test_kfold_cv_empty_input_returns_zeroed_metrics():
+    ece, brier, buckets = _kfold_cv_metrics([], k=5)
+    assert ece == 0.0
+    assert brier == 0.0
+    assert all(b["n"] == 0 for b in buckets)
+
+
+def test_kfold_cv_is_deterministic_under_seed():
+    """Same seed → same result. Different seed → different shuffle →
+    *possibly* different bucket distribution but the same overall
+    ECE up to a small float-precision delta."""
+    samples = [(0.5, i % 2) for i in range(100)]
+    a = _kfold_cv_metrics(samples, k=5, seed=42)
+    b = _kfold_cv_metrics(samples, k=5, seed=42)
+    assert a[0] == b[0]
+    assert a[1] == b[1]
+
+
+def test_kfold_cv_preserves_total_holdout_count():
+    """Every sample appears in exactly one held-out fold; the sum of
+    bucket n's should equal the input size."""
+    samples = [(0.7, 1)] * 60 + [(0.9, 0)] * 40
+    _, _, buckets = _kfold_cv_metrics(samples, k=5, seed=0)
+    assert sum(b["n"] for b in buckets) == 100
+
+
+def test_kfold_cv_on_perfect_calibrator_input_gives_low_ece():
+    """If raw confidence = empirical accuracy (the textbook
+    well-calibrated case), CV ECE should stay small — held-out
+    predictions land near the diagonal up to bernoulli sampling
+    noise. With 1000 samples per x, the per-fold accuracy estimate
+    for the held-out 200 is tight enough that CV ECE stays under
+    the conventional 0.05 'well-calibrated' threshold."""
+    # 90 % of samples at p=0.9 are correct, 50 % at p=0.5, 10 % at p=0.1.
+    # Use 1000 each so 5-fold holdouts have 200 samples — bernoulli SE
+    # of the per-fold accuracy is sqrt(0.5*0.5/200) ≈ 0.035.
+    samples: list[tuple[float, int]] = []
+    samples += [(0.9, 1)] * 900 + [(0.9, 0)] * 100
+    samples += [(0.5, 1)] * 500 + [(0.5, 0)] * 500
+    samples += [(0.1, 1)] * 100 + [(0.1, 0)] * 900
+    ece, _, _ = _kfold_cv_metrics(samples, k=5, seed=42)
+    assert ece < 0.05, f"Expected near-perfect input to give CV ECE < 0.05, got {ece}"
+
+
+def test_kfold_cv_does_not_modify_input():
+    """The CV runner should not mutate its samples argument — callers
+    might re-use it for other measurements."""
+    samples = [(0.5, 1), (0.6, 0), (0.7, 1)]
+    snapshot = list(samples)
+    _kfold_cv_metrics(samples, k=2, seed=1)
+    assert samples == snapshot

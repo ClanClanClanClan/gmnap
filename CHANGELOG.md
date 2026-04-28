@@ -4,6 +4,55 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-04-28 (audit-pass round 4)
+
+Round-3's audit listed four "still flagged" items that hadn't been
+fixed yet. Round 4 fixes all four.
+
+### Added (round 4)
+
+- **Per-process Fetcher pool** in `src/authority/manager_tier01.py`.
+  Each `(module_path, class_name)` pair instantiates exactly one
+  `AuthorityFetcher` and reuses it across calls. Previously every
+  `_fetch_*` invocation built a fresh instance, paying ~1 ms of
+  `aiohttp.ClientSession` setup AND resetting per-instance rate-limit
+  state — so a 10k-entry batch that wanted 10 RPS got hit at full
+  executor speed. Pool drains via `_close_fetcher_pool()` (tests + an
+  atexit hook). Locked test confirms 20 sequential calls produce
+  exactly 1 `__init__` invocation; `_close_fetcher_pool()` makes the
+  next call rebuild.
+- **5-fold cross-validated ECE / Brier in the calibration report.**
+  `tools/calibration.py:_kfold_cv_metrics()` shuffles deterministically
+  (seed=42), holds out one fold of 5, fits PAV on the remaining 4,
+  applies the knots to the held-out fold, and aggregates the OOF
+  predictions for one final 10-bucket ECE. Honest out-of-sample
+  number, not measured-on-train. Result on the 654-sample GMNAP
+  benchmark: train-set calibrated ECE = 0.0000 (the artefact-prone
+  measure that round 3 flagged), **5-fold CV ECE = 0.0039** (well
+  under the 0.05 well-calibrated threshold). Both numbers + a third
+  reliability diagram are now shown in `docs/calibration.md`.
+- **5 new k-fold CV unit tests** in `tests/unit/test_pav_fitter.py`:
+  empty-input behaviour, seed determinism, holdout-count
+  preservation, near-perfect input giving low ECE, no-input-mutation
+  invariant.
+- **2 new pool-semantics tests** in
+  `tests/unit/test_canonical_fetcher_delegation.py`: instance-reuse-
+  across-20-calls, close-then-rebuild.
+- **2 new Crossref_Thesis legacy-shape tests**: success path includes
+  `match=True / works>=1`, miss path keeps `match=False / works=0`.
+
+### Fixed (round 4)
+
+- **Crossref_Thesis success shape mismatched legacy contract.** The
+  cached/OFFLINE/empty-name paths returned `{hit, match, works}`
+  while the new live-fetch path (`_call_canonical_fetcher`) returned
+  only `{hit, source_id, ...}`. Downstream tests in
+  `test_authority_manager.TestCrossrefThesis::test_cached_result`
+  asserted on `match`/`works`. Post-process the live result to add
+  `match = bool(hit)` and `works = 1 if hit else 0` (or pull from
+  upstream metadata when available). All four code paths now expose
+  the same key set.
+
 ## [Unreleased] — 2026-04-28 (audit-pass round 2 + 3)
 
 Self-audit after the round-1 audit caught more rot. Two threads:
