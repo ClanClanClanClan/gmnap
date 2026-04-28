@@ -1,13 +1,14 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help setup install-fasttext quick full extreme test lint update-sources clean audit browser-test lock
+.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit browser-test lock
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
 	@echo ""
 	@echo "Available targets:"
-	@echo "  setup        - One-time setup (pip install + compile fasttext)"
+	@echo "  setup        - One-time setup (pip install + compile fasttext + install git hooks)"
 	@echo "  install-fasttext - Compile the fasttext CLI binary"
+	@echo "  install-hooks - Install git pre-commit hook(s) into .git/hooks/"
 	@echo "  quick        - Run pipeline in Quick mode (tier-0 APIs only)"
 	@echo "  full         - Run pipeline in Full mode (tier-0 + tier-1)"
 	@echo "  extreme      - Run pipeline in Extreme mode (all tiers)"
@@ -22,11 +23,16 @@ setup:
 	pip install -r requirements.txt
 	@bash scripts/install_fasttext.sh || \
 		echo "⚠️  fasttext install skipped; rules-only detection will be used."
+	@bash scripts/install_hooks.sh || \
+		echo "⚠️  pre-commit hook install skipped (not a git checkout?)"
 	@echo ""
 	@echo "Setup complete. Try:  gmnap query \"Euler, Leonhard\""
 
 install-fasttext:
 	@bash scripts/install_fasttext.sh
+
+install-hooks:
+	@bash scripts/install_hooks.sh
 
 # Pipeline execution modes
 quick:
