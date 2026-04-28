@@ -1,6 +1,6 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit browser-test lock
+.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit browser-test eval-authority lock
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
@@ -33,6 +33,16 @@ install-fasttext:
 
 install-hooks:
 	@bash scripts/install_hooks.sh
+
+# Live-authority quality harness (tools/eval_authority.py).
+# Hits OpenAlex / Crossref / ORCID_ETD against 30 hand-curated
+# mathematicians and reports hit rate, BirthYear ±1 accuracy, and
+# institution-keyword match. NOT run in CI (network-dependent +
+# rate-limited). Refuses to run with OFFLINE=1 unless you pass
+# `--allow-offline` (useful for testing the harness shape against a
+# warm cache).
+eval-authority:
+	OFFLINE=0 PYTHONPATH=. python3 tools/eval_authority.py
 
 # Pipeline execution modes
 quick:
