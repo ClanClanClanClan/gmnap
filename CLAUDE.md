@@ -7,7 +7,7 @@
 **Regional Coverage**: 37/37 regions fully implemented (100%), 38 processor files
 **Region Detection**: Split geo/name-origin architecture with three-tier suffix system, fastText CLI tiebreaker, same-group gate. Expert-validated as production-ready.
 **Security**: Injection attack blocking validated
-**Performance**: ~3,000 entries/sec at 100K+ scale OFFLINE mode (measured); ~5.4 min/1M actual
+**Performance**: ~29 entries/sec sustained on the synthetic 10 k-batch full pipeline (measured 2026-04-28, Apple M1, OFFLINE) → ~9.7 hours per 1 M synthetic worst case. Detection-only (`RegionManager.detect_region`) is ~780/s. Earlier "3 000/s" / "~5.4 min/1M" claims were detection-only microbenchmarks; honest full-pipeline numbers in `docs/perf_characterization.md`
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
 **Authority Enrichment**: V7 tier orchestrator (`src/authority/manager_tier01.py`) delegates to canonical fetchers in `src/authorities/tierN/` when `OFFLINE=0`. 9 sources have real HTTP code (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH, Wikidata_P184, GND, HAL, OAI_University); 2 gated behind API keys (Scopus, Dimensions); 1 deferred for institutional access (ProQuest); 1 deferred for ToS (GoogleScholar). MathSciNet stub awaits AMS subscription
 **Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. The on-disk directory `config/regions/` is currently empty — every region falls back to its hardcoded defaults — so the loader is dormant in practice but tested and ready
@@ -141,9 +141,15 @@ the full-pipeline row is a lower bound.
 
 | Path | Throughput | 1 M projection | RSS @10 k |
 |---|---|---|---|
-| `RegionManager.detect_region` (single stage) | ~3,700 / s | 4.5 min | — |
-| `V7Pipeline.process_batch` (rules-only, no fastText) | ~980 / s | 17 min | 166 MB |
-| `V7Pipeline.process_batch` (full, fastText CLI tiebreaker) | ~190 / s | 90 min | 348 MB |
+| `RegionManager.detect_region` (stage 2 only, warm) | ~780 / s | ~21 min | 230 MB |
+| `V7Pipeline.process_batch` (full 12 stages, 1 k batch) | 21 / s | ~803 min | 233 MB |
+| `V7Pipeline.process_batch` (full, 10 k batch sustained) | **29 / s** | **~583 min (~9.7 h)** | **363 MB** |
+
+Earlier table cited 980 / s and 190 / s — those were detection-only
+or unscoped numbers. The honest full-pipeline 1M projection is
+~9.7 h synthetic worst-case (stages 6+8 dominate, not stage 2).
+Real-name workload expected 2-5× faster but unmeasured at scale.
+Full methodology in `docs/perf_characterization.md`.
 
 Reproduce with:
 ```bash
