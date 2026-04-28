@@ -77,6 +77,95 @@ def _offline_skip(adapter_name: str) -> Dict[str, Any]:
     return {adapter_name: {"hit": False}}
 
 
+# ---------------------------------------------------------------------------
+# Fetcher pool (per-process reuse to amortize aiohttp session setup)
+# ---------------------------------------------------------------------------
+#
+# Each `AuthorityFetcher` subclass under `src/authorities/tier{0,1,2}/`
+# lazily opens an `aiohttp.ClientSession` on first request and holds
+# rate-limiter state on the instance. Spawning a fresh instance per
+# `_fetch_*` call (the previous design) wasted ~1 ms/call on session
+# setup *and* reset the rate-limit clock, so a 10k-entry batch that
+# wanted to respect a 10 RPS budget would hit the upstream as fast as
+# the executor would let it.
+#
+# Pool the instances per-process. First lookup of a (module_path,
+# class_name) pair instantiates and caches; subsequent lookups reuse.
+# Tests can drop the pool via `_close_fetcher_pool()` between fixtures
+# (and the module's atexit hook closes everything on interpreter
+# shutdown).
+
+_FETCHER_POOL: Dict[Tuple[str, str], Any] = {}
+_FETCHER_POOL_LOCK = asyncio.Lock()
+
+
+async def _get_pooled_fetcher(
+    fetcher_path: str,
+    fetcher_class: str,
+    extra_config: Dict[str, Any] | None,
+) -> Any:
+    """Return the cached fetcher instance, creating it on first hit."""
+    key = (fetcher_path, fetcher_class)
+    cached = _FETCHER_POOL.get(key)
+    if cached is not None:
+        return cached
+    async with _FETCHER_POOL_LOCK:
+        cached = _FETCHER_POOL.get(key)
+        if cached is not None:
+            return cached
+        from importlib import import_module
+
+        module = import_module(fetcher_path)
+        cls = getattr(module, fetcher_class)
+        instance = cls(extra_config or {})
+        _FETCHER_POOL[key] = instance
+        return instance
+
+
+async def _close_fetcher_pool() -> None:
+    """Close every pooled fetcher's HTTP session and clear the pool.
+
+    Called by tests between fixtures and as an atexit hook so we don't
+    leak aiohttp ``ClientSession`` warnings on interpreter shutdown.
+    """
+    async with _FETCHER_POOL_LOCK:
+        for fetcher in list(_FETCHER_POOL.values()):
+            close = getattr(fetcher, "close", None)
+            if close is None:
+                continue
+            try:
+                maybe_coro = close()
+                if hasattr(maybe_coro, "__await__"):
+                    await maybe_coro
+            except Exception:
+                pass
+        _FETCHER_POOL.clear()
+
+
+def _close_fetcher_pool_sync() -> None:
+    """Synchronous wrapper for atexit, which can't await."""
+    if not _FETCHER_POOL:
+        return
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # Can't block in a running loop; schedule and hope.
+            asyncio.ensure_future(_close_fetcher_pool())
+        else:
+            loop.run_until_complete(_close_fetcher_pool())
+    except RuntimeError:
+        # No event loop available (interpreter teardown). Best effort:
+        # the OS will reclaim sockets when the process exits anyway.
+        pass
+
+
+# Wire the pool to atexit — last-resort cleanup if a long-running
+# process didn't explicitly close on shutdown.
+import atexit  # noqa: E402 (intentional after the pool defs)
+
+atexit.register(_close_fetcher_pool_sync)
+
+
 async def _call_canonical_fetcher(
     fetcher_path: str,
     fetcher_class: str,
@@ -93,6 +182,11 @@ async def _call_canonical_fetcher(
     helper landed, the shims silently returned ``{hit: False}`` even
     when ``OFFLINE=0``, so the live HTTP path was unreachable from
     `pipeline_v7.py`'s enrichment stage.
+
+    Fetchers are pooled per (module_path, class_name) for the lifetime
+    of the process (see ``_FETCHER_POOL``); the underlying
+    aiohttp.ClientSession is reused across calls so a 10k-entry batch
+    only pays one session-setup cost.
 
     Args
     ----
@@ -116,17 +210,12 @@ async def _call_canonical_fetcher(
     dependency) we degrade to ``{hit: False, reason: …}`` rather than
     raising, so a single source's failure doesn't poison the batch.
     """
-    from importlib import import_module
-
     from .common import retry_with_backoff
 
     try:
-        module = import_module(fetcher_path)
-        cls = getattr(module, fetcher_class)
+        fetcher = await _get_pooled_fetcher(fetcher_path, fetcher_class, extra_config)
     except (ImportError, AttributeError) as exc:
         return {source_name: {"hit": False, "reason": f"fetcher_unavailable:{exc}"}}
-
-    fetcher = cls(extra_config or {})
 
     try:
         result = await retry_with_backoff(
@@ -136,17 +225,6 @@ async def _call_canonical_fetcher(
         return {
             source_name: {"hit": False, "reason": f"fetch_error:{type(exc).__name__}"}
         }
-    finally:
-        # AuthorityFetcher holds an aiohttp.ClientSession; release it
-        # so we don't leak connections across batches.
-        try:
-            close = getattr(fetcher, "close", None)
-            if close is not None:
-                maybe_coro = close()
-                if hasattr(maybe_coro, "__await__"):
-                    await maybe_coro
-        except Exception:
-            pass
 
     # FetchResult is the canonical shape: status enum + optional data.
     status = getattr(result, "status", None)
@@ -241,6 +319,17 @@ async def _fetch_crossref_thesis(entry: Dict) -> Dict:
         "Crossref_Thesis",
         name,
     )
+    # Post-process to keep the legacy { hit, match, works } keys that
+    # downstream consumers (and the back-compat tests in
+    # test_authority_manager) rely on. `match` is true iff we got any
+    # successful canonical-name match; `works` is the count of
+    # dissertation entries surfaced from the upstream metadata, falling
+    # back to 1-if-hit-else-0 when the canonical fetcher doesn't expose
+    # a count.
+    inner = result.get("Crossref_Thesis", {})
+    inner.setdefault("match", bool(inner.get("hit")))
+    if "works" not in inner:
+        inner["works"] = 1 if inner.get("hit") else 0
     _cache_set(ck, result)
     return result
 

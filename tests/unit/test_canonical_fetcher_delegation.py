@@ -33,7 +33,8 @@ from src.authorities.base import AuthorityData, FetchResult, FetchStatus
 
 @pytest.fixture
 def fresh_module(monkeypatch):
-    """Patch `manager_tier01` to use a temp cache dir per test.
+    """Patch `manager_tier01` to use a temp cache dir per test, and
+    drain the pooled fetchers between tests.
 
     Earlier versions of this fixture did ``importlib.reload(m)`` to
     rebuild the module against a fresh env. That left other test
@@ -48,12 +49,23 @@ def fresh_module(monkeypatch):
     flips the constants for the duration of one test, then reverts
     cleanly so neither the module identity nor any cross-module
     import binding is disturbed.
+
+    Also: the fetcher pool now lives across tests by design, so
+    drop it on entry/exit. Otherwise a previous test's mocked
+    `OpenAlexFetcher.fetch` (which has been unwound by patch.object)
+    would still apply via the cached instance.
     """
     import src.authority.manager_tier01 as m
+
+    # Drain any stale pooled fetchers from a previous test.
+    asyncio.run(m._close_fetcher_pool())
 
     cache_dir = pathlib.Path(tempfile.mkdtemp()).resolve()
     monkeypatch.setattr(m, "CACHE_DIR", cache_dir)
     yield m
+
+    # Drain again on teardown so the next test starts clean.
+    asyncio.run(m._close_fetcher_pool())
 
 
 def _run(coro):
@@ -250,6 +262,120 @@ def test_tier1_gnd_translates_correctly(monkeypatch, fresh_module):
     assert result["GND"]["hit"] is True
     assert result["GND"]["source_id"] == "123456789"
     assert result["GND"]["identifiers"]["GND"] == "123456789"
+
+
+# ── Crossref_Thesis legacy shape ────────────────────────────────
+
+
+def test_crossref_thesis_success_includes_match_and_works(monkeypatch, fresh_module):
+    """Success path must populate `match` and `works` for back-compat
+    with downstream consumers and `test_authority_manager.TestCrossrefThesis`."""
+    _set_offline(monkeypatch, fresh_module, False)
+    from src.authorities.tier0.crossref_thesis import CrossrefThesisFetcher
+
+    async def hit_fetch(self, query):
+        return FetchResult(
+            status=FetchStatus.SUCCESS,
+            data=AuthorityData(
+                source="Crossref_Thesis",
+                source_id="doi:10.0/thesis",
+                canonical_name="Hilbert, David",
+            ),
+        )
+
+    with patch.object(CrossrefThesisFetcher, "fetch", hit_fetch):
+        result = _run(
+            fresh_module._fetch_crossref_thesis({"CanonicalLatin": "Hilbert, David"})
+        )
+
+    inner = result["Crossref_Thesis"]
+    assert inner["hit"] is True
+    assert inner["match"] is True, "match must be True when hit is True"
+    assert inner["works"] >= 1, "works must be ≥ 1 when hit is True"
+
+
+def test_crossref_thesis_miss_keeps_legacy_shape(monkeypatch, fresh_module):
+    """Miss path must still expose `match`/`works` keys."""
+    _set_offline(monkeypatch, fresh_module, False)
+    from src.authorities.tier0.crossref_thesis import CrossrefThesisFetcher
+
+    async def miss_fetch(self, query):
+        return FetchResult(status=FetchStatus.NOT_FOUND, data=None)
+
+    with patch.object(CrossrefThesisFetcher, "fetch", miss_fetch):
+        result = _run(
+            fresh_module._fetch_crossref_thesis({"CanonicalLatin": "Mythical, X"})
+        )
+
+    inner = result["Crossref_Thesis"]
+    assert inner["hit"] is False
+    assert inner["match"] is False
+    assert inner["works"] == 0
+
+
+# ── Pool semantics: instance reuse across calls ──────────────────
+
+
+def test_fetcher_pool_reuses_instance_across_calls(monkeypatch, fresh_module):
+    """A 100-entry batch must instantiate each Fetcher class exactly
+    once. Without pooling, every entry pays a fresh aiohttp.ClientSession
+    setup cost AND resets the per-instance rate-limit clock — so an
+    upstream that asks for 10 RPS gets hit at full executor speed."""
+    _set_offline(monkeypatch, fresh_module, False)
+    from src.authorities.tier0.openalex import OpenAlexFetcher
+
+    init_count = {"n": 0}
+    real_init = OpenAlexFetcher.__init__
+
+    def counting_init(self, config):
+        init_count["n"] += 1
+        real_init(self, config)
+
+    async def quick_fetch(self, query):
+        return FetchResult(
+            status=FetchStatus.SUCCESS,
+            data=AuthorityData(source="OpenAlex", source_id=f"id-{query}"),
+        )
+
+    with patch.object(OpenAlexFetcher, "__init__", counting_init):
+        with patch.object(OpenAlexFetcher, "fetch", quick_fetch):
+            for i in range(20):
+                _run(fresh_module._fetch_openalex({"CanonicalLatin": f"Person {i}"}))
+
+    # 20 distinct queries → 20 cache misses → 20 fetcher calls. But
+    # only ONE Fetcher instance should have been built.
+    assert init_count["n"] == 1, (
+        f"Expected exactly one Fetcher instantiation across 20 calls "
+        f"(pooled), got {init_count['n']}"
+    )
+
+
+def test_fetcher_pool_close_clears_instances(monkeypatch, fresh_module):
+    """After _close_fetcher_pool the next call must instantiate fresh."""
+    _set_offline(monkeypatch, fresh_module, False)
+    from src.authorities.tier0.openalex import OpenAlexFetcher
+
+    init_count = {"n": 0}
+    real_init = OpenAlexFetcher.__init__
+
+    def counting_init(self, config):
+        init_count["n"] += 1
+        real_init(self, config)
+
+    async def quick_fetch(self, query):
+        return FetchResult(
+            status=FetchStatus.SUCCESS,
+            data=AuthorityData(source="OpenAlex", source_id="x"),
+        )
+
+    with patch.object(OpenAlexFetcher, "__init__", counting_init):
+        with patch.object(OpenAlexFetcher, "fetch", quick_fetch):
+            _run(fresh_module._fetch_openalex({"CanonicalLatin": "Once, A"}))
+            assert init_count["n"] == 1
+            _run(fresh_module._close_fetcher_pool())
+            # Different name to bypass the on-disk cache.
+            _run(fresh_module._fetch_openalex({"CanonicalLatin": "Once, B"}))
+            assert init_count["n"] == 2, "pool drained → next call must rebuild"
 
 
 # ── End-to-end: a 4-entry batch with mixed outcomes ────────────────
