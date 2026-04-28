@@ -4,3 +4,10 @@
 # Browser smoke-test harness (tools/browser_smoke.py).
 # Install the Chromium browser after:  playwright install chromium
 playwright>=1.45
+
+# Coverage measurement (pytest --cov=src ...). CI uses this in the
+# `test` job; the line/branch numbers are surfaced in the build log
+# and uploaded as a `coverage-xml` artifact. Devs can run locally:
+#   pip install -r requirements-dev.txt
+#   PYTHONPATH=. pytest tests/unit/ --cov=src --cov-report=html
+pytest-cov>=4.0
