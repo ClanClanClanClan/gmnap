@@ -39,6 +39,20 @@ The canonical Crossref implementation lives at
 exercised by the live-pipeline integration tests rather than by a
 narrow unit test.
 
+`test_v7_spec_ultra_compliance.py` was moved here on 2026-04-28 along
+with the deletion of a 9-file dead cluster in `src/core/`
+(`end_to_end_orchestration`, `pipeline_stage_implementation`,
+`authority_source_integration`, `v7_quality_gates`,
+`real_compliance_tracker`, `performance_benchmarker`,
+`v7_orchestrator`, `pipeline_v7_hotfix`, plus
+`tools/apply_hotfixes.py`). It was the only file that imported every
+member of the cluster, didn't even collect (`NameError: pytest is
+not defined`), wasn't in CI, and last-modified a month before the
+cluster's siblings became orphaned. The file is preserved here in
+case any of the cluster comes back, but realistically the
+assertions inside reference an architecture that hasn't existed
+since v7's first cleanup pass.
+
 Every file is **less than 50 % green**. Adding any of them to CI as-is
 would either fail the pipeline (most) or silently mask regressions
 (the partial-pass ones).
