@@ -145,44 +145,15 @@ jobs:
           tests/unit/test_unicode_handler.py
           tests/unit/test_validation_rules.py
           tests/integration/test_memgraph_e2e.py
-          --cov=src --cov-report=xml:coverage.xml --cov-report=term:skip-covered
-          --cov-append --cov-fail-under=0
           -v --tb=short --timeout=120 -p no:cacheprovider
 
       - name: Property tests
         run: >-
           pytest tests/property/test_unicode_properties.py
-          --cov=src --cov-report=xml:coverage.xml --cov-report=term:skip-covered
-          --cov-append --cov-fail-under=0
           -v --tb=short --timeout=120 -p no:cacheprovider
           -k "not test_normalization_preserves_alphanumeric
           and not test_problematic_unicode_robustness
           and not test_specific_ligature_cases"
-
-      - name: Coverage summary
-        run: |
-          python3 -c "
-          import xml.etree.ElementTree as ET
-          tree = ET.parse('coverage.xml')
-          root = tree.getroot()
-          line_rate = float(root.attrib.get('line-rate', 0)) * 100
-          branch_rate = float(root.attrib.get('branch-rate', 0)) * 100
-          print(f'Line coverage:   {line_rate:.2f}%')
-          print(f'Branch coverage: {branch_rate:.2f}%')
-          # Fail-under floor — start at 0 for the first push, ratchet later.
-          # The number to commit here is the value from the first green run.
-          floor = 0
-          assert line_rate >= floor, f'Line coverage {line_rate:.2f}% < floor {floor}%'
-          "
-
-      - name: Upload coverage artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-xml
-          path: coverage.xml
-          retention-days: 14
-          if-no-files-found: warn
 
       - name: Memory peak check
         run: |
@@ -197,6 +168,81 @@ jobs:
           print(f'Peak RSS: {rss_gb:.2f} GB (limit: {limit} GB)')
           assert rss_gb <= limit, f'Memory peak {rss_gb:.2f} GB exceeds {limit} GB limit'
           "
+
+  coverage:
+    # Coverage is *informational* — runs in parallel with `test`,
+    # doesn't block PR merge. Initial integration with --cov on the
+    # full Core+Property invocations made the test job 10× slower
+    # (90 min vs 7 min original), so we instead run a scoped coverage
+    # pass on `tests/unit/` only against `src/` here. The number is
+    # surfaced in the build log and `coverage.xml` is uploaded as an
+    # artifact for 14 days. `continue-on-error: true` keeps a slow or
+    # failing coverage step from blocking the PR — coverage is a
+    # lever, not a gate (yet).
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-timeout pytest-mock hypothesis duckdb pytest-asyncio pytest-cov
+
+      - name: Compile fasttext CLI binary
+        run: bash scripts/install_fasttext.sh /usr/local/bin/fasttext
+
+      - name: Setup cost tracking
+        run: |
+          mkdir -p cache
+          echo '{}' > cache/api_costs.json
+
+      - name: Run with coverage
+        run: |
+          # Skip the slow region-detection-accuracy file (pyperformance
+          # accuracy run; coverage instrumentation pushes it past 30 min)
+          # and benchmark_evaluation (same reason). Everything else
+          # under tests/unit/ runs.
+          PYTHONPATH=. pytest tests/unit/ \
+            --ignore=tests/unit/test_region_detection_accuracy.py \
+            --ignore=tests/unit/test_benchmark_evaluation.py \
+            --cov=src --cov-report=xml:coverage.xml --cov-report=term:skip-covered \
+            --cov-fail-under=0 \
+            -q --timeout=120 -p no:cacheprovider
+
+      - name: Coverage summary
+        run: |
+          python3 -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('coverage.xml')
+          root = tree.getroot()
+          line_rate = float(root.attrib.get('line-rate', 0)) * 100
+          branch_rate = float(root.attrib.get('branch-rate', 0)) * 100
+          print(f'Line coverage:   {line_rate:.2f}%')
+          print(f'Branch coverage: {branch_rate:.2f}%')
+          # Floor stays at 0 until the first run baselines a real
+          # number and a follow-up commit ratchets up.
+          floor = 0
+          assert line_rate >= floor, f'Line coverage {line_rate:.2f}% < floor {floor}%'
+          "
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          retention-days: 14
+          if-no-files-found: warn
 
   memgraph-test:
     # End-to-end live-Memgraph integration. Spins up Memgraph 2.12 as
