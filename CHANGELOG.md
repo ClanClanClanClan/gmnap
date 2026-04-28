@@ -4,6 +4,85 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-04-28 (Tier 1 — honest evaluation methodology)
+
+The post-audit follow-up: a proposed Tier 1 list of three items
+intended to fix the ship-readiness gaps that round-4's "still flag"
+list left open. All three landed in this batch.
+
+### Removed (Tier 1.3)
+
+- **9-file dead-code cluster in `src/core/`** (4368 lines, b4a9de1).
+  Trace via the import graph:
+  `end_to_end_orchestration` (orphan) →
+  `pipeline_stage_implementation`, `authority_source_integration`
+  (only consumer was the orphan); `v7_quality_gates` was alive only
+  by way of 3 other orphans (`real_compliance_tracker`,
+  `performance_benchmarker`, `v7_orchestrator`); `pipeline_v7_hotfix`
+  patched in an attribute (`_force_immediate_processing`) that's now
+  baked into `pipeline_v7.py:366`, so the hotfix and its sole
+  consumer (`tools/apply_hotfixes.py`) are obsolete. Sole external
+  claimant `tests/paranoid/test_v7_spec_ultra_compliance.py`
+  (754 lines) didn't even collect (`NameError: pytest`); moved to
+  `docs/orphaned_tests/`.
+
+### Added (Tier 1.2)
+
+- **`pytest-cov` instrumentation in CI** (adcaf16). Both `Core
+  tests` and `Property tests` pytest invocations now pass
+  `--cov=src --cov-append`. New `Coverage summary` step parses
+  `coverage.xml`, prints line + branch %, asserts a `--cov-fail-
+  under` floor (currently 0; will ratchet up after the first green
+  run reveals the actual number). New `Upload coverage artifact`
+  step keeps coverage.xml retrievable from the GHA UI for 14 days.
+  `pytest-cov>=4.0` added to `requirements-dev.txt` for local devs.
+
+### Added (Tier 1.1)
+
+- **Stratified 80/20 train/test split for the benchmark.** Until
+  now, `tests/fixtures/name_origin_benchmark.json` was both the
+  training set for calibration / threshold tuning AND the test set
+  for headline-precision claims. Every published number was
+  in-sample. New module `src/regions/benchmark_split.py` does a
+  group-stratified deterministic split (seed 42, ~80/20 per group);
+  `load_train()` / `load_test()` for consumers. 7 unit tests pin
+  the invariants (determinism, no overlap, group representation,
+  per-group fraction bounds, sentinel on the seed value).
+
+### Changed (Tier 1.1)
+
+- **`tools/calibration.py` now fits PAV on TRAIN, evaluates on TEST.**
+  The headline calibrated ECE drops from "in-sample artefact-perfect"
+  (round-3 reported 0.0009 → fixed-PAV showed 0.0000) to **honest
+  out-of-sample 0.0390** on the 168 held-out entries. Still under
+  the 0.05 well-calibrated threshold but no longer gamed. The
+  markdown report shows four columns side-by-side: raw test, calibrated
+  test (the headline), train-applied (sanity check), and 5-fold CV
+  on train (variance estimate). All four reliability diagrams are
+  rendered.
+
+  The runtime knots in `data/calibration_isotonic.json` are now
+  fitted on the train set only; calling `apply()` from
+  `src/regions/calibration.py` with `GMNAP_CALIBRATE_CONFIDENCE=1`
+  uses these honest knots.
+
+  Numbers on the GMNAP benchmark:
+
+  | Metric | Raw test | Calibrated test (held-out) | CV on train |
+  |---|---:|---:|---:|
+  | ECE   | 0.1881 | **0.0390** | 0.0018 |
+  | Brier | 0.139  | 0.114      | 0.115  |
+
+### Known follow-ups
+
+- `tools/rc_curve.py` (operating-point sweep) still runs against
+  the full benchmark via embedded subprocess source. Refactoring it
+  to use the train/test split would require restructuring the
+  template; out of scope for this Tier 1 batch but flagged for
+  a follow-up.
+- Coverage floor in CI is `0` — the first green run will reveal the
+  baseline; a follow-up commit will ratchet to that minus 1 pp.
+
 ## [Unreleased] — 2026-04-28 (audit-pass round 4)
 
 Round-3's audit listed four "still flagged" items that hadn't been
