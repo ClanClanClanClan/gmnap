@@ -1,0 +1,235 @@
+[
+  {
+    "name": "Euler, Leonhard",
+    "wikidata": "Q7604",
+    "birth_year": 1707,
+    "death_year": 1783,
+    "country": "CH",
+    "institution_keywords": ["Basel", "Petersburg", "Berlin"]
+  },
+  {
+    "name": "Gauss, Carl Friedrich",
+    "wikidata": "Q6722",
+    "birth_year": 1777,
+    "death_year": 1855,
+    "country": "DE",
+    "institution_keywords": ["Göttingen", "Gottingen"]
+  },
+  {
+    "name": "Riemann, Bernhard",
+    "wikidata": "Q42299",
+    "birth_year": 1826,
+    "death_year": 1866,
+    "country": "DE",
+    "institution_keywords": ["Göttingen", "Gottingen"]
+  },
+  {
+    "name": "Hilbert, David",
+    "wikidata": "Q41585",
+    "birth_year": 1862,
+    "death_year": 1943,
+    "country": "DE",
+    "institution_keywords": ["Göttingen", "Gottingen", "Königsberg", "Konigsberg"]
+  },
+  {
+    "name": "Noether, Emmy",
+    "wikidata": "Q57391",
+    "birth_year": 1882,
+    "death_year": 1935,
+    "country": "DE",
+    "institution_keywords": ["Göttingen", "Gottingen", "Bryn Mawr"]
+  },
+  {
+    "name": "Poincaré, Henri",
+    "wikidata": "Q41257",
+    "birth_year": 1854,
+    "death_year": 1912,
+    "country": "FR",
+    "institution_keywords": ["Paris", "Sorbonne"]
+  },
+  {
+    "name": "Cauchy, Augustin-Louis",
+    "wikidata": "Q8011",
+    "birth_year": 1789,
+    "death_year": 1857,
+    "country": "FR",
+    "institution_keywords": ["Paris", "Polytechnique"]
+  },
+  {
+    "name": "Galois, Évariste",
+    "wikidata": "Q7090",
+    "birth_year": 1811,
+    "death_year": 1832,
+    "country": "FR",
+    "institution_keywords": []
+  },
+  {
+    "name": "Lagrange, Joseph-Louis",
+    "wikidata": "Q187235",
+    "birth_year": 1736,
+    "death_year": 1813,
+    "country": "FR",
+    "institution_keywords": ["Berlin", "Paris", "Turin"]
+  },
+  {
+    "name": "Fourier, Joseph",
+    "wikidata": "Q8772",
+    "birth_year": 1768,
+    "death_year": 1830,
+    "country": "FR",
+    "institution_keywords": ["Paris", "Polytechnique"]
+  },
+  {
+    "name": "Newton, Isaac",
+    "wikidata": "Q935",
+    "birth_year": 1642,
+    "death_year": 1727,
+    "country": "GB",
+    "institution_keywords": ["Cambridge", "Trinity"]
+  },
+  {
+    "name": "Turing, Alan",
+    "wikidata": "Q7251",
+    "birth_year": 1912,
+    "death_year": 1954,
+    "country": "GB",
+    "institution_keywords": ["Cambridge", "Manchester", "Princeton"]
+  },
+  {
+    "name": "Hardy, G. H.",
+    "wikidata": "Q173746",
+    "birth_year": 1877,
+    "death_year": 1947,
+    "country": "GB",
+    "institution_keywords": ["Cambridge", "Oxford"]
+  },
+  {
+    "name": "Wiles, A.",
+    "wikidata": "Q165524",
+    "birth_year": 1953,
+    "country": "GB",
+    "institution_keywords": ["Princeton", "Oxford", "Cambridge"]
+  },
+  {
+    "name": "Atiyah, Michael",
+    "wikidata": "Q333538",
+    "birth_year": 1929,
+    "death_year": 2019,
+    "country": "GB",
+    "institution_keywords": ["Oxford", "Cambridge", "Edinburgh"]
+  },
+  {
+    "name": "von Neumann, John",
+    "wikidata": "Q17455",
+    "birth_year": 1903,
+    "death_year": 1957,
+    "country": "HU",
+    "institution_keywords": ["Princeton", "Budapest", "Berlin", "Göttingen"]
+  },
+  {
+    "name": "Erdős, Paul",
+    "wikidata": "Q173746-erdos-disambig",
+    "birth_year": 1913,
+    "death_year": 1996,
+    "country": "HU",
+    "institution_keywords": ["Budapest"]
+  },
+  {
+    "name": "Tao, T.",
+    "wikidata": "Q224625",
+    "birth_year": 1975,
+    "country": "AU",
+    "institution_keywords": ["UCLA", "California", "Princeton"]
+  },
+  {
+    "name": "Perelman, G.",
+    "wikidata": "Q187336",
+    "birth_year": 1966,
+    "country": "RU",
+    "institution_keywords": ["Steklov", "Petersburg", "Leningrad"]
+  },
+  {
+    "name": "Kolmogorov, Andrey",
+    "wikidata": "Q83233",
+    "birth_year": 1903,
+    "death_year": 1987,
+    "country": "RU",
+    "institution_keywords": ["Moscow", "Lomonosov"]
+  },
+  {
+    "name": "Chebyshev, Pafnuty",
+    "wikidata": "Q186602",
+    "birth_year": 1821,
+    "death_year": 1894,
+    "country": "RU",
+    "institution_keywords": ["Petersburg", "Moscow"]
+  },
+  {
+    "name": "Ramanujan, Srinivasa",
+    "wikidata": "Q83253",
+    "birth_year": 1887,
+    "death_year": 1920,
+    "country": "IN",
+    "institution_keywords": ["Cambridge", "Madras"]
+  },
+  {
+    "name": "Mirzakhani, Maryam",
+    "wikidata": "Q237857",
+    "birth_year": 1977,
+    "death_year": 2017,
+    "country": "IR",
+    "institution_keywords": ["Stanford", "Princeton", "Harvard"]
+  },
+  {
+    "name": "Cartan, Élie",
+    "wikidata": "Q189014",
+    "birth_year": 1869,
+    "death_year": 1951,
+    "country": "FR",
+    "institution_keywords": ["Paris", "Sorbonne"]
+  },
+  {
+    "name": "Grothendieck, Alexander",
+    "wikidata": "Q190089",
+    "birth_year": 1928,
+    "death_year": 2014,
+    "country": "FR",
+    "institution_keywords": ["IHES", "Paris", "Montpellier"]
+  },
+  {
+    "name": "Serre, J.-P.",
+    "wikidata": "Q161408",
+    "birth_year": 1926,
+    "country": "FR",
+    "institution_keywords": ["Collège de France", "Paris"]
+  },
+  {
+    "name": "Deligne, Pierre",
+    "wikidata": "Q207350",
+    "birth_year": 1944,
+    "country": "BE",
+    "institution_keywords": ["IHES", "Princeton"]
+  },
+  {
+    "name": "Connes, Alain",
+    "wikidata": "Q170023",
+    "birth_year": 1947,
+    "country": "FR",
+    "institution_keywords": ["IHES", "Collège de France", "Paris"]
+  },
+  {
+    "name": "Chern, Shiing-Shen",
+    "wikidata": "Q220943",
+    "birth_year": 1911,
+    "death_year": 2004,
+    "country": "CN",
+    "institution_keywords": ["Berkeley", "California", "Chicago", "Hamburg"]
+  },
+  {
+    "name": "Yau, S. T.",
+    "wikidata": "Q188804",
+    "birth_year": 1949,
+    "country": "CN",
+    "institution_keywords": ["Harvard", "Princeton", "Stanford"]
+  }
+]
