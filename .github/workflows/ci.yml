@@ -145,6 +145,15 @@ jobs:
           tests/unit/test_unicode_handler.py
           tests/unit/test_validation_rules.py
           tests/integration/test_memgraph_e2e.py
+          tests/authority/test_manager_offline.py
+          tests/cjk/test_v7_cjk_roundtrip.py
+          tests/db/test_changelog_edges.py
+          tests/db/test_pool_tx.py
+          tests/v7/test_v7_basic.py
+          tests/v7/test_v7_complete.py
+          tests/v7/test_v7_complete_integration.py
+          tests/v7/test_v7_full_pipeline.py
+          tests/v7/test_v7_imports.py
           -v --tb=short --timeout=120 -p no:cacheprovider
 
       - name: Property tests
