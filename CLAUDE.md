@@ -170,12 +170,26 @@ Architecture: split geo/name-origin branches, hierarchical selective classificat
 |--------|-------|-------|
 | MGP ground truth (15 names, no CC) | 15/15 = 100% | All via surname exact or fastText |
 | CC-based geo accuracy | 216/216 = 100% | All territory mappings correct |
-| Adjudicated leaf precision (523 entries) | 482/482 = 100% | Zero wrong emitted leaves |
+| Adjudicated leaf precision (523 entries) | 482/482 = 100% | Zero wrong emitted leaves *(in-sample on full 843; held-out test-set numbers in `docs/calibration.md`)* |
 | Adjudicated coverage | 482/523 = 92.2% | 41 honest R0 abstentions |
 | Adjudicated group-or-better | 523/523 = 100% | |
 | Full 843 vs geo labels (informational) | 56% | NOT a name-origin KPI — citizenship ≠ name-origin |
 | Classifier errors (genuine) | ~50/843 = 6% | Soviet suffixes, historical boundaries |
 | Abstention rate | 235/843 = 28% | Coverage ceiling for name-only classification |
+
+### Calibration KPIs (held-out test set, `src/regions/benchmark_split.py`)
+| Metric | Value | Notes |
+|--------|-------|-------|
+| Raw ECE (test set) | 0.188 | substantial miscalibration before fix |
+| Calibrated ECE (held-out) | **0.039** | PAV fit on 675 train; evaluated on 168 test |
+| Brier (raw / calibrated) | 0.139 / 0.114 | |
+| 5-fold CV ECE on train | 0.002 | within-train variance estimate |
+
+The headline ECE = **0.039** is the honest out-of-sample number.
+Earlier reports of "ECE = 0.0009" were measured-on-train and
+artefactually small because PAV collapses everything into one
+10-bucket bin in-sample. See `docs/calibration.md` for the four
+side-by-side reliability diagrams.
 
 ### Key Constants
 - SIGNATURE_SUFFIXES: 22 (fire leaf at 2.5)
