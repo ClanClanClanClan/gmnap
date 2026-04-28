@@ -4,6 +4,76 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-04-28 (Tier 2 + 3 — eval, triage, perf, polish)
+
+After Tier 1's three honest-evaluation items landed, picked up the
+operational + reviewer-facing polish from the same audit:
+
+### Added (Tier 2)
+
+- **Live-authority quality harness** (`tools/eval_authority.py`). 30
+  hand-curated mathematicians in `tests/integration/authority_ground_truth.json`
+  (with Wikidata QIDs, birth years, country, institution keywords).
+  Runs OpenAlex / Crossref / ORCID_ETD against each, reports
+  per-source hit rate, BirthYear ±1 accuracy, and substring-match
+  on institution keywords. NOT in CI (network-dependent + per-API
+  rate limits); runs from a workstation via `make eval-authority`.
+  Refuses to run without `OFFLINE=0` unless `--allow-offline`.
+- **+19 tests in CI's Core-tests step** from 4 newly-triaged
+  directories: `tests/authority/test_manager_offline.py`,
+  `tests/cjk/test_v7_cjk_roundtrip.py`, both `tests/db/`, all 5
+  `tests/v7/`. Triage matrix + decisions for the 9 remaining
+  non-CI dirs in `docs/test_triage_2026-04-28.md`.
+- **`--real-names` flag on `tools/run_benchmark.py`**. Samples from
+  the curated genealogy JSON instead of synthetic
+  `Surname{i}, Given{i}` entries. Wired as `make bench-real`.
+- **`docs/perf_characterization.md`** — methodology + the four
+  measured rows (100/500/1000/10000 batch synthetic) + the 1k
+  real-name row, with honest gap analysis vs. earlier projections.
+  Synthetic 10k: 29 e/s, ~9.7 h/1M. Real 1k: 5 e/s, ~58 h/1M.
+  README + CLAUDE.md perf tables updated to match.
+
+### Added (Tier 3)
+
+- **`tools/gen_api_reference.py`** + `make api-docs`. Pulls the
+  FastAPI app's OpenAPI schema, writes machine-readable
+  `docs/openapi.json` + human-readable `docs/api_reference.md`.
+  8 endpoints documented; idempotent re-runnable.
+- **`CONTRIBUTING.md`** — setup, test-running, lint policy
+  (versions pinned), branching, PR style, the 8 CI jobs that gate
+  every push, and a doc-discovery section pointing at
+  ARCHITECTURE.md / DEMO.md / docs/calibration.md /
+  docs/perf_characterization.md / docs/api_reference.md /
+  docs/test_triage_2026-04-28.md.
+- **`SECURITY.md`** — responsible-disclosure policy. Email contact
+  (`dylan.possamai@math.ethz.ch`), 90-day default disclosure
+  window, in-scope / out-of-scope lists, severity tiers, what to
+  expect after reporting, and an enumeration of the hardening
+  already in place (CSP, HSTS, rate-limit, hashcash, secret-scan).
+
+### Fixed
+
+- `test_enrich_all_offline` Python 3.12 compat:
+  `asyncio.get_event_loop().run_until_complete(...)` →
+  `asyncio.run(...)`. Was the only thing failing the `test` job
+  on Tier 2.2's commit.
+- Coverage gate floor 17 → 15 to accommodate `--cov-branch`.
+  Adding branch coverage tightens what `--cov-fail-under` measures
+  (combined line+branch ≈ 16 % vs line-only 17.96 %); 15 is the
+  honest floor that doesn't trip on noise.
+
+### Skipped (Tier 3)
+
+- **14 region YAML extension files**: the `_apply_yaml_overrides`
+  merge layer was deleted in round 2 because it was dormant; YAMLs
+  alone wouldn't change behaviour without re-implementing the
+  merge. Speculative value, deferred.
+- **JSON / structured logging**: 4-6 h migration sweep; tests assert
+  on log strings; only useful with an ELK / Datadog backend.
+  Deferred until production deploy demands it.
+- **OpenTelemetry tracing**: 3 h + new dependencies; only useful
+  with a tracing backend. Deferred.
+
 ## [Unreleased] — 2026-04-28 (Tier 1 — honest evaluation methodology)
 
 The post-audit follow-up: a proposed Tier 1 list of three items

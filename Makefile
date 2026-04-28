@@ -1,6 +1,6 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit browser-test eval-authority lock
+.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit browser-test eval-authority api-docs bench-real lock
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
@@ -33,6 +33,19 @@ install-fasttext:
 
 install-hooks:
 	@bash scripts/install_hooks.sh
+
+# API reference docs (tools/gen_api_reference.py). Pulls the
+# OpenAPI schema from the FastAPI app and renders it to
+# docs/api_reference.md (markdown for humans) + docs/openapi.json
+# (machine-readable for tooling).
+api-docs:
+	PYTHONPATH=. python3 tools/gen_api_reference.py
+
+# Real-name benchmark (Tier 2.3 follow-up). Sample from the curated
+# genealogy_enrichment.json instead of synthetic entries — exercises
+# the rule fast-path and produces realistic-workload throughput.
+bench-real:
+	PYTHONPATH=. python3 tools/run_benchmark.py --real-names --sizes 1000,10000
 
 # Live-authority quality harness (tools/eval_authority.py).
 # Hits OpenAlex / Crossref / ORCID_ETD against 30 hand-curated
