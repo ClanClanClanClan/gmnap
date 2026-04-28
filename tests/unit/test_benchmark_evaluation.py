@@ -119,12 +119,20 @@ def test_geo_benchmark(manager, benchmark_data):
 # ============================================================
 
 
+@pytest.mark.timeout(600)
 def test_name_origin_leaf_precision(manager, benchmark_data):
     """Leaf precision on high-confidence entries (where geo and name-origin agree).
 
     NOTE: This only measures on the AGREEMENT subset. The disagreement
     subset (immigrants, diaspora) requires human adjudication for proper
     name-origin labels. Until then, we report but don't gate on it.
+
+    Per-test timeout 600s: with the full fastText model present, the
+    pipeline takes ~50ms/entry on 843 entries (~ 7-9 min when the
+    classifier path is exercised, depending on hardware). On CI the
+    test is `pytest.skip`-ed because the fastText model isn't bundled
+    in the runner image — the 600s ceiling is for the local-dev-with-
+    fastText path, not CI.
     """
     from src.regions.manager_optimized import LEAF_TO_GROUP
 
@@ -156,36 +164,89 @@ def test_name_origin_leaf_precision(manager, benchmark_data):
         f"({correct}/{emitted})"
     )
 
-    # Also report on ALL 843 entries vs geo labels (informational, not gated)
-    all_emitted = 0
-    all_correct = 0
-    all_group = 0
+    # ONE pass through the full benchmark — record the per-entry
+    # outcome, then re-bucket below for the all/train/test reports
+    # without paying for the pipeline again.
+    from src.regions.benchmark_split import assignment
+
+    split_map = assignment()
+    per_entry: list[dict] = []
     for entry in benchmark_data:
         r = manager.detect_region({"CanonicalLatin": entry["full_name"]})
-        if r.region_code != "R0":
-            all_emitted += 1
-            if r.region_code == entry["geo_label"]:
-                all_correct += 1
-                all_group += 1
-            elif LEAF_TO_GROUP.get(r.region_code) == LEAF_TO_GROUP.get(
-                entry["geo_label"]
-            ):
-                all_group += 1
-        else:
-            if r.group_region == LEAF_TO_GROUP.get(entry["geo_label"]):
-                all_group += 1
+        per_entry.append(
+            {
+                "name": entry["full_name"],
+                "code": r.region_code,
+                "group": r.group_region,
+                "geo_label": entry["geo_label"],
+                "acceptable_leaves": entry.get("acceptable_leaves") or [],
+                "split": split_map.get(entry["full_name"], "?"),
+            }
+        )
 
+    # ── Report 1: full 843 vs geo labels (informational) ──
+    all_emitted = sum(1 for x in per_entry if x["code"] != "R0")
+    all_correct_geo = sum(
+        1 for x in per_entry if x["code"] != "R0" and x["code"] == x["geo_label"]
+    )
+    all_group = sum(
+        1
+        for x in per_entry
+        if (x["code"] != "R0" and x["code"] == x["geo_label"])
+        or (
+            x["code"] != "R0"
+            and LEAF_TO_GROUP.get(x["code"]) == LEAF_TO_GROUP.get(x["geo_label"])
+        )
+        or (x["code"] == "R0" and x["group"] == LEAF_TO_GROUP.get(x["geo_label"]))
+    )
     print("\n[INFO] Full 843 vs geo labels (NOT name-origin adjusted):")
     print(
-        f"  Leaf precision: {all_correct}/{all_emitted} = {all_correct/max(1,all_emitted):.1%}"
+        f"  Leaf precision: {all_correct_geo}/{all_emitted} = "
+        f"{all_correct_geo/max(1,all_emitted):.1%}"
     )
     print(
-        f"  Coverage: {all_emitted}/{len(benchmark_data)} = {all_emitted/len(benchmark_data):.1%}"
+        f"  Coverage: {all_emitted}/{len(benchmark_data)} = "
+        f"{all_emitted/len(benchmark_data):.1%}"
     )
     print(
-        f"  Group-or-better: {all_group}/{len(benchmark_data)} = {all_group/len(benchmark_data):.1%}"
+        f"  Group-or-better: {all_group}/{len(benchmark_data)} = "
+        f"{all_group/len(benchmark_data):.1%}"
     )
     print("  NOTE: many 'errors' are correct name-origin on immigrants")
+
+    # ── Report 2: train vs test split, honest leaf precision vs
+    #             acceptable_leaves (the adjudicated-leaf metric) ──
+    def _split_metrics(side: str) -> dict:
+        rows = [x for x in per_entry if x["split"] == side]
+        emitted = sum(1 for x in rows if x["code"] != "R0")
+        correct = sum(
+            1 for x in rows if x["code"] != "R0" and x["code"] in x["acceptable_leaves"]
+        )
+        return {
+            "n": len(rows),
+            "emitted": emitted,
+            "correct": correct,
+            "coverage": emitted / max(1, len(rows)),
+            "leaf_precision": correct / max(1, emitted),
+        }
+
+    train_m = _split_metrics("train")
+    test_m = _split_metrics("test")
+    print("\n[INFO] Stratified train/test split (src/regions/benchmark_split.py):")
+    print(
+        f"  Train (in-sample):    "
+        f"leaf precision {train_m['correct']}/{train_m['emitted']} = "
+        f"{train_m['leaf_precision']:.1%}, "
+        f"coverage {train_m['emitted']}/{train_m['n']} = "
+        f"{train_m['coverage']:.1%}"
+    )
+    print(
+        f"  Test  (held-out):     "
+        f"leaf precision {test_m['correct']}/{test_m['emitted']} = "
+        f"{test_m['leaf_precision']:.1%}, "
+        f"coverage {test_m['emitted']}/{test_m['n']} = "
+        f"{test_m['coverage']:.1%}"
+    )
 
 
 def test_name_origin_group_accuracy(manager, benchmark_data):
