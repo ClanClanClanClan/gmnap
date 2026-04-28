@@ -1,0 +1,151 @@
+# GMNAP V7 API reference
+
+Auto-generated from the FastAPI OpenAPI schema by
+`tools/gen_api_reference.py`. Version: **7.0**.
+
+Endpoints: **8**. Re-generate after any endpoint
+change with `make api-docs`. The full machine-readable schema
+is at `docs/openapi.json`.
+
+## Endpoints
+
+### `GET /`
+
+**Serve Index**
+
+**Responses:**
+  - `200` (application/json) — Successful Response
+
+### `GET /api/v1/lineage/{global_id}`
+
+**Get Lineage**
+
+Query academic genealogy lineage for a GlobalID or name.
+
+``direction=ancestors`` (default) walks ``advisor-of-me``;
+``direction=descendants`` walks ``student-of-me`` so a query
+for "Hilbert" returns his ~76 known students rather than his
+2 advisors.
+
+**Parameters:**
+  - `global_id` (`string`, path) **(required)**
+  - `depth` (`integer`, query)
+  - `direction` (`string`, query) — ancestors = walk up the advisor chain; descendants = walk down the student chain
+  - `format` (`string`, query) — Output format: json/dot/svg
+
+**Responses:**
+  - `200` (application/json) — Successful Response
+  - `422` (application/json) — Validation Error
+
+### `POST /api/v1/process`
+
+**Process Batch**
+
+Run V7 pipeline on a batch of entries.
+
+**Request body** (`application/json`): `ProcessRequest`
+
+**Responses:**
+  - `200` (application/json) — Successful Response
+  - `422` (application/json) — Validation Error
+
+### `GET /api/v1/query`
+
+**Query Name**
+
+Query a single mathematician name for region detection & processing.
+
+**Parameters:**
+  - `name` (`string`, query) **(required)** — Mathematician name to look up
+  - `mode` (`string`, query) — Pipeline mode: quick/full/extreme
+
+**Responses:**
+  - `200` (application/json) — Successful Response
+  - `422` (application/json) — Validation Error
+
+### `POST /api/v1/suggest`
+
+**Suggest Correction**
+
+Accept a user-submitted correction suggestion.
+
+**Request body** (`application/json`): `CorrectionSuggestion`
+
+**Responses:**
+  - `200` (application/json) — Successful Response
+  - `422` (application/json) — Validation Error
+
+### `GET /healthz`
+
+**Healthz**
+
+Liveness probe.
+
+**Responses:**
+  - `200` (application/json) — Successful Response
+
+### `GET /metrics`
+
+**Metrics**
+
+Prometheus-compatible metrics endpoint.
+
+**Responses:**
+  - `200` (application/json) — Successful Response
+
+### `GET /readyz`
+
+**Readyz**
+
+Readiness probe — performs a real Bolt handshake.
+
+The earlier implementation opened a raw TCP socket and accepted
+any handshake response as "ready". That returned 200 even when
+Memgraph was alive but auth was broken, the storage was
+corrupt, or the Bolt protocol upgrade was rejected. Here we
+delegate to ``src.genealogy.query._driver`` which calls
+``verify_connectivity()`` under a 2-second timeout — the same
+path the lineage endpoint uses.
+
+**Responses:**
+  - `200` (application/json) — Successful Response
+
+## Component schemas
+
+Pydantic models referenced by the endpoints above.
+Property-level detail lives in the underlying class docstrings
+in `src/api/server.py` — this section just lists which models
+exist so reviewers can grep for them.
+
+| Schema | Properties |
+|---|---|
+| `CorrectionSuggestion` | `original_name`, `correction_type`, `suggested_value`, `source_url`, `submitter_note` |
+| `HTTPValidationError` | `detail` |
+| `HealthResponse` | `status`, `version`, `uptime_seconds` |
+| `ProcessRequest` | `entries`, `mode`, `schema_strict`, `limit`, `offset` |
+| `ValidationError` | `loc`, `msg`, `type`, `input`, `ctx` |
+
+## Cross-cutting middleware (not in the schema)
+
+These behaviours are enforced by FastAPI middleware in
+`src/api/server.py` and aren't part of the OpenAPI surface:
+
+- **Rate limiting**: 60 req/min for free tier (configurable
+  via `GMNAP_FREE_RPM`); 10 000/min for paid Bearer-token tier
+  (configurable via `GMNAP_PAID_RPM`). Tokens listed in
+  `GMNAP_API_TOKENS` (comma-separated) skip the free gate.
+- **Hashcash proof-of-work**: free tier requires an 18-bit
+  SHA-256 stamp in the `X-Hashcash` header (~1 s on a modern CPU).
+  See `static/app.js:generateHashcash` for the browser miner.
+- **Security headers**: CSP `default-src 'self'; script-src 'self';
+  style-src 'self'`, HSTS, X-Frame-Options DENY, etc.
+- **Prometheus metrics**: every request records latency + status
+  on `gmnap_api_request_duration_seconds` /
+  `gmnap_api_requests_total`. Scraped from `/metrics`.
+
+## Reproduce
+
+```bash
+make api-docs
+# or:  PYTHONPATH=. python3 tools/gen_api_reference.py
+```

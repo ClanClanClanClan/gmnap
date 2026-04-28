@@ -25,12 +25,38 @@ Two distinct measurements:
 
 ## Measured numbers, full V7 pipeline (Apple M1, OFFLINE=1)
 
+### Synthetic names (worst case)
+
 | Batch size | Elapsed | Throughput | 1M projection | Peak RSS |
 |---:|---:|---:|---:|---:|
 |     100 |  16.9 s |   6 entries/s | ~2 800 min | 230 MB |
 |     500 |  19.0 s |  26 entries/s |    634 min | 230 MB |
 |   1 000 |  48.2 s |  21 entries/s |    803 min | 233 MB |
 |  10 000 | 350.1 s |  29 entries/s |    583 min | 363 MB |
+
+### Real names (sampled from `data/genealogy_enrichment.json`)
+
+`tools/run_benchmark.py --real-names`:
+
+| Batch size | Elapsed | Throughput | 1M projection | Peak RSS |
+|---:|---:|---:|---:|---:|
+|   1 000 | 207.8 s |   5 entries/s | 3 462 min (~58 h) | 460 MB |
+|  10 000 | (running while this writeup landed; row pending) |
+
+The earlier ROUND-2 prediction "real names expected 2-5× faster than
+synthetic" was **wrong** at the 1 000-entry scale: real names are
+~4× **slower** than synthetic (5/s vs 21/s). The intuition that real
+names skip rule fallback was right, but the cost we save on stage 2
+is dominated by the cost we pay elsewhere — likely stage 4 (authority
+enrichment, even OFFLINE) and stage 6 (graph-coherence joint solver
+takes more iterations on entries with actual advisor edges in the
+enrichment JSON).
+
+The real-name 10 000-entry row will land in a follow-up commit once
+the run completes. Until then, the honest read for production
+workloads is **somewhere between 5 and 30 entries/s sustained,
+i.e. 600 min to 3 500 min per 1 M depending on whether you're closer
+to the 1 k or 10 k batch amortization point.**
 
 The first row is dominated by ~10-15s of setup overhead (region
 processors, fastText models, manager singleton). At ≥ 500 entries
