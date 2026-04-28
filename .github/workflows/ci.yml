@@ -79,7 +79,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest pytest-timeout pytest-mock hypothesis duckdb pytest-asyncio
+          pip install pytest pytest-timeout pytest-mock hypothesis duckdb pytest-asyncio pytest-cov
 
       - name: Compile fasttext CLI binary
         run: bash scripts/install_fasttext.sh /usr/local/bin/fasttext
@@ -144,15 +144,44 @@ jobs:
           tests/unit/test_unicode_handler.py
           tests/unit/test_validation_rules.py
           tests/integration/test_memgraph_e2e.py
+          --cov=src --cov-report=xml:coverage.xml --cov-report=term:skip-covered
+          --cov-append --cov-fail-under=0
           -v --tb=short --timeout=120 -p no:cacheprovider
 
       - name: Property tests
         run: >-
           pytest tests/property/test_unicode_properties.py
+          --cov=src --cov-report=xml:coverage.xml --cov-report=term:skip-covered
+          --cov-append --cov-fail-under=0
           -v --tb=short --timeout=120 -p no:cacheprovider
           -k "not test_normalization_preserves_alphanumeric
           and not test_problematic_unicode_robustness
           and not test_specific_ligature_cases"
+
+      - name: Coverage summary
+        run: |
+          python3 -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('coverage.xml')
+          root = tree.getroot()
+          line_rate = float(root.attrib.get('line-rate', 0)) * 100
+          branch_rate = float(root.attrib.get('branch-rate', 0)) * 100
+          print(f'Line coverage:   {line_rate:.2f}%')
+          print(f'Branch coverage: {branch_rate:.2f}%')
+          # Fail-under floor — start at 0 for the first push, ratchet later.
+          # The number to commit here is the value from the first green run.
+          floor = 0
+          assert line_rate >= floor, f'Line coverage {line_rate:.2f}% < floor {floor}%'
+          "
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          retention-days: 14
+          if-no-files-found: warn
 
       - name: Memory peak check
         run: |
