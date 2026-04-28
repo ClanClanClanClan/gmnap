@@ -253,24 +253,12 @@ def _kfold_cv_metrics(
     return _ece_brier_on_buckets(oof)
 
 
-def run() -> dict[str, Any]:
-    from src.regions.manager_optimized import RegionManager
-
-    manager = RegionManager()
-
-    benchmark = _load_benchmark()
-    # Skip entries the adjudicators flagged as "expected_mode: group" —
-    # those are designed to test the abstain-to-group path, not leaf
-    # confidence calibration. Same for entries with no acceptable_leaves.
-    eligible = [
-        e
-        for e in benchmark
-        if e.get("expected_mode") == "leaf" and e.get("acceptable_leaves")
-    ]
-
-    samples: list[tuple[float, int]] = []  # (raw_conf, 0/1)
+def _samples_from(manager, eligible):
+    """Run detection on a list of benchmark entries; return
+    ``(samples, abstentions)`` where samples is a list of
+    ``(raw_conf, is_correct)``."""
+    samples: list[tuple[float, int]] = []
     abstentions = 0
-
     for e in eligible:
         name = e.get("full_name") or ""
         if not name:
@@ -281,34 +269,73 @@ def run() -> dict[str, Any]:
             abstentions += 1
             continue
         samples.append((conf, int(leaf in accepted)))
+    return samples, abstentions
 
-    raw_ece, raw_brier, raw_buckets = _ece_brier_on_buckets(samples)
 
-    # Fit PAV on the full sample set (train-and-evaluate on same data).
-    knots = _pav_fit(samples)
-    cal_samples = [(_apply_isotonic(c, knots), y) for c, y in samples]
-    cal_ece, cal_brier, cal_buckets = _ece_brier_on_buckets(cal_samples)
+def run() -> dict[str, Any]:
+    from src.regions.benchmark_split import load_test, load_train
+    from src.regions.manager_optimized import RegionManager
 
-    # Honest out-of-fold metrics — fit on 4/5, evaluate on 1/5,
-    # rotated 5 times.
-    cv_ece, cv_brier, cv_buckets = _kfold_cv_metrics(samples, k=5, seed=42)
+    manager = RegionManager()
+
+    train = [
+        e
+        for e in load_train()
+        if e.get("expected_mode") == "leaf" and e.get("acceptable_leaves")
+    ]
+    test = [
+        e
+        for e in load_test()
+        if e.get("expected_mode") == "leaf" and e.get("acceptable_leaves")
+    ]
+
+    train_samples, train_abst = _samples_from(manager, train)
+    test_samples, test_abst = _samples_from(manager, test)
+
+    # 1. Raw ECE on the held-out test set — the headline number.
+    raw_ece, raw_brier, raw_buckets = _ece_brier_on_buckets(test_samples)
+
+    # 2. Fit PAV on TRAIN. Apply to both train (sanity check) and
+    #    test (the honest evaluation).
+    knots = _pav_fit(train_samples)
+    train_cal = [(_apply_isotonic(c, knots), y) for c, y in train_samples]
+    test_cal = [(_apply_isotonic(c, knots), y) for c, y in test_samples]
+    train_cal_ece, train_cal_brier, train_cal_buckets = _ece_brier_on_buckets(train_cal)
+    test_cal_ece, test_cal_brier, test_cal_buckets = _ece_brier_on_buckets(test_cal)
+
+    # 3. K-fold CV WITHIN the train set — variance estimate that's
+    #    independent of the test split.
+    cv_ece, cv_brier, cv_buckets = _kfold_cv_metrics(train_samples, k=5, seed=42)
 
     return {
-        "n_eligible": len(eligible),
-        "n_predicted": len(samples),
-        "n_abstain": abstentions,
-        "ece": raw_ece,  # back-compat alias for the raw metric
+        "n_train_eligible": len(train),
+        "n_train_predicted": len(train_samples),
+        "n_train_abstain": train_abst,
+        "n_test_eligible": len(test),
+        "n_test_predicted": len(test_samples),
+        "n_test_abstain": test_abst,
+        # back-compat aliases (n_eligible / n_predicted / n_abstain
+        # used to mean the full-set numbers; they now mean the test
+        # set, which is what should drive any headline claim)
+        "n_eligible": len(test),
+        "n_predicted": len(test_samples),
+        "n_abstain": test_abst,
+        "ece": raw_ece,  # raw test-set ECE
         "brier": raw_brier,
         "buckets": raw_buckets,
         "calibrated": {
-            "ece": cal_ece,
-            "brier": cal_brier,
-            "buckets": cal_buckets,
+            "ece": test_cal_ece,  # honest: fit on train, eval on test
+            "brier": test_cal_brier,
+            "buckets": test_cal_buckets,
             "knots": [list(k) for k in knots],
+            "train_ece": train_cal_ece,  # for completeness — train-set re-application
+            "train_brier": train_cal_brier,
+            "train_buckets": train_cal_buckets,
         },
         "cv": {
             "k": 5,
             "seed": 42,
+            "scope": "train-set (variance estimate; complement to held-out test)",
             "ece": cv_ece,
             "brier": cv_brier,
             "buckets": cv_buckets,
@@ -353,13 +380,15 @@ def _md_report(report: dict[str, Any]) -> str:
     raw_diag = _ascii_diagram(report)
     cal_diag = _ascii_diagram({"buckets": report["calibrated"]["buckets"]})
     cv_diag = _ascii_diagram({"buckets": report["cv"]["buckets"]})
-    n_eligible = report["n_eligible"]
+    n_test_elig = report["n_test_eligible"]
+    n_train_elig = report["n_train_eligible"]
     n_pred = report["n_predicted"]
     n_abst = report["n_abstain"]
     raw_ece = report["ece"]
     raw_brier = report["brier"]
     cal_ece = report["calibrated"]["ece"]
     cal_brier = report["calibrated"]["brier"]
+    train_cal_ece = report["calibrated"]["train_ece"]
     cv_ece = report["cv"]["ece"]
     cv_brier = report["cv"]["brier"]
     cv_k = report["cv"]["k"]
@@ -387,25 +416,42 @@ def _md_report(report: dict[str, Any]) -> str:
     return f"""# Region-detector confidence calibration
 
 Generated by `tools/calibration.py` on the
-{n_eligible} adjudicated leaf-mode entries of
-`tests/fixtures/name_origin_benchmark.json`.
+adjudicated leaf-mode entries of
+`tests/fixtures/name_origin_benchmark.json`, split deterministically
+into train ({n_train_elig} entries) and held-out test ({n_test_elig}
+entries) by `src/regions/benchmark_split.py`.
+
+## Methodology
+
+1. **Stratified 80/20 split** by group letter (A–G), seed 42. Tiny
+   groups (F=43, G=37) get ≥ 1 test entry; bigger groups (C=233,
+   B=166) keep their ~80/20 ratio. Split is computed once per
+   process and cached.
+2. **PAV isotonic fitter is trained ONLY on the train set** (~675
+   samples after R0/None filtering).
+3. **Headline calibrated ECE is measured on the held-out test set**
+   — none of those samples were seen during fitting, so the number
+   is an honest estimate of generalization.
+4. **5-fold cross-validation runs WITHIN the train set** as an
+   independent variance estimate. Complementary to (3); doesn't
+   touch the test set at all.
 
 ## Summary
 
-| Metric | Raw | Train-set isotonic | {cv_k}-fold CV (held-out) |
-|---|---:|---:|---:|
-| Eligible entries (leaf-mode) | {n_eligible} | {n_eligible} | {n_eligible} |
-| Predictions emitted | {n_pred} | {n_pred} | {n_pred} |
-| Abstentions (R0 / None) | {n_abst} | {n_abst} | {n_abst} |
-| Brier score | **{raw_brier:.4f}** | **{cal_brier:.4f}** | **{cv_brier:.4f}** |
-| Expected Calibration Error (ECE) | **{raw_ece:.4f}** | **{cal_ece:.4f}** | **{cv_ece:.4f}** |
+| Metric | Raw test | Calibrated test (held-out) | Train-applied | {cv_k}-fold CV on train |
+|---|---:|---:|---:|---:|
+| Eligible entries (leaf-mode) | {n_test_elig} | {n_test_elig} | {n_train_elig} | {n_train_elig} |
+| Predictions emitted | {n_pred} | {n_pred} | – | – |
+| Abstentions (R0 / None) | {n_abst} | {n_abst} | – | – |
+| Brier score | **{raw_brier:.4f}** | **{cal_brier:.4f}** | – | **{cv_brier:.4f}** |
+| Expected Calibration Error (ECE) | **{raw_ece:.4f}** | **{cal_ece:.4f}** | {train_cal_ece:.4f} | **{cv_ece:.4f}** |
 
-The right column is the **honest** number: PAV is fit on 4/5 of the
-samples, applied to the 1/5 held out, rotated five times. The
-held-out predictions are concatenated and bucket-binned together.
-This approximates the ECE a fresh batch from the same distribution
-would actually see, without the train-on-eval optimism that makes
-the middle column look better than it is.
+**The second column is the honest number.** It's the test-set ECE
+after applying knots that were fit only on the disjoint train set.
+The third column (train-applied) is the same fitted knots applied
+back to their training data — useful as a sanity check (should be
+near zero) but not a generalization claim. The fourth column (CV)
+estimates fit-time variance.
 
 {_interp(raw_ece)}
 
