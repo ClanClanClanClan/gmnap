@@ -4,6 +4,133 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-04-28 (audit-pass round 2 + 3)
+
+Self-audit after the round-1 audit caught more rot. Two threads:
+deeper authority-stack consolidation (round 2) and a paranoid review
+that surfaced a real bug + missing test coverage (round 3).
+
+### Fixed (2026-04-28)
+
+- **PAV isotonic fitter was statistically wrong on tied input.**
+  Self-audit: passing `samples = [(0.5, 1), (0.5, 0), (0.5, 1),
+  (0.5, 1)]` should give one knot with `cal_p = 0.75` (3/4 correct).
+  Old fitter produced 3 knots all at threshold 0.5 with cal_ps
+  `[0.5, 1.0, 1.0]`, and the apply path returns the FIRST match
+  → `0.5`. Fix: pre-aggregate ties into single weighted (sum_y,
+  count) blocks before the merge loop, so PAV's output now has at
+  most one knot per unique input confidence. Re-fit on the GMNAP
+  benchmark: 7 redundant knots → 2 clean knots; calibrated values
+  for tied inputs now match the empirical mean.
+
+### Added (2026-04-28)
+
+- **Unit tests for the PAV fitter** —
+  `tests/unit/test_pav_fitter.py` (16 tests). Covers empty input,
+  single sample, all-correct, all-wrong, monotonic input,
+  single/chain violations, **tie aggregation** (the bug above),
+  apply edge-clipping, fit-then-apply roundtrip monotonicity, and
+  GMNAP-shaped benchmark data. The fitter previously had only an
+  end-to-end integration test via `tools/calibration.py`.
+- **Unit tests for `_call_canonical_fetcher`** —
+  `tests/unit/test_canonical_fetcher_delegation.py` (9 tests). Pins
+  the contract between the V7 tier orchestrator and the canonical
+  `src/authorities/tier{0,1}/X.Fetcher` classes: successful
+  translation, cache-hit short-circuit, OFFLINE-skip, exception
+  containment, missing-fetcher graceful degradation, empty-name
+  guard, tier-1 sources, and a mixed-outcome batch where one source
+  blows up but the others survive.
+- **Calibration report honesty disclaimer.** `docs/calibration.md`
+  now flags two artefacts that make the post-cal ECE = 0.0000 look
+  better than it is: (1) the metric is computed measured-on-train
+  with no held-out evaluation, (2) PAV collapses everything into one
+  10-bucket bin so ECE is trivially small *across* buckets even
+  though within-bucket spread persists. The calibrator is doing
+  real work (correctly pulls 0.95 → 0.87) but the headline number
+  isn't probabilistic-grade calibration.
+
+## [Unreleased] — 2026-04-27 (audit-pass round 2)
+
+Round-2 sweep: deleted the entire dead duplicate authority module
+plus made the stubs that survived actually call live HTTP.
+
+### Added (round 2)
+
+- **`_call_canonical_fetcher(module_path, class_name, source_name,
+  name)` helper** in `src/authority/manager_tier01.py`. Lazily imports
+  a `src/authorities/tierN/X.Fetcher` class, instantiates it with
+  empty config, awaits its `fetch(name)` wrapped in
+  `retry_with_backoff` (2 retries × 0.5 s exp backoff), translates
+  `FetchResult` → flat tier01 dict shape. All 8 tier-0/1 `_fetch_*`
+  shims (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH,
+  GND, HAL, OAI_University) now delegate through this helper when
+  `OFFLINE=0`. Until this commit they all silently returned
+  `{hit: False}` regardless of OFFLINE, so the live HTTP path was
+  unreachable from `pipeline_v7.py`'s enrichment stage.
+- **PAV-isotonic confidence calibrator (opt-in via
+  `GMNAP_CALIBRATE_CONFIDENCE=1`).** `tools/calibration.py` now
+  fits a Pool-Adjacent-Violators isotonic regressor on the
+  843-entry adjudicated benchmark and writes the knots to
+  `data/calibration_isotonic.json`. `src/regions/calibration.py`
+  is the runtime read side: lazy-loads the knots, exposes
+  `apply(p) -> float`. Wired into
+  `RegionManager.detect_region` via `dataclasses.replace` so
+  cached results carry the calibrated value. Identity (no-op) when
+  the env var is unset, preserving back-compat for any test or
+  fixture that pinned a specific raw confidence. ECE on the
+  benchmark: 0.1860 → 0.0009 (with the round-3 honesty caveat
+  above; calibrator successfully pulls overconfident raw 0.95 down
+  to ~0.87).
+- **Backward-chain in the web UI.** `static/app.js` learns a
+  `<select id="tree-direction">` next to the depth selector;
+  Ancestors (default) / Descendants. Threads `direction=` to
+  `/api/v1/lineage/{id}?direction=...`, flips the panel title
+  ("Advisor Tree" ↔ "Student Tree"), direction-aware empty/error
+  copy. CSS shares the existing `.tree-depth-label` styling via
+  a comma'd selector. 31/31 browser-smoke scenarios green.
+- **`gmnap lineage --direction` CLI flag.** Mirror of the API
+  parameter; default `ancestors`. Local-YAML walker is
+  forward-only by construction, so `descendants` skips it and
+  goes straight to `GenealogyLookup.traverse_lineage(...,
+  direction=...)`.
+- **Pre-commit hook tracked in repo + install script.**
+  `.git/hooks/pre-commit` (which validated E4 Korea + 37-region
+  load time) was clone-local; new clones had no validation. Moved
+  to `scripts/git_hooks/pre-commit`; added
+  `scripts/install_hooks.sh` (worktree-aware via `git rev-parse
+  --git-common-dir`, idempotent, env-var skip). Wired into `make
+  setup` and a new `make install-hooks` target. README
+  "Contributing" section explains the hook + the `--no-verify`
+  escape hatch.
+
+### Removed (round 2)
+
+- **13 confirmed-dead files in `src/authority/`** (544 LoC).
+  `manager.py` (orchestrator never called), `policy.py`,
+  `merge_authority_data.py`, `manager_policy_hook.py`, plus 9
+  `*_adapter.py` files (only ever referenced by the dead
+  `manager.py`). Inbound call graph traced via the Explore agent;
+  no production caller, no surviving test caller, no string-based
+  references. Only `manager_tier01.py` and `common.py` remain in
+  the singular package — the full canonical authority stack lives
+  in `src/authorities/` (plural).
+- **`tests/unit/test_crossref_adapter.py`** moved to
+  `docs/orphaned_tests/` — was the sole consumer of the deleted
+  `src/authority/crossref_adapter.py`. Dropped from CI's Core
+  tests step. Canonical Crossref Fetcher
+  (`src/authorities/tier0/crossref.py:CrossrefFetcher`) is
+  exercised by integration tests rather than a narrow unit test.
+
+### Changed (round 2)
+
+- **CLAUDE.md authority claims.** "9 adapters with real HTTP
+  calls" was technically true but pointed at the deleted
+  `src/authority/*_adapter.py` files. Rewrote the section to
+  reflect the actual canonical path through
+  `manager_tier01._fetch_* → _call_canonical_fetcher →
+  src/authorities/tierN/X.Fetcher.fetch()`, plus the per-source
+  table now lists the canonical Fetcher class for each source.
+
 ## [Unreleased] — 2026-04-27
 
 The "ship-readiness" arc continued: reproducibility gates, calibration

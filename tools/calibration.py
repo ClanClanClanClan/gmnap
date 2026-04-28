@@ -88,10 +88,21 @@ def _pav_fit(samples: list[tuple[float, int]]) -> list[tuple[float, float]]:
 
     Output
     ------
-    A list of ``(threshold, calibrated_p)`` knots, sorted ascending
-    by ``threshold``. To apply: find the smallest knot whose
-    ``threshold >= p_raw`` and use that ``calibrated_p``. Edge cases
-    (``p_raw`` above all thresholds) clip to the last knot.
+    A list of ``(threshold, calibrated_p)`` knots, sorted **strictly**
+    ascending by ``threshold`` and non-decreasing in ``calibrated_p``.
+    To apply: find the smallest knot whose ``threshold >= p_raw`` and
+    use its ``calibrated_p``. Edge cases (``p_raw`` above all
+    thresholds) clip to the last knot.
+
+    Pre-aggregation
+    ---------------
+    Tied x values are pre-aggregated into single weighted points
+    *before* the PAV merge loop runs. Without aggregation, samples
+    sharing an x produce multiple PAV blocks at the same threshold;
+    the apply path can only return one of those blocks' cal_p (the
+    first match), which is statistically not the empirical mean at
+    that x. Aggregation gives one unique threshold per knot and
+    eliminates that ambiguity.
 
     Why PAV here, not Platt
     -----------------------
@@ -103,15 +114,24 @@ def _pav_fit(samples: list[tuple[float, int]]) -> list[tuple[float, float]]:
     parametric and only assumes monotone non-decreasing accuracy
     with confidence; PAV is the standard linear-time fitter.
 
-    No sklearn dependency: 20 lines suffice.
+    No sklearn dependency: <40 lines suffice.
     """
     if not samples:
         return []
-    # Sort by raw confidence ascending (ties don't matter; PAV will
-    # collapse them into one block).
-    pairs = sorted(samples, key=lambda x: x[0])
-    # Each block is [max_p_in_block, sum_correct, count].
-    blocks: list[list[float]] = [[p, float(y), 1.0] for p, y in pairs]
+
+    # Pre-aggregate ties: collapse all samples sharing an x value into
+    # one weighted point (sum_y, count). PAV operates on unique-x
+    # blocks from here on, so the output has at most one knot per
+    # distinct input confidence.
+    aggregated: dict[float, list[float]] = {}
+    for p, y in samples:
+        bucket = aggregated.setdefault(p, [0.0, 0.0])
+        bucket[0] += float(y)
+        bucket[1] += 1.0
+    pairs = sorted(aggregated.items())  # by threshold ascending
+
+    # Each block is [threshold, sum_correct, count].
+    blocks: list[list[float]] = [[p, sy, n] for p, (sy, n) in pairs]
 
     i = 0
     while i + 1 < len(blocks):
@@ -119,7 +139,10 @@ def _pav_fit(samples: list[tuple[float, int]]) -> list[tuple[float, float]]:
         mean_j = blocks[i + 1][1] / blocks[i + 1][2]
         if mean_i > mean_j:
             # Violation — merge i+1 into i, then back up so the new
-            # block is checked against its left neighbour.
+            # block is checked against its left neighbour. Threshold
+            # of the merged block is the max (rightmost) of the two,
+            # so the block still represents the contiguous x-range
+            # ending at that point.
             blocks[i][0] = max(blocks[i][0], blocks[i + 1][0])
             blocks[i][1] += blocks[i + 1][1]
             blocks[i][2] += blocks[i + 1][2]
@@ -318,6 +341,31 @@ After PAV (pool-adjacent-violators) isotonic regression on the
 same set, ECE drops to **{cal_ece:.4f}** ({n_knots} knots fitted,
 saved to `data/calibration_isotonic.json`). Enable at runtime via
 `GMNAP_CALIBRATE_CONFIDENCE=1`.
+
+### Caveat — measured-on-train, single-bucket artifact
+
+The calibrated ECE is computed by re-applying the fitted knots
+to the same 654 samples used for fitting, which is optimistic in
+two ways:
+
+1. **No held-out evaluation.** A more honest number would come
+   from k-fold cross-validation; the apparent ECE on a fresh,
+   held-out split could plausibly be 2-5× higher than what's
+   reported here.
+2. **Single-bucket collapse.** PAV merges everything into a
+   small number of plateaus (here: 2 knots covering the full
+   input range), so almost every calibrated sample lands in one
+   confidence bucket. ECE in 10-bucket binning is then trivially
+   small because there is essentially nothing to be miscalibrated
+   *across* buckets — only *within* one.
+
+The right way to read the numbers below: the calibrator does
+*reduce* over-confidence (raw 0.95 → cal ~0.87, matching the
+empirical rule-source accuracy) but it does *not* magically lift
+the discrimination of the underlying detector. Treat the
+calibrated value as "pessimistic-replacement-for-overconfident-
+raw", not as a probability you can use for downstream Bayesian
+reasoning without further validation.
 
 ## Raw reliability diagram
 

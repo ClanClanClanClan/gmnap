@@ -9,7 +9,7 @@
 **Security**: Injection attack blocking validated
 **Performance**: ~3,000 entries/sec at 100K+ scale OFFLINE mode (measured); ~5.4 min/1M actual
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
-**Authority Enrichment**: 9 adapters with real HTTP calls; 2 gated behind API keys; 3 deferred
+**Authority Enrichment**: V7 tier orchestrator (`src/authority/manager_tier01.py`) delegates to canonical fetchers in `src/authorities/tierN/` when `OFFLINE=0`. 9 sources have real HTTP code (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH, Wikidata_P184, GND, HAL, OAI_University); 2 gated behind API keys (Scopus, Dimensions); 1 deferred for institutional access (ProQuest); 1 deferred for ToS (GoogleScholar). MathSciNet stub awaits AMS subscription
 **Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. The on-disk directory `config/regions/` is currently empty — every region falls back to its hardcoded defaults — so the loader is dormant in practice but tested and ready
 **API Server**: FastAPI server with 8 endpoints (/healthz, /readyz, /api/v1/query, /api/v1/lineage, /api/v1/process, /api/v1/suggest, /metrics, /)
 **CLI**: `serve` and `version` via `gmnap` entry point; full 7-command CLI in `src/cli/gmnap.py` (query, lineage, process, sources, regions, validate, serve) but NOT wired to the main entry point
@@ -28,7 +28,7 @@ All stages execute in sequence with real code:
 - Stage 1b: LLM thesis extraction (graceful fallback if unavailable)
 - Stage 2: Region detection (split geo/name-origin, three-tier suffixes, fastText CLI, same-group gate)
 - Stage 3: Region hooks (clean→augment→validate→order_key per region)
-- Stage 4: Authority enrichment (9 adapters with real HTTP; DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms)
+- Stage 4: Authority enrichment via `manager_tier01.enrich_all` → `_call_canonical_fetcher` → `src/authorities/tierN/X.Fetcher.fetch()`. 9 sources with real HTTP. DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms. Each `_fetch_*` shim wraps the live call in `retry_with_backoff` (2 retries × 0.5 s exp backoff) and caches the response on disk by SHA-256 of the canonical query payload
 - Stage 5: Collision analytics (DuckDB + in-memory fallback)
 - Stage 6: Graph consistency (Bayesian coherence, optional Memgraph)
 - Stage 7: Short-form tagging (initials clustering)
@@ -70,25 +70,51 @@ All 8 V7 quality gates implemented with mode-specific thresholds.
 
 ### Authority Enrichment: 9 of 14 Sources Have Real HTTP Code
 
-| Source | Tier | Status |
-|--------|------|--------|
-| OpenAlex | 0 | ✅ WORKING (httpx, /authors endpoint) |
-| Crossref | 0 | ✅ WORKING (httpx, /works?query.author=) |
-| ORCID_ETD | 0 | ✅ WORKING (httpx, /expanded-search) |
-| Crossref_Thesis | 0 | ✅ WORKING (httpx, type=dissertation filter) |
-| HAL | 1 | ✅ WORKING (httpx, archives-ouvertes.fr) |
-| GND | 1 | ✅ WORKING (httpx, lobid.org, OFFLINE guard) |
-| Wikidata_P184 | 1 | ✅ WORKING (httpx, SPARQL P184/P185, OFFLINE guard) |
-| OAI_University | 1 | ✅ WORKING (httpx, BASE API, OFFLINE guard) |
-| zbMATH_Open | 1 | ✅ WORKING (httpx, api.zbmath.org) |
-| MathSciNet | 2 | ⚠️ STUB (needs AMS subscription — see docs/AUTHORITY_ACCESS.md) |
-| Scopus | 2 | ⚠️ GATED (needs SCOPUS_API_KEY — free at dev.elsevier.com) |
-| Dimensions | 2 | ⚠️ GATED (needs DIMENSIONS_API_KEY — free at app.dimensions.ai) |
-| ProQuest | 3 | 🔴 DEFERRED (requires institutional proxy access) |
-| GoogleScholar | 3 | 🔴 DEFERRED (ToS — opt-in via --force-extreme + YES_I_ACCEPT_GS_TOS) |
+V7's tier orchestrator (`src/authority/manager_tier01.py`) holds the
+`_fetch_*` shims; the real per-source HTTP code lives in the
+canonical fetchers under `src/authorities/tier0/`, `tier1/`, and
+`tier2/` (subclasses of `AuthorityFetcher` with an `async def fetch
+(query: str) -> FetchResult`). Each shim:
 
-**CRITICAL**: `OFFLINE=1` is the default for tier 1+ sources. Set `OFFLINE=0` for full enrichment.
-Tier 0 sources (OpenAlex, Crossref, ORCID, Crossref_Thesis) call APIs directly.
+  1. Checks the on-disk cache (`./cache/authority/`, zlib-compressed
+     JSON, keyed by SHA-256 of the canonical query payload).
+  2. If `OFFLINE=1`, short-circuits to `{hit: False}`.
+  3. Otherwise calls `_call_canonical_fetcher(...)`, which lazily
+     imports the right Fetcher class, instantiates it with empty
+     config, and `await`s `fetch(name)` wrapped in
+     `retry_with_backoff(max_retries=2, base_delay=0.5)`.
+  4. Translates the returned `FetchResult` (success/not-found/parse-
+     error/etc.) into the tier orchestrator's flat dict shape and
+     caches the result.
+
+Sources covered:
+
+| Source | Tier | Canonical Fetcher | Status |
+|--------|------|-------------------|--------|
+| OpenAlex | 0 | tier0/openalex.OpenAlexFetcher | ✅ WORKING |
+| Crossref | 0 | tier0/crossref.CrossrefFetcher | ✅ WORKING |
+| ORCID_ETD | 0 | tier0/orcid_etd.ORCIDETDFetcher | ✅ WORKING |
+| Crossref_Thesis | 0 | tier0/crossref_thesis.CrossrefThesisFetcher | ✅ WORKING |
+| zbMATH_Open | 0 | tier0/zbmath.ZbMATHFetcher | ✅ WORKING |
+| Wikidata_P184 | 1 | inline aiohttp+SPARQL in `_fetch_wikidata_p184` | ✅ WORKING |
+| GND | 1 | tier1/gnd.GNDFetcher | ✅ WORKING |
+| HAL | 1 | tier1/hal.HALFetcher | ✅ WORKING |
+| OAI_University | 1 | tier1/oai_university.OAIUniversityFetcher | ✅ WORKING |
+| MathSciNet | 2 | (no canonical fetcher) | ⚠️ STUB (needs AMS subscription) |
+| Scopus | 2 | (gated stub in manager_tier01) | ⚠️ Requires `SCOPUS_API_KEY` |
+| Dimensions | 2 | (gated stub in manager_tier01) | ⚠️ Requires `DIMENSIONS_API_KEY` |
+| ProQuest | 3 | (deferred stub) | 🔴 Institutional proxy needed |
+| GoogleScholar | 3 | (deferred stub) | 🔴 ToS — opt-in only |
+
+**CRITICAL**: `OFFLINE=1` is the default. Set `OFFLINE=0` for full
+enrichment. The tier-0 stubs short-circuit to OFFLINE-skip *before*
+the cache check is meaningful, so OFFLINE-mode is a no-op even if
+a stale cache exists from an earlier live run.
+
+The 13 dead files that used to live in `src/authority/` (`manager.py`
+and 9 `*_adapter.py` plus 3 helpers) were removed in the 2026-04-27
+audit pass — only `manager_tier01.py` and `common.py` remain in the
+singular package.
 
 ### YAML Config: extension point only, currently dormant
 `RegionSpec.load_yaml_config()` reads `config/regions/<lowercase_code>.yaml`
