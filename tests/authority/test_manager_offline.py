@@ -12,6 +12,10 @@ from src.authorities.manager import enrich_all
 def test_enrich_all_offline(monkeypatch):
     monkeypatch.setenv("OFFLINE", "1")
     entry = {"GlobalID": "X", "CanonicalLatin": "Euler, Leonhard"}
-    out = asyncio.get_event_loop().run_until_complete(enrich_all(entry))
+    # Python 3.12: asyncio.get_event_loop() raises if there's no
+    # running loop AND the policy doesn't auto-create one. Use
+    # asyncio.run() which creates a fresh loop, runs the coroutine,
+    # and tears the loop down — the standard supported pattern.
+    out = asyncio.run(enrich_all(entry))
     assert isinstance(out, dict)
     assert "AuthoritySources" in out and len(out["AuthoritySources"]) >= 1
