@@ -560,7 +560,8 @@ nav {
     margin-bottom: 0;
 }
 
-.tree-depth-label {
+.tree-depth-label,
+.tree-direction-label {
     font-size: 0.8rem;
     color: var(--text-secondary);
     display: inline-flex;
@@ -568,7 +569,8 @@ nav {
     gap: 0.4rem;
 }
 
-.tree-depth-label select {
+.tree-depth-label select,
+.tree-direction-label select {
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     border-radius: 4px;
