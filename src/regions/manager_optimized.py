@@ -25,6 +25,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+# Module-level so the per-call hot path in `detect_region` is free
+# of repeated `import` lookups. The calibrator's `apply()` is a
+# no-op identity when GMNAP_CALIBRATE_CONFIDENCE is unset, so the
+# cost there is one env-var read per call (cached after first hit).
+from src.regions.calibration import apply as _apply_calibration  # noqa: E402
+
 # Initialize logger first
 logger = logging.getLogger(__name__)
 
@@ -3845,10 +3851,15 @@ class RegionManager:
         # GMNAP_CALIBRATE_CONFIDENCE=1). When disabled, this is a
         # no-op identity. Applied *before* caching so cached values
         # already carry the calibrated score.
-        if result is not None and getattr(result, "confidence", None) is not None:
-            from src.regions.calibration import apply as _apply_calibration
-
-            calibrated = _apply_calibration(float(result.confidence))
+        #
+        # Hot path: when the env var is unset, `_apply_calibration`
+        # returns its input unchanged via `os.getenv` short-circuit,
+        # so we pay one function call + one env-var read per
+        # detection. We avoid `getattr`/`float()` on the fast path
+        # because RegionDetectionResult always has a numeric
+        # `confidence` field on a successful detection.
+        if result is not None and result.confidence is not None:
+            calibrated = _apply_calibration(result.confidence)
             if calibrated != result.confidence:
                 # RegionDetectionResult is a dataclass; build a new
                 # one with the calibrated confidence rather than
