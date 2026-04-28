@@ -170,19 +170,24 @@ jobs:
           "
 
   coverage:
-    # Coverage is *informational* — runs in parallel with `test`,
-    # doesn't block PR merge. Initial integration with --cov on the
-    # full Core+Property invocations made the test job 10× slower
-    # (90 min vs 7 min original), so we instead run a scoped coverage
-    # pass on `tests/unit/` only against `src/` here. The number is
-    # surfaced in the build log and `coverage.xml` is uploaded as an
-    # artifact for 14 days. `continue-on-error: true` keeps a slow or
-    # failing coverage step from blocking the PR — coverage is a
-    # lever, not a gate (yet).
+    # Dedicated coverage job. Runs in parallel with `test`, with its
+    # own carefully-curated test subset that avoids tests with their
+    # own `@pytest.mark.timeout(N)` decorator that --cov instrumentation
+    # could push past N. The big perf-style files (test_region_detection
+    # _accuracy, test_user_workflows, test_api_*, test_web_*, test_cli_*,
+    # test_benchmark_evaluation, test_thread_safe_demo, test_fasttext_cli
+    # _worker, test_pipeline_v7-style integrations) are excluded — they
+    # either spawn subprocesses, do heavy I/O, or have tight timeouts
+    # that --cov breaks.
+    #
+    # The curated list still exercises the core paths: every region
+    # processor, every authority adapter shim, the calibration runtime,
+    # the benchmark split helper, the GDPR pipeline, the genealogy
+    # lookup. Coverage from this list represents what the unit-test
+    # suite actually proves.
     runs-on: ubuntu-latest
     needs: lint
     timeout-minutes: 30
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -207,17 +212,48 @@ jobs:
           echo '{}' > cache/api_costs.json
 
       - name: Run with coverage
-        run: |
-          # Skip the slow region-detection-accuracy file (pyperformance
-          # accuracy run; coverage instrumentation pushes it past 30 min)
-          # and benchmark_evaluation (same reason). Everything else
-          # under tests/unit/ runs.
-          PYTHONPATH=. pytest tests/unit/ \
-            --ignore=tests/unit/test_region_detection_accuracy.py \
-            --ignore=tests/unit/test_benchmark_evaluation.py \
-            --cov=src --cov-report=xml:coverage.xml --cov-report=term:skip-covered \
-            --cov-fail-under=0 \
-            -q --timeout=120 -p no:cacheprovider
+        run: >-
+          PYTHONPATH=. pytest
+          tests/unit/test_calibration.py
+          tests/unit/test_canonical_fetcher_delegation.py
+          tests/unit/test_pav_fitter.py
+          tests/unit/test_benchmark_split.py
+          tests/unit/test_pipeline.py
+          tests/unit/test_authority_manager.py
+          tests/unit/test_authority_retry.py
+          tests/unit/test_collision_analytics.py
+          tests/unit/test_quality_gates.py
+          tests/unit/test_stage9_outputs.py
+          tests/unit/test_gdpr.py
+          tests/unit/test_gdpr_comprehensive.py
+          tests/unit/test_region_processors.py
+          tests/unit/test_simple_detection.py
+          tests/unit/test_unicode_handler.py
+          tests/unit/test_validation_rules.py
+          tests/unit/test_global_id.py
+          tests/unit/test_globalid.py
+          tests/unit/test_cache_system.py
+          tests/unit/test_genealogy_lookup.py
+          tests/unit/test_genealogy_query.py
+          tests/unit/test_config.py
+          tests/unit/test_schema.py
+          tests/unit/test_a3_nordic_baltic.py
+          tests/unit/test_a4_oceania.py
+          tests/unit/test_cjk_roundtrip.py
+          tests/unit/test_sea_roundtrip.py
+          tests/unit/test_surname_detection.py
+          tests/unit/test_duckdb_analytics_shape.py
+          tests/unit/test_manager_caching.py
+          tests/unit/test_stage11_idempotency.py
+          tests/unit/korean/test_basic_functionality.py
+          tests/unit/korean/test_convert.py
+          tests/unit/korean/test_segment.py
+          tests/unit/korean/test_segment_fallback.py
+          tests/unit/core/test_region_loading.py
+          tests/unit/regions/test_region_e4.py
+          --cov=src --cov-report=xml:coverage.xml --cov-report=term:skip-covered
+          --cov-fail-under=0
+          -q --timeout=240 -p no:cacheprovider
 
       - name: Coverage summary
         run: |
