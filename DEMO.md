@@ -266,10 +266,12 @@ Response:
 - **Region detection is honest.** Every result returns a confidence and
   method. On the 523-entry adjudicated benchmark we have 100% leaf
   precision with 92% coverage — 28% honest R0 abstention rather than
-  forcing wrong answers. Calibration is documented in
-  `docs/calibration.md` (ECE = 0.186 — the system over-reports its
-  confidence on easy cases; the reliability diagram and remediation
-  notes are committed alongside the raw data).
+  forcing wrong answers. Calibration is fitted on a stratified 80/20
+  train split and **measured on the held-out 168-entry test set**
+  (`src/regions/benchmark_split.py`): raw ECE 0.188 → calibrated 0.039
+  out-of-sample (4.8× reduction; documented with reliability diagrams
+  in `docs/calibration.md`). Enable the calibrator at runtime via
+  `GMNAP_CALIBRATE_CONFIDENCE=1`.
 - **Genealogy is seeded + enriched.** ~20,600 mathematicians: ~4,400
   with full doctoral-advisor chains (15 MGP-curated + 4,385 Wikidata
   SPARQL P184) plus ~16,200 records from OpenAlex with Institution +
