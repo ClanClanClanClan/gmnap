@@ -27,7 +27,9 @@ import yaml
 from src.core.config import GMNAPConfig
 
 
-@pytest.mark.timeout(15)
+@pytest.mark.timeout(60)  # bumped from 15s — pipeline subprocess on
+# 2-core GHA runners legitimately needs ~25-40s; 15s was tight enough
+# that thermal throttling or queue contention failed the assertion.
 def test_direct_classification():
     """Test classification of specific names."""
 
