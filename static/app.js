@@ -452,7 +452,12 @@
         if (advisors.length > 0) {
             html += '<div class="profile-card genealogy-tree-panel" id="genealogy-tree-panel">';
             html += '<div class="tree-header">';
-            html += '<h3 class="section-title">Advisor Tree</h3>';
+            html += '<h3 class="section-title" id="tree-title">Advisor Tree</h3>';
+            html += '<label class="tree-direction-label">Show ';
+            html += '<select id="tree-direction" aria-label="Tree direction">';
+            html += '<option value="ancestors" selected>Ancestors</option>';
+            html += '<option value="descendants">Descendants</option>';
+            html += "</select></label>";
             html += '<label class="tree-depth-label">Depth ';
             html += '<select id="tree-depth" aria-label="Tree depth">';
             html += '<option value="3">3</option>';
@@ -576,12 +581,44 @@
         // ── Render genealogy tree (async; after DOM insertion) ──
         if (advisors.length > 0) {
             var depthSel = document.getElementById("tree-depth");
+            var dirSel = document.getElementById("tree-direction");
+            var titleEl = document.getElementById("tree-title");
+            var hintEl = document.querySelector(".tree-hint");
+
+            function _currentDepth() {
+                return parseInt(depthSel && depthSel.value, 10) || 5;
+            }
+            function _currentDirection() {
+                return (dirSel && dirSel.value) || "ancestors";
+            }
+            function _refreshTitle() {
+                var d = _currentDirection();
+                if (titleEl) {
+                    titleEl.textContent = d === "descendants"
+                        ? "Student Tree"
+                        : "Advisor Tree";
+                }
+                if (hintEl) {
+                    hintEl.textContent = d === "descendants"
+                        ? "Each child node is a recorded student. Scroll to zoom, drag to pan, click a node to open it."
+                        : "Each child node is a recorded advisor. Scroll to zoom, drag to pan, click a node to open it.";
+                }
+            }
+
             if (depthSel) {
                 depthSel.addEventListener("change", function () {
-                    renderGenealogyTree(entry, parseInt(depthSel.value, 10) || 5);
+                    renderGenealogyTree(entry, _currentDepth(), _currentDirection());
                 });
             }
-            renderGenealogyTree(entry, 5);
+            if (dirSel) {
+                dirSel.addEventListener("change", function () {
+                    _refreshTitle();
+                    renderGenealogyTree(entry, _currentDepth(), _currentDirection());
+                });
+            }
+
+            _refreshTitle();
+            renderGenealogyTree(entry, 5, "ancestors");
         }
     }
 
@@ -624,8 +661,15 @@
     /**
      * Fetch the lineage for this entry and render an SVG tree.
      * Silently no-ops if d3 is missing (e.g. offline asset blocked).
+     *
+     * direction: "ancestors" (default) walks advisor-of-me;
+     *            "descendants" walks student-of-me. The UI's tree-
+     *            direction select feeds this; default keeps the
+     *            historical behaviour for any caller that omits the
+     *            argument.
      */
-    function renderGenealogyTree(entry, depth) {
+    function renderGenealogyTree(entry, depth, direction) {
+        direction = direction || "ancestors";
         var svg = document.getElementById("genealogy-tree-svg");
         var statusEl = document.getElementById("tree-status");
         if (!svg || !statusEl) return;
@@ -653,12 +697,21 @@
             svg.hidden = true;
             return;
         }
-        var url = "/api/v1/lineage/" + encodeURIComponent(rootId) + "?depth=" + encodeURIComponent(depth);
+        var url = "/api/v1/lineage/" + encodeURIComponent(rootId)
+            + "?depth=" + encodeURIComponent(depth)
+            + "&direction=" + encodeURIComponent(direction);
+
+        var emptyMsg = direction === "descendants"
+            ? "No students recorded for this person."
+            : "No advisor chain available for this record.";
+        var failMsg = direction === "descendants"
+            ? "Failed to load student tree."
+            : "Failed to load advisor tree.";
 
         apiFetch(url)
             .then(function (resp) {
                 if (resp.status === 404) {
-                    statusEl.textContent = "No advisor chain available for this record.";
+                    statusEl.textContent = emptyMsg;
                     statusEl.className = "tree-status tree-empty";
                     svg.hidden = true;
                     return null;
@@ -672,7 +725,7 @@
                 if (!data) return;
                 var edges = (data && data.edges) || [];
                 if (edges.length === 0) {
-                    statusEl.textContent = "No advisor chain available for this record.";
+                    statusEl.textContent = emptyMsg;
                     statusEl.className = "tree-status tree-empty";
                     svg.hidden = true;
                     return;
@@ -688,7 +741,7 @@
             })
             .catch(function (err) {
                 console.error("Tree render error:", err);
-                statusEl.textContent = "Failed to load advisor tree.";
+                statusEl.textContent = failMsg;
                 statusEl.className = "tree-status tree-error";
                 svg.hidden = true;
             });
