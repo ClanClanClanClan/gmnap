@@ -159,6 +159,23 @@ python3 scripts/data/fetch_wikidata_genealogy.py   # optional, hits Wikidata SPA
 PYTHONPATH=. python3 tools/build_genealogy_enrichment.py
 ```
 
+## Contributing
+
+`make setup` installs a git pre-commit hook from
+`scripts/git_hooks/pre-commit` into your local `.git/hooks/`. The
+hook runs two fast smoke checks (E4 Korea region loads, all 37
+regions load under 2 s) and blocks commits that break either.
+
+If you skipped `make setup` or set up a fresh worktree:
+
+```bash
+make install-hooks    # or: bash scripts/install_hooks.sh
+```
+
+To bypass on a one-off (e.g. emergency revert), `git commit
+--no-verify`. The hook is informational, not authoritative — CI
+runs the full lint + test matrix on every push regardless.
+
 ## License
 
 MIT
