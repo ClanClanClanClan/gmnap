@@ -50,22 +50,31 @@ changes, see **[CHANGELOG.md](CHANGELOG.md)**.
 - **API**: REST endpoints with rate limiting, hashcash PoW, Prometheus metrics
 - **GDPR Compliant**: ShadowNode conversion, birth year masking
 
-### Measured Performance (OFFLINE mode, Apple M1)
+### Measured Performance (OFFLINE mode, Apple M1, 2026-04-28)
 
-| Operation | Throughput | 1 M projection |
-|---|---|---|
-| `RegionManager.detect_region` (single stage, in-process) | ~3,700 / s | ~4.5 min |
-| `V7Pipeline.process_batch` (rules-only, fastText missing) | ~980 / s | ~17 min |
-| `V7Pipeline.process_batch` (full, Python fastText module) | ~240 / s | ~70 min |
-| `V7Pipeline.process_batch` (full, persistent fastText CLI worker) | ~430 / s | ~39 min |
+**Two distinct measurements** — see `docs/perf_characterization.md`
+for methodology and reproducibility:
 
-Synthetic-name benchmarks always trigger the fastText tiebreaker because
-nothing matches the rules; real-world names with clear signature suffixes
-hit fastText far less often. The **persistent CLI worker** (spawned once
-per process and fed queries over stdin) is ~60× faster per tiebreaker
-call than the legacy `subprocess.run` pattern, which yields the ~2.3×
-end-to-end gain visible in the last row. Reproduce with
-`PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000`.
+| Path | Batch size | Throughput | 1M projection |
+|---|---:|---:|---:|
+| `RegionManager.detect_region` (stage 2 only) | warmup | ~780 / s | ~21 min |
+| `V7Pipeline.process_batch` (full 12 stages, synthetic) | 100 | 6 / s | ~2 800 min |
+| `V7Pipeline.process_batch` (full, synthetic) | 500 | 26 / s | 634 min |
+| `V7Pipeline.process_batch` (full, synthetic) | 1 000 | 21 / s | 803 min |
+| `V7Pipeline.process_batch` (full, synthetic) | **10 000** | **29 / s** | **583 min (~9.7 h)** |
+
+The 10 000-entry row is the honest 1 M projection for the
+synthetic-name worst case: ~9.7 hours on Apple M1, RSS 363 MB. The
+full pipeline is dominated by stage 6 (Bayesian coherence) and
+stage 8 (quality gates), not by region detection — `detect_region`
+in isolation is ~30× faster than the full pipeline. Real-name
+batches (where rules fire on most entries) are expected to be
+2-5× faster, not yet measured at scale.
+
+Reproduce: `PYTHONPATH=. python3 tools/run_benchmark.py --sizes
+1000,10000`. Earlier README versions cited ~17 min/1M / ~39 min/1M
+projections, which were detection-only microbenchmarks and didn't
+reflect the full-pipeline cost.
 
 ## API Endpoints
 
