@@ -692,6 +692,20 @@ def create_app() -> FastAPI:
                 return FileResponse(str(index_path))
             raise HTTPException(status_code=404, detail="index.html not found")
 
+        # Client-side routing: the SPA at /static/app.js uses
+        # `history.pushState` to navigate to URLs like
+        # /p/Euler%2C%20Leonhard. A direct visit / refresh / share-by-
+        # URL hits the FastAPI server first; we serve index.html and
+        # let the client's `applyLocation()` re-derive the view from
+        # `window.location.pathname`. Catch-all is scoped to /p/ so
+        # the API and /static prefixes still take precedence.
+        @app.get("/p/{path:path}")
+        async def serve_spa_profile(path: str):
+            index_path = static_dir / "index.html"
+            if index_path.exists():
+                return FileResponse(str(index_path))
+            raise HTTPException(status_code=404, detail="index.html not found")
+
     return app
 
 

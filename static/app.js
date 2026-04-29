@@ -230,13 +230,81 @@
         profileView.hidden = viewName !== "profile";
     }
 
+    // ── URL state / SPA routing ──────────────────────────────────────
+    //
+    // Three URL shapes:
+    //   /                    → landing
+    //   /?q=Euler            → search results for "Euler"
+    //   /p/Euler%2C%20...    → profile for that name
+    //   /p/Euler%2C%20...?d=descendants → profile with student-tree
+    //
+    // pushState on user actions; popstate listener re-renders. The
+    // initial-load handler at DOMContentLoaded resolves the URL to a
+    // view so refresh / deep-link / share-by-URL all work.
+
+    function parseLocation() {
+        var path = window.location.pathname;
+        var qs = new URLSearchParams(window.location.search);
+        if (path.indexOf("/p/") === 0) {
+            try {
+                var name = decodeURIComponent(path.slice(3));
+                if (name) {
+                    return {
+                        kind: "profile",
+                        name: name,
+                        direction: qs.get("d") === "descendants"
+                            ? "descendants"
+                            : "ancestors"
+                    };
+                }
+            } catch (e) {
+                // malformed URL — fall through to landing
+            }
+        }
+        if (qs.get("q")) {
+            return { kind: "search", query: qs.get("q") };
+        }
+        return { kind: "landing" };
+    }
+
+    function urlForState(state) {
+        if (state.kind === "search") {
+            return "/?q=" + encodeURIComponent(state.query);
+        }
+        if (state.kind === "profile") {
+            var u = "/p/" + encodeURIComponent(state.name);
+            if (state.direction && state.direction !== "ancestors") {
+                u += "?d=" + encodeURIComponent(state.direction);
+            }
+            return u;
+        }
+        return "/";
+    }
+
+    function pushUrlForState(state, replace) {
+        var url = urlForState(state);
+        if (window.location.pathname + window.location.search === url) return;
+        try {
+            if (replace) {
+                window.history.replaceState(state, "", url);
+            } else {
+                window.history.pushState(state, "", url);
+            }
+        } catch (e) {
+            // file:// or restricted contexts — just no-op rather than
+            // breaking navigation.
+        }
+    }
+
     backToLanding.addEventListener("click", function () {
         showView("landing");
         searchInput.value = "";
+        pushUrlForState({ kind: "landing" });
     });
 
     backToResults.addEventListener("click", function () {
         showView("results");
+        pushUrlForState({ kind: "search", query: searchInput.value });
     });
 
     // ── API Health Check ─────────────────────────────────────────────
@@ -268,10 +336,18 @@
 
     var lastSearchResults = [];
 
-    function performSearch(query) {
+    function performSearch(query, options) {
         if (!query || !query.trim()) return;
+        options = options || {};
+        // ``fromUrl``: don't pushState (we got here from popstate /
+        //   initial parse). ``autoOpenProfile``: open the first
+        //   matching entry's profile when results arrive (used for
+        //   /p/<name> deep-linking).
 
         showView("results");
+        if (!options.fromUrl) {
+            pushUrlForState({ kind: "search", query: query.trim() });
+        }
         loadingEl.hidden = false;
         noResults.hidden = true;
         errorMsg.hidden = true;
@@ -306,6 +382,12 @@
                 }
                 for (var i = 0; i < entries.length; i++) {
                     renderResultCard(entries[i]);
+                }
+                if (options.autoOpenProfile && entries.length > 0) {
+                    // Deep-link path: /p/<name> resolved to ≥ 1 result;
+                    // open the first one without re-pushing the URL.
+                    renderProfile(entries[0], { fromUrl: true,
+                                               direction: options.direction });
                 }
             })
             .catch(function (err) {
@@ -383,12 +465,13 @@
 
     // ── Profile Rendering ────────────────────────────────────────────
 
-    function renderProfile(entry) {
+    function renderProfile(entry, options) {
         // Cancel any pending debounced search — otherwise it would
         // fire after profile opens and showView("results") would yank
         // the user back to the results list. See debounce() docstring.
         debouncedSearch.cancel();
         showView("profile");
+        options = options || {};
 
         var name = entry.CanonicalLatin || entry.name || "Unknown";
         var region = entry.DetectedRegion || entry.region_code || "";
@@ -397,6 +480,18 @@
         var birthYear = entry.BirthYear || entry.birth_year || "";
         var institution = entry.Institution || entry.institution || "";
         var globalId = entry.GlobalID || entry.global_id || "";
+
+        // pushState so back-button + URL-share work. ``options.fromUrl``
+        // signals we got here via popstate / deep-link parse and should
+        // not push another entry. ``options.direction`` lets the
+        // deep-link path preserve the requested tree direction
+        // through to the tree-direction <select> below.
+        if (!options.fromUrl) {
+            pushUrlForState({ kind: "profile", name: name });
+        }
+        var initialDirection = options.direction === "descendants"
+            ? "descendants"
+            : "ancestors";
 
         var html = "";
 
@@ -455,8 +550,12 @@
             html += '<h3 class="section-title" id="tree-title">Advisor Tree</h3>';
             html += '<label class="tree-direction-label">Show ';
             html += '<select id="tree-direction" aria-label="Tree direction">';
-            html += '<option value="ancestors" selected>Ancestors</option>';
-            html += '<option value="descendants">Descendants</option>';
+            html += '<option value="ancestors"' +
+                    (initialDirection === "ancestors" ? " selected" : "") +
+                    ">Ancestors</option>";
+            html += '<option value="descendants"' +
+                    (initialDirection === "descendants" ? " selected" : "") +
+                    ">Descendants</option>";
             html += "</select></label>";
             html += '<label class="tree-depth-label">Depth ';
             html += '<select id="tree-depth" aria-label="Tree depth">';
@@ -613,12 +712,21 @@
             if (dirSel) {
                 dirSel.addEventListener("change", function () {
                     _refreshTitle();
-                    renderGenealogyTree(entry, _currentDepth(), _currentDirection());
+                    var dir = _currentDirection();
+                    // ``replaceState`` (not push) — direction changes
+                    // are sub-navigation within the same profile, so
+                    // the back button shouldn't bounce through every
+                    // toggle.
+                    pushUrlForState(
+                        { kind: "profile", name: name, direction: dir },
+                        true /* replace */
+                    );
+                    renderGenealogyTree(entry, _currentDepth(), dir);
                 });
             }
 
             _refreshTitle();
-            renderGenealogyTree(entry, 5, "ancestors");
+            renderGenealogyTree(entry, 5, initialDirection);
         }
     }
 
@@ -949,4 +1057,43 @@
     window.escapeHtml = escapeHtml;
     window.countryFlag = countryFlag;
     window.formatDuration = formatDuration;
+
+    // ── Router: resolve location → view ─────────────────────────────
+    //
+    // popstate fires when the user navigates with browser back/forward;
+    // we re-derive the view from the URL. The ``fromUrl: true`` option
+    // tells performSearch / renderProfile to skip pushing another
+    // history entry (otherwise the user couldn't escape back-to-back).
+
+    function applyLocation() {
+        var state = parseLocation();
+        if (state.kind === "search") {
+            searchInput.value = state.query;
+            performSearch(state.query, { fromUrl: true });
+        } else if (state.kind === "profile") {
+            // Need to fetch the entry data — we land here from a
+            // direct URL load or a back-button to a profile we don't
+            // have cached. Use performSearch with autoOpenProfile to
+            // resolve name → entry → render.
+            searchInput.value = state.name;
+            performSearch(state.name, {
+                fromUrl: true,
+                autoOpenProfile: true,
+                direction: state.direction
+            });
+        } else {
+            // Landing
+            showView("landing");
+            searchInput.value = "";
+        }
+    }
+
+    window.addEventListener("popstate", applyLocation);
+
+    // Initial load. Defer one tick so the API health check has fired
+    // before the popstate-equivalent kicks off a (potentially slow)
+    // performSearch — the user sees the landing page briefly and then
+    // the deep-linked view, rather than a "loading" stutter from
+    // a /process call against an offline API.
+    setTimeout(applyLocation, 0);
 })();

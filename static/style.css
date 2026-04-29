@@ -818,6 +818,26 @@ footer {
     border-top: 1px solid var(--border-subtle);
 }
 
+footer .footer-line {
+    margin: 0;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+footer a {
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+footer a:hover,
+footer a:focus-visible {
+    color: var(--text-primary);
+}
+
 /* ── Responsive ────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
