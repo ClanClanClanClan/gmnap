@@ -1,10 +1,17 @@
 # Orphaned tests
 
-These 13 files were sitting **untracked** in `tests/unit/` after a
+These 15 files are parked here as the destination for orphaned
+test code we don't want to lose but can't run as-is. The original
+batch was 13 files sitting **untracked** in `tests/unit/` after a
 previous round of test-suite work — never committed, never imported,
-never run by CI. The audit on 2026-04-27 surfaced them; rather than
-silently lose the work or pollute the active `tests/unit/` namespace
-with broken imports, they're parked here for triage.
+never run by CI. Two more landed later from round-2 / round-4
+dead-code cleanups (`test_crossref_adapter.py` was the only
+consumer of the deleted `src/authority/crossref_adapter.py`;
+`test_v7_spec_ultra_compliance.py` referenced the 9-file
+`src/core/end_to_end_orchestration` cluster that was deleted in
+round 4). Rather than silently lose the work or pollute the
+active `tests/unit/` namespace with broken imports, they're
+parked here for triage.
 
 ## Why they're not in CI
 

@@ -141,7 +141,7 @@ list left open. All three landed in this batch.
   | Metric | Raw test | Calibrated test (held-out) | CV on train |
   |---|---:|---:|---:|
   | ECE   | 0.1881 | **0.0390** | 0.0018 |
-  | Brier | 0.139  | 0.114      | 0.115  |
+  | Brier | 0.151  | 0.133      | 0.111  |
 
 ### Known follow-ups
 

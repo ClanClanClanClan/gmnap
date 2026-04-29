@@ -129,15 +129,16 @@ Copy `.env.example` to `.env` and configure. Key variables:
 PYTHONPATH=. pytest tests/unit/ -q --timeout=120
 ```
 
-1,792 tests covering region detection accuracy, 500-entry golden dataset, 843-entry adjudicated name-origin benchmark, end-to-end workflows, API security, CLI hardening, web interface, and nginx config.
+**~2,376 tests collected** across the unit / authority / cjk / db / v7 directories CI runs — covering region detection accuracy, 500-entry golden dataset, 843-entry adjudicated name-origin benchmark, end-to-end workflows, API security, CLI hardening, web interface, and nginx config. Plus 31-scenario adversarial Playwright browser-test job and live Memgraph integration. Coverage gated at `--cov-fail-under=15` (line + branch combined; line-only is 17.96 %, branch is 12.4 %).
 
 ## Region Detection
 
 Split geo/name-origin architecture validated by external onomastics expert:
-- **100% emitted-leaf precision** on 523-entry adjudicated benchmark (zero wrong leaves)
+- **100% emitted-leaf precision** on the full 523-entry adjudicated benchmark *(in-sample)*; held-out test-set numbers are reported separately by `tests/unit/test_benchmark_evaluation.py` and pinned at the same level on the 168-entry test split (see `src/regions/benchmark_split.py`)
 - **100% CC-based accuracy** across 216 territories
 - Three-tier suffix system + fastText CLI tiebreaker + same-group gate
 - Honest abstention: returns R0 + group hint when uncertain, never forces a wrong leaf
+- Confidence calibration: PAV isotonic fit on 675-entry train, **held-out test ECE = 0.039** (raw 0.188; full report in `docs/calibration.md`). Enable runtime via `GMNAP_CALIBRATE_CONFIDENCE=1`
 
 ## Genealogy Enrichment
 
