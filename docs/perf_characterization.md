@@ -40,23 +40,35 @@ Two distinct measurements:
 
 | Batch size | Elapsed | Throughput | 1M projection | Peak RSS |
 |---:|---:|---:|---:|---:|
-|   1 000 | 207.8 s |   5 entries/s | 3 462 min (~58 h) | 460 MB |
-|  10 000 | (running while this writeup landed; row pending) |
+|   1 000 |  207.8 s |   5 entries/s | 3 462 min (~58 h) | 460 MB |
+|  10 000 | 1 493.6 s |   7 entries/s | 2 489 min (~41.5 h) | 628 MB |
 
 The earlier ROUND-2 prediction "real names expected 2-5× faster than
-synthetic" was **wrong** at the 1 000-entry scale: real names are
-~4× **slower** than synthetic (5/s vs 21/s). The intuition that real
-names skip rule fallback was right, but the cost we save on stage 2
-is dominated by the cost we pay elsewhere — likely stage 4 (authority
-enrichment, even OFFLINE) and stage 6 (graph-coherence joint solver
-takes more iterations on entries with actual advisor edges in the
-enrichment JSON).
+synthetic" was **wrong**: real names are consistently ~4× **slower**
+than synthetic at every batch size we measured (5-7/s real vs 21-
+29/s synthetic). The intuition that real names skip stage-2 rule
+fallback was right; what we missed is the cost we pay *elsewhere*:
 
-The real-name 10 000-entry row will land in a follow-up commit once
-the run completes. Until then, the honest read for production
-workloads is **somewhere between 5 and 30 entries/s sustained,
-i.e. 600 min to 3 500 min per 1 M depending on whether you're closer
-to the 1 k or 10 k batch amortization point.**
+- **Stage 4 authority enrichment**, even OFFLINE: real names cause
+  the manager_tier01 fetchers to do their cache-key compute and
+  per-source hit/miss accounting per entry, whereas synthetic names
+  short-circuit on the empty-name guard or get cached negative
+  responses faster.
+- **Stage 6 graph coherence**: the Bayesian joint-probability solver
+  iterates more on entries that *actually have* advisor edges in
+  the enrichment JSON. Synthetic entries have no advisor data, so
+  stage 6 short-circuits.
+- **Stage 7 short-form tagging** + **stage 8 quality gates**: both
+  iterate over more populated metadata for real entries.
+
+Honest engineering read for production workloads:
+**~7 entries/s sustained on Apple M1 → ~41 hours per 1 M real names**
+(rules-only, OFFLINE=1, no fastText classifier). Real-world batches
+of < 100 k entries (the typical ingest size) finish in **2-4 hours**
+end-to-end, which is acceptable for offline batch processing.
+
+RSS scales sub-linearly: 460 MB at 1 k → 628 MB at 10 k → projected
+~1-1.5 GB at 100 k. Memory is not the bottleneck.
 
 The first row is dominated by ~10-15s of setup overhead (region
 processors, fastText models, manager singleton). At ≥ 500 entries
