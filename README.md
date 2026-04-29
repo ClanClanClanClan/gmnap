@@ -52,29 +52,37 @@ changes, see **[CHANGELOG.md](CHANGELOG.md)**.
 
 ### Measured Performance (OFFLINE mode, Apple M1, 2026-04-28)
 
-**Two distinct measurements** — see `docs/perf_characterization.md`
-for methodology and reproducibility:
+Three distinct measurements — see `docs/perf_characterization.md`
+for methodology and reproducibility. **The real-name 10 k row is
+the production-relevant headline number.**
 
 | Path | Batch size | Throughput | 1M projection |
 |---|---:|---:|---:|
-| `RegionManager.detect_region` (stage 2 only) | warmup | ~780 / s | ~21 min |
-| `V7Pipeline.process_batch` (full 12 stages, synthetic) | 100 | 6 / s | ~2 800 min |
-| `V7Pipeline.process_batch` (full, synthetic) | 500 | 26 / s | 634 min |
-| `V7Pipeline.process_batch` (full, synthetic) | 1 000 | 21 / s | 803 min |
-| `V7Pipeline.process_batch` (full, synthetic) | **10 000** | **29 / s** | **583 min (~9.7 h)** |
+| `RegionManager.detect_region` (stage 2 only, warm) | — | ~780 / s | ~21 min |
+| `V7Pipeline.process_batch` (synthetic) | 1 000 | 21 / s | 803 min |
+| `V7Pipeline.process_batch` (synthetic) | 10 000 | 29 / s | 583 min (~9.7 h) |
+| `V7Pipeline.process_batch` (real names, `--real-names`) | 1 000 | 5 / s | 3 462 min |
+| **`V7Pipeline.process_batch` (real names) — production** | **10 000** | **7 / s** | **2 489 min (~41 h)** |
 
-The 10 000-entry row is the honest 1 M projection for the
-synthetic-name worst case: ~9.7 hours on Apple M1, RSS 363 MB. The
-full pipeline is dominated by stage 6 (Bayesian coherence) and
-stage 8 (quality gates), not by region detection — `detect_region`
-in isolation is ~30× faster than the full pipeline. Real-name
-batches (where rules fire on most entries) are expected to be
-2-5× faster, not yet measured at scale.
+Real names are ~4× **slower** than synthetic at every scale —
+real entries trigger more work in stage 4 (authority cache lookups),
+stage 6 (Bayesian solver iterates on actual advisor edges), and
+stages 7-8 (more populated metadata). The earlier README projection
+of "real expected 2-5× faster than synthetic" was wrong;
+`docs/perf_characterization.md` documents the gap analysis.
 
-Reproduce: `PYTHONPATH=. python3 tools/run_benchmark.py --sizes
-1000,10000`. Earlier README versions cited ~17 min/1M / ~39 min/1M
-projections, which were detection-only microbenchmarks and didn't
-reflect the full-pipeline cost.
+Honest production read: **~7 entries/s sustained, ~41 h/1M real
+names**. Typical batches of < 100 k entries finish in 2-4 hours
+end-to-end, acceptable for offline batch processing. RSS scales
+sub-linearly: 460 MB at 1 k → 628 MB at 10 k → projected ~1-1.5
+GB at 100 k.
+
+Reproduce:
+- Synthetic: `make bench-real` → no, that's real. Synthetic is
+  `PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000`
+- Real names: `make bench-real` (samples from
+  `data/genealogy_enrichment.json` so this needs `git lfs pull`
+  to have run).
 
 ## API Endpoints
 

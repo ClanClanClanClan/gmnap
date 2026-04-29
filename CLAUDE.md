@@ -7,7 +7,7 @@
 **Regional Coverage**: 37/37 regions fully implemented (100%), 38 processor files
 **Region Detection**: Split geo/name-origin architecture with three-tier suffix system, fastText CLI tiebreaker, same-group gate. Expert-validated as production-ready.
 **Security**: Injection attack blocking validated
-**Performance**: ~29 entries/sec sustained on the synthetic 10 k-batch full pipeline (measured 2026-04-28, Apple M1, OFFLINE) → ~9.7 hours per 1 M synthetic worst case. Detection-only (`RegionManager.detect_region`) is ~780/s. Earlier "3 000/s" / "~5.4 min/1M" claims were detection-only microbenchmarks; honest full-pipeline numbers in `docs/perf_characterization.md`
+**Performance**: ~7 entries/sec sustained on the **real-name** 10 k batch (~41 h/1M); ~29 entries/sec on the synthetic 10 k batch (~9.7 h/1M). Measured 2026-04-28 on Apple M1, OFFLINE. Real-name workload is ~4× slower than synthetic — stages 4, 6, 7, 8 dominate the cost on populated entries. Detection-only (`RegionManager.detect_region`) is ~780/s warm. Earlier "3 000/s" / "~5.4 min/1M" claims were detection-only microbenchmarks; full-pipeline numbers + gap analysis in `docs/perf_characterization.md`
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
 **Authority Enrichment**: V7 tier orchestrator (`src/authority/manager_tier01.py`) delegates to canonical fetchers in `src/authorities/tierN/` when `OFFLINE=0`. 9 sources have real HTTP code (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH, Wikidata_P184, GND, HAL, OAI_University); 2 gated behind API keys (Scopus, Dimensions); 1 deferred for institutional access (ProQuest); 1 deferred for ToS (GoogleScholar). MathSciNet stub awaits AMS subscription
 **Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. The on-disk directory `config/regions/` is currently empty — every region falls back to its hardcoded defaults — so the loader is dormant in practice but tested and ready
@@ -142,14 +142,16 @@ the full-pipeline row is a lower bound.
 | Path | Throughput | 1 M projection | RSS @10 k |
 |---|---|---|---|
 | `RegionManager.detect_region` (stage 2 only, warm) | ~780 / s | ~21 min | 230 MB |
-| `V7Pipeline.process_batch` (full 12 stages, 1 k batch) | 21 / s | ~803 min | 233 MB |
-| `V7Pipeline.process_batch` (full, 10 k batch sustained) | **29 / s** | **~583 min (~9.7 h)** | **363 MB** |
+| `V7Pipeline.process_batch` (synthetic, 1 k) | 21 / s | ~803 min | 233 MB |
+| `V7Pipeline.process_batch` (synthetic, 10 k) | 29 / s | ~583 min (~9.7 h) | 363 MB |
+| `V7Pipeline.process_batch` (real, 1 k) | 5 / s | 3 462 min | 460 MB |
+| **`V7Pipeline.process_batch` (real, 10 k) — production** | **7 / s** | **~2 489 min (~41 h)** | **628 MB** |
 
-Earlier table cited 980 / s and 190 / s — those were detection-only
-or unscoped numbers. The honest full-pipeline 1M projection is
-~9.7 h synthetic worst-case (stages 6+8 dominate, not stage 2).
-Real-name workload expected 2-5× faster but unmeasured at scale.
-Full methodology in `docs/perf_characterization.md`.
+Real-name workload is **~4× slower** than synthetic at every
+batch size. The earlier "2-5× faster" projection was wrong; real
+entries cost more in stages 4 (authority cache), 6 (Bayesian
+joint), 7 (short-form tagging), 8 (gates). Full methodology +
+gap analysis in `docs/perf_characterization.md`.
 
 Reproduce with:
 ```bash
