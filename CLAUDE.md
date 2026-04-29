@@ -14,7 +14,7 @@
 **API Server**: FastAPI server with 8 endpoints (/healthz, /readyz, /api/v1/query, /api/v1/lineage, /api/v1/process, /api/v1/suggest, /metrics, /)
 **CLI**: `serve` and `version` via `gmnap` entry point; full 7-command CLI in `src/cli/gmnap.py` (query, lineage, process, sources, regions, validate, serve) but NOT wired to the main entry point
 **Diaspora Detection**: Implemented — split geo_region vs name_region with conflict flag
-**Testing**: 1,792 tests collected (CI runs ~1,740 across 13 test files); 843-entry adjudicated benchmark
+**Testing**: ~2,376 tests collected across `tests/unit/` + 4 newly-triaged dirs (authority, cjk, db, v7) + memgraph e2e. Coverage gate at `--cov-fail-under=15` (line+branch combined; line-only 17.96 %, branch 12.4 %). 843-entry adjudicated benchmark with deterministic 80/20 train/test split (`src/regions/benchmark_split.py`)
 **Test Fixtures**: 500 golden dataset + 843 name-origin benchmark + 10,724 Wikidata mathematicians
 
 ---
@@ -190,7 +190,7 @@ Architecture: split geo/name-origin branches, hierarchical selective classificat
 |--------|-------|-------|
 | Raw ECE (test set) | 0.188 | substantial miscalibration before fix |
 | Calibrated ECE (held-out) | **0.039** | PAV fit on 675 train; evaluated on 168 test |
-| Brier (raw / calibrated) | 0.139 / 0.114 | |
+| Brier (raw / calibrated) | 0.151 / 0.133 | re-fit on train-only changed the numbers slightly |
 | 5-fold CV ECE on train | 0.002 | within-train variance estimate |
 
 The headline ECE = **0.039** is the honest out-of-sample number.
@@ -209,7 +209,7 @@ side-by-side reliability diagrams.
 
 ## 📊 Testing
 
-- **1,792 tests collected** (CI runs ~1,740 across 13 test files)
+- **~2,376 tests collected** across 50+ files in CI's Core-tests step (unit/, authority/, cjk/, db/, v7/, plus memgraph e2e + property tests)
 - **500 golden dataset entries** with verified regions
 - **843 adjudicated benchmark entries** from Wikidata (three-track evaluation)
 - **10,724 Wikidata mathematicians** + **15,120 OpenAlex entries** as training data
@@ -276,6 +276,6 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 - ❌ "14 authority sources fully working" — 9 have real HTTP code; 2 need API keys; 3 deferred
 - ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly
 - ❌ "100% name-origin accuracy" — 100% emitted-leaf precision on adjudicated set, but 28% abstention rate; 56% on raw citizenship labels (wrong metric for name-origin)
-- ❌ "1,090 tests" — actual count is 1,792 collected, ~1,740 run by CI
+- ❌ "1,090 tests" — actual count is ~2,376 collected, all run by CI's Core-tests step
 - ❌ "Genealogy data for every mathematician" — enrichment covers ~20,600 entries (MGP + Wikidata P184 + OpenAlex affiliations). Only ~4,390 have a full advisor chain; the other ~16,200 have Institution + Country only. Historical / obscure mathematicians without any of these sources pass through with no enrichment.
 - ❌ "3,000 entries/sec on the full pipeline" — that's detection-only. Full `process_batch` with fastText CLI subprocess is ~190/s on synthetic names; ~980/s rules-only. See Performance table for details.
