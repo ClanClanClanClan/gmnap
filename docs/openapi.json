@@ -409,6 +409,43 @@
         "summary": "Metrics"
       }
     },
+    "/p/{path}": {
+      "get": {
+        "operationId": "serve_spa_profile_p__path__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "title": "Path",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Serve Spa Profile"
+      }
+    },
     "/readyz": {
       "get": {
         "description": "Readiness probe \u2014 performs a real Bolt handshake.\n\nThe earlier implementation opened a raw TCP socket and accepted\nany handshake response as \"ready\". That returned 200 even when\nMemgraph was alive but auth was broken, the storage was\ncorrupt, or the Bolt protocol upgrade was rejected. Here we\ndelegate to ``src.genealogy.query._driver`` which calls\n``verify_connectivity()`` under a 2-second timeout \u2014 the same\npath the lineage endpoint uses.",

@@ -3,7 +3,7 @@
 Auto-generated from the FastAPI OpenAPI schema by
 `tools/gen_api_reference.py`. Version: **7.0**.
 
-Endpoints: **8**. Re-generate after any endpoint
+Endpoints: **9**. Re-generate after any endpoint
 change with `make api-docs`. The full machine-readable schema
 is at `docs/openapi.json`.
 
@@ -92,6 +92,17 @@ Prometheus-compatible metrics endpoint.
 
 **Responses:**
   - `200` (application/json) — Successful Response
+
+### `GET /p/{path}`
+
+**Serve Spa Profile**
+
+**Parameters:**
+  - `path` (`string`, path) **(required)**
+
+**Responses:**
+  - `200` (application/json) — Successful Response
+  - `422` (application/json) — Validation Error
 
 ### `GET /readyz`
 

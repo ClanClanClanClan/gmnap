@@ -129,7 +129,7 @@ Copy `.env.example` to `.env` and configure. Key variables:
 PYTHONPATH=. pytest tests/unit/ -q --timeout=120
 ```
 
-**~2,376 tests collected** across the unit / authority / cjk / db / v7 directories CI runs — covering region detection accuracy, 500-entry golden dataset, 843-entry adjudicated name-origin benchmark, end-to-end workflows, API security, CLI hardening, web interface, and nginx config. Plus 31-scenario adversarial Playwright browser-test job and live Memgraph integration. Coverage gated at `--cov-fail-under=15` (line + branch combined; line-only is 17.96 %, branch is 12.4 %).
+**~2,376 tests collected** across the unit / authority / cjk / db / v7 directories CI runs — covering region detection accuracy, 500-entry golden dataset, 843-entry adjudicated name-origin benchmark, end-to-end workflows, API security, CLI hardening, web interface, and nginx config. Plus 32-scenario adversarial Playwright browser-test job and live Memgraph integration. Coverage gated at `--cov-fail-under=15` (line + branch combined; line-only is 17.96 %, branch is 12.4 %).
 
 ## Region Detection
 

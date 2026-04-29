@@ -13,7 +13,7 @@ which is sync HTTP with no JS runtime. That bypasses:
 * console errors and uncaught exceptions
 
 This harness spawns ``gmnap serve`` on a free port, drives it with a real
-Chromium via Playwright, and runs 31 adversarial scenarios. Any unhandled
+Chromium via Playwright, and runs 32 adversarial scenarios. Any unhandled
 console error or uncaught exception fails the run. Screenshots for each
 scenario land in ``docs/screenshots/browser_audit/``.
 
@@ -549,6 +549,42 @@ def scenario_unknown_name(page: Page, base: str):
     )
 
 
+def scenario_url_state(page: Page, base: str):
+    """Exercise the SPA router added in round 8.
+
+    Three properties:
+    1. Searching on the landing page updates `location.search` to
+       ``?q=<query>``, so the URL is shareable.
+    2. Clicking a result-card pushes a `/p/<encoded-name>` path,
+       so the profile is deep-linkable.
+    3. A direct visit to `/p/<encoded-name>` lands on the profile
+       (not the landing page) — proves the FastAPI catch-all and the
+       client-side `applyLocation()` cooperate.
+    """
+    # 1. Landing → search via Enter
+    page.goto(base)
+    _search_and_wait(page, "Euler, Leonhard")
+    after_search = page.url
+    if "?q=" not in after_search:
+        raise RuntimeError(f"expected ?q= in URL after search, got: {after_search}")
+
+    # 2. Click the first result card to open the profile
+    page.click(".result-card", timeout=5000)
+    page.wait_for_selector("#profile-content", state="visible", timeout=5000)
+    after_click = page.url
+    if "/p/" not in after_click:
+        raise RuntimeError(
+            f"expected /p/ in URL after profile click, got: {after_click}"
+        )
+
+    # 3. Direct deep-link load
+    page.goto(after_click)
+    # Should resolve to a profile, not the landing page (#landing is hidden)
+    page.wait_for_selector("#profile-content", state="visible", timeout=15000)
+    if page.locator("#landing").is_visible():
+        raise RuntimeError("deep-link landed on #landing instead of #profile-view")
+
+
 # ─── Runner ────────────────────────────────────────────────────────────
 
 
@@ -657,6 +693,7 @@ def _build_scenarios() -> list[tuple[str, Callable[..., None], tuple, dict]]:
         ("correction_form", scenario_correction_form, (), {}),
         ("tree_depth", scenario_tree_depth, (), {}),
         ("unknown_name", scenario_unknown_name, (), {}),
+        ("url_state", scenario_url_state, (), {}),
         ("network_500", scenario_network_500, (), {}),
         ("rapid_fire", scenario_rapid_fire, (), {}),
     ]
