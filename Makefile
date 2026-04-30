@@ -1,6 +1,6 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit browser-test eval-authority api-docs bench-real lock
+.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit audit-repo browser-test eval-authority api-docs bench-real lock
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
@@ -15,6 +15,7 @@ help:
 	@echo "  test         - Run test suite"
 	@echo "  lint         - Run code linting"
 	@echo "  audit        - Run comprehensive audit"
+	@echo "  audit-repo   - Run repo-invariant audit (18 checks; CI gate)"
 	@echo "  update-sources - Update authority source configurations"
 	@echo "  clean        - Clean cache and temporary files"
 
@@ -104,6 +105,16 @@ audit:
 
 audit-quick:
 	PYTHONPATH=. python3 analysis/comprehensive_audit.py --quick-test
+
+# Comprehensive repo-invariant audit (tools/audit_repo.py). 18 checks
+# across 10 categories: file-tree integrity, parse, JSON/YAML, doc-vs-
+# data numerical claims, version coherence, Make-target resolution,
+# CI test references, test-module shadowing, generator idempotency,
+# doc cross-references. Wired into CI as a gating job — any failure
+# fails the build. Run locally before pushing if you've touched docs,
+# numbers, or test layout.
+audit-repo:
+	PYTHONPATH=. python3 tools/audit_repo.py
 
 # Maintenance
 update-sources:
