@@ -289,8 +289,9 @@ jobs:
           tests/unit/test_security_validator.py
           tests/unit/test_data_quality_validator.py
           tests/unit/test_region_base.py
+          tests/unit/test_region_processors_full.py
           --cov=src --cov-branch --cov-report=xml:coverage.xml --cov-report=term:skip-covered
-          --cov-fail-under=15
+          --cov-fail-under=20
           -q --timeout=240 -p no:cacheprovider
 
       - name: Coverage summary
@@ -303,17 +304,18 @@ jobs:
           branch_rate = float(root.attrib.get('branch-rate', 0)) * 100
           print(f'Line coverage:   {line_rate:.2f}%')
           print(f'Branch coverage: {branch_rate:.2f}%')
-          # Floors: 19 % line, 13 % branch. Current measured 19.30 % /
-          # 14.01 % (2026-04-30 — see CHANGELOG round 15, after three
-          # new focused test files: test_security_validator.py [28
-          # tests], test_data_quality_validator.py [18 tests],
-          # test_region_base.py [22 tests]; 68 new tests, +0.82 pp
-          # line, +1.26 pp branch). Original Phase-4 target was
-          # floor=20; couldn't hit it (would need measured ≥21) but
-          # 19/13 is a real ratchet from the previous 18/12 — line
-          # margin 0.30 pp, branch margin 1.01 pp.
-          line_floor = 19.0
-          branch_floor = 13.0
+          # Floors: 22 % line, 18 % branch. Current measured 23.93 % /
+          # 19.41 % (2026-04-30 — see CHANGELOG round 16, after
+          # tests/unit/test_region_processors_full.py [194 tests]
+          # exercising every region's clean→augment→validate→order_key
+          # hook chain plus RegionManager dispatch on diverse inputs).
+          # Single file delivered +4.63 pp line, +5.40 pp branch — the
+          # uncovered region-processor surface was the dominant gap.
+          # Original Phase-4 target was floor 20; we sailed past, so
+          # ratcheting to 22/18 (~2 pp margin) actually catches future
+          # regressions instead of leaving a 4 pp coverage moat.
+          line_floor = 22.0
+          branch_floor = 18.0
           assert line_rate >= line_floor, f'Line coverage {line_rate:.2f}% < floor {line_floor}%'
           assert branch_rate >= branch_floor, f'Branch coverage {branch_rate:.2f}% < floor {branch_floor}%'
           "
