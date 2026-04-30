@@ -91,9 +91,9 @@ Sources covered:
 
 | Source | Tier | Canonical Fetcher | Status |
 |--------|------|-------------------|--------|
-| OpenAlex | 0 | tier0/openalex.OpenAlexFetcher | ✅ WORKING |
-| Crossref | 0 | tier0/crossref.CrossrefFetcher | ✅ WORKING |
-| ORCID_ETD | 0 | tier0/orcid_etd.ORCIDETDFetcher | ✅ WORKING |
+| OpenAlex | 0 | tier0/openalex.OpenAlexFetcher | ✅ WORKING (53 % name-hit on curated 30) |
+| Crossref | 0 | tier0/crossref.CrossrefFetcher | ✅ WORKING (100 % name-hit; sparse semantic data) |
+| ORCID_ETD | 0 | tier0/orcid_etd.ORCIDETDFetcher | ⚠️ ORCID-only (rejects name input, 0 % hit on curated 30) |
 | Crossref_Thesis | 0 | tier0/crossref_thesis.CrossrefThesisFetcher | ✅ WORKING |
 | zbMATH_Open | 0 | tier0/zbmath.ZbMATHFetcher | ✅ WORKING |
 | Wikidata_P184 | 1 | inline aiohttp+SPARQL in `_fetch_wikidata_p184` | ✅ WORKING |
@@ -105,6 +105,16 @@ Sources covered:
 | Dimensions | 2 | (gated stub in manager_tier01) | ⚠️ Requires `DIMENSIONS_API_KEY` |
 | ProQuest | 3 | (deferred stub) | 🔴 Institutional proxy needed |
 | GoogleScholar | 3 | (deferred stub) | 🔴 ToS — opt-in only |
+
+**Live measurement (2026-04-30, OFFLINE=0, curated 30)**:
+`docs/authority_quality.md` records the most recent end-to-end run.
+Headline numbers: any-source hit rate **100 %**, OpenAlex **53.3 %**
+(16/30), Crossref **100 %** (30/30), ORCID_ETD **0 %** (0/30 — rejects
+name input). BirthYear extraction is currently `n/a` end-to-end (the
+fetchers' `birth_year` field isn't populated by any tier-0 source for
+this batch), and institution match is sparse (OpenAlex 0/16, Crossref
+2/30) — semantic enrichment beyond "did we find a record" is the
+weakest link in tier-0. Re-run with `OFFLINE=0 make eval-authority`.
 
 **CRITICAL**: `OFFLINE=1` is the default. Set `OFFLINE=0` for full
 enrichment. The tier-0 stubs short-circuit to OFFLINE-skip *before*
