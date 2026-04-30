@@ -14,7 +14,7 @@ Crossref / ORCID_ETD) returned a non-empty record.
 |---|---:|---:|---:|
 | OpenAlex | 53.3% (16/30) | n/a | 0.0% (0/16) |
 | Crossref | 100.0% (30/30) | n/a | 6.7% (2/30) |
-| ORCID_ETD | 0.0% (0/30) | n/a | n/a |
+| ORCID_ETD | 10.0% (3/30) | n/a | 0.0% (0/3) |
 
 ## Per-entry detail
 
@@ -37,17 +37,17 @@ Crossref / ORCID_ETD) returned a non-empty record.
 | Atiyah, Michael | GB | hit ❌Inst | hit ❌Inst | — |
 | von Neumann, John | HU | — | hit ✅Inst | — |
 | Erdős, Paul | HU | — | hit ❌Inst | — |
-| Tao, Terence | AU | hit ❌Inst | hit ❌Inst | — |
+| Tao, Terence | AU | hit ❌Inst | hit ❌Inst | hit ❌Inst |
 | Perelman, Grigori | RU | — | hit ❌Inst | — |
 | Kolmogorov, Andrey | RU | — | hit ❌Inst | — |
 | Chebyshev, Pafnuty | RU | — | hit ❌Inst | — |
 | Ramanujan, Srinivasa | IN | hit ❌Inst | hit ❌Inst | — |
-| Mirzakhani, Maryam | IR | hit ❌Inst | hit ❌Inst | — |
+| Mirzakhani, Maryam | IR | hit ❌Inst | hit ❌Inst | hit ❌Inst |
 | Cartan, Élie | FR | — | hit ❌Inst | — |
 | Grothendieck, Alexander | FR | hit ❌Inst | hit ❌Inst | — |
 | Serre, Jean-Pierre | FR | hit ❌Inst | hit ❌Inst | — |
 | Deligne, Pierre | BE | — | hit ❌Inst | — |
-| Connes, Alain | FR | hit ❌Inst | hit ❌Inst | — |
+| Connes, Alain | FR | hit ❌Inst | hit ❌Inst | hit ❌Inst |
 | Chern, Shiing-Shen | CN | hit ❌Inst | hit ❌Inst | — |
 | Yau, Shing-Tung | CN | hit ❌Inst | hit ❌Inst | — |
 

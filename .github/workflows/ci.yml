@@ -300,14 +300,15 @@ jobs:
           branch_rate = float(root.attrib.get('branch-rate', 0)) * 100
           print(f'Line coverage:   {line_rate:.2f}%')
           print(f'Branch coverage: {branch_rate:.2f}%')
-          # Floors: 17 % line, 11 % branch. Current measured 17.98 % /
-          # 12.39 % (2026-04-30 — see CHANGELOG round 13). Each floor
-          # sits ~1 percentage point below measured — enough margin
-          # to absorb fluctuation, tight enough to trip if a PR
-          # removes test coverage. Bump both when meaningful test
-          # coverage lands; never drop without a documented reason.
-          line_floor = 17.0
-          branch_floor = 11.0
+          # Floors: 18 % line, 12 % branch. Current measured 18.48 % /
+          # 12.75 % (2026-04-30 — see CHANGELOG round 14, post-
+          # 3,183-line dead-flat-module purge). Each floor sits
+          # ~0.5 pp below measured — tight enough to catch a PR that
+          # removes test coverage, loose enough to absorb day-to-day
+          # fluctuation. Bump both when meaningful coverage lands;
+          # never drop without a documented reason.
+          line_floor = 18.0
+          branch_floor = 12.0
           assert line_rate >= line_floor, f'Line coverage {line_rate:.2f}% < floor {line_floor}%'
           assert branch_rate >= branch_floor, f'Branch coverage {branch_rate:.2f}% < floor {branch_floor}%'
           "

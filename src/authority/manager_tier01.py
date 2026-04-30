@@ -287,17 +287,51 @@ async def _fetch_crossref(entry: Dict) -> Dict:
 
 
 async def _fetch_orcid_etd(entry: Dict) -> Dict:
+    """ORCID_ETD requires an ORCID identifier (\\d{4}-\\d{4}-\\d{4}-…),
+    not a name. We get one by piggy-backing on OpenAlex, which exposes
+    the author's ORCID on its `orcid` field (when known). The 2026-04-30
+    live eval caught this — the fetcher was being called with the raw
+    CanonicalLatin and rejecting every input as malformed, so the code
+    path returned 0 % hit rate on the curated 30. Now:
+
+      1. Look up the name in OpenAlex (cached if a parallel
+         ``_fetch_openalex`` already ran in this batch).
+      2. If OpenAlex carries an ORCID for that author, call ORCID_ETD
+         with the identifier.
+      3. Otherwise return ``hit=False`` with reason ``no_orcid_for_name``
+         — distinct from the old ``Invalid ORCID format`` log noise.
+
+    Doubling the OpenAlex call on cold cache is acceptable because the
+    cache is keyed by name and ``_call_canonical_fetcher`` short-
+    circuits on the second hit. Live API quota cost: at most one extra
+    OpenAlex query per author, only on the first run.
+    """
     name = (entry.get("CanonicalLatin") or "").strip()
     if not name:
         return _no_name("ORCID_ETD")
-    ck = _cache_key("orcid_etd", {"name": name})
+    if OFFLINE:
+        return _offline_skip("ORCID_ETD")
+
+    # Step 1: name → ORCID via OpenAlex.
+    openalex_result = await _fetch_openalex(entry)
+    orcid = ((openalex_result.get("OpenAlex") or {}).get("identifiers") or {}).get(
+        "ORCID"
+    )
+    if not orcid:
+        return {
+            "ORCID_ETD": {
+                "hit": False,
+                "reason": "no_orcid_for_name",
+            }
+        }
+
+    # Step 2: ORCID → ETD.
+    ck = _cache_key("orcid_etd", {"orcid": orcid})
     cached = _cache_get(ck)
     if cached is not None:
         return cached
-    if OFFLINE:
-        return _offline_skip("ORCID_ETD")
     result = await _call_canonical_fetcher(
-        "src.authorities.tier0.orcid_etd", "ORCIDETDFetcher", "ORCID_ETD", name
+        "src.authorities.tier0.orcid_etd", "ORCIDETDFetcher", "ORCID_ETD", orcid
     )
     _cache_set(ck, result)
     return result
