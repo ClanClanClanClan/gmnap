@@ -4,6 +4,54 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-04-30 (round 11 — live-authority validation)
+
+Real `OFFLINE=0` measurement against the 30-mathematician
+ground-truth set. Replaces a "mocked-tests-pass" claim with a
+"here's what the live HTTP path actually returns" measurement.
+
+### Added / Updated
+
+- **`docs/authority_quality.md`**: live-measurement report,
+  regenerated against the real OpenAlex / Crossref / ORCID_ETD
+  endpoints. Headline: any-source hit rate **100 %**; per-source
+  Crossref 100 %, OpenAlex 53.3 %, ORCID_ETD 0 %.
+
+### Changed
+
+- **CLAUDE.md authority-source table**: status column updated from
+  flat "✅ WORKING" to honest per-source numbers reflecting the
+  live-measurement run. ORCID_ETD demoted from ✅ → ⚠️ because it
+  rejects name input (the production code path passes a name; the
+  fetcher expects an ORCID identifier).
+
+### Honest findings (not regressions; existing limitations now
+### measured rather than assumed)
+
+- **ORCID_ETD doesn't work for name-based queries.** The fetcher
+  validates input as an ORCID identifier and rejects names; the
+  production caller in `manager_tier01._fetch_orcid_etd` passes
+  `entry["CanonicalLatin"]`. Net hit rate from this code path: 0 %
+  on the curated 30. To use ORCID_ETD properly, the caller would
+  need to first resolve a name → ORCID via OpenAlex's `orcid` field,
+  then call ORCID_ETD with that identifier. Filed as a follow-up;
+  not regressed, just newly visible.
+- **BirthYear extraction is `n/a` end-to-end.** No tier-0 source
+  populates `result["birth_year"]` for this batch, so the harness
+  can't measure ±1-year accuracy. Either the fetchers don't
+  surface birth year (likely — OpenAlex doesn't expose it, Crossref
+  is a DOI registry), or the schema mapping in
+  `_call_canonical_fetcher` drops it.
+- **Institution match is sparse.** OpenAlex 0/16, Crossref 2/30.
+  OpenAlex hits return `affiliations` but not in a shape the
+  harness's substring matcher recognizes; worth a focused look at
+  `_fetch_openalex`'s response translation.
+
+These are all known limitations now backed by measured numbers
+instead of "we'll find out when we go live". The tier-0 HTTP
+plumbing works (any-source 100 %); the semantic-extraction layer is
+the weakest link.
+
 ## [Unreleased] — 2026-04-30 (round 10 — systematic audit infrastructure)
 
 The audit-pass series (rounds 1-9) had a meta-problem: each "check
