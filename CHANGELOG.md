@@ -4,6 +4,42 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-04-30 (round 13 — coverage floor + dead-backup cleanup)
+
+### Removed
+
+- `src/core/pipeline_v7.py.backup_20250920_095634` — 50 KB tracked
+  backup file from a 2025 hotfix; nothing imports it.
+- `src/regions/manager_optimized.py.backup_20251003_232951` — same
+  pattern, from a later hotfix.
+
+### Changed
+
+- **CI coverage floor: 15 % combined → 17 % line + 11 % branch
+  (separate)**. Current measured: line 17.98 %, branch 12.39 % (run
+  with the same curated test list CI uses, against pinned
+  requirements). Each floor sits ~1 pp below measured — tight enough
+  to trip on a coverage-removing PR, loose enough to absorb day-to-
+  day fluctuation. The previous combined-15 % gate was passing with
+  no margin; the new dual-floor gate is properly ratcheted.
+
+### Honest scope note
+
+Original Phase 4 plan was "push line coverage 17.96 → 25 %" by
+deleting dead modules + adding focused tests. Investigation showed
+the `flat-vs-directory` region modules I'd flagged as dead (e.g.
+`c2_persian_tajik.py`, `g1_latin_america.py`) are actually loaded
+**dynamically** at runtime by `manager_optimized.py`'s
+`region_imports` dict — not dead, just untested. Static `grep
+"import …"` missed the `importlib.import_module()` path. Moved
+forward by deleting only the unambiguous `.backup_*` files (also
+unimported, also dead by name) and ratcheting the CI floor at the
+current measured number rather than papering over the gap with
+tautological tests. A real coverage push would write tests that
+exercise the dynamically-loaded region processors directly — that's
+a worthwhile follow-up but not a fit for the time-bounded
+pass-of-passes session this round closes.
+
 ## [Unreleased] — 2026-04-30 (round 12 — audit in pre-commit hook)
 
 ### Added

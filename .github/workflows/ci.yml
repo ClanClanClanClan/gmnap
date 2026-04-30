@@ -300,15 +300,16 @@ jobs:
           branch_rate = float(root.attrib.get('branch-rate', 0)) * 100
           print(f'Line coverage:   {line_rate:.2f}%')
           print(f'Branch coverage: {branch_rate:.2f}%')
-          # Floor at 15 % combined (line + branch) — adding `--cov-branch`
-          # tightens what `--cov-fail-under` measures. Line-only is
-          # 17.96 %; combined drops to ~16 % because branch coverage
-          # is much lower than line coverage on a 46k-line codebase
-          # this exercises mostly via integration. Bump the floor
-          # when more tests land; never drop it without a documented
-          # reason in the commit.
-          floor = 15.0
-          assert line_rate >= floor, f'Line coverage {line_rate:.2f}% < floor {floor}%'
+          # Floors: 17 % line, 11 % branch. Current measured 17.98 % /
+          # 12.39 % (2026-04-30 — see CHANGELOG round 13). Each floor
+          # sits ~1 percentage point below measured — enough margin
+          # to absorb fluctuation, tight enough to trip if a PR
+          # removes test coverage. Bump both when meaningful test
+          # coverage lands; never drop without a documented reason.
+          line_floor = 17.0
+          branch_floor = 11.0
+          assert line_rate >= line_floor, f'Line coverage {line_rate:.2f}% < floor {line_floor}%'
+          assert branch_rate >= branch_floor, f'Branch coverage {branch_rate:.2f}% < floor {branch_floor}%'
           "
 
       - name: Upload coverage artifact
