@@ -97,10 +97,21 @@ versions in CI:
 | codespell | 2.4.2 |
 | yamllint | 1.38.0 |
 
-The pre-commit hook (`scripts/git_hooks/pre-commit`) does two fast
-smoke checks: E4 Korea region loads, all 37 regions load under 2 s.
-If you genuinely need to commit past it, `git commit --no-verify`
-— but CI runs the full lint matrix on every push regardless.
+The pre-commit hook (`scripts/git_hooks/pre-commit`) does three fast
+checks:
+1. E4 Korea region loads cleanly.
+2. All 37 regions load in under 2 s.
+3. **`tools/audit_repo.py --fast`** — 16 of the 18 repo-invariant
+   checks (skipping the two subprocess-spawning slow ones, B2 and
+   I1, which CI runs in full). Catches the kind of drift the audit
+   was built for: references to deleted files, JSON/YAML parse
+   errors, doc-vs-data numerical claims, test-module shadowing,
+   etc. — before they reach CI.
+
+If you genuinely need to commit past the hook, `git commit
+--no-verify`. CI runs the **full** audit (18 checks, 8 jobs) on
+every push regardless, so a bypassed hook just delays the failure
+to push-time.
 
 ## Branching and PR style
 

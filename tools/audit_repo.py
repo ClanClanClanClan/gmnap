@@ -625,13 +625,41 @@ CHECKS: List[Callable[[], Result]] = [
     _check_api_reference_endpoint_count,
 ]
 
+# Checks omitted from --fast mode (pre-commit hook). Each spawns a
+# subprocess and noticeably slows the hook (B2: 8 imports ≈ 1.5 s;
+# I1: 1 gen_api_reference run ≈ 1 s). CI runs the full battery.
+_SLOW_CHECKS = {
+    _check_production_imports,
+    _check_gen_api_reference_idempotent,
+}
+
 
 def main() -> int:
-    print(f"Running {len(CHECKS)} repository invariant checks...")
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument(
+        "--fast",
+        action="store_true",
+        help=(
+            "Skip slow subprocess-spawning checks (B2 production "
+            "imports, I1 gen_api_reference idempotent). Suitable for "
+            "pre-commit hooks; CI still runs the full battery."
+        ),
+    )
+    args = parser.parse_args()
+
+    selected = [c for c in CHECKS if not (args.fast and c in _SLOW_CHECKS)]
+    skipped = len(CHECKS) - len(selected)
+
+    label = f"{len(selected)} repository invariant checks"
+    if skipped:
+        label += f" (--fast: skipping {skipped} slow checks)"
+    print(f"Running {label}...")
     print()
     total_errors = 0
     failed_checks: List[str] = []
-    for check in CHECKS:
+    for check in selected:
         name, errors = check()
         if errors:
             print(f"  ✗ {name}")

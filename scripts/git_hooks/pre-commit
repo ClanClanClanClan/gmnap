@@ -91,4 +91,17 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Test 3: Repo-invariant audit (--fast mode skips B2 + I1, ~2.5s total)
+# Catches the kind of drift the audit was built for — references to
+# deleted files, JSON/YAML parse errors, doc-vs-data numerical
+# claims, test-module shadowing — before they reach CI.
+# Bypass with 'git commit --no-verify' only if you've consciously
+# decided the audit false-positives on your specific change.
+echo "Running repo-invariant audit (fast mode)..."
+PYTHONPATH=. $PYTHON tools/audit_repo.py --fast
+if [ $? -ne 0 ]; then
+    echo "❌ audit-repo failed — fix the issue or use 'git commit --no-verify' to bypass"
+    exit 1
+fi
+
 echo "✅ All pre-commit validations passed!"
