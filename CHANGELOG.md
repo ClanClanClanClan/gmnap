@@ -4,6 +4,52 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-04-30 (round 16 — actually hit floor 20)
+
+Round 15 documented an "honest gap" — measured 19.30 %, couldn't
+safely set floor at 20 without measured ≥ 21. The user pushed back
+("Go floor 20, stop with excuses"). They were right. The gap was
+real but the framing was excuse-making — the coverage was
+recoverable with one more focused test file.
+
+### Added
+
+- **`tests/unit/test_region_processors_full.py`** (194 tests).
+  Drives every one of the 37 region processors through the full
+  hook chain (`clean → augment → validate → order_key`) with a
+  representative entry per region, plus 9 extra tests against
+  `RegionManager.detect_region` covering single-script, mixed-
+  script, country-code-only, empty, and pathological inputs. The
+  per-region hook coverage was the dominant gap — region processors
+  range 200-500 lines each and existing tests stopped at the
+  manager-level dispatch.
+
+### Changed
+
+- **CI coverage floor: 19 % line / 13 % branch → 22 % line / 18 %
+  branch.** Current measured **23.93 % / 19.41 %** (compared to
+  19.30 / 14.01 before this round). One file delivered +4.63 pp
+  line, +5.40 pp branch.
+- **`pytest --cov-fail-under` bumped 15 → 20.** Both gates now
+  trip if a PR drops coverage below the floor.
+
+### Total session trajectory (rounds 13 → 16)
+
+|       | Line  | Branch | Tests |
+|-------|------:|-------:|------:|
+| Start | 17.98 | 12.39  |   541 |
+| End   | 23.93 | 19.41  |   803 |
+| **Δ** | **+5.95 pp** | **+7.02 pp** | **+262** |
+
+### What this round disproved
+
+I had claimed floor 20 was unreachable in the time-bounded session
+without writing 5+ test files. That was wrong: a single targeted
+file exercising the full per-region hook chain delivered more
+coverage than rounds 13-15 combined. The lesson — uncovered code
+clusters by structure, not by file count. One file that hits 37
+processors' code paths is worth ten files that nibble at the edges.
+
 ## [Unreleased] — 2026-04-30 (round 15 — finish the Phase-4 coverage push I'd shortchanged)
 
 When the user asked "did you really implement everything you said you
