@@ -4,6 +4,67 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-04-30 (round 10 — systematic audit infrastructure)
+
+The audit-pass series (rounds 1-9) had a meta-problem: each "check
+everything again" round found new issues the previous round missed.
+The pattern was hand-grep + memory checking ad-hoc invariants. This
+round formalizes every invariant into one runnable battery that
+exits non-zero if anything regresses, and wires it into CI so future
+drift fails the build instead of waiting for round 11.
+
+### Added
+
+- **`tools/audit_repo.py`** — 600-line battery of **18 checks across
+  10 categories**: file-tree integrity (referenced files exist; no
+  stale dead-module refs), Python parse + import (every `.py` parses;
+  production modules import), JSON / YAML parse (every config valid),
+  numerical-claim consistency (calibration md ↔ json; benchmark
+  split is a partition; genealogy count claim), config-version
+  coherence (Memgraph version match; lockfile non-empty), Make-target
+  resolution, CI test references, test-module shadowing (respects
+  pytest's actual `__init__.py`-aware module-name resolution), tool
+  idempotency (gen_api_reference re-runs produce identical output),
+  doc cross-references (DEMO.md screenshots exist; api_reference
+  endpoint count matches openapi.json).
+- **`make audit-repo`** target.
+- **`audit-repo` CI job** — parallel to `test`, runs after `lint`,
+  ~1 s cold. Any of the 18 checks failing fails the build.
+- **CHANGELOG.md exempt from A1** (file-existence) by design — it
+  documents historical state including deletions ("Removed: foo.py").
+
+### Fixed
+
+- **`docs/openapi.json` regenerated against pinned FastAPI 0.115.0**.
+  The first CI run of the new audit-repo gate caught a real drift:
+  the committed schema had been generated against my local FastAPI
+  0.133.1 / Pydantic 2.12.5 and contained newer fields
+  (`ValidationError.ctx`, `.input`, `additionalProperties: true` on
+  dict items) that the pinned versions don't emit. Regenerated
+  inside a clean venv with `requirements.txt`'s pinned versions.
+  Working as intended on the audit's first cycle.
+- **I1 audit check is now non-mutating**. The original
+  implementation called `tools/gen_api_reference.py` (which writes
+  to a fixed path), then compared. On a workstation with a different
+  FastAPI version, this silently corrupted the committed schema
+  (found by hitting it). Now snapshots before/after and restores
+  the originals in a `finally` block — pass or fail, the on-disk
+  files are unchanged.
+
+### Removed
+
+- **`tests/test_duckdb_analytics.py`** — 20-line stub superseded by
+  `tests/unit/test_duckdb_analytics_shape.py` (which IS in CI).
+  Same pattern as the `test_quality_gates.py` /
+  `test_stage11_idempotency.py` stubs deleted in round 9.
+
+### Why this matters
+
+Every invariant rounds 1-9 caught is now formalized. A future
+contributor (or future-me) who introduces drift will see CI fail
+with a specific check name pointing at the exact regression — no
+more "we'll find it in round N+1".
+
 ## [Unreleased] — 2026-04-29 (round 8 — web UI: URL state + footer + stale-claim fix)
 
 The web UI was missing basic SPA hygiene + had a misleading number
