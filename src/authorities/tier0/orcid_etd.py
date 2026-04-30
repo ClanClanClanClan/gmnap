@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional
 
 import aiohttp
 
-from ..base import AuthorityData, AuthorityFetcher
+from ..base import AuthorityData, AuthorityFetcher, FetchResult, FetchStatus
 
 logger = logging.getLogger(__name__)
 
@@ -121,15 +121,18 @@ class ORCIDETDFetcher(AuthorityFetcher):
 
                 return orcids
 
-    async def fetch(self, identifier: str) -> Optional[ORCIDETDRecord]:
+    async def fetch(self, identifier: str) -> FetchResult:
         """
         Fetch ETD data from ORCID profile.
 
         Args:
-            identifier: ORCID ID
+            identifier: ORCID ID (e.g. ``0000-0002-0140-7641``).
 
         Returns:
-            ORCIDETDRecord with thesis/dissertation data
+            FetchResult wrapping an ``ORCIDETDRecord`` on success. The
+            base ``_call_canonical_fetcher`` orchestrator expects this
+            shape — earlier code returned a bare ``ORCIDETDRecord``,
+            which made every call resolve to ``status:unknown`` upstream.
         """
         await self._rate_limit()
 
@@ -149,7 +152,10 @@ class ORCIDETDFetcher(AuthorityFetcher):
             r"^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$", identifier
         ):
             logger.warning(f"Invalid ORCID format: {identifier}")
-            return None
+            return FetchResult(
+                status=FetchStatus.PARSE_ERROR,
+                error_message=f"Invalid ORCID format: {identifier}",
+            )
 
         async with aiohttp.ClientSession() as session:
             headers = {"Accept": "application/json"}
@@ -164,13 +170,23 @@ class ORCIDETDFetcher(AuthorityFetcher):
             person_data = await self._fetch_person(session, identifier, headers)
 
             if not (education_data or thesis_works):
-                return None
+                return FetchResult(
+                    status=FetchStatus.NOT_FOUND,
+                    error_message="No education or dissertation works",
+                )
 
-            # Build ETD record
+            # Build ETD record. Field names match the AuthorityData
+            # dataclass in src/authorities/base.py:
+            #   - source_id (not identifier)
+            #   - canonical_name (not canonical_latin)
+            #   - confidence_score (not confidence)
+            # The original code was written against an earlier schema
+            # and the mismatch only surfaced when live (OFFLINE=0) with
+            # a real ORCID — caught by the round-11 live eval.
             record = ORCIDETDRecord(
                 source="ORCID_ETD",
-                identifier=identifier,
-                confidence=0.9,  # High confidence for ORCID data
+                source_id=identifier,
+                confidence_score=0.9,  # High confidence for ORCID data
             )
 
             # Extract person names
@@ -180,7 +196,7 @@ class ORCIDETDFetcher(AuthorityFetcher):
                 family_name = name_data.get("family-name", {}).get("value")
 
                 if given_name and family_name:
-                    record.canonical_latin = f"{given_name} {family_name}"
+                    record.canonical_name = f"{given_name} {family_name}"
 
             # Extract PhD/thesis from education
             if education_data:
@@ -236,7 +252,7 @@ class ORCIDETDFetcher(AuthorityFetcher):
                             if year:
                                 record.thesis_year = int(year)
 
-            return record
+            return FetchResult(status=FetchStatus.SUCCESS, data=record)
 
     async def _fetch_education(
         self, session: aiohttp.ClientSession, orcid: str, headers: Dict
@@ -380,7 +396,7 @@ class ORCIDETDFetcher(AuthorityFetcher):
                     {
                         "type": "ORCID_ETD",
                         "value": orcid,
-                        "confidence": record.confidence,
+                        "confidence": record.confidence_score,
                     }
                 )
 
@@ -434,11 +450,11 @@ class ORCIDETDFetcher(AuthorityFetcher):
 
     def _is_match(self, query_name: str, record: ORCIDETDRecord) -> bool:
         """Check if record matches query name."""
-        if not record.canonical_latin:
+        if not record.canonical_name:
             return False
 
         query_lower = query_name.lower().strip()
-        record_lower = record.canonical_latin.lower().strip()
+        record_lower = record.canonical_name.lower().strip()
 
         # Exact match
         if query_lower == record_lower:

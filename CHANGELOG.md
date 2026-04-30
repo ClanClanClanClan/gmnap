@@ -4,6 +4,98 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-04-30 (round 14 — substantive fixes from round-11 findings)
+
+Round 11's live-authority eval surfaced two real bugs as "honest
+findings". Rather than just document them, this round actually
+fixes them.
+
+### Fixed: ORCID_ETD is now real, not symbolic
+
+**Three-bug chain in the ORCID_ETD path. Each was hidden behind the
+previous one.**
+
+1. The production caller `_fetch_orcid_etd` in
+   `src/authority/manager_tier01.py` passed `entry["CanonicalLatin"]`
+   (a name) to a fetcher whose API expects an ORCID identifier
+   (`\d{4}-\d{4}-\d{4}-\d{3}[0-9X]`). Every call rejected → 0 % hit
+   rate. **Fix**: piggy-back on OpenAlex (which returns the author's
+   ORCID on its `orcid` field). Step 1 resolves name → ORCID via
+   the OpenAlex cache, step 2 calls ORCID_ETD with that identifier.
+   When OpenAlex doesn't carry an ORCID (e.g., historical
+   mathematicians who never registered), return
+   `hit=False, reason="no_orcid_for_name"`.
+
+2. With (1) fixed, ORCID_ETD's fetcher started receiving valid
+   ORCIDs and immediately threw `TypeError`: it instantiated
+   `ORCIDETDRecord` with `identifier=`, `confidence=`,
+   `canonical_latin` — none of which exist on the `AuthorityData`
+   dataclass it inherits from (the actual fields are `source_id`,
+   `confidence_score`, `canonical_name`). Five field references
+   in `src/authorities/tier0/orcid_etd.py` were written against
+   an earlier schema and never exercised end-to-end. **Fix**: all
+   five corrected to the right field names.
+
+3. With (2) fixed, calls returned an `ORCIDETDRecord` directly —
+   but the canonical-fetcher orchestrator
+   (`_call_canonical_fetcher`) expects a `FetchResult` wrapper
+   (`status: FetchStatus, data: AuthorityData`). Without the
+   wrapper, every result resolved to `status:unknown`. **Fix**:
+   wrap return values in `FetchResult(status=SUCCESS, data=record)`
+   and `FetchResult(status=PARSE_ERROR/NOT_FOUND, ...)` for the
+   error paths.
+
+**End-to-end result**: ORCID_ETD goes from **0 % → 10 %** hit rate
+on the curated 30 (3/30: Tao, Mirzakhani, Connes — the living
+mathematicians with registered ORCIDs in the set). Historical
+mathematicians correctly return `no_orcid_for_name` rather than
+the previous `Invalid ORCID format` log noise.
+
+CLAUDE.md updated: ORCID_ETD status promoted ⚠️ → ✅ WORKING with
+the live measurement.
+
+### Removed: 20 dead flat-module region duplicates (3,183 LOC)
+
+Round 13 noted the "flat-vs-directory" region modules (e.g.
+`c5_arabic_maghreb.py` alongside `c5_arabic_maghreb/processor.py`)
+might be dead but couldn't easily prove it because of the dynamic
+import path in `manager_optimized.py:6800`. Round 14 proved it
+properly: AST-parsed `manager_optimized.py`'s `region_imports` dict
+to extract the **exact set of dynamically-loaded module paths** (37
+total). Cross-referenced against the 30 flat-module files with no
+static imports → 20 of them are NOT in the dynamic-import list
+(directory `processor.py` is used instead). Those 20 are confirmed
+dead.
+
+Files deleted (each had a sibling `*/processor.py` that's the live
+version):
+
+```
+src/regions/c_groups/{c5_arabic_maghreb, c6_hebrew_diaspora,
+                      c7_armenian, c8_georgian, c9_caucasus_turkic}.py
+src/regions/d_groups/{d2_south_asia_dravidian, d3_south_asia_bengali,
+                      d4_pakistan_urdu, d5_sinhala}.py
+src/regions/e_groups/{e2_traditional_chinese, e5_vietnam,
+                      e6_mainland_sea, e7_maritime_sea}.py
+src/regions/f_groups/{f1_ssa_francophone, f2_ssa_anglophone,
+                      f3_horn_of_africa, f4_lusophone_africa}.py
+src/regions/special/{h1_historical, r0_residual_latin_ascii,
+                     z0_quarantine}.py
+```
+
+Verified: `RegionManager()._ensure_regions_loaded()` still loads
+all 37 regions; full unit-test suite (541 tests) still passes;
+coverage moves from line 17.98 → **18.48 %**, branch 12.39 →
+**12.75 %** (real gain — the dead code was dragging the
+denominator).
+
+### Changed: CI coverage floor 17/11 → 18/12
+
+Bumped both line and branch floors to match the post-purge
+measurement, each ~0.5 pp below the new measured value. Catches
+PRs that remove test coverage without inflating the gap during
+day-to-day fluctuation.
+
 ## [Unreleased] — 2026-04-30 (round 13 — coverage floor + dead-backup cleanup)
 
 ### Removed
