@@ -19,6 +19,32 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
+# Files pytest skips when collecting from ``tests/`` with no explicit
+# path. Each one has a documented reason (broken import, missing
+# fixture, depends on the long-deleted ``RegionManager.<attr>`` API,
+# etc.). CI enumerates specific files in `.github/workflows/ci.yml`'s
+# `Core tests` step so these never end up in the gating run.
+#
+# Triage report explaining each skip:
+#   docs/test_triage_2026-04-28.md.
+collect_ignore_glob = [
+    # Integration files that need a `liveapi` fixture nobody provides:
+    "integration/test_hal_gnd_smoke.py",
+    "integration/test_openalex_smoke.py",
+    "integration/test_orcid_smoke.py",
+    "integration/test_wikidata_smoke.py",
+    # Integration files that reference removed RegionManager attrs:
+    "integration/test_extreme_authorities.py",
+    "integration/test_performance_ultrafix.py",
+    "integration/test_romanization_integration.py",
+    "integration/test_security_fix.py",
+    "integration/test_security_fix_phase8.py",
+    "integration/test_ultrafix_phase2.py",
+    # Property test referencing removed validators module:
+    "property/test_determinism_properties.py",
+]
+
+
 def pytest_configure(config):
     """Register custom markers."""
     config.addinivalue_line(

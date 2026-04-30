@@ -110,11 +110,42 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 addopts = "-ra -q --strict-markers"
+# Directories pytest skips when running with no explicit path. CI
+# enumerates specific files (see .github/workflows/ci.yml's `Core
+# tests` step), so it isn't affected — but a developer running plain
+# `pytest` from the repo root would otherwise hit ~30 collection
+# errors from non-CI dirs that have known import / fixture issues.
+# Triage report: docs/test_triage_2026-04-28.md.
+norecursedirs = [
+    "docs/orphaned_tests",
+    "tests/coherence",
+    "tests/compliance",
+    "tests/error_recovery",
+    "tests/extreme",
+    "tests/genealogy",
+    "tests/hardcore",
+    "tests/idempotency",
+    "tests/integration/stages",
+    "tests/live",
+    "tests/memory",
+    "tests/mock_api",
+    "tests/paranoid",
+    "tests/performance",
+    "tests/production",
+    "tests/regional",
+    "tests/regions/e6_mainland_sea",
+    "tests/roundtrip",
+    "tests/security",
+    "scripts",
+    "archive",
+    "out",
+]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "paranoid: marks tests as paranoid level tests",
     "unit: marks tests as unit tests",
+    "live: marks tests requiring live network / API access",
 ]
 
 [tool.mypy]
