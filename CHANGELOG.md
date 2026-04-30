@@ -4,6 +4,30 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-04-30 (round 12 — audit in pre-commit hook)
+
+### Added
+
+- **`tools/audit_repo.py --fast` flag**: skips the two slow subprocess-
+  spawning checks (B2 production imports, I1 gen_api_reference) so
+  the pre-commit hook can run the audit in ~2.5 s instead of ~3.5 s.
+  CI continues to run the full 18-check battery — `--fast` is for
+  pre-commit only.
+- **`scripts/git_hooks/pre-commit`** now runs `audit-repo --fast` as
+  a third validation step (after the existing E4 Korea + 37-regions
+  smoke). Catches drift on `git commit` rather than only on `git
+  push` / CI.
+- **`CONTRIBUTING.md`**: pre-commit-hook section updated to document
+  the third step and the `--fast` mode rationale.
+
+### Why
+
+The whole point of the audit infrastructure (round 10) is to catch
+drift at commit-time, not push-time. Without the hook, contributors
+would only see audit failures on the CI round-trip — slower feedback,
+and tempting to fix-forward against red CI. With the hook, the bad
+commit is rejected locally.
+
 ## [Unreleased] — 2026-04-30 (round 11 — live-authority validation)
 
 Real `OFFLINE=0` measurement against the 30-mathematician
