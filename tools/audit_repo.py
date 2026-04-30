@@ -514,31 +514,56 @@ def _check_no_test_module_shadowing() -> Result:
 
 
 def _check_gen_api_reference_idempotent() -> Result:
-    """Running tools/gen_api_reference.py twice must produce identical
-    output."""
+    """Running tools/gen_api_reference.py must reproduce the committed
+    openapi.json + api_reference.md byte-for-byte.
+
+    NB: this check is non-mutating. It snapshots the committed files
+    before regenerating, and restores them afterward regardless of
+    whether the contents matched. That's important because
+    ``tools/gen_api_reference.py`` writes to a fixed path — without
+    save/restore, running this audit on a workstation with a
+    different FastAPI/Pydantic version would silently corrupt the
+    committed schema. (Found by hitting it on first run.)
+    """
     errors: List[str] = []
     out_json = REPO / "docs" / "openapi.json"
+    out_md = REPO / "docs" / "api_reference.md"
     if not out_json.exists():
         errors.append("docs/openapi.json missing — run `make api-docs`")
         return ("I1: gen_api_reference idempotent", errors)
-    before = out_json.read_text()
-    proc = subprocess.run(
-        [sys.executable, "tools/gen_api_reference.py"],
-        cwd=str(REPO),
-        env={**os.environ, "PYTHONPATH": str(REPO)},
-        capture_output=True,
-        text=True,
-        timeout=60,
-    )
-    if proc.returncode != 0:
-        errors.append(f"re-run failed: {proc.stderr.strip()}")
-        return ("I1: gen_api_reference idempotent", errors)
-    after = out_json.read_text()
-    if before != after:
-        errors.append(
-            "running tools/gen_api_reference.py twice produced different "
-            "output — committed openapi.json is stale; run `make api-docs`"
+    before_json = out_json.read_text()
+    before_md = out_md.read_text() if out_md.exists() else None
+    try:
+        proc = subprocess.run(
+            [sys.executable, "tools/gen_api_reference.py"],
+            cwd=str(REPO),
+            env={**os.environ, "PYTHONPATH": str(REPO)},
+            capture_output=True,
+            text=True,
+            timeout=60,
         )
+        if proc.returncode != 0:
+            errors.append(f"re-run failed: {proc.stderr.strip()}")
+            return ("I1: gen_api_reference idempotent", errors)
+        after_json = out_json.read_text()
+        after_md = out_md.read_text() if out_md.exists() else None
+        if before_json != after_json or before_md != after_md:
+            errors.append(
+                "running tools/gen_api_reference.py produced different "
+                "output than the committed docs/openapi.json + "
+                "docs/api_reference.md. Either: (a) the committed files "
+                "are stale — run `make api-docs` and commit the result, "
+                "or (b) your local FastAPI/Pydantic versions differ "
+                "from requirements.txt's pin (0.115.0/2.9.2) — install "
+                "the pinned versions before regenerating."
+            )
+    finally:
+        # Always restore — gen_api_reference.py writes to a fixed
+        # path, so a version-skew run would otherwise leave the
+        # committed schema corrupted.
+        out_json.write_text(before_json)
+        if before_md is not None:
+            out_md.write_text(before_md)
     return ("I1: gen_api_reference idempotent", errors)
 
 
