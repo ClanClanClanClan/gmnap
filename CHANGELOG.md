@@ -4,6 +4,100 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-01 (round 17 — close the live-authority data gaps)
+
+The round-11 live eval surfaced three weaknesses I'd documented as
+"honest findings": OpenAlex 53 % hit / 0 % institution match,
+ORCID_ETD 0 % hit, BirthYear n/a end-to-end. Round 14 fixed the
+ORCID_ETD chain (3-bug). Round 17 fixes the rest.
+
+### Fixed: OpenAlex name format mismatch (53 % → 90 % hit)
+
+The pipeline emits names in canonical `Family, Given` form (V7 §1).
+OpenAlex's `display_name.search:` filter doesn't tolerate the
+canonical comma syntax — querying `"Tao, Terence"` returns no
+matches at all, but `"Terence Tao"` returns the correct author with
+full affiliation data. Same for Crossref's author search.
+
+Added `_to_natural_order()` helper in `manager_tier01.py` and
+applied it in `_fetch_openalex` + `_fetch_crossref` before the
+canonical-fetcher delegation. Cache key uses the normalized form so
+both lookup paths converge on the same entry.
+
+Live-eval delta on the curated 30:
+- OpenAlex: hit 53.3 % → **90 %** (+36.7 pp)
+- OpenAlex: institution match 0/16 → **17/27 (63 %)** (+63 pp)
+- Crossref: institution match 6.7 % → **30 %** (+23 pp)
+
+Same shape of bug as the ORCID_ETD chain in round 14 — code wired
+up, integration broken by silent format mismatch. Same fix pattern
+in two places now.
+
+### Fixed: Wikidata P569 (birth year) — 4-bug chain
+
+The Wikidata fetcher only pulled P184 (advisor edges); BirthYear
+extraction was n/a end-to-end (CLAUDE.md flagged this as the weak
+link). Extending the SPARQL to also pull P569 (date of birth) is
+trivial — but actually shipping it required fixing four cascading
+bugs that had been latent in the function:
+
+1. **Missing User-Agent header.** Wikidata's API policy mandates
+   it; without one the search endpoint returned `text/plain`
+   instead of JSON, and `aiohttp.json()` raised `ContentTypeError`
+   on every call. The function had been silently returning
+   `hit=False, reason="search_http_error"` since round 4.
+2. **`aiohttp.json()` strict content-type check.** WDQS returns
+   `application/sparql-results+json`, which aiohttp doesn't
+   recognize as JSON by default. Added `content_type=None` on both
+   calls.
+3. **URL not URL-encoded.** Plain string concatenation worked for
+   the search but malformed for SPARQL (special chars in the query
+   body). Added `urllib.parse.quote()`.
+4. **Stray `}}` in non-f-string segment.** The OPTIONAL P569 block's
+   closing brace was in a plain-string segment, where `}}` stays
+   literal (not the f-string escape collapse). Result: SPARQL
+   syntax error → 400 from the WDQS endpoint. Caught by adding a
+   diagnostic that captured the actual HTTP status.
+
+Live-eval delta:
+- Wikidata: hit n/a → **100 %** (30/30)
+- Wikidata: BirthYear ±1 n/a → **96.7 %** (29/30)
+- The "BirthYear is n/a end-to-end" claim from CLAUDE.md is now
+  obsolete; the gap is closed.
+
+`tools/eval_authority.py` extended to query Wikidata too (was tier-0
+only), so the live-quality report shows the new column.
+
+### Removed: `src/regions/region_manager.py` (-129 LOC)
+
+129-line legacy region-manager wrapper. Only importer was
+`tools/overlays/push2/src/regions/manager.py` — itself a dead
+overlay artifact never wired into anything. Verified zero callers
+remain in production / CI test paths.
+
+### Test update
+
+`tests/unit/test_authority_manager.py::TestWikidataP184`:
+- Mock's `json()` now accepts `**kwargs` so the production
+  `content_type=None` arg doesn't trip it.
+- `test_offline_returns_no_hit` now isolates `CACHE_DIR` to a
+  tempdir (the production cache served live results when warm).
+- `test_cached_result_returned` now uses the natural-order form
+  for the cache key (matching the new shim normalization).
+
+### Live-eval headline trajectory
+
+|                | Before round 17 | After round 17 |
+|----------------|----------------:|---------------:|
+| Any-source hit |          100 %  |         100 %  |
+| OpenAlex hit   |         53.3 %  |         **90 %** |
+| OpenAlex inst  |          0 %    |        **63 %** |
+| Crossref hit   |         100 %   |         100 %  |
+| Crossref inst  |         6.7 %   |        **30 %** |
+| ORCID_ETD hit  |         10 %    |        13.3 %  |
+| Wikidata hit   |        (n/a)    |        **100 %** |
+| BirthYear ±1   |        (n/a)    |        **96.7 %** |
+
 ## [Unreleased] — 2026-04-30 (round 16 — actually hit floor 20)
 
 Round 15 documented an "honest gap" — measured 19.30 %, couldn't

@@ -161,8 +161,16 @@ class TestWikidataP184:
 
     def test_offline_returns_no_hit(self):
         entry = {"CanonicalLatin": "Euler, Leonhard"}
-        with patch("src.authority.manager_tier01.OFFLINE", True):
-            result = _run(_fetch_wikidata_p184(entry))
+        # Isolate the cache dir — leaving the production
+        # ./cache/authority/ in scope means any prior live run can
+        # serve a cache hit (which is the correct OFFLINE-with-cache
+        # production behaviour, but it's not what this test is
+        # checking — it's checking the OFFLINE-with-empty-cache
+        # branch where the function returns hit=False directly).
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with patch("src.authority.manager_tier01.OFFLINE", True):
+                with patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)):
+                    result = _run(_fetch_wikidata_p184(entry))
         assert result["Wikidata_P184"]["hit"] is False
 
     def test_empty_name_returns_no_hit(self):
@@ -176,7 +184,12 @@ class TestWikidataP184:
         cached = {"Wikidata_P184": {"hit": True, "wikidata_id": "Q6722", "edges": []}}
         with tempfile.TemporaryDirectory() as tmpdir:
             with patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)):
-                ck = _cache_key("wikidata_p184", {"name": "Gauss, Carl Friedrich"})
+                # The shim normalizes the canonical "Family, Given"
+                # to natural "Given Family" before building the cache
+                # key (so OpenAlex/Wikidata see a queryable form).
+                # The cache key must therefore use the natural form
+                # too, otherwise the production lookup misses.
+                ck = _cache_key("wikidata_p184", {"name": "Carl Friedrich Gauss"})
                 _cache_set(ck, cached)
                 result = _run(_fetch_wikidata_p184(entry))
         assert result == cached
@@ -203,7 +216,11 @@ class TestWikidataP184:
                 self.status = 200
                 self._data = data
 
-            async def json(self):
+            async def json(self, *args, **kwargs):
+                # Production code passes ``content_type=None`` so the
+                # SPARQL endpoint's `application/sparql-results+json`
+                # mime type doesn't trip aiohttp's default check.
+                # Mock accepts any kwargs and ignores them.
                 return self._data
 
         class MockContextManager:
