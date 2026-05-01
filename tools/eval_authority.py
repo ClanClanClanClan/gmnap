@@ -89,17 +89,29 @@ def _coerce_year(value: Any) -> Optional[int]:
 
 
 async def _query_one(name: str) -> Dict[str, Any]:
-    """Run the tier-0 fetchers against one name and return a flat
-    dict of {source: result}."""
+    """Run the tier-0 + Wikidata-P184 fetchers against one name and
+    return a flat dict of ``{source: result}``.
+
+    Wikidata is included so the BirthYear ±1 metric has a real source
+    — none of the tier-0 endpoints (OpenAlex / Crossref / ORCID_ETD)
+    populate the ``birth_year`` field end-to-end. Wikidata's P569
+    closes that gap (added 2026-04-30).
+    """
     from src.authority.manager_tier01 import (
         _fetch_crossref,
         _fetch_openalex,
         _fetch_orcid_etd,
+        _fetch_wikidata_p184,
     )
 
     entry = {"CanonicalLatin": name}
     out = {}
-    for source_fn in (_fetch_openalex, _fetch_crossref, _fetch_orcid_etd):
+    for source_fn in (
+        _fetch_openalex,
+        _fetch_crossref,
+        _fetch_orcid_etd,
+        _fetch_wikidata_p184,
+    ):
         try:
             r = await source_fn(entry)
             out.update(r)
@@ -120,7 +132,7 @@ async def _evaluate(ground_truth: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
         # Per-source hit / birth-year / institution evaluation.
         per_source = {}
-        for source_key in ("OpenAlex", "Crossref", "ORCID_ETD"):
+        for source_key in ("OpenAlex", "Crossref", "ORCID_ETD", "Wikidata_P184"):
             inner = result.get(source_key, {})
             hit = bool(inner.get("hit"))
             by_match = None
@@ -168,7 +180,7 @@ def _summarize(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     summary["any_hit_rate"] = sum(1 for r in rows if r["any_hit"]) / total
 
-    for source_key in ("OpenAlex", "Crossref", "ORCID_ETD"):
+    for source_key in ("OpenAlex", "Crossref", "ORCID_ETD", "Wikidata_P184"):
         hits = [
             r["per_source"][source_key]
             for r in rows
@@ -227,8 +239,8 @@ def _md_report(
         "mathematicians with Wikidata QIDs, birth years, and institution keywords).",
         "",
         f"**Any-source hit rate**: {any_hit:.1%}",
-        " — fraction of queries where ANY tier-0 source (OpenAlex /",
-        "Crossref / ORCID_ETD) returned a non-empty record.",
+        " — fraction of queries where ANY of OpenAlex / Crossref /",
+        "ORCID_ETD / Wikidata_P184 returned a non-empty record.",
         "",
         "## Per-source breakdown",
         "",
@@ -251,12 +263,12 @@ def _md_report(
         "",
         "## Per-entry detail",
         "",
-        "| Name | Country | OpenAlex | Crossref | ORCID_ETD |",
-        "|---|---|:-:|:-:|:-:|",
+        "| Name | Country | OpenAlex | Crossref | ORCID_ETD | Wikidata |",
+        "|---|---|:-:|:-:|:-:|:-:|",
     ]
     for r in rows:
         cells = [r["name"], r.get("country", "")]
-        for source in ("OpenAlex", "Crossref", "ORCID_ETD"):
+        for source in ("OpenAlex", "Crossref", "ORCID_ETD", "Wikidata_P184"):
             ps = r["per_source"][source]
             if not ps["hit"]:
                 cells.append("—")

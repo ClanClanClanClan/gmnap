@@ -91,12 +91,12 @@ Sources covered:
 
 | Source | Tier | Canonical Fetcher | Status |
 |--------|------|-------------------|--------|
-| OpenAlex | 0 | tier0/openalex.OpenAlexFetcher | ✅ WORKING (53 % name-hit on curated 30) |
-| Crossref | 0 | tier0/crossref.CrossrefFetcher | ✅ WORKING (100 % name-hit; sparse semantic data) |
-| ORCID_ETD | 0 | tier0/orcid_etd.ORCIDETDFetcher | ✅ WORKING via OpenAlex name→ORCID resolve (10 % hit on curated 30 — only living mathematicians registered with ORCID) |
+| OpenAlex | 0 | tier0/openalex.OpenAlexFetcher | ✅ WORKING (90 % hit, 63 % institution match on curated 30) |
+| Crossref | 0 | tier0/crossref.CrossrefFetcher | ✅ WORKING (100 % hit, 30 % institution match) |
+| ORCID_ETD | 0 | tier0/orcid_etd.ORCIDETDFetcher | ✅ WORKING via OpenAlex name→ORCID resolve (13 % hit — caps at "registered ORCID exists") |
 | Crossref_Thesis | 0 | tier0/crossref_thesis.CrossrefThesisFetcher | ✅ WORKING |
 | zbMATH_Open | 0 | tier0/zbmath.ZbMATHFetcher | ✅ WORKING |
-| Wikidata_P184 | 1 | inline aiohttp+SPARQL in `_fetch_wikidata_p184` | ✅ WORKING |
+| Wikidata_P184 | 1 | inline aiohttp+SPARQL in `_fetch_wikidata_p184` | ✅ WORKING (100 % hit + 96.7 % BirthYear ±1 via P569) |
 | GND | 1 | tier1/gnd.GNDFetcher | ✅ WORKING |
 | HAL | 1 | tier1/hal.HALFetcher | ✅ WORKING |
 | OAI_University | 1 | tier1/oai_university.OAIUniversityFetcher | ✅ WORKING |
@@ -106,17 +106,16 @@ Sources covered:
 | ProQuest | 3 | (deferred stub) | 🔴 Institutional proxy needed |
 | GoogleScholar | 3 | (deferred stub) | 🔴 ToS — opt-in only |
 
-**Live measurement (2026-04-30, OFFLINE=0, curated 30)**:
+**Live measurement (2026-05-01, OFFLINE=0, curated 30)**:
 `docs/authority_quality.md` records the most recent end-to-end run.
-Headline numbers: any-source hit rate **100 %**, OpenAlex **53.3 %**
-(16/30), Crossref **100 %** (30/30), ORCID_ETD **10 %** (3/30 —
-Tao, Mirzakhani, Connes, the only living mathematicians in the
-curated set with registered ORCIDs). BirthYear extraction is
-currently `n/a` end-to-end (the fetchers' `birth_year` field isn't
-populated by any tier-0 source for this batch), and institution
-match is sparse (OpenAlex 0/16, Crossref 2/30) — semantic enrichment
-beyond "did we find a record" is the weakest link in tier-0. Re-run
-with `OFFLINE=0 make eval-authority`.
+Headline numbers: any-source hit rate **100 %**, OpenAlex **90 %**
+(27/30) with **63 % institution match** (17/27), Crossref **100 %**
+(30/30) with 30 % institution match (9/30), ORCID_ETD **13.3 %**
+(4/30 — only living mathematicians registered with ORCID),
+Wikidata_P184 **100 %** (30/30) with **BirthYear ±1 accuracy 96.7 %**
+(29/30). The previous "BirthYear is n/a end-to-end" gap was closed
+by extending the Wikidata SPARQL to pull P569 (date of birth)
+alongside P184 (advisor). Re-run with `OFFLINE=0 make eval-authority`.
 
 **CRITICAL**: `OFFLINE=1` is the default. Set `OFFLINE=0` for full
 enrichment. The tier-0 stubs short-circuit to OFFLINE-skip *before*

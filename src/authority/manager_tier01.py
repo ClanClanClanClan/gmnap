@@ -77,6 +77,35 @@ def _offline_skip(adapter_name: str) -> Dict[str, Any]:
     return {adapter_name: {"hit": False}}
 
 
+def _to_natural_order(name: str) -> str:
+    """Convert pipeline-canonical ``Family, Given`` to natural
+    ``Given Family``.
+
+    Live-eval finding (2026-04-30): OpenAlex's
+    ``filter=display_name.search:`` API does not tolerate the
+    canonical-comma syntax — querying ``"Tao, T."`` returns no
+    matches at all, but querying ``"T. Tao"`` returns the
+    correct author with full affiliation data. Same likely for
+    Crossref and other natural-order-expecting endpoints. The
+    pipeline emits names in ``Family, Given`` form (V7 §1), so the
+    tier orchestrator must transform before calling out.
+
+    - ``"Tao, T."``  → ``"T. Tao"``
+    - ``"Erdős, Paul"``   → ``"Paul Erdős"``
+    - ``"García Márquez, Gabriel"`` → ``"Gabriel García Márquez"``
+    - ``"Pythagoras"``     → ``"Pythagoras"``  (mononym, unchanged)
+    - ``""``               → ``""``
+    """
+    if "," not in name:
+        return name
+    family, _, given = name.partition(",")
+    given = given.strip()
+    family = family.strip()
+    if not given or not family:
+        return name
+    return f"{given} {family}"
+
+
 # ---------------------------------------------------------------------------
 # Fetcher pool (per-process reuse to amortize aiohttp session setup)
 # ---------------------------------------------------------------------------
@@ -256,14 +285,17 @@ async def _fetch_openalex(entry: Dict) -> Dict:
     name = (entry.get("CanonicalLatin") or "").strip()
     if not name:
         return _no_name("OpenAlex")
-    ck = _cache_key("openalex", {"name": name})
+    # Normalize to natural order — OpenAlex's display_name.search
+    # filter rejects the canonical comma syntax (live eval verified).
+    query = _to_natural_order(name)
+    ck = _cache_key("openalex", {"name": query})
     cached = _cache_get(ck)
     if cached is not None:
         return cached
     if OFFLINE:
         return _offline_skip("OpenAlex")
     result = await _call_canonical_fetcher(
-        "src.authorities.tier0.openalex", "OpenAlexFetcher", "OpenAlex", name
+        "src.authorities.tier0.openalex", "OpenAlexFetcher", "OpenAlex", query
     )
     _cache_set(ck, result)
     return result
@@ -273,14 +305,17 @@ async def _fetch_crossref(entry: Dict) -> Dict:
     name = (entry.get("CanonicalLatin") or "").strip()
     if not name:
         return _no_name("Crossref")
-    ck = _cache_key("crossref", {"name": name})
+    # Same natural-order normalization as OpenAlex — Crossref's
+    # author search uses author-name fields parsed from natural form.
+    query = _to_natural_order(name)
+    ck = _cache_key("crossref", {"name": query})
     cached = _cache_get(ck)
     if cached is not None:
         return cached
     if OFFLINE:
         return _offline_skip("Crossref")
     result = await _call_canonical_fetcher(
-        "src.authorities.tier0.crossref", "CrossrefFetcher", "Crossref", name
+        "src.authorities.tier0.crossref", "CrossrefFetcher", "Crossref", query
     )
     _cache_set(ck, result)
     return result
@@ -377,33 +412,53 @@ async def _fetch_wikidata_p184(entry: Dict) -> Dict:
     name = (entry.get("CanonicalLatin") or "").strip()
     if not name:
         return {"Wikidata_P184": {"hit": False, "reason": "no_name", "edges": []}}
-    ck = _cache_key("wikidata_p184", {"name": name})
+    # Wikidata accepts both forms but a natural-order query
+    # ("T. Tao") matches more reliably than the canonical
+    # comma form. Normalize for parity with OpenAlex.
+    query = _to_natural_order(name)
+    ck = _cache_key("wikidata_p184", {"name": query})
     cached = _cache_get(ck)
     if cached is not None:
         return cached
     if OFFLINE:
         return {"Wikidata_P184": {"hit": False, "edges": []}}
-    # Live path: search for the QID, then run the SPARQL doctoral-
-    # advisor query. Both legs are wrapped in retry_with_backoff
-    # because Wikidata's public endpoint regularly throws transient
-    # 503s under load (typically resolved on the next attempt) — a
-    # naive single-shot would poison entire batches of enrichment.
+    # Live path: search for the QID, then run the SPARQL combined
+    # doctoral-advisor + birth-year query. Both legs are wrapped in
+    # retry_with_backoff because Wikidata's public endpoint regularly
+    # throws transient 503s under load (typically resolved on the
+    # next attempt) — a naive single-shot would poison entire
+    # batches of enrichment.
     try:
         import aiohttp  # type: ignore
     except ImportError:
         return {"Wikidata_P184": {"hit": False, "reason": "no_aiohttp", "edges": []}}
 
+    from urllib.parse import quote
+
     from .common import retry_with_backoff
 
-    async with aiohttp.ClientSession() as session:
+    # Wikidata's API requires a User-Agent per their access policy;
+    # without one the search endpoint returns text/plain (causing
+    # aiohttp.json() to raise ContentTypeError). The 2026-04-30 live
+    # eval caught this — every Wikidata call was failing silently.
+    headers = {"User-Agent": "GMNAP/7.0 (mathematician name authority)"}
+
+    async with aiohttp.ClientSession(headers=headers) as session:
         search_url = (
             "https://www.wikidata.org/w/api.php?"
-            "action=wbsearchentities&format=json&language=en&search=" + name
+            "action=wbsearchentities&format=json&language=en&search=" + quote(query)
         )
 
         async def _do_search():
             async with session.get(search_url) as resp:
-                return resp.status, (await resp.json() if resp.status == 200 else None)
+                # content_type=None disables aiohttp's default
+                # application/json check — Wikidata sometimes returns
+                # text/plain on edge cases and the SPARQL endpoint
+                # returns application/sparql-results+json which
+                # aiohttp doesn't recognize as JSON.
+                return resp.status, (
+                    await resp.json(content_type=None) if resp.status == 200 else None
+                )
 
         status, sd = await retry_with_backoff(_do_search, max_retries=2, base_delay=0.5)
         if status != 200 or sd is None:
@@ -421,16 +476,34 @@ async def _fetch_wikidata_p184(entry: Dict) -> Dict:
             return result
         qid = hits[0]["id"]
 
+        # SPARQL pulls both P184 (doctoral advisor — multiple OK) and
+        # P569 (date of birth — single value, year extracted with
+        # YEAR()). P184 is OPTIONAL so historical mathematicians
+        # without recorded advisors still return a row carrying birth
+        # year. P569 is OPTIONAL for the same symmetry — modern
+        # researchers may have an advisor but no public DOB.
+        # NB: the closing brace for the second OPTIONAL is in an
+        # f-string segment so the `}}` escape collapses to a single
+        # `}`. Earlier draft had `}} ` in a plain-string segment which
+        # left two literal closing braces in the SPARQL → 400 from
+        # the SPARQL endpoint. Same trap caught us in round 16.
         sparql = (
-            "SELECT ?advisor ?advisorLabel WHERE { "
-            f"wd:{qid} wdt:P184 ?advisor . "
+            "SELECT ?advisor ?advisorLabel ?birthYear WHERE { "
+            f"OPTIONAL {{ wd:{qid} wdt:P184 ?advisor . }} "
+            f"OPTIONAL {{ wd:{qid} wdt:P569 ?birthDate . "
+            f"             BIND(YEAR(?birthDate) AS ?birthYear) }} "
             'SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } }'
         )
-        sparql_url = "https://query.wikidata.org/sparql?format=json&query=" + sparql
+        sparql_url = "https://query.wikidata.org/sparql?format=json&query=" + quote(
+            sparql
+        )
 
         async def _do_sparql():
             async with session.get(sparql_url) as resp:
-                return resp.status, (await resp.json() if resp.status == 200 else None)
+                # content_type=None — see _do_search for context.
+                return resp.status, (
+                    await resp.json(content_type=None) if resp.status == 200 else None
+                )
 
         status, qd = await retry_with_backoff(_do_sparql, max_retries=2, base_delay=0.5)
         if status != 200 or qd is None:
@@ -443,13 +516,28 @@ async def _fetch_wikidata_p184(entry: Dict) -> Dict:
                 }
             }
 
-    edges = []
+    edges: List[Dict[str, str]] = []
+    birth_year: int | None = None
     for binding in (qd.get("results") or {}).get("bindings", []):
         target = (binding.get("advisorLabel") or {}).get("value")
         if target:
-            edges.append({"relation": "doctoralAdvisor", "target": target})
+            edge = {"relation": "doctoralAdvisor", "target": target}
+            if edge not in edges:  # SPARQL cross-product can dup rows
+                edges.append(edge)
+        # birth_year is the same on every row (P569 single-valued);
+        # take the first non-None we see.
+        if birth_year is None:
+            by_raw = (binding.get("birthYear") or {}).get("value")
+            if by_raw:
+                try:
+                    birth_year = int(by_raw)
+                except ValueError:
+                    pass
 
-    result = {"Wikidata_P184": {"hit": True, "wikidata_id": qid, "edges": edges}}
+    payload: Dict[str, Any] = {"hit": True, "wikidata_id": qid, "edges": edges}
+    if birth_year is not None:
+        payload["birth_year"] = birth_year
+    result = {"Wikidata_P184": payload}
     _cache_set(ck, result)
     return result
 
