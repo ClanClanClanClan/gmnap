@@ -1,6 +1,6 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit audit-repo browser-test eval-authority api-docs bench-real lock
+.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit audit-repo browser-test eval-authority eval-orcid-live api-docs bench-real lock
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
@@ -57,6 +57,14 @@ bench-real:
 # warm cache).
 eval-authority:
 	OFFLINE=0 PYTHONPATH=. python3 tools/eval_authority.py
+
+# Round-21: live ORCID-ETD regression test (round-14 chain).
+# Hits real ORCID; gated by `live` marker + OFFLINE=0. Catches the
+# class-of-bug round 14 fixed (name→ORCID resolve, dataclass field
+# names, FetchResult wrapping) — mocks won't see real-API drift.
+eval-orcid-live:
+	OFFLINE=0 PYTHONPATH=. pytest tests/integration/test_orcid_etd_live.py \
+		-v -m live --timeout=60
 
 # Pipeline execution modes
 quick:

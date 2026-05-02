@@ -4,6 +4,70 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-02 (round 21+22 — live ORCID-ETD test + class-of-bug audit)
+
+Two phases of a six-phase ultraplan landed together: opt-in live
+regression test for the round-14 ORCID-ETD chain, and a new audit
+check (H2) that scans every test body for the `try/except: pass`
+band-aid pattern.
+
+### Round 21: live ORCID-ETD integration test
+
+- **`tests/integration/test_orcid_etd_live.py`** (new): two tests,
+  marked `live` + skipif `OFFLINE=1`. One asserts the full
+  name → OpenAlex → ORCID resolution chain works end-to-end on
+  Tao's known ORCID; one asserts historical mathematicians return
+  `hit=False, reason="no_orcid_for_name"`. Each assertion comments
+  which round-14 bug regression it would catch.
+- **`Makefile`**: new `eval-orcid-live` target. Run with
+  `make eval-orcid-live` (sets `OFFLINE=0`).
+- Verified locally: passes with OFFLINE=0; correctly skipped under
+  OFFLINE=1.
+
+This catches the class-of-bug round 14 fixed: live API shape /
+contract drift that mocks won't see.
+
+### Round 22: H2 audit check + 5 band-aid fixes
+
+New `tools/audit_repo.py` check **H2 — no test-body bandaid
+swallows**. AST-walks every CI-active test file, flags
+`try/except: pass` patterns inside `def test_*` bodies that would
+silently swallow regressions. Whitelist for `except ImportError:
+pass` (legit optional-dep skip pattern) and module-level handlers
+(setup / teardown best-effort cleanup is OK).
+
+First run found **13 violations**; H2 norecurse list aligned with
+pyproject.toml's narrowed it to 5 CI-relevant ones, all fixed:
+
+- `tests/unit/regions/test_region_e4.py:362` —
+  `test_validate_security_checks` was accepting any-or-no
+  exception. Verified actual behaviour: XSS / SQL / path-traversal
+  all raise `ValueError`; JNDI does NOT (gap). Now asserts the 3
+  protections that exist; JNDI gap noted in comment.
+- `tests/unit/regions/test_region_e4.py:373, 380` —
+  `test_validate_length_limits` was accepting any-or-no exception
+  for "A" (too short) and "Kim"×100 (too long). Now asserts both
+  raise.
+- `tests/cjk/test_v7_cjk_roundtrip.py:415` —
+  `test_performance_cjk_roundtrip` was eating individual round-trip
+  errors during a perf measurement. Now counts failures and fails
+  the test if rate > 10 %, preserving perf intent while catching
+  conversion regressions.
+- `tests/regions/f3_horn_of_africa/test_f3_processor.py:268` —
+  `test_edge_cases` empty-entry assertion. F3 actually handles
+  empty entries gracefully (verified); now asserts that.
+
+H2 is in `_SLOW_CHECKS`? No — it's a pure AST walk, ~50 ms. Fast
+enough for the pre-commit hook. Audit count: 19 → 20 checks.
+
+### Pre-existing failures noted
+
+`tests/regions/f3_horn_of_africa/test_f3_processor.py` has 7+
+ambient failures unrelated to this round (e.g., calls to
+`_analyze_patronymic_structure` which doesn't exist on the F3
+processor — same class-of-bug as round 20's E7 fix). File is NOT
+in CI's curated list; failures don't gate. Filed as future cleanup.
+
 ## [Unreleased] — 2026-05-02 (round 20 — de-bandaid the per-region tests, fix the bug they were hiding)
 
 Round 16's `tests/unit/test_region_processors_full.py` (194 tests)

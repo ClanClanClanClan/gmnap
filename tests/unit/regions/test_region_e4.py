@@ -346,39 +346,41 @@ class TestRegionE4:
 
     @pytest.mark.timeout(15)
     def test_validate_security_checks(self, processor):
-        """Test security validation."""
-        security_tests = [
-            "Kim<script>",
-            "Park'; DROP TABLE",
-            "Lee../../../",
-            "Choi${jndi:ldap://}",
-        ]
+        """Test security validation rejects injection attacks.
 
-        for test in security_tests:
-            entry = {"CanonicalLatin": test}
-            # Security validation may or may not raise
-            try:
+        Round-21 de-bandaid: original test caught any-or-no exception.
+        Verified the validator's actual behaviour: XSS / SQL /
+        path-traversal all raise ValueError; JNDI does NOT (gap —
+        documented as known limitation; raise-on-JNDI would be a
+        product change). Each row asserts what the validator
+        currently does, so a regression that *removes* one of the
+        protections trips this test loudly.
+        """
+        # These three MUST raise — they're the validator's existing
+        # protections.
+        for payload, family in [
+            ("Kim<script>", "XSS"),
+            ("Park'; DROP TABLE", "SQL injection"),
+            ("Lee../../../", "Path traversal"),
+        ]:
+            entry = {"CanonicalLatin": payload}
+            with pytest.raises(Exception, match=r"(?i)" + family.split()[0]):
                 processor.validate(entry)
-            except:
-                pass  # Expected to possibly raise
 
     @pytest.mark.timeout(15)
     def test_validate_length_limits(self, processor):
-        """Test name length validation."""
-        # Too short
-        entry = {"CanonicalLatin": "A"}
-        # Length validation may not be enforced
-        try:
-            processor.validate(entry)
-        except:
-            pass  # May raise for too short
+        """Names too short or too long for the E4 region must raise.
 
-        # Too long
-        entry = {"CanonicalLatin": "Kim" * 100}
-        try:
-            processor.validate(entry)
-        except:
-            pass  # May raise for too long
+        Round-21 de-bandaid: was `try/except: pass`. Verified actual
+        behaviour: validator raises ValueError("Name too short") on
+        single-char input and ValueError("Name too long") on 300+
+        chars.
+        """
+        with pytest.raises(Exception, match=r"(?i)too short|short"):
+            processor.validate({"CanonicalLatin": "A"})
+
+        with pytest.raises(Exception, match=r"(?i)too long|long"):
+            processor.validate({"CanonicalLatin": "Kim" * 100})
 
     @pytest.mark.timeout(15)
     def test_validate_required_fields(self, processor):
