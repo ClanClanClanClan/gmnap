@@ -45,7 +45,7 @@ changes, see **[CHANGELOG.md](CHANGELOG.md)**.
 - **37 Regions**: Full linguistic processing (clean/augment/validate/order_key) for Anglo, Germanic, Slavic, Arabic, CJK, South Asian, African, and more
 - **9 Authority Sources**: OpenAlex, Crossref, ORCID, HAL, GND, Wikidata, zbMATH, OAI, Crossref Thesis
 - **12-Stage Pipeline**: Unicode normalization → region detection → authority enrichment → collision analytics → schema validation → output
-- **Genealogy Enrichment**: ~27,100 mathematicians with advisor chains, birth years, and institutions (seeded from MGP + Wikidata SPARQL)
+- **Genealogy Enrichment**: ~39,500 mathematicians with advisor chains, birth years, and institutions (seeded from MGP + Wikidata SPARQL)
 - **Web Interface**: Dark-themed SPA at localhost:8080
 - **API**: REST endpoints with rate limiting, hashcash PoW, Prometheus metrics
 - **GDPR Compliant**: ShadowNode conversion, birth year masking
@@ -142,7 +142,7 @@ Split geo/name-origin architecture validated by external onomastics expert:
 
 ## Genealogy Enrichment
 
-`data/genealogy_enrichment.json` (~27,100 mathematicians) backs the
+`data/genealogy_enrichment.json` (~39,500 mathematicians) backs the
 Advisors / Institution / BirthYear fields in CLI and API responses.
 Sources, in order of priority:
 

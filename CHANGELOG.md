@@ -4,6 +4,90 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-02 (rounds 23-26 — partition harvest + MGP infra + perf-deferral)
+
+Closes phases 3-6 of the six-phase ultraplan.
+
+### Round 23: Wikidata partitioned harvest (9,216 → 20,833, +126 %)
+
+Round 18's offset-paginated SPARQL stopped at 9,216 entries because
+Wikidata's engine 504s at deep offsets. Partition by birth-decade
+(52 buckets `[1500, 1510), …, [2010, 2020)`) plus a fallback bucket
+for entries with no recorded birth date. Each bucket is small enough
+to complete; aggregate dedupes by QID.
+
+- `scripts/data/fetch_wikidata_genealogy.py`: rewritten to per-decade
+  + no-DOB fallback queries.
+- New harvest: **20,833 entries** (was 9,216) with advisor chains,
+  17,357 with BirthYear.
+- Rebuilt `data/genealogy_enrichment.json`: **39,497 entries**
+  (was 27,147), **20,810 with advisor chains** (was 9,221),
+  **17,348 with BirthYear** (was 8,110), **34,591 with Institution**
+  (was 23,412).
+- Audit D4 threshold bumped 25-30k → 36-43k.
+- CLAUDE.md / README / DEMO / static count claims updated.
+
+### Round 24: Memgraph reload (no code change)
+
+Loader is data-driven: takes whatever's in `data/genealogy_enrichment
+.json`. Local Memgraph not running this session, but CI's
+`memgraph-test` job spins one up + runs the loader on every push.
+Verified loader recognizes the new 39,497-entry file via
+`--dry-run`. CI will exercise the full load on next push.
+
+### Round 25: MGP harvester infrastructure (queueable)
+
+mathgenealogy.org's robots.txt mandates Crawl-delay: 10 → ~780 h
+for the full 280k-entry corpus. Out of inline scope; built the
+infrastructure for overnight / multi-session runs.
+
+- **`tools/harvest_mgp.py`** (new): polite single-threaded crawler.
+  Sequential ID range, configurable `--start` / `--end` / `--resume`,
+  refuses delays < 10 s (robots.txt mandate). Writes JSONL +
+  checkpoint after every successful fetch. Resumable from Ctrl-C.
+- **`tools/build_genealogy_enrichment.py`**: new merge step (#2d)
+  reading `data/mgp_full.jsonl` when present. MGP advisors are
+  authoritative; override Wikidata's. Optional — empty / missing
+  file is fine.
+- **`Makefile`**: `harvest-mgp` target with help text.
+
+To run: `make harvest-mgp ARGS='--start 1 --end 1000'` (~3 h for
+1k chunk). Resume: `make harvest-mgp ARGS='--resume'`.
+
+### Round 26: in-process fastText — DEFERRED (premature optimization)
+
+Original ultraplan claimed Phase 6 would lift real-name throughput
+from 7 → 25+ entries/sec by replacing the fastText subprocess with
+in-process `fasttext.load_model`.
+
+Investigation revealed: the existing `FastTextCLIWorker` in
+`manager_optimized.py` is already a sophisticated process-wide
+singleton with persistent subprocess + lock-protected I/O,
+benchmarked at **0.5 ms/query** (2k q/s). At that rate, fastText
+isn't the bottleneck — even if it were the only cost, max
+throughput would be 500/s, but the real-name workload is at 7/s.
+The bottleneck per CLAUDE.md is stages 4 (authority enrich), 6
+(Bayesian coherence), 7 (short-form tagging), 8 (gates) — pursuing
+in-process fastText would shave at most ~0.5 ms/entry from a
+multi-second-per-entry pipeline. Premature optimization.
+
+Filed as future work pending a real bottleneck analysis (proper
+profiling of the per-stage cost distribution on the real-name 10k
+batch). Not done in this session.
+
+### Trajectory rollup (rounds 13 → 26)
+
+|                       | Round 13  | Round 26  | Δ        |
+|-----------------------|----------:|----------:|---------:|
+| Genealogy entries     | 20,600    | **39,497**| +92 %    |
+| With advisor chains   | 4,390     | **20,810**| +374 %   |
+| With BirthYear        | n/a       | **17,348**| new      |
+| With Institution      | ~16,200   | **34,591**| +114 %   |
+| Live OpenAlex hit     | 53 %      | 90 %      | +37 pp   |
+| Live BirthYear ±1     | n/a       | 96.7 %    | new      |
+| Coverage (line)       | 17.98 %   | 23.93 %   | +5.95 pp |
+| Audit checks          | 0         | 20        | new      |
+
 ## [Unreleased] — 2026-05-02 (round 21+22 — live ORCID-ETD test + class-of-bug audit)
 
 Two phases of a six-phase ultraplan landed together: opt-in live

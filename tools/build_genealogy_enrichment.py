@@ -102,6 +102,12 @@ WIKIDATA_GENEALOGY = Path("data/wikidata_genealogy.json")
 # misses (those without a recorded doctoral advisor). No advisor
 # chains here, but a valuable coverage boost.
 OPENALEX_AFFILIATIONS = Path("data/ml_training/openalex_10k_mathematicians.json")
+# Round-23: bulk MGP harvest from `tools/harvest_mgp.py`.
+# JSONL, one record per line. When present, merges authoritative
+# MGP advisor chains over Wikidata's (MGP is the curated source for
+# mathematicians, Wikidata's P184 derives from MGP for many entries).
+# Optional — empty / missing means we use Wikidata + OpenAlex only.
+MGP_FULL = Path("data/mgp_full.jsonl")
 OUTPUT = Path("data/genealogy_enrichment.json")
 
 # ISO-3166 alpha-2 → English country name. Vendored minimal mapping
@@ -642,6 +648,70 @@ def build() -> dict:
         print(
             f"OpenAlex merge: +{added} new entries, enriched {enriched} "
             f"existing entries"
+        )
+
+    # 2d. Merge MGP bulk-harvest (round 23). Authoritative for
+    # mathematician advisor chains — MGP is hand-curated. When
+    # present, MGP advisors override Wikidata's (MGP is upstream of
+    # most Wikidata P184 entries anyway). Optional — empty / missing
+    # file is fine.
+    if MGP_FULL.exists() and MGP_FULL.stat().st_size > 0:
+        added = 0
+        enriched = 0
+        with MGP_FULL.open(encoding="utf-8") as f:
+            for raw in f:
+                raw = raw.strip()
+                if not raw:
+                    continue
+                try:
+                    e = json.loads(raw)
+                except json.JSONDecodeError:
+                    continue
+                name = e.get("name")
+                if not name:
+                    continue
+                key = normalize_key(name)
+                if not key:
+                    continue
+                advisors_raw = e.get("advisors") or []
+                advisors = [
+                    {"name": a[0]} if isinstance(a, (list, tuple)) and a else None
+                    for a in advisors_raw
+                ]
+                advisors = [a for a in advisors if a]
+                year = e.get("year")
+                institution = e.get("institution")
+                country = e.get("country")
+                if key in by_name:
+                    rec = by_name[key]
+                    # MGP is authoritative — replace advisor list.
+                    if advisors:
+                        rec["Advisors"] = advisors
+                        enriched += 1
+                    if institution and not rec.get("Institution"):
+                        rec["Institution"] = institution
+                    if country and not rec.get("Country"):
+                        rec["Country"] = country
+                    src = rec.get("Source") or ""
+                    if "MGP" not in src:
+                        rec["Source"] = (src + "+MGP") if src else "MGP"
+                else:
+                    record: dict = {
+                        "CanonicalLatin": to_canonical_latin(name),
+                        "Source": "MGP",
+                    }
+                    if advisors:
+                        record["Advisors"] = advisors
+                    if year:
+                        record["BirthYear"] = year - 28  # rough estimate
+                    if institution:
+                        record["Institution"] = institution
+                    if country:
+                        record["Country"] = country
+                    by_name[key] = record
+                    added += 1
+        print(
+            f"MGP merge: +{added} new entries, enriched {enriched} " f"existing entries"
         )
 
     # 3. Ensure every referenced advisor has at least a stub entry so

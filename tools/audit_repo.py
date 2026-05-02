@@ -331,12 +331,13 @@ def _check_benchmark_split_sums() -> Result:
 
 def _check_genealogy_count_matches_docs() -> Result:
     """data/genealogy_enrichment.json count must match the
-    ~27,000 claim in docs (within ±2000 to handle natural growth).
+    ~39,500 claim in docs (within ±3000 to handle natural growth).
 
-    Round 18 expanded the Wikidata harvest from 4,385 → 9,216 entries
-    after the round-17 SPARQL fixes (User-Agent, content_type,
-    URL-encoding, brace bug). Rebuilt enrichment now has ~27,147
-    entries (~9,221 with advisor chains, ~8,110 with BirthYear).
+    Round 23 expanded the Wikidata harvest from 9,216 → 20,833
+    entries via decade-partitioned SPARQL (the offset-paginated
+    version of round 18 hit 504s at offset >28k). Rebuilt
+    enrichment: ~39,497 entries, ~20,810 with advisor chains,
+    ~17,348 with BirthYear, ~34,591 with Institution.
     """
     errors: List[str] = []
     path = REPO / "data" / "genealogy_enrichment.json"
@@ -348,17 +349,17 @@ def _check_genealogy_count_matches_docs() -> Result:
         errors.append(f"file unparseable: {exc}")
         return ("D4: genealogy count claim", errors)
     count = len(payload.get("by_global_id") or {})
-    # Allow LFS-stub files (tiny payload). Real file has ~27,000.
+    # Allow LFS-stub files (tiny payload). Real file has ~39,500.
     if count < 1000:
         errors.append(
             f"by_global_id count={count} — looks like an LFS stub, "
             f"run `git lfs install && git lfs pull`"
         )
         return ("D4: genealogy count claim", errors)
-    # Docs say ~27,000. Allow 25,000-30,000 range.
-    if not (25000 <= count <= 30000):
+    # Docs say ~39,500. Allow 36,000-43,000 range.
+    if not (36000 <= count <= 43000):
         errors.append(
-            f"by_global_id count={count} outside expected ~27,000 range; "
+            f"by_global_id count={count} outside expected ~39,500 range; "
             f"update README + CLAUDE if data has grown"
         )
     return ("D4: genealogy count claim", errors)
