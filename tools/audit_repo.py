@@ -485,6 +485,24 @@ def _check_ci_test_files_collect() -> Result:
     extant = [f for f in files if (REPO / f).exists()]
     if not extant:
         return ("G2: CI test files collect cleanly", errors)
+    # Verify pytest is importable before shelling out — if it's
+    # missing the subprocess exits with "No module named pytest",
+    # which looks like a collection failure but is actually an
+    # environment mismatch (caught in CI round 19, where the
+    # `audit-repo` job didn't install pytest).
+    sentinel = subprocess.run(
+        [sys.executable, "-c", "import pytest"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    if sentinel.returncode != 0:
+        errors.append(
+            "pytest is not installed in the current Python environment; "
+            "G2 cannot run. Install with `pip install pytest pytest-timeout "
+            "pytest-mock pytest-asyncio` (the set CI's `test` job uses)."
+        )
+        return ("G2: CI test files collect cleanly", errors)
     proc = subprocess.run(
         [
             sys.executable,

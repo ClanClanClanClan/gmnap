@@ -86,6 +86,14 @@ jobs:
       - name: Install runtime deps (B2 imports production modules)
         run: pip install -r requirements.txt
 
+      - name: Install pytest (G2 spawns `pytest --collect-only` per CI list)
+        # Match the test job's pytest plugin set so the collection step
+        # uses the same imports + plugin behaviour. Without these the
+        # G2 check fails with "No module named pytest" (caught in CI
+        # round 19) — a different kind of false positive than the
+        # collection drift G2 is meant to catch.
+        run: pip install pytest pytest-timeout pytest-mock pytest-asyncio
+
       - name: Run repo-invariant audit
         run: PYTHONPATH=. python3 tools/audit_repo.py
 
