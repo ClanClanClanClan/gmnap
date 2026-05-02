@@ -262,18 +262,34 @@ async def _call_canonical_fetcher(
         return {source_name: {"hit": False, "reason": f"status:{status_value}"}}
 
     data = result.data
-    return {
-        source_name: {
-            "hit": True,
-            "source_id": getattr(data, "source_id", None),
-            "canonical_name": getattr(data, "canonical_name", None),
-            "affiliations": getattr(data, "affiliations", []),
-            "identifiers": getattr(data, "identifiers", {}),
-            "birth_year": getattr(data, "birth_year", None),
-            "death_year": getattr(data, "death_year", None),
-            "countries": getattr(data, "countries", []),
-        }
+    payload = {
+        "hit": True,
+        "source_id": getattr(data, "source_id", None),
+        "canonical_name": getattr(data, "canonical_name", None),
+        "affiliations": getattr(data, "affiliations", []),
+        "identifiers": getattr(data, "identifiers", {}),
+        "birth_year": getattr(data, "birth_year", None),
+        "death_year": getattr(data, "death_year", None),
+        "countries": getattr(data, "countries", []),
     }
+    # Per-source-specific fields. ORCIDETDRecord (the only canonical
+    # subclass that adds extra fields right now) carries thesis +
+    # advisor metadata that the orchestrator's downstream merge step
+    # consumes (advisor_name → Advisors list). Pull them through if
+    # present rather than dropping them on the floor.
+    for extra in (
+        "thesis_title",
+        "thesis_year",
+        "university",
+        "advisor_name",
+        "thesis_type",
+        "thesis_doi",
+        "thesis_url",
+    ):
+        value = getattr(data, extra, None)
+        if value is not None:
+            payload[extra] = value
+    return {source_name: payload}
 
 
 # ---------------------------------------------------------------------------
@@ -760,6 +776,22 @@ async def enrich_by_tiers(
                         target = edge.get("target") if isinstance(edge, dict) else None
                         if target and target not in advisors:
                             advisors.append(target)
+                    merged["Advisors"] = advisors
+            # Merge ORCID_ETD advisor edges. ORCID-ETD's `advisor_name`
+            # is a free-text field (not a Wikidata-style QID link) and
+            # only populated for living mathematicians whose ORCID
+            # profile lists their thesis advisor — so coverage is
+            # narrow but the data is high-quality (self-reported by the
+            # advisee). Round 17 wired ORCID-ETD via OpenAlex name→ORCID
+            # resolution; this merge step puts the resulting advisor
+            # name into the same Advisors list Wikidata feeds.
+            if name == "ORCID_ETD" and isinstance(r, dict):
+                etd = r.get("ORCID_ETD") or {}
+                advisor_name = etd.get("advisor_name")
+                if advisor_name:
+                    advisors = list(merged.get("Advisors") or [])
+                    if advisor_name not in advisors:
+                        advisors.append(advisor_name)
                     merged["Advisors"] = advisors
         merged["_sources"] = sources
         out.append(merged)

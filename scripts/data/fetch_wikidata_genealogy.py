@@ -123,16 +123,33 @@ def fetch_all(limit: int | None = None) -> list[dict]:
         while True:
             query = SPARQL_TEMPLATE.format(limit=BATCH_SIZE, offset=offset)
             print(f"  offset={offset}…", flush=True)
-            try:
-                r = client.get(
-                    ENDPOINT,
-                    params={"query": query, "format": "json"},
-                    headers=headers,
+            # Retry on 504 — Wikidata's SPARQL endpoint sometimes
+            # times out on deep-offset queries (the engine has to
+            # skip N rows before returning the next batch). A single
+            # retry usually succeeds because the cache warms up.
+            rows = None
+            for attempt in range(3):
+                try:
+                    r = client.get(
+                        ENDPOINT,
+                        params={"query": query, "format": "json"},
+                        headers=headers,
+                    )
+                    r.raise_for_status()
+                    rows = r.json()["results"]["bindings"]
+                    break
+                except Exception as exc:
+                    print(
+                        f"  attempt {attempt + 1}/3 at offset {offset}: {exc}",
+                        file=sys.stderr,
+                    )
+                    if attempt < 2:
+                        time.sleep(5 * (attempt + 1))
+            if rows is None:
+                print(
+                    f"  exhausted retries at offset {offset}; stopping",
+                    file=sys.stderr,
                 )
-                r.raise_for_status()
-                rows = r.json()["results"]["bindings"]
-            except Exception as exc:
-                print(f"  error at offset {offset}: {exc}", file=sys.stderr)
                 break
 
             if not rows:

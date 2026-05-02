@@ -1,49 +1,26 @@
+"""Region loader smoke test (V7 manager, no pipeline).
+
+Migrated 2026-05-01 from V6 (`src.core.pipeline_v6.GMNAPPipeline` with
+`pipeline.region_manager`) to V7 (`src.regions.manager_optimized
+.RegionManager`).
+"""
+
 import pytest
 
-#!/usr/bin/env python3
-"""
-Test region loading directly.
-"""
-
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent))
-
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-import sys
-from pathlib import Path
-
-from src.core.pipeline_v6 import GMNAPPipeline
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.config import GMNAPConfig
+from src.regions.manager_optimized import RegionManager
 
 
 @pytest.mark.timeout(15)
-def test_region_loading():
-    """Test if regions are being loaded."""
+def test_region_loading() -> None:
+    """All 37 regions load via the V7 manager."""
+    manager = RegionManager()
+    manager._ensure_regions_loaded()
 
-    config = GMNAPConfig()
-    pipeline = GMNAPPipeline(config)
-
-    # Force initialization
-    try:
-        pipeline._stage_0_config()
-    except Exception as e:
-        print(f"Error during config stage: {e}")
-        import traceback
-
-        traceback.print_exc()
-
-    print(f"Loaded {len(pipeline.region_manager._regions)} regions:")
-    for code in sorted(pipeline.region_manager._regions.keys()):
-        region = pipeline.region_manager._regions[code]
-        print(f"  {code}: {region.__class__.__name__}")
-
-
-if __name__ == "__main__":
-    test_region_loading()
+    assert (
+        len(manager._regions) == 37
+    ), f"expected 37 regions, got {len(manager._regions)}"
+    # Spot-check a representative selection across groups.
+    for code in ("A1", "B1", "C2", "D1", "E1", "E4", "F2", "G1", "H1", "Z0"):
+        assert code in manager._regions, f"missing region {code}"
+        processor = manager._regions[code]
+        assert hasattr(processor, "code") and processor.code == code

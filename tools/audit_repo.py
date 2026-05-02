@@ -331,7 +331,13 @@ def _check_benchmark_split_sums() -> Result:
 
 def _check_genealogy_count_matches_docs() -> Result:
     """data/genealogy_enrichment.json count must match the
-    ~20,600 claim in docs (within +/- 1000 to handle natural growth)."""
+    ~27,000 claim in docs (within ±2000 to handle natural growth).
+
+    Round 18 expanded the Wikidata harvest from 4,385 → 9,216 entries
+    after the round-17 SPARQL fixes (User-Agent, content_type,
+    URL-encoding, brace bug). Rebuilt enrichment now has ~27,147
+    entries (~9,221 with advisor chains, ~8,110 with BirthYear).
+    """
     errors: List[str] = []
     path = REPO / "data" / "genealogy_enrichment.json"
     if not path.exists():
@@ -342,17 +348,17 @@ def _check_genealogy_count_matches_docs() -> Result:
         errors.append(f"file unparseable: {exc}")
         return ("D4: genealogy count claim", errors)
     count = len(payload.get("by_global_id") or {})
-    # Allow LFS-stub files (tiny payload). Real file has ~20,600.
+    # Allow LFS-stub files (tiny payload). Real file has ~27,000.
     if count < 1000:
         errors.append(
             f"by_global_id count={count} — looks like an LFS stub, "
             f"run `git lfs install && git lfs pull`"
         )
         return ("D4: genealogy count claim", errors)
-    # Docs say ~20,600. Allow 19,000-22,000 range.
-    if not (19000 <= count <= 22000):
+    # Docs say ~27,000. Allow 25,000-30,000 range.
+    if not (25000 <= count <= 30000):
         errors.append(
-            f"by_global_id count={count} outside expected ~20,600 range; "
+            f"by_global_id count={count} outside expected ~27,000 range; "
             f"update README + CLAUDE if data has grown"
         )
     return ("D4: genealogy count claim", errors)
