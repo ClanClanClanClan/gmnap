@@ -452,6 +452,73 @@ def _check_ci_test_files_exist() -> Result:
     return ("G1: CI test paths exist", errors)
 
 
+def _check_ci_test_files_collect() -> Result:
+    """Every CI-listed test file must collect cleanly (import successfully).
+
+    G1 only checks that the file *exists*. This check goes further: it
+    asks pytest to collect each file the way CI does (explicit-path
+    invocation). If collection errors — typically `ModuleNotFoundError`
+    on a deleted dependency — the audit fails, locally, before push.
+
+    Round-18 caught this gap the hard way: pipeline_v6.py was deleted,
+    `tests/conftest.py:collect_ignore_glob` skipped the broken files
+    when running `pytest tests/`, but CI's explicit file enumeration
+    bypassed `collect_ignore_glob` and tripped on the same files. CI
+    went red. This check reproduces CI's collection step locally so
+    the trip happens before push.
+
+    NOT in --fast mode (subprocess-spawning + ~5 s cost). Full audit
+    runs it; CI's audit-repo job runs it.
+    """
+    errors: List[str] = []
+    ci = (REPO / ".github" / "workflows" / "ci.yml").read_text()
+    files = sorted(
+        {
+            m.group(1)
+            for m in re.finditer(r"(?m)^\s+(tests/[A-Za-z0-9_/.\-]+\.py)\s*$", ci)
+        }
+    )
+    if not files:
+        return ("G2: CI test files collect cleanly", errors)
+    # Filter to those that exist (G1 catches missing ones; we don't
+    # need to double-report the same failure shape).
+    extant = [f for f in files if (REPO / f).exists()]
+    if not extant:
+        return ("G2: CI test files collect cleanly", errors)
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "--collect-only",
+            "-q",
+            "--no-header",
+            *extant,
+        ],
+        cwd=str(REPO),
+        env={**os.environ, "PYTHONPATH": str(REPO)},
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    if proc.returncode != 0:
+        # Surface only the import errors — pytest's full output is
+        # noisy (warnings, deprecations). The signal we want is
+        # `ImportError while importing test module ...`.
+        for line in (proc.stdout + "\n" + proc.stderr).splitlines():
+            if (
+                "ImportError" in line
+                or "ModuleNotFoundError" in line
+                or "errors" in line.lower()
+                and "during collection" in line.lower()
+            ):
+                errors.append(line.strip())
+        if not errors:
+            tail = (proc.stdout + proc.stderr).strip().splitlines()[-3:]
+            errors.append("collect failed; tail: " + " | ".join(tail))
+    return ("G2: CI test files collect cleanly", errors)
+
+
 # ─── H. Test-name uniqueness (shadowing) ───────────────────────────────
 
 
@@ -625,6 +692,7 @@ CHECKS: List[Callable[[], Result]] = [
     _check_lockfile_in_sync,
     _check_make_targets_resolve,
     _check_ci_test_files_exist,
+    _check_ci_test_files_collect,
     _check_no_test_module_shadowing,
     _check_gen_api_reference_idempotent,
     _check_screenshots_exist,
@@ -633,10 +701,12 @@ CHECKS: List[Callable[[], Result]] = [
 
 # Checks omitted from --fast mode (pre-commit hook). Each spawns a
 # subprocess and noticeably slows the hook (B2: 8 imports ≈ 1.5 s;
-# I1: 1 gen_api_reference run ≈ 1 s). CI runs the full battery.
+# I1: 1 gen_api_reference run ≈ 1 s; G2: pytest --collect-only across
+# the whole CI list ≈ 5-10 s). CI runs the full battery.
 _SLOW_CHECKS = {
     _check_production_imports,
     _check_gen_api_reference_idempotent,
+    _check_ci_test_files_collect,
 }
 
 
