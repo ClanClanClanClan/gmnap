@@ -385,15 +385,26 @@ jobs:
           done
           echo "memgraph did not become ready in 60s"; exit 1
       - name: Run live integration tests
-        timeout-minutes: 8
+        timeout-minutes: 20
         env:
           MEMGRAPH_BOLT: bolt://localhost:7687
           PYTHONPATH: .
         run: |
-          # --timeout=360 covers the loader fixture worst case (~3-5
-          # min on cold GHA runners doing 30k MERGEs).
+          # Three timeout layers must agree, in nesting order:
+          #   1. subprocess.run(timeout=900) inside the loaded_memgraph
+          #      fixture — caps the loader at 15 min.
+          #   2. pytest --timeout=900 — pytest-timeout's per-test
+          #      ceiling. Must be ≥ subprocess timeout (otherwise
+          #      pytest kills the test before subprocess returns).
+          #   3. GH step timeout-minutes=20 — wall-clock for the
+          #      whole step including pytest setup/teardown.
+          # Round-23's partition harvest doubled the dataset to ~60k
+          # MERGEs. Round-26's CI failure trip was the old 300s
+          # subprocess timeout; round-26 fix-forward (this commit)
+          # also raised pytest --timeout from 360 → 900 because the
+          # outer pytest-timeout was firing first.
           pytest tests/integration/test_memgraph_e2e.py -v --tb=short \
-            --timeout=360 -p no:cacheprovider
+            --timeout=900 -p no:cacheprovider
 
   browser-test:
     # 31-scenario adversarial Playwright harness. Spawns uvicorn,
