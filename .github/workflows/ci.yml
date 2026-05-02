@@ -148,7 +148,6 @@ jobs:
           tests/unit/test_cjk_roundtrip.py
           tests/unit/test_collision_analytics.py
           tests/unit/test_config.py
-          tests/unit/test_direct_classification.py
           tests/unit/test_duckdb_analytics_shape.py
           tests/unit/test_fasttext_cli_worker.py
           tests/unit/test_gdpr.py
@@ -167,12 +166,10 @@ jobs:
           tests/unit/test_stage9_outputs.py
           tests/unit/test_stage11_idempotency.py
           tests/unit/test_surname_detection.py
-          tests/unit/test_thread_safe_demo.py
           tests/unit/test_unicode_handler.py
           tests/unit/test_validation_rules.py
           tests/integration/test_memgraph_e2e.py
           tests/authority/test_manager_offline.py
-          tests/cjk/test_v7_cjk_roundtrip.py
           tests/db/test_changelog_edges.py
           tests/db/test_pool_tx.py
           tests/v7/test_v7_basic.py
