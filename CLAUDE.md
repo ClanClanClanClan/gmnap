@@ -247,11 +247,11 @@ gmnap validate input.json        # Schema validation
 ```
 
 ### Genealogy enrichment
-Curated `data/genealogy_enrichment.json` (~27,100 mathematicians: 15
+Curated `data/genealogy_enrichment.json` (~39,500 mathematicians: 15
 MGP seed + 25 curated stubs + 4,362 Wikidata SPARQL P184 entries +
 14,432 OpenAlex author affiliations + transitive advisor stubs)
 enriches API / CLI output with BirthYear / Institution / Advisors.
-Advisor chains come only from MGP + Wikidata P184 (~9,200 people);
+Advisor chains come only from MGP + Wikidata P184 (~20,800 people);
 OpenAlex adds Institution + Country coverage for ~18,760 working
 mathematicians without a formally-recorded doctoral advisor. Same data backs the `/api/v1/lineage/{id}` endpoint as a third
 fallback after neo4j and `out/yaml/` lookups. `name:` prefix on the path
@@ -288,5 +288,5 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 - ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly
 - ❌ "100% name-origin accuracy" — 100% emitted-leaf precision on adjudicated set, but 28% abstention rate; 56% on raw citizenship labels (wrong metric for name-origin)
 - ❌ "1,090 tests" — actual count is ~2,376 collected, all run by CI's Core-tests step
-- ❌ "Genealogy data for every mathematician" — enrichment covers ~27,100 entries (MGP + Wikidata P184 + OpenAlex affiliations). Only ~9,200 have a full advisor chain; the other ~17,900 have Institution + Country only. Historical / obscure mathematicians without any of these sources pass through with no enrichment.
+- ❌ "Genealogy data for every mathematician" — enrichment covers ~39,500 entries (MGP + Wikidata P184 + OpenAlex affiliations). Only ~20,800 have a full advisor chain; the other ~18,700 have Institution + Country only. Historical / obscure mathematicians without any of these sources pass through with no enrichment.
 - ❌ "3,000 entries/sec on the full pipeline" — that's detection-only. Full `process_batch` with fastText CLI subprocess is ~190/s on synthetic names; ~980/s rules-only. See Performance table for details.

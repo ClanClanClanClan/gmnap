@@ -52,23 +52,52 @@ OUTPUT = Path("data/wikidata_genealogy.json")
 # institutions per person. Limiting to P184-bearing entities keeps the
 # result set to a few-thousand rows — well under the 504-timeout
 # threshold.
-SPARQL_TEMPLATE = """
+# Partitioned-by-birth-decade query. Round 18's offset-paginated
+# version stopped at 9,216 entries because the SPARQL endpoint 504s
+# on offset >28k (the engine has to skip N rows). Partitioning sends
+# each decade's slice as a separate query — every slice is small
+# enough to complete, and we cover the full ~28k mathematicians-with-
+# advisor population on Wikidata.
+#
+# Birth-year partitions go from 1500 to 2010 (50 decades). A separate
+# fallback query handles entries WITHOUT a recorded P569 (date of
+# birth) — those would otherwise be excluded by the FILTER.
+SPARQL_DECADE = """
 SELECT ?person ?personLabel ?dob ?dod ?countryLabel
        ?advisor ?advisorLabel ?institutionLabel
 WHERE {{
   ?person wdt:P106 wd:Q170790 ;
-          wdt:P184 ?advisor .
-  OPTIONAL {{ ?person wdt:P569 ?dob . }}
+          wdt:P184 ?advisor ;
+          wdt:P569 ?dob .
+  FILTER(YEAR(?dob) >= {start} && YEAR(?dob) < {end})
   OPTIONAL {{ ?person wdt:P570 ?dod . }}
   OPTIONAL {{ ?person wdt:P27 ?country . }}
   OPTIONAL {{ ?person wdt:P69 ?institution . }}
   SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en" . }}
 }}
-LIMIT {limit}
-OFFSET {offset}
 """
 
-BATCH_SIZE = 2000
+# Fallback for entries with no P569 (date of birth). These would
+# otherwise be silently excluded by the decade FILTER. Smaller set
+# (most mathematicians have a birth date), so a single page works.
+SPARQL_NO_DOB = """
+SELECT ?person ?personLabel ?dob ?dod ?countryLabel
+       ?advisor ?advisorLabel ?institutionLabel
+WHERE {
+  ?person wdt:P106 wd:Q170790 ;
+          wdt:P184 ?advisor .
+  FILTER NOT EXISTS { ?person wdt:P569 ?dob }
+  OPTIONAL { ?person wdt:P570 ?dod . }
+  OPTIONAL { ?person wdt:P27 ?country . }
+  OPTIONAL { ?person wdt:P69 ?institution . }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }
+}
+LIMIT 5000
+"""
+
+DECADE_PARTITIONS = [
+    (start, start + 10) for start in range(1500, 2020, 10)
+]  # (1500, 1510), …, (2010, 2020) = 52 buckets
 
 
 def to_canonical(name: str) -> str:
@@ -114,94 +143,96 @@ def _label(binding: dict, key: str) -> str | None:
     return value
 
 
+def _absorb_rows(rows: list, collected: dict[str, dict]) -> None:
+    """Merge SPARQL bindings into the collected-by-QID dict.
+
+    Idempotent: re-running the same rows produces the same dict
+    (advisor + institution lists are de-duped by content). Used by
+    both the per-decade query and the no-DOB fallback.
+    """
+    for b in rows:
+        person_uri = b.get("person", {}).get("value", "")
+        qid = person_uri.rsplit("/", 1)[-1] if person_uri else ""
+        if not qid:
+            continue
+        person_label = _label(b, "personLabel")
+        if not person_label:
+            continue
+        canonical = to_canonical(person_label)
+        entry = collected.setdefault(
+            qid,
+            {
+                "person_qid": qid,
+                "CanonicalLatin": canonical,
+                "BirthYear": _year(b.get("dob", {}).get("value")),
+                "DeathYear": _year(b.get("dod", {}).get("value")),
+                "Country": _label(b, "countryLabel"),
+                "Institutions": [],
+                "Advisors": [],
+            },
+        )
+        adv_uri = b.get("advisor", {}).get("value", "")
+        adv_qid = adv_uri.rsplit("/", 1)[-1] if adv_uri else ""
+        adv_label = _label(b, "advisorLabel")
+        if adv_qid and adv_label:
+            adv_entry = {"qid": adv_qid, "name": to_canonical(adv_label)}
+            if adv_entry not in entry["Advisors"]:
+                entry["Advisors"].append(adv_entry)
+        inst_label = _label(b, "institutionLabel")
+        if inst_label and inst_label not in entry["Institutions"]:
+            entry["Institutions"].append(inst_label)
+
+
+def _query(client: "httpx.Client", query: str, headers: dict, *, label: str) -> list:
+    """Run one SPARQL query with 3-attempt exponential backoff."""
+    for attempt in range(3):
+        try:
+            r = client.get(
+                ENDPOINT, params={"query": query, "format": "json"}, headers=headers
+            )
+            r.raise_for_status()
+            return r.json()["results"]["bindings"]
+        except Exception as exc:
+            print(f"  {label} attempt {attempt + 1}/3: {exc}", file=sys.stderr)
+            if attempt < 2:
+                time.sleep(5 * (attempt + 1))
+    print(f"  {label}: exhausted retries; skipping bucket", file=sys.stderr)
+    return []
+
+
 def fetch_all(limit: int | None = None) -> list[dict]:
+    """Fetch the full P184-bearing mathematicians set from Wikidata.
+
+    Round-23: partitioned by birth-decade (1500-2020) plus a no-DOB
+    fallback bucket. Each bucket is a separate SPARQL query, small
+    enough to avoid the 504 timeout that round-18's offset-paginated
+    version hit at offset >28k.
+    """
     headers = {"User-Agent": USER_AGENT, "Accept": "application/json"}
     collected: dict[str, dict] = {}
-    offset = 0
 
     with httpx.Client(timeout=120) as client:
-        while True:
-            query = SPARQL_TEMPLATE.format(limit=BATCH_SIZE, offset=offset)
-            print(f"  offset={offset}…", flush=True)
-            # Retry on 504 — Wikidata's SPARQL endpoint sometimes
-            # times out on deep-offset queries (the engine has to
-            # skip N rows before returning the next batch). A single
-            # retry usually succeeds because the cache warms up.
-            rows = None
-            for attempt in range(3):
-                try:
-                    r = client.get(
-                        ENDPOINT,
-                        params={"query": query, "format": "json"},
-                        headers=headers,
-                    )
-                    r.raise_for_status()
-                    rows = r.json()["results"]["bindings"]
-                    break
-                except Exception as exc:
-                    print(
-                        f"  attempt {attempt + 1}/3 at offset {offset}: {exc}",
-                        file=sys.stderr,
-                    )
-                    if attempt < 2:
-                        time.sleep(5 * (attempt + 1))
-            if rows is None:
-                print(
-                    f"  exhausted retries at offset {offset}; stopping",
-                    file=sys.stderr,
-                )
-                break
-
-            if not rows:
-                break
-
-            for b in rows:
-                person_uri = b.get("person", {}).get("value", "")
-                qid = person_uri.rsplit("/", 1)[-1] if person_uri else ""
-                if not qid:
-                    continue
-                person_label = _label(b, "personLabel")
-                if not person_label:
-                    continue
-                canonical = to_canonical(person_label)
-                entry = collected.setdefault(
-                    qid,
-                    {
-                        "person_qid": qid,
-                        "CanonicalLatin": canonical,
-                        "BirthYear": _year(b.get("dob", {}).get("value")),
-                        "DeathYear": _year(b.get("dod", {}).get("value")),
-                        "Country": _label(b, "countryLabel"),
-                        "Institutions": [],
-                        "Advisors": [],
-                    },
-                )
-                # Accumulate unique advisors
-                adv_uri = b.get("advisor", {}).get("value", "")
-                adv_qid = adv_uri.rsplit("/", 1)[-1] if adv_uri else ""
-                adv_label = _label(b, "advisorLabel")
-                if adv_qid and adv_label:
-                    adv_entry = {
-                        "qid": adv_qid,
-                        "name": to_canonical(adv_label),
-                    }
-                    if adv_entry not in entry["Advisors"]:
-                        entry["Advisors"].append(adv_entry)
-                # Accumulate unique institutions
-                inst_label = _label(b, "institutionLabel")
-                if inst_label and inst_label not in entry["Institutions"]:
-                    entry["Institutions"].append(inst_label)
-
+        for start, end in DECADE_PARTITIONS:
+            print(f"  decade=[{start},{end})…", end=" ", flush=True)
+            query = SPARQL_DECADE.format(start=start, end=end)
+            rows = _query(client, query, headers, label=f"decade {start}")
+            _absorb_rows(rows, collected)
             print(
-                f"    rows={len(rows):4d}  cumulative people={len(collected)}",
+                f"rows={len(rows):4d}  cumulative={len(collected)}",
                 flush=True,
             )
             if limit is not None and len(collected) >= limit:
                 break
-            if len(rows) < BATCH_SIZE:
-                break  # last page
-            offset += BATCH_SIZE
             time.sleep(2)  # be polite
+
+        # No-DOB fallback bucket
+        print("  no-DOB fallback…", end=" ", flush=True)
+        rows = _query(client, SPARQL_NO_DOB, headers, label="no-dob")
+        _absorb_rows(rows, collected)
+        print(
+            f"rows={len(rows):4d}  cumulative={len(collected)}",
+            flush=True,
+        )
 
     # Drop entries that lost their advisor for any reason
     return [e for e in collected.values() if e["Advisors"]]

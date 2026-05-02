@@ -1,6 +1,6 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit audit-repo browser-test eval-authority eval-orcid-live api-docs bench-real lock
+.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit audit-repo browser-test eval-authority eval-orcid-live harvest-mgp api-docs bench-real lock
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
@@ -65,6 +65,16 @@ eval-authority:
 eval-orcid-live:
 	OFFLINE=0 PYTHONPATH=. pytest tests/integration/test_orcid_etd_live.py \
 		-v -m live --timeout=60
+
+# Round-23: bulk MGP harvest (mathgenealogy.org). Crawl-delay: 10
+# per their robots.txt → ~780h for the full ~280k corpus. Use
+# --start / --end for chunks, --resume to pick up after Ctrl-C.
+# Single-threaded by design (politeness > speed).
+harvest-mgp:
+	@echo "MGP harvest: respects 10s crawl delay; full corpus ~780h."
+	@echo "Run a chunk:    make harvest-mgp ARGS='--start 1 --end 1000'"
+	@echo "Resume:         make harvest-mgp ARGS='--resume'"
+	PYTHONPATH=. python3 tools/harvest_mgp.py $(ARGS)
 
 # Pipeline execution modes
 quick:
