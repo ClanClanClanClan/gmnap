@@ -7,17 +7,23 @@ Existing tests like ``test_simple_detection.py`` and
 but stop short of the inner clean / augment / validate paths on most
 processors, leaving 200-400 uncovered lines per region.
 
-The intent isn't to assert region-specific behaviour (which is the
-job of e.g. ``test_a3_nordic_baltic.py``); it's to **drive every
-processor through its hooks at least once** so the conditional
-branches inside (suffix detection, romanisation, gender heuristic,
-script switch) get measured.
+Round-20 strengthening: the tests now **fail loudly** if a hook
+raises on the representative entry. Original draft used
+``try/except: pass`` to swallow any exception, which made the tests
+coverage-padding (a regression that broke clean() would still let
+them pass). Now each test asserts behaviour:
 
-When a hook raises (rare; mostly when the entry's structure can't
-be coerced into something the region accepts), we swallow and move
-on — the test verifies *no crash given clean input*, not specific
-outputs. Region-specific assertions belong in the targeted
-test files, not here.
+- ``clean(entry)`` runs without raising and ``CanonicalLatin`` is
+  preserved (or canonicalized to a non-empty string).
+- ``augment(entry)`` runs without raising and ``entry`` is still a
+  populated dict.
+- ``validate(entry)`` runs without raising on the representative
+  entry — that's the point of choosing realistic inputs.
+- ``order_key(entry)`` returns a non-empty string.
+
+If any region processor breaks on its representative entry, that's a
+real regression signal (either the input drifted out of the region's
+accepted shape, or the hook is broken).
 """
 
 from __future__ import annotations
@@ -28,48 +34,53 @@ import pytest
 
 from src.regions.manager_optimized import RegionManager
 
-# A representative entry per region. The shape is the same dict
-# `RegionManager.detect_region` operates on internally; values were
-# picked from the curated benchmark + Wikidata genealogy so each
-# entry is the kind of name the region was designed to handle.
-ENTRIES: Dict[str, Tuple[str, str]] = {
-    "A1": ("Newton, Isaac", "GB"),
-    "A2": ("Euler, Leonhard", "CH"),
-    "A3": ("Abel, Niels Henrik", "NO"),
-    "A4": ("Te Rangi Hiroa, Peter", "NZ"),
-    "A5": ("Marley, Bob", "JM"),
-    "B1": ("Иванов, Иван", "RU"),
-    "B2": ("Nowak, Jan", "PL"),
-    "B3": ("Παπαδόπουλος, Γιάννης", "GR"),
-    "C1": ("Atatürk, Mustafa Kemal", "TR"),
-    "C2": ("خوارزمی, محمد", "IR"),
-    "C3": ("Mahfouz, Naguib", "EG"),
-    "C4": ("Al-Saud, Salman", "SA"),
-    "C5": ("Ben Ali, Zine El Abidine", "TN"),
-    "C6": ("כהן, דוד", "IL"),
-    "C7": ("Հայրապետյան, Արամ", "AM"),
-    "C8": ("ჯავახიშვილი, იაკობ", "GE"),
-    "C9": ("Smetona, Antanas", "LT"),
-    "D1": ("शर्मा, राम", "IN"),
-    "D2": ("முருகன், சுந்தர்", "IN"),
-    "D3": ("শর্মা, রাম", "BD"),
-    "D4": ("علی, محمد", "PK"),
-    "D5": ("Pieris, Ralph", "LK"),
-    "E1": ("张, 伟", "CN"),
-    "E2": ("陳, 大文", "TW"),
-    "E3": ("田中, 太郎", "JP"),
-    "E4": ("Kim, Jong-Un", "KR"),
-    "E5": ("Nguyễn, Văn A", "VN"),
-    "E6": ("สมิท, จอห์น", "TH"),
-    "E7": ("Soekarno, Ahmad", "ID"),
-    "F1": ("Sankara, Thomas", "BF"),
-    "F2": ("Adichie, Chimamanda", "NG"),
-    "F3": ("Selassie, Haile", "ET"),
-    "F4": ("Cabral, Amílcar", "GW"),
-    "G1": ("García Márquez, Gabriel", "CO"),
-    "H1": ("Pythagoras", ""),  # mononym
-    "R0": ("Smith, John", ""),  # generic Latin fallback
-    "Z0": ("Test, User", ""),  # quarantine
+# A representative entry per region. V7 spec: ``CanonicalLatin`` MUST
+# be the romanized (Latin-script) form; ``CanonicalNative`` carries
+# the native-script form (or duplicates the Latin for natively-Latin
+# regions). For B1 Cyrillic / B3 Greek / C* Arabic+Hebrew+Armenian+
+# Georgian / D* Indic+Urdu / E1-E3 CJK / E6 Mainland-SEA scripts, the
+# native form goes in CanonicalNative — putting it in CanonicalLatin
+# trips the region's validate() (correctly).
+#
+# Tuple: (CanonicalLatin, CanonicalNative, country_code)
+ENTRIES: Dict[str, Tuple[str, str, str]] = {
+    "A1": ("Newton, Isaac", "Newton, Isaac", "GB"),
+    "A2": ("Euler, Leonhard", "Euler, Leonhard", "CH"),
+    "A3": ("Abel, Niels Henrik", "Abel, Niels Henrik", "NO"),
+    "A4": ("Te Rangi Hiroa, Peter", "Te Rangi Hiroa, Peter", "NZ"),
+    "A5": ("Marley, Bob", "Marley, Bob", "JM"),
+    "B1": ("Ivanov, Ivan", "Иванов, Иван", "RU"),
+    "B2": ("Nowak, Jan", "Nowak, Jan", "PL"),
+    "B3": ("Papadopoulos, Yannis", "Παπαδόπουλος, Γιάννης", "GR"),
+    "C1": ("Atatürk, Mustafa Kemal", "Atatürk, Mustafa Kemal", "TR"),
+    "C2": ("Khwarizmi, Muhammad", "خوارزمی, محمد", "IR"),
+    "C3": ("Mahfouz, Naguib", "محفوظ, نجيب", "EG"),
+    "C4": ("Al-Saud, Salman", "آل سعود, سلمان", "SA"),
+    "C5": ("Ben Ali, Zine El Abidine", "بن علي, زين العابدين", "TN"),
+    "C6": ("Cohen, David", "כהן, דוד", "IL"),
+    "C7": ("Hayrapetyan, Aram", "Հայրապետյան, Արամ", "AM"),
+    "C8": ("Javakhishvili, Iakob", "ჯავახიშვილი, იაკობ", "GE"),
+    "C9": ("Smetona, Antanas", "Smetona, Antanas", "LT"),
+    "D1": ("Sharma, Ram", "शर्मा, राम", "IN"),
+    "D2": ("Murugan, Sundar", "முருகன், சுந்தர்", "IN"),
+    "D3": ("Sharma, Ram", "শর্মা, রাম", "BD"),
+    "D4": ("Ali, Muhammad", "علی, محمد", "PK"),
+    "D5": ("Pieris, Ralph", "Pieris, Ralph", "LK"),
+    "E1": ("Zhang, Wei", "张, 伟", "CN"),
+    "E2": ("Chen, Ta-Wen", "陳, 大文", "TW"),
+    "E3": ("Tanaka, Taro", "田中, 太郎", "JP"),
+    "E4": ("Kim, Jong-Un", "김정은", "KR"),
+    "E5": ("Nguyễn, Văn A", "Nguyễn, Văn A", "VN"),
+    "E6": ("Smith, John", "สมิท, จอห์น", "TH"),
+    "E7": ("Soekarno, Ahmad", "Soekarno, Ahmad", "ID"),
+    "F1": ("Sankara, Thomas", "Sankara, Thomas", "BF"),
+    "F2": ("Adichie, Chimamanda", "Adichie, Chimamanda", "NG"),
+    "F3": ("Selassie, Haile", "Selassie, Haile", "ET"),
+    "F4": ("Cabral, Amílcar", "Cabral, Amílcar", "GW"),
+    "G1": ("García Márquez, Gabriel", "García Márquez, Gabriel", "CO"),
+    "H1": ("Pythagoras", "Pythagoras", ""),  # mononym
+    "R0": ("Smith, John", "Smith, John", ""),  # generic Latin fallback
+    "Z0": ("Test, User", "Test, User", ""),  # quarantine
 }
 
 
@@ -82,10 +93,10 @@ def manager() -> RegionManager:
 
 
 def _entry_for(code: str) -> Dict[str, Any]:
-    name, cc = ENTRIES[code]
+    latin, native, cc = ENTRIES[code]
     e: Dict[str, Any] = {
-        "CanonicalLatin": name,
-        "CanonicalNative": name,
+        "CanonicalLatin": latin,
+        "CanonicalNative": native,
         "Confidence": 0.9,
     }
     if cc:
@@ -101,14 +112,13 @@ def test_region_processor_clean_hook(manager: RegionManager, code: str) -> None:
     processor = manager._regions.get(code)
     assert processor is not None, f"region {code} not loaded"
     entry = _entry_for(code)
-    try:
-        processor.clean(entry)
-    except Exception:
-        # Some processors raise on edge cases of the entry shape.
-        # The point of this test is to exercise the hook entry path,
-        # not to assert correctness — that's the targeted region
-        # test's job.
-        pass
+    processor.clean(entry)
+    # Clean must preserve identity at least — CanonicalLatin should
+    # remain populated (it might be canonicalised to a different
+    # case / normalisation form, but it should not be wiped).
+    assert entry.get(
+        "CanonicalLatin"
+    ), f"{code}.clean() emptied CanonicalLatin (was {ENTRIES[code][0]!r})"
 
 
 @pytest.mark.parametrize("code", sorted(ENTRIES.keys()))
@@ -116,11 +126,10 @@ def test_region_processor_augment_hook(manager: RegionManager, code: str) -> Non
     processor = manager._regions.get(code)
     assert processor is not None
     entry = _entry_for(code)
-    try:
-        processor.clean(entry)
-        processor.augment(entry)
-    except Exception:
-        pass
+    processor.clean(entry)
+    processor.augment(entry)
+    assert isinstance(entry, dict) and entry, f"{code}.augment() emptied the entry"
+    assert entry.get("CanonicalLatin"), f"{code}.augment() emptied CanonicalLatin"
 
 
 @pytest.mark.parametrize("code", sorted(ENTRIES.keys()))
@@ -128,12 +137,14 @@ def test_region_processor_validate_hook(manager: RegionManager, code: str) -> No
     processor = manager._regions.get(code)
     assert processor is not None
     entry = _entry_for(code)
-    try:
-        processor.clean(entry)
-        processor.augment(entry)
-        processor.validate(entry)
-    except Exception:
-        pass
+    processor.clean(entry)
+    processor.augment(entry)
+    # validate() raises RegionRuleError on a bad entry. The
+    # representative entry is hand-chosen to be valid, so this should
+    # not raise. If it does, either the entry drifted out of the
+    # region's accepted shape (fix the entry) or the hook is broken
+    # (fix the hook). Either way it's a real regression signal.
+    processor.validate(entry)
 
 
 @pytest.mark.parametrize("code", sorted(ENTRIES.keys()))
@@ -141,12 +152,13 @@ def test_region_processor_order_key_hook(manager: RegionManager, code: str) -> N
     processor = manager._regions.get(code)
     assert processor is not None
     entry = _entry_for(code)
-    try:
-        processor.clean(entry)
-        key = processor.order_key(entry)
-        assert isinstance(key, str)
-    except Exception:
-        pass
+    # order_key reads from `RegionalExtras` which is populated by
+    # augment() — must run the full clean → augment chain first.
+    processor.clean(entry)
+    processor.augment(entry)
+    key = processor.order_key(entry)
+    assert isinstance(key, str), f"{code}.order_key() returned {type(key).__name__}"
+    assert key, f"{code}.order_key() returned empty string after clean+augment"
 
 
 # ─── RegionManager dispatch coverage ──────────────────────────────────
@@ -159,17 +171,27 @@ def test_region_manager_detect_region_returns_result(
     """Drive RegionManager.detect_region for each region with the
     representative entry. Covers the dispatch + script analysis +
     overlay + diaspora paths in manager_optimized.py."""
-    name, cc = ENTRIES[code]
-    entry: Dict[str, Any] = {"CanonicalLatin": name, "CanonicalNative": name}
+    latin, native, cc = ENTRIES[code]
+    entry: Dict[str, Any] = {"CanonicalLatin": latin, "CanonicalNative": native}
     if cc:
         entry["CountryCodes"] = [cc]
     result = manager.detect_region(entry)
     # We don't assert the detected region equals `code` — region
     # detection is intentionally cautious and may abstain (R0) for
-    # entries the rules can't pin down. The point is the call
-    # path runs without crashing.
-    assert result is not None
-    assert hasattr(result, "region_code") or isinstance(result, dict)
+    # entries the rules can't pin down. But the result must be a
+    # `RegionDetectionResult` with a non-empty `region_code` and a
+    # numeric confidence.
+    assert result is not None, f"detect_region returned None for {code}"
+    assert hasattr(
+        result, "region_code"
+    ), f"result for {code} missing `region_code` attr"
+    assert result.region_code, f"result.region_code empty for {code}"
+    assert isinstance(
+        result.confidence, (int, float)
+    ), f"result.confidence has type {type(result.confidence).__name__}"
+    assert (
+        0.0 <= float(result.confidence) <= 1.0
+    ), f"result.confidence={result.confidence} out of [0, 1]"
 
 
 def test_region_manager_get_region_returns_processor(manager: RegionManager) -> None:
@@ -198,7 +220,8 @@ def test_region_manager_detects_batch_of_diverse_entries(
     entries = [
         {
             "CanonicalLatin": ENTRIES[c][0],
-            "CountryCodes": [ENTRIES[c][1]] if ENTRIES[c][1] else [],
+            "CanonicalNative": ENTRIES[c][1],
+            "CountryCodes": [ENTRIES[c][2]] if ENTRIES[c][2] else [],
         }
         for c in [
             "A1",

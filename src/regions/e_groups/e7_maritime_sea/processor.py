@@ -10,7 +10,7 @@ Colonial Influences: Spanish, Dutch, English, Portuguese
 
 import re
 import unicodedata
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from ...base_enhanced import EnhancedRegionSpec as RegionSpec
 from ...base_enhanced import RegionRuleError
@@ -820,6 +820,38 @@ class E7MaritimeSEAProcessor(RegionSpec):
             components["islamic_compounds"] = islamic_compounds
 
         return components
+
+    def _detect_islamic_compounds(self, name: str) -> List[Dict[str, str]]:
+        """Detect Islamic compound naming patterns in a Maritime SEA name.
+
+        Looks for the canonical compound forms documented in
+        ``self.islamic_patterns['compound_patterns']`` — primarily:
+
+          - ``abdul`` + (rahman | aziz | malik | karim | latif | majid)
+          - ``abu``   + (bakar  | hassan | said | talib | yusuf)
+          - ``siti``  + (aishah | fatimah | khadijah | maryam | zainab)
+
+        Returns a list of ``{"prefix": …, "suffix": …}`` dicts (one
+        per detected compound, in left-to-right order). Empty list if
+        no compound pattern fires.
+
+        This method was referenced by ``_parse_malaysian_name`` /
+        ``_parse_indonesian_name`` but never defined — caller crashed
+        with ``AttributeError``. The band-aid ``try/except: pass`` in
+        ``test_region_processors_full.py`` was hiding the regression
+        until round 20 strengthened the assertions.
+        """
+        compounds: List[Dict[str, str]] = []
+        tokens = [t.lower().strip(",") for t in name.split() if t]
+        compound_map = self.islamic_patterns.get("compound_patterns", {})
+        for i, tok in enumerate(tokens[:-1]):
+            suffixes = compound_map.get(tok)
+            if not suffixes:
+                continue
+            next_tok = tokens[i + 1]
+            if next_tok in suffixes:
+                compounds.append({"prefix": tok, "suffix": next_tok})
+        return compounds
 
     def _parse_filipino_name(self, name: str) -> Dict[str, Any]:
         """Parse Filipino name (Rule 30 - maternal middle name)."""

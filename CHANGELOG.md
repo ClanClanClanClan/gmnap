@@ -4,6 +4,71 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-02 (round 20 — de-bandaid the per-region tests, fix the bug they were hiding)
+
+Round 16's `tests/unit/test_region_processors_full.py` (194 tests)
+used `try/except: pass` to swallow exceptions inside every per-region
+hook test. The framing then was "exercise the hook entry path, not
+specific outputs". That's coverage-padding, not regression detection
+— a regression that broke `clean()` on a region would still leave
+the test green.
+
+Round 19's user pushback ("don't use bandaids, only sustainable
+fixes") applied to a different file but exposed the same pattern
+here. Round 20 closes it.
+
+### Fixed: real production bug surfaced by de-bandaiding
+
+`src/regions/e_groups/e7_maritime_sea/processor.py` line 818 calls
+`self._detect_islamic_compounds(name)` — but the method was
+**never defined** on `E7MaritimeSEAProcessor`. Every `augment()`
+call into E7 raised `AttributeError`. The band-aid `try/except`
+in the test had been hiding it since round 16.
+
+**Fix**: implemented the missing method using the class's existing
+`self.islamic_patterns["compound_patterns"]` dict (Abdul + suffix,
+Abu + suffix, Siti + suffix). Returns a list of detected compound
+prefixes. Also added the missing `List` import.
+
+### Strengthened: test_region_processors_full.py
+
+- Removed every `try/except: pass` — exceptions now propagate.
+- Each test asserts a positive condition:
+  - `clean(entry)`: `CanonicalLatin` remains populated.
+  - `augment(entry)`: entry remains a populated dict with
+    `CanonicalLatin`.
+  - `validate(entry)`: no exception raised on the representative
+    entry (which is hand-chosen to be valid for its region).
+  - `order_key(entry)`: returns a non-empty string after the
+    full clean → augment chain.
+  - `detect_region(entry)`: result has non-empty `region_code`
+    and a confidence float in `[0, 1]`.
+- Test bug found and fixed: `order_key` reads from
+  `RegionalExtras` (populated by `augment`); the original test
+  ran clean → order_key, skipping augment, so 8 region tests
+  returned empty keys. Now runs the full chain.
+
+### Fixed: representative entries respect V7 schema
+
+Per V7 §1: `CanonicalLatin` MUST be the romanized form;
+`CanonicalNative` carries native script. The original test
+duplicated native-script strings into both fields for B1 / B3 /
+C* / D* / E1-E3 / E6 — which caused the regions' validators to
+correctly reject "Greek/Cyrillic/Arabic chars in CanonicalLatin".
+
+The `ENTRIES` dict is now `(latin, native, cc)` triples (was
+`(name, cc)`). For natively-Latin regions both are the same; for
+non-Latin regions the Latin form is the romanization that the
+pipeline would have produced (e.g., `Παπαδόπουλος` → `Papadopoulos`,
+`Иванов` → `Ivanov`, `田中` → `Tanaka`).
+
+### Result
+
+194 strengthened tests pass — and one real production bug
+(`AttributeError` on every E7 invocation) is fixed. Future
+regressions of any per-region hook will trip the test loudly
+instead of silently passing.
+
 ## [Unreleased] — 2026-05-02 (round 19 — replace round-18 band-aid with sustainable fix)
 
 Round 18's "fix-forward" deleted three CI-listed test files that
