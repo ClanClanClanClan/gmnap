@@ -408,20 +408,33 @@ class TestV7CJKRoundtrip:
         for region_code, region in self.cjk_regions.items():
             start_time = time.time()
 
+            failures = 0
             for _ in range(iterations):
                 try:
-                    # Simulate round-trip processing
                     self._perform_roundtrip_test(region, test_case)
-                except:
-                    pass  # Performance test shouldn't fail on conversion errors
+                except Exception:
+                    # Round-21 de-bandaid: was `try/except: pass`,
+                    # which silently absorbed every regression. Now
+                    # we count failures and fail the test if the
+                    # rate exceeds 10 % — preserves the perf-measurement
+                    # intent while catching round-trip regressions.
+                    failures += 1
 
             elapsed = time.time() - start_time
             avg_time = elapsed / iterations
+            failure_rate = failures / iterations
+
+            assert failure_rate <= 0.10, (
+                f"CJK round-trip failure rate too high for {region_code}: "
+                f"{failures}/{iterations} ({failure_rate:.0%}) — "
+                f"a regression in conversion is silently breaking iterations"
+            )
 
             # Round-trip should be reasonably fast
-            assert (
-                avg_time < 0.01
-            ), f"CJK round-trip too slow for {region_code}: {avg_time:.3f}s per test (expected < 10ms)"
+            assert avg_time < 0.01, (
+                f"CJK round-trip too slow for {region_code}: "
+                f"{avg_time:.3f}s per test (expected < 10ms)"
+            )
 
     def _test_roundtrip_accuracy(
         self, region_code: str, test_cases: List[Dict]

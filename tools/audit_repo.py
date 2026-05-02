@@ -601,6 +601,111 @@ def _check_no_test_module_shadowing() -> Result:
     return ("H1: no test-module shadowing in CI scope", errors)
 
 
+def _check_no_test_bandaid_swallows() -> Result:
+    """No test function body silently swallows exceptions.
+
+    Pattern caught: ``try: <stmt>; except Exception: pass`` (or
+    bare ``except: pass``) directly inside a ``def test_*``. This
+    turns the test into coverage-padding — a regression that breaks
+    the wrapped statement still leaves the test green.
+
+    Round-20 example: ``test_region_processors_full.py`` had 148
+    such tests. De-bandaiding immediately surfaced a real production
+    bug (``E7MaritimeSEAProcessor._detect_islamic_compounds`` was
+    called but never defined; every E7 augment() raised
+    AttributeError silently).
+
+    Whitelisted patterns (NOT flagged):
+      - ``except ImportError`` / ``except ModuleNotFoundError`` —
+        skip patterns for optional dependencies are legit
+      - try/except outside a ``def test_*`` (module-level fixtures,
+        setUp/tearDown teardown best-effort cleanup)
+
+    Scope: only files under ``tests/`` that end in ``test_*.py``,
+    skipping the same norecurse directories as H1.
+    """
+    errors: List[str] = []
+    # Mirror pyproject.toml's norecursedirs (round-18 added
+    # tests/integration whole-tree). H2 only flags test files that
+    # pytest can actually collect on a default run.
+    norecurse_prefixes = (
+        "docs/orphaned_tests",
+        "tests/coherence",
+        "tests/compliance",
+        "tests/error_recovery",
+        "tests/extreme",
+        "tests/genealogy",
+        "tests/hardcore",
+        "tests/idempotency",
+        "tests/integration",  # whole tree (CI enumerates memgraph_e2e + orcid_etd_live)
+        "tests/live",
+        "tests/memory",
+        "tests/mock_api",
+        "tests/paranoid",
+        "tests/performance",
+        "tests/production",
+        "tests/regional",
+        "tests/regions/e6_mainland_sea",
+        "tests/roundtrip",
+        "tests/security",
+    )
+    for path in (REPO / "tests").rglob("test_*.py"):
+        rel = str(path.relative_to(REPO))
+        if any(rel.startswith(p) for p in norecurse_prefixes):
+            continue
+        if "__pycache__" in path.parts:
+            continue
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except SyntaxError:
+            continue  # B1 catches parse errors
+
+        # Walk only ``def test_*`` function bodies.
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            if not node.name.startswith("test_"):
+                continue
+            for try_node in ast.walk(node):
+                if not isinstance(try_node, ast.Try):
+                    continue
+                for handler in try_node.handlers:
+                    # Whitelist: ImportError / ModuleNotFoundError
+                    exc_type = handler.type
+                    is_optional_import = False
+                    if isinstance(exc_type, ast.Name) and exc_type.id in (
+                        "ImportError",
+                        "ModuleNotFoundError",
+                    ):
+                        is_optional_import = True
+                    elif isinstance(exc_type, ast.Tuple):
+                        # except (ImportError, OSError) → if any name
+                        # is an optional-import sentinel, allow.
+                        names = {
+                            elt.id for elt in exc_type.elts if isinstance(elt, ast.Name)
+                        }
+                        if names & {"ImportError", "ModuleNotFoundError"}:
+                            is_optional_import = True
+                    if is_optional_import:
+                        continue
+
+                    # Flag: body is exactly `pass` AND catches broadly.
+                    body_is_pass = len(handler.body) == 1 and isinstance(
+                        handler.body[0], ast.Pass
+                    )
+                    catches_broad = exc_type is None or (
+                        isinstance(exc_type, ast.Name)
+                        and exc_type.id in ("Exception", "BaseException")
+                    )
+                    if body_is_pass and catches_broad:
+                        errors.append(
+                            f"{rel}:{handler.lineno} in def {node.name}: "
+                            f"`except {exc_type.id if isinstance(exc_type, ast.Name) else 'Exception'}: pass` "
+                            "swallows regressions silently"
+                        )
+    return ("H2: no test-body bandaid swallows", errors)
+
+
 # ─── I. Tool idempotency ───────────────────────────────────────────────
 
 
@@ -712,6 +817,7 @@ CHECKS: List[Callable[[], Result]] = [
     _check_ci_test_files_exist,
     _check_ci_test_files_collect,
     _check_no_test_module_shadowing,
+    _check_no_test_bandaid_swallows,
     _check_gen_api_reference_idempotent,
     _check_screenshots_exist,
     _check_api_reference_endpoint_count,

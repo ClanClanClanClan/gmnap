@@ -260,13 +260,16 @@ class TestF3HornOfAfricaProcessor(unittest.TestCase):
     @pytest.mark.timeout(15)
     def test_edge_cases(self):
         """Test edge cases and error handling."""
-        # Empty entry
+        # Empty entry — F3 must handle "gracefully" (no raise),
+        # leaving the entry mostly empty. Round-21 de-bandaid:
+        # was `try/except: pass`, which would silently mask any
+        # regression that introduced an unhandled exception.
         empty_entry = {}
-        try:
-            self.processor.clean(empty_entry)
-            self.processor.augment(empty_entry)
-        except Exception:
-            pass  # Expected to handle gracefully
+        self.processor.clean(empty_entry)
+        self.processor.augment(empty_entry)
+        # Empty in → empty out (or with augmented metadata fields,
+        # but no CanonicalLatin since it wasn't supplied).
+        assert isinstance(empty_entry, dict)
 
         # Single name
         single_name_entry = {"CanonicalLatin": "Gebre"}
