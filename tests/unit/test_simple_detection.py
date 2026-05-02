@@ -1,37 +1,21 @@
+"""Region detection smoke test (V7 manager, no pipeline).
+
+Migrated 2026-05-01 from V6 (`src.core.pipeline_v6.GMNAPPipeline` with
+`pipeline.region_manager`) to V7 (`src.regions.manager_optimized
+.RegionManager`). The V6 pipeline imports were the last live caller
+of `pipeline_v6.py`; with this migration plus the others in round 18,
+the legacy pipeline can be deleted.
+"""
+
 import pytest
 
-#!/usr/bin/env python3
-"""
-Test region detection without full pipeline.
-"""
-
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent))
-
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-import sys
-from pathlib import Path
-
-from src.core.pipeline_v6 import GMNAPPipeline
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.config import GMNAPConfig
+from src.regions.manager_optimized import RegionManager
 
 
 @pytest.mark.timeout(15)
-def test_simple_detection():
-    """Test region detection for specific names."""
-
-    config = GMNAPConfig()
-    pipeline = GMNAPPipeline(config)
-
-    # Initialize pipeline
-    pipeline._stage_0_config()
+def test_simple_detection() -> None:
+    """Smoke test: every test entry resolves to *some* region."""
+    manager = RegionManager()
 
     test_entries = {
         "Newton, Isaac": {"CanonicalLatin": "Newton, Isaac"},
@@ -40,17 +24,9 @@ def test_simple_detection():
         "Gauss, Carl Friedrich": {"CanonicalLatin": "Gauss, Carl Friedrich"},
     }
 
-    print("Testing region detection:\n")
-
     for name, entry in test_entries.items():
-        result = pipeline.region_manager.detect_region(entry)
-        print(f"{name}:")
-        print(f"  Region: {result.region_code}")
-        print(f"  Confidence: {result.confidence}")
-        print(f"  Method: {result.detection_method}")
-        print(f"  Metadata: {result.metadata}")
-        print()
-
-
-if __name__ == "__main__":
-    test_simple_detection()
+        result = manager.detect_region(entry)
+        assert result.region_code, f"empty region_code for {name}"
+        assert isinstance(result.confidence, float)
+        assert isinstance(result.detection_method, str)
+        assert isinstance(result.metadata, dict)

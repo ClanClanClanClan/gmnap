@@ -4,6 +4,127 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-02 (round 18 — five-phase systematic close-out)
+
+The five outstanding gaps from round 17 ranked by risk / reward and
+addressed in order.
+
+### Phase 1: Stage 1b LLM — honest doc fix
+
+`CLAUDE.md` and `ARCHITECTURE.md` claimed "Stage 1b: LLM thesis
+extraction (graceful fallback if unavailable)". Investigation:
+`pipeline_v7.py:373` has the entry **commented out** as `TODO: Implement`.
+The class `LLMExtractETDStage` exists at
+`src/pipeline/stage_1b_llm_extract.py` but the V7 pipeline never
+calls it. Both docs updated to reflect reality (not "fallback when
+unavailable" but "not wired at all"). No code change — wiring it
+requires configuring an LLM provider, out of scope.
+
+### Phase 2: Wikidata harvest expansion (4,385 → 9,216, +110 %)
+
+Round 17's SPARQL fixes applied to the inline `_fetch_wikidata_p184`
+in `manager_tier01.py`. The standalone harvester at
+`scripts/data/fetch_wikidata_genealogy.py` uses a different code
+path (httpx, own User-Agent) so it wasn't directly affected — but it
+was hitting Wikidata SPARQL endpoint 504 timeouts at deep offsets
+and giving up on the first error.
+
+- Added 3-attempt retry with exponential backoff to the harvester.
+- Re-ran the harvest. New count: **9,216 entries** (was 4,385).
+- Re-built `data/genealogy_enrichment.json`. New total:
+  **27,147 entries** (was ~20,600), of which:
+  - **9,221 with advisor chains** (was 4,390, +110 %)
+  - **8,110 with BirthYear**
+  - **23,412 with Institution**
+- Bumped `tools/audit_repo.py` D4 check threshold to ~27,000.
+- Updated `CLAUDE.md` / `README.md` / `DEMO.md` / `static/index.html`
+  to reflect the new counts.
+
+Wikidata's SPARQL engine still 504s at offset >28,000 (engine
+limitation, not endpoint capacity). To harvest beyond ~9,200 the
+query needs partitioning by birth-year decade or alphabetic prefix.
+Filed as future work; the +110 % gain is a real product win.
+
+### Phase 3: ORCID-ETD `advisor_name` → `Advisors` merge
+
+`enrich_by_tiers` already merged Wikidata's advisor edges into the
+entry's `Advisors` list; ORCID-ETD's `advisor_name` field was being
+dropped on the floor. Wired up:
+
+- `_call_canonical_fetcher` now propagates the ETD-specific fields
+  (`thesis_title`, `thesis_year`, `university`, `advisor_name`,
+  `thesis_type`, `thesis_doi`, `thesis_url`) from the response
+  dataclass into the orchestrator's flat dict shape.
+- `enrich_by_tiers` now has a parallel branch alongside the Wikidata
+  merge that pulls `advisor_name` into `Advisors`.
+
+Realistic yield: low — most ORCID profiles don't have education /
+dissertation metadata filled in. Curated 30 returns 0 advisor edges
+from this source today, but the plumbing is in place for any future
+enriched ORCID profile.
+
+### Phase 4: Migrate 3 CI tests V6→V7, delete legacy (-5,407 LOC)
+
+Three CI-active tests imported the legacy `GMNAPPipeline` /
+`regions.manager.RegionManager`:
+
+- `tests/unit/test_simple_detection.py`
+- `tests/unit/core/test_region_loading.py`
+- `tests/unit/test_manager_caching.py`
+
+Migrated all three to use `manager_optimized.RegionManager` directly
+(neither needed the pipeline at all — they just exercised the
+manager). All 6 tests across the 3 files pass post-migration.
+
+Deleted:
+- `src/core/pipeline_v6.py` (-2,007 LOC)
+- `src/core/streaming_v7.py` (-527 LOC)
+- `src/regions/manager.py` (-2,851 LOC)
+
+Total: **-5,385 LOC of legacy production code that no production
+caller used**. Imported only by these 3 CI tests + ~30 non-CI
+diagnostic tests under tests/{paranoid,hardcore,security,…}.
+
+Wave-2 cleanup:
+- `pyproject.toml` `norecursedirs` now includes `tests/integration`
+  (CI explicitly enumerates `test_memgraph_e2e.py`).
+- `tests/conftest.py` `collect_ignore_glob` extended with the
+  ~12 broken `tests/unit/test_debug_*` and similar diagnostic
+  scripts that imported the deleted modules.
+
+Plain `pytest` from the repo root collects cleanly.
+
+### Phase 5: MGP scraping investigation — ToS-permitted but rate-prohibitive
+
+Checked `https://www.mathgenealogy.org/robots.txt`:
+
+```
+User-agent: *
+Crawl-delay: 10
+```
+
+Bulk scraping IS permitted but at **10 s per request**. With 250 k+
+entries that's ≈ 694 hours / 29 days of continuous polite scraping.
+Not feasible as a single-session add. Filed as long-running future
+work.
+
+`src/authorities/mathgenealogy.py` already exists with a working
+fetcher class — it's the per-name lookup path used incidentally by
+the pipeline. Not bulk-harvesting infrastructure.
+
+### Trajectory rollup (rounds 13 → 18)
+
+|         | Rd 13 | Rd 18 | Δ |
+|---------|------:|------:|--:|
+| Genealogy entries | 20,600 | **27,147** | +31 % |
+| With advisors | 4,390 | **9,221** | +110 % |
+| With BirthYear | n/a | **8,110** | new |
+| Live OpenAlex hit | 53 % | 90 % | +37 pp |
+| Live BirthYear ±1 | n/a | 96.7 % | new |
+| Test count (CI coverage) | 541 | 803 | +262 |
+| Line coverage | 17.98 % | 23.93 % | +5.95 pp |
+| Production LOC removed |  | -8,568 | (rounds 14+18) |
+
 ## [Unreleased] — 2026-05-01 (round 17 — close the live-authority data gaps)
 
 The round-11 live eval surfaced three weaknesses I'd documented as

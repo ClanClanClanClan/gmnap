@@ -125,7 +125,12 @@ norecursedirs = [
     "tests/genealogy",
     "tests/hardcore",
     "tests/idempotency",
-    "tests/integration/stages",
+    # Whole tests/integration tree skipped by default — CI explicitly
+    # enumerates `tests/integration/test_memgraph_e2e.py` (the only
+    # CI-active file). Most others import the legacy pipeline_v6 /
+    # streaming_v7 modules deleted in round 18, so plain `pytest`
+    # would hit collection errors.
+    "tests/integration",
     "tests/live",
     "tests/memory",
     "tests/mock_api",

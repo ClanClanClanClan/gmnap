@@ -139,7 +139,7 @@ All stages are in `src/core/pipeline_v7.py`. Stages 0–8 are async,
 |---|---|---|
 | 0 | `_stage_0_config` | Validate mode, credentials, schema version |
 | 1 | `_stage_1_ingest` | NFC → NFKD → fold → NFC Unicode normalization |
-| 1b | `_stage_1b_llm_etd` | (Optional) LLM thesis extraction; graceful skip if unavailable |
+| 1b | `_stage_1b_llm_etd` | **NOT wired into V7** — `pipeline_v7.py:373` has the entry commented out (`# TODO: Implement`). The class `LLMExtractETDStage` exists at `src/pipeline/stage_1b_llm_extract.py` but the pipeline never calls it. Activate by un-commenting + setting `pipeline.enable_llm_extraction: True` + configuring an LLM provider. |
 | 2 | `_stage_2_detect_region` | The split geo/name-origin detection above |
 | 3 | `_stage_3_region_hooks` | `clean → augment → validate → order_key` per region |
 | 4 | `_stage_4_authority_enrich` | 9 tier-0/1 sources (OpenAlex, Crossref, ORCID, …) |

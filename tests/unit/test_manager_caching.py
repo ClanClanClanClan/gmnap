@@ -12,7 +12,11 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from src.regions.manager import RegionManager
+# Migrated 2026-05-01 from `src.regions.manager` (legacy, 2851 LOC,
+# imported by no production code) to `src.regions.manager_optimized`
+# (the active V7 path). Both classes expose the same `get_region`,
+# `_regions`, and `__init__(config_dir)` surface this test exercises.
+from src.regions.manager_optimized import RegionManager
 
 
 @pytest.mark.timeout(15)
