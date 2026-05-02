@@ -4,6 +4,70 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-02 (round 19 — replace round-18 band-aid with sustainable fix)
+
+Round 18's "fix-forward" deleted three CI-listed test files that
+imported the just-deleted legacy modules (`pipeline_v6` / `manager`).
+That made CI green but was a band-aid — it shed real coverage and
+left the underlying class-of-bug uncaught for next time.
+
+This round replaces the band-aid with the sustainable fix.
+
+### Restored + migrated (real coverage was lost)
+
+- **`tests/cjk/test_v7_cjk_roundtrip.py`** (532 lines, 9 tests).
+  V7-spec compliance for CJK round-trip (Linguistic Rule #11:
+  "romanise+back-convert; >= 97% match (Dice coefficient after NFC
+  casefold)"). Covers E1/E2/E3/E4 regions, edge cases, performance.
+  One-line migration: `regions.manager` → `regions.manager_optimized`.
+- **`tests/unit/test_thread_safe_demo.py`** (263 lines).
+  V6's API exposed a `thread_safe=True` kwarg on `get_region`; V7's
+  `manager_optimized` doesn't (different threading model). Migrated
+  by stripping the kwarg — the underlying value (20 concurrent
+  workers don't race) is still the right thing to test in V7.
+
+`tests/unit/test_direct_classification.py` stays deleted — it was a
+debug-printer with zero assertions, no coverage to recover.
+
+### Sustainable infrastructure: G2 audit check
+
+The class-of-bug round-18 hit was: CI's `test` job explicitly
+enumerates test files; deleting an upstream module quietly broke
+those tests' imports; `tests/conftest.py:collect_ignore_glob`
+skipped them when running `pytest tests/` but explicit-path
+collection bypasses `collect_ignore_glob` → CI green locally, red
+in CI.
+
+**Fix**: new `tools/audit_repo.py` check **G2 — CI test files
+collect cleanly**. Parses CI's pytest invocation list, shells out
+to `pytest --collect-only` against those exact files, fails the
+audit if any import-errors during collection.
+
+Verified by injection: created a synthetic broken test referencing
+a nonexistent module, added it to CI's list, ran the audit — G2
+trips with a clear error pointing at the broken file. Reverted the
+synthetic.
+
+G2 is in the SLOW set (subprocess-spawning, ~5 s) so it's skipped
+by `audit-repo --fast` in the pre-commit hook. Full audit (CI's
+`audit-repo` job + manual `make audit-repo`) runs it. So a
+future pipeline-deletion-without-test-update gets caught at:
+1. Push-time on the CI `audit-repo` job (parallel to `test`)
+2. Local `make audit-repo` invocation
+3. Anyone running the full audit before push
+
+This is the right layer: G1 already checked "files exist"; G2
+extends to "files actually import". Future regressions of this
+kind will trip locally instead of red-CI-ing.
+
+### Rolled back
+
+- `tests/cjk/test_v7_cjk_roundtrip.py` and
+  `tests/unit/test_thread_safe_demo.py` re-added to CI's `test`
+  job list.
+
+### Audit count: 18 → 19 checks
+
 ## [Unreleased] — 2026-05-02 (round 18 — five-phase systematic close-out)
 
 The five outstanding gaps from round 17 ranked by risk / reward and
