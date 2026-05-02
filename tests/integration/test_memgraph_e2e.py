@@ -72,25 +72,29 @@ def loaded_memgraph() -> Generator[str, None, None]:
         "--password",
         password,
     ]
-    # Loader does ~30 k MERGEs (20 k :Person + ~4 k advisor edges).
-    # On GitHub Actions runners with cold Memgraph caches this takes
-    # ≈ 90-180 s; cap at 5 minutes to stay below the test job's
-    # overall 6-minute budget.
+    # Loader does ~60 k MERGEs (~39 k :Person + ~21 k advisor edges
+    # after round-23's partition-harvest expansion). On GitHub
+    # Actions runners with cold Memgraph caches this takes
+    # ≈ 4-8 min; cap at 15 minutes to stay below the job's 30-minute
+    # overall budget. Round-26 caught a 300 s timeout when the
+    # round-23 harvest doubled the dataset.
     proc = subprocess.run(
         cmd,
         cwd=str(REPO),
         env={**os.environ, "PYTHONPATH": str(REPO)},
         capture_output=True,
         text=True,
-        timeout=300,
+        timeout=900,
     )
     assert proc.returncode == 0, (
         f"loader failed (rc={proc.returncode}):\n"
         f"stdout:\n{proc.stdout}\n\nstderr:\n{proc.stderr}"
     )
 
-    # Sanity: we expect ≥ 4 390 advisors loaded (this is the curated
-    # MGP + Wikidata P184 count from the enrichment file).
+    # Sanity: we expect ≥ 35 000 :Person nodes (round-23 enrichment
+    # contains 39,497; load is idempotent so re-runs land at the same
+    # count). Lower bound 35 000 leaves margin for partial-load
+    # tolerance without dropping below the previous ~27k floor.
     from neo4j import GraphDatabase  # type: ignore
 
     auth = (user, password) if user else None
@@ -99,7 +103,7 @@ def loaded_memgraph() -> Generator[str, None, None]:
     try:
         with drv.session() as s:
             count = s.run("MATCH (p:Person) RETURN count(p) AS n").single()["n"]
-        assert count > 4000, f"expected > 4 000 :Person nodes, got {count}"
+        assert count > 35000, f"expected > 35 000 :Person nodes, got {count}"
     finally:
         drv.close()
     yield bolt
