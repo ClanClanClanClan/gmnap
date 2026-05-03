@@ -23,7 +23,12 @@ class F3_HornOfAfrica(RegionSpec):
             yaml_files=["f3_horn_of_africa.yaml"],
             scripts=["Ethiopic", "Latin"],
             mixed_scripts=True,
-            canonical_order="Given Father Grandfather",
+            # "Patronymic" matches the V7 spec's Literal[…] type for
+            # Horn-of-Africa naming (Given Father Grandfather is the
+            # specific shape; Patronymic is the family). Round-27
+            # caught the test_processor_initialization assertion
+            # expecting "Patronymic".
+            canonical_order="Patronymic",
             romanisation_standards=["BGN/PCGN", "ALA-LC"],
         )
 
@@ -227,9 +232,17 @@ class F3_HornOfAfrica(RegionSpec):
             # Don't fail - just skip cleaning if no name available
             return
 
-        # Apply region-specific cleaning rules here
-        # This is a stub implementation - region-specific logic should be added
-        pass
+        # Apply region-specific cleaning rules.
+        # CanonicalLatin: strip titles (Dr., Professor, Ato, …) using
+        # the existing _remove_titles helper.
+        # CanonicalNative: strip Ethiopic-script titles (አባ, አቶ, …)
+        # via _clean_ethiopic_name.
+        if entry.get("CanonicalLatin"):
+            entry["CanonicalLatin"] = self._clean_name(entry["CanonicalLatin"])
+        if entry.get("CanonicalNative"):
+            entry["CanonicalNative"] = self._clean_ethiopic_name(
+                entry["CanonicalNative"]
+            )
 
     def _clean_name(self, name: str) -> str:
         """Clean a single Horn of Africa name string."""
@@ -305,6 +318,36 @@ class F3_HornOfAfrica(RegionSpec):
             entry["RegionalExtras"] = {}
 
         entry["RegionalExtras"].update(components)
+
+        # Round-27: also populate the structured keys F3 tests expect.
+        # The processor's existing flat keys (`specific_country`,
+        # `probable_ethnicity`, `has_patronymic`+`given_name`+…) are
+        # kept for back-compat with any existing consumer; the
+        # test-expected keys are added in parallel.
+        entry["RegionalExtras"]["likely_country"] = self._determine_country(
+            entry, components
+        )
+        entry["RegionalExtras"]["ethnic_background"] = self._analyze_ethnic_background(
+            entry
+        )
+        entry["RegionalExtras"]["patronymic_structure"] = (
+            self._analyze_patronymic_structure(entry)
+        )
+
+        # Synthesised variant generation (test-expected categories)
+        ethnic = entry["RegionalExtras"]["ethnic_background"]
+        patronymic = entry["RegionalExtras"]["patronymic_structure"]
+        round27_variants = self._generate_variants(entry, ethnic, patronymic)
+        # The existing Variants dict has `{Observed: [], Synthesised: []}`
+        # shape; tests for the new variant types check the top-level
+        # ``Variants`` key. Expose them at top level too.
+        if isinstance(entry.get("Variants"), dict):
+            existing = entry["Variants"].setdefault("Synthesised", [])
+            for v in round27_variants:
+                if v not in existing:
+                    existing.append(v)
+        else:
+            entry["Variants"] = round27_variants
 
         # Generate variants
         if "Variants" not in entry:
@@ -630,34 +673,267 @@ class F3_HornOfAfrica(RegionSpec):
         pass
 
     def order_key(self, entry: Dict[str, Any]) -> str:
-        """Generate sort key for F3 names."""
-        canonical = entry.get("CanonicalLatin", "")
+        """Generate sort key for F3 names.
 
-        # For patronymic system, sort by given name primarily
-        parts = canonical.split()
-        if parts:
-            given_name = parts[0]
-        else:
-            given_name = canonical
+        Prefers the structured RegionalExtras.patronymic_structure
+        when present (post-augment), falls back to splitting
+        CanonicalLatin (pre-augment / no-extras path).
+        """
+        # Prefer post-augment structured form
+        extras = entry.get("RegionalExtras") or {}
+        ps = extras.get("patronymic_structure") or {}
+        ordered_parts: list[str] = []
+        for key in ("given_name", "father_name", "grandfather_name"):
+            value = ps.get(key)
+            if value:
+                ordered_parts.append(value)
 
-        # Normalize for sorting
-        given_normalized = unicodedata.normalize("NFD", given_name.lower())
+        if not ordered_parts:
+            # Fallback: split CanonicalLatin
+            canonical = entry.get("CanonicalLatin", "")
+            ordered_parts = canonical.split()
 
-        # Remove diacritics
-        given_clean = "".join(
-            char for char in given_normalized if unicodedata.category(char) != "Mn"
-        )
+        if not ordered_parts:
+            return ""
 
-        # Include father's name if available for secondary sorting
-        if len(parts) > 1:
-            father_name = parts[1]
-            father_normalized = unicodedata.normalize("NFD", father_name.lower())
-            father_clean = "".join(
-                char for char in father_normalized if unicodedata.category(char) != "Mn"
+        # Normalize each part: lowercase + strip diacritics
+        normalized = []
+        for part in ordered_parts:
+            nfd = unicodedata.normalize("NFD", part.lower())
+            cleaned = "".join(ch for ch in nfd if unicodedata.category(ch) != "Mn")
+            normalized.append(cleaned)
+
+        return " ".join(normalized)
+
+    # ──────────────────────────────────────────────────────────────────
+    # Round-27 missing methods. Test file calls these; the processor
+    # was originally written without them. Each implementation uses
+    # F3's existing data structures (titles, ethiopic_base / extended,
+    # ethnic_markers, religious_elements, country_indicators, etc.)
+    # — no new external data needed.
+    # ──────────────────────────────────────────────────────────────────
+
+    def _contains_ethiopic(self, text: str) -> bool:
+        """True if any character lies in Ge'ez (Ethiopic) Unicode blocks."""
+        if not text:
+            return False
+        for ch in text:
+            cp = ord(ch)
+            if (
+                self.ethiopic_base[0] <= cp <= self.ethiopic_base[1]
+                or self.ethiopic_supplement[0] <= cp <= self.ethiopic_supplement[1]
+                or self.ethiopic_extended[0] <= cp <= self.ethiopic_extended[1]
+                or self.ethiopic_extended_a[0] <= cp <= self.ethiopic_extended_a[1]
+            ):
+                return True
+        return False
+
+    def _is_valid_ethiopic_text(self, text: str) -> bool:
+        """True if text contains Ge'ez characters AND no Latin letters
+        outside ASCII whitespace / Ethiopic punctuation."""
+        if not text:
+            return False
+        if not self._contains_ethiopic(text):
+            return False
+        # Reject if contains ASCII letters (mixed-script likely an error)
+        for ch in text:
+            if ch.isascii() and ch.isalpha():
+                return False
+        return True
+
+    def _is_valid_latin_text(self, text: str) -> bool:
+        """True if text is non-empty Latin (ASCII or Latin-1 with diacritics
+        but NO Ge'ez characters)."""
+        if not text:
+            return False
+        if self._contains_ethiopic(text):
+            return False
+        # At least one alphabetic character expected
+        return any(ch.isalpha() for ch in text)
+
+    # Title sets cached for clean_*_name
+    _ETHIOPIC_TITLE_GLYPHS = frozenset({"አባ", "አቶ", "ወይዘሮ", "ወይዘሪት"})
+
+    def _clean_latin_name(self, name: str) -> str:
+        """Strip leading titles (Dr., Professor, Ato, …) and collapse
+        whitespace. Uses the existing self.titles set."""
+        if not name:
+            return name
+        # Remove titles. Token-by-token from the left, preserving order.
+        tokens = name.replace(",", " ").split()
+        keep: list[str] = []
+        skipping_titles = True
+        for token in tokens:
+            normalized = token.lower().rstrip(".")
+            if skipping_titles and normalized in self.titles:
+                continue
+            skipping_titles = False
+            keep.append(token)
+        return " ".join(keep)
+
+    def _clean_ethiopic_name(self, name: str) -> str:
+        """Strip Ethiopic-script titles and normalize whitespace +
+        word-separator (U+1361 ETHIOPIC WORDSPACE)."""
+        if not name:
+            return name
+        # Collapse multiple ASCII spaces; preserve U+1361 word separators
+        # but cap consecutive ones.
+        text = name.strip()
+        # Replace runs of whitespace with single space
+        import re
+
+        text = re.sub(r"\s+", " ", text)
+        # Strip Ethiopic titles when they appear as standalone leading
+        # tokens.
+        for title in self._ETHIOPIC_TITLE_GLYPHS:
+            if text.startswith(title + " ") or text.startswith(title + "፡"):
+                text = text[len(title) :].lstrip(" ፡")
+                break
+        # Collapse repeated word-separator characters
+        text = re.sub("፡+", "፡", text)
+        return text
+
+    def _transliterate_ethiopic(self, text: str, mapping: Dict[str, str]) -> str:
+        """Apply a character → romanization mapping. Unknown characters
+        pass through unchanged."""
+        if not text:
+            return text
+        out = []
+        for ch in text:
+            out.append(mapping.get(ch, ch))
+        return "".join(out)
+
+    def _has_religious_elements(self, entry: Dict[str, Any]) -> bool:
+        """True if the entry's CanonicalLatin contains any element from
+        ``self.religious_elements`` (Christian or Islamic markers)."""
+        name = (entry.get("CanonicalLatin") or "").lower()
+        if not name:
+            return False
+        tokens = name.replace(",", " ").split()
+        for tok in tokens:
+            tok_clean = tok.strip(".'\"")
+            if tok_clean in self.religious_elements:
+                return True
+        return False
+
+    def _analyze_ethnic_background(self, entry: Dict[str, Any]) -> Dict[str, Any]:
+        """Score the entry against each known ethnic group's name
+        markers. Returns ``{ethnicity_scores: {group: score, …},
+        primary_ethnicity: <group or None>}``.
+
+        Walks both CanonicalLatin tokens and Affiliation hints
+        (university names sometimes signal a region — e.g., Addis
+        Ababa University → amhara, Mekelle University → tigray).
+        """
+        name = (entry.get("CanonicalLatin") or "").lower()
+        affiliation = (entry.get("Affiliation") or "").lower()
+        tokens = name.replace(",", " ").split()
+
+        scores: Dict[str, int] = {}
+        for ethnicity, markers in self.ethnic_markers.items():
+            score = sum(1 for tok in tokens for m in markers if m in tok)
+            if score:
+                scores[ethnicity] = score
+
+        # Curated names lists give an extra signal
+        for tok in tokens:
+            if tok in self.amharic_names:
+                scores["amhara"] = scores.get("amhara", 0) + 2
+            if tok in self.tigrinya_names:
+                scores["tigray"] = scores.get("tigray", 0) + 2
+
+        # Affiliation hints — coarse but helpful when token signal is
+        # ambiguous. Addis Ababa, Mekelle, Jimma each signal a region.
+        affiliation_signals = [
+            ("addis", "amhara"),
+            ("mekelle", "tigray"),
+            ("jimma", "oromo"),
+            ("dire", "oromo"),  # Dire Dawa
+            ("hawassa", "sidama"),
+        ]
+        for needle, ethnicity in affiliation_signals:
+            if needle in affiliation:
+                scores[ethnicity] = scores.get(ethnicity, 0) + 1
+
+        primary = max(scores, key=scores.get) if scores else None
+        return {"ethnicity_scores": scores, "primary_ethnicity": primary}
+
+    def _determine_country(self, entry: Dict[str, Any], _hints: Dict[str, Any]) -> str:
+        """Determine likely Horn-of-Africa country from affiliation +
+        email TLD signals.
+
+        Returns ISO-3166 alpha-2: ET (Ethiopia), ER (Eritrea), SO
+        (Somalia), DJ (Djibouti). Defaults to ``"ET"`` (most populous)
+        when signals are ambiguous.
+        """
+        affiliation = (entry.get("Affiliation") or "").lower()
+        email = (entry.get("Email") or "").lower()
+
+        # Email TLD is the strongest signal
+        for tld, cc in [
+            (".et", "ET"),
+            (".er", "ER"),
+            (".so", "SO"),
+            (".dj", "DJ"),
+        ]:
+            if email.endswith(tld) or tld + "/" in email or tld + "?" in email:
+                return cc
+            # Mid-string match (for educational subdomains)
+            if tld in email.split("@")[-1]:
+                return cc
+
+        # Affiliation keyword match
+        for keyword, cc in [
+            ("asmara", "ER"),
+            ("eritrea", "ER"),
+            ("addis ababa", "ET"),
+            ("ethiopia", "ET"),
+            ("mekelle", "ET"),
+            ("jimma", "ET"),
+            ("hawassa", "ET"),
+            ("mogadishu", "SO"),
+            ("somalia", "SO"),
+            ("djibouti", "DJ"),
+        ]:
+            if keyword in affiliation:
+                return cc
+
+        return "ET"
+
+    def _generate_variants(
+        self,
+        entry: Dict[str, Any],
+        ethnic_analysis: Dict[str, Any],
+        patronymic_analysis: Dict[str, Any],
+    ) -> List[Dict[str, Any]]:
+        """Generate alternate name variants per Horn-of-Africa naming
+        conventions: Given+Father shorthand, mononym (Given only),
+        academic-initial form (G.M.T. for Gebre Mariam Tekle).
+
+        Each variant is ``{type: <category>, str: <variant>}``. The
+        test asserts presence of ``patronymic_given_father``,
+        ``mononym_given``, and ``academic_initial`` types.
+        """
+        variants: List[Dict[str, Any]] = []
+        given = patronymic_analysis.get("given_name")
+        father = patronymic_analysis.get("father_name")
+        grandfather = patronymic_analysis.get("grandfather_name")
+
+        if given and father:
+            variants.append(
+                {"type": "patronymic_given_father", "str": f"{given} {father}"}
             )
-            return f"{given_clean} {father_clean}"
 
-        return given_clean
+        if given:
+            variants.append({"type": "mononym_given", "str": given})
+
+        # Academic initial form: G.M.T. (initials of all parts joined)
+        initials_parts = [p for p in (given, father, grandfather) if p]
+        if initials_parts:
+            initials = ".".join(p[0].upper() for p in initials_parts) + "."
+            variants.append({"type": "academic_initial", "str": initials})
+
+        return variants
 
     def _has_security_risks(self, name: str) -> bool:
         """Check for dangerous characters that pose security risks."""
