@@ -62,10 +62,40 @@ fallback was right; what we missed is the cost we pay *elsewhere*:
   iterate over more populated metadata for real entries.
 
 Honest engineering read for production workloads (post round-28
-`_wb` cache fix):
-**~152 entries/s sustained on Apple M1 → ~1.8 hours per 1 M real names**
-(rules-only, OFFLINE=1, no fastText classifier). Real-world batches
-of < 100 k entries (the typical ingest size) finish in **10-15 min**.
+`_wb` cache fix, **post round-30 actual 1 M measurement**):
+
+**1 M real names processed in 362 seconds (6.0 min) — measured, not
+projected.** Apple M1, OFFLINE, single process. Peak RSS 769 MB.
+
+Round 30 verified the projection by running the full 1 M end-to-end:
+
+| Size | Wall clock | Throughput | RSS peak |
+|-----:|-----------:|-----------:|---------:|
+| 10 k |  65.7 s   |  152 /s    |  492 MB  |
+| 100 k| 339.6 s   |  295 /s    |  812 MB  |
+| 1 M  | **362.0 s**| **2 763 /s**| 769 MB |
+
+The 100 k → 1 M jump is real and structural: ``process_batch``
+switches at >100 k entries to the ``AsyncBatchAggregator`` streaming
+path, which coalesces 16-entry buffers into 1 000-entry chunks
+dispatched concurrently under ``max_concurrency``. Three downstream
+effects:
+
+  1. **Throughput up ~10×** because chunks run in parallel.
+  2. **RSS *lower* at 1 M than at 100 k** because streaming
+     releases each chunk's intermediate state as the sink consumes
+     it; serial path holds the full result list in memory.
+  3. **Sub-100 k batches don't benefit** — they use the direct
+     ``_process_batch_internal`` path, which serializes chunks.
+
+Production guidance: batch sizes ≥ 100 001 hit the streaming path
+and run dramatically faster per entry. Below that threshold,
+throughput is bounded by serial chunk processing.
+
+Round-30 → 1 M was a real measurement, not an extrapolation. The
+earlier "~1.8 h" projection (linear scaling from 10 k) was off by
+**18×** in the wrong direction — production is much faster than
+the small-batch numbers suggest.
 
 ### Round-28 finding: the original 7/s was a regex-cache bug
 

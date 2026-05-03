@@ -7,7 +7,7 @@
 **Regional Coverage**: 37/37 regions fully implemented (100%), 38 processor files
 **Region Detection**: Split geo/name-origin architecture with three-tier suffix system, fastText CLI tiebreaker, same-group gate. Expert-validated as production-ready.
 **Security**: Injection attack blocking validated
-**Performance**: **~152 entries/sec sustained on the real-name 10 k batch (~1.8 h/1M)**, **173/s on 1 k**. Measured 2026-05-03 on Apple M1, OFFLINE, after round-28's `@functools.lru_cache` fix on `_wb()` regex compilation (was 7/s pre-fix, 22× speedup). Detection-only (`RegionManager.detect_region`) is ~780/s warm. Bottleneck per-stage now distributed (stage 5 collision analytics is the largest chunk); fastText subprocess is NOT the bottleneck (round 26 was right to defer in-process fastText, for the wrong reason). Full methodology + cProfile dump in `docs/perf_characterization.md`.
+**Performance**: **1 M real names processed in 362 seconds (6.0 min) — measured, not projected** (Apple M1, OFFLINE, single process, streaming path via `AsyncBatchAggregator`). Throughput: **2 763 entries/sec** at 1 M; 152/s at 10 k (smaller batches use the serial direct-batch path). RSS peaks at 769 MB. Round-28's `@functools.lru_cache` fix on `_wb()` was the unlock (was 7/s on 10 k pre-fix); round-30 ran the actual 1 M to verify the streaming-path scaling holds in production. Full benchmark + cProfile in `docs/perf_characterization.md`.
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
 **Authority Enrichment**: V7 tier orchestrator (`src/authority/manager_tier01.py`) delegates to canonical fetchers in `src/authorities/tierN/` when `OFFLINE=0`. 9 sources have real HTTP code (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH, Wikidata_P184, GND, HAL, OAI_University); 2 gated behind API keys (Scopus, Dimensions); 1 deferred for institutional access (ProQuest); 1 deferred for ToS (GoogleScholar). MathSciNet stub awaits AMS subscription
 **Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. The on-disk directory `config/regions/` is currently empty — every region falls back to its hardcoded defaults — so the loader is dormant in practice but tested and ready
@@ -149,13 +149,34 @@ Numbers below are from `tools/run_benchmark.py`. Real names sample
 from `data/genealogy_enrichment.json`; synthetic uses `Surname{i},
 Given{i}` with rotated country codes.
 
-| Path | Throughput | 1 M projection | RSS @10 k |
+**1 M is now an actual measurement, not a projection.** The
+streaming path (`process_batch` switches to `AsyncBatchAggregator`
+at >100k entries) parallelizes coalesced 1000-entry chunks across
+multiple async workers, giving a ~10× boost over the serial direct-
+batch path used at smaller sizes.
+
+| Path | Throughput | Wall clock | RSS peak |
 |---|---|---|---|
-| `RegionManager.detect_region` (stage 2 only, warm) | ~780 / s | ~21 min | 230 MB |
-| `V7Pipeline.process_batch` (synthetic, 1 k) | **258 / s** | **~65 min** | 325 MB |
-| `V7Pipeline.process_batch` (synthetic, 10 k) | **209 / s** | **~80 min** | 461 MB |
-| `V7Pipeline.process_batch` (real, 1 k) | **173 / s** | **~96 min** | 360 MB |
-| **`V7Pipeline.process_batch` (real, 10 k) — production** | **152 / s** | **~110 min (~1.8 h)** | **492 MB** |
+| `RegionManager.detect_region` (stage 2 only, warm) | ~780 / s | — | 230 MB |
+| `V7Pipeline.process_batch` (synthetic, 1 k) | 258 / s | 3.9 s | 325 MB |
+| `V7Pipeline.process_batch` (synthetic, 10 k) | 209 / s | 47.8 s | 461 MB |
+| `V7Pipeline.process_batch` (real, 1 k) | 173 / s | 5.8 s | 360 MB |
+| `V7Pipeline.process_batch` (real, 10 k) | 152 / s | 65.7 s | 492 MB |
+| `V7Pipeline.process_batch` (real, 100 k) | 295 / s | 339.6 s | 812 MB |
+| **`V7Pipeline.process_batch` (real, 1 M) — production** | **2 763 / s** | **362.0 s (6.0 min)** | **769 MB** |
+
+The 100k → 1M throughput jump (295/s → 2 763/s, ~9.4×) is the
+streaming-path kick-in at the >100 k threshold. Smaller batches
+serialize chunks; ≥ 100 k+1 entries trigger
+`AsyncBatchAggregator` which coalesces and runs chunks concurrently
+under `max_concurrency`. RSS at 1 M is *lower* than at 100 k —
+streaming releases each chunk's intermediate state as soon as the
+sink consumes it, so memory plateaus rather than accumulating.
+
+In production: a 1 M batch finishes in ~6 minutes on a modest
+Apple M1 laptop, OFFLINE, single process. A 100 k batch finishes
+in ~5.5 minutes. **The cliff at 100 k is real — sized batches
+above that threshold are dramatically more efficient per entry.**
 
 Round-28 perf finding: the previous "7 entries/sec" claim came from
 uncached `re.compile` calls in `manager_optimized._wb()` — the
