@@ -4,6 +4,59 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-03 (round 30 — 1 M is now a measurement, not a projection)
+
+User correctly called out: "the 1 M projection should be properly
+ran and in conditions that make us believe it will work in
+production." Replaced the linear-extrapolation projection with the
+actual measurement.
+
+### Method
+
+`PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000000 --real-names`
+
+Apple M1, OFFLINE=1, single Python 3.12 process, no fastText
+classifier (cli_path empty), real names sampled from
+`data/genealogy_enrichment.json` (39,892-entry dataset).
+
+Probed at 100 k first to verify linear scaling and that no OOM /
+quadratic-memory pathologies surfaced. Probe was clean
+(339.6 s, 295/s, 812 MB), so the 1 M run launched in background.
+
+### Result
+
+| Size | Wall clock | Throughput | RSS peak |
+|-----:|-----------:|-----------:|---------:|
+| 100 k|  339.6 s  |  295 /s    |  812 MB  |
+| 1 M  | **362.0 s** (6.0 min) | **2 763 /s** | **769 MB** |
+
+The 1 M batch finished in 6 minutes — **18× faster than the
+"~1.8 h" linear extrapolation from the 10 k baseline**. Reason: at
+>100 k entries `process_batch` switches to the streaming path
+(`src/core/streaming_pipeline.py` → `AsyncBatchAggregator`), which
+coalesces 16-entry buffers into 1 000-entry chunks dispatched
+concurrently under `max_concurrency`. Sub-100 k batches use the
+serial direct-batch path and don't get this lift.
+
+RSS at 1 M (769 MB) is *lower* than at 100 k (812 MB) — streaming
+releases each chunk's intermediate state as the sink consumes it,
+so memory plateaus rather than accumulates with batch size.
+
+### Updated
+
+- `CLAUDE.md`: headline + perf table now reports the measured 1 M
+  number. Removed the "~1.8 h projection" wording everywhere; the
+  perf table includes 100 k and 1 M rows from real runs.
+- `docs/perf_characterization.md`: full method + result + production
+  guidance (batch ≥ 100 001 hits streaming path).
+
+### Lesson
+
+Linear-extrapolation projections from a 10 k sample missed the
+streaming-path discontinuity and were 18× wrong in the wrong
+direction. Whenever a number describes production behaviour, run
+the production-scale workload to get it.
+
 ## [Unreleased] — 2026-05-03 (round 29 — H3 audit + dead pipeline purge)
 
 The F3 / E7 / ORCID-ETD missing-method bug class (rounds 20, 22, 27)
