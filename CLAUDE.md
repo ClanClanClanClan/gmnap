@@ -143,16 +143,17 @@ auto-merge machinery was removed in the 2026-04-27 audit because it
 had no production caller. Reinstating it would require both the
 YAMLs and a hook in each processor's pre-call path.
 
-### Performance (Measured 2026-04-22, Python 3.12, Apple M1, OFFLINE)
+### Performance (Measured 2026-05-03, Python 3.12, Apple M1, OFFLINE)
 
-Numbers below are from `tools/run_benchmark.py` on synthetic names
-(`Surname{i}, Given{i}` with rotated country codes). Real-world names
-with signature suffixes hit the fastText tiebreaker far less often, so
-the full-pipeline row is a lower bound.
+Numbers below are from `tools/run_benchmark.py`. Real names sample
+from `data/genealogy_enrichment.json`; synthetic uses `Surname{i},
+Given{i}` with rotated country codes.
 
 | Path | Throughput | 1 M projection | RSS @10 k |
 |---|---|---|---|
 | `RegionManager.detect_region` (stage 2 only, warm) | ~780 / s | ~21 min | 230 MB |
+| `V7Pipeline.process_batch` (synthetic, 1 k) | **258 / s** | **~65 min** | 325 MB |
+| `V7Pipeline.process_batch` (synthetic, 10 k) | **209 / s** | **~80 min** | 461 MB |
 | `V7Pipeline.process_batch` (real, 1 k) | **173 / s** | **~96 min** | 360 MB |
 | **`V7Pipeline.process_batch` (real, 10 k) — production** | **152 / s** | **~110 min (~1.8 h)** | **492 MB** |
 

@@ -707,6 +707,242 @@ def _check_no_test_bandaid_swallows() -> Result:
     return ("H2: no test-body bandaid swallows", errors)
 
 
+def _check_no_self_method_called_but_not_defined() -> Result:
+    """Every ``self.method()`` call must reference a method defined on
+    the class (or one of its bases declared in the same module).
+
+    Round-20 caught ``E7MaritimeSEAProcessor._detect_islamic_compounds``
+    silently `AttributeError`-ing on every augment() call — the method
+    was called but never defined. Round-22 caught ``F3._analyze_patronymic
+    _structure``. Round-27 caught the ORCID-ETD parser walking against
+    a v2 API shape. Same class-of-bug each time: code calls a name
+    that isn't there. H3 catches it at audit time, before the live
+    run that would expose it.
+
+    Scope: every ``.py`` under ``src/regions/``, ``src/authority/``,
+    ``src/authorities/``, ``src/core/``. Skips test files (test
+    fixtures legitimately call into helpers across the suite).
+
+    Limitations (intentional false-negative bias):
+      - Methods defined on a base class in a *different module* aren't
+        seen — we only check the file's own classes. Some legitimate
+        cross-module inheritance gets a free pass.
+      - ``getattr(self, "name", default)`` patterns are skipped (not
+        ``self.name`` syntactic form).
+      - Methods added at runtime via setattr / mixin / metaclass are
+        not seen. Caller expected to verify themselves.
+
+    With those exceptions, this catches the dominant pattern that
+    bit the project three times in different processors.
+    """
+    errors: List[str] = []
+    scope_dirs = [
+        "src/regions",
+        "src/authority",
+        "src/authorities",
+        "src/core",
+    ]
+
+    # Dynamically harvest method + attribute names from common base
+    # modules. This avoids the maintenance overhead of a hardcoded
+    # allowlist that drifts when bases gain / lose methods.
+    def _collect_class_members(module_path: Path) -> set:
+        """All method + assigned-attr names from any class in module."""
+        names: set = {
+            # Always-present dunder + RegionSpec.__post_init__
+            # attribute set
+            "__init__",
+            "__post_init__",
+            "logger",
+        }
+        if not module_path.exists():
+            return names
+        try:
+            mtree = ast.parse(module_path.read_text(encoding="utf-8"))
+        except SyntaxError:
+            return names
+        for cls in [n for n in ast.walk(mtree) if isinstance(n, ast.ClassDef)]:
+            for node in cls.body:
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    names.add(node.name)
+                elif isinstance(node, ast.Assign):
+                    for target in node.targets:
+                        if isinstance(target, ast.Name):
+                            names.add(target.id)
+                elif isinstance(node, ast.AnnAssign):
+                    if isinstance(node.target, ast.Name):
+                        names.add(node.target.id)
+            # self.x = … inside methods
+            for node in ast.walk(cls):
+                if isinstance(node, ast.Assign):
+                    for target in node.targets:
+                        if (
+                            isinstance(target, ast.Attribute)
+                            and isinstance(target.value, ast.Name)
+                            and target.value.id == "self"
+                        ):
+                            names.add(target.attr)
+                elif isinstance(node, ast.AnnAssign):
+                    target = node.target
+                    if (
+                        isinstance(target, ast.Attribute)
+                        and isinstance(target.value, ast.Name)
+                        and target.value.id == "self"
+                    ):
+                        names.add(target.attr)
+        return names
+
+    INHERITED_ALLOWLIST: set = set()
+    INHERITED_ALLOWLIST |= _collect_class_members(REPO / "src/regions/base.py")
+    INHERITED_ALLOWLIST |= _collect_class_members(REPO / "src/regions/base_enhanced.py")
+    INHERITED_ALLOWLIST |= _collect_class_members(REPO / "src/authorities/base.py")
+
+    def _members_of(cls: ast.ClassDef) -> set:
+        """Methods + self-attribute defs declared inside one class node."""
+        m: set = set()
+        for node in cls.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                m.add(node.name)
+        for node in ast.walk(cls):
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if (
+                        isinstance(target, ast.Attribute)
+                        and isinstance(target.value, ast.Name)
+                        and target.value.id == "self"
+                    ):
+                        m.add(target.attr)
+            elif isinstance(node, ast.AnnAssign):
+                target = node.target
+                if (
+                    isinstance(target, ast.Attribute)
+                    and isinstance(target.value, ast.Name)
+                    and target.value.id == "self"
+                ):
+                    m.add(target.attr)
+        return m
+
+    # Stdlib / external bases whose method names we can't resolve via
+    # local AST. Any class inheriting from one of these gets a free
+    # pass on H3 — they're false positives, not the F3/E7-class bug.
+    EXTERNAL_BASE_NAMES = frozenset(
+        {
+            # logging
+            "Formatter",
+            "Handler",
+            "Logger",
+            "Filter",
+            "LogRecord",
+            "Adapter",
+            # threading
+            "Thread",
+            "RLock",
+            "Lock",
+            "Event",
+            "Condition",
+            "Timer",
+            # asyncio
+            "Protocol",
+            "Transport",
+            # dataclass / Generic
+            "Generic",
+            "Protocol",
+            # exceptions
+            "Exception",
+            "ValueError",
+            "RuntimeError",
+            "KeyError",
+            "TypeError",
+            "OSError",
+            # ABC
+            "ABC",
+            "ABCMeta",
+            "Enum",
+            "IntEnum",
+            "Flag",
+            # numeric / collections
+            "dict",
+            "list",
+            "set",
+            "tuple",
+            "namedtuple",
+            "OrderedDict",
+            "defaultdict",
+            "Counter",
+            # pytest/unittest
+            "TestCase",
+        }
+    )
+
+    def _has_external_base(cls: ast.ClassDef) -> bool:
+        """True if any direct base name suggests an external (stdlib /
+        third-party) parent class we can't resolve by local AST."""
+        for base in cls.bases:
+            if isinstance(base, ast.Name) and base.id in EXTERNAL_BASE_NAMES:
+                return True
+            # Attribute-form bases (e.g. logging.Formatter) — assume
+            # external unless prefix is `src.` (which we'd resolve in
+            # principle, but we don't follow imports yet).
+            if isinstance(base, ast.Attribute):
+                return True
+        return False
+
+    for sub in scope_dirs:
+        root = REPO / sub
+        if not root.exists():
+            continue
+        for path in root.rglob("*.py"):
+            if "__pycache__" in path.parts:
+                continue
+            try:
+                tree = ast.parse(path.read_text(encoding="utf-8"))
+            except SyntaxError:
+                continue
+
+            # Build {class_name: members} for every class in this file
+            # so subclasses can resolve methods declared on a same-
+            # module base class (e.g. extreme_adapters.py has a
+            # `_BaseAdapter` whose `_offline()` is called by every
+            # Tier-2 / Tier-3 adapter in the same file).
+            file_class_members: dict = {}
+            for cls in [n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)]:
+                file_class_members[cls.name] = _members_of(cls)
+
+            for cls in [n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)]:
+                if _has_external_base(cls):
+                    continue
+                defined: set = set(INHERITED_ALLOWLIST)
+                defined |= _members_of(cls)
+                # Same-module base resolution: for every base named
+                # by simple identifier, pull in that class's members.
+                for base in cls.bases:
+                    if isinstance(base, ast.Name):
+                        bname = base.id
+                        if bname in file_class_members:
+                            defined |= file_class_members[bname]
+
+                for node in ast.walk(cls):
+                    if not isinstance(node, ast.Call):
+                        continue
+                    func = node.func
+                    if not (
+                        isinstance(func, ast.Attribute)
+                        and isinstance(func.value, ast.Name)
+                        and func.value.id == "self"
+                    ):
+                        continue
+                    name = func.attr
+                    if name not in defined:
+                        rel = path.relative_to(REPO)
+                        errors.append(
+                            f"{rel}:{node.lineno} in class {cls.name}: "
+                            f"calls self.{name}() but method/attribute is "
+                            f"not defined on the class"
+                        )
+
+    return ("H3: no self.method() called without definition", errors)
+
+
 # ─── I. Tool idempotency ───────────────────────────────────────────────
 
 
@@ -819,6 +1055,7 @@ CHECKS: List[Callable[[], Result]] = [
     _check_ci_test_files_collect,
     _check_no_test_module_shadowing,
     _check_no_test_bandaid_swallows,
+    _check_no_self_method_called_but_not_defined,
     _check_gen_api_reference_idempotent,
     _check_screenshots_exist,
     _check_api_reference_endpoint_count,

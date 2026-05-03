@@ -4,6 +4,81 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-03 (round 29 — H3 audit + dead pipeline purge)
+
+The F3 / E7 / ORCID-ETD missing-method bug class (rounds 20, 22, 27)
+was caught after each one bit; rounds 14-22 fixed them one by one.
+Round 29 closes the class permanently with a new audit check, plus
+deletes the next layer of dead production code H3 surfaced.
+
+### Added: H3 audit — no `self.method()` called without definition
+
+`tools/audit_repo.py` gains a check that AST-walks every class in
+``src/regions/``, ``src/authority/``, ``src/authorities/``, and
+``src/core/``. For every ``self.NAME()`` call site it verifies
+``NAME`` resolves to:
+  - a method defined on the class itself, OR
+  - a method defined on a same-module base class (cross-module
+    inheritance is also handled for the well-known
+    ``RegionSpec`` / ``EnhancedRegionSpec`` / ``AuthorityFetcher``
+    hierarchies via dynamic AST harvesting), OR
+  - a self-attribute set via ``self.x = …`` in any method.
+
+External-base classes (logging.Formatter, threading.Thread, ABC,
+Enum, Exception, etc.) get a free pass — H3 doesn't follow stdlib
+inheritance, but those aren't where the F3/E7 class-of-bug lived.
+
+Verified by injection: planted a fresh broken
+``self.this_doesnt_exist()`` call in a region processor; H3 tripped
+loudly with the file/line/class. Reverted.
+
+H3 is in ``_SLOW_CHECKS`` because it AST-walks ~150 source files
+(~1.5 s); pre-commit hook's ``--fast`` mode skips it, full
+``audit-repo`` runs it.
+
+### Fixed: `EnhancedRegionSpec.basic_validation` (5 silent latent bugs)
+
+H3's first run found 5 region processors (C5 / C6 / D2 / D3 / E6)
+calling ``self.basic_validation()`` from their alternate
+``detect_region`` paths — but the method was undefined anywhere in
+the class hierarchy. The call sites are reachable via
+``HybridRegionClassifier`` but in practice
+``HybridRegionClassifier.phase1`` resolves to the central
+``RegionManager`` (not the per-region processor), so the bug was
+latent — every revival of those code paths would have silently
+``AttributeError``-ed.
+
+Added ``basic_validation`` to ``EnhancedRegionSpec`` as a permissive
+"is the entry worth even looking at?" pre-check: True if any of
+``CanonicalLatin`` / ``CanonicalNative`` / ``name`` is non-empty.
+Same shape as round-22's ``F3._analyze_patronymic_structure`` fix.
+
+### Removed: dead V7 pipeline duplicate chain (-2,101 LOC)
+
+H3 also surfaced ``V7PipelineCompleteFinal._stage_0_config`` (called
+but undefined). Investigation: ``pipeline_v7_complete_final.py`` is
+the tail of a dead chain:
+
+  ``pipeline_v7_complete.py`` (957 LOC) → imported only by
+  ``pipeline_v7_fixed.py`` (280 LOC) → imported only by
+  ``pipeline_v7_complete_final.py`` (864 LOC) → imported only by a
+  ``tests/integration/`` test that's not in CI.
+
+No production code uses any of them. Deleted all three (-2,101 LOC).
+Same pattern as round-18's pipeline_v6 deletion.
+
+### Updated: synthetic benchmark numbers in CLAUDE.md
+
+Round-28 only refreshed the real-name benchmark row. The synthetic
+row was stale (29/s pre-fix). Re-measured:
+  - 1k synthetic:  21/s → **258/s**  (~12×)
+  - 10k synthetic: 29/s → **209/s**  (~7×)
+  - 1M projection: ~9.7 h → **~80 min**
+
+The regex-cache fix helped synthetic AND real-name workloads.
+
+### Audit count: 20 → 21 checks
+
 ## [Unreleased] — 2026-05-03 (round 28 — F3 sprint + 22× perf fix + MGP pilot)
 
 Three-phase ultraplan delivery: F3 missing-method sprint, real-name
