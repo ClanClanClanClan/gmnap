@@ -580,14 +580,35 @@ class E4KoreanProcessor:
         (``XSS``, ``SQL injection``, ``Path traversal``,
         ``Template/JNDI injection``, …) so test assertions matching on
         those words still work.
-        """
-        from src.core.security_validator import SecurityError, SecurityValidator
 
-        validator = SecurityValidator()
+        Performance: uses a class-level cached instance so the ~50
+        regex patterns compile once per process, not once per call.
+        Round-27 fix-forward caught a 17× slowdown
+        (1.7 s/name) when the first version instantiated
+        ``SecurityValidator()`` afresh every validate.
+        """
+        from src.core.security_validator import SecurityError
+
+        validator = type(self)._security_validator()
         try:
             validator.validate_string(name, context="E4")
         except SecurityError as exc:
             raise ValueError(str(exc)) from exc
+
+    @classmethod
+    def _security_validator(cls):
+        """Lazy-initialised, class-level cached SecurityValidator.
+
+        First call compiles ~50 regex patterns (~5 ms). Subsequent
+        calls reuse the same instance for O(1) dispatch.
+        """
+        cached = getattr(cls, "__security_validator_cache", None)
+        if cached is None:
+            from src.core.security_validator import SecurityValidator
+
+            cached = SecurityValidator()
+            cls.__security_validator_cache = cached
+        return cached
 
     def order_key(self, data: Dict[str, Any]) -> str:
         """Generate sorting key for Korean entries."""
