@@ -534,6 +534,35 @@ class EnhancedRegionSpec(RegionSpec):
 
         return False
 
+    def basic_validation(self, entry: Dict[str, Any]) -> bool:
+        """Cheap pre-check used by alternate ``detect_region`` shapes
+        (in C5 / C6 / D2 / D3 / E6 processors) as an early-exit guard
+        before running their full detection logic.
+
+        Round-29 finding: H3 audit caught these processors calling
+        ``self.basic_validation()`` but the method was undefined
+        anywhere — every invocation would have raised ``AttributeError``.
+        The call sites are reachable from
+        ``HybridRegionClassifier`` via ``self.phase1.detect_region``,
+        but in practice ``self.phase1`` resolves to the central
+        ``RegionManager`` not the per-region processor, so the bug
+        was latent. Adding the method here makes any future revival
+        of those code paths safe by default.
+
+        Permissive by design: returns True for any entry with at
+        least one of ``CanonicalLatin`` / ``CanonicalNative`` /
+        ``name`` populated. The downstream detection methods do their
+        own stricter checks; this is just "is it worth even looking
+        at this entry?"
+        """
+        if not isinstance(entry, dict):
+            return False
+        for key in ("CanonicalLatin", "CanonicalNative", "name"):
+            value = entry.get(key)
+            if isinstance(value, str) and value.strip():
+                return True
+        return False
+
     def apply_unicode_fold_exceptions(self, text: str) -> str:
         """
         Apply Unicode case folding with exceptions.
