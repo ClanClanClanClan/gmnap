@@ -198,10 +198,27 @@ class ORCIDETDFetcher(AuthorityFetcher):
                 if given_name and family_name:
                     record.canonical_name = f"{given_name} {family_name}"
 
-            # Extract PhD/thesis from education
+            # Extract PhD/thesis from education. ORCID v3.0's
+            # /educations endpoint returns data nested as
+            #   affiliation-group → summaries → education-summary
+            # Round-22 noted university/thesis_year always None;
+            # round-27 traced it to this parser reading
+            # `education_data["education-summary"]` (which is the v2
+            # API shape; v3 wraps in affiliation-group → summaries).
             if education_data:
-                for edu in education_data.get("education-summary", []):
-                    org_name = edu.get("organization", {}).get("name")
+                edu_records = []
+                for ag in education_data.get("affiliation-group") or []:
+                    for summ in ag.get("summaries") or []:
+                        es = summ.get("education-summary") or {}
+                        if es:
+                            edu_records.append(es)
+                # Fallback: legacy v2-style direct key (some mirrors
+                # still serve this; keep tolerant).
+                edu_records.extend(education_data.get("education-summary") or [])
+
+                for edu in edu_records:
+                    org = edu.get("organization") or {}
+                    org_name = org.get("name") if isinstance(org, dict) else None
                     role = edu.get("role-title")
 
                     # Check if it's a PhD or thesis-granting degree
@@ -212,12 +229,19 @@ class ORCIDETDFetcher(AuthorityFetcher):
                         record.university = org_name
 
                         # Extract year from education
-                        end_date = edu.get("end-date")
-                        if end_date:
-                            year = end_date.get("year", {}).get("value")
-                            if year:
-                                record.thesis_year = int(year)
-                                record.birth_year = record.thesis_year - 28  # Estimate
+                        end_date = edu.get("end-date") or {}
+                        year_field = end_date.get("year") or {}
+                        year_value = (
+                            year_field.get("value")
+                            if isinstance(year_field, dict)
+                            else None
+                        )
+                        if year_value:
+                            try:
+                                record.thesis_year = int(year_value)
+                                record.birth_year = record.thesis_year - 28
+                            except (TypeError, ValueError):
+                                pass
 
                         # Department info might contain advisor
                         dept = edu.get("department-name")

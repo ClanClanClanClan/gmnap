@@ -143,6 +143,25 @@ class SecurityValidator:
             r"\(\w\+\)\+": "ReDoS - nested quantifiers",
             r"\(\?\:\w\*\)\*": "ReDoS - catastrophic backtracking",
             r"[a-z]{100,}[A-Z]": "ReDoS - long sequence pattern",
+            # Template-injection family — covers JNDI lookup syntax
+            # (${jndi:ldap://…}, the Log4Shell vector), Jinja2 ({{…}}),
+            # ERB / ASP (<%…%>), Ruby (#{…}), Razor (@(…)), Perl
+            # Template Toolkit ([%…%]). Keys match the *exact* strings
+            # in `self.dangerous_patterns` above — pattern lookup uses
+            # the raw regex string as a dict key, so any escape-form
+            # mismatch silently falls through to the auto-generated
+            # "Pattern <regex>" description.
+            r"\${.*}": "Template/JNDI injection",
+            r"\{\{.*\}\}": "Template injection (Jinja2/Angular)",
+            r"<%.*%>": "Template injection (ERB/ASP)",
+            r"#\{.*\}": "Template injection (Ruby)",
+            r"@\(.*\)": "Template injection (Razor)",
+            r"\[%.*%\]": "Template injection (Perl TT)",
+            # Path traversal — different patterns are flagged in the
+            # main list; align the exact strings here so dispatch
+            # produces "Path traversal detected" instead of opaque
+            # "Pattern \\.\\.[\\\\/] detected".
+            r"\.\.[\\/]": "Path traversal",
         }
 
         # Compile patterns with descriptions
@@ -323,6 +342,12 @@ class SecurityValidator:
                         raise SecurityError(
                             f"XSS/Script injection detected in {context}"
                         )
+                    elif "Template" in description or "JNDI" in description:
+                        raise SecurityError(
+                            f"Template/JNDI injection detected in {context}"
+                        )
+                    elif "Path" in description:
+                        raise SecurityError(f"Path traversal detected in {context}")
                     else:
                         raise SecurityError(f"{description} detected in {context}")
 

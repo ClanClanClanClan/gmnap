@@ -564,20 +564,30 @@ class E4KoreanProcessor:
         return data
 
     def _validate_security(self, name: str) -> None:
-        """Validate for security threats and raise exceptions."""
-        import re
+        """Delegate to the central ``SecurityValidator`` for full
+        coverage (XSS, SQL, NoSQL, command injection, path traversal,
+        template/JNDI injection, SSRF, BiDi attacks, etc.).
 
-        # Check for script injections
-        if "<script" in name.lower() or "javascript:" in name.lower():
-            raise ValueError("Potential XSS attack detected")
+        Replaces a narrow predecessor that only checked XSS / SQL /
+        path traversal and silently let JNDI (``${jndi:ldap://…}``,
+        the Log4Shell vector) through. Round-27 finding caught by
+        H2's regression-protected E4 tests.
 
-        # Check for SQL injection patterns
-        if re.search(r"(drop|delete|insert|update|select).*table", name, re.IGNORECASE):
-            raise ValueError("Potential SQL injection detected")
+        Re-raises the central validator's ``SecurityError`` as
+        ``ValueError`` to preserve E4's existing exception type
+        contract — callers and tests relying on ``ValueError`` still
+        catch correctly. Error messages keep the family keyword
+        (``XSS``, ``SQL injection``, ``Path traversal``,
+        ``Template/JNDI injection``, …) so test assertions matching on
+        those words still work.
+        """
+        from src.core.security_validator import SecurityError, SecurityValidator
 
-        # Check for path traversal
-        if "../" in name or "..\\" in name:
-            raise ValueError("Path traversal attempt detected")
+        validator = SecurityValidator()
+        try:
+            validator.validate_string(name, context="E4")
+        except SecurityError as exc:
+            raise ValueError(str(exc)) from exc
 
     def order_key(self, data: Dict[str, Any]) -> str:
         """Generate sorting key for Korean entries."""

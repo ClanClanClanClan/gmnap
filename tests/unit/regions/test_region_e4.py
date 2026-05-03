@@ -348,20 +348,21 @@ class TestRegionE4:
     def test_validate_security_checks(self, processor):
         """Test security validation rejects injection attacks.
 
-        Round-21 de-bandaid: original test caught any-or-no exception.
-        Verified the validator's actual behaviour: XSS / SQL /
-        path-traversal all raise ValueError; JNDI does NOT (gap —
-        documented as known limitation; raise-on-JNDI would be a
-        product change). Each row asserts what the validator
-        currently does, so a regression that *removes* one of the
-        protections trips this test loudly.
+        Round-21: de-bandaided from any-or-no-exception. Round-27:
+        also asserts JNDI / template-injection (round-22 noted JNDI
+        as a known gap; round-27 closed it by delegating E4 to the
+        central ``SecurityValidator`` which has full pattern coverage).
+
+        Each row asserts a specific family is rejected — a
+        regression that *removes* one of the protections trips the
+        test loudly with a name pointing at the broken family.
         """
-        # These three MUST raise — they're the validator's existing
-        # protections.
         for payload, family in [
             ("Kim<script>", "XSS"),
             ("Park'; DROP TABLE", "SQL injection"),
             ("Lee../../../", "Path traversal"),
+            ("Choi${jndi:ldap://x}", "Template/JNDI"),  # round-27 fix
+            ("Lee{{7*7}}", "Template"),  # Jinja2-style
         ]:
             entry = {"CanonicalLatin": payload}
             with pytest.raises(Exception, match=r"(?i)" + family.split()[0]):
