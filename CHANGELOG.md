@@ -4,6 +4,87 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-03 (round 28 — F3 sprint + 22× perf fix + MGP pilot)
+
+Three-phase ultraplan delivery: F3 missing-method sprint, real-name
+pipeline profiling that produced an actionable bottleneck fix, and
+a pilot MGP harvest.
+
+### Phase B: F3 missing-method sprint — 9 methods, 15/15 tests pass
+
+`tests/regions/f3_horn_of_africa/test_f3_processor.py` had 13
+ambient failures (round 27 fixed 2). All 9 missing methods now
+implemented using F3's existing data structures:
+
+- `_contains_ethiopic`, `_is_valid_ethiopic_text`, `_is_valid_latin_text`
+  — Unicode-range script detection
+- `_clean_latin_name`, `_clean_ethiopic_name` — title-stripping via
+  the existing `self.titles` set + Ethiopic glyph set
+- `_transliterate_ethiopic` — character-by-character mapping
+- `_has_religious_elements` — token-walk against
+  `self.religious_elements`
+- `_analyze_ethnic_background` — multi-source scoring across
+  `ethnic_markers`, curated name lists, and affiliation-string hints
+- `_determine_country` — ISO-3166 (ET / ER / SO / DJ) by email TLD
+  + affiliation keywords
+- `_generate_variants` — patronymic_given_father, mononym_given,
+  academic_initial categories
+
+Plus: `clean()` now actually invokes `_clean_name` /
+`_clean_ethiopic_name` (was a stub `pass`); `augment()` populates
+`RegionalExtras.{likely_country, ethnic_background, patronymic_structure}`
++ test-shape `Variants`; `order_key()` reads from
+`RegionalExtras.patronymic_structure` (post-augment shape) with
+fallback to splitting `CanonicalLatin`. `canonical_order` corrected
+`"Given Father Grandfather"` → `"Patronymic"` (matches the
+`RegionSpec.canonical_order` Literal type).
+
+### Phase C: 22× real-name perf speedup via `_wb` regex cache
+
+cProfile on a 1k real-name benchmark surfaced the actual bottleneck:
+not fastText subprocess (round 26's hypothesis), but uncached
+`re.compile` calls in `manager_optimized._wb()` — the priority-rules
+scorer was calling it ~4 million times per 1k batch, recompiling
+the same ~50-100 patterns each time. **357 s of 379 s benchmark
+time burned in `re.compile`.**
+
+One-line fix: `@functools.lru_cache(maxsize=None)` on `_wb`. Pattern
+set is bounded (priority lexicons static at module load), so an
+unbounded LRU is correct + cheap (~50-100 cached entries).
+
+Real-name benchmark, post-fix:
+
+|        | Round 13 | Round 28 | Δ        |
+|--------|---------:|---------:|---------:|
+| 1k     |    5/s   | **173/s**| **35×**  |
+| 10k    |    7/s   | **152/s**| **22×**  |
+| 1M proj| ~41 h    | **~1.8 h**| 23×    |
+
+Round 26's "in-process fastText" deferral was right (fastText
+isn't the bottleneck) but for the wrong reason — the actual
+bottleneck was regex caching. Honest correction shipped.
+
+`tools/run_benchmark.py` gained a `--profile` flag that dumps
+cProfile cumulative-time stats to `docs/perf_profile_<n>_<mode>.txt`
+for future bottleneck analysis.
+
+CLAUDE.md + docs/perf_characterization.md updated with the new
+numbers and the round-28 finding.
+
+### Phase A + D: MGP pilot harvest (in flight)
+
+Started `make harvest-mgp ARGS='--start 1 --end 500'` (~83 min at
+the 10 s crawl-delay MGP requires). Harvested ~430 records out of
+500 IDs at session-end (gaps in MGP's numbering produce skips).
+Each record has full advisor / institution / year metadata when
+present.
+
+Once the harvest completes, `tools/build_genealogy_enrichment.py`
+(round-25 merge step #2d) reads `data/mgp_full.jsonl` and merges
+MGP advisor chains over Wikidata's. MGP is the upstream curated
+source for many Wikidata P184 entries, so its advisors are
+authoritative.
+
 ## [Unreleased] — 2026-05-03 (round 27 — fix the 3 errors I'd documented but not fixed)
 
 Three real bugs surfaced across earlier rounds that I'd noted but

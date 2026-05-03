@@ -61,11 +61,46 @@ fallback was right; what we missed is the cost we pay *elsewhere*:
 - **Stage 7 short-form tagging** + **stage 8 quality gates**: both
   iterate over more populated metadata for real entries.
 
-Honest engineering read for production workloads:
-**~7 entries/s sustained on Apple M1 → ~41 hours per 1 M real names**
+Honest engineering read for production workloads (post round-28
+`_wb` cache fix):
+**~152 entries/s sustained on Apple M1 → ~1.8 hours per 1 M real names**
 (rules-only, OFFLINE=1, no fastText classifier). Real-world batches
-of < 100 k entries (the typical ingest size) finish in **2-4 hours**
-end-to-end, which is acceptable for offline batch processing.
+of < 100 k entries (the typical ingest size) finish in **10-15 min**.
+
+### Round-28 finding: the original 7/s was a regex-cache bug
+
+cProfile on a 1 k real-name benchmark surfaced that
+`manager_optimized._wb()` (a small regex helper used by the
+priority-rules scorer) was being called ~4 million times during 1 k
+entries — each call recompiling the same ~50-100 patterns from
+scratch (Python's regex cache misses on this access pattern). 357 s
+of the 379 s benchmark was burned in `re.compile` re-work.
+
+Fix: one-line `@functools.lru_cache(maxsize=None)` decorator on
+`_wb()`. The pattern set is bounded (priority lexicons are static
+at module load), so an unbounded LRU is correct + cheap (~50-100
+cached entries × ~200 bytes each).
+
+Round-13 → round-28 trajectory on the real-name 10 k benchmark:
+
+|       | entries/s | 1 M projection |
+|-------|----------:|---------------:|
+| Rd 13 |       7   | ~41 h          |
+| Rd 28 | **152**   | **~1.8 h**     |
+
+The "fastText subprocess is the bottleneck" hypothesis (which
+motivated round 26's deferred in-process-fastText proposal) was
+wrong. Round 26's deferral was right (fastText isn't the
+bottleneck), but for the wrong reason — the actual bottleneck was
+regex re-compilation in the rules scorer.
+
+Reproduce + profile:
+
+```bash
+PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000 --real-names
+PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000 --real-names --profile
+# → docs/perf_profile_1000_real.txt
+```
 
 RSS scales sub-linearly: 460 MB at 1 k → 628 MB at 10 k → projected
 ~1-1.5 GB at 100 k. Memory is not the bottleneck.

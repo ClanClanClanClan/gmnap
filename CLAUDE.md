@@ -7,7 +7,7 @@
 **Regional Coverage**: 37/37 regions fully implemented (100%), 38 processor files
 **Region Detection**: Split geo/name-origin architecture with three-tier suffix system, fastText CLI tiebreaker, same-group gate. Expert-validated as production-ready.
 **Security**: Injection attack blocking validated
-**Performance**: ~7 entries/sec sustained on the **real-name** 10 k batch (~41 h/1M); ~29 entries/sec on the synthetic 10 k batch (~9.7 h/1M). Measured 2026-04-28 on Apple M1, OFFLINE. Real-name workload is ~4× slower than synthetic — stages 4, 6, 7, 8 dominate the cost on populated entries. Detection-only (`RegionManager.detect_region`) is ~780/s warm. Earlier "3 000/s" / "~5.4 min/1M" claims were detection-only microbenchmarks; full-pipeline numbers + gap analysis in `docs/perf_characterization.md`
+**Performance**: **~152 entries/sec sustained on the real-name 10 k batch (~1.8 h/1M)**, **173/s on 1 k**. Measured 2026-05-03 on Apple M1, OFFLINE, after round-28's `@functools.lru_cache` fix on `_wb()` regex compilation (was 7/s pre-fix, 22× speedup). Detection-only (`RegionManager.detect_region`) is ~780/s warm. Bottleneck per-stage now distributed (stage 5 collision analytics is the largest chunk); fastText subprocess is NOT the bottleneck (round 26 was right to defer in-process fastText, for the wrong reason). Full methodology + cProfile dump in `docs/perf_characterization.md`.
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
 **Authority Enrichment**: V7 tier orchestrator (`src/authority/manager_tier01.py`) delegates to canonical fetchers in `src/authorities/tierN/` when `OFFLINE=0`. 9 sources have real HTTP code (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH, Wikidata_P184, GND, HAL, OAI_University); 2 gated behind API keys (Scopus, Dimensions); 1 deferred for institutional access (ProQuest); 1 deferred for ToS (GoogleScholar). MathSciNet stub awaits AMS subscription
 **Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. The on-disk directory `config/regions/` is currently empty — every region falls back to its hardcoded defaults — so the loader is dormant in practice but tested and ready
@@ -153,16 +153,30 @@ the full-pipeline row is a lower bound.
 | Path | Throughput | 1 M projection | RSS @10 k |
 |---|---|---|---|
 | `RegionManager.detect_region` (stage 2 only, warm) | ~780 / s | ~21 min | 230 MB |
-| `V7Pipeline.process_batch` (synthetic, 1 k) | 21 / s | ~803 min | 233 MB |
-| `V7Pipeline.process_batch` (synthetic, 10 k) | 29 / s | ~583 min (~9.7 h) | 363 MB |
-| `V7Pipeline.process_batch` (real, 1 k) | 5 / s | 3 462 min | 460 MB |
-| **`V7Pipeline.process_batch` (real, 10 k) — production** | **7 / s** | **~2 489 min (~41 h)** | **628 MB** |
+| `V7Pipeline.process_batch` (real, 1 k) | **173 / s** | **~96 min** | 360 MB |
+| **`V7Pipeline.process_batch` (real, 10 k) — production** | **152 / s** | **~110 min (~1.8 h)** | **492 MB** |
 
-Real-name workload is **~4× slower** than synthetic at every
-batch size. The earlier "2-5× faster" projection was wrong; real
-entries cost more in stages 4 (authority cache), 6 (Bayesian
-joint), 7 (short-form tagging), 8 (gates). Full methodology +
-gap analysis in `docs/perf_characterization.md`.
+Round-28 perf finding: the previous "7 entries/sec" claim came from
+uncached `re.compile` calls in `manager_optimized._wb()` — the
+priority-rules scorer was recompiling the same ~50-100 patterns
+**~4 million times** during a 1k batch. Adding
+`@functools.lru_cache(maxsize=None)` to `_wb` brought the bottleneck
+from 357 s of regex re-compilation down to a single round of
+compiles plus cache hits. Net: **22× speedup** (7/s → 152/s on real-
+name 10k). 1M projection collapses from ~41 h to ~1.8 h.
+
+Earlier hypothesis that fastText subprocess was the bottleneck was
+wrong — cProfile (round 28) showed 99 % of time in stage 5's
+`_score_priority_rules → _wb → re.compile`. Round 26's "in-process
+fastText" deferral was therefore right (it's not the bottleneck)
+but for the wrong reason; the actual bottleneck was regex caching.
+
+Reproduce + profile:
+```bash
+PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000 --real-names
+PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000 --real-names --profile
+# → docs/perf_profile_1000_real.txt with cumulative-time stats
+```
 
 Reproduce with:
 ```bash
