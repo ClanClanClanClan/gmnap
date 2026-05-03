@@ -14,7 +14,7 @@
 **API Server**: FastAPI server with 8 endpoints (/healthz, /readyz, /api/v1/query, /api/v1/lineage, /api/v1/process, /api/v1/suggest, /metrics, /)
 **CLI**: `serve` and `version` via `gmnap` entry point; full 7-command CLI in `src/cli/gmnap.py` (query, lineage, process, sources, regions, validate, serve) but NOT wired to the main entry point
 **Diaspora Detection**: Implemented — split geo_region vs name_region with conflict flag
-**Testing**: ~2,376 tests collected across `tests/unit/` + 4 newly-triaged dirs (authority, cjk, db, v7) + memgraph e2e. Coverage gate at `--cov-fail-under=15` (line+branch combined; line-only 17.96 %, branch 12.4 %). 843-entry adjudicated benchmark with deterministic 80/20 train/test split (`src/regions/benchmark_split.py`)
+**Testing**: ~2,376 tests collected across `tests/unit/` + 4 newly-triaged dirs (authority, cjk, db, v7) + memgraph e2e + F3 region tests. Coverage gate at `--cov-fail-under=20` with explicit floors at line ≥ 22 % / branch ≥ 18 % (current measured 23.93 % / 19.41 %). 843-entry adjudicated benchmark with deterministic 80/20 train/test split (`src/regions/benchmark_split.py`)
 **Test Fixtures**: 500 golden dataset + 843 name-origin benchmark + 10,724 Wikidata mathematicians
 
 ---
@@ -155,13 +155,18 @@ at >100k entries) parallelizes coalesced 1000-entry chunks across
 multiple async workers, giving a ~10× boost over the serial direct-
 batch path used at smaller sizes.
 
+Single-run numbers; ±15 % run-to-run variance is normal on a
+laptop. The 100 k and 1 M rows were measured separately in round
+30; the 1 k / 10 k rows are from the round-30 sanity re-measure
+(within noise of the round-28 originals).
+
 | Path | Throughput | Wall clock | RSS peak |
 |---|---|---|---|
 | `RegionManager.detect_region` (stage 2 only, warm) | ~780 / s | — | 230 MB |
-| `V7Pipeline.process_batch` (synthetic, 1 k) | 258 / s | 3.9 s | 325 MB |
-| `V7Pipeline.process_batch` (synthetic, 10 k) | 209 / s | 47.8 s | 461 MB |
-| `V7Pipeline.process_batch` (real, 1 k) | 173 / s | 5.8 s | 360 MB |
-| `V7Pipeline.process_batch` (real, 10 k) | 152 / s | 65.7 s | 492 MB |
+| `V7Pipeline.process_batch` (synthetic, 1 k) | 273 / s | 3.7 s | 355 MB |
+| `V7Pipeline.process_batch` (synthetic, 10 k) | 192 / s | 52.1 s | 450 MB |
+| `V7Pipeline.process_batch` (real, 1 k) | 153 / s | 6.6 s | 379 MB |
+| `V7Pipeline.process_batch` (real, 10 k) | 135 / s | 74.1 s | 496 MB |
 | `V7Pipeline.process_batch` (real, 100 k) | 295 / s | 339.6 s | 812 MB |
 | **`V7Pipeline.process_batch` (real, 1 M) — production** | **2 763 / s** | **362.0 s (6.0 min)** | **769 MB** |
 
@@ -325,4 +330,4 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 - ❌ "100% name-origin accuracy" — 100% emitted-leaf precision on adjudicated set, but 28% abstention rate; 56% on raw citizenship labels (wrong metric for name-origin)
 - ❌ "1,090 tests" — actual count is ~2,376 collected, all run by CI's Core-tests step
 - ❌ "Genealogy data for every mathematician" — enrichment covers ~39,500 entries (MGP + Wikidata P184 + OpenAlex affiliations). Only ~20,800 have a full advisor chain; the other ~18,700 have Institution + Country only. Historical / obscure mathematicians without any of these sources pass through with no enrichment.
-- ❌ "3,000 entries/sec on the full pipeline" — that's detection-only. Full `process_batch` with fastText CLI subprocess is ~190/s on synthetic names; ~980/s rules-only. See Performance table for details.
+- ❌ "3 000 entries/sec at all batch sizes" — only the 1 M streaming-path run hits ~2 763 / s. Sub-100 k batches use the serial direct-batch path and run 130–300 / s. See Performance table for the full curve.

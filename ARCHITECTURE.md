@@ -166,10 +166,12 @@ All stages are in `src/core/pipeline_v7.py`. Stages 0–8 are async,
    Batches 256 SHA-256 digests per `Promise.all` instead of awaiting
    per iteration → ~10× faster 18-bit mining in the browser.
 3. **Curated genealogy JSON** (`data/genealogy_enrichment.json`,
-   ~20,600 entries — Git LFS-tracked). Loaded once per process into
-   the `GenealogyLookup` singleton; all CLI / API / web-UI enrichment
-   goes through it. Diacritic- and particle-aware name matching covered
-   by `tests/unit/test_genealogy_lookup.py` (23 tests).
+   ~39,500 entries — Git LFS-tracked; expanded from ~20,600 in the
+   round-23 decade-partitioned Wikidata harvest + OpenAlex affiliation
+   merge). Loaded once per process into the `GenealogyLookup`
+   singleton; all CLI / API / web-UI enrichment goes through it.
+   Diacritic- and particle-aware name matching covered by
+   `tests/unit/test_genealogy_lookup.py` (23 tests).
 
 ---
 

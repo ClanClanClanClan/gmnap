@@ -50,32 +50,38 @@ changes, see **[CHANGELOG.md](CHANGELOG.md)**.
 - **API**: REST endpoints with rate limiting, hashcash PoW, Prometheus metrics
 - **GDPR Compliant**: ShadowNode conversion, birth year masking
 
-### Measured Performance (OFFLINE mode, Apple M1, 2026-04-28)
+### Measured Performance (OFFLINE mode, Apple M1, rounds 28–30)
 
-Three distinct measurements — see `docs/perf_characterization.md`
-for methodology and reproducibility. **The real-name 10 k row is
-the production-relevant headline number.**
+**1 M real names processed in 362 s (6.0 min) — measured, not
+projected.** Headline read: **2 763 entries/s at 1 M scale**.
+See `docs/perf_characterization.md` for methodology, profile dumps
+and the round-28 / round-30 trajectory.
 
-| Path | Batch size | Throughput | 1M projection |
-|---|---:|---:|---:|
-| `RegionManager.detect_region` (stage 2 only, warm) | — | ~780 / s | ~21 min |
-| `V7Pipeline.process_batch` (synthetic) | 1 000 | 21 / s | 803 min |
-| `V7Pipeline.process_batch` (synthetic) | 10 000 | 29 / s | 583 min (~9.7 h) |
-| `V7Pipeline.process_batch` (real names, `--real-names`) | 1 000 | 5 / s | 3 462 min |
-| **`V7Pipeline.process_batch` (real names) — production** | **10 000** | **7 / s** | **2 489 min (~41 h)** |
+| Path | Batch size | Throughput | Wall clock | RSS peak |
+|---|---:|---:|---:|---:|
+| `RegionManager.detect_region` (stage 2 only, warm) | — | ~780 / s | — | 230 MB |
+| `V7Pipeline.process_batch` (synthetic) | 1 000 | 273 / s | 3.7 s | 355 MB |
+| `V7Pipeline.process_batch` (synthetic) | 10 000 | 192 / s | 52.1 s | 450 MB |
+| `V7Pipeline.process_batch` (real, `--real-names`) | 1 000 | 153 / s | 6.6 s | 379 MB |
+| `V7Pipeline.process_batch` (real) | 10 000 | 135 / s | 74.1 s | 496 MB |
+| `V7Pipeline.process_batch` (real) | 100 000 | 295 / s | 339.6 s | 812 MB |
+| **`V7Pipeline.process_batch` (real) — production** | **1 000 000** | **2 763 / s** | **362.0 s (6.0 min)** | **769 MB** |
 
-Real names are ~4× **slower** than synthetic at every scale —
-real entries trigger more work in stage 4 (authority cache lookups),
-stage 6 (Bayesian solver iterates on actual advisor edges), and
-stages 7-8 (more populated metadata). The earlier README projection
-of "real expected 2-5× faster than synthetic" was wrong;
-`docs/perf_characterization.md` documents the gap analysis.
+The 100 k → 1 M jump (~9.4×) is real and structural:
+`process_batch` switches at > 100 k entries to the
+`AsyncBatchAggregator` streaming path, which coalesces 1 000-entry
+chunks dispatched concurrently under `max_concurrency`. RSS at 1 M
+is *lower* than at 100 k because streaming releases each chunk's
+intermediate state as the sink consumes it.
 
-Honest production read: **~7 entries/s sustained, ~41 h/1M real
-names**. Typical batches of < 100 k entries finish in 2-4 hours
-end-to-end, acceptable for offline batch processing. RSS scales
-sub-linearly: 460 MB at 1 k → 628 MB at 10 k → projected ~1-1.5
-GB at 100 k.
+Round-28's `@functools.lru_cache(maxsize=None)` on
+`manager_optimized._wb()` was the unlock. cProfile showed the
+priority-rules scorer was recompiling the same ~50–100 regex
+patterns ~4 million times per 1 k batch — 357 s of a 379 s run
+burned in `re.compile`. Single-line fix → 22× speedup on the real-
+name 10 k benchmark. Earlier "fastText subprocess is the bottleneck"
+hypothesis was wrong. Single-run numbers; ±15 % run-to-run variance
+is normal on a laptop.
 
 Reproduce:
 - Synthetic: `make bench-real` → no, that's real. Synthetic is
@@ -129,7 +135,7 @@ Copy `.env.example` to `.env` and configure. Key variables:
 PYTHONPATH=. pytest tests/unit/ -q --timeout=120
 ```
 
-**~2,376 tests collected** across the unit / authority / cjk / db / v7 directories CI runs — covering region detection accuracy, 500-entry golden dataset, 843-entry adjudicated name-origin benchmark, end-to-end workflows, API security, CLI hardening, web interface, and nginx config. Plus 32-scenario adversarial Playwright browser-test job and live Memgraph integration. Coverage gated at `--cov-fail-under=15` (line + branch combined; line-only is 17.96 %, branch is 12.4 %).
+**~2,376 tests collected** across the unit / authority / cjk / db / v7 / regions directories CI runs — covering region detection accuracy, 500-entry golden dataset, 843-entry adjudicated name-origin benchmark, end-to-end workflows, API security, CLI hardening, web interface, and nginx config. Plus 32-scenario adversarial Playwright browser-test job and live Memgraph integration. Coverage gated at `--cov-fail-under=20` with explicit floors at line ≥ 22 % / branch ≥ 18 % (current 23.93 % / 19.41 %).
 
 ## Region Detection
 

@@ -44,7 +44,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Callable, List, Tuple
+from typing import Callable, Dict, List, Set, Tuple
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -943,6 +943,143 @@ def _check_no_self_method_called_but_not_defined() -> Result:
     return ("H3: no self.method() called without definition", errors)
 
 
+def _check_no_dataclass_unknown_kwarg() -> Result:
+    """Every keyword arg passed to a same-file ``@dataclass`` constructor
+    must match a declared field on that dataclass.
+
+    Round-14 caught ``ORCIDETDRecord(identifier=...)`` where the
+    dataclass had renamed the field to ``orcid_id`` but a caller still
+    used the old name. Python raises ``TypeError: __init__() got an
+    unexpected keyword argument`` at call time — only if that branch
+    is exercised. H4 catches the typo at audit time.
+
+    Scope: every ``.py`` under ``src/``. For each file, harvest all
+    ``@dataclass``-decorated classes and their fields (from
+    ``AnnAssign`` targets, including those inherited from same-file
+    dataclass bases). Then walk Call nodes whose ``func`` is a Name
+    matching a known dataclass and check each ``keyword.arg`` against
+    that class's field set.
+
+    Limitations (intentional false-negative bias to keep noise low):
+      - Cross-module inheritance: a dataclass whose base lives in a
+        different file doesn't see the inherited fields. We allow
+        unknown kwargs in that case rather than false-positive.
+      - ``**kwargs`` expansion is not analyzed.
+      - ``InitVar[...]`` annotations are accepted as kwargs (dataclass
+        forwards them to ``__post_init__``).
+      - ``ClassVar[...]`` annotations are *not* fields — excluded.
+    """
+    errors: List[str] = []
+
+    # Collect all (path, dataclass_name) → field_set across src/, plus
+    # inheritance chain restricted to the same file.
+    file_dataclasses: Dict[Path, Dict[str, Tuple[Set[str], List[str]]]] = (
+        {}
+    )  # path → {classname: (own_fields, base_names)}
+
+    def _is_dataclass_decorator(deco: ast.expr) -> bool:
+        # @dataclass, @dataclass(...), @dataclasses.dataclass[(...)]
+        if isinstance(deco, ast.Name):
+            return deco.id == "dataclass"
+        if isinstance(deco, ast.Attribute):
+            return deco.attr == "dataclass"
+        if isinstance(deco, ast.Call):
+            return _is_dataclass_decorator(deco.func)
+        return False
+
+    def _is_classvar(node: ast.expr) -> bool:
+        if isinstance(node, ast.Subscript):
+            v = node.value
+            if isinstance(v, ast.Name) and v.id == "ClassVar":
+                return True
+            if isinstance(v, ast.Attribute) and v.attr == "ClassVar":
+                return True
+        if isinstance(node, ast.Name) and node.id == "ClassVar":
+            return True
+        return False
+
+    for path in (REPO / "src").rglob("*.py"):
+        if "__pycache__" in path.parts:
+            continue
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except SyntaxError:
+            continue  # B1 catches parse errors
+
+        per_file: Dict[str, Tuple[Set[str], List[str]]] = {}
+        for cls in [n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)]:
+            if not any(_is_dataclass_decorator(d) for d in cls.decorator_list):
+                continue
+            own_fields: Set[str] = set()
+            for item in cls.body:
+                if isinstance(item, ast.AnnAssign):
+                    if not isinstance(item.target, ast.Name):
+                        continue
+                    if _is_classvar(item.annotation):
+                        continue
+                    own_fields.add(item.target.id)
+            base_names: List[str] = []
+            for base in cls.bases:
+                if isinstance(base, ast.Name):
+                    base_names.append(base.id)
+            per_file[cls.name] = (own_fields, base_names)
+        if per_file:
+            file_dataclasses[path] = per_file
+
+    # Resolve same-file inheritance closure.
+    def _resolve_fields(
+        per_file: Dict[str, Tuple[Set[str], List[str]]], cls_name: str
+    ) -> Set[str]:
+        seen: Set[str] = set()
+        out: Set[str] = set()
+        stack = [cls_name]
+        while stack:
+            cur = stack.pop()
+            if cur in seen or cur not in per_file:
+                continue
+            seen.add(cur)
+            own, bases = per_file[cur]
+            out |= own
+            stack.extend(bases)
+        return out
+
+    # Walk Call sites and verify kwargs.
+    for path, per_file in file_dataclasses.items():
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except SyntaxError:
+            continue
+        rel = path.relative_to(REPO)
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            func = node.func
+            if not isinstance(func, ast.Name):
+                continue
+            cls_name = func.id
+            if cls_name not in per_file:
+                continue
+            # Skip if the class has any base whose definition we cannot
+            # see in this file — inherited fields could come from any-
+            # where, so we'd produce false positives.
+            _own, bases = per_file[cls_name]
+            external_base = any(b not in per_file for b in bases)
+            if external_base:
+                continue
+            allowed = _resolve_fields(per_file, cls_name)
+            for kw in node.keywords:
+                if kw.arg is None:  # **kwargs
+                    break
+                if kw.arg not in allowed:
+                    errors.append(
+                        f"{rel}:{node.lineno} {cls_name}({kw.arg}=...): "
+                        f"unknown kwarg; declared fields are "
+                        f"{sorted(allowed) or '(none)'}"
+                    )
+
+    return ("H4: no dataclass call with unknown kwarg", errors)
+
+
 # ─── I. Tool idempotency ───────────────────────────────────────────────
 
 
@@ -1056,6 +1193,7 @@ CHECKS: List[Callable[[], Result]] = [
     _check_no_test_module_shadowing,
     _check_no_test_bandaid_swallows,
     _check_no_self_method_called_but_not_defined,
+    _check_no_dataclass_unknown_kwarg,
     _check_gen_api_reference_idempotent,
     _check_screenshots_exist,
     _check_api_reference_endpoint_count,

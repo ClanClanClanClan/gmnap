@@ -1,8 +1,18 @@
-# Performance characterization (Tier 2.3, 2026-04-28)
+# Performance characterization (Tier 2.3, 2026-04-28; round-30 update 2026-05-03)
 
 Tier-2 audit item 2.3: replace projection numbers in the README's
 performance table with measurements at the largest practical scale,
 and document the methodology so the numbers are reproducible.
+
+## TL;DR (current production numbers)
+
+**1 M real names → 362 s (6.0 min) on Apple M1, OFFLINE, single
+process.** 2 763 entries/s, 769 MB peak RSS — measured, not
+projected. Skip to "What 1M actually looks like" for the table and
+the round-28 regex-cache + round-30 streaming-path explanation. The
+pre-round-28 tables earlier in this doc are kept for historical
+context; they're slow because of the `_wb()` cache bug, not because
+the pipeline is slow.
 
 ## Methodology
 
@@ -153,30 +163,39 @@ gap:
    in-batch entries; with synthetic names the joint probability
    table degenerates and the solver iterates more.
 
-A real-name batch (where rules fire on most entries) would skip
-both extra costs. The honest read of the synthetic benchmark is:
-**the worst case for V7 is ~20-30 entries/s, projecting ~10-12 hours
-per 1 M.** Real-world workload is likely 5-10× faster but unmeasured
-at scale.
+A real-name batch (where rules fire on most entries) skips both
+extra costs. Round 28 closed the regex-cache bug that dominated
+the synthetic numbers; round 30 verified production throughput on
+1 M real names end-to-end (see "What 1M actually looks like" below).
+The synthetic-batch tables above are kept for trajectory context;
+they're not the production number.
 
 ## What 1M actually looks like
 
-At the 10 k point — by which scale per-entry setup overhead has
-fully amortized — sustained throughput is ~29 entries/s. Linear
-extrapolation gives **~9.7 hours per 1 M** for the synthetic-name
-worst case on Apple M1.
+**Round-30 measurement: 362 s (6.0 min) for 1 M real names.**
+2 763 entries/s, 769 MB peak RSS, single Apple M1 process,
+OFFLINE=1. The number is measured end-to-end through
+`tools/run_benchmark.py --sizes 1000000 --real-names`, not
+extrapolated.
 
-This is **5× slower than the README's previous projection** of
-"~17 min/1M rules-only" / "~70 min/1M full pipeline". The earlier
-numbers measured `RegionManager.detect_region` in isolation
-(microbenchmark of stage 2 only); the full pipeline includes 11
-other stages, of which stage 6 (Bayesian coherence) and stage 8
-(quality gates) dominate the synthetic-batch worst case.
+Two pre-round-30 projections were both wrong:
 
-For a real-name 1 M run, expect 2-5× faster — most stage-2 calls
-short-circuit on rule matches, and stage 8 quality gates pass
-without the gate-failure path. That measurement isn't in scope of
-this doc; track it in a future characterization round.
+1. **The pre-round-28 "~41 h/1M" projection** (linear extrapolation
+   from the 7 entries/s 10 k benchmark) was wrong because the round-28
+   `@functools.lru_cache(maxsize=None)` decorator on
+   `manager_optimized._wb()` collapsed regex re-compilation overhead.
+   See "Round-28 finding" above.
+2. **The post-round-28 "~1.8 h/1M" projection** (linear extrapolation
+   from 152 entries/s on real-name 10 k) was also wrong — by 18× in
+   the *favourable* direction. It missed the streaming path that
+   `process_batch` switches to at >100 k entries: chunks dispatched
+   concurrently under `max_concurrency` give a near-10× boost the
+   serial path doesn't deliver.
+
+Production guidance: batch sizes ≥ 100 001 entries trigger the
+streaming `AsyncBatchAggregator` path and run dramatically faster
+per entry (2 763/s at 1 M). Below that threshold, throughput is
+bounded by serial chunk processing (130-300/s).
 
 ## Reproduce
 
@@ -201,6 +220,5 @@ full-pipeline path is roughly the same because Stage 8/6 dominate.
 - **Fast-path for synthetic-only runs.** A `--bench-mode` flag that
   skips Stage 8 quality gates would give cleaner numbers, but
   changes the meaning of the measurement.
-- **Real-name benchmark.** Re-run with the 20 600 entries of
-  `data/genealogy_enrichment.json` instead of synthetic. This is
-  the realistic workload number.
+- **Real-name benchmark.** Done in rounds 28 and 30 — see the
+  round-30 table above for the headline 1 M number.
