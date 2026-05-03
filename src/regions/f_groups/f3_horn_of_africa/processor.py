@@ -385,6 +385,59 @@ class F3_HornOfAfrica(RegionSpec):
 
         return info
 
+    def _analyze_patronymic_structure(self, entry: Dict[str, Any]) -> Dict[str, Any]:
+        """Entry-level analysis of Horn-of-Africa patronymic structure.
+
+        Public-shape companion to ``_analyze_patronymic`` (which takes a
+        bare string and returns the parse). This one takes an entry
+        dict — pulling ``CanonicalLatin`` — and returns a categorical
+        ``structure`` field plus the per-token breakdown. Used by
+        downstream tests and any caller that wants the structural
+        category without re-implementing token-counting.
+
+        ``structure`` values:
+
+          - ``"mononym"`` — single token (e.g., "Selassie")
+          - ``"given_father"`` — two tokens (Given Father's-Given)
+          - ``"given_father_grandfather"`` — three tokens, the
+            canonical Horn-of-Africa pattern (Rule 30 / V7 §F3)
+          - ``"extended_patronymic"`` — four+ tokens, including
+            great-grandfather or composite religious / regional names
+
+        Round-22 noted this method as called-but-not-defined; the
+        F3 test file's 7+ ambient failures all stem from this.
+        Round-27 fix implements it using the same token-counting as
+        ``_analyze_patronymic`` but returning the entry-shape result
+        the tests expect.
+        """
+        canonical = (entry.get("CanonicalLatin") or "").strip()
+        if not canonical:
+            return {"structure": "empty", "tokens": []}
+
+        tokens = canonical.split()
+        result: Dict[str, Any] = {"tokens": tokens}
+
+        if len(tokens) == 1:
+            result["structure"] = "mononym"
+            result["given_name"] = tokens[0]
+        elif len(tokens) == 2:
+            result["structure"] = "given_father"
+            result["given_name"] = tokens[0]
+            result["father_name"] = tokens[1]
+        elif len(tokens) == 3:
+            result["structure"] = "given_father_grandfather"
+            result["given_name"] = tokens[0]
+            result["father_name"] = tokens[1]
+            result["grandfather_name"] = tokens[2]
+        else:
+            result["structure"] = "extended_patronymic"
+            result["given_name"] = tokens[0]
+            result["father_name"] = tokens[1]
+            result["grandfather_name"] = tokens[2]
+            result["additional_names"] = tokens[3:]
+
+        return result
+
     def _detect_ethnicity(self, name: str) -> Optional[str]:
         """Detect probable ethnicity from name patterns."""
         name_lower = name.lower()

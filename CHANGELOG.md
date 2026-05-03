@@ -4,6 +4,91 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-03 (round 27 — fix the 3 errors I'd documented but not fixed)
+
+Three real bugs surfaced across earlier rounds that I'd noted but
+landed only as test comments / "future work". Round 27 closes them.
+
+### Fix #1: JNDI / template-injection bypass in E4 (security gap)
+
+Round-22 noted that `Choi${jndi:ldap://}` passed E4's
+`_validate_security` while XSS / SQL / path-traversal raised. I
+filed it as a "known limitation" in a test comment — that was a
+band-aid, not a fix.
+
+Root cause: E4 had its OWN narrow `_validate_security` that only
+checked `<script`, `(drop|delete|insert|...).*table`, and `../` —
+ignoring template-injection (Log4Shell vector
+`${jndi:ldap://…}`), command injection, NoSQL, SSRF, BiDi, etc.
+Meanwhile the central `SecurityValidator` already had the
+`\${.*}` pattern but E4 wasn't calling it.
+
+Fix:
+
+- `src/regions/e_groups/e4_korea/processor.py`:
+  `_validate_security` now delegates to the central
+  `SecurityValidator.validate_string` (re-raising `SecurityError`
+  as `ValueError` to preserve the existing exception-type contract).
+- `src/core/security_validator.py`: added pattern descriptions for
+  the template-injection family (`${...}` JNDI, `{{...}}` Jinja2,
+  `<%...%>` ERB/ASP, `#{...}` Ruby, `@(...)` Razor, `[%...%]` Perl
+  TT) and a Path-traversal description, with dispatch logic that
+  produces clean error messages (`"Template/JNDI injection detected
+  in E4"`) instead of `"Pattern \${.*} detected"`.
+- `tests/unit/regions/test_region_e4.py`: now actively asserts
+  JNDI + Jinja2 are blocked (was previously documented as gap in
+  comment only).
+
+### Fix #2: F3 `_analyze_patronymic_structure` missing method
+
+Round-22 noted F3's `tests/regions/f3_horn_of_africa/test_f3_processor
+.py` had ambient failures including `AttributeError` on
+`_analyze_patronymic_structure` — same class-of-bug as round-20's E7
+fix. Filed as future work; not in CI.
+
+Round 27 implemented it. The method takes an entry dict, pulls
+`CanonicalLatin`, splits into tokens, and returns a categorical
+`structure` field (`mononym` / `given_father` /
+`given_father_grandfather` / `extended_patronymic`) plus the
+per-token breakdown matching what the tests expect.
+
+Two F3 tests now pass (`test_patronymic_structure_analysis`,
+`test_edge_cases`). 12 other ambient F3 failures remain — they
+call OTHER missing methods (`_detect_ethiopic_script`,
+`_get_ethnic_background`, etc., 12+ in total). Each needs its own
+fix; same class-of-bug pattern. File not in CI; doesn't gate.
+Filed as proper future cleanup.
+
+### Fix #3: ORCID-ETD parser reading wrong API shape
+
+Round-17 wired ORCID-ETD into the pipeline; round-26 noted that
+`university` / `thesis_year` / `advisor_name` always came back
+None. I left it as "data-dependent, plumbing in place".
+
+Real cause: the parser was reading `education_data["education-summary"]`
+directly — that's the v2 ORCID API shape. The v3 API (which the
+fetcher hits) returns it nested under `affiliation-group →
+summaries → education-summary`.
+
+Verified against Tao (ORCID 0000-0002-0140-7641) — no education
+data on file (genuine absence) — and Seiji Isotani (ORCID
+0000-0003-1574-0784) who has "Ph.D. in Information Engineering"
+at Osaka University, 2009. Pre-fix: all None. Post-fix:
+`university="Osaka University", thesis_year=2009, thesis_type="PhD"`.
+
+Tolerant: kept the legacy v2 direct-key fallback so any cached or
+future-mirror response in v2 shape still parses. Year extraction
+wrapped in try/except so non-int year values don't crash.
+
+### Class-of-bug pattern
+
+All three fixes are the same shape: code calls / parses against an
+incorrect contract that doesn't actually fire / parse, but tests
+either documented the gap as "known limitation" or had try/except
+band-aids hiding the failure. Round-22's H2 audit catches the
+test-side band-aid pattern; rounds 27's three fixes close the
+underlying bugs that those band-aids were hiding.
+
 ## [Unreleased] — 2026-05-02 (rounds 23-26 — partition harvest + MGP infra + perf-deferral)
 
 Closes phases 3-6 of the six-phase ultraplan.
