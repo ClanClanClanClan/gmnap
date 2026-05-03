@@ -182,6 +182,7 @@ jobs:
           tests/cjk/test_v7_cjk_roundtrip.py
           tests/db/test_changelog_edges.py
           tests/db/test_pool_tx.py
+          tests/regions/f3_horn_of_africa/test_f3_processor.py
           tests/v7/test_v7_basic.py
           tests/v7/test_v7_complete.py
           tests/v7/test_v7_complete_integration.py
