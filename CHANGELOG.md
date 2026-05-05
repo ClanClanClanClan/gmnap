@@ -4,6 +4,142 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-04 (round 32 — CI coverage lift + RegionRuleError dual-class collapse)
+
+After round 31's H4 + F3 + stale-claim sweep landed green, ran a
+follow-up triage of tracked-but-not-CI test files. Surfaced 28
+candidates outside the `pyproject.toml::norecursedirs` exclusion
+list; 8 collected + ran clean (after fixing 2 stale assertions and
+1 latent dual-class bug); added them to `.github/workflows/ci.yml`'s
+core-tests step. Net: +56 tests gating CI (+2 skipped).
+
+### The latent dual-class bug
+
+`src/regions/base.py` and `src/regions/base_enhanced.py` each defined
+their own `class RegionRuleError(Exception)`. Both files were imported
+across the codebase, but each importer only ever pulled from one
+module — so production raises always matched the local catch.
+
+Tests broke this: `tests/unit/test_region_a1.py` did `from
+src.regions.base import RegionRuleError` and used `pytest.raises
+(RegionRuleError, ...)` against a processor that imported + raised
+the *base_enhanced* class. The two classes are unrelated objects, so
+`pytest.raises` silently missed the raise and reported "DID NOT
+RAISE." 6 of 22 A1 tests were failing for this reason — the
+assertion was correct, the exception type was a different class with
+the same name.
+
+Fix: `base_enhanced.py` now re-exports `base.RegionRuleError` instead
+of defining its own. Both imports resolve to the same class object;
+`isinstance` checks across files now agree. Verified post-fix:
+
+```python
+from src.regions.base import RegionRuleError as A
+from src.regions.base_enhanced import RegionRuleError as B
+A is B  # True
+```
+
+### Other test-suite gardening
+
+- **`test_region_a1.py::test_validation_given_name_format`** —
+  expected the validator to reject `"John123"`, but A1's regex
+  intentionally allows digits ("allow numbers for test data" comment
+  in `processor.py:_validate_components`). Replaced with `"John+"`,
+  which is genuinely outside the `[A-Za-z0-9.\s-]` character class.
+- **`test_detect_region_priority.py::test_priority_rules_fix
+  [Minyoung Jeon-E4]`** — expected `detection_method ∈
+  {script-priority, icu-priority}`, but Korean "Jeon" now hits the
+  surname-exact lookup before priority rules ever run. Same E4
+  result, same 0.95 confidence; the route changed. Extended the
+  allowed-method set to include `"surname"`.
+
+### CI test list deltas (+8 files, +56 tests)
+
+- `tests/regions/d4_pakistan_urdu/test_d4_processor.py` (1)
+- `tests/regions/test_b1_romanize.py` (2)
+- `tests/regions/test_b1_transliteration.py` (1)
+- `tests/quality_gates/test_enhanced_quality_gates.py` (21)
+- `tests/quality_gates/test_model_safety_gates.py` (4)
+- `tests/unit/regions/test_detect_region_priority.py` (5)
+- `tests/unit/test_region_a1.py` (22)
+- `tests/validation/test_schema_validator_basic.py` (2)
+
+### Deferred (filed)
+
+- `tests/unit/test_schema_validation.py` — 8 tests fail because the
+  test inputs are missing 7+ fields the v2.0 schema marks required
+  (`LanguageOfPublication`, `FamilyNameType`, `Gender`,
+  `CountryCodes`, `Confidence`, `Historic`, `GDPR_DATA`). Older v1.5
+  test set; `tests/unit/test_schema.py` already covers v2.0. Skipped.
+- `tests/property/test_determinism_properties.py`,
+  `tests/quality_gates/test_quality_requirements.py`,
+  `tests/unit/test_thread_safety_issues.py`,
+  `tests/validation/test_v7_script_validation.py` — collection
+  errors (`ModuleNotFoundError: src.authorities.policy`). Real
+  RED. Need module re-creation or test rewrite, deferred.
+
+### Files modified
+
+- `.github/workflows/ci.yml`
+- `src/regions/base_enhanced.py`
+- `tests/unit/test_region_a1.py`
+- `tests/unit/regions/test_detect_region_priority.py`
+
+---
+
+## [Unreleased] — 2026-05-04 (round 31 — H4 audit + F3 in CI + stale-claim sweep)
+
+Three threads in one batch — pursued because audit-trip-wires keep
+catching the next round's class-of-bug, and the docs had drifted
+~2 rounds behind reality:
+
+### Added
+
+- **H4 audit**: `_check_no_dataclass_unknown_kwarg` in
+  `tools/audit_repo.py`. AST-walks every `src/` file, harvests
+  `@dataclass` field sets (with same-file inheritance closure),
+  flags Call sites whose kwargs aren't declared. Catches the
+  round-14 `ORCIDETDRecord(identifier=...)` class-of-bug at audit
+  time. Skips classes whose bases live in another module to keep
+  false-positive rate at zero. Smoke-tested against an injected
+  bad-kwarg call — caught it. **Audit battery now: 19 checks
+  (was 18).**
+- **F3 in CI**: `tests/regions/f3_horn_of_africa/test_f3_processor.py`
+  (15 tests) added to the core-tests step. Round-28 had completed
+  the F3 sprint with 15/15 passing tests but never wired it into
+  CI's curated list — future regressions wouldn't gate.
+
+### Changed (stale-claim sweep across docs)
+
+After the round-30 1 M measurement, several docs still carried the
+pre-round-28 `~7 e/s, ~41 h/1M` headline numbers. Updated:
+
+- `README.md` — replaced 7-row stale perf table with the round-30
+  curve: `1 k → 153/s, 10 k → 135/s, 100 k → 295/s, 1 M → 2 763/s
+  (362 s, 6.0 min)`. Coverage gate claim from the stale "15 %" to
+  the current "20 % w/ floors at 22 % line / 18 % branch."
+- `CLAUDE.md` — same coverage-gate fix; "DO NOT claim" entry
+  refreshed to the streaming-cliff narrative ("3 000/s at all batch
+  sizes" → no, only ≥ 100 k+1 hit streaming).
+- `ARCHITECTURE.md` — genealogy entry count to ~39,500 (was
+  ~20,600; expanded by round-23 partition harvest + OpenAlex
+  affiliation merge).
+- `docs/perf_characterization.md` — added a TL;DR pointer at the
+  top so readers don't anchor on the historical pre-round-28
+  tables; rewrote "What 1M actually looks like" to be the round-30
+  measurement not the linear-extrapolation projection.
+
+### Verification
+
+- All 19 audit checks green (`--fast` and full).
+- F3 collects 15 tests, all pass (0.33 s).
+- Black + ruff + isort + codespell clean on all edits.
+- CI run `25290453022`: green across all 9 jobs (lint, audit-repo,
+  test, coverage, memgraph-test, browser-test, docker-build,
+  secret-scan, cost-guard).
+
+---
+
 ## [Unreleased] — 2026-05-03 (round 30 — 1 M is now a measurement, not a projection)
 
 User correctly called out: "the 1 M projection should be properly

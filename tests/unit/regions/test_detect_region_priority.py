@@ -20,7 +20,14 @@ def test_priority_rules_fix(name, expect):
     assert (
         0.60 <= out.confidence <= 0.95
     ), f"bad confidence for {name}: {out.confidence}"
+    # Round-32: "surname" added to the allowed set. Korean "Jeon" now
+    # gets a direct surname-exact hit before script-priority / ICU
+    # ever look at it. The end region (E4) and confidence (0.95) are
+    # the same; the *route* changed. Update the assertion to track
+    # the routes the production detector actually emits, not the
+    # historical priority-only path.
     assert out.detection_method in {
         "script-priority",
         "icu-priority",
-    }  # ICU no longer hard-wins
+        "surname",
+    }
