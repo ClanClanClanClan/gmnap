@@ -8,13 +8,16 @@ import re
 import unicodedata
 from typing import Any, Dict, List
 
-from src.regions.base import RegionSpec
+from src.regions.base import RegionRuleError, RegionSpec  # noqa: F401 (re-export)
 
-
-class RegionRuleError(Exception):
-    """Exception raised when regional validation rules are violated."""
-
-    pass
+# RegionRuleError is the canonical exception type, defined once in
+# base.py. Re-exported here so the historical
+# `from src.regions.base_enhanced import RegionRuleError` callers
+# (region processors + unit tests) keep working AND see the same
+# class object as `from src.regions.base import RegionRuleError`
+# callers. Before the round-32 collapse there were *two* unrelated
+# classes with the same name; pytest.raises against the "wrong"
+# import would silently miss raises from the other module.
 
 
 class EnhancedRegionSpec(RegionSpec):

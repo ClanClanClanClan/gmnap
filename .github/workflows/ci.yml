@@ -183,6 +183,14 @@ jobs:
           tests/db/test_changelog_edges.py
           tests/db/test_pool_tx.py
           tests/regions/f3_horn_of_africa/test_f3_processor.py
+          tests/regions/d4_pakistan_urdu/test_d4_processor.py
+          tests/regions/test_b1_romanize.py
+          tests/regions/test_b1_transliteration.py
+          tests/quality_gates/test_enhanced_quality_gates.py
+          tests/quality_gates/test_model_safety_gates.py
+          tests/unit/regions/test_detect_region_priority.py
+          tests/unit/test_region_a1.py
+          tests/validation/test_schema_validator_basic.py
           tests/v7/test_v7_basic.py
           tests/v7/test_v7_complete.py
           tests/v7/test_v7_complete_integration.py

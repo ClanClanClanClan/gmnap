@@ -197,10 +197,17 @@ class TestA1AngloSphere:
             self.region.validate(entry)
 
     def test_validation_given_name_format(self):
-        """Test given name format validation."""
+        """Test given name format validation.
+
+        Round-32: original input "John123" was wrong — A1's validator
+        intentionally allows digits ("allow numbers for test data"
+        comment in `processor.py:_validate_components`). Picked a
+        genuinely-invalid character ("John+") that exercises the
+        regex-mismatch branch the test was written to cover.
+        """
         entry = {
-            "CanonicalLatin": "Smith, John123",  # Invalid characters
-            "RegionalExtras": {"family_name": "Smith", "given_name": "John123"},
+            "CanonicalLatin": "Smith, John+",  # '+' fails the [A-Za-z0-9.\s-] regex
+            "RegionalExtras": {"family_name": "Smith", "given_name": "John+"},
         }
 
         with pytest.raises(RegionRuleError, match="Invalid given name format"):
