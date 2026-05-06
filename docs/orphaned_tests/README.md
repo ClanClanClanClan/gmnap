@@ -1,6 +1,6 @@
 # Orphaned tests
 
-These 15 files are parked here as the destination for orphaned
+These 19 files are parked here as the destination for orphaned
 test code we don't want to lose but can't run as-is. The original
 batch was 13 files sitting **untracked** in `tests/unit/` after a
 previous round of test-suite work — never committed, never imported,
@@ -9,9 +9,17 @@ dead-code cleanups (`test_crossref_adapter.py` was the only
 consumer of the deleted `src/authority/crossref_adapter.py`;
 `test_v7_spec_ultra_compliance.py` referenced the 9-file
 `src/core/end_to_end_orchestration` cluster that was deleted in
-round 4). Rather than silently lose the work or pollute the
-active `tests/unit/` namespace with broken imports, they're
-parked here for triage.
+round 4). Round 33 added four more (`test_determinism_properties.py`,
+`test_quality_requirements.py`, `test_thread_safety_issues.py`,
+`test_v7_script_validation.py`) — each imports a module that has
+never existed in the live tree (`src.authorities.policy`,
+`src.core.pipeline_v6`, `src.regions.manager`). They were tracked
+but stuck in collection-error from inception; surfaced during
+round-32's coverage-lift triage.
+
+Rather than silently lose the work or pollute the active
+`tests/unit/` namespace with broken imports, they're parked here
+for triage.
 
 ## Why they're not in CI
 
@@ -34,7 +42,11 @@ time:
 | `test_wikidata_p184_adapter.py`    | 1 / 3 / 0 |
 | `test_zbmath_adapter.py`           | 0 / 3 / 0 |
 | `test_crossref_adapter.py`         | tests-dead-code (production `CrossrefAdapter` deleted 2026-04-27) |
-| **Total**                          | **30 / 69 / 7** |
+| `test_determinism_properties.py`   | collection error: `src.authorities.policy` never existed (parked round 33) |
+| `test_quality_requirements.py`     | collection error: `src.core.pipeline_v6` deleted round 18 (parked round 33) |
+| `test_thread_safety_issues.py`     | collection error: `src.regions.manager` is `manager_optimized` now (parked round 33) |
+| `test_v7_script_validation.py`     | collection error: `src.regions.manager` is `manager_optimized` now (parked round 33) |
+| **Total**                          | **30 / 69 / 7** (the four round-33 additions don't collect at all) |
 
 `test_crossref_adapter.py` was moved here on 2026-04-27 alongside
 the deletion of `src/authority/crossref_adapter.py` (plus 12 other
