@@ -1080,6 +1080,129 @@ def _check_no_dataclass_unknown_kwarg() -> Result:
     return ("H4: no dataclass call with unknown kwarg", errors)
 
 
+# Round-33 baseline: 38 class names with known duplicate definitions
+# under ``src/``. Each is a real consolidation backlog item — collapse
+# to one canonical definition + re-export from the others' historical
+# locations. The audit ratchets *new* duplicates only; this set is
+# the floor and shrinks as consolidations land. To remove an entry,
+# fix the underlying duplication then delete the name from this set.
+# Adding a name here without a justifying fix is a code smell — H5
+# exists to prevent the next round-32-style class-of-bug.
+_H5_KNOWN_BACKLOG: frozenset = frozenset(
+    {
+        "AggConfig",
+        "Alert",
+        "AlertLevel",
+        "AsyncBatchAggregator",
+        "AuthorityEnricher",
+        "BayesCoherence",
+        "CacheManager",
+        "CircuitBreaker",
+        "DatabaseConfig",
+        "E4KoreanProcessor",
+        "GateConfig",
+        "GateLimits",
+        "GateState",
+        "GenealogyRelation",
+        "GoogleScholarFetcher",
+        "GraphCoherence",
+        "GraphCoherenceResult",
+        "GraphCoherenceScorer",
+        "GraphMetrics",
+        "HALFetcher",
+        "MemgraphClient",
+        "MetricType",
+        "MonitoringConfig",
+        "ORCIDETDFetcher",
+        "PerformanceMonitor",
+        "PipelineMode",
+        "ProductionError",
+        "RateLimiter",
+        "RegionDetectionResult",
+        "RollingGates",
+        "SchemaValidator",
+        "ScopusFetcher",
+        "SecurityError",
+        "SizedLRU",
+        "UnicodeConfig",
+        "V7SchemaValidator",
+        "ValidationResult",
+        "WikidataFetcher",
+    }
+)
+
+
+def _check_no_dual_class_definitions() -> Result:
+    """Every public class name in ``src/`` should be defined in exactly
+    one place.
+
+    Round-32 caught ``RegionRuleError`` defined in *both*
+    ``src/regions/base.py`` and ``src/regions/base_enhanced.py``.
+    Production was fine because each importer pulled from one module
+    consistently. Tests broke this: ``test_region_a1.py`` did
+    ``from src.regions.base import RegionRuleError`` but the A1
+    processor raised the *base_enhanced* class. ``pytest.raises``
+    against the wrong class object silently missed real raises and
+    reported "DID NOT RAISE" for tests that were assertion-correct.
+    Six A1 tests were broken this way for ~30 rounds before round-32
+    surfaced it.
+
+    Scope: every ``.py`` under ``src/``. Build a name → list-of-paths
+    map of class definitions, flag any name with > 1 distinct file
+    that **isn't in the round-33 baseline backlog** (see
+    ``_H5_KNOWN_BACKLOG`` above).
+
+    The baseline + ratchet pattern: H5 doesn't gate on the existing
+    backlog (~38 names as of round 33) because consolidating each
+    requires care — a wrong move can break import chains. Instead it
+    gates new duplicates: add a ``class FooBar`` to a second file
+    while there's already one in ``src/``, audit fails, you either
+    (a) fix the duplication or (b) consciously add ``FooBar`` to the
+    backlog with a comment explaining why.
+
+    Round-33's dead-cluster cleanup brought the count from 64 → 38;
+    deletion of ``src/authority_tier2_3/``, ``src/authority_live/``,
+    ``src/authorities/templates/src/``, the e4 backup directories,
+    and 10 flat-shadowed region ``.py`` files. The remaining 38 are
+    real consolidations that need their own rounds.
+
+    Limitations:
+      - Same-name classes in nested ``class`` blocks (e.g. test
+        helpers inside test methods) are flagged. Acceptable
+        false-positive: keeps the rule simple; src/ doesn't do this.
+      - ``if TYPE_CHECKING: class X`` would be flagged. Fix by
+        consolidating to a single canonical definition.
+    """
+    errors: List[str] = []
+    classes: Dict[str, List[Path]] = {}
+    for path in (REPO / "src").rglob("*.py"):
+        if "__pycache__" in path.parts:
+            continue
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except SyntaxError:
+            continue  # B1 catches parse errors
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                classes.setdefault(node.name, []).append(path)
+    for name, paths in sorted(classes.items()):
+        # De-dup paths in case a single file had multiple class blocks
+        # with the same name (which would be a different bug worth
+        # reporting separately, but rare; keep this signal noise-free).
+        unique = sorted({p.relative_to(REPO).as_posix() for p in paths})
+        if len(unique) <= 1:
+            continue
+        if name in _H5_KNOWN_BACKLOG:
+            continue
+        errors.append(
+            f"class {name} defined in {len(unique)} files: "
+            f"{', '.join(unique)} — collapse to one canonical "
+            f"definition + re-export (or, if intentional, add to "
+            f"_H5_KNOWN_BACKLOG with a justifying comment)"
+        )
+    return ("H5: no new dual class definitions in src/", errors)
+
+
 # ─── I. Tool idempotency ───────────────────────────────────────────────
 
 
@@ -1194,6 +1317,7 @@ CHECKS: List[Callable[[], Result]] = [
     _check_no_test_bandaid_swallows,
     _check_no_self_method_called_but_not_defined,
     _check_no_dataclass_unknown_kwarg,
+    _check_no_dual_class_definitions,
     _check_gen_api_reference_idempotent,
     _check_screenshots_exist,
     _check_api_reference_endpoint_count,

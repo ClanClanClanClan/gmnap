@@ -4,6 +4,108 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-05-06 (round 33 — H5 dual-class audit + dead-cluster purge)
+
+Continuation of the round-32 RegionRuleError collapse: built the audit
+that prevents the next instance of that class-of-bug, and used it as
+forcing-function for a dead-code sweep that removed ~30k LOC of
+shadowed / nested / backup directories.
+
+### Added
+
+- **H5 audit** — `_check_no_dual_class_definitions` in
+  `tools/audit_repo.py`. AST-walks every `src/` file, builds
+  `class_name → list[file]`, flags any name declared in 2+ distinct
+  files. Catches the round-32 `RegionRuleError` class-of-bug at
+  audit time. Uses a baseline-ratchet pattern (`_H5_KNOWN_BACKLOG`,
+  38 names) — gates *new* dups, allows existing ones for orderly
+  consolidation later. Audit battery now: 20 checks (was 19).
+- 4 RED test files parked in `docs/orphaned_tests/`:
+  - `test_determinism_properties.py` — imports `src.authorities.policy`
+    which has never existed in git history.
+  - `test_quality_requirements.py` — imports `src.core.pipeline_v6`,
+    deleted in round 18.
+  - `test_thread_safety_issues.py` — imports `src.regions.manager`
+    (was renamed to `manager_optimized` long ago).
+  - `test_v7_script_validation.py` — same `src.regions.manager`
+    issue.
+
+  All 4 had been collection-erroring on every fresh checkout but
+  weren't surfaced by CI's curated-list gate. Round-32's coverage-
+  lift triage outed them. Test concepts (authority-merge determinism,
+  quality gates, thread safety, script validation) are covered
+  elsewhere in the live suite.
+
+### Removed (~30k LOC of dead clusters)
+
+H5 ran first time and surfaced 64 dual-class violations. Triage
+revealed several pure-dead directory clusters with zero external
+references:
+
+- `src/authority_tier2_3/` (nested mistake-package, 0 callers)
+- `src/authority_live/` (nested mistake-package, 0 callers)
+- `src/authorities/templates/src/authorities/tier2/*` (template
+  stubs that pre-date the canonical `src/authorities/tierN/`
+  fetchers; the parent `templates/authority_engine.py` is still
+  used by the live tier files and is preserved)
+- `src/regions/e_groups/e4_korea/backups/2025-07-31-pre-tier1/`
+- `src/regions/e_groups/e4_korea/backups/2025-07-31-tier1-complete/`
+- 10 **flat-shadowed region `.py` files**: each region has both a
+  package directory (`xx_region/processor.py`) and a flat module
+  (`xx_region.py`). Python's import machinery prefers the package,
+  so the flat files are silently unreachable. Deleted:
+  `a1_anglo_sphere.py`, `b1_east_slavic.py`,
+  `b2_south_slavic_central.py`, `c2_persian_tajik.py`,
+  `c3_arabic_levant_nile.py`, `c4_arabic_gulf.py`,
+  `d1_south_asia_hindi_belt.py`, `e1_sinophone_mainland.py`,
+  `e3_japan.py`, `g1_latin_america.py`. Verified post-deletion:
+  region detection still loads + works (`A1` for `Smith, John`,
+  `A2` for `Hilbert, David`); 352/352 region tests pass.
+
+Net effect: H5 violation count 64 → 38 from cleanup alone. The
+remaining 38 are encoded as `_H5_KNOWN_BACKLOG` and are real
+consolidations awaiting their own rounds — `RateLimiter` (4
+files), `GateState` (5 files), `MemgraphClient` (3 files),
+duplicates between `src/core/quality_gates.py` /
+`src/validation/schema.py`, etc.
+
+### Changed
+
+- `docs/orphaned_tests/README.md` — refreshed to reflect 19
+  parked files (was 15), with provenance line for the round-33
+  additions.
+
+### Verification
+
+- All 20 audit checks green (`--fast` and full).
+- H5 smoke-tested with an injected new dup outside the baseline →
+  caught it.
+- 352/352 region tests pass after flat-shadow deletion.
+- Black + ruff clean.
+
+### Files modified
+
+- `tools/audit_repo.py` (+H5, +baseline)
+- `docs/orphaned_tests/README.md`
+- `tests/property/test_determinism_properties.py` →
+  `docs/orphaned_tests/`
+- `tests/quality_gates/test_quality_requirements.py` →
+  `docs/orphaned_tests/`
+- `tests/unit/test_thread_safety_issues.py` →
+  `docs/orphaned_tests/`
+- `tests/validation/test_v7_script_validation.py` →
+  `docs/orphaned_tests/`
+
+### Files deleted
+
+- `src/authority_tier2_3/` (whole tree)
+- `src/authority_live/` (whole tree)
+- `src/authorities/templates/src/` (nested mistake)
+- `src/regions/e_groups/e4_korea/backups/` (whole tree)
+- 10 flat-shadowed region `.py` files
+
+---
+
 ## [Unreleased] — 2026-05-04 (round 32 — CI coverage lift + RegionRuleError dual-class collapse)
 
 After round 31's H4 + F3 + stale-claim sweep landed green, ran a
