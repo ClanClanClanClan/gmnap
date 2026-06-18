@@ -24,7 +24,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install linters
-        run: pip install black==26.3.1 ruff==0.15.8 isort==6.0.1 codespell==2.4.2 yamllint==1.38.0
+        run: pip install black==26.3.1 ruff==0.15.8 isort==6.0.1 codespell==2.4.2 yamllint==1.38.0 mypy==1.18.2 bandit==1.7.10 pip-audit==2.7.3
 
       - name: Black
         run: black src/ tests/ --check
@@ -34,6 +34,35 @@ jobs:
 
       - name: isort
         run: isort src/ tests/ --check-only --profile black
+
+      # Round 34 phase 3: type-check src/. mypy was configured in
+      # pyproject.toml but never wired into CI; this catches drift in
+      # function signatures + dataclass shapes the H4 audit can't see
+      # at the import layer. --ignore-missing-imports keeps it green
+      # against optional deps (icu, fasttext-wheel, etc.) we don't
+      # carry as hard requirements.
+      - name: Mypy
+        run: mypy src/ --ignore-missing-imports --no-strict-optional || true
+        # `|| true` while we baseline the existing surface; the
+        # follow-up round either ratchets a `--fail-under` or adds a
+        # per-module override list. Leaving as visible-but-non-blocking
+        # for now (round 34 deferred the cleanup to its own pass to
+        # avoid landing 200+ adjacent type-fix commits).
+
+      # Security linting — flags hardcoded secrets, dangerous use of
+      # subprocess/eval/yaml.load, SQL string concat, etc. -ll = HIGH
+      # severity only to keep noise down at first. Round 34 adds it
+      # non-blocking; if HIGH count grows, the next round ratchets to
+      # blocking.
+      - name: Bandit
+        run: bandit -r src/ -ll -q || true
+
+      # Known-CVE check on the pinned dependency tree. Doesn't fail
+      # the build (a freshly-disclosed CVE shouldn't block a hotfix
+      # PR), but the run logs are visible in the action UI so a
+      # weekly cron — or an attentive reviewer — will see it.
+      - name: pip-audit (advisory)
+        run: pip-audit -r requirements.txt --strict || true
 
       - name: codespell
         run: codespell src/ tests/ --skip "*.json,*.yaml,*.yml,*.csv,*.bin" --ignore-words-list "theses,abd,nam,joo,nin,vie,te,accep,ags,aks,als,ang,bae,bu,byeong,cas,chn,chon,dan,dok,dum,dung,eom,eum,gak,gam,gan,ges,geum,gon,gor,gul,gye,hak,hap,hoe,hye,im,jae,jin,jong,jung,kil,kwon,mak,mis,mot,mun,nae,nak,nam,ndo,nin,nit,noe,oen,ohn,ot,pae,rak,ro,roh,sae,sie,sim,som,soo,sur,te,teh,wan,whan,yeon,yoo,yuk" || true
@@ -510,6 +539,12 @@ jobs:
         with:
           extra_args: --only-verified
 
+  # Cost guard reads cache/api_costs.json — the file is the
+  # source-of-truth, written by src/core/cost_tracker.record(...)
+  # from every live-mode authority call (round 34 phase 3 wired the
+  # tracker; before that the file was reinitialized each CI run and
+  # the budget was theatre). For prod deploys, mount the cache/
+  # volume across container restarts so spend persists.
   cost-guard:
     runs-on: ubuntu-latest
     steps:
@@ -524,19 +559,19 @@ jobs:
 
       - name: Check API spend against CHF 120/month limit
         run: |
-          # Ensure cost tracking file exists
           mkdir -p cache
-          if [ ! -f cache/api_costs.json ]; then
-            echo '{}' > cache/api_costs.json
-          fi
-          python3 -c "
-          import json, sys
-          costs = json.load(open('cache/api_costs.json'))
-          total = sum(costs.values())
-          limit = 120.0
+          # The cost-tracker module is the canonical reader too —
+          # avoids reimplementing the file-format twice. If the file
+          # is missing (fresh checkout, no live calls ever made), the
+          # tracker treats it as zero spend.
+          PYTHONPATH=. python3 -c "
+          import sys
+          from src.core import cost_tracker
+          limit = float('${COST_GUARD_LIMIT_CHF:-120.0}')
+          total = cost_tracker.total()
           print(f'Total API spend: CHF {total:.2f} / {limit:.2f}')
           if total >= limit:
-              print('OVER LIMIT - failing build')
+              print('::error::API spend over CHF {0:.2f} budget'.format(limit))
               sys.exit(1)
           print('Within budget')
           "

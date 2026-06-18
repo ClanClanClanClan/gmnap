@@ -90,6 +90,19 @@ Liveness probe.
 
 Prometheus-compatible metrics endpoint.
 
+Defense-in-depth: nginx restricts /metrics to internal CIDRs
+(10.x, 172.16-31.x, 192.168.x, 127.0.0.1) at the edge, but
+we ALSO check at the app layer because in a k8s pod or a
+misconfigured deploy the client_ip is the load-balancer's
+address — nginx's IP allowlist alone isn't enough.
+
+Auth path: either (a) the request is from a localhost /
+private-CIDR client (typical scrape from a local Prometheus),
+OR (b) it presents a Bearer token from GMNAP_API_TOKENS
+(typical scrape from a paid-tier monitoring service). Set
+GMNAP_METRICS_REQUIRE_AUTH=0 to disable both checks for
+single-tenant deploys behind a trusted reverse proxy.
+
 **Responses:**
   - `200` (application/json) — Successful Response
 
@@ -108,15 +121,23 @@ Prometheus-compatible metrics endpoint.
 
 **Readyz**
 
-Readiness probe — performs a real Bolt handshake.
+Readiness probe — checks every dependency the API needs.
 
-The earlier implementation opened a raw TCP socket and accepted
-any handshake response as "ready". That returned 200 even when
-Memgraph was alive but auth was broken, the storage was
-corrupt, or the Bolt protocol upgrade was rejected. Here we
-delegate to ``src.genealogy.query._driver`` which calls
-``verify_connectivity()`` under a 2-second timeout — the same
-path the lineage endpoint uses.
+Strict by design: a 200 from /readyz means an
+operator can route real traffic and expect every documented
+endpoint to work. We check, in order:
+
+1. The genealogy enrichment JSON exists and parses. The /query,
+   /lineage, and /process endpoints all depend on it; a fresh
+   container that lost the LFS file would silently degrade
+   without this gate.
+2. The Memgraph Bolt handshake succeeds (when MEMGRAPH_BOLT is
+   set). Uses verify_connectivity() under a 2 s timeout — same
+   path as the lineage endpoint.
+
+Earlier implementations opened a raw TCP socket and accepted
+any handshake as "ready" — that returned 200 even when
+Memgraph was alive but auth was broken or storage was corrupt.
 
 **Responses:**
   - `200` (application/json) — Successful Response

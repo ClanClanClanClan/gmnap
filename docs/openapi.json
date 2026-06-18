@@ -394,7 +394,7 @@
     },
     "/metrics": {
       "get": {
-        "description": "Prometheus-compatible metrics endpoint.",
+        "description": "Prometheus-compatible metrics endpoint.\n\nDefense-in-depth: nginx restricts /metrics to internal CIDRs\n(10.x, 172.16-31.x, 192.168.x, 127.0.0.1) at the edge, but\nwe ALSO check at the app layer because in a k8s pod or a\nmisconfigured deploy the client_ip is the load-balancer's\naddress \u2014 nginx's IP allowlist alone isn't enough.\n\nAuth path: either (a) the request is from a localhost /\nprivate-CIDR client (typical scrape from a local Prometheus),\nOR (b) it presents a Bearer token from GMNAP_API_TOKENS\n(typical scrape from a paid-tier monitoring service). Set\nGMNAP_METRICS_REQUIRE_AUTH=0 to disable both checks for\nsingle-tenant deploys behind a trusted reverse proxy.",
         "operationId": "metrics_metrics_get",
         "responses": {
           "200": {
@@ -448,7 +448,7 @@
     },
     "/readyz": {
       "get": {
-        "description": "Readiness probe \u2014 performs a real Bolt handshake.\n\nThe earlier implementation opened a raw TCP socket and accepted\nany handshake response as \"ready\". That returned 200 even when\nMemgraph was alive but auth was broken, the storage was\ncorrupt, or the Bolt protocol upgrade was rejected. Here we\ndelegate to ``src.genealogy.query._driver`` which calls\n``verify_connectivity()`` under a 2-second timeout \u2014 the same\npath the lineage endpoint uses.",
+        "description": "Readiness probe \u2014 checks every dependency the API needs.\n\nStrict by design: a 200 from /readyz means an\noperator can route real traffic and expect every documented\nendpoint to work. We check, in order:\n\n1. The genealogy enrichment JSON exists and parses. The /query,\n   /lineage, and /process endpoints all depend on it; a fresh\n   container that lost the LFS file would silently degrade\n   without this gate.\n2. The Memgraph Bolt handshake succeeds (when MEMGRAPH_BOLT is\n   set). Uses verify_connectivity() under a 2 s timeout \u2014 same\n   path as the lineage endpoint.\n\nEarlier implementations opened a raw TCP socket and accepted\nany handshake as \"ready\" \u2014 that returned 200 even when\nMemgraph was alive but auth was broken or storage was corrupt.",
         "operationId": "readyz_readyz_get",
         "responses": {
           "200": {

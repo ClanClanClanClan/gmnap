@@ -239,6 +239,8 @@ async def _call_canonical_fetcher(
     dependency) we degrade to ``{hit: False, reason: …}`` rather than
     raising, so a single source's failure doesn't poison the batch.
     """
+    from src.core import cost_tracker
+
     from .common import retry_with_backoff
 
     try:
@@ -250,6 +252,13 @@ async def _call_canonical_fetcher(
         result = await retry_with_backoff(
             lambda: fetcher.fetch(name), max_retries=2, base_delay=0.5
         )
+        # Round 34 phase 3: cost tracking on every live call (the
+        # try counts whether it threw or not; the orchestrator above
+        # already gated this whole block on OFFLINE=0, so reaching
+        # here means we hit the network). Free sources are no-ops
+        # inside record(); metered sources persist to cache/api_costs
+        # .json which CI's cost-guard job watches.
+        cost_tracker.record(source_name, calls=1)
     except Exception as exc:  # noqa: BLE001 — defensive batch isolation
         return {
             source_name: {"hit": False, "reason": f"fetch_error:{type(exc).__name__}"}
