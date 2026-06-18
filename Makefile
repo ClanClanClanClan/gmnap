@@ -46,7 +46,13 @@ setup:
 	}
 	python3 -m pip install --upgrade pip
 	python3 -m pip install -r requirements.txt
-	python3 -m pip install -e .
+	# --no-deps: requirements.txt above is the source-of-truth for
+	# versions. pyproject.toml's `>=X.Y` deps would otherwise let pip
+	# upgrade past the pinned line (round-34 hit this: fastapi 0.115
+	# → 0.137 silently, which changed openapi.json output and tripped
+	# the I1 idempotency audit). `-e .` here is just installing the
+	# `gmnap` console script entry point, nothing else needed.
+	python3 -m pip install -e . --no-deps
 	@bash scripts/install_fasttext.sh || { \
 		echo ""; \
 		echo "❌ fasttext install FAILED."; \

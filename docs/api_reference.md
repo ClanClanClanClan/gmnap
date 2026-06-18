@@ -155,7 +155,7 @@ exist so reviewers can grep for them.
 | `HTTPValidationError` | `detail` |
 | `HealthResponse` | `status`, `version`, `uptime_seconds` |
 | `ProcessRequest` | `entries`, `mode`, `schema_strict`, `limit`, `offset` |
-| `ValidationError` | `loc`, `msg`, `type`, `input`, `ctx` |
+| `ValidationError` | `loc`, `msg`, `type` |
 
 ## Cross-cutting middleware (not in the schema)
 
