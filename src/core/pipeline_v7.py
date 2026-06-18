@@ -35,7 +35,17 @@ from src.core.unicode_handler import UnicodeNormalizer
 # Expert solution: Add streaming executor imports
 from src.ops.streaming_executor import StreamConfig, StreamingExecutor
 from src.quality.gates_fast import FastQualityGates, GateConfig
-from src.regions.hybrid_region_manager import HybridRegionManager  # 97.54% accuracy
+
+# Round 34 phase 2: align with CLI + API + test fixtures by using the
+# canonical RegionManager from manager_optimized (the same path
+# documented in CLAUDE.md as "split geo/name-origin architecture
+# with three-tier suffix system, fastText CLI tiebreaker, same-group
+# gate; expert-validated as production-ready"; and the one tested at
+# the 95 % gate in tests/unit/test_region_detection_accuracy.py).
+# The previous HybridRegionManager wrapper claimed 97.54 % on an
+# unspecified benchmark not measured anywhere in CI; rather than
+# carry two divergent detection paths, we collapse to one.
+from src.regions.manager_optimized import RegionManager
 
 # Phase 2 genealogy enrichment (Model 1.5)
 try:
@@ -454,9 +464,7 @@ class V7Pipeline:
     def region_manager(self):
         """Lazy initialization of region manager."""
         if self._region_manager is None:
-            self._region_manager = (
-                HybridRegionManager()
-            )  # Use 97.54% accurate classifier
+            self._region_manager = RegionManager()
         return self._region_manager
 
     @property
@@ -536,7 +544,7 @@ class V7Pipeline:
             )
         if not self._region_manager:
             self._region_manager = get_cached_component(
-                "region_manager", lambda: HybridRegionManager()
+                "region_manager", lambda: RegionManager()
             )
 
         # Skip expensive operations for small batches
@@ -897,7 +905,7 @@ class V7Pipeline:
 
         def detect_batch(batch):
             """Detect regions for a batch of entries."""
-            manager = HybridRegionManager()  # 97.54% accuracy
+            manager = RegionManager()
             results = []
             for entry in batch:
                 result = manager.detect_region(entry)
