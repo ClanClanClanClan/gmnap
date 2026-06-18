@@ -28,12 +28,27 @@ def cli():
     type=click.Choice(["quick", "full", "extreme"]),
 )
 @click.option("--json-output", "as_json", is_flag=True, help="Output raw JSON")
-def query(name: str, mode: str, as_json: bool):
+@click.option(
+    "--live",
+    is_flag=True,
+    help=(
+        "Enrich from live authority APIs (OpenAlex, Crossref, Wikidata, "
+        "ORCID, GND, HAL, OAI, zbMATH). Sets OFFLINE=0 for this call. "
+        "Adds 1-5 s of network latency. Without this flag, query uses "
+        "only region detection + the curated `data/genealogy_enrichment.json` "
+        "lookup — the live tier-0/tier-1 authority chain is unreachable."
+    ),
+)
+def query(name: str, mode: str, as_json: bool, live: bool):
     """Query a mathematician name for region detection and processing."""
     if not name or not name.strip():
         click.echo("Error: name must not be empty", err=True)
         sys.exit(1)
+    import os
+
     sys.path.insert(0, ".")
+    if live:
+        os.environ["OFFLINE"] = "0"
     from src.regions.manager_optimized import RegionManager
 
     mgr = RegionManager()
@@ -104,6 +119,39 @@ def query(name: str, mode: str, as_json: bool):
                 result[field] = enrichable[field]
     except Exception:
         pass
+
+    # Live authority enrichment when --live is set. Calls the V7 tier
+    # orchestrator which hits OpenAlex / Crossref / Wikidata / ORCID /
+    # GND / HAL / OAI / zbMATH per-source (governed by OFFLINE=0 set
+    # above). Adds 1-5 s of network latency; merges any new fields the
+    # tier responses bring back over the curated baseline.
+    if live:
+        try:
+            from src.authority.manager_tier01 import enrich_all
+
+            live_entry = {
+                "CanonicalLatin": name,
+                "FamilyName": result.get("processed", {}).get("FamilyName", ""),
+                "GivenName": result.get("processed", {}).get("GivenName", ""),
+            }
+            enriched_list = asyncio.run(enrich_all([live_entry]))
+            enriched = enriched_list[0] if enriched_list else {}
+            result["live_sources"] = sorted(
+                k for k, v in (enriched.get("_sources") or {}).items() if v
+            )
+            for field in (
+                "BirthYear",
+                "DeathYear",
+                "Institution",
+                "Country",
+                "Advisors",
+                "ORCID",
+                "OpenAlexID",
+            ):
+                if enriched.get(field) and field not in result:
+                    result[field] = enriched[field]
+        except Exception as exc:
+            click.echo(f"⚠️  live enrichment failed: {exc}", err=True)
 
     if as_json:
         click.echo(json.dumps(result, indent=2, ensure_ascii=False))
@@ -369,12 +417,19 @@ def regions():
 )
 @click.option("--json-output", "as_json", is_flag=True, help="Output raw JSON")
 def validate(input_file: str, schema_strict: int, as_json: bool):
-    """Validate an input file against the GMNAP v7 schema.
+    """Validate a processed entry against the GMNAP v7 OUTPUT schema.
 
-    Uses the same V7SchemaValidator that pipeline Stage 8 runs, so the
-    CLI and the pipeline agree on what a valid entry looks like. Required
-    fields: GlobalID, CanonicalLatin, Field, Source, LastUpdated,
-    ValidationStatus.
+    This command runs the same V7SchemaValidator that pipeline Stage 8
+    runs, so it tells you whether an entry is shaped correctly for
+    downstream consumers (DB write, YAML snapshot, etc.).
+
+    Required fields per V7 schema v2.0: GlobalID, CanonicalLatin, Field,
+    Source, LastUpdated, ValidationStatus.
+
+    NOTE: this is the strict *output* schema, not the looser *input*
+    schema accepted by `gmnap process`. A bare `[{"FullName": "Smith,
+    John"}]` is a legal input but not a valid output; run it through
+    `gmnap process` first if you want to validate the result.
     """
     import os
 
@@ -441,15 +496,40 @@ def validate(input_file: str, schema_strict: int, as_json: bool):
 @click.option("--host", default="0.0.0.0", help="Bind address")
 @click.option("--port", default=8080, type=int, help="Port number")
 @click.option("--workers", default=1, type=int, help="Number of workers")
-def serve(host: str, port: int, workers: int):
+@click.option(
+    "--no-hashcash",
+    is_flag=True,
+    help=(
+        "Disable the V7 spec §12 free-tier hashcash 18-bit PoW gate. "
+        "Use for local dev / CI / behind-the-firewall deploys. The 60/min "
+        "free-tier rate limit still applies. Sets GMNAP_REQUIRE_HASHCASH=0 "
+        "in the server process environment."
+    ),
+)
+def serve(host: str, port: int, workers: int, no_hashcash: bool):
     """Start the GMNAP V7 API server."""
+    import os
+
     try:
         import uvicorn
     except ImportError:
         click.echo("uvicorn required. Install with: pip install uvicorn", err=True)
         sys.exit(1)
 
+    if no_hashcash:
+        os.environ["GMNAP_REQUIRE_HASHCASH"] = "0"
+        click.echo(
+            "⚠️  --no-hashcash: free-tier PoW gate is OFF. "
+            "Do not use in multi-tenant prod."
+        )
+
     click.echo(f"Starting GMNAP V7 API on {host}:{port}...")
+    if not no_hashcash and not os.getenv("GMNAP_REQUIRE_HASHCASH"):
+        click.echo(
+            "ℹ️  Free-tier /api/* endpoints require X-Hashcash header "
+            "(V7 spec §12, 18-bit PoW). Pass --no-hashcash to disable "
+            "for local dev."
+        )
     uvicorn.run(
         "src.api.server:app",
         host=host,
