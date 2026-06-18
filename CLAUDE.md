@@ -47,7 +47,14 @@ All stages execute in sequence with real code:
 ### Region Processors (37 regions, 240-450 lines each)
 All regions have full `clean()`, `augment()`, `validate()`, `order_key()`:
 - A1-A5, B1-B3, C1-C9, D1-D5, E1-E7, F1-F4, G1, H1, R0, Z0
-- 37/37 YAML config files in `config/regions/`
+- YAML override files: directory `config/regions/` is currently
+  empty — every region runs on hardcoded defaults from its
+  processor's `__init__`. The `RegionSpec.load_yaml_config()`
+  loader is wired and tested but dormant; populate the directory
+  when YAML-driven overrides become the right way to tune a
+  region. (Earlier docs claimed "37/37 YAML files in
+  `config/regions/`"; that was aspirational — see the "YAML
+  Config" section below for the real state.)
 - C1 processor loads `config/script_switch.yaml` for Kazakh/Uzbek reform schedules
 - Region overlay map (spec §2a) wired for sub-national detection
 - Diaspora overlay wired for cross-border mathematician detection

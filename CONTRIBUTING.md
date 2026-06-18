@@ -61,9 +61,9 @@ The triage report is at `docs/test_triage_2026-04-28.md`.
 ### Coverage
 
 CI runs a separate `coverage` job that exercises a curated subset
-of `tests/unit/` under `pytest --cov=src --cov-branch`. The floor
-is **`--cov-fail-under=15`** (combined line + branch). To run
-locally:
+of `tests/unit/` under `pytest --cov=src --cov-branch`. The gate
+is **`--cov-fail-under=20`** with explicit floors at line ≥ 22 %
+/ branch ≥ 18 % (current: 23.93 % / 19.41 %). To run locally:
 
 ```bash
 PYTHONPATH=. pytest tests/unit/test_calibration.py tests/unit/test_pipeline.py … \
@@ -132,11 +132,11 @@ to push-time.
 
 | Job | What it checks |
 |---|---|
-| `lint` | black, ruff, isort, codespell, yamllint, lockfile-in-sync |
+| `lint` | black, ruff, isort, codespell, yamllint, lockfile-in-sync, mypy (advisory), bandit (advisory), pip-audit (advisory) |
 | `test` | full pytest invocation (~50 files, including property tests) |
-| `coverage` | curated subset under `--cov=src --cov-branch --cov-fail-under=15` |
+| `coverage` | curated subset under `--cov=src --cov-branch --cov-fail-under=20` + explicit floors line ≥ 22 % / branch ≥ 18 % |
 | `secret-scan` | TruffleHog with `--only-verified` |
-| `cost-guard` | API spend < CHF 120/month |
+| `cost-guard` | live API spend < CHF 120/month (driven by `src/core/cost_tracker.record(...)`) |
 | `docker-build` | image build + smoke-test on `/healthz` + `/readyz` |
 | `memgraph-test` | full live-Memgraph integration via GHA `services:` block |
 | `browser-test` | 31-scenario adversarial Playwright harness against real Chromium |
