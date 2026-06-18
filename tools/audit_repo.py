@@ -556,24 +556,19 @@ def _check_no_test_module_shadowing() -> Result:
     errors: List[str] = []
     seen: dict = {}
     norecurse = {
+        # Mirrors pyproject.toml::norecursedirs after round-34 phase-5
+        # cleanup. Dirs that were both broken AND not contributing to
+        # CI (coherence, compliance, error_recovery, extreme,
+        # genealogy, idempotency, memory, mock_api, production,
+        # regional, regions/e6_mainland_sea, roundtrip) were deleted
+        # outright; the four remaining are kept-parked with
+        # justification (see pyproject.toml).
         "docs/orphaned_tests",
-        "tests/coherence",
-        "tests/compliance",
-        "tests/error_recovery",
-        "tests/extreme",
-        "tests/genealogy",
         "tests/hardcore",
-        "tests/idempotency",
         "tests/integration/stages",
         "tests/live",
-        "tests/memory",
-        "tests/mock_api",
         "tests/paranoid",
         "tests/performance",
-        "tests/production",
-        "tests/regional",
-        "tests/regions/e6_mainland_sea",
-        "tests/roundtrip",
         "tests/security",
     }
 
@@ -626,28 +621,17 @@ def _check_no_test_bandaid_swallows() -> Result:
     skipping the same norecurse directories as H1.
     """
     errors: List[str] = []
-    # Mirror pyproject.toml's norecursedirs (round-18 added
-    # tests/integration whole-tree). H2 only flags test files that
-    # pytest can actually collect on a default run.
+    # Mirror pyproject.toml's norecursedirs (round-34 phase-5
+    # collapsed it from 19 entries to 7 by deleting the broken
+    # dirs). H2 only flags test files that pytest can actually
+    # collect on a default run.
     norecurse_prefixes = (
         "docs/orphaned_tests",
-        "tests/coherence",
-        "tests/compliance",
-        "tests/error_recovery",
-        "tests/extreme",
-        "tests/genealogy",
         "tests/hardcore",
-        "tests/idempotency",
         "tests/integration",  # whole tree (CI enumerates memgraph_e2e + orcid_etd_live)
         "tests/live",
-        "tests/memory",
-        "tests/mock_api",
         "tests/paranoid",
         "tests/performance",
-        "tests/production",
-        "tests/regional",
-        "tests/regions/e6_mainland_sea",
-        "tests/roundtrip",
         "tests/security",
     )
     for path in (REPO / "tests").rglob("test_*.py"):
