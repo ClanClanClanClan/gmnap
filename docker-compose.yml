@@ -17,9 +17,14 @@ services:
     container_name: gmnap_memgraph
     ports:
       - "7687:7687"  # Bolt protocol
+    # Credentials come from .env; defaults are sane for local dev
+    # only. In prod, set these in the deploy environment (or a
+    # secrets manager). Hardcoded `MEMGRAPH_PASSWORD=v7_lineage`
+    # was committed prior to round 34 — every fork inherited the
+    # same prod password until env-ified here.
     environment:
-      - MEMGRAPH_USER=gmnap
-      - MEMGRAPH_PASSWORD=v7_lineage
+      - MEMGRAPH_USER=${MEMGRAPH_USER:-gmnap}
+      - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:-v7_lineage_local_dev_only}
     volumes:
       - memgraph_data:/var/lib/memgraph
       - memgraph_log:/var/log/memgraph
@@ -35,7 +40,7 @@ services:
     healthcheck:
       # plain memgraph image's mgconsole lives at /usr/bin/mgconsole;
       # the platform image's was at /usr/lib/memgraph/mgconsole.
-      test: ["CMD-SHELL", "echo 'RETURN 1;' | mgconsole --host localhost --port 7687 --username gmnap --password v7_lineage || exit 1"]
+      test: ["CMD-SHELL", "echo 'RETURN 1;' | mgconsole --host localhost --port 7687 --username \"${MEMGRAPH_USER:-gmnap}\" --password \"${MEMGRAPH_PASSWORD:-v7_lineage_local_dev_only}\" || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -66,10 +71,22 @@ services:
       - PYTHONPATH=/app/src:/app
       - MEMGRAPH_HOST=memgraph
       - MEMGRAPH_PORT=7687
-      - MEMGRAPH_USER=gmnap
-      - MEMGRAPH_PASSWORD=v7_lineage
+      - MEMGRAPH_USER=${MEMGRAPH_USER:-gmnap}
+      - MEMGRAPH_PASSWORD=${MEMGRAPH_PASSWORD:-v7_lineage_local_dev_only}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      # Free-tier hashcash gate: GMNAP_REQUIRE_HASHCASH=1 in prod
+      # (V7 spec §12); leave unset or "0" for local docker-compose
+      # to skip the PoW friction.
+      - GMNAP_REQUIRE_HASHCASH=${GMNAP_REQUIRE_HASHCASH:-0}
+      # CORS must be locked down in prod. Default localhost set
+      # works for `docker compose up` browsing http://localhost.
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:80,http://localhost:8080}
+      # Structured logs to stdout in JSON (consumable by Loki /
+      # Datadog / etc.); set GMNAP_LOG_FORMAT=text for legible
+      # local-tail output.
+      - GMNAP_LOG_FORMAT=${GMNAP_LOG_FORMAT:-json}
+      - GMNAP_LOG_LEVEL=${GMNAP_LOG_LEVEL:-INFO}
     volumes:
       - ./data:/app/data
       - ./cache:/app/cache
@@ -88,6 +105,12 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    # SIGTERM → drain in-flight requests for up to 120 s before
+    # SIGKILL. uvicorn's --timeout-graceful-shutdown flag (in the
+    # Dockerfile CMD) does the actual draining; this gives compose
+    # / k8s enough wall-clock to let it finish a 30-60 s batch
+    # request before the orchestrator kills the container.
+    stop_grace_period: 120s
     
   # Nginx reverse proxy
   nginx:

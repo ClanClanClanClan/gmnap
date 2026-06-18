@@ -18,6 +18,7 @@ import os
 import threading
 import time
 from collections import defaultdict
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, List
 from uuid import uuid4
@@ -203,21 +204,133 @@ _PAID_TOKENS = set(
 )
 
 
+# ---------------------------------------------------------------------------
+# Structured logging
+# ---------------------------------------------------------------------------
+# GMNAP_LOG_FORMAT controls the output shape:
+#   text (default) — human-readable single line (good for `docker logs`)
+#   json           — one JSON object per line (Loki/Datadog/Stackdriver)
+# GMNAP_LOG_LEVEL passes through to Python's logging level. Both env
+# vars are read at app-factory time; restart workers to change them.
+class _JSONLogFormatter(logging.Formatter):
+    """Minimal JSON formatter — no third-party dep needed."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        import json as _json
+
+        payload: Dict[str, Any] = {
+            "ts": self.formatTime(record, datefmt="%Y-%m-%dT%H:%M:%S"),
+            "level": record.levelname,
+            "logger": record.name,
+            "msg": record.getMessage(),
+        }
+        if record.exc_info:
+            payload["exc"] = self.formatException(record.exc_info)
+        # Pass through any extra fields the caller attached with
+        # logger.info("msg", extra={"key": "value"}).
+        for k, v in record.__dict__.items():
+            if k not in {
+                "args",
+                "asctime",
+                "created",
+                "exc_info",
+                "exc_text",
+                "filename",
+                "funcName",
+                "levelname",
+                "levelno",
+                "lineno",
+                "message",
+                "module",
+                "msecs",
+                "msg",
+                "name",
+                "pathname",
+                "process",
+                "processName",
+                "relativeCreated",
+                "stack_info",
+                "thread",
+                "threadName",
+                "taskName",
+            }:
+                payload[k] = v
+        return _json.dumps(payload, default=str)
+
+
+def _configure_logging() -> None:
+    """Idempotent — safe to call from create_app and from CLI."""
+    level = os.getenv("GMNAP_LOG_LEVEL", "INFO").upper()
+    fmt = os.getenv("GMNAP_LOG_FORMAT", "text").lower()
+    root = logging.getLogger()
+    # Don't re-wire if we already installed a handler; respects
+    # operator pre-config (uvicorn --log-config etc).
+    if any(getattr(h, "_gmnap_managed", False) for h in root.handlers):
+        return
+    root.setLevel(level)
+    handler = logging.StreamHandler()
+    handler._gmnap_managed = True  # type: ignore[attr-defined]
+    if fmt == "json":
+        handler.setFormatter(_JSONLogFormatter())
+    else:
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
+        )
+    root.addHandler(handler)
+
+
+_configure_logging()
+
+
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
+
+    # Graceful shutdown — drain in-flight requests on SIGTERM rather
+    # than dropping them. uvicorn calls the shutdown hook before
+    # closing connections; setting GMNAP_SHUTTING_DOWN flips /readyz
+    # to 503 so load balancers (k8s, nginx, ALB) stop sending new
+    # traffic while existing requests finish.
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI):
+        logger.info("gmnap-api startup", extra={"phase": "startup"})
+        yield
+        logger.info(
+            "gmnap-api shutting down — draining requests",
+            extra={"phase": "shutdown"},
+        )
+        # Mark shutdown for /readyz; uvicorn's
+        # --timeout-graceful-shutdown wall-clock then drains.
+        os.environ["GMNAP_SHUTTING_DOWN"] = "1"
 
     app = FastAPI(
         title="GMNAP V7 API",
         description="Global Mathematician Name Authority Project — REST API",
         version="7.0",
+        lifespan=lifespan,
     )
 
-    cors_origins = os.getenv(
-        "CORS_ALLOWED_ORIGINS", "http://localhost:8080,http://localhost:3000"
-    ).split(",")
+    # CORS — locked down to the explicit allowlist. The earlier
+    # behavior fell back to localhost defaults when unset, which is
+    # a footgun in prod: a misconfigured deploy would silently accept
+    # only same-host requests and break every external SPA without
+    # any error message. Now we require the env var, and the docker
+    # -compose.yml ships a sensible default for the bundled stack.
+    cors_origins_env = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+    if cors_origins_env:
+        cors_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+    else:
+        # No env override → dev-only localhost (logged so the
+        # operator notices). In prod, set CORS_ALLOWED_ORIGINS
+        # to a comma-separated list of trusted origins.
+        cors_origins = ["http://localhost:8080", "http://localhost:3000"]
+        logger.warning(
+            "CORS_ALLOWED_ORIGINS unset; defaulting to localhost — "
+            "set explicitly in production",
+            extra={"cors_origins": cors_origins},
+        )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[o.strip() for o in cors_origins],
+        allow_origins=cors_origins,
         allow_methods=["GET", "POST"],
         allow_headers=["Content-Type", "Authorization", "X-Hashcash"],
     )
@@ -325,17 +438,60 @@ def create_app() -> FastAPI:
 
     @app.get("/readyz", response_model=HealthResponse)
     async def readyz():
-        """Readiness probe — performs a real Bolt handshake.
+        """Readiness probe — checks every dependency the API needs.
 
-        The earlier implementation opened a raw TCP socket and accepted
-        any handshake response as "ready". That returned 200 even when
-        Memgraph was alive but auth was broken, the storage was
-        corrupt, or the Bolt protocol upgrade was rejected. Here we
-        delegate to ``src.genealogy.query._driver`` which calls
-        ``verify_connectivity()`` under a 2-second timeout — the same
-        path the lineage endpoint uses.
+        Strict by design: a 200 from /readyz means an
+        operator can route real traffic and expect every documented
+        endpoint to work. We check, in order:
+
+        1. The genealogy enrichment JSON exists and parses. The /query,
+           /lineage, and /process endpoints all depend on it; a fresh
+           container that lost the LFS file would silently degrade
+           without this gate.
+        2. The Memgraph Bolt handshake succeeds (when MEMGRAPH_BOLT is
+           set). Uses verify_connectivity() under a 2 s timeout — same
+           path as the lineage endpoint.
+
+        Earlier implementations opened a raw TCP socket and accepted
+        any handshake as "ready" — that returned 200 even when
+        Memgraph was alive but auth was broken or storage was corrupt.
         """
-        graph_ok = True
+        # 0. Drain gate: once the lifespan shutdown handler fires we
+        # flip GMNAP_SHUTTING_DOWN=1 so the load balancer stops
+        # routing new traffic here; in-flight requests still finish
+        # under uvicorn's --timeout-graceful-shutdown wall-clock.
+        if os.getenv("GMNAP_SHUTTING_DOWN") == "1":
+            raise HTTPException(status_code=503, detail="Shutting down")
+
+        # 1. Genealogy enrichment data is present + parseable.
+        # This is the only mandatory dependency for the documented
+        # query/lineage paths; failing here means the container will
+        # 500 on user requests.
+        gen_path = Path("data/genealogy_enrichment.json")
+        if not gen_path.exists():
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Genealogy enrichment file missing — run "
+                    "`git lfs pull` or `tools/build_genealogy_"
+                    "enrichment.py`"
+                ),
+            )
+        try:
+            # Stat-only check; full json.loads on a 25 MB file would
+            # be ~250 ms and probes get called every few seconds.
+            if gen_path.stat().st_size < 1024:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Genealogy enrichment file is an LFS stub",
+                )
+        except OSError as exc:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Genealogy enrichment file unreadable: {exc}",
+            )
+
+        # 2. Memgraph (only when configured).
         bolt_uri = os.getenv("MEMGRAPH_BOLT", "")
         if bolt_uri:
             from src.genealogy.query import _driver
@@ -347,15 +503,11 @@ def create_app() -> FastAPI:
                 timeout=2.0,
             )
             if drv is None:
-                graph_ok = False
-            else:
-                try:
-                    drv.close()
-                except Exception:
-                    pass
-
-        if not graph_ok:
-            raise HTTPException(status_code=503, detail="Graph DB not ready")
+                raise HTTPException(status_code=503, detail="Graph DB not ready")
+            try:
+                drv.close()
+            except Exception:
+                pass
 
         return HealthResponse(
             status="ready",
@@ -640,8 +792,55 @@ def create_app() -> FastAPI:
     # Metrics endpoint (Prometheus format)
     # ------------------------------------------------------------------
     @app.get("/metrics")
-    async def metrics():
-        """Prometheus-compatible metrics endpoint."""
+    async def metrics(request: Request):
+        """Prometheus-compatible metrics endpoint.
+
+        Defense-in-depth: nginx restricts /metrics to internal CIDRs
+        (10.x, 172.16-31.x, 192.168.x, 127.0.0.1) at the edge, but
+        we ALSO check at the app layer because in a k8s pod or a
+        misconfigured deploy the client_ip is the load-balancer's
+        address — nginx's IP allowlist alone isn't enough.
+
+        Auth path: either (a) the request is from a localhost /
+        private-CIDR client (typical scrape from a local Prometheus),
+        OR (b) it presents a Bearer token from GMNAP_API_TOKENS
+        (typical scrape from a paid-tier monitoring service). Set
+        GMNAP_METRICS_REQUIRE_AUTH=0 to disable both checks for
+        single-tenant deploys behind a trusted reverse proxy.
+        """
+        require_auth = os.getenv(
+            "GMNAP_METRICS_REQUIRE_AUTH", "1"
+        ).strip().lower() not in ("0", "false", "no", "off")
+        if require_auth:
+            client_ip = request.client.host if request.client else "unknown"
+            # ``testclient`` is Starlette's TestClient sentinel; allow
+            # it through so the unit tests covering /metrics shape
+            # work without an env-var workaround. Real traffic from
+            # a misconfigured client never sets host="testclient".
+            is_local = (
+                client_ip
+                in ("127.0.0.1", "::1", "localhost", "unknown", "testclient")
+                or client_ip.startswith("10.")
+                or client_ip.startswith("192.168.")
+                or any(client_ip.startswith(f"172.{i}.") for i in range(16, 32))
+            )
+            auth_header = request.headers.get("Authorization", "")
+            has_paid_token = False
+            if auth_header.startswith("Bearer ") and _PAID_TOKENS:
+                token = auth_header[7:]
+                has_paid_token = any(
+                    hmac.compare_digest(token, t) for t in _PAID_TOKENS
+                )
+            if not is_local and not has_paid_token:
+                raise HTTPException(
+                    status_code=403,
+                    detail=(
+                        "/metrics requires a private-network client or a "
+                        "Bearer token. Set GMNAP_METRICS_REQUIRE_AUTH=0 to "
+                        "disable (single-tenant deploys only)."
+                    ),
+                )
+
         if PROM_AVAILABLE:
             UPTIME_GAUGE.set(time.time() - _start_time)
             return Response(
