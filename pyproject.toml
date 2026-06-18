@@ -151,30 +151,25 @@ addopts = "-ra -q --strict-markers"
 # errors from non-CI dirs that have known import / fixture issues.
 # Triage report: docs/test_triage_2026-04-28.md.
 norecursedirs = [
+    # Parked tests that need triage. Round 34 phase 5 deleted the
+    # broken/dead entries (coherence, compliance, error_recovery,
+    # extreme, genealogy, idempotency, memory, mock_api, production,
+    # regional, regions/e6_mainland_sea, roundtrip — all 3-month-old,
+    # all failing on a fresh run, all targeting deleted modules or
+    # broken fixtures). The remaining four are KEPT-PARKED for
+    # specific reasons:
     "docs/orphaned_tests",
-    "tests/coherence",
-    "tests/compliance",
-    "tests/error_recovery",
-    "tests/extreme",
-    "tests/genealogy",
-    "tests/hardcore",
-    "tests/idempotency",
+    "tests/hardcore",     # chaos/stress fixtures; need their own perf round
     # Whole tests/integration tree skipped by default — CI explicitly
     # enumerates `tests/integration/test_memgraph_e2e.py` (the only
     # CI-active file). Most others import the legacy pipeline_v6 /
     # streaming_v7 modules deleted in round 18, so plain `pytest`
     # would hit collection errors.
     "tests/integration",
-    "tests/live",
-    "tests/memory",
-    "tests/mock_api",
-    "tests/paranoid",
-    "tests/performance",
-    "tests/production",
-    "tests/regional",
-    "tests/regions/e6_mainland_sea",
-    "tests/roundtrip",
-    "tests/security",
+    "tests/live",         # marked @pytest.mark.live; needs network
+    "tests/paranoid",     # chaos/fuzzing; latest 7 weeks; defer triage
+    "tests/performance",  # perf benchmarks; need a regression-harness round
+    "tests/security",     # real security tests; deferred to its own round
     "scripts",
     "archive",
     "out",
