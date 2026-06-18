@@ -545,12 +545,12 @@ class EnhancedRegionSpec(RegionSpec):
         Round-29 finding: H3 audit caught these processors calling
         ``self.basic_validation()`` but the method was undefined
         anywhere — every invocation would have raised ``AttributeError``.
-        The call sites are reachable from
-        ``HybridRegionClassifier`` via ``self.phase1.detect_region``,
-        but in practice ``self.phase1`` resolves to the central
+        In practice ``self.phase1`` resolves to the central
         ``RegionManager`` not the per-region processor, so the bug
         was latent. Adding the method here makes any future revival
-        of those code paths safe by default.
+        of those code paths safe by default. (Round 34 removed the
+        ``HybridRegionClassifier`` that previously sat over these
+        processors; the bug-by-construction analysis still holds.)
 
         Permissive by design: returns True for any entry with at
         least one of ``CanonicalLatin`` / ``CanonicalNative`` /
