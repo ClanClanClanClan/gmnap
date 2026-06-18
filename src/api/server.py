@@ -818,8 +818,7 @@ def create_app() -> FastAPI:
             # work without an env-var workaround. Real traffic from
             # a misconfigured client never sets host="testclient".
             is_local = (
-                client_ip
-                in ("127.0.0.1", "::1", "localhost", "unknown", "testclient")
+                client_ip in ("127.0.0.1", "::1", "localhost", "unknown", "testclient")
                 or client_ip.startswith("10.")
                 or client_ip.startswith("192.168.")
                 or any(client_ip.startswith(f"172.{i}.") for i in range(16, 32))
