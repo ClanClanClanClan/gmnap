@@ -19,15 +19,55 @@ help:
 	@echo "  update-sources - Update authority source configurations"
 	@echo "  clean        - Clean cache and temporary files"
 
-# One-time setup for a fresh clone
+# One-time setup for a fresh clone. Uses `python3 -m pip` so it works
+# on systems where `pip` itself isn't on PATH (common on macOS with
+# the system Python). `-e .` installs the project itself so the
+# `gmnap` console script lands on PATH alongside the deps — that
+# unblocks every CLI example in README/CLAUDE.md/DEMO.md.
+#
+# Pre-flight: a virtualenv is strongly recommended. Apple's system
+# Python (macOS default) ships pip 21.2 with read-only site-packages,
+# which fails both PEP-660 editable installs AND `--user` writes. We
+# detect that case and bail with a clear venv recipe rather than
+# silently dropping you into a broken state.
 setup:
-	pip install -r requirements.txt
-	@bash scripts/install_fasttext.sh || \
-		echo "⚠️  fasttext install skipped; rules-only detection will be used."
+	@python3 -c "import sys; sys.exit(0 if sys.prefix != sys.base_prefix else 1)" 2>/dev/null || { \
+		echo ""; \
+		echo "❌ You are not inside a virtual environment."; \
+		echo "   The system Python's site-packages is typically read-only"; \
+		echo "   (macOS especially), which breaks both pip and the"; \
+		echo "   editable install of gmnap. Set up a venv first:"; \
+		echo ""; \
+		echo "     python3 -m venv .venv"; \
+		echo "     source .venv/bin/activate"; \
+		echo "     make setup"; \
+		echo ""; \
+		exit 1; \
+	}
+	python3 -m pip install --upgrade pip
+	python3 -m pip install -r requirements.txt
+	python3 -m pip install -e .
+	@bash scripts/install_fasttext.sh || { \
+		echo ""; \
+		echo "❌ fasttext install FAILED."; \
+		echo "   Region detection will fall back to RULES-ONLY mode."; \
+		echo "   This reduces accuracy materially on the name-origin"; \
+		echo "   branch; the 0.95 confidence scores in 'gmnap query'"; \
+		echo "   are still meaningful but coverage drops by ~28 % at"; \
+		echo "   the abstention rate."; \
+		echo ""; \
+		echo "   Retry with: make install-fasttext"; \
+		echo "   Or install build tools first:"; \
+		echo "     macOS: xcode-select --install"; \
+		echo "     Linux: apt-get install build-essential git"; \
+		echo ""; \
+	}
 	@bash scripts/install_hooks.sh || \
 		echo "⚠️  pre-commit hook install skipped (not a git checkout?)"
 	@echo ""
-	@echo "Setup complete. Try:  gmnap query \"Euler, Leonhard\""
+	@command -v gmnap >/dev/null 2>&1 && \
+		echo "✅ Setup complete. Try:  gmnap query \"Euler, Leonhard\"" || \
+		echo "⚠️  Setup complete but 'gmnap' is not on PATH. Try: python3 -m src.cli.gmnap query \"Euler, Leonhard\""
 
 install-fasttext:
 	@bash scripts/install_fasttext.sh

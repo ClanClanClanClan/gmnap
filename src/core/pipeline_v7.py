@@ -1598,7 +1598,20 @@ class V7Pipeline:
         perf_minutes = None
         stage6_score = None
 
-        if self.metrics.duration_seconds > 0 and self.metrics.processed_entries > 0:
+        # The 1M projection is only meaningful at scale. Below this
+        # threshold per-entry setup overhead (fastText spawn, manager
+        # singleton, region processor loading) dominates and the
+        # extrapolation produces alarming-but-meaningless numbers
+        # (e.g. "1M time: 2,111 min" for a 1-entry CLI run). Skip the
+        # projection entirely below 500 entries — the FastQualityGates
+        # threshold check still runs above this scale, which is where
+        # it actually matters.
+        _PERF_GATE_MIN_BATCH = 500
+
+        if (
+            self.metrics.duration_seconds > 0
+            and self.metrics.processed_entries >= _PERF_GATE_MIN_BATCH
+        ):
             # Project to 1M entries
             entries_per_sec = (
                 self.metrics.processed_entries / self.metrics.duration_seconds

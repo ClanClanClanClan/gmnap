@@ -5,8 +5,10 @@ Provides REST endpoints for name authority queries, lineage lookups,
 and batch processing per spec section 12.
 
 Rate limits:
-  - Free tier: 60 req/min (no auth required)
-  - Paid tier: 10,000 req/min (Bearer token)
+  - Free tier: 60 req/min, requires X-Hashcash 18-bit PoW header
+    (V7 spec §12). Set GMNAP_REQUIRE_HASHCASH=0 or run the server
+    with ``gmnap serve --no-hashcash`` to disable for local dev.
+  - Paid tier: 10,000 req/min (Bearer token), no hashcash required.
 """
 
 import hashlib
@@ -107,6 +109,18 @@ HASHCASH_BITS = 18
 _HASHCASH_TTL = 300  # stamps valid for 5 minutes
 _used_stamps: Dict[str, float] = {}  # prevent replay
 _stamps_lock = threading.Lock()
+
+
+# Operational bypass for the hashcash gate. Default is "1" — V7 spec
+# §12 mandates 18-bit PoW for the free tier, and any prod deploy must
+# enforce it. Set to "0" for local dev / CI / `gmnap serve --no-hashcash`
+# where the friction is dead weight (an attacker can already hit the
+# local box freely; PoW only matters in a multi-tenant deployment).
+# Read fresh on every request so a `pkill -HUP` style re-load (or a
+# k8s env-var change) takes effect without restarting all uvicorn workers.
+def _hashcash_required() -> bool:
+    raw = os.getenv("GMNAP_REQUIRE_HASHCASH", "1").strip().lower()
+    return raw not in ("0", "false", "no", "off")
 
 
 def verify_hashcash(stamp: str, required_bits: int = HASHCASH_BITS) -> bool:
@@ -256,9 +270,13 @@ def create_app() -> FastAPI:
             token = auth[7:]
             is_paid = any(hmac.compare_digest(token, t) for t in _PAID_TOKENS)
 
-        # V7 spec §12: free tier requires hashcash 18-bit PoW for /api/ endpoints
+        # V7 spec §12: free tier requires hashcash 18-bit PoW for /api/ endpoints.
+        # Operators can disable via GMNAP_REQUIRE_HASHCASH=0 (local dev, CI,
+        # behind-the-firewall deploys, `gmnap serve --no-hashcash`). The
+        # rate limiter below still applies — disabling hashcash doesn't
+        # disable the 60/min free-tier cap.
         path = request.url.path
-        if not is_paid and path.startswith("/api/"):
+        if not is_paid and path.startswith("/api/") and _hashcash_required():
             stamp = request.headers.get("X-Hashcash", "")
             if not verify_hashcash(stamp):
                 return JSONResponse(
@@ -266,6 +284,7 @@ def create_app() -> FastAPI:
                     content={
                         "detail": "Free tier requires X-Hashcash header (18-bit PoW)",
                         "info": "Format: 1:18:YYMMDD:gmnap-api::rand:counter",
+                        "bypass": "Set GMNAP_REQUIRE_HASHCASH=0 for local dev",
                     },
                 )
 
