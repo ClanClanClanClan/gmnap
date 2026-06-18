@@ -1,8 +1,32 @@
 # MathLineage — Global Mathematician Name Authority
 
-## What It Does
+## What this is
 
-Processes mathematician names across 37 linguistic regions, detecting geographic origin, normalizing naming conventions, and enriching with authority data from 9 sources.
+MathLineage disambiguates mathematician names by linguistic origin
+and academic genealogy. Given a name like `Erdős, Pál` or
+`Hilbert, David`, it returns the regional naming convention
+(family-first vs given-first, particle handling, transliteration),
+canonical form, advisor chain, institution, and a stable global ID
+deterministically derived from the canonical form.
+
+## Who it's for
+
+Researchers and tools that need to **deduplicate mathematician
+records across sources** — bibliometric tooling, prosopography
+projects, mathematics-genealogy maintainers, citation graphs that
+need to merge `Erdős, Pál`, `Erdos, P.`, `Paul Erdős`, and `P.
+Erdős` into one entity with verifiable provenance.
+
+## Why it matters
+
+Naming-convention disagreement is the dominant source of
+deduplication errors in cross-source academic data. Generic
+name-matching libraries don't know that Hungarian writes family-
+first, that Tamil names are patronymic-not-surname, or that
+`van der Waerden` is one particle-and-surname not three tokens.
+This project encodes those 37 region-specific rules + a vetted
+genealogy of ~39,500 mathematicians (MGP seed + Wikidata SPARQL +
+OpenAlex affiliations).
 
 ## Quick Start
 
@@ -39,6 +63,13 @@ screenshots), see **[DEMO.md](DEMO.md)**. For the architecture
 one-pager covering the five design decisions an evaluator asks about,
 see **[ARCHITECTURE.md](ARCHITECTURE.md)**. For the running list of
 changes, see **[CHANGELOG.md](CHANGELOG.md)**.
+
+For contributing, see **[CONTRIBUTING.md](CONTRIBUTING.md)** (pre-commit
+hook, audit battery, CI gates). For security policy and how to report
+a vulnerability, see **[SECURITY.md](SECURITY.md)**. For the licensing
+status of the bundled data (`data/genealogy_enrichment.json`) — which
+is a derivative of Wikidata + OpenAlex + curated MGP entries, each with
+its own provenance — see **[DATA_SOURCES.md](DATA_SOURCES.md)**.
 
 ## Features
 
@@ -202,4 +233,11 @@ runs the full lint + test matrix on every push regardless.
 
 ## License
 
-MIT
+**Code**: MIT (see [LICENSE](LICENSE)).
+
+**Bundled data** (`data/genealogy_enrichment.json` + region YAML
+configs + adjudicated benchmarks): a mix of CC0 (Wikidata,
+OpenAlex), CC-BY (HAL, OAI-PMH harvests, zbMATH Open metadata),
+and curated entries (Mathematics Genealogy Project seed + manual
+adjudication). Per-source provenance + attribution requirements
+are spelled out in **[DATA_SOURCES.md](DATA_SOURCES.md)**.
