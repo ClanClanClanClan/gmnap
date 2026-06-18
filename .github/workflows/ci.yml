@@ -560,18 +560,22 @@ jobs:
       - name: Check API spend against CHF 120/month limit
         run: |
           mkdir -p cache
-          # The cost-tracker module is the canonical reader too —
-          # avoids reimplementing the file-format twice. If the file
-          # is missing (fresh checkout, no live calls ever made), the
-          # tracker treats it as zero spend.
+          # Standalone load of just cost_tracker, avoiding the
+          # src.core package __init__ chain which pulls in pyyaml +
+          # other runtime deps the cost-guard job doesn't need. This
+          # keeps the job under 5 s wall-clock.
           PYTHONPATH=. python3 -c "
-          import sys
-          from src.core import cost_tracker
+          import importlib.util, sys
+          spec = importlib.util.spec_from_file_location(
+              'cost_tracker', 'src/core/cost_tracker.py'
+          )
+          mod = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
           limit = float('${COST_GUARD_LIMIT_CHF:-120.0}')
-          total = cost_tracker.total()
+          total = mod.total()
           print(f'Total API spend: CHF {total:.2f} / {limit:.2f}')
           if total >= limit:
-              print('::error::API spend over CHF {0:.2f} budget'.format(limit))
+              print(f'::error::API spend over CHF {limit:.2f} budget')
               sys.exit(1)
           print('Within budget')
           "
