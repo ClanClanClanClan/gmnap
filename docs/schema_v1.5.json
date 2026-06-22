@@ -250,7 +250,8 @@
             },
             "ORCID": {
               "type": "string",
-              "pattern": "^\\d{4}-\\d{4}-\\d{4}-\\d{4}$"
+              "description": "ORCID iD per https://support.orcid.org/hc/en-us/articles/360006897674 — 16 chars in 4-4-4-4 layout. The last position is a Mod-11 check digit which can legally be 'X' for the value 10. Structural pattern only; SchemaValidator._is_valid_orcid() also enforces the ISO 7064 Mod-11-2 checksum.",
+              "pattern": "^\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\dX]$"
             },
             "Scopus": {
               "type": "object",

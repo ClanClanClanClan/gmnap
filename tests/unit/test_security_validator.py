@@ -25,18 +25,16 @@ import pytest
 
 # Run security validator in production mode so injection patterns
 # actually fire (TEST_MODE allows certain academic-name fields to
-# bypass pattern checks).
+# bypass pattern checks). Read at module import — the validator now
+# checks the env var per call (via ``_test_mode()``), so no module
+# reload is needed. The earlier ``importlib.reload(_sv)`` here
+# recreated ``SecurityError`` with a new class identity, which broke
+# ``except SecurityError`` clauses elsewhere in the codebase that
+# had cached the original class — same round-32 RegionRuleError
+# class-of-bug pattern. Documented in the validator module too.
 os.environ.pop("GMNAP_SECURITY_MODE", None)
 
-# Reload the module after env cleanup so TEST_MODE resolves correctly.
-import importlib  # noqa: E402
-
-from src.core import security_validator as _sv  # noqa: E402
-
-importlib.reload(_sv)
-SecurityValidator = _sv.SecurityValidator
-SecurityError = _sv.SecurityError
-
+from src.core.security_validator import SecurityError, SecurityValidator  # noqa: E402
 
 # ─── validate_string: happy path + injection blocks ───────────────────
 

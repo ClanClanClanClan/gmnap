@@ -209,41 +209,53 @@ class TestDatabaseStressTests:
             pass
 
     def test_disk_space_exhaustion(self, temp_db_path):
-        """Test behavior when disk space is exhausted."""
+        """Behavior when SQLite says "database or disk is full".
+
+        Python 3.12 made ``sqlite3.Connection`` immutable, so the
+        earlier ``patch.object(sqlite3.Connection, "execute", ...)``
+        approach no longer works. Use SQLite's native page quota
+        instead — ``PRAGMA max_page_count = N`` makes the engine
+        raise ``OperationalError`` with the same "disk is full" text
+        as a real disk-full event, without any mocking.
+        """
         config = DatabaseConfig(db_path=str(temp_db_path), use_duckdb=False)
 
-        # Mock disk full error
-        original_execute = sqlite3.Connection.execute
+        with DatabaseManager(config) as db:
+            # Squeeze the page budget to ~4 KB (1 page of default
+            # page_size). Any insert beyond a couple rows trips
+            # the quota at the engine layer.
+            db.connection.execute("PRAGMA max_page_count = 1")
 
-        def mock_execute(self, sql, parameters=None):
-            if "INSERT" in sql.upper():
-                raise sqlite3.OperationalError("database or disk is full")
-            return original_execute(self, sql, parameters or [])
-
-        with patch.object(sqlite3.Connection, "execute", mock_execute):
-            with DatabaseManager(config) as db:
-                entry = {
-                    "Test, User": {
-                        "GlobalID": "TESTABCDEFGHIJKLMNOPQ",
-                        "CanonicalLatin": "Test, User",
-                        "CanonicalNative": "Test, User",
-                        "LanguageOfPublication": ["en"],
-                        "FamilyNameType": "surname",
-                        "Gender": "unspecified",
-                        "GenderProvided": False,
-                        "CountryCodes": ["US"],
-                        "Confidence": 50,
-                        "Historic": False,
-                        "GDPR_DATA": False,
-                    }
+            entry = {
+                "Test, User": {
+                    "GlobalID": "TESTABCDEFGHIJKLMNOPQ",
+                    "CanonicalLatin": "Test, User",
+                    "CanonicalNative": "Test, User",
+                    "LanguageOfPublication": ["en"],
+                    "FamilyNameType": "surname",
+                    "Gender": "unspecified",
+                    "GenderProvided": False,
+                    "CountryCodes": ["US"],
+                    "Confidence": 50,
+                    "Historic": False,
+                    "GDPR_DATA": False,
                 }
+            }
 
-                # Should handle disk full error gracefully
-                try:
+            try:
+                # Loop until we trip the quota — small DB may take
+                # a few inserts before page 1 is full.
+                for _ in range(50):
                     db.insert_initial_stats([entry])
-                    # If it succeeds, that's fine too
-                except sqlite3.OperationalError as e:
-                    assert "disk is full" in str(e)
+            except sqlite3.OperationalError as e:
+                # SQLite reports either "database or disk is full"
+                # (real disk full) or "too many pages" (quota).
+                msg = str(e).lower()
+                assert "full" in msg or "page" in msg, msg
+                return
+            # If we never tripped it, the engine handles small
+            # entries without overflow — also acceptable behavior
+            # for the under-test code path.
 
     def test_extremely_long_names(self, temp_db_path):
         """Test handling of extremely long names."""
@@ -291,48 +303,70 @@ class TestDatabaseStressTests:
                 assert isinstance(stats, dict)
 
     def test_database_locking_scenarios(self, temp_db_path):
-        """Test database locking scenarios."""
+        """SQLite EXCLUSIVE lock blocks concurrent writers.
+
+        Original test opened db1, took an exclusive lock, then tried
+        to construct db2 — but ``DatabaseManager.__init__`` itself
+        runs ``CREATE TABLE IF NOT EXISTS`` which needs write access
+        and trips the lock during init, before we get to the call
+        we want to test. Fix: pre-create the schema with a
+        throwaway connection, then run the lock contention test
+        against an already-initialized DB so the failure surfaces
+        on the operation we mean to exercise.
+        """
         config = DatabaseConfig(
             db_path=str(temp_db_path),
             use_duckdb=False,
             enable_wal=False,  # Disable WAL to test locking
         )
 
-        # First connection holds a transaction
+        # Pre-create schema so subsequent inits aren't fighting the lock
+        # purely on table-creation; the contention should land on the
+        # actual write we care about.
+        with DatabaseManager(config):
+            pass
+
         db1 = DatabaseManager(config)
 
         try:
-            # Start a transaction
             db1.connection.execute("BEGIN EXCLUSIVE TRANSACTION")
 
-            # Second connection should handle lock appropriately
-            db2 = DatabaseManager(config)
-
-            try:
-                entry = {
-                    "Test, User": {
-                        "GlobalID": "TESTABCDEFGHIJKLMNOPQ",
-                        "CanonicalLatin": "Test, User",
-                        "CanonicalNative": "Test, User",
-                        "LanguageOfPublication": ["en"],
-                        "FamilyNameType": "surname",
-                        "Gender": "unspecified",
-                        "GenderProvided": False,
-                        "CountryCodes": ["US"],
-                        "Confidence": 50,
-                        "Historic": False,
-                        "GDPR_DATA": False,
-                    }
+            entry = {
+                "Test, User": {
+                    "GlobalID": "TESTABCDEFGHIJKLMNOPQ",
+                    "CanonicalLatin": "Test, User",
+                    "CanonicalNative": "Test, User",
+                    "LanguageOfPublication": ["en"],
+                    "FamilyNameType": "surname",
+                    "Gender": "unspecified",
+                    "GenderProvided": False,
+                    "CountryCodes": ["US"],
+                    "Confidence": 50,
+                    "Historic": False,
+                    "GDPR_DATA": False,
                 }
+            }
 
-                # This might timeout or fail due to lock
+            # The "lock surfaces correctly" assertion is the point of
+            # this test. It can surface at init (PRAGMA writes against
+            # the locked DB) OR at the subsequent insert, depending
+            # on platform timing. Either path satisfies the contract.
+            try:
+                db2 = DatabaseManager(config)
                 try:
                     db2.insert_initial_stats([entry])
+                    pytest.fail(
+                        "Expected sqlite3.OperationalError under "
+                        "EXCLUSIVE lock, but insert silently succeeded"
+                    )
                 except sqlite3.OperationalError as e:
-                    assert "locked" in str(e).lower()
-
-            finally:
-                db2.close()
+                    assert "lock" in str(e).lower(), str(e)
+                finally:
+                    db2.close()
+            except sqlite3.OperationalError as e:
+                # Lock contention manifested at init time — that's
+                # still the documented failure mode, just earlier.
+                assert "lock" in str(e).lower(), str(e)
 
         finally:
             db1.connection.rollback()
@@ -519,10 +553,23 @@ class TestDatabaseFailoverScenarios:
                     # Should fail gracefully
                     pass
             except Exception as e:
-                # Expected to fail when no valid database path
+                # Expected to fail when no valid database path. The
+                # specific filesystem error varies by OS: Linux says
+                # "No such file or directory", macOS POSIX layer on
+                # protected roots like /invalid/... says "Read-only
+                # file system" instead, and SQLite's own wrapper
+                # phrases it as "unable to open database file" or
+                # "cannot open". Accept any of the documented forms.
+                msg = str(e).lower()
                 assert (
-                    "No such file or directory" in str(e)
-                    or "cannot open" in str(e).lower()
+                    "no such file or directory" in msg
+                    or "cannot open" in msg
+                    or "unable to open" in msg
+                    or "read-only file system" in msg
+                    or "permission denied" in msg
+                ), (
+                    "Unexpected error class — expected a filesystem / "
+                    f"SQLite open-failure, got: {e!r}"
                 )
 
     def test_database_recovery_after_corruption(self, temp_db_path):
@@ -586,46 +633,69 @@ class TestDatabaseFailoverScenarios:
             restricted_path.chmod(0o755)
 
     def test_partial_write_scenarios(self, temp_db_path):
-        """Test scenarios with partial writes/corruption."""
+        """Behavior when a write fails mid-batch (simulated I/O error).
+
+        Python 3.12 sealed ``sqlite3.Connection`` against both class-
+        AND instance-level attribute writes — no monkey-patching of
+        its bound methods is possible any more. Replace
+        ``DatabaseManager.connection`` itself with a thin proxy that
+        forwards everything but raises on the first INSERT
+        executemany. The proxy is a plain Python class, so attribute
+        assignment works under 3.12+.
+        """
         config = DatabaseConfig(db_path=str(temp_db_path), use_duckdb=False)
 
-        # Mock partial write by interrupting executemany
-        original_executemany = sqlite3.Connection.executemany
-        call_count = 0
+        class _FailingConnection:
+            """Proxy that delegates to a real sqlite3.Connection but
+            raises OperationalError on the first INSERT batch.
 
-        def mock_executemany(self, sql, parameters):
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1 and "INSERT" in sql:
-                # Simulate interruption on first insert
-                raise sqlite3.OperationalError("disk I/O error")
-            return original_executemany(self, sql, parameters)
+            Forwards every other attribute via __getattr__ so the
+            DatabaseManager's bookkeeping (PRAGMAs, commits, table
+            creates) keeps working transparently.
+            """
 
-        with patch.object(sqlite3.Connection, "executemany", mock_executemany):
-            with DatabaseManager(config) as db:
-                entries = [
-                    {
-                        "Test, User": {
-                            "GlobalID": "TESTABCDEFGHIJKLMNOPQ",
-                            "CanonicalLatin": "Test, User",
-                            "CanonicalNative": "Test, User",
-                            "LanguageOfPublication": ["en"],
-                            "FamilyNameType": "surname",
-                            "Gender": "unspecified",
-                            "GenderProvided": False,
-                            "CountryCodes": ["US"],
-                            "Confidence": 50,
-                            "Historic": False,
-                            "GDPR_DATA": False,
-                        }
+            def __init__(self, real):
+                self._real = real
+                self._fired = False
+
+            def executemany(self, sql, parameters):
+                if not self._fired and "INSERT" in sql.upper():
+                    self._fired = True
+                    raise sqlite3.OperationalError("disk I/O error")
+                return self._real.executemany(sql, parameters)
+
+            def __getattr__(self, name):
+                return getattr(self._real, name)
+
+        with DatabaseManager(config) as db:
+            db.connection = _FailingConnection(db.connection)
+
+            entries = [
+                {
+                    "Test, User": {
+                        "GlobalID": "TESTABCDEFGHIJKLMNOPQ",
+                        "CanonicalLatin": "Test, User",
+                        "CanonicalNative": "Test, User",
+                        "LanguageOfPublication": ["en"],
+                        "FamilyNameType": "surname",
+                        "Gender": "unspecified",
+                        "GenderProvided": False,
+                        "CountryCodes": ["US"],
+                        "Confidence": 50,
+                        "Historic": False,
+                        "GDPR_DATA": False,
                     }
-                ]
+                }
+            ]
 
-                # Should handle I/O error gracefully
-                try:
-                    db.insert_initial_stats(entries)
-                except sqlite3.OperationalError as e:
-                    assert "I/O error" in str(e)
+            try:
+                db.insert_initial_stats(entries)
+            except sqlite3.OperationalError as e:
+                assert "I/O error" in str(e)
+            finally:
+                # Restore the real connection so the context-manager's
+                # close() can run on the underlying sqlite3.Connection.
+                db.connection = db.connection._real
 
 
 @pytest.mark.integration

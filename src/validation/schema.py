@@ -270,26 +270,42 @@ class SchemaValidator:
         return code[:2].isdigit() and code[2].isalpha() and code[3:].isdigit()
 
     def _is_valid_orcid(self, orcid: str) -> bool:
-        """Check if ORCID follows correct format."""
+        """Check ORCID structure + ISO-7064 Mod-11-2 checksum.
+
+        ORCID iDs are 16 characters in 4-4-4-4 layout; the last
+        character is a Mod-11-2 check digit, which can legally be
+        ``X`` for a check value of 10. Structural-only validation
+        accepts trivially-fake IDs like ``0000-0000-0000-000X``; the
+        checksum check rejects those because the Mod-11 of fifteen
+        zeros is 0, not 10. Spec:
+        https://support.orcid.org/hc/en-us/articles/360006897674
+        """
         if not orcid:
             return False
 
-        # Format: XXXX-XXXX-XXXX-XXXX where last char can be X
+        # Structural — 4-4-4-4 layout, last char optionally X.
         parts = orcid.split("-")
         if len(parts) != 4:
             return False
-
-        # First 3 parts must be digits
         for i in range(3):
             if len(parts[i]) != 4 or not parts[i].isdigit():
                 return False
-
-        # Last part: 3 digits + 1 digit or X
         if len(parts[3]) != 4:
             return False
         if not parts[3][:3].isdigit():
             return False
         if not (parts[3][3].isdigit() or parts[3][3] == "X"):
+            return False
+
+        # ISO 7064 Mod-11-2 check.  base = (((0*2)+d)*2 + d) ... mod 11
+        # check digit = (12 - base) mod 11; X represents 10.
+        digits = "".join(parts)
+        total = 0
+        for ch in digits[:-1]:
+            total = (total + int(ch)) * 2
+        expected = (12 - (total % 11)) % 11
+        actual = 10 if digits[-1] == "X" else int(digits[-1])
+        if expected != actual:
             return False
 
         return True

@@ -263,7 +263,8 @@ class TestSchemaValidator:
                 "Advisors": ["XYZABCDEFGHIJKLMNOPQRS"],
                 "ShortFormClusters": {"J. C. García": 4, "García": 38},
                 "AuthorityIDs": {
-                    "ORCID": "0000-0003-1111-2222",
+                    # Real Mod-11-2-valid ORCID (digits ...1111222 → check=X).
+                    "ORCID": "0000-0003-1111-222X",
                     "MathSciNet": "203000",
                 },
                 "Confidence": 96,

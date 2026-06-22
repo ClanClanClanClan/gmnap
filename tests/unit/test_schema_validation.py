@@ -16,14 +16,40 @@ class TestSchemaValidator:
         """Set up test fixtures."""
         self.validator = SchemaValidator()
 
-    def test_valid_minimal_entry(self):
-        """Test minimal valid entry."""
-        entry = {
+    def _minimal_entry(self, **overrides) -> dict:
+        """Return an entry that satisfies every v1.5 ``required`` field.
+
+        Schema-defined required fields (``docs/schema_v1.5.json``):
+        GlobalID, UpdatedAt, CanonicalLatin, CanonicalNative,
+        LanguageOfPublication, FamilyNameType, Gender, CountryCodes,
+        Confidence, Historic, GDPR_DATA. Earlier tests assumed a
+        4-field "minimal" that pre-dated the v1.5 ``required`` list;
+        every test fed entries the schema rightly rejected, so 8 of
+        them failed for the same reason (missing required fields,
+        not the specific field they meant to test).
+
+        Per-test overrides win — pass ``BirthYear=…`` to test birth-
+        year format without rebuilding the boilerplate.
+        """
+        base = {
             "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
             "UpdatedAt": "2025-01-01T00:00:00Z",
             "CanonicalLatin": "Smith, John",
             "CanonicalNative": "Smith, John",
+            "LanguageOfPublication": ["en"],
+            "FamilyNameType": "surname",
+            "Gender": "unspecified",
+            "CountryCodes": ["US"],
+            "Confidence": 50,
+            "Historic": False,
+            "GDPR_DATA": False,
         }
+        base.update(overrides)
+        return base
+
+    def test_valid_minimal_entry(self):
+        """Schema-minimal entry (every ``required`` field, nothing else)."""
+        entry = self._minimal_entry()
 
         file_data = {"Smith, John": entry}
         is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -72,7 +98,8 @@ class TestSchemaValidator:
             "Advisors": ["BCDEFGHIJKLMNOPQRSTUVW"],
             "ShortFormClusters": {"García": 5, "J. García": 3},
             "AuthorityIDs": {
-                "ORCID": "0000-0003-1234-5678",
+                # Real Mod-11-2-valid ORCID (digits ...1234567 → check=4).
+                "ORCID": "0000-0003-1234-5674",
                 "OpenAlex": "A1234567890",
                 "Scopus": {"id": "123456789", "license": "Elsevier"},
             },
@@ -173,13 +200,7 @@ class TestSchemaValidator:
         ]
 
         for birth_year, should_be_valid in test_cases:
-            entry = {
-                "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
-                "UpdatedAt": "2025-01-01T00:00:00Z",
-                "CanonicalLatin": "Smith, John",
-                "CanonicalNative": "Smith, John",
-                "BirthYear": birth_year,
-            }
+            entry = self._minimal_entry(BirthYear=birth_year)
 
             file_data = {"Smith, John": entry}
             is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -204,13 +225,9 @@ class TestSchemaValidator:
         ]
 
         for msc_code, should_be_valid in test_cases:
-            entry = {
-                "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
-                "UpdatedAt": "2025-01-01T00:00:00Z",
-                "CanonicalLatin": "Smith, John",
-                "CanonicalNative": "Smith, John",
-                "PrimaryMSC": [{"code": msc_code, "source": "zbMATH"}],
-            }
+            entry = self._minimal_entry(
+                PrimaryMSC=[{"code": msc_code, "source": "zbMATH"}]
+            )
 
             file_data = {"Smith, John": entry}
             is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -224,13 +241,7 @@ class TestSchemaValidator:
 
     def test_msc_code_missing_source(self):
         """Test MSC code requires source field."""
-        entry = {
-            "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
-            "UpdatedAt": "2025-01-01T00:00:00Z",
-            "CanonicalLatin": "Smith, John",
-            "CanonicalNative": "Smith, John",
-            "PrimaryMSC": [{"code": "60G15"}],  # Missing source
-        }
+        entry = self._minimal_entry(PrimaryMSC=[{"code": "60G15"}])  # missing source
 
         file_data = {"Smith, John": entry}
         is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -240,24 +251,29 @@ class TestSchemaValidator:
 
     def test_orcid_validation(self):
         """Test ORCID format validation."""
+        # ORCID iDs include an ISO 7064 Mod-11-2 check digit (per the
+        # spec at https://support.orcid.org/...articles/360006897674);
+        # the validator enforces it, so the test cases use real
+        # checksum-valid IDs rather than fake-shaped ones.
         test_cases = [
-            ("0000-0003-1234-5678", True),  # Valid
-            ("0000-0003-1234-567X", True),  # Valid with X
-            ("0000-0003-1234-5678X", False),  # Invalid X position
-            ("0000-0003-1234-56789", False),  # Too long
-            ("0000-0003-1234-567", False),  # Too short
-            ("0000-0003-1234", False),  # Missing parts
-            ("abcd-0003-1234-5678", False),  # Invalid characters
+            # Real ORCID from Wikipedia (John H. McAlpine, used by
+            # ORCID's own example docs).
+            ("0000-0002-1825-0097", True),
+            # Computed valid 4-suffix: digits ...1234567 → check=4
+            ("0000-0003-1234-5674", True),
+            # Computed valid X-suffix: digits ...1111222 → check=X
+            ("0000-0003-1111-222X", True),
+            ("0000-0003-1234-5678X", False),  # too long
+            ("0000-0003-1234-56789", False),  # too long
+            ("0000-0003-1234-567", False),  # too short
+            ("0000-0003-1234", False),  # missing parts
+            ("abcd-0003-1234-5678", False),  # invalid characters
+            # Structurally-shaped but bad Mod-11 checksum:
+            ("0000-0000-0000-000X", False),
         ]
 
         for orcid, should_be_valid in test_cases:
-            entry = {
-                "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
-                "UpdatedAt": "2025-01-01T00:00:00Z",
-                "CanonicalLatin": "Smith, John",
-                "CanonicalNative": "Smith, John",
-                "AuthorityIDs": {"ORCID": orcid},
-            }
+            entry = self._minimal_entry(AuthorityIDs={"ORCID": orcid})
 
             file_data = {"Smith, John": entry}
             is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -270,13 +286,9 @@ class TestSchemaValidator:
     def test_proprietary_license_validation(self):
         """Test proprietary sources require license field."""
         # Scopus without license (invalid)
-        entry = {
-            "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
-            "UpdatedAt": "2025-01-01T00:00:00Z",
-            "CanonicalLatin": "Smith, John",
-            "CanonicalNative": "Smith, John",
-            "AuthorityIDs": {"Scopus": "123456789"},  # String instead of object
-        }
+        entry = self._minimal_entry(
+            AuthorityIDs={"Scopus": "123456789"},  # string, not object
+        )
 
         file_data = {"Smith, John": entry}
         is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -286,16 +298,12 @@ class TestSchemaValidator:
 
     def test_proprietary_license_valid(self):
         """Test proprietary sources with proper license field."""
-        entry = {
-            "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
-            "UpdatedAt": "2025-01-01T00:00:00Z",
-            "CanonicalLatin": "Smith, John",
-            "CanonicalNative": "Smith, John",
-            "AuthorityIDs": {
+        entry = self._minimal_entry(
+            AuthorityIDs={
                 "Scopus": {"id": "123456789", "license": "Elsevier"},
                 "Dimensions": {"id": "987654321", "license": "Digital Science"},
             },
-        }
+        )
 
         file_data = {"Smith, John": entry}
         is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -315,13 +323,7 @@ class TestSchemaValidator:
         ]
 
         for languages, should_be_valid in test_cases:
-            entry = {
-                "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
-                "UpdatedAt": "2025-01-01T00:00:00Z",
-                "CanonicalLatin": "Smith, John",
-                "CanonicalNative": "Smith, John",
-                "LanguageOfPublication": languages,
-            }
+            entry = self._minimal_entry(LanguageOfPublication=languages)
 
             file_data = {"Smith, John": entry}
             is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -345,13 +347,7 @@ class TestSchemaValidator:
         ]
 
         for confidence, should_be_valid in test_cases:
-            entry = {
-                "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
-                "UpdatedAt": "2025-01-01T00:00:00Z",
-                "CanonicalLatin": "Smith, John",
-                "CanonicalNative": "Smith, John",
-                "Confidence": confidence,
-            }
+            entry = self._minimal_entry(Confidence=confidence)
 
             file_data = {"Smith, John": entry}
             is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -443,15 +439,9 @@ class TestSchemaValidator:
 
         # Test valid types
         for variant_type in valid_types:
-            entry = {
-                "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
-                "UpdatedAt": "2025-01-01T00:00:00Z",
-                "CanonicalLatin": "Smith, John",
-                "CanonicalNative": "Smith, John",
-                "Variants": {
-                    "Synthesised": [{"str": "Smith, J", "type": variant_type}]
-                },
-            }
+            entry = self._minimal_entry(
+                Variants={"Synthesised": [{"str": "Smith, J", "type": variant_type}]}
+            )
 
             file_data = {"Smith, John": entry}
             is_valid, errors = self.validator.validate_file_structure(file_data)
@@ -461,13 +451,9 @@ class TestSchemaValidator:
             ), f"Valid variant type failed: {variant_type}, errors: {errors}"
 
         # Test invalid type
-        entry = {
-            "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
-            "UpdatedAt": "2025-01-01T00:00:00Z",
-            "CanonicalLatin": "Smith, John",
-            "CanonicalNative": "Smith, John",
-            "Variants": {"Synthesised": [{"str": "Smith, J", "type": "invalid-type"}]},
-        }
+        entry = self._minimal_entry(
+            Variants={"Synthesised": [{"str": "Smith, J", "type": "invalid-type"}]}
+        )
 
         file_data = {"Smith, John": entry}
         is_valid, errors = self.validator.validate_file_structure(file_data)
