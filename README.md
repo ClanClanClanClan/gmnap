@@ -132,6 +132,35 @@ Reproduce:
 | `/api/v1/process` | POST | Batch processing |
 | `/metrics` | GET | Prometheus metrics |
 
+## Python SDK
+
+A small client library at [`src/sdk/`](src/sdk/) wraps the HTTP API.
+Sync and async surfaces, auto-mints V7 spec §12 hashcash, retries
+network errors + 5xx with exponential backoff.
+
+```python
+from src.sdk import Client
+
+with Client("http://localhost:8080") as gmnap:
+    entry = gmnap.query("Hilbert, David")
+    print(entry["region_code"], entry["BirthYear"])
+
+    batch = gmnap.process([
+        {"CanonicalLatin": "Euler, Leonhard", "CountryCodes": ["CH"]},
+        {"CanonicalLatin": "Ramanujan, Srinivasa", "CountryCodes": ["IN"]},
+    ])
+
+# async equivalent
+from src.sdk import AsyncClient
+async with AsyncClient("http://localhost:8080") as gmnap:
+    edges = await gmnap.lineage("name:Hilbert, David", depth=3)
+```
+
+Pass `token=<bearer>` for the paid-tier path (no hashcash). Pass
+`hashcash_bits=None` for local-dev servers running with
+`--no-hashcash`. See [src/sdk/__init__.py](src/sdk/__init__.py) for
+the full docstring.
+
 ## CLI Commands
 
 ```bash
