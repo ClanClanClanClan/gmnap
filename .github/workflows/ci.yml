@@ -206,6 +206,7 @@ jobs:
           tests/unit/test_thread_safe_demo.py
           tests/unit/test_unicode_handler.py
           tests/unit/test_validation_rules.py
+          tests/unit/test_sdk.py
           tests/integration/test_memgraph_e2e.py
           tests/authority/test_manager_offline.py
           tests/cjk/test_v7_cjk_roundtrip.py
