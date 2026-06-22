@@ -1,0 +1,19 @@
+apiVersion: v2
+name: gmnap
+description: Global Mathematician Name Authority — disambiguates mathematician names by linguistic origin and academic genealogy.
+type: application
+# Chart version tracks chart changes; appVersion tracks the gmnap image.
+version: 0.1.0
+appVersion: "0.1.0"
+home: https://github.com/ClanClanClanClan/gmnap
+sources:
+  - https://github.com/ClanClanClanClan/gmnap
+keywords:
+  - mathematicians
+  - name-authority
+  - genealogy
+  - bibliometrics
+maintainers:
+  - name: GMNAP / MathLineage contributors
+    url: https://github.com/ClanClanClanClan/gmnap
+icon: https://raw.githubusercontent.com/ClanClanClanClan/gmnap/main/static/favicon.png

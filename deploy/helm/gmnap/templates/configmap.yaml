@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gmnap-config
+  labels:
+    {{- include "gmnap.labels" . | nindent 4 }}
+data:
+  PIPELINE_MODE: {{ .Values.api.pipelineMode | quote }}
+  OFFLINE: {{ .Values.api.offline | quote }}
+  GMNAP_SCHEMA_STRICT: {{ .Values.api.schemaStrict | quote }}
+  GMNAP_FREE_RPM: {{ .Values.api.freeRpm | quote }}
+  GMNAP_PAID_RPM: {{ .Values.api.paidRpm | quote }}
+  GMNAP_REQUIRE_HASHCASH: {{ .Values.api.requireHashcash | quote }}
+  GMNAP_METRICS_REQUIRE_AUTH: {{ .Values.api.metricsRequireAuth | quote }}
+  CORS_ALLOWED_ORIGINS: {{ .Values.api.corsAllowedOrigins | quote }}
+  GMNAP_LOG_FORMAT: {{ .Values.api.logFormat | quote }}
+  GMNAP_LOG_LEVEL: {{ .Values.api.logLevel | quote }}
+  MEMGRAPH_HOST: {{ printf "memgraph.%s.svc.cluster.local" .Release.Namespace | quote }}
+  MEMGRAPH_PORT: "7687"
+  MEMGRAPH_USER: {{ .Values.memgraph.user | quote }}
+  MEMGRAPH_BOLT: {{ printf "bolt://memgraph.%s.svc.cluster.local:7687" .Release.Namespace | quote }}
+  COST_GUARD_LIMIT_CHF: {{ .Values.api.costGuardLimitChf | quote }}

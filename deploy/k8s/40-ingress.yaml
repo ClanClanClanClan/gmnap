@@ -1,0 +1,38 @@
+# Edge ingress. Optional — comment out / remove if you're fronting
+# the cluster with a different ingress controller (e.g. Istio gateway).
+# Defaults assume nginx-ingress-controller is installed in the
+# cluster. Replace the host with your real domain before applying.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gmnap-ingress
+  namespace: gmnap
+  annotations:
+    # cert-manager — issues a Let's Encrypt cert for the host.
+    # Remove if you're providing your own TLS material.
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # 60/min free-tier rate limit at the edge — matches the nginx
+    # conf in config/nginx.conf used by docker-compose.
+    nginx.ingress.kubernetes.io/limit-rpm: "60"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "10"
+    # 50 MB cap on incoming batch POST bodies.
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    # Pipeline can take a while for large batches.
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - gmnap.example.com  # REPLACE
+      secretName: gmnap-tls
+  rules:
+    - host: gmnap.example.com  # REPLACE
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gmnap-api
+                port:
+                  number: 8080

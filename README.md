@@ -182,6 +182,23 @@ curl localhost/healthz        # Verify via nginx
 curl localhost:8080/healthz   # Verify direct
 ```
 
+## Kubernetes / Helm
+
+For cluster deployments, see [`deploy/`](deploy/):
+
+```bash
+# Raw manifests
+kubectl apply -f deploy/k8s/
+
+# Or via Helm chart (preferred for prod)
+helm install gmnap deploy/helm/gmnap/ \
+  --namespace gmnap --create-namespace \
+  --set memgraph.password="$(openssl rand -hex 16)"
+```
+
+`deploy/README.md` has the full prod checklist (TLS, backups, /metrics
+scraping, secrets generation).
+
 ## Configuration
 
 Copy `.env.example` to `.env` and configure. Key variables:
