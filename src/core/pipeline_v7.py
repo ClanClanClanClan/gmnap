@@ -117,8 +117,15 @@ except ImportError:
 
 # Performance optimization: Import heavy modules at module level to avoid repeated imports
 try:
-    from src.graph_coherence.src.graph.coherence import GraphCoherence
-    from src.stage6_bayesian.src.graph.bayes_coherence import BayesCoherence
+    # Round-35 collapse of the round-34 nested-mistake packages.
+    # Both classes now live at their canonical locations under
+    # src/core/; the old src/{graph_coherence,stage6_bayesian}/src/...
+    # paths were pure duplicates that the H5 audit was forced to
+    # whitelist. GraphCoherence got a .score() method on the canonical
+    # class that wraps betweenness_score() with the same contract the
+    # nested version exposed.
+    from src.core.graph_coherence.coherence import GraphCoherence
+    from src.core.stage6_bayesian.bayes_coherence import BayesCoherence
 
     _BAYES_IMPORTS_AVAILABLE = True
 except ImportError:

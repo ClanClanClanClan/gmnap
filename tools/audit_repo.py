@@ -1074,37 +1074,42 @@ def _check_no_dataclass_unknown_kwarg() -> Result:
 # exists to prevent the next round-32-style class-of-bug.
 _H5_KNOWN_BACKLOG: frozenset = frozenset(
     {
+        # Round-35 trajectory: 38 → 31 → 21 (current). Names that
+        # have been collapsed: BayesCoherence (canonical
+        # core/stage6_bayesian), GraphCoherence (canonical
+        # core/graph_coherence/coherence), GenealogyRelation,
+        # GraphMetrics (memgraph_compat deleted), E4KoreanProcessor
+        # (processor_lightweight deleted), ORCIDETDFetcher
+        # (top-level authorities/orcid_etd deleted; tier0 canonical),
+        # HALFetcher, ScopusFetcher, WikidataFetcher,
+        # GoogleScholarFetcher (tier2/tier3 auto-gen stubs deleted).
+        #
+        # Remaining 21 require real semantic merges (different APIs)
+        # — left as a documented backlog so the audit still gates
+        # NEW dups. To remove an entry, do the merge and delete the
+        # name from this set.
         "AggConfig",
         "AsyncBatchAggregator",
         "AuthorityEnricher",
-        "BayesCoherence",
         "CacheManager",
         "DatabaseConfig",
-        "E4KoreanProcessor",
         "GateConfig",
         "GateLimits",
         "GateState",
-        "GenealogyRelation",
-        "GoogleScholarFetcher",
-        "GraphCoherence",
         "GraphCoherenceResult",
         "GraphCoherenceScorer",
-        "GraphMetrics",
-        "HALFetcher",
         "MemgraphClient",
-        "ORCIDETDFetcher",
         "PerformanceMonitor",
         "PipelineMode",
-        "ProductionError",
+        "ProductionError",  # intentional — 3 standalone e4 scripts each
+                            #   with their own local exception class
         "RateLimiter",
         "SchemaValidator",
-        "ScopusFetcher",
         "SecurityError",
         "SizedLRU",
         "UnicodeConfig",
         "V7SchemaValidator",
         "ValidationResult",
-        "WikidataFetcher",
     }
 )
 

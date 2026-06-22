@@ -18,7 +18,7 @@ sys.path.insert(0, str(project_root))
 def test_bayesian_import():
     """Test that Bayesian coherence module can be imported"""
     try:
-        from src.stage6_bayesian.src.graph.bayes_coherence import BayesCoherence
+        from src.core.stage6_bayesian.bayes_coherence import BayesCoherence
 
         print("PASS BayesCoherence module imported successfully")
         return True
@@ -31,7 +31,7 @@ def test_bayesian_import():
 def test_bayesian_initialization():
     """Test Bayesian coherence initialization"""
     try:
-        from src.stage6_bayesian.src.graph.bayes_coherence import BayesCoherence
+        from src.core.stage6_bayesian.bayes_coherence import BayesCoherence
 
         config = {
             "weights": {
@@ -64,7 +64,7 @@ def test_bayesian_initialization():
 def test_bayesian_scoring():
     """Test Bayesian scoring functionality"""
     try:
-        from src.stage6_bayesian.src.graph.bayes_coherence import BayesCoherence
+        from src.core.stage6_bayesian.bayes_coherence import BayesCoherence
 
         coherence = BayesCoherence(
             {
