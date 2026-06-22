@@ -23,6 +23,17 @@ def betweenness_score(entries: List[Dict[str, Any]]) -> float:
 class GraphCoherence:
     """Graph coherence analyzer for V7 pipeline."""
 
+    def score(self, entries: List[Dict[str, Any]]) -> float:
+        """Aggregate single-score wrapper around ``compute_coherence``.
+
+        Returns the mean of per-entry coherence values (matches the
+        contract of the legacy ``betweenness_score`` module-level
+        function and the API the round-34 nested-mistake
+        ``src/graph_coherence/src/graph/coherence.py`` shipped).
+        Both consumers now flow through this canonical method.
+        """
+        return betweenness_score(entries)
+
     def compute_coherence(self, entries: List[Dict[str, Any]]) -> Dict[str, float]:
         """
         Compute graph coherence scores for each entry.

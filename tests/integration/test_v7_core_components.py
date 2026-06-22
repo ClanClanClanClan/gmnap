@@ -59,7 +59,7 @@ def test_regional_manager():
 def test_bayesian_components():
     """Test Bayesian coherence components"""
     try:
-        from src.stage6_bayesian.src.graph.bayes_coherence import BayesCoherence
+        from src.core.stage6_bayesian.bayes_coherence import BayesCoherence
 
         # Create instance with test config
         coherence = BayesCoherence(

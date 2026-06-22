@@ -1,6 +1,6 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit audit-repo browser-test eval-authority eval-orcid-live harvest-mgp api-docs bench-real lock
+.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit audit-repo browser-test eval-authority eval-orcid-live harvest-mgp api-docs bench-real lock refresh-data refresh-data-wikidata refresh-data-mgp refresh-data-merge
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
@@ -17,6 +17,9 @@ help:
 	@echo "  audit        - Run comprehensive audit"
 	@echo "  audit-repo   - Run repo-invariant audit (18 checks; CI gate)"
 	@echo "  update-sources - Update authority source configurations"
+	@echo "  refresh-data - Re-harvest Wikidata + MGP and rebuild data/genealogy_enrichment.json"
+	@echo "                 (≈30 min Wikidata + optional ~780h MGP; see Makefile header)"
+	@echo "  refresh-data-wikidata, refresh-data-mgp, refresh-data-merge — sub-targets"
 	@echo "  clean        - Clean cache and temporary files"
 
 # One-time setup for a fresh clone. Uses `python3 -m pip` so it works
@@ -121,6 +124,71 @@ harvest-mgp:
 	@echo "Run a chunk:    make harvest-mgp ARGS='--start 1 --end 1000'"
 	@echo "Resume:         make harvest-mgp ARGS='--resume'"
 	PYTHONPATH=. python3 tools/harvest_mgp.py $(ARGS)
+
+# ── Data refresh pipeline ─────────────────────────────────────────────
+#
+# End-to-end refresh of data/genealogy_enrichment.json — the bundled
+# 39 500-entry seed that every gmnap query / lineage / process call
+# falls back to when OFFLINE=1 (the default). Three independent
+# upstream sources:
+#
+#   1. Wikidata SPARQL (P184 = doctoral advisor) — decade-partitioned,
+#      52 query chunks 1500-2020, ~30 min total wall-clock against the
+#      public endpoint. Polite throughout (one HTTP request at a time
+#      with the User-Agent / from address required by WMF service
+#      ToS); see scripts/data/fetch_wikidata_genealogy.py header.
+#
+#   2. MGP (Mathematics Genealogy Project) — respects the 10 s
+#      Crawl-delay in their robots.txt, so a full corpus walk is
+#      ~780 h (a month of continuous crawling). Almost never the
+#      right move; use the chunk form below or skip outright.
+#
+#   3. OpenAlex affiliations — pulled lazily by tools/build_genealogy_
+#      enrichment.py itself, since OpenAlex's polite-pool endpoints
+#      are fast enough not to warrant a separate harvest stage.
+#
+# Three sub-targets so the operator can refresh ONE source without
+# re-running the whole chain:
+#
+#   make refresh-data-wikidata    # ~30 min
+#   make refresh-data-mgp ARGS='--start 1 --end 1000'   # 10s/entry
+#   make refresh-data-merge       # ~5 min, no network
+#
+# The umbrella target runs all three in dependency order (Wikidata
+# then MGP then merge); use it for a full quarterly refresh, but
+# expect ~31 min minimum if MGP is skipped.
+#
+# Output: data/genealogy_enrichment.json (replaces the LFS-tracked
+# committed copy in-place). After refresh, run `make audit-repo` to
+# confirm D4's 36k–43k entry-count gate still passes and `git diff
+# --stat data/genealogy_enrichment.json` to see the delta.
+refresh-data: refresh-data-wikidata refresh-data-merge
+	@echo ""
+	@echo "✅ Refresh complete. Sanity check:"
+	@echo "   make audit-repo    # verify D4 entry-count gate"
+	@echo "   git diff --stat data/genealogy_enrichment.json"
+	@echo "   PYTHONPATH=. python3 -m gmnap query \"Hilbert, David\""
+
+refresh-data-wikidata:
+	@echo "──────────────────────────────────────────────────────────────"
+	@echo "Wikidata SPARQL harvest (P184 advisor edges, 52 decade buckets)"
+	@echo "Expect ~30 min wall-clock. Polite — single sequential request."
+	@echo "──────────────────────────────────────────────────────────────"
+	PYTHONPATH=. python3 scripts/data/fetch_wikidata_genealogy.py
+
+refresh-data-mgp:
+	@echo "──────────────────────────────────────────────────────────────"
+	@echo "MGP harvest (respects 10 s Crawl-delay)."
+	@echo "Pass a chunk explicitly:  make refresh-data-mgp ARGS='--start 1 --end 1000'"
+	@echo "Or resume:                make refresh-data-mgp ARGS='--resume'"
+	@echo "──────────────────────────────────────────────────────────────"
+	PYTHONPATH=. python3 tools/harvest_mgp.py $(ARGS)
+
+refresh-data-merge:
+	@echo "──────────────────────────────────────────────────────────────"
+	@echo "Merge harvest outputs → data/genealogy_enrichment.json"
+	@echo "──────────────────────────────────────────────────────────────"
+	PYTHONPATH=. python3 tools/build_genealogy_enrichment.py
 
 # Pipeline execution modes
 quick:
