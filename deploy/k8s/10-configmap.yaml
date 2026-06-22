@@ -1,0 +1,37 @@
+# Non-secret runtime config. Anything sensitive (passwords, bearer
+# tokens) goes into the gmnap-secrets Secret created out-of-band by
+# the operator — see deploy/README.md.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gmnap-config
+  namespace: gmnap
+data:
+  # Pipeline knobs
+  PIPELINE_MODE: "quick"
+  OFFLINE: "1"
+  GMNAP_SCHEMA_STRICT: "0"
+
+  # API server
+  GMNAP_FREE_RPM: "60"
+  GMNAP_PAID_RPM: "10000"
+  GMNAP_REQUIRE_HASHCASH: "1"
+  GMNAP_METRICS_REQUIRE_AUTH: "1"
+
+  # CORS — REPLACE with your actual frontend origin(s) before
+  # exposing to the internet. Defaulting to localhost makes the
+  # warning log visible without breaking local-port-forward dev.
+  CORS_ALLOWED_ORIGINS: "http://localhost:8080"
+
+  # Logging
+  GMNAP_LOG_FORMAT: "json"
+  GMNAP_LOG_LEVEL: "INFO"
+
+  # Graph DB — host resolved via service DNS
+  MEMGRAPH_HOST: "memgraph.gmnap.svc.cluster.local"
+  MEMGRAPH_PORT: "7687"
+  MEMGRAPH_USER: "gmnap"
+  MEMGRAPH_BOLT: "bolt://memgraph.gmnap.svc.cluster.local:7687"
+
+  # Cost guard
+  COST_GUARD_LIMIT_CHF: "120"

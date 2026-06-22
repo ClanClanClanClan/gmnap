@@ -1,0 +1,90 @@
+# Default values for the GMNAP Helm chart.
+#
+# Override any of these with `--set foo.bar=…` or by passing your own
+# values YAML via `-f my-overrides.yaml`. The minimum-required
+# overrides for prod are `memgraph.password` and (if you want a paid
+# tier) `api.bearerTokens`.
+
+# ── API service ───────────────────────────────────────────────────
+api:
+  image:
+    repository: ghcr.io/clanclanclanclan/gmnap
+    tag: "0.1.0"
+    pullPolicy: IfNotPresent
+
+  replicas: 3
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "4"
+      memory: "6Gi"   # V7 spec: ≤6 GB RSS
+
+  # V7 spec §12 free-tier hashcash gate. Default = required (multi-
+  # tenant prod). Override to "0" for single-tenant / behind-the-
+  # firewall deploys.
+  requireHashcash: "1"
+
+  # CORS allowlist — comma-separated. NEVER leave the default
+  # localhost in prod; the server will log a warning.
+  corsAllowedOrigins: "http://localhost:8080"
+
+  # Comma-separated paid-tier Bearer tokens (bypass hashcash + 10k/min).
+  # Pass an empty string to disable paid tier entirely.
+  bearerTokens: ""
+
+  # Rate limits
+  freeRpm: 60
+  paidRpm: 10000
+
+  # /metrics auth gate — default requires private-CIDR client OR
+  # Bearer token. Set "0" for single-tenant scraping.
+  metricsRequireAuth: "1"
+
+  # Logging
+  logFormat: "json"   # "text" or "json"
+  logLevel: "INFO"
+
+  # Pipeline knobs
+  pipelineMode: "quick"   # quick | full | extreme
+  offline: "1"
+  schemaStrict: "0"
+
+  # Cost-guard ceiling in CHF (for the cost-tracker job).
+  costGuardLimitChf: "120"
+
+# ── Memgraph graph DB ─────────────────────────────────────────────
+memgraph:
+  image: memgraph/memgraph:2.22.1
+  user: "gmnap"
+  # REQUIRED in prod. Generated via `openssl rand -hex 16` for the
+  # default-values example shown in deploy/README.md.
+  password: ""
+  persistence:
+    size: 20Gi
+    storageClass: ""   # default class
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+
+# ── Ingress (optional) ────────────────────────────────────────────
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "gmnap.example.com"   # REPLACE
+  tls:
+    enabled: true
+    # cert-manager cluster-issuer for automatic Let's Encrypt. Set
+    # to empty if you're providing your own TLS secret.
+    clusterIssuer: "letsencrypt-prod"
+  # Edge rate-limit (matches nginx config in config/nginx.conf).
+  limitRpm: "60"
+  limitBurstMultiplier: "10"
+  proxyBodySize: "50m"
+  proxyReadTimeoutSeconds: "300"

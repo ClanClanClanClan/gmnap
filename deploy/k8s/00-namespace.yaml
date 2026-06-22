@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gmnap
+  labels:
+    name: gmnap
+    app.kubernetes.io/name: gmnap
+    app.kubernetes.io/part-of: gmnap-stack
