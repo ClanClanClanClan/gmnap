@@ -4387,6 +4387,15 @@ class RegionManager:
         if not name:
             return None
         scripts = self._analyze_scripts(name)
+        # Empty when the input is pure numbers, punctuation, or other
+        # non-letter characters — script analysis filters those out.
+        # Without this guard, max(scripts.items()) raises ValueError
+        # which propagates all the way to detect_region's caller as
+        # an uncaught crash on garbage input. Treat "no detectable
+        # script" the same way we treat "name is empty" → fall
+        # through to the rest of the cascade (R0 fallback).
+        if not scripts:
+            return None
         total = sum(scripts.values()) or 1
         dominant, dom_count = max(scripts.items(), key=lambda kv: kv[1])
         if dom_count / total < 0.5:
@@ -4476,6 +4485,10 @@ class RegionManager:
             return None
         icu_name = self._unicode_normalizer.normalize(name)  # ICU normalization
         scripts = self._analyze_scripts(icu_name)
+        # Same guard as `_detect_by_script` above — empty scripts dict
+        # for pure-numbers / pure-punctuation input.
+        if not scripts:
+            return None
         total = sum(scripts.values()) or 1
         dominant, dom_count = max(scripts.items(), key=lambda kv: kv[1])
         possible = self._script_to_regions.get(dominant, [])

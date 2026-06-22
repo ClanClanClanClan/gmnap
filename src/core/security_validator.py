@@ -12,8 +12,20 @@ from typing import Any, Dict
 logger = logging.getLogger(__name__)
 
 # Expert solution: Test mode environment configuration
-TEST_MODE = os.getenv("GMNAP_SECURITY_MODE", "production") != "production"
+#
+# Read each time it's checked (NOT at module load) so test fixtures
+# can flip the env var per-test without needing ``importlib.reload``.
+# The reload-based approach was the round-32 RegionRuleError class-of-
+# bug all over again: reload re-created ``SecurityError`` with a new
+# identity, so any code that had already imported ``SecurityError``
+# (e.g. ``manager_optimized.py``) couldn't catch the new instances —
+# they propagated to the FastAPI handler as 500s. With env-read-per-
+# call there's no reason for any test to reload this module.
 ALLOWED_IN_GLOBALID = set("-_:/")  # hyphen & underscore not special for IDs
+
+
+def _test_mode() -> bool:
+    return os.getenv("GMNAP_SECURITY_MODE", "production") != "production"
 
 
 class SecurityError(Exception):
@@ -322,7 +334,7 @@ class SecurityValidator:
             )
 
         # Expert solution: Test mode allowances for academic names
-        if TEST_MODE and context in ("CanonicalNative", "Name", "Given", "Family"):
+        if _test_mode() and context in ("CanonicalNative", "Name", "Given", "Family"):
             pass  # allow academic names like 'राम शर्मा' etc. in tests
         else:
             # Check for dangerous patterns
@@ -353,7 +365,7 @@ class SecurityValidator:
 
         # Expert solution: GlobalID special character checking in test mode
         if context == "GlobalID":
-            if TEST_MODE:
+            if _test_mode():
                 pass  # do not block tests on special ratio
             else:
                 if self._special_ratio_for_gid(text) > 0.30:

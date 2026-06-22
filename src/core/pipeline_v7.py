@@ -1343,12 +1343,12 @@ class V7Pipeline:
         )
 
         try:
-            from src.stage9_db.src.stage9.db_writer import (
+            from src.core.stage9_db.db_writer import (
                 write_duckdb_changelog,
                 write_html_index,
                 write_yaml,
             )
-            from src.stage9_write_diff.src.diff.write_and_diff import write_yaml_sorted
+            from src.core.stage9_write_diff.write_and_diff import write_yaml_sorted
 
             # Write deterministic YAML (canonical JSON format)
             output_path = Path("output/stage9.yaml")
@@ -1472,7 +1472,7 @@ class V7Pipeline:
         try:
             import hashlib
 
-            from src.stage9_write_diff.src.diff.write_and_diff import write_yaml_sorted
+            from src.core.stage9_write_diff.write_and_diff import write_yaml_sorted
 
             # Write entries twice and verify identical output
             output1 = Path("output/idempotency_test1.yaml")

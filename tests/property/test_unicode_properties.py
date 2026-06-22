@@ -110,8 +110,18 @@ def problematic_unicode_strategy(draw):
         text(alphabet=characters(min_codepoint=0xE000, max_codepoint=0xF8FF)),
         # Specials
         text(alphabet=characters(min_codepoint=0xFFF0, max_codepoint=0xFFFF)),
-        # Bidirectional text
-        text(alphabet=characters(categories=["L", "R", "AL"])),
+        # Bidirectional text — mix LTR Latin + RTL Hebrew/Arabic so
+        # the normalizer's BIDI handling gets exercised. The earlier
+        # `categories=["L", "R", "AL"]` used the BIDI class names; in
+        # hypothesis those have to be Unicode *general* categories,
+        # so the strategy failed to construct. Sample from explicit
+        # codepoint ranges instead: ASCII letters (LTR) + Hebrew
+        # (U+0590-05FF, RTL) + Arabic (U+0600-06FF, RTL).
+        st.one_of(
+            text(alphabet=characters(min_codepoint=0x0041, max_codepoint=0x007A)),
+            text(alphabet=characters(min_codepoint=0x0590, max_codepoint=0x05FF)),
+            text(alphabet=characters(min_codepoint=0x0600, max_codepoint=0x06FF)),
+        ),
         # Zero-width characters
         st.just("\u200b\u200c\u200d\u2060\ufeff"),
         # Normalization test cases
@@ -145,20 +155,35 @@ class TestUnicodeNormalizationProperties:
     @given(text_input=text(min_size=1, max_size=100))
     @settings(max_examples=200, deadline=None)
     def test_normalization_preserves_alphanumeric(self, text_input):
-        """Test that normalization preserves alphanumeric characters."""
+        """Normalization may ADD ASCII alphanumerics (e.g. NFKD turns
+        the superscript ¹ U+00B9 into a plain digit 1) but it must
+        never DROP an ASCII alphanumeric that was already there.
+
+        The earlier assertion required exact-equal sequences, which
+        rejected the legitimate "¹ → 1" case (input had 0 ASCII
+        digits, output had 1). The correct property is a containment
+        check: ``original_alnum`` is a subsequence of
+        ``normalized_alnum`` (preserving order, allowing inserts).
+        """
         assume(text_input.strip())
 
         normalizer = UnicodeNormalizer()
         normalized = normalizer.normalize(text_input)
 
-        # Extract alphanumeric characters
         original_alnum = re.findall(r"[a-zA-Z0-9]", text_input)
         normalized_alnum = re.findall(r"[a-zA-Z0-9]", normalized)
 
-        # Should preserve order and content of alphanumeric chars
-        assert (
-            original_alnum == normalized_alnum
-        ), f"Alphanumeric preservation failed: {repr(text_input)}"
+        # Subsequence check — preserves order, allows insertions
+        # (which is what NFKD lossiness produces, never the reverse).
+        i = 0
+        for c in normalized_alnum:
+            if i < len(original_alnum) and c == original_alnum[i]:
+                i += 1
+        assert i == len(original_alnum), (
+            f"Alphanumeric NOT preserved as subsequence: "
+            f"input={repr(text_input)} → orig_alnum={original_alnum} "
+            f"vs norm_alnum={normalized_alnum}"
+        )
 
     @given(text_input=unicode_text_strategy())
     @settings(max_examples=100, deadline=None)
@@ -424,7 +449,11 @@ class TestUnicodeNormalizationRegression:
             ("ﬁnite", "finite"),
             ("ﬂower", "flower"),
             ("ﬀect", "ffect"),
-            ("ﬃfth", "fifth"),
+            # U+FB03 is LATIN SMALL LIGATURE FFI — NFKD decomposes
+            # to f,f,i (three characters). Earlier expectation "fifth"
+            # was a typo — the correct NFKD-normalized form of ﬃfth
+            # is ffifth (6 chars: f,f,i,f,t,h).
+            ("ﬃfth", "ffifth"),
             ("ﬄe", "ffle"),
             ("ﬆyle", "style"),
         ]

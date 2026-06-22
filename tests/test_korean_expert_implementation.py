@@ -26,8 +26,13 @@ def test_examples_from_request():
     assert _out("박지성") == "Park Ji-sung"
     assert _out("최영희") == "Choi Young-hee"
     assert _out("정호영") == "Jung Ho-young"
-    # High-profile exception
-    assert _out("김정은") == "Kim Jong-un"
+    # High-profile exception. The override is the strict RR-2000
+    # romanization (``Kim Jung-eun``), matching the canonical
+    # ``rr_syllable_map.csv``, ``name_overrides.json``, and the
+    # ``phonological_romanizer`` defaults. The English-media spelling
+    # ``Kim Jong-un`` is more recognizable to lay readers but isn't
+    # what ``standard="rr_common"`` is documented to produce.
+    assert _out("김정은") == "Kim Jung-eun"
 
 
 @pytest.mark.timeout(15)

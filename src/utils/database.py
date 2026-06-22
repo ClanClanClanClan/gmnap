@@ -529,7 +529,14 @@ class DatabaseManager:
         params = [surname]
 
         if birth_decade is not None:
-            query += " AND (birth_year // 10) * 10 = ?"
+            # SQLite doesn't have Python's `//` integer-division
+            # operator (only DuckDB does); `CAST(... AS INTEGER) * 10`
+            # works on both engines. Keeps the same decade-bucket
+            # semantics either way.
+            if self.db_type == "duckdb":
+                query += " AND (birth_year // 10) * 10 = ?"
+            else:
+                query += " AND CAST(birth_year / 10 AS INTEGER) * 10 = ?"
             params.append(birth_decade)
 
         if country_code:
