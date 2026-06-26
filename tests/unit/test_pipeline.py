@@ -11,7 +11,9 @@ from src.core.pipeline import (
     DataIngestionStage,
     Pipeline,
     PipelineConfig,
-    PipelineMode,
+)
+from src.core.pipeline import PipelineModeBase as PipelineMode
+from src.core.pipeline import (
     PipelineStage,
     StageResult,
     StageStatus,

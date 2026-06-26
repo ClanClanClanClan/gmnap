@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import os, json
+import json
+import os
+
 from src.pipeline.stage9_write_and_diff import write_and_diff
 from src.pipeline.stage11_idempotency_check import idempotency_check
 

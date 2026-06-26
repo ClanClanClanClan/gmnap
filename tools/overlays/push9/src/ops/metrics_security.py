@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from prometheus_client import Counter, Histogram
 
 AUTHN_FAILED = Counter("gmnap_authn_failed_total", "AuthN failures (401)")

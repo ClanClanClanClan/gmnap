@@ -6,7 +6,7 @@ from typing import Any, Dict, Iterable, Set, Tuple
 
 
 @dataclass
-class GateConfig:
+class FastGateConfig:
     profile: str = "prod"  # "test" | "prod"
     stage6_min: float = 0.85
     projected_1m_minutes_max: float = 35.0
@@ -17,19 +17,19 @@ class GateConfig:
 
 
 @dataclass
-class GateState:
+class FastGateState:
     seen_gids: Set[str] = field(default_factory=set)
     seen_extids: Set[Tuple[str, str]] = field(default_factory=set)
     batch_index: int = 0
 
 
 class FastQualityGates:
-    def __init__(self, cfg: GateConfig | None = None):
+    def __init__(self, cfg: FastGateConfig | None = None):
         self.cfg = cfg or GateConfig()
-        self.state = GateState()
+        self.state = FastGateState()
 
     def reset(self):
-        self.state = GateState()
+        self.state = FastGateState()
 
     def _o_n_duplicates(self, entries: Iterable[Dict[str, Any]]) -> Tuple[int, int]:
         seen_local: Set[str] = set()

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Quick evaluation on subset of Korean dataset"""
 
-import yaml
 import sys
+
+import yaml
 
 sys.path.append(".")
 

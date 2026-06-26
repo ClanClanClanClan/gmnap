@@ -57,7 +57,8 @@ def test_pipeline_functionality():
     print("\n🧪 TESTING PIPELINE FUNCTIONALITY...")
 
     try:
-        from src.core.pipeline import PipelineMode, PipelineStage
+        from src.core.pipeline import PipelineModeBase as PipelineMode
+        from src.core.pipeline import PipelineStage
 
         print("PASS Import successful")
 

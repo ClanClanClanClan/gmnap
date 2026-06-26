@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
-import asyncio, time, os, json, math, statistics
-from typing import List, Dict, Any
-from src.ops.scale_guard_service import ScaleGuardService, ScaleConfig
+import asyncio
+import json
+import math
+import os
+import statistics
+import time
+from typing import Any, Dict, List
+
+from src.ops.scale_guard_service import ScaleConfig, ScaleGuardService
 
 
 def mk_entries(n: int) -> List[Dict[str, Any]]:

@@ -4,26 +4,28 @@ Comprehensive audit of GMNAP Phase 2 implementation.
 Tests all components end-to-end and verifies claims.
 """
 
+import json
 import sys
 import tempfile
-import yaml
-import json
 import threading
 import time
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import yaml
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 from src.core.config import GMNAPConfig
-from src.regions.manager import RegionManager
+from src.core.globalid import GlobalIDGenerator
+from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 from src.regions import *
 from src.regions.d_groups import D1_HindiBelt
-from src.utils.database import DatabaseManager, DatabaseConfig
+from src.regions.manager import RegionManager
 from src.utils.cache import CacheManager
-from src.core.globalid import GlobalIDGenerator
+from src.utils.database import DatabaseManager
+from src.utils.database import UtilsDatabaseConfig as DatabaseConfig
 
 
 def audit_section(section_name):
@@ -235,7 +237,7 @@ class ComprehensiveAudit:
             import shutil
 
             shutil.copy2(source_manifest_path, temp_config_dir / "source_manifest.json")
-            print(f"  ✅ Copied source_manifest.json to temporary directory")
+            print("  ✅ Copied source_manifest.json to temporary directory")
 
         # Run pipeline
         pipeline = GMNAPPipeline(config, PipelineMode.QUICK)
@@ -314,7 +316,7 @@ class ComprehensiveAudit:
                 )
                 return False
 
-            print(f"  ✅ Database operations working correctly")
+            print("  ✅ Database operations working correctly")
             return True
 
         except Exception as e:
@@ -416,7 +418,7 @@ class ComprehensiveAudit:
             self.log_issue("GlobalID collision occurred for different entries")
             return False
 
-        print(f"  ✅ GlobalID generation working correctly")
+        print("  ✅ GlobalID generation working correctly")
         print(f"    Original: {global_id}")
         print(f"    Duplicate: {global_id2} (deterministic)")
         print(f"    Different: {global_id3} (unique)")
@@ -477,8 +479,9 @@ class ComprehensiveAudit:
         """Audit memory usage and performance."""
         print("Testing memory usage and performance...")
 
-        import psutil
         import gc
+
+        import psutil
 
         # Get initial memory
         process = psutil.Process()
@@ -519,7 +522,7 @@ class ComprehensiveAudit:
             self.log_issue(f"Memory usage too high: +{memory_increase:.1f}MB")
             return False
 
-        print(f"  ✅ Performance and memory usage within acceptable limits")
+        print("  ✅ Performance and memory usage within acceptable limits")
         return True
 
     def run_comprehensive_audit(self):
@@ -544,7 +547,7 @@ class ComprehensiveAudit:
         total = len(audit_results)
 
         print(f"\n{'='*60}")
-        print(f"📊 AUDIT SUMMARY")
+        print("📊 AUDIT SUMMARY")
         print(f"{'='*60}")
         print(f"Tests Passed: {passed}/{total}")
         print(f"Success Rate: {(passed/total)*100:.1f}%")
@@ -552,12 +555,12 @@ class ComprehensiveAudit:
         print(f"Fixes Applied: {len(self.fixes_applied)}")
 
         if self.issues_found:
-            print(f"\n⚠️  ISSUES FOUND:")
+            print("\n⚠️  ISSUES FOUND:")
             for i, issue in enumerate(self.issues_found, 1):
                 print(f"  {i}. {issue}")
 
         if self.fixes_applied:
-            print(f"\n🔧 FIXES APPLIED:")
+            print("\n🔧 FIXES APPLIED:")
             for i, fix in enumerate(self.fixes_applied, 1):
                 print(f"  {i}. {fix}")
 
@@ -574,7 +577,7 @@ if __name__ == "__main__":
     success, issues, fixes = audit.run_comprehensive_audit()
 
     if success:
-        print(f"\n🎉 AUDIT PASSED - All systems working correctly!")
+        print("\n🎉 AUDIT PASSED - All systems working correctly!")
         sys.exit(0)
     else:
         print(f"\n❌ AUDIT FAILED - {len(issues)} issues found")

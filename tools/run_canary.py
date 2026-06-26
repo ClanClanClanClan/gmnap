@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
-import asyncio, json, sys
-from src.core.pipeline_guard_service import PipelineGuardService, GuardConfig
+import asyncio
+import json
+import sys
+
+from src.core.pipeline_guard_service import GuardConfig, PipelineGuardService
 from src.diag.flight_recorder import FlightRecorder
 
 

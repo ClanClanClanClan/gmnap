@@ -1,8 +1,12 @@
-import os, jwt, time
+import os
+import time
+
+import jwt
 from starlette.applications import Starlette
-from starlette.responses import JSONResponse
 from starlette.requests import Request
+from starlette.responses import JSONResponse
 from starlette.testclient import TestClient
+
 from src.api.security_middleware import SecurityMiddleware
 
 

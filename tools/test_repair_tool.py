@@ -9,7 +9,13 @@ Usage:
 """
 
 from __future__ import annotations
-import sys, os, re, json, pathlib, importlib.util
+
+import importlib.util
+import json
+import os
+import pathlib
+import re
+import sys
 
 ROOT = pathlib.Path(sys.argv[2] if len(sys.argv) > 2 else "tests")
 

@@ -446,7 +446,7 @@ class TestConcurrentDatabaseAccess:
         self.temp_dir = tempfile.mkdtemp()
         self.db_path = Path(self.temp_dir) / "test.db"
 
-        from src.utils.database import DatabaseConfig
+        from src.utils.database import UtilsDatabaseConfig as DatabaseConfig
 
         config = DatabaseConfig(db_path=str(self.db_path))
         self.db = DatabaseManager(config)
@@ -467,7 +467,7 @@ class TestConcurrentDatabaseAccess:
             """Worker that writes to database concurrently."""
             try:
                 # Create a separate connection for this worker
-                from src.utils.database import DatabaseConfig
+                from src.utils.database import UtilsDatabaseConfig as DatabaseConfig
 
                 worker_config = DatabaseConfig(db_path=str(self.db_path))
                 worker_db = DatabaseManager(worker_config)
@@ -555,7 +555,7 @@ class TestConcurrentDatabaseAccess:
         def deadlock_worker(worker_id):
             """Worker that creates potential deadlock scenarios."""
             try:
-                from src.utils.database import DatabaseConfig
+                from src.utils.database import UtilsDatabaseConfig as DatabaseConfig
 
                 worker_config = DatabaseConfig(db_path=str(self.db_path))
                 worker_db = DatabaseManager(worker_config)

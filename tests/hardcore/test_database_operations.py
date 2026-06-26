@@ -16,7 +16,8 @@ from unittest.mock import patch
 import psutil
 import pytest
 
-from src.utils.database import DatabaseConfig, DatabaseManager
+from src.utils.database import DatabaseManager
+from src.utils.database import UtilsDatabaseConfig as DatabaseConfig
 
 
 class TestDatabaseIntegrity:

@@ -8,7 +8,7 @@ ProcessFunc = Callable[[List[dict]], Awaitable[List[dict]]]
 
 
 @dataclass
-class AggConfig:
+class LegacyAggConfig:
     min_size: int = 32  # flush immediately if queue >= min_size
     target_size: int = 128  # try to coalesce to this size within latency budget
     max_size: int = 512  # hard cap per microbatch
@@ -34,9 +34,11 @@ class AsyncBatchAggregator:
         results = await agg.add_batch(entries)  # preserves order
     """
 
-    def __init__(self, process_func: ProcessFunc, cfg: AggConfig | None = None) -> None:
+    def __init__(
+        self, process_func: ProcessFunc, cfg: LegacyAggConfig | None = None
+    ) -> None:
         self.process_func = process_func
-        self.cfg = cfg or AggConfig()
+        self.cfg = cfg or LegacyAggConfig()
         self._q: asyncio.Queue[_Item] | None = None
         self._closed = False
         self._workers: list[asyncio.Task] = []

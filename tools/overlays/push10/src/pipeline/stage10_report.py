@@ -1,14 +1,20 @@
 from __future__ import annotations
-import os, json, pathlib, hashlib, datetime
+
+import datetime
+import hashlib
+import json
+import os
+import pathlib
 from collections import Counter
-from typing import Dict, Any, List, Tuple
+from typing import Any, Dict, List, Tuple
+
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from jsonschema import Draft202012Validator
 
-from ..ops.spec_loader import load_specs
-from ..ops.metrics import REPORTS_EMITTED, DOI_DRAFTS_CREATED
 from ..ops.archive import archive_snapshot
 from ..ops.attribution import generate_attribution_text
+from ..ops.metrics import DOI_DRAFTS_CREATED, REPORTS_EMITTED
+from ..ops.spec_loader import load_specs
 
 
 def _sha256(p: pathlib.Path) -> str:

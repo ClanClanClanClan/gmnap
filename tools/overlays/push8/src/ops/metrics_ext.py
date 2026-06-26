@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from prometheus_client import Counter, Gauge
 
 WRITE_DIFF_ADDED = Counter("gmnap_write_diff_added_total", "New entries in snapshot")

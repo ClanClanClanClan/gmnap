@@ -1,4 +1,7 @@
-import os, json, pathlib
+import json
+import os
+import pathlib
+
 from src.db.changelog_expand import generate_arrays_cypher, generate_edges_cypher
 
 

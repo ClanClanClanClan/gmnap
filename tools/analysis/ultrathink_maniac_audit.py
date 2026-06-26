@@ -4,16 +4,16 @@ ULTRATHINK MANIAC AUDIT: The Most Paranoid Test Ever
 Finding EVERY issue, testing EVERY edge case, being BRUTALLY honest.
 """
 
-import json
-import time
-import threading
-import traceback
 import gc
+import json
 import random
 import string
-from pathlib import Path
-from typing import Dict, Any, List, Tuple
+import threading
+import time
+import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
 
 from src.regions.manager import RegionManager
 
@@ -547,8 +547,8 @@ if __name__ == "__main__":
     grade = auditor.run_maniac_audit()
 
     if grade != "A+":
-        print(f"\n🔥 MORE WORK NEEDED to achieve real A+")
+        print("\n🔥 MORE WORK NEEDED to achieve real A+")
         exit(1)
     else:
-        print(f"\n🏆 VERIFIED A+ ACHIEVEMENT!")
+        print("\n🏆 VERIFIED A+ ACHIEVEMENT!")
         exit(0)

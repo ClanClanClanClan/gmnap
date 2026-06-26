@@ -69,7 +69,7 @@ V7_CONSTRAINTS = {
 VOLATILE_KEYS = {"ProcessedAt", "ProcessingLatencyMs", "_debug", "_trace_id", "_meta"}
 
 
-class V7SchemaValidator:
+class CoreV7SchemaValidator:
     """
     Strict, defensive validator matching the V7 spec expectations.
     Optionally augments validation using a JSON‑Schema if provided.

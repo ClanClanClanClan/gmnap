@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 try:
-    from prometheus_client import (
-        Counter as _PCounter,
-        Gauge as _PGauge,
-        Histogram as _PHist,
-    )
+    from prometheus_client import Counter as _PCounter
+    from prometheus_client import Gauge as _PGauge
+    from prometheus_client import Histogram as _PHist
 except Exception:  # pragma: no cover
     _PCounter = _PGauge = _PHist = None
 

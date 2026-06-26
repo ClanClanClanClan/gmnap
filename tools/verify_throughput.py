@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-import asyncio, json, os
+import asyncio
+import json
+import os
 
 # Round 34: src/quality/rolling_gates.py was a near-duplicate of
 # src/quality/gates_rolling.py (H5 backlog flagged ``RollingGates``).
 # Consolidated to gates_rolling.py; aliasing GateLimits→RollingLimits
 # keeps this call site working.
 from src.ops.scale_guard_service import ScaleConfig, ScaleGuardService
-from src.quality.gates_rolling import GateLimits as RollingLimits
+from src.quality.gates_rolling import RollingGateLimits as RollingLimits
 from src.quality.gates_rolling import RollingGates
 
 

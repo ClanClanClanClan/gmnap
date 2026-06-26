@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import argparse, subprocess, json
+import argparse
+import json
+import subprocess
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--profile", choices=["test", "prod"], required=True)

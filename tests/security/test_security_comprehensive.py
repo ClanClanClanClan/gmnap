@@ -32,7 +32,10 @@ from typing import Any
 # Import security components
 try:
     from src.regions.base import RegionRuleError
-    from src.regions.security import SecurityError, SecurityFilter
+    from src.regions.security import RegionSecurityError as SecurityError
+    from src.regions.security import (
+        SecurityFilter,
+    )
 
     # Import processors from proper package structure
     try:

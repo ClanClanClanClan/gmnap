@@ -23,8 +23,10 @@ from src.core.quality_gates import (
     ConsistencyVerifier,
     DuplicateDetector,
     EnhancedQualityGates,
+)
+from src.core.quality_gates import QualityGatesSchemaValidator as SchemaValidator
+from src.core.quality_gates import (
     RoundtripValidator,
-    SchemaValidator,
 )
 
 

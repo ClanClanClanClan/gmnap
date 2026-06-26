@@ -12,7 +12,7 @@ from hypothesis import strategies as st
 from hypothesis.strategies import characters, composite, integers, lists, text
 
 from src.core.unicode_handler import (
-    UnicodeConfig,
+    UnicodeHandlerConfig as UnicodeConfig,
     UnicodeNormalizer,
     normalize_name,
 )

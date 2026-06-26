@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-import asyncio, time, json, statistics, os
-from typing import List, Dict
-from src.core.pipeline_guard_service import PipelineGuardService, GuardConfig
+import asyncio
+import json
+import os
+import statistics
+import time
+from typing import Dict, List
+
+from src.core.pipeline_guard_service import GuardConfig, PipelineGuardService
 
 SIZES = [
     int(x)

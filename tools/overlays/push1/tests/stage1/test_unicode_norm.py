@@ -1,4 +1,4 @@
-from src.ops.unicode_norm import normalise_text, normalise_entry_strings
+from src.ops.unicode_norm import normalise_entry_strings, normalise_text
 
 
 def test_zwsp_and_ctrl_removed():

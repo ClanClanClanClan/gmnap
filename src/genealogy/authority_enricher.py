@@ -12,7 +12,7 @@ from .mathgenealogy_client import MathGenealogyClient
 from .wikidata_client import WikidataClient
 
 
-class AuthorityEnricher:
+class GenealogyAuthorityEnricher:
     def __init__(self):
         self.cache = build_cache()
         self.wikidata = WikidataClient(enabled=os.getenv("WIKIDATA_ENABLE") == "1")

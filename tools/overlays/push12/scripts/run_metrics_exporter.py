@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import os, time
+import os
+import time
+
 from prometheus_client import start_http_server
 
 if __name__ == "__main__":

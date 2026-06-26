@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # Generate Korean name corpus (10k by default) with RR-based romanisation.
-import json, random, argparse
+import argparse
+import json
+import random
 
 CHO = [
     "g",
@@ -174,7 +176,9 @@ def main(N=10000, seed=42, out="datasets/korean/korean_test_corpus_10k.json"):
         native = sn + given
         latin = romanise_name(native)
         data.append({"native": native, "latin": latin})
-    import os, pathlib, json
+    import json
+    import os
+    import pathlib
 
     p = pathlib.Path(out)
     p.parent.mkdir(parents=True, exist_ok=True)

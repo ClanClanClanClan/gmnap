@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-import asyncio, json, time
-from typing import List, Dict, Any
+import asyncio
+import json
+import time
+from typing import Any, Dict, List
+
 from src.diag.memdiff import MemDiff
-from src.ops.streaming_executor import StreamingExecutor, StreamConfig
+from src.ops.streaming_executor import StreamConfig, StreamingExecutor
 from src.quality.gates_streaming import StreamingGates
 
 

@@ -1,6 +1,11 @@
 from __future__ import annotations
-from typing import Dict, List, Any, Tuple
-import os, json, yaml
+
+import json
+import os
+from typing import Any, Dict, List, Tuple
+
+import yaml
+
 from ..ops.unicode_norm import normalise_entry_strings
 
 

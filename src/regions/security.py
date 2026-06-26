@@ -20,7 +20,7 @@ from typing import Any, Dict
 from urllib.parse import unquote
 
 
-class SecurityError(Exception):
+class RegionSecurityError(Exception):
     """Raised when malicious input is detected."""
 
     pass
@@ -167,7 +167,7 @@ class SecurityFilter:
 
     def scan_for_attacks(self, text: str, context: str = "unknown") -> None:
         """
-        Scan text for malicious patterns and raise SecurityError if found.
+        Scan text for malicious patterns and raise RegionSecurityError if found.
 
         Args:
             text: Text to scan
@@ -182,7 +182,7 @@ class SecurityFilter:
         # Check for dangerous control characters
         for char in text:
             if ord(char) in self.dangerous_controls:
-                raise SecurityError(
+                raise RegionSecurityError(
                     f"Dangerous control character detected in {context}: "
                     f"U+{ord(char):04X} at position {text.index(char)}"
                 )
@@ -190,14 +190,14 @@ class SecurityFilter:
         # Check for dangerous Unicode characters
         for char in self.dangerous_unicode:
             if char in text:
-                raise SecurityError(
+                raise RegionSecurityError(
                     f"Dangerous Unicode character detected in {context}: "
                     f"U+{ord(char):04X} ({repr(char)})"
                 )
 
         # Check text length
         if len(text) > self.max_lengths["name_total"]:
-            raise SecurityError(
+            raise RegionSecurityError(
                 f"Suspiciously long input in {context}: {len(text)} chars "
                 f"(max {self.max_lengths['name_total']})"
             )
@@ -208,7 +208,7 @@ class SecurityFilter:
         # Check for attack strings
         for attack_string in self.attack_strings:
             if attack_string in normalized:
-                raise SecurityError(
+                raise RegionSecurityError(
                     f"Potential attack string detected in {context}: '{attack_string}'"
                 )
 
@@ -216,7 +216,7 @@ class SecurityFilter:
         for pattern in self.script_patterns:
             if pattern.search(text):
                 match = pattern.search(text)
-                raise SecurityError(
+                raise RegionSecurityError(
                     f"Script injection pattern detected in {context}: "
                     f"'{match.group()[:50]}...'"
                 )
@@ -224,7 +224,7 @@ class SecurityFilter:
         # Check for excessive special characters (potential obfuscation)
         special_count = sum(1 for c in text if not c.isalnum() and not c.isspace())
         if special_count > len(text) * 0.3:  # More than 30% special chars
-            raise SecurityError(
+            raise RegionSecurityError(
                 f"Excessive special characters in {context}: "
                 f"{special_count}/{len(text)} ({special_count/len(text)*100:.1f}%)"
             )
@@ -232,7 +232,7 @@ class SecurityFilter:
         # Check for repeated identical characters (potential buffer overflow)
         for char in set(text):
             if text.count(char) > 50:  # More than 50 of same character
-                raise SecurityError(
+                raise RegionSecurityError(
                     f"Excessive character repetition in {context}: "
                     f"'{char}' appears {text.count(char)} times"
                 )
@@ -317,9 +317,11 @@ class SecurityFilter:
         # Scan entire entry structure
         try:
             scan_recursive(entry, "entry")
-        except SecurityError as e:
+        except RegionSecurityError as e:
             # Add region context to error
-            raise SecurityError(f"Security violation in region {region_code}: {e}")
+            raise RegionSecurityError(
+                f"Security violation in region {region_code}: {e}"
+            )
 
     def secure_clean_name(self, name: str, field_name: str = "name") -> str:
         """
@@ -336,7 +338,7 @@ class SecurityFilter:
             SecurityError: If malicious content is detected
         """
         if not isinstance(name, str):
-            raise SecurityError(
+            raise RegionSecurityError(
                 f"Name field {field_name} must be string, got {type(name).__name__}"
             )
 
@@ -356,7 +358,7 @@ class SecurityFilter:
                 len(set(cleaned)), len(set(name)), 1
             )
             if similarity < 0.7:  # Less than 70% character similarity
-                raise SecurityError(
+                raise RegionSecurityError(
                     f"Suspicious content removed from {field_name}: "
                     f"similarity {similarity:.1%}"
                 )

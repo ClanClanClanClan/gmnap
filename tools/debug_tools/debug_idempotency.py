@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Debug idempotency issues in GMNAP pipeline."""
 
-from src.core.pipeline_v6 import GMNAPPipeline
-from src.core.config import GMNAPConfig
+import json
 import tempfile
 from pathlib import Path
-import json
+
+from src.core.config import GMNAPConfig
+from src.core.pipeline_v6 import GMNAPPipeline
 
 
 def debug_idempotency():

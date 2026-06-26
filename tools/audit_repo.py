@@ -1072,46 +1072,21 @@ def _check_no_dataclass_unknown_kwarg() -> Result:
 # fix the underlying duplication then delete the name from this set.
 # Adding a name here without a justifying fix is a code smell — H5
 # exists to prevent the next round-32-style class-of-bug.
-_H5_KNOWN_BACKLOG: frozenset = frozenset(
-    {
-        # Round-35 trajectory: 38 → 31 → 21 (current). Names that
-        # have been collapsed: BayesCoherence (canonical
-        # core/stage6_bayesian), GraphCoherence (canonical
-        # core/graph_coherence/coherence), GenealogyRelation,
-        # GraphMetrics (memgraph_compat deleted), E4KoreanProcessor
-        # (processor_lightweight deleted), ORCIDETDFetcher
-        # (top-level authorities/orcid_etd deleted; tier0 canonical),
-        # HALFetcher, ScopusFetcher, WikidataFetcher,
-        # GoogleScholarFetcher (tier2/tier3 auto-gen stubs deleted).
-        #
-        # Remaining 21 require real semantic merges (different APIs)
-        # — left as a documented backlog so the audit still gates
-        # NEW dups. To remove an entry, do the merge and delete the
-        # name from this set.
-        "AggConfig",
-        "AsyncBatchAggregator",
-        "AuthorityEnricher",
-        "CacheManager",
-        "DatabaseConfig",
-        "GateConfig",
-        "GateLimits",
-        "GateState",
-        "GraphCoherenceResult",
-        "GraphCoherenceScorer",
-        "MemgraphClient",
-        "PerformanceMonitor",
-        "PipelineMode",
-        "ProductionError",  # intentional — 3 standalone e4 scripts each
-                            #   with their own local exception class
-        "RateLimiter",
-        "SchemaValidator",
-        "SecurityError",
-        "SizedLRU",
-        "UnicodeConfig",
-        "V7SchemaValidator",
-        "ValidationResult",
-    }
-)
+_H5_KNOWN_BACKLOG: frozenset = frozenset()
+# Round-36 phase 3 emptied the backlog. Trajectory: 38 → 31 → 21 → 0.
+# Resolution strategy was per-location renaming with `as` aliases at
+# consumer sites — the H5 audit's purpose is to prevent the round-32
+# class-identity bug ("except SecurityError" catches wrong class), so
+# every dup class got a distinct name and consumers updated their
+# imports. Nothing was hoisted into a shared base class because the
+# implementations were genuinely divergent; renaming preserves both
+# semantics without ambiguity. Pure dead-orphan files (no production
+# callers) were deleted outright (CacheManager, GraphCoherenceResult,
+# GraphCoherenceScorer, PerformanceMonitor, SizedLRU, gates_fast_small).
+#
+# To add a new dup intentionally: rename one side and document why
+# here, OR add the class name back to this set with a one-line
+# justification. The empty default forces the conversation.
 
 
 def _check_no_dual_class_definitions() -> Result:

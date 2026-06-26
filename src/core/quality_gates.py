@@ -12,7 +12,7 @@ from typing import Any, Dict, List
 
 
 @dataclass
-class ValidationResult:
+class QualityGateValidationResult:
     """Result of a validation check"""
 
     passed: bool
@@ -31,7 +31,7 @@ class QualityGate(ABC):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     @abstractmethod
-    async def validate(self, entry: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, entry: Dict[str, Any]) -> QualityGateValidationResult:
         """Validate an entry"""
         pass
 
@@ -42,14 +42,14 @@ class QualityGate(ABC):
         pass
 
 
-class SchemaValidator(QualityGate):
+class QualityGatesSchemaValidator(QualityGate):
     """Validates entries against V7 JSON schema"""
 
     @property
     def name(self) -> str:
         return "schema_validation"
 
-    async def validate(self, entry: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, entry: Dict[str, Any]) -> QualityGateValidationResult:
         """Validate against V7 schema requirements"""
         errors = []
         warnings = []
@@ -94,7 +94,7 @@ class SchemaValidator(QualityGate):
         passed_checks = total_checks - len(errors)
         score = passed_checks / total_checks
 
-        return ValidationResult(
+        return QualityGateValidationResult(
             passed=len(errors) == 0,
             score=score,
             gate_name=self.name,
@@ -115,7 +115,7 @@ class RoundtripValidator(QualityGate):
     def name(self) -> str:
         return "roundtrip_validation"
 
-    async def validate(self, entry: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, entry: Dict[str, Any]) -> QualityGateValidationResult:
         """Check if names can roundtrip correctly"""
         errors = []
         warnings = []
@@ -125,7 +125,7 @@ class RoundtripValidator(QualityGate):
 
         if not canonical_latin:
             errors.append("Missing CanonicalLatin for roundtrip check")
-            return ValidationResult(
+            return QualityGateValidationResult(
                 passed=False,
                 score=0.0,
                 gate_name=self.name,
@@ -159,7 +159,7 @@ class RoundtripValidator(QualityGate):
                         # Found roundtrip variant, good
                         roundtrip_score = min(roundtrip_score + 0.1, 1.0)
 
-        return ValidationResult(
+        return QualityGateValidationResult(
             passed=roundtrip_score >= self.threshold,
             score=roundtrip_score,
             gate_name=self.name,
@@ -179,7 +179,7 @@ class CoherenceValidator(QualityGate):
     def name(self) -> str:
         return "coherence_validation"
 
-    async def validate(self, entry: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, entry: Dict[str, Any]) -> QualityGateValidationResult:
         """Check cross-field consistency"""
         errors = []
         warnings = []
@@ -251,7 +251,7 @@ class CoherenceValidator(QualityGate):
         else:
             score = 1.0  # No checks performed, assume coherent
 
-        return ValidationResult(
+        return QualityGateValidationResult(
             passed=score >= self.threshold,
             score=score,
             gate_name=self.name,
@@ -275,7 +275,7 @@ class DuplicateDetector(QualityGate):
     def name(self) -> str:
         return "duplicate_detection"
 
-    async def validate(self, entry: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, entry: Dict[str, Any]) -> QualityGateValidationResult:
         """Check for duplicate entries"""
         errors = []
         warnings = []
@@ -305,7 +305,7 @@ class DuplicateDetector(QualityGate):
         max_similarity = max(similarity_scores) if similarity_scores else 0.0
         score = 1.0 - max_similarity
 
-        return ValidationResult(
+        return QualityGateValidationResult(
             passed=not is_duplicate,
             score=score,
             gate_name=self.name,
@@ -348,7 +348,7 @@ class PerformanceMonitor(QualityGate):
     def name(self) -> str:
         return "performance_monitoring"
 
-    async def validate(self, entry: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, entry: Dict[str, Any]) -> QualityGateValidationResult:
         """Check processing performance"""
         errors = []
         warnings = []
@@ -369,7 +369,7 @@ class PerformanceMonitor(QualityGate):
             # No timing data, assume good performance
             score = 1.0
 
-        return ValidationResult(
+        return QualityGateValidationResult(
             passed=len(errors) == 0,
             score=score,
             gate_name=self.name,
@@ -389,7 +389,7 @@ class CompletenessChecker(QualityGate):
     def name(self) -> str:
         return "completeness_check"
 
-    async def validate(self, entry: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, entry: Dict[str, Any]) -> QualityGateValidationResult:
         """Check if entry has all recommended fields"""
         errors = []
         warnings = []
@@ -441,7 +441,7 @@ class CompletenessChecker(QualityGate):
 
         score = completed_weight / total_weight
 
-        return ValidationResult(
+        return QualityGateValidationResult(
             passed=len(errors) == 0 and score >= self.threshold,
             score=score,
             gate_name=self.name,
@@ -462,7 +462,7 @@ class ConsistencyVerifier(QualityGate):
     def name(self) -> str:
         return "consistency_verification"
 
-    async def validate(self, entry: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, entry: Dict[str, Any]) -> QualityGateValidationResult:
         """Verify internal consistency"""
         errors = []
         warnings = []
@@ -524,7 +524,7 @@ class ConsistencyVerifier(QualityGate):
         else:
             score = 1.0
 
-        return ValidationResult(
+        return QualityGateValidationResult(
             passed=len(errors) == 0 and score >= self.threshold,
             score=score,
             gate_name=self.name,
@@ -545,7 +545,7 @@ class AuthorityValidator(QualityGate):
     def name(self) -> str:
         return "authority_validation"
 
-    async def validate(self, entry: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, entry: Dict[str, Any]) -> QualityGateValidationResult:
         """Validate authority enrichment data"""
         errors = []
         warnings = []
@@ -586,7 +586,7 @@ class AuthorityValidator(QualityGate):
             else:
                 score = 0.5
 
-        return ValidationResult(
+        return QualityGateValidationResult(
             passed=len(errors) == 0
             and score >= self.threshold * 0.5,  # Lower threshold for authority
             score=score,
@@ -606,7 +606,7 @@ class EnhancedQualityGates:
 
     def __init__(self):
         self.gates = {
-            "schema": SchemaValidator(),
+            "schema": QualityGatesSchemaValidator(),
             "roundtrip": RoundtripValidator(),
             "coherence": CoherenceValidator(),
             "duplicate": DuplicateDetector(),

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # Greps tests for third-party imports and emits a suggested requirements.tests.txt
-import sys, pathlib, re
+import pathlib
+import re
+import sys
 
 root = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else pathlib.Path("tests")
 third = set()

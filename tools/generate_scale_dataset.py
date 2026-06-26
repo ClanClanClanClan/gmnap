@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # Generate a realistic-looking production dataset of N entries in JSONL.
 # Fields: GlobalID, CanonicalNative, Region, BirthYear, Sources, Advisors
-import json, random, pathlib, argparse
+import argparse
+import json
+import pathlib
+import random
 
 REGIONS = [f"R{i:02d}" for i in range(1, 38)]  # 37 regions
 SOURCES = [

@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # Runs a target function with tracemalloc and prints top allocators.
-import argparse, tracemalloc, time, json, importlib
+import argparse
+import importlib
+import json
+import time
+import tracemalloc
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()

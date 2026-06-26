@@ -9,11 +9,12 @@ Target failures:
 - Slavic: Hájek, Novák → G1 instead of B2 (Spanish confusion)
 """
 
-import yaml
 import os
 import re
 from collections import defaultdict
 from pathlib import Path
+
+import yaml
 
 
 class YAMLPatternExtractor:

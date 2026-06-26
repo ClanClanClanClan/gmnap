@@ -4,11 +4,11 @@ Project Cleanup Script - GMNAP v7
 Organizes files and cleans up the project structure
 """
 
+import json
 import os
 import shutil
-from pathlib import Path
-import json
 from datetime import datetime
+from pathlib import Path
 
 
 class ProjectCleaner:

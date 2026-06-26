@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Comprehensive audit of GMNAP system test results."""
 
-import subprocess
 import json
-import sys
 import os
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -94,7 +94,7 @@ def main():
     total_failed = sum(r["failed"] for r in results)
     total_errors = sum(r["errors"] for r in results)
 
-    print(f"\n=== Summary ===")
+    print("\n=== Summary ===")
     print(f"Total test files: {len(test_files)}")
     print(f"Tests passed: {total_passed}")
     print(f"Tests failed: {total_failed}")

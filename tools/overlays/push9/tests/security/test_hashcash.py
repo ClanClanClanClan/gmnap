@@ -1,5 +1,8 @@
-from src.ops.hashcash import verify_hashcash, HashcashStamp
-import time, hashlib, itertools
+import hashlib
+import itertools
+import time
+
+from src.ops.hashcash import HashcashStamp, verify_hashcash
 
 
 def _mint(bits: int, resource: str) -> str:

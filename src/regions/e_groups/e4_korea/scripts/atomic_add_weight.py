@@ -15,7 +15,7 @@ from datetime import datetime
 from pathlib import Path
 
 
-class ProductionError(Exception):
+class AddWeightProductionError(Exception):
     pass
 
 
@@ -26,7 +26,9 @@ def acquire_lock(lockfile):
         fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         return fd
     except:
-        raise ProductionError("Could not acquire lock - another process may be running")
+        raise AddWeightProductionError(
+            "Could not acquire lock - another process may be running"
+        )
 
 
 def release_lock(fd):
@@ -61,29 +63,33 @@ def validate_weight_format(weight_line):
     """Validate weight format: hangul,roman,weight,context,pos"""
     parts = weight_line.strip().split(",")
     if len(parts) != 5:
-        raise ProductionError(f"Invalid format - need 5 fields, got {len(parts)}")
+        raise AddWeightProductionError(
+            f"Invalid format - need 5 fields, got {len(parts)}"
+        )
 
     hangul, roman, weight, context, pos = parts
 
     # Validate hangul contains Korean characters
     if not hangul or not any("\uac00" <= c <= "\ud7af" for c in hangul):
-        raise ProductionError("Hangul field must contain Korean characters")
+        raise AddWeightProductionError("Hangul field must contain Korean characters")
 
     # Validate roman is ASCII only
     if not roman or not all(c.isascii() for c in roman):
-        raise ProductionError("Roman field must be ASCII only")
+        raise AddWeightProductionError("Roman field must be ASCII only")
 
     # Validate weight is numeric
     try:
         weight_val = float(weight)
         if weight_val < -2.5:
-            raise ProductionError(f"Weight {weight_val} below safety threshold -2.5")
+            raise AddWeightProductionError(
+                f"Weight {weight_val} below safety threshold -2.5"
+            )
     except ValueError:
-        raise ProductionError(f"Weight must be numeric, got: {weight}")
+        raise AddWeightProductionError(f"Weight must be numeric, got: {weight}")
 
     # Validate position
     if pos not in ["S", "G", "SG"]:
-        raise ProductionError(f"Position must be S, G, or SG, got: {pos}")
+        raise AddWeightProductionError(f"Position must be S, G, or SG, got: {pos}")
 
     return hangul, roman, weight_val, context, pos
 
@@ -107,7 +113,7 @@ def add_weight_to_csv(weight_line):
 
     key = (hangul, roman, pos)
     if key in existing:
-        raise ProductionError(
+        raise AddWeightProductionError(
             f"Duplicate mapping already exists: {hangul},{roman} (pos={pos})"
         )
 
@@ -133,7 +139,7 @@ def rebuild_fsts():
         [sys.executable, "scripts/build_fsts_multi.py"], capture_output=True, text=True
     )
     if result.returncode != 0:
-        raise ProductionError(f"FST build failed: {result.stderr}")
+        raise AddWeightProductionError(f"FST build failed: {result.stderr}")
     print("✓ FST models rebuilt")
 
 
@@ -205,7 +211,7 @@ def main():
         print("\n✅ All checks passed - weight added successfully!")
         print("📝 Backups retained for manual rollback if needed")
 
-    except ProductionError as e:
+    except AddWeightProductionError as e:
         print(f"\n❌ ERROR: {e}")
         if backups:
             rollback(backups)

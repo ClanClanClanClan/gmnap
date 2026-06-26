@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Verify current structure and plan reorganization moves."""
 
+import json
 import os
 from pathlib import Path
-import json
 
 
 def analyze_directory_structure():

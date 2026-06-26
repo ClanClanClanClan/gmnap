@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # Simulated authority stress tester; replace with real fetches when LIVE_AUTH=1.
-import os, time, random, json
+import json
+import os
+import random
+import time
 
 
 def fetch_mock(name):

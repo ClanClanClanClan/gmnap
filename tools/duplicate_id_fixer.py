@@ -11,7 +11,12 @@ Usage:
 """
 
 from __future__ import annotations
-import json, sys, argparse, collections, re
+
+import argparse
+import collections
+import json
+import re
+import sys
 
 try:
     import yaml  # type: ignore

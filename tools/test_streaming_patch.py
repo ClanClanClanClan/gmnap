@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Quick streaming patch smoke test (1k→50k)"""
 
-import asyncio, os, time, json
-from typing import List, Dict, Any
+import asyncio
+import json
+import os
+import time
+from typing import Any, Dict, List
 
 
 def mk(n: int) -> List[Dict[str, Any]]:
@@ -23,8 +26,8 @@ async def main():
     os.environ.setdefault("GMNAP_INFLIGHT", "4")
     os.environ.setdefault("GMNAP_STREAM_THRESHOLD", "10000")
 
-    from src.core.pipeline_v7 import V7Pipeline
     from src.core.patch.pipeline_v7_integration_patch import enable_streaming_patch
+    from src.core.pipeline_v7 import V7Pipeline
 
     # Enable the streaming patch
     enable_streaming_patch(

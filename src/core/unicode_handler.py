@@ -9,7 +9,7 @@ from typing import Dict, List, Optional
 
 
 @dataclass
-class UnicodeConfig:
+class UnicodeHandlerConfig:
     """Configuration for Unicode normalization."""
 
     preserve_combining: bool = True
@@ -24,8 +24,8 @@ class UnicodeNormalizer:
     NFC → NFKD → custom fold → NFC
     """
 
-    def __init__(self, config: Optional[UnicodeConfig] = None):
-        self.config = config or UnicodeConfig()
+    def __init__(self, config: Optional[UnicodeHandlerConfig] = None):
+        self.config = config or UnicodeHandlerConfig()
         self._init_fold_mappings()
 
     def _init_fold_mappings(self):
@@ -301,7 +301,7 @@ class UnicodeNormalizer:
         return orig_critical.issubset(norm_critical)
 
 
-def normalize_name(name: str, config: Optional[UnicodeConfig] = None) -> str:
+def normalize_name(name: str, config: Optional[UnicodeHandlerConfig] = None) -> str:
     """
     Convenience function to normalize a name.
 
@@ -317,7 +317,7 @@ def normalize_name(name: str, config: Optional[UnicodeConfig] = None) -> str:
 
 
 def generate_name_variants(
-    name: str, config: Optional[UnicodeConfig] = None
+    name: str, config: Optional[UnicodeHandlerConfig] = None
 ) -> List[str]:
     """
     Convenience function to generate name variants.

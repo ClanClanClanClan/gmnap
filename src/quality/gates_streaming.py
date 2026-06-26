@@ -5,13 +5,13 @@ from typing import Any, Dict, Set
 
 
 @dataclass
-class GateLimits:
+class StreamingGateLimits:
     minutes_1m_max: float = 35.0
     min_success_rate: float = 0.95
 
 
 @dataclass
-class GateState:
+class StreamingGateState:
     seen: int = 0
     ok: int = 0
     err: int = 0
@@ -19,9 +19,9 @@ class GateState:
 
 
 class StreamingGates:
-    def __init__(self, limits: GateLimits | None = None):
+    def __init__(self, limits: StreamingGateLimits | None = None):
         self.l = limits or GateLimits()
-        self.s = GateState()
+        self.s = StreamingGateState()
 
     def ingest(self, batch_out):
         for r in batch_out:

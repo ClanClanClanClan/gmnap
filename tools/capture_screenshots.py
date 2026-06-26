@@ -68,10 +68,22 @@ def _server():
     env["OFFLINE"] = "1"
     env["GMNAP_LOG_LEVEL"] = "WARNING"
     proc = subprocess.Popen(
-        [sys.executable, "-m", "uvicorn", "src.api.server:app",
-         "--host", "127.0.0.1", "--port", str(port), "--log-level", "warning"],
-        cwd=str(REPO), env=env,
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        [
+            sys.executable,
+            "-m",
+            "uvicorn",
+            "src.api.server:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            str(port),
+            "--log-level",
+            "warning",
+        ],
+        cwd=str(REPO),
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
     try:
         _wait_ready(port)
@@ -93,7 +105,8 @@ def _search_and_wait(page, query: str):
     page.press("#search-input", "Enter")
     page.wait_for_selector(
         ".result-card, #no-results:not([hidden]), #error-msg:not([hidden])",
-        state="attached", timeout=20000,
+        state="attached",
+        timeout=20000,
     )
     page.wait_for_selector("#loading", state="hidden", timeout=20000)
 

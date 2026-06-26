@@ -1,6 +1,8 @@
 from __future__ import annotations
-import unicodedata, re
-from typing import Dict, Any, Iterable
+
+import re
+import unicodedata
+from typing import Any, Dict, Iterable
 
 # Control and zero-width characters commonly removed
 _ZW = [

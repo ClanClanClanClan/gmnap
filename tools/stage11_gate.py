@@ -1,5 +1,10 @@
 from __future__ import annotations
-import json, sys, pathlib, hashlib
+
+import hashlib
+import json
+import pathlib
+import sys
+
 from overlays.stage9_write_diff.src.diff.write_and_diff import write_yaml_sorted
 
 
