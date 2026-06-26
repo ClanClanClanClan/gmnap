@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.schema_validator import V7SchemaValidator
+from src.core.schema_validator import CoreV7SchemaValidator as V7SchemaValidator
 
 
 @pytest.mark.timeout(15)

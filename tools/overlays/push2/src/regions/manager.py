@@ -1,5 +1,7 @@
 from __future__ import annotations
-from typing import Dict, Any
+
+from typing import Any, Dict
+
 from .base import RegionBase
 from .regions_a1 import RegionA1
 from .regions_e1 import RegionE1

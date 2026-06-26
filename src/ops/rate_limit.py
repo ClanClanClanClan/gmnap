@@ -28,7 +28,7 @@ class TokenBucket:
         return False
 
 
-class RateLimiter:
+class OpsRateLimiter:
     def __init__(self, rpm_free: int = 60, rpm_paid: int = 10000):
         self._buckets: Dict[str, TokenBucket] = {}
         self.rps_free = rpm_free / 60.0

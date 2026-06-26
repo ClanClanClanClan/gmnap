@@ -22,7 +22,7 @@ T = TypeVar("T")
 R = TypeVar("R")
 
 
-class PipelineMode(Enum):
+class PipelineModeBase(Enum):
     """Pipeline execution modes."""
 
     QUICK = "quick"  # Minimal processing for testing
@@ -144,7 +144,7 @@ class PipelineStage(ABC, Generic[T, R]):
 class PipelineConfig:
     """Configuration for the pipeline."""
 
-    mode: PipelineMode = PipelineMode.FULL
+    mode: PipelineModeBase = PipelineModeBase.FULL
     max_retries: int = 3
     retry_delay: float = 1.0
     checkpoint_interval: int = 1000
@@ -314,7 +314,7 @@ class Pipeline:
                     self.logger.error(f"Pipeline failed at stage {stage.name}: {e}")
 
                     # Determine if we should continue
-                    if self.config.mode == PipelineMode.EXTREME:
+                    if self.config.mode == PipelineModeBase.EXTREME:
                         raise  # Fail fast in extreme mode
 
                     # Skip failed stage and all remaining stages in other modes

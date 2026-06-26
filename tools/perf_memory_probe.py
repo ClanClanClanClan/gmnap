@@ -1,4 +1,9 @@
-import os, time, json, psutil, gc
+import gc
+import json
+import os
+import time
+
+import psutil
 
 
 def synth(N):

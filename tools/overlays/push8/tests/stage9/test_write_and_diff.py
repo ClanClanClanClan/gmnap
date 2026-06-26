@@ -1,8 +1,11 @@
-import os, json, pathlib
+import json
+import os
+import pathlib
+
 from src.pipeline.stage9_write_and_diff import (
-    write_snapshot,
     diff_snapshots,
     generate_sql_changelog,
+    write_snapshot,
 )
 
 

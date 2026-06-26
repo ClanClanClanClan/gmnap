@@ -8,8 +8,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 import src.api.server as _server_mod
+from src.api.server import APIRateLimiter as RateLimiter
 from src.api.server import (
-    RateLimiter,
     _used_stamps,
     create_app,
     verify_hashcash,

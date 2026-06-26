@@ -1,6 +1,8 @@
 from __future__ import annotations
-from typing import Dict, List, Any
-import json, pathlib
+
+import json
+import pathlib
+from typing import Any, Dict, List
 
 ARRAY_PROPS = [
     "AlternativeLatin",

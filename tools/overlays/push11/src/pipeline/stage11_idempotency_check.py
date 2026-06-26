@@ -1,8 +1,14 @@
 from __future__ import annotations
-import os, json, pathlib, random, hashlib, time
-from typing import Dict, List, Tuple, Any
 
-from ..ops.metrics import IDEMP_DIFF_BYTES, IDEMP_OK_TOTAL, IDEMP_FAIL_TOTAL
+import hashlib
+import json
+import os
+import pathlib
+import random
+import time
+from typing import Any, Dict, List, Tuple
+
+from ..ops.metrics import IDEMP_DIFF_BYTES, IDEMP_FAIL_TOTAL, IDEMP_OK_TOTAL
 from ..ops.yaml_deterministic import to_canonical_bytes
 
 _REPORT_NAME = "IDEMPOTENCY_REPORT.txt"

@@ -5,8 +5,8 @@ Comprehensive cleanup of the GMNAP project
 
 import os
 import shutil
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 
 def cleanup_backup_files():
@@ -198,7 +198,7 @@ def main():
     total_removed += cleanup_empty_dirs()
 
     print("\n" + "=" * 60)
-    print(f"✅ CLEANUP COMPLETE")
+    print("✅ CLEANUP COMPLETE")
     print(f"  - Items removed: {total_removed}")
     print(f"  - Docs archived: {moved}")
 

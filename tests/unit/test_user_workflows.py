@@ -19,7 +19,7 @@ def client():
     import src.api.server as mod
 
     mod._PAID_TOKENS.add("test-workflow-token")
-    mod._rate_limiter = mod.RateLimiter(free_rpm=60, paid_rpm=10_000)
+    mod._rate_limiter = mod.APIRateLimiter(free_rpm=60, paid_rpm=10_000)
     app = mod.create_app()
     return TestClient(app, headers={"Authorization": "Bearer test-workflow-token"})
 

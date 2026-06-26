@@ -85,7 +85,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # Rate limiter
 # ---------------------------------------------------------------------------
-class RateLimiter:
+class APIRateLimiter:
     """Simple in-memory sliding window rate limiter."""
 
     def __init__(self, free_rpm: int = 60, paid_rpm: int = 10_000):
@@ -196,7 +196,7 @@ _start_time = time.time()
 # spec §12 free-tier limit of 60/min.
 _free_rpm = int(os.getenv("GMNAP_FREE_RPM", "60"))
 _paid_rpm = int(os.getenv("GMNAP_PAID_RPM", "10000"))
-_rate_limiter = RateLimiter(free_rpm=_free_rpm, paid_rpm=_paid_rpm)
+_rate_limiter = APIRateLimiter(free_rpm=_free_rpm, paid_rpm=_paid_rpm)
 
 # Bearer tokens for paid tier (loaded from env)
 _PAID_TOKENS = set(

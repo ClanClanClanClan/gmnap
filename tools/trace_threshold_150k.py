@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-import asyncio, time, json, os
-from typing import List, Dict
-from src.core.pipeline_guard_service import PipelineGuardService, GuardConfig
+import asyncio
+import json
+import os
+import time
+from typing import Dict, List
+
+from src.core.pipeline_guard_service import GuardConfig, PipelineGuardService
 
 
 def mk(n: int) -> List[Dict]:

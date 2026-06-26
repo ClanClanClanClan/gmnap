@@ -18,17 +18,16 @@ from .errors import (
     UnicodeError,
     ValidationError,
 )
-from .monitoring import health, metrics, performance, setup_logging
 from .pipeline import (
     Pipeline,
     PipelineConfig,
-    PipelineMode,
+    PipelineModeBase,
     PipelineStage,
     StageResult,
     StageStatus,
 )
 from .unicode_handler import (
-    UnicodeConfig,
+    UnicodeHandlerConfig,
     UnicodeNormalizer,
     generate_name_variants,
     normalize_name,
@@ -37,14 +36,14 @@ from .unicode_handler import (
 __all__ = [
     # Unicode handling
     "UnicodeNormalizer",
-    "UnicodeConfig",
+    "UnicodeHandlerConfig",
     "normalize_name",
     "generate_name_variants",
     # Pipeline
     "Pipeline",
     "PipelineStage",
     "PipelineConfig",
-    "PipelineMode",
+    "PipelineModeBase",
     "StageStatus",
     "StageResult",
     # Configuration

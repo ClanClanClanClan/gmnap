@@ -25,7 +25,7 @@ except Exception:
 
 
 @dataclass
-class AggConfig:
+class ScaleAggConfig:
     min_size: int = 24
     target_size: int = 96
     max_size: int = 256
@@ -34,8 +34,8 @@ class AggConfig:
     max_concurrency: int = 1
 
 
-class AsyncBatchAggregator:
-    def __init__(self, fn, cfg: AggConfig):
+class ScaleAsyncBatchAggregator:
+    def __init__(self, fn, cfg: ScaleAggConfig):
         self.fn = fn
         self.cfg = cfg
         self.q: asyncio.Queue[Tuple[dict, asyncio.Future]] = asyncio.Queue()
@@ -123,7 +123,7 @@ def sanitise_entry(e: Dict[str, Any]) -> Dict[str, Any]:
 @dataclass
 class ScaleConfig:
     warmup_entries: int = 128
-    micro: AggConfig = field(default_factory=AggConfig)
+    micro: ScaleAggConfig = field(default_factory=ScaleAggConfig)
     uniform_region_fastpath: bool = True
     stream_chunk: int = 1500
     inflight_chunks: int = 4
@@ -139,7 +139,7 @@ class ScaleGuardService:
     ):
         self.cfg = cfg or ScaleConfig()
         self.pipeline = pipeline_ctor()
-        self.agg = AsyncBatchAggregator(self._process_impl, self.cfg.micro)
+        self.agg = ScaleAsyncBatchAggregator(self._process_impl, self.cfg.micro)
         self._warmed = False
         self._region_cache: Dict[str, Any] = {}
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import sys, json
+import json
+import sys
+
 from src.pipeline.stage1_ingest import ingest_and_normalise
 
 if __name__ == "__main__":

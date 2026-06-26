@@ -1,20 +1,26 @@
 from __future__ import annotations
-from typing import Callable, Awaitable, Optional, Dict, Any
-import os, ipaddress, jwt, time
+
+import ipaddress
+import os
+import time
+from typing import Any, Awaitable, Callable, Dict, Optional
+
+import jwt
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response, JSONResponse
+from starlette.responses import JSONResponse, Response
+
 from ..ops.hashcash import verify_hashcash
-from ..ops.rate_limit import RateLimiter
 from ..ops.metrics_security import (
     AUTHN_FAILED,
     AUTHZ_FAILED,
-    RATE_LIMIT_DROPPED,
     HASHCASH_VERIFIED,
-    JWT_VERIFIED,
-    SECURITY_EVENT,
     HASHCASH_VERIFY_LATENCY,
+    JWT_VERIFIED,
+    RATE_LIMIT_DROPPED,
+    SECURITY_EVENT,
 )
+from ..ops.rate_limit import RateLimiter
 
 
 class SecurityMiddleware(BaseHTTPMiddleware):

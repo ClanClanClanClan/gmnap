@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """1M entry validation test for GMNAP V7 with expert streaming solution"""
 
-import asyncio, os, time, json
-from typing import List, Dict, Any
-from src.quality.gates_rolling import RollingGates, GateLimits
+import asyncio
+import json
+import os
+import time
+from typing import Any, Dict, List
+
+from src.quality.gates_rolling import RollingGateLimits, RollingGates
 
 
 def mk(n: int) -> List[Dict[str, Any]]:
@@ -24,8 +28,8 @@ async def main():
     os.environ.setdefault("GMNAP_INFLIGHT", "4")
     os.environ.setdefault("GMNAP_STREAM_THRESHOLD", "10000")
 
-    from src.core.pipeline_v7 import V7Pipeline
     from src.core.patch.pipeline_v7_integration_patch import enable_streaming_patch
+    from src.core.pipeline_v7 import V7Pipeline
 
     # Enable the streaming patch
     enable_streaming_patch(
@@ -37,7 +41,7 @@ async def main():
 
     N = int(os.getenv("N", "1000000"))
     p = V7Pipeline()
-    g = RollingGates(GateLimits(minutes_1m_max=35.0, min_success_rate=0.95))
+    g = RollingGates(RollingGateLimits(minutes_1m_max=35.0, min_success_rate=0.95))
 
     print(f"🚀 Running {N:,} entry validation with streaming patch...")
 

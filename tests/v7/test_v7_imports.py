@@ -36,7 +36,7 @@ def test_imports():
         ),
         (
             "Core: Schema Validator",
-            "from src.core.schema_validator import V7SchemaValidator",
+            "from src.core.schema_validator import CoreV7SchemaValidator as V7SchemaValidator",
         ),
         ("Core: DB Pool", "from src.core.db_pool import BoltPool"),
         (

@@ -13,7 +13,7 @@ from datetime import datetime
 from pathlib import Path
 
 
-class ProductionError(Exception):
+class AddWeightSubprocessProductionError(Exception):
     pass
 
 
@@ -24,7 +24,9 @@ def acquire_lock(lockfile):
         fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         return fd
     except:
-        raise ProductionError("Could not acquire lock - another process may be running")
+        raise AddWeightSubprocessProductionError(
+            "Could not acquire lock - another process may be running"
+        )
 
 
 def main():
@@ -37,7 +39,9 @@ def main():
     weight_line = sys.argv[1]
     parts = weight_line.strip().split(",")
     if len(parts) != 5:
-        raise ProductionError("Invalid format - need exactly 5 comma-separated fields")
+        raise AddWeightSubprocessProductionError(
+            "Invalid format - need exactly 5 comma-separated fields"
+        )
 
     hangul, roman, weight, context, pos = parts
 
@@ -83,7 +87,9 @@ def main():
         )
 
         if build_result.returncode != 0:
-            raise ProductionError(f"FST build failed: {build_result.stderr}")
+            raise AddWeightSubprocessProductionError(
+                f"FST build failed: {build_result.stderr}"
+            )
 
         print("✓ FST models rebuilt")
 
@@ -115,7 +121,7 @@ print('Park:', converter.eng2kor('Park'))""",
         if val_result.returncode != 0:
             print("\n❌ REGRESSION DETECTED!")
             print(val_result.stdout)
-            raise ProductionError("Regression detected")
+            raise AddWeightSubprocessProductionError("Regression detected")
 
         print("✅ No regressions detected")
 

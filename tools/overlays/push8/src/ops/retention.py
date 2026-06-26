@@ -1,5 +1,8 @@
 from __future__ import annotations
-import os, time, pathlib
+
+import os
+import pathlib
+import time
 from typing import Iterable
 
 

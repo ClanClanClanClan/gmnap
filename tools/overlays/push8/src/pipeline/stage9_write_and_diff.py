@@ -1,14 +1,24 @@
 from __future__ import annotations
-import os, json, pathlib, hashlib, datetime, difflib, shutil, unicodedata
+
+import datetime
+import difflib
+import hashlib
+import json
+import os
+import pathlib
+import shutil
+import unicodedata
 from typing import Dict, List, Tuple
+
 from ruamel.yaml import YAML
-from .stage10_report import _batch_hash  # reuse deterministic hasher
+
 from ..ops.metrics_ext import (
     WRITE_DIFF_ADDED,
-    WRITE_DIFF_REMOVED,
-    WRITE_DIFF_MODIFIED,
     WRITE_DIFF_LATEST,
+    WRITE_DIFF_MODIFIED,
+    WRITE_DIFF_REMOVED,
 )
+from .stage10_report import _batch_hash  # reuse deterministic hasher
 
 _VOLATILE_KEYS = {"ProcessedAt", "ProcessingLatencyMs", "_debug", "_trace_id", "_meta"}
 
@@ -146,7 +156,7 @@ def diff_snapshots(
     index = [
         "<html><head><meta charset='utf-8'><title>Write&Diff Report</title></head><body>"
     ]
-    index.append(f"<h1>Write&amp;Diff Report</h1>")
+    index.append("<h1>Write&amp;Diff Report</h1>")
     index.append(f"<p><b>Prev:</b> {prev}</p><p><b>Curr:</b> {curr}</p>")
     index.append("<h2>Summary</h2>")
     index.append(

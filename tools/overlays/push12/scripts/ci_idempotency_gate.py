@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import os, sys, json
+import json
+import os
+import sys
 
 gate = int(os.getenv("GMNAP_IDEMPOTENT_DIFF_BYTES_MAX", "0") or "0")
 report = os.path.join(

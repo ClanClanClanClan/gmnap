@@ -41,6 +41,6 @@ print(f"Failed:   {len(failures)}")
 print(f"Accuracy: {correct / len(data):.1%}")
 print(f"Time:     {elapsed:.2f}s")
 if failures:
-    print(f"\nFailures:")
+    print("\nFailures:")
     for f_msg in failures[:20]:
         print(f"  {f_msg}")

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import json, hashlib, sys
+import hashlib
+import json
+import sys
 
 VOLATILE_KEYS = {"ProcessedAt", "ProcessingLatencyMs", "_debug", "_trace_id", "_meta"}
 

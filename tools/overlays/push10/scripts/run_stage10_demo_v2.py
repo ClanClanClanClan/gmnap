@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import json, os
+import json
+import os
+
 from src.pipeline.stage10_report import generate_report
 
 if __name__ == "__main__":

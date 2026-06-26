@@ -5,17 +5,17 @@ Brutal verification of A+ claims and system state.
 No mercy, no assumptions, just truth.
 """
 
-import sys
-import os
-import time
-import json
-import traceback
-import random
-import threading
 import gc
+import json
+import os
+import random
+import sys
+import threading
+import time
+import traceback
 import unicodedata
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List, Tuple
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -669,32 +669,32 @@ class UltrathinkAuditor:
         else:
             accuracy = 0
 
-        print(f"\n📊 AUDIT SUMMARY:")
+        print("\n📊 AUDIT SUMMARY:")
         print(f"  Claims Verified: {verified}")
         print(f"  False Claims: {false_claims}")
         print(f"  Issues Found: {issues}")
         print(f"  Warnings: {warnings}")
 
-        print(f"\n✅ VERIFIED CLAIMS:")
+        print("\n✅ VERIFIED CLAIMS:")
         for claim in self.audit_results["claims_verified"][:10]:
             print(f"  {claim}")
 
         if self.audit_results["claims_false"]:
-            print(f"\n❌ FALSE CLAIMS:")
+            print("\n❌ FALSE CLAIMS:")
             for claim in self.audit_results["claims_false"]:
                 print(f"  {claim}")
 
         if self.audit_results["issues_found"]:
-            print(f"\n⚠️ ISSUES FOUND:")
+            print("\n⚠️ ISSUES FOUND:")
             for issue in self.audit_results["issues_found"][:10]:
                 print(f"  {issue}")
 
         if self.audit_results["warnings"]:
-            print(f"\n⚠️ WARNINGS:")
+            print("\n⚠️ WARNINGS:")
             for warning in self.audit_results["warnings"][:5]:
                 print(f"  {warning}")
 
-        print(f"\n📈 KEY METRICS:")
+        print("\n📈 KEY METRICS:")
         for key, value in self.audit_results["stats"].items():
             if isinstance(value, float):
                 print(f"  {key}: {value:.2f}")
@@ -702,7 +702,7 @@ class UltrathinkAuditor:
                 print(f"  {key}: {value}")
 
         # Final grade
-        print(f"\n🎯 FINAL ASSESSMENT:")
+        print("\n🎯 FINAL ASSESSMENT:")
 
         if accuracy >= 0.95 and false_claims == 0:
             grade = "A+"
@@ -743,6 +743,6 @@ if __name__ == "__main__":
     with open("ultrathink_audit_results.json", "w") as f:
         json.dump(auditor.audit_results, f, indent=2)
 
-    print(f"\n📁 Full audit results saved to: ultrathink_audit_results.json")
+    print("\n📁 Full audit results saved to: ultrathink_audit_results.json")
 
     sys.exit(0 if grade == "A+" else 1)

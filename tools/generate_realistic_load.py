@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # Emits batches with realistic distributions; coalesces small requests for throughput.
-import os, time, json, random, itertools
+import itertools
+import json
+import os
+import random
+import time
 
 
 def batches(n_batches=100, batch_size=100):

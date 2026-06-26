@@ -6,9 +6,9 @@ import sys
 sys.path.append(".")
 
 from scripts.dice_coefficient_impl import (
-    roman_to_hangul,
-    hangul_to_roman,
     dice_coefficient,
+    hangul_to_roman,
+    roman_to_hangul,
 )
 
 test_name = "Ahn, Dae-Hoon"

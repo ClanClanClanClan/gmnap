@@ -1,5 +1,8 @@
+import json
+import os
+import sys
+
 from neo4j import GraphDatabase
-import json, os, sys
 
 URI = os.getenv("MG_URI", "bolt://localhost:7687")
 AUTH = (os.getenv("MG_USER", ""), os.getenv("MG_PASSWORD", ""))

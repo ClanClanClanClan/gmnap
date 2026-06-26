@@ -8,7 +8,7 @@ ProcessFunc = Callable[[List[dict]], Awaitable[List[dict]]]
 
 
 @dataclass
-class AggConfig:
+class V2AggConfig:
     min_size: int = 24
     target_size: int = 96
     max_size: int = 256
@@ -18,9 +18,9 @@ class AggConfig:
 
 
 class AsyncBatchAggregatorV2:
-    def __init__(self, fn: ProcessFunc, cfg: AggConfig | None = None):
+    def __init__(self, fn: ProcessFunc, cfg: V2AggConfig | None = None):
         self.fn = fn
-        self.cfg = cfg or AggConfig()
+        self.cfg = cfg or V2AggConfig()
         self.q: asyncio.Queue[Tuple[dict, asyncio.Future]] = asyncio.Queue()
         self.sem = asyncio.Semaphore(self.cfg.max_concurrency)
         self._closed = False

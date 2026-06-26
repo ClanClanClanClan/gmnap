@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional
 import yaml
 
 # Performance optimization imports
-from src.core.async_batch_agg import AggConfig, AsyncBatchAggregator
+from src.core.async_batch_agg import AsyncBatchAggregator, LegacyAggConfig
 
 # Expert solution: Add result normalization import
 from src.core.compat.normalize_result import normalize_result
@@ -34,7 +34,7 @@ from src.core.unicode_handler import UnicodeNormalizer
 
 # Expert solution: Add streaming executor imports
 from src.ops.streaming_executor import StreamConfig, StreamingExecutor
-from src.quality.gates_fast import FastQualityGates, GateConfig
+from src.quality.gates_fast import FastGateConfig, FastQualityGates
 
 # Round 34 phase 2: align with CLI + API + test fixtures by using the
 # canonical RegionManager from manager_optimized (the same path
@@ -358,7 +358,7 @@ class V7Pipeline:
         # Use FastQualityGates for O(n) performance
         gate_profile = "test" if mode == PipelineMode.QUICK else "prod"
         self.quality_gates = FastQualityGates(
-            GateConfig(
+            FastGateConfig(
                 profile=gate_profile, stage6_min=0.85, projected_1m_minutes_max=35.0
             )
         )
@@ -366,7 +366,7 @@ class V7Pipeline:
 
         # Initialize AsyncBatchAggregator lazily (will be created when needed)
         self._batch_aggregator = None
-        self._batch_aggregator_config = AggConfig(
+        self._batch_aggregator_config = LegacyAggConfig(
             min_size=32,
             target_size=128,
             max_size=512,

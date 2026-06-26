@@ -1,5 +1,6 @@
-from src.pipeline.stage5_duckdb_analytics import stage5_duckdb
 import os
+
+from src.pipeline.stage5_duckdb_analytics import stage5_duckdb
 
 
 def test_duckdb_collision_suffixing(tmp_path):

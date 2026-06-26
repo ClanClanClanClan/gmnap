@@ -3,7 +3,10 @@
 Generate sample nodes/edges Cypher from a tiny batch to smoke the write-plane path.
 """
 
-import json, os, pathlib
+import json
+import os
+import pathlib
+
 from src.db.changelog_expand import generate_changelogs_expanded
 
 batch = [

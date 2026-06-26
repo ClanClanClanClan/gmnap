@@ -9,7 +9,7 @@ ProcessFunc = Callable[[List[dict]], Awaitable[List[dict]]]
 
 
 @dataclass
-class AggConfig:
+class BoosterAggConfig:
     min_size: int = 24
     target_size: int = 96
     max_size: int = 256
@@ -19,7 +19,7 @@ class AggConfig:
 
 
 class _AsyncAgg:
-    def __init__(self, fn: ProcessFunc, cfg: AggConfig):
+    def __init__(self, fn: ProcessFunc, cfg: BoosterAggConfig):
         self.fn = fn
         self.cfg = cfg
         self.q: asyncio.Queue[tuple[dict, asyncio.Future]] = asyncio.Queue()
@@ -95,7 +95,7 @@ def _uniform_region(entries: List[dict]) -> Optional[str]:
 
 @dataclass
 class BoosterConfig:
-    agg: AggConfig = field(default_factory=AggConfig)
+    agg: BoosterAggConfig = field(default_factory=BoosterAggConfig)
     warmup_min_entries: int = 64
     enable_region_fastpath: bool = True
 

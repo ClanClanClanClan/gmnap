@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Debug authority loading issue"""
 
-import sys
-import tempfile
-import yaml
 import json
 import logging
+import sys
+import tempfile
 from pathlib import Path
+
+import yaml
 
 # Enable debug logging
 logging.basicConfig(
@@ -15,8 +16,8 @@ logging.basicConfig(
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 from src.core.config import GMNAPConfig
+from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 
 
 def debug_authority_loading():
@@ -67,7 +68,7 @@ def debug_authority_loading():
 
         print(f"Created manifest at: {manifest_path}")
         print(f"Manifest exists: {manifest_path.exists()}")
-        print(f"Manifest contents:")
+        print("Manifest contents:")
         with open(manifest_path) as f:
             print(f.read())
 

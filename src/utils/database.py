@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class DatabaseConfig:
+class UtilsDatabaseConfig:
     """Configuration for database operations."""
 
     db_path: str = "data/gmnap.db"
@@ -45,8 +45,8 @@ class DatabaseManager:
     _init_lock = threading.Lock()
     _initialized_databases = set()  # Track which databases have been initialized
 
-    def __init__(self, config: Optional[DatabaseConfig] = None):
-        self.config = config or DatabaseConfig()
+    def __init__(self, config: Optional[UtilsDatabaseConfig] = None):
+        self.config = config or UtilsDatabaseConfig()
         self.db_path = Path(self.config.db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -669,13 +669,15 @@ class DatabaseManager:
 
 
 # Convenience functions
-def create_database_manager(config: Optional[DatabaseConfig] = None) -> DatabaseManager:
+def create_database_manager(
+    config: Optional[UtilsDatabaseConfig] = None,
+) -> DatabaseManager:
     """Create a database manager with optional configuration."""
     return DatabaseManager(config)
 
 
 @contextmanager
-def get_database_connection(config: Optional[DatabaseConfig] = None):
+def get_database_connection(config: Optional[UtilsDatabaseConfig] = None):
     """Context manager for database operations."""
     manager = DatabaseManager(config)
     try:

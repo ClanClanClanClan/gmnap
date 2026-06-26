@@ -4,7 +4,7 @@ import asyncio
 import time
 from typing import Any, AsyncIterable, Awaitable, Callable, Dict, Iterable, List
 
-from .async_batch_agg import AggConfig, AsyncBatchAggregator
+from .async_batch_agg import AsyncBatchAggregator, LegacyAggConfig
 
 AsyncBatch = AsyncIterable[List[dict]]
 ProcessBatchFunc = Callable[[List[dict]], Awaitable[List[dict]]]
@@ -24,11 +24,11 @@ class StreamingPipelineAdapter:
         self,
         process_batch: ProcessBatchFunc,
         *,
-        micro_cfg: AggConfig | None = None,
+        micro_cfg: LegacyAggConfig | None = None,
         inflight_limit: int = 4,
     ):
         self.process_batch = process_batch
-        self.agg = AsyncBatchAggregator(process_batch, micro_cfg or AggConfig())
+        self.agg = AsyncBatchAggregator(process_batch, micro_cfg or LegacyAggConfig())
         self._sem = asyncio.Semaphore(inflight_limit)
 
     async def run_stream(

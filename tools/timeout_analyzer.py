@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # Lists tests without timeout decorators and those that call input()
-import sys, pathlib, re, json
+import json
+import pathlib
+import re
+import sys
 
 root = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else pathlib.Path("tests")
 out = {"missing_timeout": [], "input_calls": []}

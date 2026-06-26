@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, List
 
-from src.core.sb_booster import AggConfig, BoosterConfig, PipelineService
+from src.core.sb_booster import BoosterAggConfig, BoosterConfig, PipelineService
 
 
 def build_small_batch_service(
@@ -17,7 +17,7 @@ def build_small_batch_service(
     svc = PipelineService(
         pipeline_ctor,
         BoosterConfig(
-            agg=AggConfig(
+            agg=BoosterAggConfig(
                 min_size=min_size,
                 target_size=target_size,
                 max_latency_ms=max_latency_ms,

@@ -441,7 +441,7 @@ def test_utils():
 @pytest.fixture
 def db_config(temp_db_path):
     """Database configuration for testing."""
-    from src.utils.database import DatabaseConfig
+    from src.utils.database import UtilsDatabaseConfig as DatabaseConfig
 
     return DatabaseConfig(
         db_path=str(temp_db_path),

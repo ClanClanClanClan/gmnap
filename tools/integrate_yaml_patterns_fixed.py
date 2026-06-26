@@ -11,6 +11,7 @@ Target fixes:
 
 import re
 from pathlib import Path
+
 from yaml_pattern_extractor import YAMLPatternExtractor
 
 
@@ -372,7 +373,7 @@ class PipelinePatternIntegratorFixed:
             f"   🇨🇿🇵🇱 Slavic patterns: {len(patterns['slavic'])} (fixes Spanish confusion)"
         )
 
-        print(f"\n🎯 EXPECTED IMPACT: 42 failures → ~31 failures (87% pass rate)")
+        print("\n🎯 EXPECTED IMPACT: 42 failures → ~31 failures (87% pass rate)")
         print("✅ Ready for testing!")
 
 

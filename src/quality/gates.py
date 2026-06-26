@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 # Expert solution: Import rolling gates
-from src.quality.gates_rolling import GateLimits, RollingGates
+from src.quality.gates_rolling import RollingGateLimits, RollingGates
 
 
 @dataclass
@@ -23,7 +23,7 @@ class GateThresholds:
 
 
 @dataclass
-class GateState:
+class QualityGateState:
     seen_gids: Set[str] = field(default_factory=set)
     seen_extids: Set[Tuple[str, str]] = field(default_factory=set)
     i: int = 0
@@ -32,7 +32,7 @@ class GateState:
 class QualityGates:
     def __init__(self, thresholds: Optional[GateThresholds] = None) -> None:
         self.t = thresholds or GateThresholds()
-        self.s = GateState()
+        self.s = QualityGateState()
         self._lock = threading.RLock()
         self._trace = os.getenv("GATES_TRACE", "0") == "1"
 
@@ -105,7 +105,7 @@ class QualityGates:
 # Expert solution: Replace quadratic gates with rolling O(n) gates
 class QualityGateRunner:
     def __init__(self, minutes_1m_max=35.0, min_success_rate=0.95):
-        self.g = RollingGates(GateLimits(minutes_1m_max, min_success_rate))
+        self.g = RollingGates(RollingGateLimits(minutes_1m_max, min_success_rate))
         self._t_start = None
         self._n_total = 0
 

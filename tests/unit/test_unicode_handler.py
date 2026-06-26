@@ -5,7 +5,7 @@ Tests for Unicode normalization pipeline.
 import pytest
 
 from src.core.unicode_handler import (
-    UnicodeConfig,
+    UnicodeHandlerConfig as UnicodeConfig,
     UnicodeNormalizer,
     generate_name_variants,
     normalize_name,

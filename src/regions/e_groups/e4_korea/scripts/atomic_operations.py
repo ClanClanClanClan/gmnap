@@ -40,7 +40,7 @@ class ProductionLock:
         except IOError:
             # Lock already held by another process
             self.lock_fd.close()
-            raise ProductionError(
+            raise AtomicOperationsProductionError(
                 "Another Korean name operation is in progress. Wait and retry."
             )
 
@@ -57,7 +57,7 @@ class ProductionLock:
                 pass
 
 
-class ProductionError(Exception):
+class AtomicOperationsProductionError(Exception):
     """Structured production error with exit codes"""
 
     def __init__(self, message, exit_code=1, remediation=None):
@@ -161,7 +161,7 @@ class AtomicFSTRebuild:
         )
 
         if result.returncode != 0:
-            raise ProductionError(
+            raise AtomicOperationsProductionError(
                 f"FST rebuild failed: {result.stderr}",
                 exit_code=2,
                 remediation=[
@@ -183,7 +183,7 @@ class AtomicFSTRebuild:
 
         for fst_file in expected_files:
             if not (self.temp_dir / fst_file).exists():
-                raise ProductionError(
+                raise AtomicOperationsProductionError(
                     f"FST build incomplete: {fst_file} missing",
                     exit_code=3,
                     remediation=[
@@ -218,10 +218,10 @@ def production_operation(operation_name="Korean name operation"):
             print(f"🔒 Starting {operation_name} (locked)")
             yield
             print(f"✅ {operation_name} completed successfully")
-        except ProductionError:
+        except AtomicOperationsProductionError:
             raise
         except Exception as e:
-            raise ProductionError(
+            raise AtomicOperationsProductionError(
                 f"{operation_name} failed: {e}",
                 exit_code=4,
                 remediation=[
@@ -236,7 +236,7 @@ def validate_weight_format(weight_line):
     """Validate weight line format with comprehensive checks"""
 
     if not weight_line or not isinstance(weight_line, str):
-        raise ProductionError(
+        raise AtomicOperationsProductionError(
             "Weight line must be a non-empty string",
             exit_code=7,
             remediation=["Provide weight in format: 한글,roman,-2.0,context,pos"],
@@ -245,7 +245,7 @@ def validate_weight_format(weight_line):
     # Split and check basic structure
     parts = weight_line.split(",")
     if len(parts) < 3:
-        raise ProductionError(
+        raise AtomicOperationsProductionError(
             f"Invalid format - need at least 3 fields, got {len(parts)}",
             exit_code=7,
             remediation=[
@@ -260,7 +260,7 @@ def validate_weight_format(weight_line):
 
     # Validate hangul (must contain Korean characters)
     if not hangul or not any("\uac00" <= c <= "\ud7af" for c in hangul):
-        raise ProductionError(
+        raise AtomicOperationsProductionError(
             f"Hangul field '{hangul}' must contain Korean characters",
             exit_code=7,
             remediation=["Use actual Korean characters (한글) in first field"],
@@ -268,7 +268,7 @@ def validate_weight_format(weight_line):
 
     # Validate roman (must be ASCII, no spaces)
     if not roman or not roman.replace("-", "").replace("'", "").isalpha():
-        raise ProductionError(
+        raise AtomicOperationsProductionError(
             f"Roman field '{roman}' must be ASCII letters only (no spaces/numbers)",
             exit_code=7,
             remediation=["Use only ASCII letters: a-z, A-Z, hyphens, apostrophes"],
@@ -278,7 +278,7 @@ def validate_weight_format(weight_line):
     try:
         weight_val = float(weight_str)
         if abs(weight_val) > 20:
-            raise ProductionError(
+            raise AtomicOperationsProductionError(
                 f"Weight {weight_val} is extreme (|weight| > 20)",
                 exit_code=7,
                 remediation=[
@@ -287,7 +287,7 @@ def validate_weight_format(weight_line):
                 ],
             )
     except ValueError:
-        raise ProductionError(
+        raise AtomicOperationsProductionError(
             f"Weight '{weight_str}' must be a valid number",
             exit_code=7,
             remediation=["Use decimal format: -2.0, 1.5, 0.0, etc."],
@@ -295,7 +295,7 @@ def validate_weight_format(weight_line):
 
     # Validate position if provided
     if pos and pos not in ["S", "G", ""]:
-        raise ProductionError(
+        raise AtomicOperationsProductionError(
             f"Position '{pos}' must be 'S' (surname), 'G' (given), or empty",
             exit_code=7,
             remediation=["Use: S=surname only, G=given only, empty=general"],
@@ -303,7 +303,7 @@ def validate_weight_format(weight_line):
 
     # Check for risky patterns
     if weight_val < -3.0 and not pos:
-        raise ProductionError(
+        raise AtomicOperationsProductionError(
             f"Aggressive weight {weight_val} without position qualifier is risky",
             exit_code=7,
             remediation=[
@@ -332,7 +332,7 @@ def safe_add_weight(weight_line, test_mode=False):
         print(
             f"✅ Weight format validated: {validated['hangul']} → {validated['roman']} ({validated['weight']})"
         )
-    except ProductionError as e:
+    except AtomicOperationsProductionError as e:
         print(f"❌ Invalid weight format: {e}")
         if e.remediation:
             print("Remediation steps:")
@@ -362,7 +362,7 @@ def safe_add_weight(weight_line, test_mode=False):
                 )
 
                 if result.returncode != 0:
-                    raise ProductionError(
+                    raise AtomicOperationsProductionError(
                         "Regression detected - new weight breaks existing cases",
                         exit_code=5,
                         remediation=[
@@ -381,7 +381,7 @@ def safe_add_weight(weight_line, test_mode=False):
                     "message": f"Weight added successfully: {validated['hangul']} → {validated['roman']} ({validated['weight']})",
                 }
 
-        except ProductionError:
+        except AtomicOperationsProductionError:
             # Structured rollback
             print("🚨 Rolling back due to production error...")
             csv_op.rollback()
@@ -395,7 +395,7 @@ def safe_add_weight(weight_line, test_mode=False):
             csv_op.rollback()
             if not test_mode:
                 fst_op.rollback()
-            raise ProductionError(
+            raise AtomicOperationsProductionError(
                 f"Unexpected error during weight addition: {e}",
                 exit_code=6,
                 remediation=[
@@ -411,7 +411,7 @@ if __name__ == "__main__":
     try:
         result = safe_add_weight("테스트,test,-1.5,GN,G", test_mode=True)
         print(f"Success: {result}")
-    except ProductionError as e:
+    except AtomicOperationsProductionError as e:
         print(f"Production error: {e}")
         print(f"Exit code: {e.exit_code}")
         if e.remediation:

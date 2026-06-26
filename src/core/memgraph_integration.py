@@ -47,7 +47,7 @@ class GraphEdge:
     properties: Dict[str, Any] = None
 
 
-class MemgraphClient:
+class MemgraphIntegrationClient:
     """
     Memgraph client for V7 graph operations
     Implements Stage 6: Graph Consistency requirements
@@ -396,7 +396,7 @@ async def stage6_graph_consistency(
     metrics = {"stage": 6, "entries_processed": len(batch), "graph_operations": {}}
 
     try:
-        async with MemgraphClient(memgraph_uri) as client:
+        async with MemgraphIntegrationClient(memgraph_uri) as client:
             # Ensure schema exists
             await client.create_schema()
 
@@ -436,7 +436,7 @@ async def test_memgraph_connection():
     print("Testing Memgraph connection...")
 
     try:
-        async with MemgraphClient() as client:
+        async with MemgraphIntegrationClient() as client:
             print("✓ Connected to Memgraph")
 
             # Create test node

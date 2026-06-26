@@ -1,4 +1,5 @@
 import os
+
 from src.core.memgraph_client_secure import SecureMemgraphClient, SecureMemgraphConfig
 
 

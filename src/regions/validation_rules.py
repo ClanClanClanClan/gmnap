@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class ValidationResult:
+class RegionValidationResult:
     """Result of a validation check."""
 
     is_valid: bool
@@ -229,7 +229,7 @@ class RegionalValidationEngine:
 
     def validate_entry(
         self, entry: Dict[str, Any], region_code: str, script: str
-    ) -> List[ValidationResult]:
+    ) -> List[RegionValidationResult]:
         """
         Validate an entry against regional rules.
 
@@ -277,7 +277,7 @@ class RegionalValidationEngine:
             except Exception as e:
                 logger.error(f"Error applying rule {rule.id}: {e}")
                 results.append(
-                    ValidationResult(
+                    RegionValidationResult(
                         is_valid=False,
                         errors=[f"Rule {rule.id} failed: {str(e)}"],
                         warnings=[],
@@ -290,7 +290,7 @@ class RegionalValidationEngine:
 
     def _apply_pattern_rule(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Apply a pattern-based validation rule."""
         fields_to_check = ["CanonicalLatin", "CanonicalNative"]
         errors = []
@@ -307,7 +307,7 @@ class RegionalValidationEngine:
                         warnings.append(message)
 
         if errors or warnings:
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=len(errors) == 0,
                 errors=errors,
                 warnings=warnings,
@@ -320,14 +320,14 @@ class RegionalValidationEngine:
     # Validation functions
     def _validate_name_balance(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Check if name components are balanced."""
         canonical = entry.get("CanonicalLatin", "")
 
         # Very rough heuristic - names with many commas might be problematic
         comma_count = canonical.count(",")
         if comma_count > 3:
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=False,
                 errors=[f"Excessive name components ({comma_count + 1} parts)"],
                 warnings=[],
@@ -339,7 +339,7 @@ class RegionalValidationEngine:
         parts = canonical.split(",")
         for part in parts:
             if len(part.strip()) > 50:
-                return ValidationResult(
+                return RegionValidationResult(
                     is_valid=False,
                     errors=[f"Name component too long: {len(part.strip())} chars"],
                     warnings=[],
@@ -351,7 +351,7 @@ class RegionalValidationEngine:
 
     def _validate_script_consistency(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Ensure consistent script usage."""
         native = entry.get("CanonicalNative", "")
         if not native:
@@ -366,7 +366,7 @@ class RegionalValidationEngine:
 
         # Too many different scripts might indicate an issue
         if len(scripts) > 2:
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=False,
                 errors=[f"Mixed scripts detected: {', '.join(scripts)}"],
                 warnings=[],
@@ -378,7 +378,7 @@ class RegionalValidationEngine:
 
     def _validate_text_direction(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Check for mixed text directions."""
         native = entry.get("CanonicalNative", "")
         if not native:
@@ -388,7 +388,7 @@ class RegionalValidationEngine:
         has_ltr = bool(re.search(r"[A-Za-z\u0400-\u04FF]", native))
 
         if has_rtl and has_ltr:
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=True,
                 errors=[],
                 warnings=["Mixed RTL/LTR scripts detected"],
@@ -400,13 +400,13 @@ class RegionalValidationEngine:
 
     def _validate_particle_position(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Validate particle placement."""
         canonical = entry.get("CanonicalLatin", "")
 
         # Check for particles at the beginning of surnames
         if canonical.startswith(("de ", "van ", "von ", "del ", "della ", "di ")):
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=True,
                 errors=[],
                 warnings=["Particle at beginning - verify sort order"],
@@ -418,7 +418,7 @@ class RegionalValidationEngine:
 
     def _validate_no_cyrillic_latin_mix(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Prevent Cyrillic-Latin mixing."""
         native = entry.get("CanonicalNative", "")
         if not native:
@@ -445,7 +445,7 @@ class RegionalValidationEngine:
 
             suspicious = any(c in lookalikes for c in cyrillic_chars)
             if suspicious:
-                return ValidationResult(
+                return RegionValidationResult(
                     is_valid=False,
                     errors=["Suspicious Cyrillic-Latin character mixing"],
                     warnings=[],
@@ -457,7 +457,7 @@ class RegionalValidationEngine:
 
     def _validate_arabic_structure(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Validate Arabic name structure."""
         native = entry.get("CanonicalNative", "")
         if not native or not re.search(r"[\u0600-\u06FF]", native):
@@ -476,7 +476,7 @@ class RegionalValidationEngine:
             warnings.append(f"Very long Arabic name ({len(words)} words)")
 
         if warnings:
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=True,
                 errors=[],
                 warnings=warnings,
@@ -488,7 +488,7 @@ class RegionalValidationEngine:
 
     def _validate_cjk_characters(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Validate CJK character usage."""
         native = entry.get("CanonicalNative", "")
         if not native:
@@ -518,7 +518,7 @@ class RegionalValidationEngine:
                 warnings.append(f"Private use character detected: U+{code:04X}")
 
         if warnings:
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=True,
                 errors=[],
                 warnings=warnings,
@@ -530,7 +530,7 @@ class RegionalValidationEngine:
 
     def _validate_devanagari_combinations(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Validate Devanagari combining sequences."""
         native = entry.get("CanonicalNative", "")
         if not native or not re.search(r"[\u0900-\u097F]", native):
@@ -548,7 +548,7 @@ class RegionalValidationEngine:
             errors.append("Vowel sign without base consonant")
 
         if errors:
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=False,
                 errors=errors,
                 warnings=[],
@@ -560,7 +560,7 @@ class RegionalValidationEngine:
 
     def _validate_european_particles(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Validate European name particles."""
         canonical = entry.get("CanonicalLatin", "")
 
@@ -603,7 +603,7 @@ class RegionalValidationEngine:
                     warnings.append(f"Particle '{part}' - verify if Dutch origin")
 
         if warnings:
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=True,
                 errors=[],
                 warnings=warnings,
@@ -615,7 +615,7 @@ class RegionalValidationEngine:
 
     def _validate_chinese_name_length(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Validate Chinese name length."""
         native = entry.get("CanonicalNative", "")
         if not native:
@@ -627,7 +627,7 @@ class RegionalValidationEngine:
 
         if cjk_chars:
             if len(cjk_chars) < 2:
-                return ValidationResult(
+                return RegionValidationResult(
                     is_valid=False,
                     errors=["Chinese name too short (less than 2 characters)"],
                     warnings=[],
@@ -635,7 +635,7 @@ class RegionalValidationEngine:
                     rule_id=rule.id,
                 )
             elif len(cjk_chars) > 4:
-                return ValidationResult(
+                return RegionValidationResult(
                     is_valid=True,
                     errors=[],
                     warnings=[
@@ -649,13 +649,13 @@ class RegionalValidationEngine:
 
     def _validate_japanese_readings(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Check for Japanese reading information."""
         if "JapaneseReading" not in entry.get("Metadata", {}):
             native = entry.get("CanonicalNative", "")
             # Check if it contains kanji
             if native and re.search(r"[\u4E00-\u9FFF]", native):
-                return ValidationResult(
+                return RegionValidationResult(
                     is_valid=True,
                     errors=[],
                     warnings=["Japanese name with kanji but no reading provided"],
@@ -667,7 +667,7 @@ class RegionalValidationEngine:
 
     def _validate_korean_syllables(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Validate Korean Hangul syllables."""
         native = entry.get("CanonicalNative", "")
         if not native:
@@ -693,7 +693,7 @@ class RegionalValidationEngine:
                 )
 
         if errors or warnings:
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=len(errors) == 0,
                 errors=errors,
                 warnings=warnings,
@@ -705,7 +705,7 @@ class RegionalValidationEngine:
 
     def _validate_arabic_patronymic(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Validate Arabic patronymic chains."""
         canonical = entry.get("CanonicalLatin", "")
         entry.get("CanonicalNative", "")
@@ -724,7 +724,7 @@ class RegionalValidationEngine:
                 warnings.append("Missing space after ibn/bin/bint")
 
         if warnings:
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=True,
                 errors=[],
                 warnings=warnings,
@@ -736,7 +736,7 @@ class RegionalValidationEngine:
 
     def _validate_hindi_structure(
         self, entry: Dict[str, Any], rule: RegionalValidationRule
-    ) -> Optional[ValidationResult]:
+    ) -> Optional[RegionValidationResult]:
         """Validate Hindi/Devanagari name structure."""
         native = entry.get("CanonicalNative", "")
         if not native or not re.search(r"[\u0900-\u097F]", native):
@@ -755,7 +755,7 @@ class RegionalValidationEngine:
                 warnings.append(f"Honorific '{honorific}' detected in canonical name")
 
         if warnings:
-            return ValidationResult(
+            return RegionValidationResult(
                 is_valid=True,
                 errors=[],
                 warnings=warnings,

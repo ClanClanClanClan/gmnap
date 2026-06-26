@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import csv, pathlib, os
+import csv
+import os
+import pathlib
 
 os.chdir(
     "/Users/dylanpossamai/Dropbox/Work/Maths/gmnap/src/gmnap/regions/e_groups/e4_korea"

@@ -11,7 +11,7 @@ import yaml
 
 
 @dataclass
-class RateLimiter:
+class ConnectorRateLimiter:
     rps: float = 2.0
     _last: float = 0.0
 

@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List
 
 from src.diag.flight_recorder import FlightRecorder
 
-from .async_batch_agg_v2 import AggConfig, AsyncBatchAggregatorV2
+from .async_batch_agg_v2 import AsyncBatchAggregatorV2, V2AggConfig
 from .preflight_sanitiser import sanitise_entry
 
 
@@ -33,7 +33,7 @@ class PipelineGuardService:
         self.rec = recorder or FlightRecorder()
         self.agg = AsyncBatchAggregatorV2(
             self._process_impl,
-            AggConfig(
+            V2AggConfig(
                 min_size=self.cfg.min_size,
                 target_size=self.cfg.target_size,
                 max_latency_ms=self.cfg.max_latency_ms,

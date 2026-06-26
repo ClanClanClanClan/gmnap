@@ -3,8 +3,8 @@
 Clean and fix the test suite by removing broken references and fixing imports
 """
 
-import os
 import ast
+import os
 import sys
 from pathlib import Path
 

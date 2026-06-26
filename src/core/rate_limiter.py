@@ -46,7 +46,7 @@ class RateLimitExceeded(Exception):
     pass
 
 
-class RateLimiter:
+class CoreRateLimiter:
     """
     Token bucket rate limiter with sliding window.
     Thread-safe implementation for production use.
@@ -286,7 +286,7 @@ def _get_rate_limiter_config():
     return TestRateLimitConfig()
 
 
-global_rate_limiter = RateLimiter(_get_rate_limiter_config())
+global_rate_limiter = CoreRateLimiter(_get_rate_limiter_config())
 
 
 def check_rate_limit(client_id: str = "global") -> None:

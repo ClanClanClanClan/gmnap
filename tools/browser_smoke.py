@@ -64,9 +64,13 @@ try:
     from playwright.sync_api import (
         Browser,
         BrowserContext,
-        Error as PwError,
+    )
+    from playwright.sync_api import Error as PwError
+    from playwright.sync_api import (
         Page,
-        TimeoutError as PwTimeout,
+    )
+    from playwright.sync_api import TimeoutError as PwTimeout
+    from playwright.sync_api import (
         sync_playwright,
     )
 except ImportError:  # pragma: no cover - surfaced to the user
