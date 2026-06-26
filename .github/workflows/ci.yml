@@ -208,6 +208,24 @@ jobs:
           tests/unit/test_validation_rules.py
           tests/unit/test_sdk.py
           tests/integration/test_memgraph_e2e.py
+          tests/integration/test_bayesian_coherence.py
+          tests/integration/test_cjk_roundtrip.py
+          tests/integration/test_critical_fixes.py
+          tests/integration/test_duckdb_analytics.py
+          tests/integration/test_infrastructure_reality.py
+          tests/integration/test_language_detection_fix.py
+          tests/integration/test_metrics_exporter_smoke.py
+          tests/integration/test_new_fasttext_model.py
+          tests/integration/test_phase4a_quick_wins.py
+          tests/integration/test_pipeline_region_stage.py
+          tests/integration/test_pipeline_stages.py
+          tests/integration/test_quick_fix.py
+          tests/integration/test_rule_13_korean_hyphen_space.py
+          tests/integration/test_rule_3_arabic_patronymic.py
+          tests/integration/test_rule_9_east_slavic_patronymic.py
+          tests/integration/test_stage11_gate.py
+          tests/integration/test_v7_integration.py
+          tests/integration/test_v7_streaming_simple.py
           tests/authority/test_manager_offline.py
           tests/cjk/test_v7_cjk_roundtrip.py
           tests/db/test_changelog_edges.py
