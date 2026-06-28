@@ -30,9 +30,3 @@ class IdempotencyChecker:
 
     def __init__(self, *args, **kwargs):
         pass
-
-
-def validate_v7_idempotency_compliance(entry):
-    """Validate V7 idempotency compliance (stub)"""
-    # TODO: Implement actual validation
-    return True

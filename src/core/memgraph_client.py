@@ -448,11 +448,3 @@ def get_memgraph_client() -> MemgraphClient:
     if _memgraph_client is None:
         _memgraph_client = MemgraphClient()
     return _memgraph_client
-
-
-def close_memgraph_client():
-    """Close global Memgraph client."""
-    global _memgraph_client
-    if _memgraph_client:
-        _memgraph_client.close()
-        _memgraph_client = None

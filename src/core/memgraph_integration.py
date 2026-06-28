@@ -37,16 +37,6 @@ class GraphNode:
         return props
 
 
-@dataclass
-class GraphEdge:
-    """Represents a relationship between mathematicians"""
-
-    source_id: str
-    target_id: str
-    relationship_type: str  # COAUTHOR, ADVISOR, INSTITUTION, etc.
-    properties: Dict[str, Any] = None
-
-
 class MemgraphIntegrationClient:
     """
     Memgraph client for V7 graph operations

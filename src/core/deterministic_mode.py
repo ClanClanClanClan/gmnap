@@ -54,14 +54,6 @@ def enable_deterministic_mode(seed: int = 42) -> DeterministicMode:
     return _deterministic_mode
 
 
-def disable_deterministic_mode() -> None:
-    """Disable deterministic mode globally."""
-    global _deterministic_mode
-    if _deterministic_mode:
-        _deterministic_mode.enabled = False
-    _deterministic_mode = None
-
-
 def get_deterministic_mode() -> Optional[DeterministicMode]:
     """Get the current deterministic mode instance."""
     return _deterministic_mode
