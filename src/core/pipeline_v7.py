@@ -632,6 +632,19 @@ class V7Pipeline:
         # sizes (small/medium/large/streaming). Per-run metrics are on
         # self.metrics. See tests/v7/test_v7_batch_shape.py.
 
+        # Reset GlobalID collision tracking ONCE per batch run, here at
+        # the public entry point — NOT inside _process_batch_internal.
+        # The >100k streaming path invokes _process_batch_internal once
+        # per coalesced microbatch (via the StreamingPipelineAdapter's
+        # process_func); resetting inside it would wipe the cross-batch
+        # collision cache between microbatches, so duplicate people in
+        # different microbatches would both get the same UNSUFFIXED
+        # GlobalID (collision suffix lost). Resetting once here keeps the
+        # cache alive across every microbatch of the whole run.
+        from src.core.global_id import reset_collision_tracking
+
+        reset_collision_tracking()
+
         # Performance optimization: Adjust chunk size based on batch size
         if len(entries) < 100:
             chunk_size = len(entries)  # Process small batches in one chunk
@@ -680,11 +693,11 @@ class V7Pipeline:
             entries: List of entry dictionaries
             chunk_size: Streaming chunk size (default 8000 from spec)
         """
-        # Reset GlobalID collision tracking for this pipeline run
-        from src.core.global_id import reset_collision_tracking
-
-        reset_collision_tracking()
-
+        # NB: GlobalID collision tracking is reset ONCE per batch run by
+        # the public process_batch() entry point, NOT here. This method
+        # is the streaming path's per-microbatch worker, so resetting
+        # here would wipe the cross-batch collision cache between
+        # microbatches (see process_batch for the full rationale).
         self.metrics.total_entries = len(entries)
 
         # Fast path for very small batches - reduced threshold for better performance

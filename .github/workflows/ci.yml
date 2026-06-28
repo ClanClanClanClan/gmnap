@@ -240,6 +240,7 @@ jobs:
           tests/validation/test_schema_validator_basic.py
           tests/v7/test_v7_basic.py
           tests/v7/test_v7_batch_shape.py
+          tests/v7/test_streaming_globalid_collision.py
           tests/unit/test_cost_tracker.py
           tests/v7/test_v7_complete.py
           tests/v7/test_v7_complete_integration.py
