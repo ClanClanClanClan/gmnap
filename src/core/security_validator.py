@@ -613,16 +613,28 @@ class SecurityValidator:
         Raises:
             SecurityError: If excessive combining characters detected
         """
-        combining_count = 0
+        # Count combining marks on the NFC-COMPOSED form, not the raw
+        # input. Legitimate accented names — especially Vietnamese, which
+        # stacks a vowel-quality mark plus a tone mark (e.g. "Đỗ", "Hữu") —
+        # are frequently supplied in NFD/decomposed form, where combining
+        # marks can be 40-50% of the string and trip the ratio check below.
+        # That false positive silently dropped real names to region XX.
+        # NFC composes those decomposed sequences back into single
+        # precomposed code points, so legitimate names fall well under the
+        # threshold, while a genuine stacking/Zalgo attack (combiners that
+        # do NOT compose onto their base) still presents as combining marks
+        # and is caught.
+        composed = unicodedata.normalize("NFC", text)
 
-        for char in text:
+        combining_count = 0
+        for char in composed:
             if unicodedata.combining(char):
                 combining_count += 1
 
         # Allow reasonable number of combining characters (accents, etc.)
         # But block excessive stacking like "Ä̈"
         if (
-            combining_count > len(text) * 0.3
+            combining_count > max(1, len(composed)) * 0.3
         ):  # More than 30% combining chars is suspicious
             raise SecurityError(
                 f"Excessive combining characters in {context} ({combining_count} combining chars)"
@@ -631,12 +643,12 @@ class SecurityValidator:
         # Check for specific dangerous patterns
         # Multiple combining characters on same base character
         i = 0
-        while i < len(text):
-            if i + 1 < len(text) and not unicodedata.combining(text[i]):
+        while i < len(composed):
+            if i + 1 < len(composed) and not unicodedata.combining(composed[i]):
                 # Count combining chars following this base char
                 combining_seq = 0
                 j = i + 1
-                while j < len(text) and unicodedata.combining(text[j]):
+                while j < len(composed) and unicodedata.combining(composed[j]):
                     combining_seq += 1
                     j += 1
 
