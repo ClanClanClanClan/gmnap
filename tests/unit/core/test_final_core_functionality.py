@@ -48,20 +48,21 @@ async def test_core_functionality():
     try:
         result = await pipeline.process_batch(test_data)
         print("Pipeline completed successfully")
-        print(f"Processed: {result['metrics']['processed_entries']} entries")
-        print(f"Performance: {result['metrics']['entries_per_second']:.0f} entries/sec")
+        # process_batch returns a flat LIST of processed entry dicts —
+        # the standardized contract guarded by
+        # tests/v7/test_v7_batch_shape.py. Per-run metrics live on
+        # pipeline.metrics regardless of the return shape. A legacy
+        # {"entries"/"results": [...]} dict is still accepted so this
+        # test tracks the contract rather than pinning one snapshot.
+        if isinstance(result, dict):
+            output_data = result.get("entries") or result.get("results") or []
+        else:
+            output_data = result
 
-        # Check results - the pipeline returns 'entries' or 'results' depending on path
-        print(f"DEBUG: Result has 'entries' key: {'entries' in result}")
-        print(f"DEBUG: Result has 'results' key: {'results' in result}")
-        if "entries" in result:
-            print(f"DEBUG: Type of entries: {type(result['entries'])}")
-            print(f"DEBUG: Entries is None: {result['entries'] is None}")
-        if "results" in result:
-            print(f"DEBUG: Type of results: {type(result['results'])}")
-            print(f"DEBUG: Results is None: {result['results'] is None}")
-        # Handle both 'entries' and 'results' keys
-        output_data = result.get("entries") or result.get("results", [])
+        m = pipeline.metrics
+        print(f"Processed: {m.processed_entries} entries")
+        print(f"Performance: {m.entries_per_second:.0f} entries/sec")
+
         success_count = 0
         total_count = len(output_data)
 

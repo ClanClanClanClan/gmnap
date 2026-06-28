@@ -47,10 +47,19 @@ async def test_region_processing():
     try:
         result = await pipeline.process_batch(test_data)
         print("Pipeline completed successfully")
-        print(f"Processed: {result['metrics']['processed_entries']} entries")
 
-        # Check results - the pipeline returns 'entries' or 'results' depending on path
-        output_data = result.get("entries") or result.get("results", [])
+        # process_batch returns a flat LIST of processed entry dicts —
+        # the standardized contract guarded by
+        # tests/v7/test_v7_batch_shape.py. Per-run metrics live on
+        # pipeline.metrics regardless of the return shape. A legacy
+        # {"entries"/"results": [...]} dict is still accepted so this
+        # test tracks the contract rather than pinning one snapshot.
+        if isinstance(result, dict):
+            output_data = result.get("entries") or result.get("results") or []
+        else:
+            output_data = result
+
+        print(f"Processed: {pipeline.metrics.processed_entries} entries")
 
         print("\n🔍 REGION-SPECIFIC PROCESSING:")
         regions_detected = {}

@@ -355,6 +355,13 @@ def create_app() -> FastAPI:
     # traffic while existing requests finish.
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
+        # A freshly-started app is by definition not draining, so clear
+        # any stale GMNAP_SHUTTING_DOWN flag — otherwise /readyz would
+        # report 503 forever if a prior process (or, in-process, a prior
+        # app instance under test) set it on its own shutdown. The flag
+        # is process-global env state, so without this it leaks across
+        # app instances that share an interpreter.
+        os.environ.pop("GMNAP_SHUTTING_DOWN", None)
         logger.info("gmnap-api startup", extra={"phase": "startup"})
         yield
         logger.info(
