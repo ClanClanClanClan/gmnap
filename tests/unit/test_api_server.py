@@ -74,6 +74,13 @@ class TestLifespanShutdown:
             assert not mt._FETCHER_POOL, "pool not cleared on shutdown"
         finally:
             mt._FETCHER_POOL.clear()
+            # The shutdown path sets GMNAP_SHUTTING_DOWN=1 in the
+            # process-global env; pop it so it can't leak into later
+            # tests' /readyz (the lifespan startup also clears it, but
+            # not every test re-runs startup).
+            import os
+
+            os.environ.pop("GMNAP_SHUTTING_DOWN", None)
 
 
 class TestMetricsEndpoint:

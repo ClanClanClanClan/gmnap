@@ -627,7 +627,10 @@ class V7Pipeline:
 
     async def process_batch(
         self, entries: List[Dict[str, Any]], chunk_size: int = 8000
-    ) -> Dict[str, Any]:
+    ) -> List[Dict[str, Any]]:
+        # Returns a flat list of processed entry dicts for ALL batch
+        # sizes (small/medium/large/streaming). Per-run metrics are on
+        # self.metrics. See tests/v7/test_v7_batch_shape.py.
 
         # Performance optimization: Adjust chunk size based on batch size
         if len(entries) < 100:
@@ -647,14 +650,17 @@ class V7Pipeline:
                 results.extend(batch_results)
 
             metrics = await streaming_adapter.run_stream(entries, sink)
-            return {
-                "entries": results,
-                "metrics": {
-                    "total_entries": metrics["processed"],
-                    "processing_time": metrics["seconds"],
-                    "entries_per_second": metrics["eps"],
-                },
-            }
+            # process_batch returns a flat LIST of entry dicts for ALL
+            # batch sizes — the standardized contract guarded by
+            # tests/v7/test_v7_batch_shape.py. The streaming branch used
+            # to be the lone exception, returning a dict, which made
+            # process_batch's return type depend on batch size (>100k vs
+            # <=100k). Record the streaming metrics on self.metrics so
+            # callers can still read them via pipeline.metrics, exactly
+            # like the non-streaming paths, then return the flat list.
+            self.metrics.total_entries = metrics["processed"]
+            self.metrics.processed_entries = metrics["processed"]
+            return results
 
         # Performance optimization for small batches
         # For now, skip batch aggregator until it's properly integrated
