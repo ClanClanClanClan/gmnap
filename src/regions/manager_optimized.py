@@ -3110,9 +3110,16 @@ class FastTextCLIWorker:
                 parts = line.strip().split()
                 if len(parts) < 2:
                     return None, 0.0, 0.0
+                # fasttext predict-prob emits alternating
+                # "__label__X prob __label__Y prob ...". Take probabilities
+                # as the odd-index tokens rather than hard-coding parts[3]
+                # for p2: a build whose output spacing/order differs would
+                # otherwise silently set p2=0.0 and INFLATE the (p1 - p2)
+                # margin, weakening the same-group gate.
+                probs = parts[1::2]
                 label = parts[0].replace("__label__", "")
-                p1 = float(parts[1])
-                p2 = float(parts[3]) if len(parts) > 3 else 0.0
+                p1 = float(probs[0])
+                p2 = float(probs[1]) if len(probs) > 1 else 0.0
                 return label, p1, p2
             except (BrokenPipeError, OSError, ValueError, AttributeError) as exc:
                 # AttributeError: proc died and a reference went stale.
