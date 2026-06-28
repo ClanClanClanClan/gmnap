@@ -139,6 +139,42 @@ def test_manager_caching_internals():
     print(f"Same as first A1: {region is region_a1_again}")
 
 
+@pytest.mark.timeout(20)
+def test_detect_region_async_context_uses_sync_path_only():
+    """In a running event loop, detect_region must use ONLY the
+    synchronous detection path — it must NOT also spawn a fire-and-forget
+    ``create_task(_detect_region_uncached_async(...))`` whose result is
+    discarded. That orphan task doubled the full detection work on every
+    hot-path call (stage 2 runs detect_region for every entry from the
+    async pipeline) and swallowed any exception it raised. Regression for
+    the R38 audit finding.
+    """
+    import asyncio
+    from unittest.mock import AsyncMock, patch
+
+    manager = RegionManager(Path("./config"))
+    entry = {
+        "CanonicalLatin": "Euler, Leonhard",
+        "OriginalScript": "Euler, Leonhard",
+    }
+
+    async def _run():
+        # A fresh manager has an empty detection cache, so this call
+        # reaches the real detection path. Spy on the async detector:
+        # inside an event loop it must never be invoked.
+        with patch.object(
+            manager, "_detect_region_uncached_async", new=AsyncMock()
+        ) as async_spy:
+            result = manager.detect_region(entry)
+            # Let any (erroneously) scheduled task run before asserting.
+            await asyncio.sleep(0)
+            return result, async_spy
+
+    result, async_spy = asyncio.run(_run())
+    assert result is not None
+    async_spy.assert_not_called()
+
+
 def main():
     """Run all manager caching tests"""
     print("🔥 MANAGER CACHING ANALYSIS")

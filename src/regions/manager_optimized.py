@@ -3847,13 +3847,20 @@ class RegionManager:
         import asyncio
 
         try:
-            # Try to get running loop
-            loop = asyncio.get_running_loop()
-            # If we're already in async context, can't use run_until_complete
-            # Create a task instead
-            loop.create_task(self._detect_region_uncached_async(sanitized_entry))
-            # For sync calls from async context, we need to handle differently
-            # For now, fall back to sync-only detection
+            # Inside a running event loop we can't block on asyncio.run(),
+            # so take the synchronous detection path directly.
+            #
+            # This used to ALSO do
+            #   loop.create_task(self._detect_region_uncached_async(...))
+            # — a fire-and-forget task whose result was discarded. On the
+            # hot path (stage 2 runs detect_region for every entry from
+            # the async pipeline) that doubled the full detection work on
+            # every call AND swallowed any exception the coroutine raised
+            # (unobserved "Task exception was never retrieved"), with a
+            # latent race against the sync path's lazy model loads. The
+            # sync path below computes the result that is actually used,
+            # so the task was pure waste — removed.
+            asyncio.get_running_loop()
             result = self._detect_region_uncached_sync(sanitized_entry)
         except RuntimeError:
             # No running loop - safe to use asyncio.run()
