@@ -52,6 +52,38 @@ def test_validate_string_accepts_unicode_diacritics() -> None:
     assert "Erdős" in out
 
 
+def test_validate_string_accepts_nfd_decomposed_name() -> None:
+    """A legitimate accented name supplied in NFD/decomposed form must
+    NOT be rejected as a combining-character attack.
+
+    Regression (R38 audit): the combining-ratio check counted decomposed
+    marks against the raw string, so a Vietnamese name like "Đỗ Hữu" —
+    which decomposes to ~40% combining marks — tripped the 30% threshold
+    and was silently dropped to region XX. The check now counts on the
+    NFC-composed form, where the name has 0 combining marks.
+    """
+    import unicodedata
+
+    sv = SecurityValidator()
+    nfd = unicodedata.normalize("NFD", "Đỗ Hữu")
+    # Precondition: the decomposed form really would trip a raw 30% check.
+    ratio = sum(1 for c in nfd if unicodedata.combining(c)) / len(nfd)
+    assert ratio > 0.3, "test input must be combining-heavy in NFD form"
+    out = sv.validate_string(nfd, context="name")
+    # Accepted (composed back to the precomposed name).
+    assert out == unicodedata.normalize("NFC", nfd)
+
+
+def test_validate_string_blocks_combining_stacking_attack() -> None:
+    """A genuine combining-stacking (Zalgo) attack is still rejected:
+    combiners that do NOT compose onto their base remain combining marks
+    even after NFC, so the ratio check still fires."""
+    sv = SecurityValidator()
+    attack = "a" + "́" * 8  # 8 stacked acute accents on one base
+    with pytest.raises(SecurityError):
+        sv.validate_string(attack, context="name")
+
+
 def test_validate_string_rejects_sql_injection() -> None:
     sv = SecurityValidator()
     with pytest.raises(SecurityError, match=r"(?i)sql"):
