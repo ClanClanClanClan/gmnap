@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from dataclasses import dataclass
 from typing import Awaitable, Callable, List
+
+logger = logging.getLogger(__name__)
 
 ProcessFunc = Callable[[List[dict]], Awaitable[List[dict]]]
 
@@ -141,8 +144,29 @@ class AsyncBatchAggregator:
                             if not f.done():
                                 f.set_exception(e)
                     else:
-                        # Map results 1:1; if misaligned, fill Nones
+                        # Map results 1:1 onto the microbatch's futures by
+                        # position. The process_func MUST return exactly one
+                        # result per input row (the V7 pipeline stages now
+                        # preserve every entry — blocked/failed rows are kept
+                        # with status markers rather than dropped). If the
+                        # counts ever disagree we cannot know which input a
+                        # given result belongs to, so the whole microbatch is
+                        # failed to None — but log loudly, because this nulls
+                        # real data and used to happen silently.
                         if not isinstance(results, list) or len(results) != len(futs):
+                            logger.error(
+                                "AsyncBatchAggregator: process_func returned %s "
+                                "results for a %d-entry microbatch; mapping is "
+                                "ambiguous, nulling the microbatch. This means a "
+                                "pipeline stage dropped or added rows (broke the "
+                                "1:1 contract).",
+                                (
+                                    len(results)
+                                    if isinstance(results, list)
+                                    else type(results).__name__
+                                ),
+                                len(futs),
+                            )
                             results = [None] * len(futs)
                         for f, r in zip(futs, results):
                             if not f.done():

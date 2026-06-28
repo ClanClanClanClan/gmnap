@@ -992,8 +992,16 @@ class V7Pipeline:
                     logger.info(
                         f"Skipping regional processing for security-blocked entry: {entry.get('GlobalID')}"
                     )
-                    # Mark as security blocked but continue processing
+                    # Mark as security blocked, but KEEP the entry in the
+                    # output. The earlier `continue` dropped it from
+                    # `processed`, which (a) silently lost the record and
+                    # (b) made this stage return fewer rows than it
+                    # received — fatal in the >100k streaming path, where
+                    # the aggregator maps results 1:1 by position onto the
+                    # microbatch's futures and nulls the ENTIRE microbatch
+                    # when the counts disagree.
                     entry["SecurityBlocked"] = True
+                    processed.append(entry)
                     continue
 
                 # Get the region processor
@@ -1002,9 +1010,11 @@ class V7Pipeline:
                     logger.warning(
                         f"No processor found for region {region_code}, skipping entry {entry.get('GlobalID')}"
                     )
-                    # Mark as failed but continue with other entries
+                    # Mark as failed but KEEP the entry (see the XX branch
+                    # above): this stage must return one row per input row.
                     self.metrics.failed_entries += 1
                     entry["ProcessingError"] = f"No processor for region {region_code}"
+                    processed.append(entry)
                     continue
 
                 # Process the entry (clean→augment→validate)
