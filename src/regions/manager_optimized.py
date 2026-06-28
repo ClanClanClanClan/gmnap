@@ -3850,28 +3850,23 @@ class RegionManager:
         if cached_result is not None:
             return cached_result
 
-        # Detect region using sanitized entry (sync wrapper for async method)
-        import asyncio
-
-        try:
-            # Inside a running event loop we can't block on asyncio.run(),
-            # so take the synchronous detection path directly.
-            #
-            # This used to ALSO do
-            #   loop.create_task(self._detect_region_uncached_async(...))
-            # — a fire-and-forget task whose result was discarded. On the
-            # hot path (stage 2 runs detect_region for every entry from
-            # the async pipeline) that doubled the full detection work on
-            # every call AND swallowed any exception the coroutine raised
-            # (unobserved "Task exception was never retrieved"), with a
-            # latent race against the sync path's lazy model loads. The
-            # sync path below computes the result that is actually used,
-            # so the task was pure waste — removed.
-            asyncio.get_running_loop()
-            result = self._detect_region_uncached_sync(sanitized_entry)
-        except RuntimeError:
-            # No running loop - safe to use asyncio.run()
-            result = asyncio.run(self._detect_region_uncached_async(sanitized_entry))
+        # Detect region — ALWAYS via the synchronous path. detect_region
+        # is a sync method, and detection's authority phase is correctly
+        # cache-only (live authority fetches are stage 4's job, not the
+        # per-entry detection hot path). This previously picked sync-vs-
+        # async by whether an event loop was running:
+        #   - async caller (the API)  -> _detect_region_uncached_sync
+        #     -> _infer_name_origin (cache-only authority)
+        #   - sync caller (CLI/tests) -> asyncio.run(_..._async)
+        #     -> _infer_name_origin_async (LIVE _detect_by_external_authority)
+        # so the SAME entry was routed through DIFFERENT authority logic
+        # depending on the caller's context (a context-dependent detection
+        # divergence at OFFLINE=0). Using the sync path unconditionally
+        # makes detection deterministic across the API, CLI and tests, and
+        # drops the asyncio.run()/get_running_loop dance entirely. (The
+        # async _detect_region_uncached_async / _infer_name_origin_async
+        # are now unused by detection.)
+        result = self._detect_region_uncached_sync(sanitized_entry)
 
         # Optional confidence calibration (PAV isotonic, opt-in via
         # GMNAP_CALIBRATE_CONFIDENCE=1). When disabled, this is a
