@@ -156,10 +156,21 @@ class RORLookup:
         norm = self._normalize(institution)
         cc = self._lookup.get(norm)
         if not cc:
+            # Fall back to WHOLE-WORD containment, longest (most specific)
+            # match wins. The old `known in norm` was an arbitrary substring
+            # test, so a 5+-char key like "kaist" wrongly matched
+            # "kaistville ..." (-> KR), and the FIRST dict match won, making
+            # the attributed country iteration-order dependent. A
+            # word-boundary search kills the incidental-substring false
+            # positive; the longest match avoids order dependence and
+            # prefers the more specific institution name.
+            best_len = 0
             for known, known_cc in self._lookup.items():
-                if len(known) >= 5 and known in norm:
+                if len(known) < 5 or len(known) <= best_len:
+                    continue
+                if re.search(r"\b" + re.escape(known) + r"\b", norm):
                     cc = known_cc
-                    break
+                    best_len = len(known)
         self._cache[institution] = cc
         return cc
 
