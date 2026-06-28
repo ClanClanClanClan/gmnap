@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 try:
     import networkx as nx  # type: ignore
@@ -57,21 +57,53 @@ class GraphCoherence:
             if gid:
                 G.add_node(gid, field=e.get("Field", "Unknown"))
 
+        # Build a name -> GlobalID index so advisor/student references can
+        # be matched to the GlobalID-keyed nodes. Advisors/Students hold
+        # NAME strings (or {name|qid|GlobalID} dicts), NOT GlobalIDs, so
+        # the previous ``adv in G`` test was always False (a name is never
+        # a GlobalID node) -> edges_added stayed 0 -> the betweenness
+        # branch never ran and the score silently fell back to a
+        # field-frequency proxy. Resolving references to in-batch GIDs lets
+        # real advisor links form edges.
+        name_to_gid: Dict[str, str] = {}
+        for e in entries:
+            gid = e.get("GlobalID")
+            if not gid:
+                continue
+            for key in ("CanonicalLatin", "CanonicalNative", "CanonicalName", "Name"):
+                v = e.get(key)
+                if isinstance(v, str) and v:
+                    name_to_gid.setdefault(v, gid)
+                    name_to_gid.setdefault(v.lower(), gid)
+
+        def _resolve(ref: Any) -> Optional[str]:
+            # ref may be a GlobalID, a name string, or a {name|qid|GlobalID}
+            # dict (the Wikidata-derived advisor shape).
+            if isinstance(ref, dict):
+                ref = ref.get("GlobalID") or ref.get("name") or ref.get("qid")
+            if not isinstance(ref, str) or not ref:
+                return None
+            if ref in G:  # already a GlobalID node
+                return ref
+            return name_to_gid.get(ref) or name_to_gid.get(ref.lower())
+
         # Add edges from relationships
         edges_added = 0
         for e in entries:
             sid = e.get("GlobalID")
 
-            # Advisor relationships
+            # Advisor relationships (advisor -> student)
             for adv in e.get("Advisors") or []:
-                if adv and sid and adv in G:
-                    G.add_edge(adv, sid)
+                a = _resolve(adv)
+                if a and sid and a in G and a != sid:
+                    G.add_edge(a, sid)
                     edges_added += 1
 
-            # Student relationships
+            # Student relationships (me -> student)
             for student in e.get("Students") or []:
-                if student and sid and student in G:
-                    G.add_edge(sid, student)
+                s = _resolve(student)
+                if s and sid and s in G and s != sid:
+                    G.add_edge(sid, s)
                     edges_added += 1
 
         # Calculate scores
