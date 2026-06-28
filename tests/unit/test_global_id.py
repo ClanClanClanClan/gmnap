@@ -214,3 +214,36 @@ class TestGlobalID:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+# ── Collision-cache eviction safety (R39) ─────────────────────────────
+
+
+def test_collision_cache_cap_exceeds_target_workload():
+    """The collision dedup set must hold the marquee 1M run (~150 MB)
+    without evicting. Eviction silently breaks GlobalID uniqueness."""
+    import src.core.global_id as gid
+
+    assert gid._COLLISION_CACHE_MAX_BYTES >= 512 * 1024 * 1024
+
+
+def test_collision_cache_eviction_is_loud(caplog):
+    """If the collision cache ever evicts (extreme batch), it must log a
+    loud error rather than silently emit colliding GlobalIDs."""
+    import logging
+
+    import src.core.global_id as gid
+    from src.core.cache.sized_lru import SizedLRU
+
+    orig = gid._cross_batch
+    gid._cross_batch = SizedLRU(max_bytes=400)  # tiny -> forces eviction
+    gid._collision_evict_warned = False
+    try:
+        with caplog.at_level(logging.ERROR, logger="src.core.global_id"):
+            for i in range(200):
+                gid.cache_put(f"ID{i:08d}", True)
+        msgs = " ".join(r.getMessage() for r in caplog.records)
+        assert "NO LONGER" in msgs and "uniqueness" in msgs
+    finally:
+        gid._cross_batch = orig
+        gid._collision_evict_warned = False
