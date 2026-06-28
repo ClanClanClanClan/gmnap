@@ -325,29 +325,37 @@ class SchemaValidator:
         return code.islower() and code.isalpha()
 
     def _extract_year_number(self, year_value) -> Optional[int]:
-        """Extract numeric year from various formats."""
+        """Extract a numeric year from the various accepted string forms.
+
+        Returns ``None`` for anything unparseable rather than raising —
+        the caller runs a chain of per-entry custom validations, and a
+        ValueError escaping here (e.g. on a circa-with-period form like
+        "c. 1200", where the old ``int(year_value[1:])`` tried to parse
+        ". 1200") aborted the whole chain for that entry, silently
+        skipping every later check. Every branch is now guarded.
+        """
         if isinstance(year_value, int):
             return year_value
 
-        if isinstance(year_value, str):
-            # Handle formats: "1970s" -> 1970, "-500" -> -500, "c1150" -> 1150, "1150/1160" -> 1150
+        if not isinstance(year_value, str):
+            return None
+
+        # Formats: "1970s" -> 1970, "-500" -> -500, "c1150"/"c. 1150"
+        # -> 1150, "1150/1160" -> 1150.
+        try:
             if year_value.endswith("s"):
-                # Decade format
+                # Decade format — strip the trailing 's'.
                 return int(year_value[:-1])
             elif year_value.startswith("c"):
-                # Circa format
-                return int(year_value[1:])
+                # Circa: drop the leading 'c' plus any '.'/whitespace.
+                return int(year_value[1:].lstrip(". ").strip())
             elif "/" in year_value:
-                # Range format - take first year
+                # Range — take the first year.
                 return int(year_value.split("/")[0])
             else:
-                # Try direct conversion
-                try:
-                    return int(year_value)
-                except ValueError:
-                    return None
-
-        return None
+                return int(year_value)
+        except (ValueError, TypeError):
+            return None
 
     def validate_yaml_file(self, file_path: str) -> Tuple[bool, List[str]]:
         """

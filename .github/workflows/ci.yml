@@ -239,6 +239,8 @@ jobs:
           tests/unit/test_region_a1.py
           tests/validation/test_schema_validator_basic.py
           tests/v7/test_v7_basic.py
+          tests/v7/test_v7_batch_shape.py
+          tests/unit/test_cost_tracker.py
           tests/v7/test_v7_complete.py
           tests/v7/test_v7_complete_integration.py
           tests/v7/test_v7_full_pipeline.py

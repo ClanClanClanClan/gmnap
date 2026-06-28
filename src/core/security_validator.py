@@ -333,35 +333,45 @@ class SecurityValidator:
                 f"String exceeds maximum length ({len(text)} > {max_length} chars) in {context}"
             )
 
-        # Expert solution: Test mode allowances for academic names
-        if _test_mode() and context in ("CanonicalNative", "Name", "Given", "Family"):
-            pass  # allow academic names like 'राम शर्मा' etc. in tests
-        else:
-            # Check for dangerous patterns
-            for pattern, description in self.compiled_patterns:
-                if pattern.search(text):
-                    logger.warning(
-                        f"Dangerous pattern detected in {context}: {description} - {pattern.pattern}"
+        # Compatibility-fold BEFORE pattern matching. The downstream
+        # pipeline normalizes names with NFKD compatibility decomposition
+        # (CLAUDE.md stage 1: NFC→NFKD→fold→NFC), so a payload built from
+        # compatibility characters — e.g. the fullwidth apostrophe U+FF07
+        # in "＇ OR ＇1＇=＇1" — sails past the ASCII-only injection patterns
+        # here and only becomes the live "' OR '1'='1" later. Scanning the
+        # NFKC-folded form closes that whole bypass class: NFKC leaves
+        # ASCII payloads unchanged (so plain "<script>" is still caught)
+        # and folds compatibility variants to their canonical ASCII form.
+        scan_text = unicodedata.normalize("NFKC", text)
+
+        # Expert solution: Test mode allowances for academic names. NOTE:
+        # the dangerous-pattern scan ALWAYS runs even in test mode — the
+        # only thing test mode relaxes is the special-character ratio /
+        # category strictness for non-Latin academic names below. An
+        # injection payload is never legitimate name data, so it must be
+        # blocked regardless of GMNAP_SECURITY_MODE.
+        for pattern, description in self.compiled_patterns:
+            if pattern.search(text) or pattern.search(scan_text):
+                logger.warning(
+                    f"Dangerous pattern detected in {context}: "
+                    f"{description} - {pattern.pattern}"
+                )
+                if "NoSQL" in description:
+                    raise SecurityError(f"NoSQL injection detected in {context}")
+                elif "SQL" in description:
+                    raise SecurityError(f"SQL injection detected in {context}")
+                elif "command" in description.lower():
+                    raise SecurityError(f"Command injection detected in {context}")
+                elif "XSS" in description or "script" in description.lower():
+                    raise SecurityError(f"XSS/Script injection detected in {context}")
+                elif "Template" in description or "JNDI" in description:
+                    raise SecurityError(
+                        f"Template/JNDI injection detected in {context}"
                     )
-                    # Use description for better error messages
-                    if "NoSQL" in description:
-                        raise SecurityError(f"NoSQL injection detected in {context}")
-                    elif "SQL" in description:
-                        raise SecurityError(f"SQL injection detected in {context}")
-                    elif "command" in description.lower():
-                        raise SecurityError(f"Command injection detected in {context}")
-                    elif "XSS" in description or "script" in description.lower():
-                        raise SecurityError(
-                            f"XSS/Script injection detected in {context}"
-                        )
-                    elif "Template" in description or "JNDI" in description:
-                        raise SecurityError(
-                            f"Template/JNDI injection detected in {context}"
-                        )
-                    elif "Path" in description:
-                        raise SecurityError(f"Path traversal detected in {context}")
-                    else:
-                        raise SecurityError(f"{description} detected in {context}")
+                elif "Path" in description:
+                    raise SecurityError(f"Path traversal detected in {context}")
+                else:
+                    raise SecurityError(f"{description} detected in {context}")
 
         # Expert solution: GlobalID special character checking in test mode
         if context == "GlobalID":

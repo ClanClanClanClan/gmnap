@@ -84,15 +84,49 @@ def _costs_path() -> Path:
     return base
 
 
+# Generous upper bound on the costs file size. The real file is a few
+# hundred bytes (one float per source). 1 MiB is ~6 orders of magnitude
+# of headroom and bounds a single os.read().
+_MAX_COSTS_BYTES = 1024 * 1024
+
+
+def _parse_costs(raw: str) -> Dict[str, float]:
+    """Parse the JSON body, degrading to ``{}`` on any malformation."""
+    if not raw.strip():
+        return {}
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        logger.warning("cost-tracker: malformed costs JSON (%s) — starting fresh", exc)
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
 def _load() -> Dict[str, float]:
+    """Read the costs file under a SHARED lock.
+
+    The shared lock means a concurrent ``record()`` (which holds the
+    EXCLUSIVE lock across its whole read-modify-write) can never expose
+    a half-written / truncated file to a reader. Returns ``{}`` if the
+    file is absent or unreadable.
+    """
     p = _costs_path()
     if not p.exists():
         return {}
     try:
-        return json.loads(p.read_text(encoding="utf-8")) or {}
-    except (json.JSONDecodeError, OSError) as exc:
-        logger.warning("cost-tracker: failed to read %s (%s) — starting fresh", p, exc)
+        fd = os.open(p, os.O_RDONLY)
+    except OSError as exc:
+        logger.warning("cost-tracker: failed to open %s (%s) — starting fresh", p, exc)
         return {}
+    try:
+        fcntl.flock(fd, fcntl.LOCK_SH)
+        try:
+            raw = os.read(fd, _MAX_COSTS_BYTES).decode("utf-8", errors="replace")
+        finally:
+            fcntl.flock(fd, fcntl.LOCK_UN)
+    finally:
+        os.close(fd)
+    return _parse_costs(raw)
 
 
 def record(source: str, calls: int = 1, override_chf: float | None = None) -> None:
@@ -101,6 +135,16 @@ def record(source: str, calls: int = 1, override_chf: float | None = None) -> No
     ``override_chf`` is for sources whose price isn't a simple
     per-call rate (e.g. monthly subscription chunks). When set, the
     full charge in CHF is added directly without scaling by ``calls``.
+
+    Concurrency: the EXCLUSIVE ``flock`` is acquired BEFORE the file is
+    read so the entire read-modify-write is atomic across processes.
+    The earlier implementation read (via ``_load``) *before* locking and
+    then opened the file in ``"w"`` mode, which (a) truncated the file
+    before the lock was held — a concurrent reader could observe an
+    empty file and lose all prior spend — and (b) left a lost-update
+    race: two workers could both read the old total, both add their
+    cost, and the second write would clobber the first. Locking first
+    and reading the live bytes under the lock closes both holes.
     """
     if calls <= 0:
         return
@@ -116,19 +160,23 @@ def record(source: str, calls: int = 1, override_chf: float | None = None) -> No
 
     with _LOCK:
         p = _costs_path()
-        data = _load()
-        data[source] = round(data.get(source, 0.0) + cost, 6)
-        # fcntl lock against concurrent writers from other processes
-        # (e.g. a parallel uvicorn worker hitting the same source).
-        with open(p, "w", encoding="utf-8") as fh:
+        # O_RDWR | O_CREAT — open without truncating; create if absent.
+        fd = os.open(p, os.O_RDWR | os.O_CREAT, 0o644)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX)
             try:
-                fcntl.flock(fh, fcntl.LOCK_EX)
-                json.dump(data, fh, indent=2, sort_keys=True)
+                raw = os.read(fd, _MAX_COSTS_BYTES).decode("utf-8", errors="replace")
+                data = _parse_costs(raw)
+                data[source] = round(float(data.get(source, 0.0)) + cost, 6)
+                payload = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                os.lseek(fd, 0, os.SEEK_SET)
+                os.ftruncate(fd, 0)
+                os.write(fd, payload)
+                os.fsync(fd)
             finally:
-                try:
-                    fcntl.flock(fh, fcntl.LOCK_UN)
-                except OSError:
-                    pass
+                fcntl.flock(fd, fcntl.LOCK_UN)
+        finally:
+            os.close(fd)
 
 
 def total() -> float:
