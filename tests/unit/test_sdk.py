@@ -24,7 +24,14 @@ from src.sdk import (
 
 
 def test_mint_hashcash_produces_valid_stamp_18_bits() -> None:
-    stamp = mint_hashcash(bits=18, timeout_s=10.0)
+    # This test verifies CORRECTNESS (a valid 18-bit stamp is produced),
+    # not speed — the 8-bit test below covers fast minting. An 18-bit
+    # proof-of-work nominally finishes in well under a second, but it has
+    # a fat geometric tail, so a tight 10 s budget spuriously timed out
+    # ~2 % of the time on slow/contended CI runners. A generous ceiling
+    # makes that ~1e-10 while the test still returns the instant a stamp
+    # is found.
+    stamp = mint_hashcash(bits=18, timeout_s=60.0)
     parts = stamp.split(":")
     assert len(parts) == 7  # 1:bits:date:resource::rand:counter
     assert parts[0] == "1"
