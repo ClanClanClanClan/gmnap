@@ -1,0 +1,13 @@
+# A2 — Western Europe region overrides.
+#
+# Loaded by A2_WesternEurope.__init__ via RegionSpec.load_yaml_config()
+# (config/regions/<lowercase-code>.yaml). Add entries here to extend the
+# processor's hardcoded defaults without editing Python; a missing file
+# falls back to the defaults. This is a live, tested extension point —
+# see tests/unit/test_region_yaml_overrides.py.
+
+# Extra surname particles merged into the hardcoded Germanic/Romance sets.
+germanic_particles:
+  - vom        # German "von dem" contraction
+romance_particles:
+  - dei        # Italian "of the" (plural)
