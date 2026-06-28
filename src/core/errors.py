@@ -85,12 +85,6 @@ class SchemaError(ValidationError):
     pass
 
 
-class RegionError(GMNAPError):
-    """Regional processing error."""
-
-    pass
-
-
 class UnicodeError(GMNAPError):
     """Unicode processing error."""
 

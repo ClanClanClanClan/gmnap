@@ -94,11 +94,10 @@ def test_imports():
             "Ops: DataCite Builder",
             "from src.ops.datacite_builder import build_datacite_doi",
         ),
-        # Security
-        (
-            "Security: Auth Middleware",
-            "from src.security.auth_middleware import APIKeyAuth",
-        ),
+        # (Removed "Security: Auth Middleware" smoke-import — src/security/
+        # was an unused alternate auth/middleware package never wired into
+        # the live app, deleted in R37.2. The live API's auth lives in
+        # src/api/server.py.)
     ]
 
     results = []
