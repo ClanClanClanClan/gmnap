@@ -325,7 +325,8 @@ class V7Pipeline:
     Stages (from specs_v7.yaml section 5):
     0. Config - Load specs, verify licenses, DOI credentials
     1. Ingest - Read YAML, Unicode NFC→NFKD→fold→NFC
-    1b. LLMExtract_ETD - Parse thesis PDFs with GPT-4o-mini
+    1b. LLMExtract_ETD - OPT-IN regex ETD/thesis record extraction (no live
+        LLM; the spec's GPT-4o-mini path is not built)
     2. DetectRegion - Script, ICU, fastText, affiliation, DOI prefix
     3. RegionHooks - clean→augment→validate→order_key
     4. AuthorityEnrich - Fetch ORCID_ETD, Crossref_Thesis, etc.
