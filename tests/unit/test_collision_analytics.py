@@ -130,3 +130,58 @@ class TestEdgeCSV:
         with tempfile.TemporaryDirectory() as workdir:
             _, metrics = stage5_collision_analytics(entries, workdir=workdir)
             assert metrics["edges"] == 0
+
+
+class TestSQLiteAnalyticsCollisionRate:
+    """SQLiteAnalytics is the DuckDB-fallback drop-in used by the V7
+    pipeline. Its reported collision_rate must be a real fraction."""
+
+    def test_exact_duplicate_rate_not_over_100pct(self):
+        """An exact duplicate trips the latin + native + hash checks, but
+        the reported collision_rate must count it ONCE and stay <=100%.
+
+        Regression (R38 audit): total_collisions = sum(collision_types)
+        triple-counted each exact duplicate, so collision_rate could
+        exceed 100% (e.g. 150% for two identical entries).
+        """
+        from src.analytics.sqlite_analytics import SQLiteAnalytics
+
+        a = SQLiteAnalytics()
+        e1 = {
+            "GlobalID": "g1",
+            "CanonicalLatin": "Euler, Leonhard",
+            "CanonicalNative": "Euler, Leonhard",
+        }
+        e2 = {
+            "GlobalID": "g2",
+            "CanonicalLatin": "Euler, Leonhard",
+            "CanonicalNative": "Euler, Leonhard",
+        }
+        res = a.analyze_collisions([e1, e2])
+        assert res["total_entries"] == 2
+        assert res["collision_rate"] <= 100.0
+        assert res["total_collisions"] == 1  # the one duplicate, counted once
+        # The per-dimension breakdown still records every event.
+        assert res["collision_types"]["canonical_latin_collision"] == 1
+        assert res["collision_types"]["hash_collision"] == 1
+
+    def test_no_duplicates_zero_rate(self):
+        from src.analytics.sqlite_analytics import SQLiteAnalytics
+
+        a = SQLiteAnalytics()
+        res = a.analyze_collisions(
+            [
+                {
+                    "GlobalID": "g1",
+                    "CanonicalLatin": "Euler, Leonhard",
+                    "CanonicalNative": "Euler, Leonhard",
+                },
+                {
+                    "GlobalID": "g2",
+                    "CanonicalLatin": "Gauss, Carl",
+                    "CanonicalNative": "Gauss, Carl",
+                },
+            ]
+        )
+        assert res["collision_rate"] == 0
+        assert res["total_collisions"] == 0

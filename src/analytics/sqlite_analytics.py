@@ -115,6 +115,11 @@ class SQLiteAnalytics:
         latin_map = {}
         native_map = {}
         hash_map = {}
+        # DISTINCT entries that collided on any dimension. An exact
+        # duplicate trips all three checks below (latin + native + hash),
+        # so summing collision_types over-counts it 3x and the resulting
+        # collision_rate could exceed 100%. Count each colliding entry once.
+        collided_ids: set = set()
 
         for entry in entries:
             global_id = entry.get("GlobalID", "")
@@ -136,6 +141,7 @@ class SQLiteAnalytics:
                     }
                 )
                 collision_types["canonical_latin_collision"] += 1
+                collided_ids.add(global_id)
 
                 # Record in database
                 cursor.execute(
@@ -164,6 +170,7 @@ class SQLiteAnalytics:
                     }
                 )
                 collision_types["canonical_native_collision"] += 1
+                collided_ids.add(global_id)
 
                 cursor.execute(
                     """
@@ -191,6 +198,7 @@ class SQLiteAnalytics:
                     }
                 )
                 collision_types["hash_collision"] += 1
+                collided_ids.add(global_id)
 
                 cursor.execute(
                     """
@@ -213,9 +221,12 @@ class SQLiteAnalytics:
 
         self.conn.commit()
 
-        # Calculate collision rate
+        # Calculate collision rate over DISTINCT colliding entries, so an
+        # exact duplicate (which trips latin + native + hash) counts once
+        # and the rate can never exceed 100%. collision_types still
+        # carries the per-dimension event breakdown for diagnostics.
         total_entries = len(entries)
-        total_collisions = sum(collision_types.values())
+        total_collisions = len(collided_ids)
         collision_rate = (
             (total_collisions / total_entries * 100) if total_entries > 0 else 0
         )
