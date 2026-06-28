@@ -123,6 +123,47 @@ def test_hashcash_expired_rejected():
     assert verify_hashcash(stamp) is False
 
 
+def test_used_stamp_not_replayable_within_validity_window():
+    """A spent stamp must stay rejected for its WHOLE date-validity
+    window, even after the size-triggered prune runs under load.
+
+    Regression (R38 #12): the replay cache retained stamps for only 300 s
+    while the date check accepts a stamp for ~3 days, so once the prune
+    fired (under load) a captured-but-still-date-valid stamp could be
+    replayed ~5 minutes later.
+    """
+    import src.api.server as srv
+
+    # Invariant: replay retention must cover the full date window.
+    window_s = (2 * srv._HASHCASH_DATE_SKEW_DAYS + 1) * 86400
+    assert srv._HASHCASH_TTL >= window_s
+
+    with srv._stamps_lock:
+        srv._used_stamps.clear()
+
+    stamp = _make_hashcash(bits=8)
+    assert verify_hashcash(stamp, 8) is True  # first use: recorded
+
+    # Age the spent stamp past the OLD 300 s TTL and exceed the prune
+    # trigger, then drive a prune via an unrelated verify call.
+    past = time.time() - 301
+    with srv._stamps_lock:
+        srv._used_stamps[stamp] = past
+        for i in range(srv._HASHCASH_PRUNE_TRIGGER + 5):
+            srv._used_stamps[f"filler-{i}"] = past
+    verify_hashcash(_make_hashcash(bits=8), 8)  # triggers the prune pass
+
+    # Under the old 300 s TTL the prune evicted `stamp` (aged 301 s) and a
+    # replay would be ACCEPTED. The fixed TTL retains it for the full
+    # validity window, so the replay is still rejected.
+    assert (
+        verify_hashcash(stamp, 8) is False
+    ), "spent stamp evicted within its date-validity window — replayable"
+
+    with srv._stamps_lock:
+        srv._used_stamps.clear()
+
+
 # ── Hashcash field validation (date / resource / structure) ───────────
 
 
