@@ -273,13 +273,13 @@ Response:
   in `docs/calibration.md`). Enable the calibrator at runtime via
   `GMNAP_CALIBRATE_CONFIDENCE=1`.
 - **Genealogy is seeded + enriched.** ~39,500 mathematicians: ~20,800
-  with full doctoral-advisor chains (15 MGP-curated + 4,385 Wikidata
+  with full doctoral-advisor chains (15 MGP-curated + 20,833 Wikidata
   SPARQL P184) plus ~18,700 records from OpenAlex with Institution +
   Country only. Name matching is diacritic-insensitive (`Erdős` ↔
   `Erdos`) and handles Dutch/German particles (`von Neumann` ↔
   `Neumann … von`), hyphenated given names, and parenthetical aliases.
 - **The web UI has been stress-tested.** `tools/browser_smoke.py`
-  runs **31** adversarial scenarios against a real Chromium (XSS,
+  runs **32** adversarial scenarios against a real Chromium (XSS,
   Unicode, responsive, keyboard, rapid-fire, tree interaction, network
   resilience) — wired into CI on every push, so regressions like the
   debounce race that hid the profile under the user fail the PR

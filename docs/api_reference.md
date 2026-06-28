@@ -31,7 +31,7 @@ for "Hilbert" returns his ~76 known students rather than his
   - `global_id` (`string`, path) **(required)**
   - `depth` (`integer`, query)
   - `direction` (`string`, query) — ancestors = walk up the advisor chain; descendants = walk down the student chain
-  - `format` (`string`, query) — Output format: json/dot/svg
+  - `format` (`string`, query) — Output format: json (default) or dot (Graphviz source). SVG is not served — render the dot output with `dot -Tsvg`.
 
 **Responses:**
   - `200` (application/json) — Successful Response
@@ -127,7 +127,11 @@ Strict by design: a 200 from /readyz means an
 operator can route real traffic and expect every documented
 endpoint to work. We check, in order:
 
-1. The genealogy enrichment JSON exists and parses. The /query,
+1. The genealogy enrichment JSON exists and is non-trivially
+   sized (stat-only — a full json.loads on the ~25 MB file
+   would add ~250 ms to a probe that fires every few seconds,
+   so we gate on presence + size > 1 KB to catch a missing or
+   unpulled LFS stub, not on parseability). The /query,
    /lineage, and /process endpoints all depend on it; a fresh
    container that lost the LFS file would silently degrade
    without this gate.

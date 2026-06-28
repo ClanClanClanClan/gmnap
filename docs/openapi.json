@@ -204,13 +204,14 @@
             }
           },
           {
-            "description": "Output format: json/dot/svg",
+            "description": "Output format: json (default) or dot (Graphviz source). SVG is not served \u2014 render the dot output with `dot -Tsvg`.",
             "in": "query",
             "name": "format",
             "required": false,
             "schema": {
               "default": "json",
-              "description": "Output format: json/dot/svg",
+              "description": "Output format: json (default) or dot (Graphviz source). SVG is not served \u2014 render the dot output with `dot -Tsvg`.",
+              "pattern": "^(json|dot)$",
               "title": "Format",
               "type": "string"
             }
@@ -440,7 +441,7 @@
     },
     "/readyz": {
       "get": {
-        "description": "Readiness probe \u2014 checks every dependency the API needs.\n\nStrict by design: a 200 from /readyz means an\noperator can route real traffic and expect every documented\nendpoint to work. We check, in order:\n\n1. The genealogy enrichment JSON exists and parses. The /query,\n   /lineage, and /process endpoints all depend on it; a fresh\n   container that lost the LFS file would silently degrade\n   without this gate.\n2. The Memgraph Bolt handshake succeeds (when MEMGRAPH_BOLT is\n   set). Uses verify_connectivity() under a 2 s timeout \u2014 same\n   path as the lineage endpoint.\n\nEarlier implementations opened a raw TCP socket and accepted\nany handshake as \"ready\" \u2014 that returned 200 even when\nMemgraph was alive but auth was broken or storage was corrupt.",
+        "description": "Readiness probe \u2014 checks every dependency the API needs.\n\nStrict by design: a 200 from /readyz means an\noperator can route real traffic and expect every documented\nendpoint to work. We check, in order:\n\n1. The genealogy enrichment JSON exists and is non-trivially\n   sized (stat-only \u2014 a full json.loads on the ~25 MB file\n   would add ~250 ms to a probe that fires every few seconds,\n   so we gate on presence + size > 1 KB to catch a missing or\n   unpulled LFS stub, not on parseability). The /query,\n   /lineage, and /process endpoints all depend on it; a fresh\n   container that lost the LFS file would silently degrade\n   without this gate.\n2. The Memgraph Bolt handshake succeeds (when MEMGRAPH_BOLT is\n   set). Uses verify_connectivity() under a 2 s timeout \u2014 same\n   path as the lineage endpoint.\n\nEarlier implementations opened a raw TCP socket and accepted\nany handshake as \"ready\" \u2014 that returned 200 even when\nMemgraph was alive but auth was broken or storage was corrupt.",
         "operationId": "readyz_readyz_get",
         "responses": {
           "200": {

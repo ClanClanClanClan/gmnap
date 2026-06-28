@@ -2,7 +2,8 @@
 
 import json
 import struct
-from unittest.mock import MagicMock, patch
+from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from click.testing import CliRunner
@@ -91,6 +92,35 @@ def test_output_path_absolute_blocked(runner, valid_json_file):
     result = runner.invoke(cli, ["process", valid_json_file, "--output", "/tmp/evil"])
     assert result.exit_code != 0
     assert "relative" in result.output.lower() or "absolute" in result.output.lower()
+
+
+def test_process_actually_writes_output(runner, valid_json_file):
+    """`process --output DIR` must write results.json into DIR.
+
+    Regression: --output was validated for traversal but then only
+    echoed ("Output in {dir}/") — nothing was ever written there. The
+    pipeline is mocked so this test targets the writing behaviour, not
+    the (separately tested) V7 pipeline.
+    """
+    fake_result = {
+        "entries": [{"CanonicalLatin": "Euler, Leonhard", "region_code": "A1"}],
+        "quality_gates": {"passed": True},
+    }
+    mock_pipeline = MagicMock()
+    mock_pipeline.process_batch = AsyncMock(return_value=fake_result)
+    mock_cls = MagicMock(return_value=mock_pipeline)
+
+    with patch("src.core.pipeline_v7.V7Pipeline", mock_cls):
+        with runner.isolated_filesystem():
+            result = runner.invoke(
+                cli, ["process", valid_json_file, "--output", "myout"]
+            )
+            assert result.exit_code == 0, result.output
+            out_file = Path("myout/results.json")
+            assert out_file.exists(), "process() did not write results.json"
+            data = json.loads(out_file.read_text())
+            assert data[0]["CanonicalLatin"] == "Euler, Leonhard"
+            assert str(out_file) in result.output
 
 
 # ── Query Validation ──────────────────────────────────────────────────

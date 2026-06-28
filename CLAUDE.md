@@ -12,7 +12,7 @@
 **Authority Enrichment**: V7 tier orchestrator (`src/authority/manager_tier01.py`) delegates to canonical fetchers in `src/authorities/tierN/` when `OFFLINE=0`. 9 sources have real HTTP code (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH, Wikidata_P184, GND, HAL, OAI_University); 2 gated behind API keys (Scopus, Dimensions); 1 deferred for institutional access (ProQuest); 1 deferred for ToS (GoogleScholar). MathSciNet stub awaits AMS subscription
 **Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. The on-disk directory `config/regions/` is currently empty — every region falls back to its hardcoded defaults — so the loader is dormant in practice but tested and ready
 **API Server**: FastAPI server with 8 endpoints (/healthz, /readyz, /api/v1/query, /api/v1/lineage, /api/v1/process, /api/v1/suggest, /metrics, /)
-**CLI**: `serve` and `version` via `gmnap` entry point; full 7-command CLI in `src/cli/gmnap.py` (query, lineage, process, sources, regions, validate, serve) but NOT wired to the main entry point
+**CLI**: full 7-command CLI (`query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve`) in `src/cli/gmnap.py`, wired to the `gmnap` console entry point via `gmnap = "src.cli.gmnap:cli"` in `pyproject.toml`'s `[project.scripts]`. (Earlier docs claimed the 7-command CLI was "NOT wired to the main entry point" and that only `serve`/`version` were exposed — that is stale; `pip install -e .` puts all seven subcommands behind `gmnap`.)
 **Diaspora Detection**: Implemented — split geo_region vs name_region with conflict flag
 **Testing**: ~2,376 tests collected across `tests/unit/` + 4 newly-triaged dirs (authority, cjk, db, v7) + memgraph e2e + F3 region tests. Coverage gate at `--cov-fail-under=20` with explicit floors at line ≥ 22 % / branch ≥ 18 % (current measured 23.93 % / 19.41 %). 843-entry adjudicated benchmark with deterministic 80/20 train/test split (`src/regions/benchmark_split.py`)
 **Test Fixtures**: 500 golden dataset + 843 name-origin benchmark + 10,724 Wikidata mathematicians
@@ -296,7 +296,7 @@ gmnap validate input.json        # Schema validation
 
 ### Genealogy enrichment
 Curated `data/genealogy_enrichment.json` (~39,500 mathematicians: 15
-MGP seed + 25 curated stubs + 4,362 Wikidata SPARQL P184 entries +
+MGP seed + 25 curated stubs + 20,833 Wikidata SPARQL P184 entries +
 14,432 OpenAlex author affiliations + transitive advisor stubs)
 enriches API / CLI output with BirthYear / Institution / Advisors.
 Advisor chains come only from MGP + Wikidata P184 (~20,800 people);

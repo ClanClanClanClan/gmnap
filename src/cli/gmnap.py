@@ -621,17 +621,26 @@ async def _run_pipeline(entries: list, mode: str, output_dir: str):
     }
     pipeline = V7Pipeline(mode=mode_map[mode])
     result = await pipeline.process_batch(entries)
-    entry_count = (
-        len(result.get("entries", [])) if isinstance(result, dict) else len(result)
-    )
+    out_entries = result.get("entries", []) if isinstance(result, dict) else result
+    entry_count = len(out_entries)
     passed = (
         result.get("quality_gates", {}).get("passed", "N/A")
         if isinstance(result, dict)
         else "N/A"
     )
+
+    # Actually honour --output: write the enriched results so the
+    # "Output in {output_dir}/" line below is true. The output path was
+    # already validated (relative, no traversal) by the process command.
+    out_root = Path(output_dir)
+    out_root.mkdir(parents=True, exist_ok=True)
+    results_file = out_root / "results.json"
+    with open(results_file, "w", encoding="utf-8") as fh:
+        json.dump(out_entries, fh, ensure_ascii=False, indent=2, default=str)
+
     click.echo(
         f"Processed {entry_count} entries. "
-        f"Quality gates: {passed}. Output in {output_dir}/"
+        f"Quality gates: {passed}. Output written to {results_file}"
     )
 
 
