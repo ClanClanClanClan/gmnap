@@ -60,22 +60,16 @@ class HALFetcher(AuthorityFetcher):
             results = await self._search_author(identifier)
 
             if not results or len(results) == 0:
-                return FetchResult(
-                    status=FetchStatus.NOT_FOUND, source=self.service, query=identifier
-                )
+                return FetchResult(status=FetchStatus.NOT_FOUND)
 
             # Parse results to extract author information
             author_data = self._parse_author_data(identifier, results)
 
             if not author_data:
-                return FetchResult(
-                    status=FetchStatus.NOT_FOUND, source=self.service, query=identifier
-                )
+                return FetchResult(status=FetchStatus.NOT_FOUND)
 
             return FetchResult(
                 status=FetchStatus.SUCCESS,
-                source=self.service,
-                query=identifier,
                 data=author_data,
             )
 
@@ -83,9 +77,7 @@ class HALFetcher(AuthorityFetcher):
             logger.error(f"HAL fetch error: {e}")
             return FetchResult(
                 status=FetchStatus.ERROR,
-                source=self.service,
-                query=identifier,
-                error=str(e),
+                error_message=str(e),
             )
 
     async def _search_author(

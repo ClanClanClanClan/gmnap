@@ -57,7 +57,7 @@ class MathSciNetFetcher(AuthorityFetcher):
             else:
                 # Real implementation would require subscription credentials
                 return FetchResult(
-                    status=FetchStatus.AUTH_ERROR,
+                    status=FetchStatus.AUTH_FAILED,
                     error_message="MathSciNet requires institutional subscription",
                 )
 

@@ -36,6 +36,11 @@ class FetchStatus(Enum):
     PARSE_ERROR = "parse_error"
     NOT_FOUND = "not_found"
     QUOTA_EXCEEDED = "quota_exceeded"
+    # Generic catch-all for an unexpected fetch failure. Several fetchers'
+    # `except Exception` blocks already referenced FetchStatus.ERROR — which
+    # did NOT exist — so the error handler ITSELF raised AttributeError on
+    # every failure (notably the live tier-1 HAL fetcher at OFFLINE=0).
+    ERROR = "error"
 
 
 @dataclass
