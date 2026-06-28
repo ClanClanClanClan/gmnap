@@ -26,7 +26,7 @@ os.environ["GMNAP_TEST_MODE"] = "true"
 import sys
 from pathlib import Path
 
-from src.regions.manager import RegionManager
+from src.regions.manager_optimized import RegionManager
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.regions.base import RegionRuleError

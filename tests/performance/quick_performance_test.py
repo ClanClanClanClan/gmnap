@@ -80,7 +80,7 @@ def test_e4_integration():
     print("=" * 50)
 
     try:
-        from src.regions.manager import RegionManager
+        from src.regions.manager_optimized import RegionManager
 
         manager = RegionManager()
         manager._ensure_regions_loaded()

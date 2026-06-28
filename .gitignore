@@ -147,3 +147,24 @@ docs/browser_audit.md
 # from a real OFFLINE=0 live run via 'make eval-authority'. Smoke-test
 # results from --allow-offline are explicitly excluded.
 docs/authority_quality.json
+
+# ── R41 org cleanup: runtime/generated dirs + scratch dumps that were
+#    polluting `git status` (verified NOT previously ignored via
+#    `git check-ignore`). Some have tracked files that get `git rm --cached`
+#    in the same cleanup pass; ignoring them here keeps them out once
+#    untracked. The root-level `archive/` is an untracked personal stash.
+coverage.xml
+/out/
+/snapshots/
+/work/
+/analysis/
+/cache_thread_*/
+/cache_security_test/
+/test_results/
+/ultracheck_*.json
+/ultrafix_*.json
+/archive/
+config/*.bin
+# SQLite WAL/SHM sidecars from SQLiteAnalytics / test runs
+*.db-shm
+*.db-wal
