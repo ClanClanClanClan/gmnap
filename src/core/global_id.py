@@ -27,10 +27,6 @@ def cache_put(k, v):
     _cross_batch.put(k, v)
 
 
-def cache_get(k, default=None):
-    return _cross_batch.get(k, default)
-
-
 def cache_contains(k):
     return k in _cross_batch
 
