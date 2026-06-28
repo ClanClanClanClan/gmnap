@@ -303,8 +303,16 @@ def process(
         )
         sys.exit(1)
     try:
-        resolved = (Path.cwd() / out_path).resolve()
-        if not str(resolved).startswith(str(Path.cwd().resolve())):
+        cwd = Path.cwd().resolve()
+        resolved = (cwd / out_path).resolve()
+        # Real path containment, NOT a string-prefix check. The old
+        # str(resolved).startswith(str(cwd)) let a sibling directory whose
+        # name merely starts with the cwd's name escape the guard: with
+        # cwd=/a/proj, `--output ../proj-evil/x` resolves to
+        # /a/proj-evil/x, which startswith('/a/proj') accepts even though
+        # it is outside the working directory. is_relative_to compares
+        # path components, so the sibling is correctly rejected.
+        if resolved != cwd and not resolved.is_relative_to(cwd):
             click.echo(
                 "Error: --output path escapes the working directory.\n"
                 f"  Got:  {output}\n"
