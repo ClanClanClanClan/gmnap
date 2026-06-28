@@ -96,7 +96,23 @@ class DuckDBAnalytics:
                 return (entries, 0)
             return []
 
+        # When entries are passed (the stage-5 "resolve" call) make NO
+        # GlobalID changes. The old behavior rewrote the id of every
+        # name+birth-year group member after the first (B -> B--1), but
+        # those entries already have DISTINCT, unique ids: the GlobalID
+        # encodes CanonicalNative + birth + death, and stage 1 suffixes any
+        # TRUE id collision. So two genuinely-different people who merely
+        # share an order_key + BirthYear (e.g. different death year or
+        # native script) have different ids — re-suffixing them by NAME
+        # corrupted a correct id. GlobalID uniqueness is stage 1's job;
+        # name collisions (same name, different id) are a REPORTING concern
+        # (detect_collisions / analyze_collisions), not an id rewrite.
+        if entries is not None:
+            return entries, 0
+
         out = []
+        # Report-only path (entries is None): list name + birth-year
+        # collision groups for diagnostics. This does NOT mutate any id.
         # Only consider entries with non-empty order_key as potential duplicates
         # Empty order_key means no CanonicalLatin, which shouldn't be considered a duplicate
         dup_keys = self.conn.execute(
@@ -127,14 +143,8 @@ class DuckDBAnalytics:
                     continue
                 out.append((g, f"{g}--{i}"))
 
-        # If entries provided, modify them in place
-        if entries is not None:
-            suffix_map = {old_id: new_id for old_id, new_id in out}
-            for entry in entries:
-                if entry.get("GlobalID") in suffix_map:
-                    entry["GlobalID"] = suffix_map[entry["GlobalID"]]
-            return entries, len(out)
-
+        # Diagnostics list only — never applied to any entry's GlobalID
+        # (the entries-provided path returned above without mutating ids).
         return out
 
     def analyze_collisions(self, entries: List[Dict[str, Any]]) -> Dict[str, Any]:
