@@ -3,15 +3,15 @@ from __future__ import annotations
 import asyncio
 from typing import Any, Dict, List
 
-from ..genealogy.authority_enricher import AuthorityEnricher
+from ..genealogy.authority_enricher import GenealogyAuthorityEnricher
 
-_enricher: AuthorityEnricher | None = None
+_enricher: GenealogyAuthorityEnricher | None = None
 
 
-def _get_enricher() -> AuthorityEnricher:
+def _get_enricher() -> GenealogyAuthorityEnricher:
     global _enricher
     if _enricher is None:
-        _enricher = AuthorityEnricher()
+        _enricher = GenealogyAuthorityEnricher()
     return _enricher
 
 
