@@ -995,6 +995,28 @@ def create_app() -> FastAPI:
                 status_code=400, detail="suggested_value must not be empty"
             )
 
+        # correction_type is interpolated into the on-disk filename, so it
+        # MUST be constrained — otherwise a value like
+        # "a/../../../../tmp/pwned" escapes data/corrections/ and writes an
+        # attacker-controlled .json anywhere the process can write
+        # (verified path-traversal). Validate against the documented enum.
+        _ALLOWED_CORRECTION_TYPES = {
+            "advisor",
+            "institution",
+            "year",
+            "name",
+            "country",
+            "other",
+        }
+        if suggestion.correction_type not in _ALLOWED_CORRECTION_TYPES:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "correction_type must be one of "
+                    f"{sorted(_ALLOWED_CORRECTION_TYPES)}"
+                ),
+            )
+
         import json
         from datetime import datetime, timezone
 
@@ -1010,9 +1032,16 @@ def create_app() -> FastAPI:
             "submitter_note": suggestion.submitter_note,
         }
 
+        # Defense-in-depth: even though correction_type is enum-validated
+        # above, derive the filename component from alphabetic chars only,
+        # so no path separator / traversal token can ever reach the path.
+        safe_type = (
+            "".join(c for c in suggestion.correction_type if c.isalpha())[:20]
+            or "other"
+        )
         filename = (
             f"{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
-            f"_{suggestion.correction_type}.json"
+            f"_{safe_type}.json"
         )
         filepath = corrections_dir / filename
         filepath.write_text(json.dumps(record, indent=2, ensure_ascii=False))
