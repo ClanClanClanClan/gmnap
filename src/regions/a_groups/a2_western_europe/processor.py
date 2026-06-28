@@ -85,6 +85,23 @@ class A2_WesternEurope(RegionSpec):
         # All particles combined
         self.particles = self.germanic_particles | self.romance_particles
 
+        # ---- YAML override extension point: config/regions/a2.yaml ----
+        # Lets linguists/ops extend the particle sets without touching
+        # Python. RegionSpec.load_yaml_config() returns a SHARED cached
+        # dict, so we only READ from it (never mutate), merge any provided
+        # particles into the hardcoded defaults, and recompute. Missing
+        # file -> {} -> defaults unchanged. This is the first processor to
+        # actually consume the (previously dormant) YAML override loader.
+        _cfg = self.load_yaml_config()
+        if _cfg:
+            for _p in _cfg.get("germanic_particles") or []:
+                if isinstance(_p, str) and _p.strip():
+                    self.germanic_particles.add(_p.strip().lower())
+            for _p in _cfg.get("romance_particles") or []:
+                if isinstance(_p, str) and _p.strip():
+                    self.romance_particles.add(_p.strip().lower())
+            self.particles = self.germanic_particles | self.romance_particles
+
         # Common Western European name patterns
         self.name_patterns = {
             "spanish_dual": re.compile(

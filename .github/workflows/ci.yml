@@ -196,6 +196,7 @@ jobs:
           tests/unit/test_manager_caching.py
           tests/unit/test_quality_gates.py
           tests/unit/test_region_processors.py
+          tests/unit/test_region_yaml_overrides.py
           tests/unit/test_regions.py
           tests/unit/test_schema.py
           tests/unit/test_sea_roundtrip.py
@@ -331,6 +332,7 @@ jobs:
           tests/unit/test_gdpr.py
           tests/unit/test_gdpr_comprehensive.py
           tests/unit/test_region_processors.py
+          tests/unit/test_region_yaml_overrides.py
           tests/unit/test_simple_detection.py
           tests/unit/test_unicode_handler.py
           tests/unit/test_validation_rules.py

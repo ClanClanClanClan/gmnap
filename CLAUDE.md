@@ -10,7 +10,7 @@
 **Performance**: **1 M real names processed in 362 seconds (6.0 min) — measured, not projected** (Apple M1, OFFLINE, single process, streaming path via `AsyncBatchAggregator`). Throughput: **2 763 entries/sec** at 1 M; 152/s at 10 k (smaller batches use the serial direct-batch path). RSS peaks at 769 MB. Round-28's `@functools.lru_cache` fix on `_wb()` was the unlock (was 7/s on 10 k pre-fix); round-30 ran the actual 1 M to verify the streaming-path scaling holds in production. Full benchmark + cProfile in `docs/perf_characterization.md`.
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
 **Authority Enrichment**: V7 tier orchestrator (`src/authority/manager_tier01.py`) delegates to canonical fetchers in `src/authorities/tierN/` when `OFFLINE=0`. 9 sources have real HTTP code (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH, Wikidata_P184, GND, HAL, OAI_University); 2 gated behind API keys (Scopus, Dimensions); 1 deferred for institutional access (ProQuest); 1 deferred for ToS (GoogleScholar). MathSciNet stub awaits AMS subscription
-**Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. The on-disk directory `config/regions/` is currently empty — every region falls back to its hardcoded defaults — so the loader is dormant in practice but tested and ready
+**Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. It is now LIVE: `config/regions/a2.yaml` exists and `A2_WesternEurope.__init__` consumes it (merging extra Germanic/Romance surname particles into its hardcoded defaults) — the first processor to actually apply a YAML override. Other regions still fall back to hardcoded defaults until a `config/regions/<code>.yaml` is added and the processor wired to read it (see A2 as the pattern). Covered by `tests/unit/test_region_yaml_overrides.py`
 **API Server**: FastAPI server with 8 endpoints (/healthz, /readyz, /api/v1/query, /api/v1/lineage, /api/v1/process, /api/v1/suggest, /metrics, /)
 **CLI**: full 7-command CLI (`query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve`) in `src/cli/gmnap.py`, wired to the `gmnap` console entry point via `gmnap = "src.cli.gmnap:cli"` in `pyproject.toml`'s `[project.scripts]`. (Earlier docs claimed the 7-command CLI was "NOT wired to the main entry point" and that only `serve`/`version` were exposed — that is stale; `pip install -e .` puts all seven subcommands behind `gmnap`.)
 **Diaspora Detection**: Implemented — split geo_region vs name_region with conflict flag
@@ -47,14 +47,15 @@ All stages execute in sequence with real code:
 ### Region Processors (37 regions, 240-450 lines each)
 All regions have full `clean()`, `augment()`, `validate()`, `order_key()`:
 - A1-A5, B1-B3, C1-C9, D1-D5, E1-E7, F1-F4, G1, H1, R0, Z0
-- YAML override files: directory `config/regions/` is currently
-  empty — every region runs on hardcoded defaults from its
-  processor's `__init__`. The `RegionSpec.load_yaml_config()`
-  loader is wired and tested but dormant; populate the directory
-  when YAML-driven overrides become the right way to tune a
-  region. (Earlier docs claimed "37/37 YAML files in
-  `config/regions/`"; that was aspirational — see the "YAML
-  Config" section below for the real state.)
+- YAML override files: `config/regions/a2.yaml` exists and is
+  consumed by `A2_WesternEurope.__init__` (the loader is now LIVE,
+  not dormant — A2 merges extra particles from it). The other 36
+  regions still run on hardcoded `__init__` defaults until a
+  `config/regions/<code>.yaml` is added AND that processor is wired
+  to read it (copy A2's pattern: call `self.load_yaml_config()`
+  after the defaults and merge). (Earlier docs claimed "37/37 YAML
+  files in `config/regions/`"; that was aspirational — see the
+  "YAML Config" section below for the real state.)
 - C1 processor loads `config/script_switch.yaml` for Kazakh/Uzbek reform schedules
 - Region overlay map (spec §2a) wired for sub-national detection
 - Diaspora overlay wired for cross-border mathematician detection
