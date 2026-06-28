@@ -150,6 +150,7 @@ class Client:
         *,
         params: Optional[Dict[str, Any]] = None,
         json: Optional[Dict[str, Any]] = None,
+        raw: bool = False,
     ) -> Any:
         url = f"{self.base_url}{path}"
         last_exc: Optional[Exception] = None
@@ -178,7 +179,10 @@ class Client:
                 )
                 continue
             _raise_for_status(r)
-            return r.json()
+            # ``raw`` returns the body text verbatim — used for non-JSON
+            # responses (e.g. Graphviz ``dot`` source), where ``r.json()``
+            # would raise JSONDecodeError on the ``text/vnd.graphviz`` body.
+            return r.text if raw else r.json()
         # Exhausted retries
         if isinstance(last_exc, GmnapAPIError):
             raise last_exc
@@ -204,17 +208,27 @@ class Client:
         depth: int = 3,
         direction: str = "ancestors",
         fmt: str = "json",
-    ) -> Dict[str, Any]:
+    ) -> Union[Dict[str, Any], str]:
         """Academic genealogy edges from a GlobalID or ``name:<canonical>``.
 
         ``direction`` is ``"ancestors"`` (default) for the advisor
-        chain or ``"descendants"`` for the student chain. ``fmt`` can
-        be ``"json"`` (default), ``"dot"``, or ``"svg"``.
+        chain or ``"descendants"`` for the student chain.
+
+        ``fmt`` is ``"json"`` (default) → returns a ``dict``, or
+        ``"dot"`` → returns the Graphviz source as a ``str``. (SVG is
+        not currently served; render the ``dot`` output yourself with
+        ``dot -Tsvg``.)
         """
+        if fmt not in ("json", "dot"):
+            raise GmnapClientError(
+                f"fmt must be 'json' or 'dot', got {fmt!r} "
+                "(SVG is not served by the API)"
+            )
         return self._request(
             "GET",
             f"/api/v1/lineage/{global_id}",
             params={"depth": depth, "direction": direction, "format": fmt},
+            raw=(fmt != "json"),
         )
 
     def process(
@@ -222,17 +236,31 @@ class Client:
         entries: List[Dict[str, Any]],
         mode: str = "quick",
         schema_strict: int = 0,
+        limit: int = 100,
+        offset: int = 0,
     ) -> Dict[str, Any]:
         """Batch-process a list of entries through the V7 pipeline.
 
         Each entry needs at minimum a ``CanonicalLatin`` (or
-        equivalent name field). Returns ``{"entries": [...],
-        "stats": {...}}`` with each enriched output.
+        equivalent name field).
+
+        The server **paginates** the response: only ``entries[offset:
+        offset+limit]`` come back per call (``limit`` defaults to 100,
+        max 10 000). Page through a large batch by advancing ``offset``
+        until ``has_more`` is ``False``. Returns ``{"processed": N,
+        "entries": [...page...], "offset": O, "limit": L, "has_more":
+        bool, "quality_gates": {...}, "metrics": {...}}``.
         """
         return self._request(
             "POST",
             "/api/v1/process",
-            json={"entries": entries, "mode": mode, "schema_strict": schema_strict},
+            json={
+                "entries": entries,
+                "mode": mode,
+                "schema_strict": schema_strict,
+                "limit": limit,
+                "offset": offset,
+            },
         )
 
     def suggest(
@@ -246,8 +274,9 @@ class Client:
         """File a correction suggestion against a known entry.
 
         ``correction_type`` ∈ {"advisor", "institution", "year",
-        "name", "country", "other"}. Returns ``{"status": "queued"}``
-        on success.
+        "name", "country", "other"}. Returns ``{"status": "received",
+        "id": "<filename>"}`` on success — the suggestion is queued to
+        disk for human review under the returned id.
         """
         return self._request(
             "POST",
@@ -308,6 +337,7 @@ class AsyncClient:
         *,
         params: Optional[Dict[str, Any]] = None,
         json: Optional[Dict[str, Any]] = None,
+        raw: bool = False,
     ) -> Any:
         url = f"{self.base_url}{path}"
         last_exc: Optional[Exception] = None
@@ -333,7 +363,8 @@ class AsyncClient:
                 )
                 continue
             _raise_for_status(r)
-            return r.json()
+            # ``raw`` returns body text verbatim (e.g. Graphviz ``dot``).
+            return r.text if raw else r.json()
         if isinstance(last_exc, GmnapAPIError):
             raise last_exc
         raise GmnapAPIError(f"Request failed after retries: {last_exc}")
@@ -349,11 +380,17 @@ class AsyncClient:
         depth: int = 3,
         direction: str = "ancestors",
         fmt: str = "json",
-    ) -> Dict[str, Any]:
+    ) -> Union[Dict[str, Any], str]:
+        if fmt not in ("json", "dot"):
+            raise GmnapClientError(
+                f"fmt must be 'json' or 'dot', got {fmt!r} "
+                "(SVG is not served by the API)"
+            )
         return await self._request(
             "GET",
             f"/api/v1/lineage/{global_id}",
             params={"depth": depth, "direction": direction, "format": fmt},
+            raw=(fmt != "json"),
         )
 
     async def process(
@@ -361,11 +398,19 @@ class AsyncClient:
         entries: List[Dict[str, Any]],
         mode: str = "quick",
         schema_strict: int = 0,
+        limit: int = 100,
+        offset: int = 0,
     ) -> Dict[str, Any]:
         return await self._request(
             "POST",
             "/api/v1/process",
-            json={"entries": entries, "mode": mode, "schema_strict": schema_strict},
+            json={
+                "entries": entries,
+                "mode": mode,
+                "schema_strict": schema_strict,
+                "limit": limit,
+                "offset": offset,
+            },
         )
 
     async def suggest(

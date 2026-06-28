@@ -161,6 +161,66 @@ def test_client_lineage_by_name(base_url: str) -> None:
         assert "edges" in result or "error" in result
 
 
+def test_client_lineage_dot_returns_graphviz_text(base_url: str) -> None:
+    """fmt='dot' returns the Graphviz source as a *string*.
+
+    Regression: the SDK used to call ``r.json()`` unconditionally, so
+    a ``dot`` response (``text/vnd.graphviz``) raised JSONDecodeError.
+    The raw path now returns the body verbatim.
+    """
+    with Client(base_url, hashcash_bits=None) as c:
+        try:
+            out = c.lineage("name:Hilbert, David", depth=2, fmt="dot")
+        except GmnapClientError as exc:
+            # 404 when no edges resolve in this environment — the
+            # raw-text invariant only applies to a 200. The point is
+            # that we did NOT get a JSONDecodeError.
+            assert exc.status_code == 404
+            return
+        assert isinstance(out, str)
+        assert "digraph" in out
+
+
+def test_client_lineage_svg_rejected_client_side() -> None:
+    """fmt='svg' is rejected before any network call.
+
+    The server does not render SVG; advertising it was a lie. The SDK
+    now fails fast with a clear client error instead of silently
+    returning JSON (the server's old fall-through behaviour).
+    """
+    c = Client("http://example.invalid", hashcash_bits=None)
+    try:
+        with pytest.raises(GmnapClientError) as exc:
+            c.lineage("name:Hilbert, David", fmt="svg")
+        assert "svg" in str(exc.value).lower()
+    finally:
+        c.close()
+
+
+def test_client_process_pagination(base_url: str) -> None:
+    """process() now exposes limit/offset and pages correctly.
+
+    Regression: the SDK never sent limit/offset, so the server's
+    default limit=100 silently truncated any batch's returned page and
+    callers had no way to see entries 101+.
+    """
+    entries = [
+        {"CanonicalLatin": "Euler, Leonhard", "CountryCodes": ["CH"]},
+        {"CanonicalLatin": "Gauss, Carl", "CountryCodes": ["DE"]},
+        {"CanonicalLatin": "Riemann, Bernhard", "CountryCodes": ["DE"]},
+    ]
+    with Client(base_url, hashcash_bits=None) as c:
+        page0 = c.process(entries, limit=2, offset=0)
+        assert page0["processed"] == 3
+        assert len(page0["entries"]) == 2
+        assert page0["has_more"] is True
+        assert page0["offset"] == 0 and page0["limit"] == 2
+
+        page1 = c.process(entries, limit=2, offset=2)
+        assert len(page1["entries"]) == 1
+        assert page1["has_more"] is False
+
+
 # ─── Async client end-to-end ──────────────────────────────────────────
 
 
@@ -185,6 +245,17 @@ async def test_async_client_process_batch(base_url: str) -> None:
             [{"CanonicalLatin": "Euler, Leonhard", "CountryCodes": ["CH"]}]
         )
         assert "entries" in result
+
+
+@pytest.mark.asyncio
+async def test_async_client_lineage_svg_rejected() -> None:
+    """Async client mirrors the sync svg-rejection guard."""
+    c = AsyncClient("http://example.invalid", hashcash_bits=None)
+    try:
+        with pytest.raises(GmnapClientError):
+            await c.lineage("name:Hilbert, David", fmt="svg")
+    finally:
+        await c.close()
 
 
 # ─── Error handling ───────────────────────────────────────────────────

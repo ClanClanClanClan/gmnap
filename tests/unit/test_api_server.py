@@ -80,6 +80,44 @@ class TestHashcashEnforcement:
             _PAID_TOKENS.discard("test-token-123")
 
 
+class TestLineageFormatContract:
+    """The lineage `format` param: json|dot served, svg rejected (not
+    silently downgraded to JSON the way the old fall-through did)."""
+
+    def test_svg_format_rejected_422(self, client):
+        import src.api.server as srv
+
+        srv._PAID_TOKENS.add("fmt-token-svg")
+        try:
+            r = client.get(
+                "/api/v1/lineage/name:Hilbert, David",
+                params={"format": "svg"},
+                headers={"Authorization": "Bearer fmt-token-svg"},
+            )
+            # svg is not implemented; the regex-validated Query rejects
+            # it with 422 instead of returning misleading JSON.
+            assert r.status_code == 422
+        finally:
+            srv._PAID_TOKENS.discard("fmt-token-svg")
+
+    def test_dot_format_returns_graphviz(self, client):
+        import src.api.server as srv
+
+        srv._PAID_TOKENS.add("fmt-token-dot")
+        try:
+            r = client.get(
+                "/api/v1/lineage/name:Hilbert, David",
+                params={"format": "dot"},
+                headers={"Authorization": "Bearer fmt-token-dot"},
+            )
+            # 200 + graphviz body when edges resolve; 404 if none.
+            assert r.status_code in (200, 404)
+            if r.status_code == 200:
+                assert "graphviz" in r.headers.get("content-type", "")
+        finally:
+            srv._PAID_TOKENS.discard("fmt-token-dot")
+
+
 class TestRateLimiting:
     def test_rate_limit_enforced(self, client):
         """Free tier is 60 req/min. Making 61+ should trigger 429."""

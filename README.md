@@ -233,7 +233,7 @@ Sources, in order of priority:
    Math Genealogy Project.
 2. Hand-curated stubs in `tools/build_genealogy_enrichment.py` for
    transitive advisors like Johann Bernoulli and Pfaff.
-3. `data/wikidata_genealogy.json` — 4,385 mathematicians fetched from
+3. `data/wikidata_genealogy.json` — 20,833 mathematicians fetched from
    Wikidata SPARQL (`P184` doctoral advisor, `P569` birth date, `P69`
    institution). Fetched with `scripts/data/fetch_wikidata_genealogy.py`.
 4. `data/ml_training/openalex_10k_mathematicians.json` — 15,120

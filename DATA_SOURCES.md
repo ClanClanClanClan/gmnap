@@ -48,8 +48,9 @@ The largest bundled artefact (~39,500 entries). Composite:
 ### Wikidata SPARQL (P184 = doctoral advisor)
 
 - **Source**: [Wikidata Query Service](https://query.wikidata.org/)
-- **Scope**: ~4,362 advisor edges + ~30 P569 (date of birth)
-  fields. Harvested by
+- **Scope**: 20,833 mathematicians carrying ~24,822 P184 advisor
+  edges, with 17,357 P569 (date of birth) and 20,224 P69
+  (institution) fields. Harvested by
   `scripts/data/fetch_wikidata_genealogy.py` using decade-
   partitioned queries (52 buckets 1500–2020).
 - **Licence**: **CC0** (Creative Commons Public Domain Dedication).
