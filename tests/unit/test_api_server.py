@@ -40,6 +40,42 @@ class TestHealthEndpoints:
         assert data["status"] == "ready"
 
 
+class TestLifespanShutdown:
+    """The lifespan shutdown must close the authority fetcher pool's
+    pooled aiohttp sessions while the loop is still alive — otherwise
+    the only cleanup is the atexit hook, which cannot await inside a
+    running loop and leaks sessions/sockets on every server restart."""
+
+    def test_shutdown_closes_fetcher_pool(self, monkeypatch):
+        from starlette.testclient import TestClient
+
+        import src.authority.manager_tier01 as mt
+        from src.api.server import create_app
+
+        # GMNAP_SHUTTING_DOWN is set by the shutdown path; isolate it so
+        # it doesn't bleed into other tests (would flip /readyz to 503).
+        monkeypatch.delenv("GMNAP_SHUTTING_DOWN", raising=False)
+
+        closed = {"v": False}
+
+        class _FakeFetcher:
+            async def close(self):
+                closed["v"] = True
+
+        mt._FETCHER_POOL.clear()
+        mt._FETCHER_POOL["fake"] = _FakeFetcher()
+        try:
+            app = create_app()
+            # Using TestClient as a context manager runs the lifespan:
+            # startup on enter, shutdown on exit.
+            with TestClient(app):
+                assert "fake" in mt._FETCHER_POOL
+            assert closed["v"] is True, "shutdown did not await fetcher.close()"
+            assert not mt._FETCHER_POOL, "pool not cleared on shutdown"
+        finally:
+            mt._FETCHER_POOL.clear()
+
+
 class TestMetricsEndpoint:
     def test_metrics_returns_prometheus_format(self, client):
         r = client.get("/metrics")

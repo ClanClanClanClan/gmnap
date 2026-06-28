@@ -365,6 +365,20 @@ def create_app() -> FastAPI:
         # --timeout-graceful-shutdown wall-clock then drains.
         os.environ["GMNAP_SHUTTING_DOWN"] = "1"
 
+        # Close the authority fetcher pool's pooled aiohttp sessions
+        # cleanly while the event loop is still alive. Without this the
+        # only cleanup is the atexit hook in manager_tier01, which
+        # cannot reliably await inside an already-running loop and
+        # leaks "Unclosed client session" warnings (and the sockets)
+        # on every long-running-server restart. Lazy import keeps the
+        # network stack off the import path for non-enrichment deploys.
+        try:
+            from src.authority.manager_tier01 import _close_fetcher_pool
+
+            await _close_fetcher_pool()
+        except Exception as exc:  # pragma: no cover - best-effort
+            logger.debug("fetcher pool close on shutdown failed: %s", exc)
+
     app = FastAPI(
         title="GMNAP V7 API",
         description="Global Mathematician Name Authority Project — REST API",
