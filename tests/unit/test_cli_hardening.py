@@ -1,6 +1,7 @@
 """Tests for CLI hardening (Phase 3 audit fixes)."""
 
 import json
+import os
 import struct
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -92,6 +93,34 @@ def test_output_path_absolute_blocked(runner, valid_json_file):
     result = runner.invoke(cli, ["process", valid_json_file, "--output", "/tmp/evil"])
     assert result.exit_code != 0
     assert "relative" in result.output.lower() or "absolute" in result.output.lower()
+
+
+def test_output_path_sibling_prefix_blocked(runner, valid_json_file):
+    """A sibling directory whose name merely starts with the cwd's name
+    must NOT pass the --output guard. Regression: the old
+    str(resolved).startswith(str(cwd)) check accepted cwd=/a/proj +
+    --output ../proj-evil/x (resolves to /a/proj-evil/x), escaping the
+    working directory. The pipeline is mocked so a failure to block would
+    surface as exit 0, not as a slow real run."""
+    mock_pipeline = MagicMock()
+    mock_pipeline.process_batch = AsyncMock(
+        return_value={"entries": [], "quality_gates": {}}
+    )
+    with patch(
+        "src.core.pipeline_v7.V7Pipeline", MagicMock(return_value=mock_pipeline)
+    ):
+        with runner.isolated_filesystem():
+            cwd_name = Path(os.getcwd()).name
+            evil = f"../{cwd_name}-evil/out.json"
+            result = runner.invoke(cli, ["process", valid_json_file, "--output", evil])
+            assert (
+                result.exit_code != 0
+            ), f"sibling-prefix escape was not blocked: {result.output!r}"
+            assert (
+                "escape" in result.output.lower()
+                or "traversal" in result.output.lower()
+            )
+            mock_pipeline.process_batch.assert_not_called()
 
 
 def test_process_actually_writes_output(runner, valid_json_file):
