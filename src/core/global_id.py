@@ -15,16 +15,43 @@ from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
-# Expert solution: Replace unbounded cache with sized LRU
+# The cross-batch GlobalID set used for collision detection. It MUST
+# behave as a COMPLETE membership set for correctness: if an already-
+# assigned id is evicted, a later duplicate goes undetected and gets no
+# "--N" suffix, so two distinct people silently share an id. The cap is
+# therefore sized well above any realistic single-batch run (~150 MB at
+# the 1 M target; 1 GB holds ~6.5 M ids), AND any eviction is logged
+# loudly (once per run) so a silent uniqueness violation becomes a
+# visible error rather than corrupt output. (SizedLRU itself is unchanged
+# — it's also used as a legitimate evicting perf cache elsewhere.)
 from src.core.cache.sized_lru import SizedLRU
 
-_cross_batch = SizedLRU(max_bytes=256 * 1024 * 1024)  # 256MB max
+_COLLISION_CACHE_MAX_BYTES = 1024 * 1024 * 1024  # 1 GB (~6.5M ids)
+_cross_batch = SizedLRU(max_bytes=_COLLISION_CACHE_MAX_BYTES)
 # Track number of duplicates resolved
 _duplicate_count: int = 0
+# One-shot guard so the eviction error logs once per run, not per entry.
+_collision_evict_warned: bool = False
 
 
 def cache_put(k, v):
+    global _collision_evict_warned
+    was_present = k in _cross_batch
+    before = len(_cross_batch)
     _cross_batch.put(k, v)
+    # If k was new but the set didn't grow, the LRU evicted an older id to
+    # stay under the cap — collision detection is now incomplete.
+    if not _collision_evict_warned and not was_present and len(_cross_batch) <= before:
+        _collision_evict_warned = True
+        logger.error(
+            "GlobalID collision cache hit its %d-byte cap and started "
+            "evicting at ~%d ids: GlobalID uniqueness is NO LONGER "
+            "GUARANTEED for this run (an evicted id's later duplicate will "
+            "not be suffixed). Raise _COLLISION_CACHE_MAX_BYTES or shard "
+            "the batch.",
+            _COLLISION_CACHE_MAX_BYTES,
+            len(_cross_batch),
+        )
 
 
 def cache_contains(k):
@@ -101,9 +128,10 @@ def generate_unique_global_id(entry: Dict[str, Any]) -> str:
 
 def reset_collision_tracking():
     """Reset the collision tracking set (useful for testing and new pipeline runs)."""
-    global _cross_batch, _duplicate_count
-    _cross_batch = SizedLRU(max_bytes=256 * 1024 * 1024)  # Create new cache
+    global _cross_batch, _duplicate_count, _collision_evict_warned
+    _cross_batch = SizedLRU(max_bytes=_COLLISION_CACHE_MAX_BYTES)  # fresh set
     _duplicate_count = 0
+    _collision_evict_warned = False
 
 
 def get_duplicate_count() -> int:
