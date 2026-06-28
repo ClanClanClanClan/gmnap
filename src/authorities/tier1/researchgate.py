@@ -57,7 +57,7 @@ class ResearchGateFetcher(AuthorityFetcher):
             else:
                 # Real implementation would require web scraping
                 return FetchResult(
-                    status=FetchStatus.NOT_AVAILABLE,
+                    status=FetchStatus.NOT_FOUND,
                     error_message="ResearchGate has no public API",
                 )
 
