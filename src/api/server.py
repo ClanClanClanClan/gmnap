@@ -107,7 +107,17 @@ class APIRateLimiter:
 
 # V7 spec §12: free_tier hashcash_bits = 18
 HASHCASH_BITS = 18
-_HASHCASH_TTL = 300  # stamps valid for 5 minutes
+_HASHCASH_TTL = 300  # in-memory replay-cache retention (seconds)
+_HASHCASH_RESOURCE = "gmnap-api"  # the stamp's resource field must bind to this
+# Accept stamps dated within ±1 day of "today" (UTC). The stamp's own
+# date field is the PRIMARY expiry — it bounds how long a captured-but-
+# unused stamp stays valid. The ±1 day window absorbs client/server
+# clock skew and the local-vs-UTC date difference some clients use
+# while keeping the replay horizon to ~3 days. Without this check the
+# date was never validated, so a captured stamp was replayable forever
+# once the in-memory _used_stamps entry was pruned (which happens under
+# load via the size-triggered prune below).
+_HASHCASH_DATE_SKEW_DAYS = 1
 _used_stamps: Dict[str, float] = {}  # prevent replay
 _stamps_lock = threading.Lock()
 
@@ -125,29 +135,82 @@ def _hashcash_required() -> bool:
 
 
 def verify_hashcash(stamp: str, required_bits: int = HASHCASH_BITS) -> bool:
-    """Verify a hashcash stamp has sufficient leading zero bits.
+    """Verify a hashcash stamp.
 
-    Format: ver:bits:date:resource::rand:counter
-    Example: 1:18:260316:gmnap-api::abc123:42
+    Format: ``ver:bits:date:resource::rand:counter`` (7 colon-separated
+    fields; the resource field is followed by an empty extension field,
+    so there are two colons before ``rand``).
+    Example: ``1:18:260316:gmnap-api::abc123:42``
+
+    Checks, in order:
+      1. Structure — exactly 7 fields, version ``1``.
+      2. Claimed difficulty (``bits`` field) ≥ ``required_bits``.
+      3. Resource binding — must equal ``gmnap-api`` (stops a stamp
+         minted for a different resource being used here).
+      4. Date window — the ``YYMMDD`` date must be within ±1 day of
+         today (UTC). This is the primary expiry; see
+         ``_HASHCASH_DATE_SKEW_DAYS``.
+      5. Replay — the exact stamp must not have been seen before.
+      6. Proof-of-work — SHA-256(stamp) must have ``required_bits``
+         leading zero bits.
+
+    The earlier implementation only did checks (5) and (6), so a
+    captured stamp was replayable indefinitely once its in-memory
+    ``_used_stamps`` entry was pruned, and a stamp minted for any date
+    or resource was accepted.
     """
     if not stamp:
+        return False
+
+    # (1) Structure.
+    parts = stamp.split(":")
+    if len(parts) != 7:
+        return False
+    version, bits_field, date_field, resource = parts[0], parts[1], parts[2], parts[3]
+    if version != "1":
+        return False
+
+    # (2) Claimed difficulty must meet the requirement.
+    try:
+        if int(bits_field) < required_bits:
+            return False
+    except ValueError:
+        return False
+
+    # (3) Resource binding.
+    if resource != _HASHCASH_RESOURCE:
+        return False
+
+    # (4) Date window (UTC).
+    from datetime import datetime, timedelta, timezone
+
+    try:
+        stamp_date = datetime.strptime(date_field, "%y%m%d").date()
+    except ValueError:
+        return False
+    today = datetime.now(timezone.utc).date()
+    if not (
+        today - timedelta(days=_HASHCASH_DATE_SKEW_DAYS)
+        <= stamp_date
+        <= today + timedelta(days=_HASHCASH_DATE_SKEW_DAYS)
+    ):
         return False
 
     now = time.time()
 
     with _stamps_lock:
-        # Prevent replay
+        # (5) Prevent replay.
         if stamp in _used_stamps:
             return False
 
-        # Prune old stamps periodically
+        # Prune old stamps periodically.
         if len(_used_stamps) > 10_000:
             cutoff = now - _HASHCASH_TTL
             expired = [k for k, v in _used_stamps.items() if v < cutoff]
             for k in expired:
                 del _used_stamps[k]
 
-        # Verify leading zero bits
+        # (6) Proof-of-work: leading zero bits.
         digest = hashlib.sha256(stamp.encode("utf-8")).hexdigest()
         bits = bin(int(digest, 16))[2:].zfill(256)
         if not bits[:required_bits] == "0" * required_bits:

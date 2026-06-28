@@ -18,7 +18,12 @@ from src.api.server import (
 
 def _make_hashcash(resource="gmnap-api", bits=18):
     """Generate a valid SHA-256 hashcash stamp with unique nonce."""
-    date_str = time.strftime("%y%m%d")
+    # UTC to match the server's verify_hashcash date window (which is
+    # computed in UTC); local time could be a day ahead/behind near
+    # midnight in non-UTC timezones and trip the ±1-day check.
+    from datetime import datetime, timezone
+
+    date_str = datetime.now(timezone.utc).strftime("%y%m%d")
     nonce = uuid.uuid4().hex[:8]
     counter = 0
     while True:
@@ -116,6 +121,96 @@ def test_hashcash_expired_rejected():
     _used_stamps.pop(stamp, None)
     _used_stamps[stamp] = time.time() - 600
     assert verify_hashcash(stamp) is False
+
+
+# ── Hashcash field validation (date / resource / structure) ───────────
+
+
+def _make_hashcash_dated(date_str, resource="gmnap-api", bits=18):
+    """Mint a PoW-valid stamp with an arbitrary date / resource so we can
+    exercise the field checks independently of the proof-of-work."""
+    nonce = uuid.uuid4().hex[:8]
+    counter = 0
+    while counter < 5_000_000:
+        stamp = f"1:{bits}:{date_str}:{resource}::{nonce}:{counter}"
+        digest = hashlib.sha256(stamp.encode("utf-8")).hexdigest()
+        if bin(int(digest, 16))[2:].zfill(256)[:bits] == "0" * bits:
+            return stamp
+        counter += 1
+    pytest.skip("Could not mint hashcash in reasonable time")
+
+
+def test_hashcash_rejects_stale_date():
+    """A stamp dated well in the past must be rejected even with valid PoW —
+    the date field is the primary expiry. 10 days ago is outside the
+    ±1-day window."""
+    from datetime import datetime, timedelta, timezone
+
+    old = (datetime.now(timezone.utc) - timedelta(days=10)).strftime("%y%m%d")
+    stamp = _make_hashcash_dated(old)
+    _used_stamps.pop(stamp, None)
+    assert verify_hashcash(stamp) is False, "stale-dated stamp must be rejected"
+
+
+def test_hashcash_rejects_future_date():
+    from datetime import datetime, timedelta, timezone
+
+    future = (datetime.now(timezone.utc) + timedelta(days=5)).strftime("%y%m%d")
+    stamp = _make_hashcash_dated(future)
+    _used_stamps.pop(stamp, None)
+    assert verify_hashcash(stamp) is False, "far-future-dated stamp must be rejected"
+
+
+def test_hashcash_accepts_yesterday_for_clock_skew():
+    """±1-day window: yesterday's stamp is accepted (clock/timezone skew)."""
+    from datetime import datetime, timedelta, timezone
+
+    yday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%y%m%d")
+    stamp = _make_hashcash_dated(yday)
+    _used_stamps.pop(stamp, None)
+    assert verify_hashcash(stamp) is True
+
+
+def test_hashcash_rejects_wrong_resource():
+    """A stamp minted for a different resource must not be accepted here."""
+    from datetime import datetime, timezone
+
+    today = datetime.now(timezone.utc).strftime("%y%m%d")
+    stamp = _make_hashcash_dated(today, resource="some-other-service")
+    _used_stamps.pop(stamp, None)
+    assert verify_hashcash(stamp) is False
+
+
+def test_hashcash_rejects_insufficient_claimed_bits():
+    """If the stamp's own bits field claims fewer than required, reject —
+    even though the proof-of-work happens to satisfy the higher bar."""
+    from datetime import datetime, timezone
+
+    today = datetime.now(timezone.utc).strftime("%y%m%d")
+    # Mint at 18 leading zero bits but label the stamp as bits=4.
+    nonce = uuid.uuid4().hex[:8]
+    counter = 0
+    stamp = None
+    while counter < 5_000_000:
+        candidate = f"1:4:{today}:gmnap-api::{nonce}:{counter}"
+        digest = hashlib.sha256(candidate.encode("utf-8")).hexdigest()
+        if bin(int(digest, 16))[2:].zfill(256)[:18] == "0" * 18:
+            stamp = candidate
+            break
+        counter += 1
+    if stamp is None:
+        pytest.skip("Could not mint hashcash in reasonable time")
+    _used_stamps.pop(stamp, None)
+    assert verify_hashcash(stamp, required_bits=18) is False
+
+
+def test_hashcash_rejects_malformed_structure():
+    """Stamps that don't have exactly 7 colon-separated fields are rejected
+    before any expensive work."""
+    assert verify_hashcash("not-a-stamp") is False
+    assert verify_hashcash("1:18:260101:gmnap-api:abc:1") is False  # 6 fields
+    assert verify_hashcash("2:18:260101:gmnap-api::abc:1") is False  # bad version
+    assert verify_hashcash("1:x:260101:gmnap-api::abc:1") is False  # non-int bits
 
 
 # ── Security Headers ─────────────────────────────────────────────────

@@ -268,6 +268,11 @@ class PipelineMetrics:
         self.duplicate_external_ids: int = 0
         self.roundtrip_failures: int = 0
         self.graph_conflicts: int = 0
+        # Stage-6 Bayesian/graph coherence score for the batch. None
+        # until stage 6 runs. _check_quality_gates reads this; before it
+        # was declared here, the gate's hasattr() check was always False
+        # so the stage-6 threshold was never enforced (vacuous pass).
+        self.stage6_score: Optional[float] = None
         self.memory_peak_mb: int = 0
         self.end_time: Optional[datetime] = None
         self.start_time: datetime = (
@@ -682,7 +687,16 @@ class V7Pipeline:
             # For truly tiny batches, skip the fast path overhead
             pass
         elif len(entries) <= 25:
-            return await self._process_small_batch_fast(entries)
+            # The fast path returns a {"results": [...], "metrics": {...}}
+            # dict, but every caller (API /api/v1/process, CLI, SDK) and
+            # the >25 path return a flat LIST of entries. Without this
+            # normalization, 6-25-entry batches came back as a dict, so
+            # the API's len()/iteration reported processed:0 and silently
+            # dropped all results. normalize_result extracts the list and
+            # gives both paths one shape.
+            fast = await self._process_small_batch_fast(entries)
+            rows, _ = normalize_result(fast)
+            return rows
 
         logger.info(f"Starting V7 pipeline in {self.mode.value} mode")
         logger.info(f"Processing {len(entries)} entries with {self.workers} workers")
@@ -1188,6 +1202,9 @@ class V7Pipeline:
 
             # Calculate Bayesian coherence score
             scores = self._bayes_coherence.score(entries)
+            # Publish to metrics so _check_quality_gates actually enforces
+            # the stage-6 threshold (it reads self.metrics.stage6_score).
+            self.metrics.stage6_score = scores["stage6_score"]
 
             logger.info(f"Stage 6 Bayesian scores: {scores}")
 

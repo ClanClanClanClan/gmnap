@@ -136,9 +136,12 @@ def query(name: str, mode: str, as_json: bool, live: bool):
             }
             enriched_list = asyncio.run(enrich_all([live_entry]))
             enriched = enriched_list[0] if enriched_list else {}
-            result["live_sources"] = sorted(
-                k for k, v in (enriched.get("_sources") or {}).items() if v
-            )
+            # ``_sources`` is a flat LIST of source names that returned
+            # data (see manager_tier01.enrich_all), not a dict — the
+            # earlier ``.items()`` call raised AttributeError on every
+            # --live run and was silently swallowed by the except below,
+            # so --live never actually surfaced anything.
+            result["live_sources"] = sorted(enriched.get("_sources") or [])
             for field in (
                 "BirthYear",
                 "DeathYear",
