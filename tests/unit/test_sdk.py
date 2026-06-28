@@ -288,3 +288,72 @@ def test_client_token_skips_hashcash() -> None:
     assert c.token == "some-token"
     assert c.hashcash_bits is None
     c.close()
+
+
+# ─── Retry idempotency (POST side effects must not be doubled) ─────────
+
+
+class _BoomResp:
+    def __init__(self, status_code: int = 503) -> None:
+        self.status_code = status_code
+        self.text = "boom"
+
+    def json(self):  # pragma: no cover - not reached on 5xx
+        return {}
+
+
+def _counter_request(calls, *, status_code=503, raise_exc=None):
+    def _req(method, url, **kw):
+        calls["n"] += 1
+        if raise_exc is not None:
+            raise raise_exc
+        return _BoomResp(status_code)
+
+    return _req
+
+
+def test_post_not_retried_on_5xx() -> None:
+    """A non-idempotent POST must NOT be retried on 5xx — the server may
+    already have applied the effect (run the pipeline / file a
+    correction), so a retry would double it."""
+    import httpx  # noqa: F401  (kept symmetric with the network-error test)
+
+    c = Client("http://example.invalid", hashcash_bits=None)
+    calls = {"n": 0}
+    c._http.request = _counter_request(calls, status_code=503)
+    try:
+        with pytest.raises(GmnapAPIError):
+            c._request("POST", "/api/v1/process", json={"entries": []})
+        assert calls["n"] == 1, f"POST retried {calls['n']}x on 5xx"
+    finally:
+        c.close()
+
+
+def test_post_not_retried_on_network_error() -> None:
+    import httpx
+
+    c = Client("http://example.invalid", hashcash_bits=None)
+    calls = {"n": 0}
+    c._http.request = _counter_request(calls, raise_exc=httpx.ConnectError("refused"))
+    try:
+        with pytest.raises(GmnapAPIError):
+            c._request("POST", "/api/v1/suggest", json={"x": 1})
+        assert calls["n"] == 1, f"POST retried {calls['n']}x on network error"
+    finally:
+        c.close()
+
+
+def test_get_still_retried_on_5xx(monkeypatch) -> None:
+    """Idempotent GETs keep retrying on 5xx (safe — no side effect)."""
+    import src.sdk.client as _client_mod
+
+    monkeypatch.setattr(_client_mod.time, "sleep", lambda *_a, **_k: None)
+    c = Client("http://example.invalid", hashcash_bits=None)
+    calls = {"n": 0}
+    c._http.request = _counter_request(calls, status_code=503)
+    try:
+        with pytest.raises(GmnapAPIError):
+            c._request("GET", "/api/v1/query", params={"name": "x"})
+        assert calls["n"] >= 2, f"GET should retry on 5xx, made {calls['n']} call(s)"
+    finally:
+        c.close()
