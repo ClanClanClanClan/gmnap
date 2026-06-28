@@ -19,7 +19,7 @@ from src.core.config import GMNAPConfig
 from src.core.globalid import GlobalIDGenerator, validate_global_id
 from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
 from src.core.unicode_handler import UnicodeNormalizer
-from src.regions.manager import RegionManager
+from src.regions.manager_optimized import RegionManager
 
 
 class TestGlobalIDInvariants:

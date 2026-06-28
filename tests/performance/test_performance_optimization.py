@@ -66,7 +66,7 @@ def test_with_manager(manager_type: str, n_entries: int):
         import src.regions
         from src.regions.manager_optimized import RegionManager
 
-        src.regions.manager.RegionManager = RegionManager
+        src.regions.manager_optimized.RegionManager = RegionManager
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
@@ -118,9 +118,9 @@ def main():
         # Reset import
         import importlib
 
-        import src.regions.manager
+        import src.regions.manager_optimized
 
-        importlib.reload(src.regions.manager)
+        importlib.reload(src.regions.manager_optimized)
 
         # Test with optimized manager
         print("  Optimized RegionManager:", end=" ", flush=True)
