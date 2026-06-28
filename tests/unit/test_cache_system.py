@@ -48,6 +48,22 @@ class TestCacheManager:
         # Should create cache directory
         assert self.cache_dir.exists()
 
+    def test_put_triggers_size_eviction(self):
+        """put() must run the size-limit eviction on a successful write.
+
+        Regression (R38 audit): the _check_size_limit() call sat after
+        `return True` inside the file lock, so it was unreachable dead
+        code — the on-disk cache was never trimmed and grew without
+        bound. The eviction now runs (outside the file lock) before put()
+        returns.
+        """
+        from unittest.mock import patch
+
+        with patch.object(self.cache, "_check_size_limit") as evict_spy:
+            ok = self.cache.put("svc", "q1", {"a": 1})
+        assert ok is True
+        evict_spy.assert_called_once()
+
     def test_cache_set_and_get(self):
         """Test basic cache set and get operations."""
         key = "test_key"
