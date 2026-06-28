@@ -93,9 +93,7 @@ class SpringerFetcher(AuthorityFetcher):
         if not (self.open_access_key or self.meta_api_key):
             return FetchResult(
                 status=FetchStatus.AUTH_FAILED,
-                source=self.service,
-                query=identifier,
-                error="Springer API keys not configured",
+                error_message="Springer API keys not configured",
             )
 
         try:
@@ -109,22 +107,16 @@ class SpringerFetcher(AuthorityFetcher):
                 results = await self._search_meta_api(identifier)
 
             if not results or len(results) == 0:
-                return FetchResult(
-                    status=FetchStatus.NOT_FOUND, source=self.service, query=identifier
-                )
+                return FetchResult(status=FetchStatus.NOT_FOUND)
 
             # Parse results to extract author information
             author_data = self._parse_author_data(identifier, results)
 
             if not author_data:
-                return FetchResult(
-                    status=FetchStatus.NOT_FOUND, source=self.service, query=identifier
-                )
+                return FetchResult(status=FetchStatus.NOT_FOUND)
 
             return FetchResult(
                 status=FetchStatus.SUCCESS,
-                source=self.service,
-                query=identifier,
                 data=author_data,
             )
 
@@ -132,9 +124,7 @@ class SpringerFetcher(AuthorityFetcher):
             logger.error(f"Springer fetch error: {e}")
             return FetchResult(
                 status=FetchStatus.ERROR,
-                source=self.service,
-                query=identifier,
-                error=str(e),
+                error_message=str(e),
             )
 
     async def _search_open_access(

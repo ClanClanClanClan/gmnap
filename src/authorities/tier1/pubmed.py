@@ -219,9 +219,7 @@ class PubMedFetcher(AuthorityFetcher):
             pmids = await self.search_author(identifier, limit=10)
 
             if not pmids:
-                return FetchResult(
-                    status=FetchStatus.NOT_FOUND, source="PubMed", query=identifier
-                )
+                return FetchResult(status=FetchStatus.NOT_FOUND)
 
             # Fetch article details
             articles = await self.fetch_article_details(pmids)
@@ -230,35 +228,13 @@ class PubMedFetcher(AuthorityFetcher):
             author_data = self._extract_author_data(identifier, articles)
 
             if not author_data:
-                return FetchResult(
-                    status=FetchStatus.NOT_FOUND, source="PubMed", query=identifier
-                )
+                return FetchResult(status=FetchStatus.NOT_FOUND)
 
-            # Convert to AuthorityData
-            authority_data = AuthorityData(
-                source="PubMed",
-                identifier=identifier,
-                name=author_data.author_name,
-                affiliations=(
-                    [author_data.affiliation] if author_data.affiliation else []
-                ),
-                publications=[
-                    {
-                        "title": pub.get("title"),
-                        "journal": pub.get("journal"),
-                        "year": pub.get("year"),
-                        "pmid": pub.get("pmid"),
-                    }
-                    for pub in author_data.publications[:5]
-                ],  # Limit to 5 publications
-                external_ids={"ORCID": author_data.orcid} if author_data.orcid else {},
-                confidence=0.8,
-            )
+            # Convert to AuthorityData via the shared mapping.
+            authority_data = self._to_authority_data(identifier, author_data)
 
             return FetchResult(
                 status=FetchStatus.SUCCESS,
-                source="PubMed",
-                query=identifier,
                 data=authority_data,
             )
 
@@ -266,10 +242,58 @@ class PubMedFetcher(AuthorityFetcher):
             logger.error(f"PubMed fetch error: {e}")
             return FetchResult(
                 status=FetchStatus.ERROR,
-                source="PubMed",
-                query=identifier,
-                error=str(e),
+                error_message=str(e),
             )
+
+    def _to_authority_data(
+        self, identifier: str, author_data: "PubMedAuthorData"
+    ) -> AuthorityData:
+        """Map a parsed PubMedAuthorData onto the canonical AuthorityData
+        shape. Uses the real dataclass fields (source_id/canonical_name/
+        identifiers/metadata/confidence_score) — the old identifier=/name=/
+        publications=/external_ids=/confidence= kwargs are not AuthorityData
+        fields and raised TypeError on every successful PubMed lookup.
+        Shared by fetch() and parse_response() so they never drift.
+        """
+        return AuthorityData(
+            source="PubMed",
+            source_id=identifier,
+            canonical_name=author_data.author_name,
+            affiliations=(
+                [{"institution": author_data.affiliation}]
+                if author_data.affiliation
+                else []
+            ),
+            identifiers=({"ORCID": author_data.orcid} if author_data.orcid else {}),
+            metadata={
+                "publications": [
+                    {
+                        "title": pub.get("title"),
+                        "journal": pub.get("journal"),
+                        "year": pub.get("year"),
+                        "pmid": pub.get("pmid"),
+                    }
+                    for pub in author_data.publications[:5]
+                ]  # Limit to 5 publications
+            },
+            confidence_score=0.8,
+        )
+
+    def parse_response(self, response: Dict[str, Any]) -> Optional[AuthorityData]:
+        """Parse a raw PubMed response into AuthorityData.
+
+        Required by the AuthorityFetcher ABC. PubMed previously omitted it,
+        leaving the class abstract and impossible to instantiate (every
+        ``PubMedFetcher(...)`` raised TypeError: Can't instantiate abstract
+        class). Expects ``{"query": <name>, "articles": [<article>, ...]}``
+        and reuses fetch()'s extraction + mapping.
+        """
+        query_name = response.get("query", "") if isinstance(response, dict) else ""
+        articles = response.get("articles", []) if isinstance(response, dict) else []
+        author_data = self._extract_author_data(query_name, articles)
+        if not author_data:
+            return None
+        return self._to_authority_data(query_name, author_data)
 
     def _extract_author_data(
         self, query_name: str, articles: List[Dict]
