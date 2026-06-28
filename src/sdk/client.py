@@ -153,6 +153,13 @@ class Client:
         raw: bool = False,
     ) -> Any:
         url = f"{self.base_url}{path}"
+        # Only idempotent methods may be safely retried on an AMBIGUOUS
+        # failure (network error or 5xx), where the request may already
+        # have reached the server and had its effect. POST carries side
+        # effects (process runs the pipeline; suggest writes a correction
+        # to disk), so retrying it would double them. 429 is always safe
+        # to retry — it's rejected before any processing.
+        idempotent = method.upper() in ("GET", "HEAD", "OPTIONS")
         last_exc: Optional[Exception] = None
         for attempt, backoff in enumerate((0.0,) + _RETRY_BACKOFFS_S):
             if backoff:
@@ -165,6 +172,8 @@ class Client:
                 )
             except httpx.RequestError as exc:
                 last_exc = exc
+                if not idempotent:
+                    break
                 continue
             if r.status_code == 429:
                 # Rate limited — back off once at the rate-limit budget
@@ -177,6 +186,8 @@ class Client:
                 last_exc = GmnapServerError(
                     f"{r.status_code} {r.text[:200]}", r.status_code
                 )
+                if not idempotent:
+                    break
                 continue
             _raise_for_status(r)
             # ``raw`` returns the body text verbatim — used for non-JSON
@@ -340,6 +351,9 @@ class AsyncClient:
         raw: bool = False,
     ) -> Any:
         url = f"{self.base_url}{path}"
+        # See the sync _request: only idempotent methods may be retried
+        # on an ambiguous failure; POST side effects must not be doubled.
+        idempotent = method.upper() in ("GET", "HEAD", "OPTIONS")
         last_exc: Optional[Exception] = None
         for attempt, backoff in enumerate((0.0,) + _RETRY_BACKOFFS_S):
             if backoff:
@@ -351,6 +365,8 @@ class AsyncClient:
                 )
             except httpx.RequestError as exc:
                 last_exc = exc
+                if not idempotent:
+                    break
                 continue
             if r.status_code == 429:
                 if attempt == len(_RETRY_BACKOFFS_S):
@@ -361,6 +377,8 @@ class AsyncClient:
                 last_exc = GmnapServerError(
                     f"{r.status_code} {r.text[:200]}", r.status_code
                 )
+                if not idempotent:
+                    break
                 continue
             _raise_for_status(r)
             # ``raw`` returns body text verbatim (e.g. Graphviz ``dot``).
