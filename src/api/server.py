@@ -107,17 +107,28 @@ class APIRateLimiter:
 
 # V7 spec §12: free_tier hashcash_bits = 18
 HASHCASH_BITS = 18
-_HASHCASH_TTL = 300  # in-memory replay-cache retention (seconds)
 _HASHCASH_RESOURCE = "gmnap-api"  # the stamp's resource field must bind to this
 # Accept stamps dated within ±1 day of "today" (UTC). The stamp's own
-# date field is the PRIMARY expiry — it bounds how long a captured-but-
-# unused stamp stays valid. The ±1 day window absorbs client/server
-# clock skew and the local-vs-UTC date difference some clients use
-# while keeping the replay horizon to ~3 days. Without this check the
-# date was never validated, so a captured stamp was replayable forever
-# once the in-memory _used_stamps entry was pruned (which happens under
-# load via the size-triggered prune below).
+# date field is the PRIMARY expiry. The ±1 day window absorbs client/
+# server clock skew and the local-vs-UTC date difference some clients
+# use. A stamp dated D is therefore accepted while the server's day is
+# in [D - skew, D + skew] — i.e. for (2*skew + 1) days.
 _HASHCASH_DATE_SKEW_DAYS = 1
+# The in-memory replay cache MUST retain a used stamp for that entire
+# date-validity window, otherwise a stamp that was already spent but is
+# still date-valid gets evicted and can be REPLAYED. The previous 300 s
+# retention was far shorter than the ~3-day validity window, so under
+# load — once the size-triggered prune ran — a captured valid stamp
+# became replayable. Retain for the full window plus a 1 h margin.
+_HASHCASH_TTL = (2 * _HASHCASH_DATE_SKEW_DAYS + 1) * 86400 + 3600  # ~3 days
+# Pruning of aged-out stamps kicks in past this size.
+_HASHCASH_PRUNE_TRIGGER = 10_000
+# Hard memory bound: retaining every stamp for ~3 days is unbounded under
+# sustained load, so above this cap we evict the OLDEST stamps first
+# (closest to date-expiry, least useful to an attacker) and log that
+# replay protection is degraded. Normal traffic never reaches the cap, so
+# protection is complete for the full validity window.
+_MAX_USED_STAMPS = 500_000
 _used_stamps: Dict[str, float] = {}  # prevent replay
 _stamps_lock = threading.Lock()
 
@@ -203,12 +214,29 @@ def verify_hashcash(stamp: str, required_bits: int = HASHCASH_BITS) -> bool:
         if stamp in _used_stamps:
             return False
 
-        # Prune old stamps periodically.
-        if len(_used_stamps) > 10_000:
+        # Prune stamps that have aged past the replay window (they would
+        # also fail the date check now). Only entries older than the full
+        # ~3-day TTL are dropped, so a still-date-valid stamp is never
+        # evicted and therefore cannot be replayed.
+        if len(_used_stamps) > _HASHCASH_PRUNE_TRIGGER:
             cutoff = now - _HASHCASH_TTL
             expired = [k for k, v in _used_stamps.items() if v < cutoff]
             for k in expired:
                 del _used_stamps[k]
+        # Hard memory bound: under sustained load the cache could still
+        # grow past the cap with all-recent stamps (nothing to prune), so
+        # evict the oldest ~10% and warn that replay protection is now
+        # degraded for the very oldest stamps.
+        if len(_used_stamps) >= _MAX_USED_STAMPS:
+            n_evict = max(1, _MAX_USED_STAMPS // 10)
+            for k, _ in sorted(_used_stamps.items(), key=lambda kv: kv[1])[:n_evict]:
+                del _used_stamps[k]
+            logger.warning(
+                "hashcash replay cache hit hard cap %d; evicted %d oldest "
+                "stamps — replay protection degraded under sustained load",
+                _MAX_USED_STAMPS,
+                n_evict,
+            )
 
         # (6) Proof-of-work: leading zero bits.
         digest = hashlib.sha256(stamp.encode("utf-8")).hexdigest()
