@@ -81,3 +81,39 @@ def test_process_batch_resets_between_runs():
         f"independent runs produced different base GlobalIDs "
         f"({g_run1!r} vs {g_run2!r}) — reset is not per-run"
     )
+
+
+@pytest.mark.timeout(60)
+def test_small_batch_fast_path_uses_canonical_globalid():
+    """The 6-25 entry fast path must mint canonical deterministic
+    GlobalIDs (SHA-256 base32), NOT the old
+    f"gmnap_{region}_{abs(hash(native))%1e6}" scheme.
+
+    Regression (R39): that scheme used Python's per-process-salted hash()
+    so IDs were non-deterministic across runs (idempotency violation) and
+    a different format from every other pipeline path.
+    """
+    import re
+
+    entries = [
+        {
+            "CanonicalNative": f"Euler{i}, Leonhard",
+            "CanonicalLatin": f"Euler{i}, Leonhard",
+        }
+        for i in range(10)  # 6..25 -> fast path
+    ]
+
+    def _run():
+        pipeline = V7Pipeline(mode=PipelineMode.QUICK)
+        return asyncio.run(pipeline.process_batch([dict(e) for e in entries]))
+
+    out1 = _run()
+    out2 = _run()
+    ids1 = [e["GlobalID"] for e in out1]
+    ids2 = [e["GlobalID"] for e in out2]
+
+    canonical = re.compile(r"[A-Z2-7]{22}(--\d+)?$")
+    assert all(canonical.match(g) for g in ids1), ids1
+    assert not any(g.startswith("gmnap_") for g in ids1)
+    # Deterministic across independent runs (idempotency).
+    assert ids1 == ids2

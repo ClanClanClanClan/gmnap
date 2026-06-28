@@ -161,6 +161,42 @@ class TestLineageFormatContract:
             srv._PAID_TOKENS.discard("fmt-token-dot")
 
 
+class TestGlobalIDConsistency:
+    """/query must mint GlobalIDs with the SAME scheme as the pipeline
+    (src.core.global_id), not the divergent src.core.globalid."""
+
+    def test_query_gid_matches_pipeline_scheme(self, client):
+        import src.api.server as srv
+        from src.core import global_id as GP
+        from src.core import globalid as GA
+        from src.regions.manager_optimized import RegionManager
+
+        name = "Euler, Leonhard"
+        # Replicate the endpoint's entry construction + detection so we can
+        # compute the expected id under each scheme.
+        mgr = RegionManager()
+        entry = {"CanonicalLatin": name}
+        mgr.detect_region(entry)
+        pipeline_gid = GP.generate_global_id(dict(entry))
+        divergent_gid = GA.generate_global_id(dict(entry))
+        # Precondition: the two schemes really do diverge for this shape.
+        assert pipeline_gid != divergent_gid
+
+        srv._PAID_TOKENS.add("gid-token")
+        try:
+            r = client.get(
+                "/api/v1/query",
+                params={"name": name},
+                headers={"Authorization": "Bearer gid-token"},
+            )
+            assert r.status_code == 200
+            got = r.json()["GlobalID"]
+            assert got == pipeline_gid, f"/query used the wrong GID scheme: {got}"
+            assert got != divergent_gid
+        finally:
+            srv._PAID_TOKENS.discard("gid-token")
+
+
 class TestRateLimiting:
     def test_rate_limit_enforced(self, client):
         """Free tier is 60 req/min. Making 61+ should trigger 429."""

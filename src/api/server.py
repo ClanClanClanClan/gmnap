@@ -644,7 +644,13 @@ def create_app() -> FastAPI:
         if len(name) > 500:
             raise HTTPException(status_code=400, detail="Name too long (max 500 chars)")
         try:
-            from src.core.globalid import generate_global_id
+            # Use the SAME GlobalID scheme as the pipeline (src.core.global_id),
+            # NOT the divergent src.core.globalid. The two modules produce
+            # different IDs for the common {CanonicalLatin-only} entry shape,
+            # so the old import made /query hand out GIDs that never matched
+            # the ones /process and the batch pipeline assign — breaking
+            # lineage-by-GID and any cross-path correlation.
+            from src.core.global_id import generate_global_id
             from src.regions.manager_optimized import RegionManager
 
             manager = RegionManager()
