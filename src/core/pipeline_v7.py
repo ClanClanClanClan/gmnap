@@ -392,7 +392,9 @@ class V7Pipeline:
         self.stages = {
             0: self._stage_0_config,
             1: self._stage_1_ingest,
-            # 1b: self._stage_1b_llm_extract,  # TODO: Implement
+            # 1b (_stage_1b_llm_extract) is OPT-IN and runs at the top of
+            # process_batch (before chunking), not via this dict — it can
+            # ADD rows, so it must run once on the whole input.
             2: self._stage_2_detect_region,
             3: self._stage_3_region_hooks,
             4: self._stage_4_authority_enrich,
@@ -412,6 +414,13 @@ class V7Pipeline:
             "streaming_chunk_size": 8000,
             "peak_memory_limit": "6GB RSS",
             "default_batch_size": 1000,  # Optimal for <35min/1M target
+            # Stage 1b (ETD/thesis extraction) is OPT-IN and OFF by
+            # default. Enable via this flag (or env GMNAP_ENABLE_LLM_EXTRACT
+            # below). It uses the deterministic regex extractor, so turning
+            # it on does not break idempotency.
+            "pipeline": {
+                "enable_llm_extraction": os.getenv("GMNAP_ENABLE_LLM_EXTRACT") == "1",
+            },
             "runtime_profiles": [
                 {
                     "mode": "Quick",
@@ -543,6 +552,83 @@ class V7Pipeline:
             process_func, micro_cfg=self._batch_aggregator_config, inflight_limit=4
         )
 
+    def _stage_1b_llm_extract(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Stage 1b (OPT-IN): extract mathematician records from ETD /
+        thesis document text and ADD them to the batch.
+
+        Inert unless ``config['pipeline']['enable_llm_extraction']`` is True
+        (default False). Uses the deterministic, importable regex extractor
+        ``src.llm.stage1b_llmextract_etd.extract_from_text`` (NO live LLM),
+        so it never breaks the pipeline's determinism / idempotency
+        invariants. It runs ONCE on the whole input at the top of
+        process_batch — BEFORE chunking — so the >100k streaming path's
+        per-microbatch 1:1 contract is preserved (a stage that changes the
+        row count must not run inside a microbatch). New records carry NO
+        GlobalID; stage 1 assigns them canonical SHA-256 ids like any input
+        row (avoiding the old hash()-based synthetic id).
+
+        (This is the activation of the long-dormant "stage 1b" the docs
+        referenced: the class in src/pipeline/stage_1b_llm_extract.py was
+        non-importable — it imported a non-existent AIIntelligence /
+        ExtractionError — and was never wired into the literal stage loop.
+        This routes through the working function-based extractor instead.)
+        """
+        if (
+            not (self.config or {})
+            .get("pipeline", {})
+            .get("enable_llm_extraction", False)
+        ):
+            return entries
+        try:
+            from src.llm.stage1b_llmextract_etd import extract_from_text
+        except Exception as exc:  # extractor deps missing -> stay inert
+            logger.debug("Stage 1b extractor unavailable: %s", exc)
+            return entries
+
+        extracted: List[Dict[str, Any]] = []
+        for e in entries:
+            text = ""
+            for field in (
+                "ThesisText",
+                "abstract",
+                "Abstract",
+                "content",
+                "text",
+                "body",
+            ):
+                v = e.get(field)
+                if isinstance(v, str) and v.strip():
+                    text = v
+                    break
+            if not text:
+                continue
+            try:
+                payload = extract_from_text(text)
+            except Exception:
+                continue  # not an ETD / insufficient fields -> skip
+            authors = payload.get("authors") or []
+            if not authors:
+                continue
+            new: Dict[str, Any] = {
+                "CanonicalLatin": authors[0],
+                "CanonicalNative": authors[0],
+                "Source": "stage1b_etd_extract",
+                "DocumentTitle": payload.get("title", ""),
+            }
+            if payload.get("institution"):
+                new["Institution"] = payload["institution"]
+            if payload.get("advisors"):
+                new["Advisors"] = payload["advisors"]
+            if payload.get("degree_date"):
+                new["DegreeDate"] = payload["degree_date"]
+            extracted.append(new)
+
+        if extracted:
+            logger.info("Stage 1b: extracted %d ETD record(s)", len(extracted))
+        return entries + extracted
+
     async def _process_small_batch_fast(
         self, entries: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
@@ -648,6 +734,13 @@ class V7Pipeline:
         from src.core.global_id import reset_collision_tracking
 
         reset_collision_tracking()
+
+        # Stage 1b (OPT-IN): ETD/thesis extraction. Runs ONCE on the whole
+        # input here — before the size dispatch / chunking — so any rows it
+        # adds are present before the streaming path microbatches, keeping
+        # the per-microbatch 1:1 contract intact. Inert unless
+        # config['pipeline']['enable_llm_extraction'] is True.
+        entries = self._stage_1b_llm_extract(entries)
 
         # Performance optimization: Adjust chunk size based on batch size
         if len(entries) < 100:
