@@ -752,8 +752,23 @@ class V7Pipeline:
 
             all_results.extend(results)
 
-        # Genealogy stages (authority enrich for advisors, edge extract, graph populate)
-        if _GENEALOGY_AVAILABLE and genealogy_enrich_batch:
+        # Genealogy graph stages (advisor enrich -> edge extract -> Memgraph
+        # populate) — OPT-IN via GMNAP_GENEALOGY_GRAPH=1. The graph-write
+        # path needs Memgraph (and the env-gated Wikidata/MathGen fetchers)
+        # and adds per-batch overhead, so it stays off by default to keep
+        # the 1M production path lean. NOTE: this block was previously
+        # UNREACHABLE regardless — _GENEALOGY_AVAILABLE was permanently
+        # False because stage4_authority_enrich imported a misnamed class
+        # (AuthorityEnricher vs GenealogyAuthorityEnricher) and
+        # authority_enricher hard-imported the absent `dateutil`. Both are
+        # fixed, so this is now a genuine opt-in rather than an accidental
+        # silent disable (docs used to claim advisor edges were always
+        # produced in batch runs — they were not).
+        if (
+            os.getenv("GMNAP_GENEALOGY_GRAPH") == "1"
+            and _GENEALOGY_AVAILABLE
+            and genealogy_enrich_batch
+        ):
             try:
                 logger.info("Genealogy Stage 4: Authority enrichment for advisors")
                 offline_mode = os.getenv("OFFLINE") == "1"

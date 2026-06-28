@@ -5,7 +5,16 @@ import json
 import os
 from typing import Any, Dict, List, Optional
 
-from dateutil.parser import parse as dtparse
+try:
+    from dateutil.parser import parse as dtparse
+except ImportError:
+    # python-dateutil is an OPTIONAL dependency. Hard-importing it made
+    # this whole module unimportable, which in turn made the pipeline's
+    # in-batch genealogy block permanently unavailable (it caught the
+    # ImportError and set _GENEALOGY_AVAILABLE=False). Degrade gracefully:
+    # without dateutil we keep the raw degree-date string instead of
+    # normalizing it to YYYY-MM-DD.
+    dtparse = None  # type: ignore
 
 from ..utils.caching import build_cache
 from .mathgenealogy_client import MathGenealogyClient
@@ -57,8 +66,9 @@ class GenealogyAuthorityEnricher:
             deg = a.get("degree_date")
             if isinstance(deg, str):
                 try:
-                    # normalize date to YYYY-MM-DD if possible
-                    yr = dtparse(deg).date().isoformat()
+                    # normalize date to YYYY-MM-DD if possible (dateutil
+                    # optional — keep the raw string when it's absent)
+                    yr = dtparse(deg).date().isoformat() if dtparse else deg
                 except Exception:
                     yr = deg
             else:

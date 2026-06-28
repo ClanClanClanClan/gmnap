@@ -243,6 +243,7 @@ jobs:
           tests/v7/test_streaming_globalid_collision.py
           tests/v7/test_stage3_preserves_entries.py
           tests/v7/test_stage6_coherence.py
+          tests/v7/test_genealogy_subpipeline.py
           tests/unit/test_cost_tracker.py
           tests/v7/test_v7_complete.py
           tests/v7/test_v7_complete_integration.py
