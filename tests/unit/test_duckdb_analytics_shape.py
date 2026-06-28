@@ -69,3 +69,40 @@ def test_pipeline_unpack_pattern_survives_empty():
     entries, suffixed_count = a.suffix_duplicates([])
     assert entries == []
     assert suffixed_count == 0
+
+
+# ── suffix_duplicates must not corrupt distinct people (R39) ──────────
+
+
+def _two_distinct_same_name():
+    return [
+        {"GlobalID": "A" * 22, "CanonicalLatin": "Smith, John", "BirthYear": 1950},
+        {"GlobalID": "B" * 22, "CanonicalLatin": "Smith, John", "BirthYear": 1950},
+    ]
+
+
+def test_suffix_duplicates_preserves_distinct_people():
+    """Two DISTINCT people sharing name + birth year (different GlobalIDs)
+    must KEEP their distinct ids. Regression (R39): suffix_duplicates
+    appended --N to name+birth-year group members, corrupting a correct,
+    unique id (B -> B--1) for genuinely different people."""
+    from src.analytics.duckdb_analytics import DuckDBAnalytics
+
+    a = DuckDBAnalytics()
+    e = _two_distinct_same_name()
+    a.load_entries(e)
+    out, n = a.suffix_duplicates(e)
+    assert n == 0
+    assert [x["GlobalID"] for x in out] == ["A" * 22, "B" * 22]
+    assert not any("--" in x["GlobalID"] for x in out)
+
+
+def test_suffix_duplicates_report_mode_still_detects_name_collisions():
+    """The report-only path (no entries arg) still surfaces name +
+    birth-year collision groups for diagnostics, without mutating ids."""
+    from src.analytics.duckdb_analytics import DuckDBAnalytics
+
+    a = DuckDBAnalytics()
+    e = _two_distinct_same_name()
+    a.load_entries(e)
+    assert len(a.suffix_duplicates()) > 0  # collision is reported
