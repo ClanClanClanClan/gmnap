@@ -369,38 +369,40 @@ missing `import pytest`. These are rot to triage in the test-org step, not
 refactor regressions. Validate every refactor step against the CI allowlist
 (the real green), not the full collection.
 
-### 11.1 — DONE (verified this session)
+### 11.1 — DONE (committed + verified this session, 8 commits `05f3a28`..`05ccb21`)
 - **`.gitignore` closed** — `out/` (573 MB), `output/`, `work/`, `snapshots/`,
   `coverage.xml`, `cache_thread_*`, `ultracheck/ultrafix_*.json`, root `archive/`,
-  `config/*.bin` no longer pollute `git status` (was a dozen+ noise entries → 0).
-- **15 broken `src.regions.manager` test imports repointed** to
-  `manager_optimized` (the module was deleted in R39; these were erroring).
-- **8 empty placeholder packages deleted** (`src/{security,ml,linguistic,
-  monitoring,infrastructure,compat,korean_toolkit}`, `src/core/memgraph_online`)
-  — grep-proven 0 importers, 0 tracked files.
-- **Dead `src/authorities/tier1/zbmath.py` removed** (0 importers; dup of the
-  wired `tier0/zbmath`).
-- Bogus `postgresql:` / `sqlite:` dirs removed (one held a fake-credential-named
-  file). Representative CI tests green after all of the above.
+  `config/*.bin`, db WAL no longer pollute `git status` (a dozen+ → 0).
+- **15 broken `src.regions.manager` test imports repointed** to `manager_optimized`.
+- **8 empty placeholder packages deleted** + **dead `src/common/`** (0 importers).
+- **Dead `src/authorities/tier1/zbmath.py` removed** (dup of wired `tier0/zbmath`).
+- **21 tracked junk files `git rm`'d** (`Makefile.bak`, 9 root debug scripts,
+  `realistic_test_results_*.json`, `all_processors.txt`, `has_security.txt`,
+  dumps) + generated dirs `cache_thread_0/` + `cache_security_test/`.
+- **26 doc-accuracy fixes applied** — the hard `ARCHITECTURE.md` stage-1b ERROR
+  fixed, stage-12 row added, README 6→8 endpoints, stale `pipeline_v7.py:328`
+  comment, deep-dive reference repointed off the v6 doc.
+- **Obsolete docs archived → `docs/archive/2026-06/`** (git mv, history preserved):
+  10 root snapshots + 6 `docs/` status files + the `docs/sessions/` tree. **Root
+  now holds only the 8 canonical docs.**
+- **3 Helm charts → 1 canonical `deploy/helm/gmnap`** (removed 2 dup copies).
+- **`e4_korea` de-vendored** — 51 files of `.github/.githooks/locks/audit/
+  baselines` removed; processor + `resources/` intact, Korean detection verified.
+- Bogus `postgresql:`/`sqlite:` dirs removed (one held a fake-credential filename).
+- All of the above: representative CI tests green + the 20-check pre-commit
+  invariant battery passes on every commit.
 
 ### 11.2 — TIER 1 remaining (safe org wins, low risk)
-- **Doc-accuracy fixes (26):** `ARCHITECTURE.md` stage-1b row is the one hard
-  ERROR (claims unwired; it's wired opt-in at `pipeline_v7.py:743`); add stage-12
-  row; README 6→8 endpoint table; stale "GPT-4o-mini" comment at `pipeline_v7.py:328`.
-- **Archive obsolete docs → `docs/archive/2026-06/`** (git mv, preserve history):
-  ~14 root snapshots (`AUDIT_*`, `V7_COMPLIANCE_*`, `FULL_*`, `OPTIMIZATION_*`,
-  `V7_100_PERCENT_ACHIEVEMENT`), stale `docs/` status files, the mislabeled-v6
-  `ARCHITECTURE_DEFINITIVE.md`, the `docs/sessions/**` tree.
-- **`git rm` tracked junk:** `Makefile.bak`, root debug scripts, `realistic_test_
-  results_*.json`, `all_processors.txt`, `has_security.txt`, tracked artifact
-  dirs (`cache_thread_0`, `test_results`, `analysis`, `debug_tools`).
-- **Remove dead `src/gmnap/` + `src/common/`** (grep-proven 0 runtime importers).
+- **`git rm` remaining tracked scratch dirs:** `analysis/` (3), `test_results/`
+  (4), `debug_tools/` (2), `genealogy-phase2/` (1), root `gmnap/` (1),
+  `Dockerfile.korea`, untracked `UNKNOWN.egg-info`.
 - **Move 137 dev scripts out of `src/`** → `tools/` (`e4_korea/scripts`,
-  `genealogy_expansion/scripts`).
-- **De-vendor `e4_korea`** sub-project cruft (`.github/.githooks/locks/audit/
-  baselines` = 51 files; keep `processor.py` + verified-loaded `resources/data`).
-- **Unify 3 Helm charts → `deploy/helm/gmnap`** (delete `charts/gmnap` +
-  `tools/developer_tooling/kubernetes/gmnap`).
+  `genealogy_expansion/scripts`; mind the `resources/`-relative paths) — or remove
+  the throwaway analysis ones per the keep-what's-useful rule.
+- **Remove dead `src/gmnap/`** (version stub; only consumer is a broken
+  `src.gmnap.core` import in a dead analysis script — handle with the script move).
+- Triage the pre-existing non-CI test rot (ghost `pipeline_v6` import, missing
+  `import pytest`) surfaced by the manager-repoint.
 
 ### 11.3 — TIER 2 structural consolidation (medium, import-touching; shim→migrate→drop)
 - Merge `src/authority` → `src/authorities` (10 importers; re-export shim keeps green).
