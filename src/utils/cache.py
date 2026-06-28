@@ -274,15 +274,18 @@ class CacheManager:
 
                 logger.debug(f"Cached {key} ({len(compressed_data)} bytes)")
 
-                return True
-
             except Exception as e:
                 logger.error(f"Failed to cache {key}: {e}")
                 return False
 
-        # Check if eviction needed (outside file lock)
+        # Enforce the size cap after a successful write, OUTSIDE the
+        # per-file lock (the size scan walks the whole cache dir and can
+        # be slow). This previously sat after `return True` *inside* the
+        # lock, so it was unreachable dead code and the on-disk cache grew
+        # without bound on every write.
         with self._lock:
             self._check_size_limit()
+        return True
 
     def set(self, key: str, data: Dict[str, Any], service: str = "default") -> bool:
         """
