@@ -188,3 +188,26 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+@pytest.mark.timeout(20)
+def test_detect_region_never_uses_async_path():
+    """detect_region must ALWAYS use the synchronous detection path —
+    never asyncio.run() the async one — so the same entry isn't routed
+    through different authority logic depending on event-loop context.
+
+    Regression (R39): detect_region picked sync-vs-async by whether a loop
+    was running; the sync path does cache-only authority while the async
+    path does live _detect_by_external_authority, so the API (async) and
+    CLI (sync) could detect the same entry differently at OFFLINE=0.
+    """
+    from unittest.mock import AsyncMock, patch
+
+    manager = RegionManager(Path("./config"))  # fresh -> empty detection cache
+    entry = {"CanonicalLatin": "Müller, Hans", "OriginalScript": "Müller, Hans"}
+    with patch.object(
+        manager, "_detect_region_uncached_async", new=AsyncMock()
+    ) as async_spy:
+        result = manager.detect_region(entry)
+    assert result is not None
+    async_spy.assert_not_called()
