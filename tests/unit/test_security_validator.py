@@ -84,6 +84,27 @@ def test_validate_string_blocks_combining_stacking_attack() -> None:
         sv.validate_string(attack, context="name")
 
 
+def test_validate_string_allows_pattern_n_literals() -> None:
+    """Inputs containing the literal substrings pattern_0..pattern_49 must
+    NOT be rejected.
+
+    Regression (R39 audit): 50 dummy `f"pattern_{i}"` strings ("dummy
+    patterns for count") were compiled as LIVE dangerous-pattern rules,
+    so any field containing e.g. "pattern_5" was blocked as an attack.
+    """
+    sv = SecurityValidator()
+    for t in ["pattern_5", "my_pattern_3", "pattern_42", "pattern_0"]:
+        assert sv.validate_string(t, context="name") == t
+
+
+def test_validate_string_still_blocks_real_attacks_after_dummy_removal() -> None:
+    """Removing the dummy patterns must not weaken real detection."""
+    sv = SecurityValidator()
+    for attack in ["pg_sleep(5)", "eval(", "<script>alert(1)</script>"]:
+        with pytest.raises(SecurityError):
+            sv.validate_string(attack, context="name")
+
+
 def test_validate_string_rejects_sql_injection() -> None:
     sv = SecurityValidator()
     with pytest.raises(SecurityError, match=r"(?i)sql"):

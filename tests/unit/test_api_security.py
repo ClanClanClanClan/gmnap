@@ -472,3 +472,50 @@ def test_query_response_includes_global_id(paid_client, monkeypatch):
 
     # Verify name round-trips correctly
     assert data["name"] == "Euler, Leonhard"
+
+
+# ── /api/v1/suggest path-traversal (R39) ──────────────────────────────
+
+
+def test_suggest_rejects_path_traversal_correction_type(paid_client):
+    """correction_type is interpolated into the on-disk filename, so a
+    traversal value must be rejected (400), never written.
+
+    Regression (R39 audit): correction_type was an unvalidated free str,
+    so e.g. "a/../../../../tmp/pwned" escaped data/corrections/ and wrote
+    an attacker-controlled .json file outside the intended directory.
+    """
+    resp = paid_client.post(
+        "/api/v1/suggest",
+        json={
+            "original_name": "Euler, Leonhard",
+            "correction_type": "a/../../../../tmp/pwned",
+            "suggested_value": "x",
+        },
+    )
+    assert resp.status_code == 400
+    assert "correction_type" in resp.json()["detail"]
+
+
+def test_suggest_accepts_valid_correction_type(paid_client):
+    import os
+
+    resp = paid_client.post(
+        "/api/v1/suggest",
+        json={
+            "original_name": "Euler, Leonhard",
+            "correction_type": "advisor",
+            "suggested_value": "Johann Bernoulli",
+        },
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["status"] == "received"
+    # The filename component is the sanitized type only — no path chars.
+    assert body["id"].endswith("_advisor.json")
+    assert "/" not in body["id"] and ".." not in body["id"]
+    # Clean up the file this test wrote (data/corrections is gitignored).
+    try:
+        os.remove(os.path.join("data/corrections", body["id"]))
+    except OSError:
+        pass

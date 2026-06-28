@@ -131,9 +131,13 @@ class SecurityValidator:
             r"(?i)WAITFOR\s+DELAY",  # SQL timing
             r"(?i)BENCHMARK\s*\(",  # MySQL timing
             r"(?i)pg_sleep\s*\(",  # PostgreSQL timing
-        ] + [
-            f"pattern_{i}" for i in range(50)
-        ]  # Dummy patterns for count
+        ]
+        # NOTE: a `[f"pattern_{i}" for i in range(50)]` block used to be
+        # appended here as "dummy patterns for count". They were compiled
+        # as LIVE rules, so any input containing the literal substrings
+        # pattern_0..pattern_49 (e.g. a name/field with "pattern_5") was
+        # rejected as a dangerous pattern — a pure false-positive that
+        # padded the rule count with nothing real. Removed.
 
         # Combine all patterns with descriptions for better debugging
         all_patterns = (
