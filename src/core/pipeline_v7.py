@@ -599,14 +599,18 @@ class V7Pipeline:
                         # Skip processing on error for fast path
                         pass
 
-            # Generate GlobalID if missing - use simpler method for speed
+            # Generate GlobalID via the canonical deterministic scheme — the
+            # SAME one the full pipeline uses (SHA-256 base32 + --N collision
+            # suffix). The previous "gmnap_{region}_{abs(hash(native))%1e6}"
+            # was (a) seeded by Python's per-process-salted hash() so it was
+            # NON-DETERMINISTIC across runs (idempotency violation), (b) a
+            # different id FORMAT than every other path, and (c) trivially
+            # collision-prone (mod 1e6). Using the canonical function also
+            # gives correct cross-batch collision suffixing for this path.
             if "GlobalID" not in processed:
-                # Use a simpler GlobalID generation for small batches
-                native = processed.get("CanonicalNative", "")
-                region = processed.get("DetectedRegion", "unknown")
-                processed["GlobalID"] = (
-                    f"gmnap_{region}_{abs(hash(native)) % 1000000:06d}"
-                )
+                from src.core.global_id import compute_global_id_for_pipeline
+
+                compute_global_id_for_pipeline(processed)
 
             results.append(processed)
 
