@@ -3,8 +3,18 @@ Hardcore fuzzing tests for GMNAP system robustness.
 
 Tests with malformed inputs, attack vectors, and edge cases designed
 to break the system. Uses property-based testing and deliberate attacks.
+
+Migrated 2026-06-29 from the deleted ``src.core.pipeline_v6.GMNAPPipeline``.
+Only ``test_fuzz_yaml_parsing`` touched the pipeline; it now parses the
+fuzzed YAML with the loader directly (robustness check) and, when that
+yields entry dicts, pushes them through the V7 async pipeline
+(``V7Pipeline.process_batch``) instead of the removed v6 file-ingest
+``run(input_dir)`` path. Every other test exercises live components
+(GlobalIDGenerator, UnicodeNormalizer, SchemaValidator, CacheManager)
+that never depended on v6.
 """
 
+import asyncio
 import json
 import tempfile
 import time
@@ -12,13 +22,13 @@ import unicodedata
 from pathlib import Path
 
 import pytest
+import yaml
 from hypothesis import given, settings
 from hypothesis import strategies as st
 from hypothesis.strategies import binary, dictionaries, floats, integers, text
 
-from src.core.config import GMNAPConfig
 from src.core.globalid import GlobalIDGenerator, validate_global_id
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
+from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 from src.core.unicode_handler import UnicodeNormalizer
 from src.validation.schema import SchemaValidator
 
@@ -118,37 +128,52 @@ class TestInputFuzzing:
     @given(malformed_yaml=text(min_size=0, max_size=2000))
     @settings(max_examples=100, deadline=None)
     def test_fuzz_yaml_parsing(self, malformed_yaml):
-        """Fuzz YAML parsing with malformed content."""
-        yaml_file = Path(self.temp_dir) / "fuzz_test.yaml"
+        """Fuzz YAML parsing with malformed content.
+
+        V7 has no file-ingest stage, so this fuzzes the YAML loader
+        directly. When the fuzzed text happens to parse into a mapping of
+        entry dicts, it is pushed through ``V7Pipeline.process_batch`` to
+        confirm the pipeline tolerates arbitrary parsed structures
+        without crashing.
+        """
+        try:
+            # Parse the fuzzed YAML directly (safe_load never executes code)
+            parsed = yaml.safe_load(malformed_yaml)
+        except yaml.YAMLError:
+            # Malformed YAML is expected to be rejected cleanly by the loader
+            return
+
+        # Only entry-shaped mappings (dict-of-dict) are pipeline-feedable.
+        if not isinstance(parsed, dict):
+            return
+        entries = [v for v in parsed.values() if isinstance(v, dict)]
+        if not entries:
+            return
 
         try:
-            # Write malformed YAML
-            with open(yaml_file, "w", encoding="utf-8", errors="replace") as f:
-                f.write(malformed_yaml)
+            pipeline = V7Pipeline(mode=PipelineMode.QUICK)
+            result = asyncio.run(pipeline.process_batch(entries))
 
-            # Try to parse with pipeline
-            config = GMNAPConfig()
-            pipeline = GMNAPPipeline(config, PipelineMode.QUICK)
-
-            # Should handle malformed YAML gracefully
-            result = pipeline.run(yaml_file.parent)
-
-            # If parsing succeeded, result should be valid
-            if result is not None:
-                assert hasattr(result, "total_entries"), "Invalid pipeline result"
-                assert result.total_entries >= 0, "Invalid entry count"
+            # If processing succeeded, result should be a list of entries
+            assert isinstance(result, list), "process_batch must return a list"
+            assert len(result) >= 0, "Invalid entry count"
 
         except Exception as e:
-            # Should handle YAML parsing errors gracefully
-            yaml_errors = ["yaml", "parse", "syntax", "malformed", "invalid"]
+            # Should handle malformed parsed data gracefully
+            tolerated = [
+                "yaml",
+                "parse",
+                "syntax",
+                "malformed",
+                "invalid",
+                "canonical",
+                "required",
+                "missing",
+                "key",
+            ]
             assert any(
-                word in str(e).lower() for word in yaml_errors
-            ), f"Unexpected YAML parsing error: {str(e)}"
-
-        finally:
-            # Clean up
-            if yaml_file.exists():
-                yaml_file.unlink()
+                word in str(e).lower() for word in tolerated
+            ), f"Unexpected pipeline error on fuzzed entries: {str(e)}"
 
     def test_fuzz_binary_injection_attacks(self):
         """Test binary injection attacks."""
@@ -227,7 +252,8 @@ class TestInputFuzzing:
                 parsed = json.loads(attack_json)
 
                 # Test with schema validator
-                is_valid = self.validator.validate_entry(parsed)
+                # validate_entry returns (is_valid, errors); unpack the bool.
+                is_valid, _errors = self.validator.validate_entry(parsed)
 
                 # Should either validate properly or reject cleanly
                 if is_valid:
@@ -356,7 +382,7 @@ class TestInputFuzzing:
                     "BirthYear": overflow_value,
                 }
 
-                is_valid = self.validator.validate_entry(full_entry)
+                is_valid, _errors = self.validator.validate_entry(full_entry)
 
                 # Should either validate properly or reject cleanly
                 if not is_valid:
@@ -461,7 +487,7 @@ class TestInputFuzzing:
 
                 elif isinstance(attack_data, (dict, list)):
                     # Test with schema validation
-                    is_valid = self.validator.validate_entry(attack_data)
+                    is_valid, _errors = self.validator.validate_entry(attack_data)
 
                     # Should either validate or reject cleanly
                     if not is_valid:

@@ -1,148 +1,73 @@
+#!/usr/bin/env python3
+"""Region-detection throughput smoke test (optimized RegionManager).
+
+Migrated 2026-06-29 from V6. The original drove a mix of region names
+through `GMNAPPipeline.run` and compared "standard" vs "optimized"
+RegionManager wall-clock — but the standard manager was deleted in
+round 18 and the optimized one is now the only RegionManager, so the
+A/B comparison is moot. Following the established precedent
+(tests/unit/test_simple_detection.py), this exercises detection
+directly via `RegionManager.detect_region`, which is what the test was
+really measuring.
+
+The original `test_with_manager(manager_type, n_entries)` took two
+positional args pytest cannot supply as fixtures, so it never ran as a
+test under pytest anyway; it was a helper for a `__main__` benchmark.
+This rewrite is a genuine, self-contained pytest case.
+"""
+
+import time
+
 import pytest
 
-#!/usr/bin/env python3
-"""
-Test performance improvements with optimized RegionManager.
-"""
-
-import sys
-import tempfile
-import time
-from pathlib import Path
-
-import yaml
-
-sys.path.insert(0, str(Path(__file__).parent))
-
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-import sys
-from pathlib import Path
-
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.config import GMNAPConfig
+from src.regions.manager_optimized import RegionManager
 
 
-def generate_test_data(n_entries: int) -> dict:
-    """Generate test mathematician data."""
-    test_data = {}
-
-    # Mix of different regions to test detection
-    test_patterns = [
-        ("Smith, John", "A1"),
-        ("Müller, Hans", "A2"),
-        ("Ivanov, Ivan", "B1"),
-        ("Kowalski, Piotr", "B2"),
-        ("Hassan, Ahmad", "C3"),
-        ("Sharma, Raj", "D1"),
-        ("Wang, Xiaoming", "E1"),
-        ("Tanaka, Satoshi", "E3"),
-        ("García, María", "G1"),
+def _generate_entries(n_entries: int) -> list[dict]:
+    """Generate a region-diverse batch of entry dicts."""
+    patterns = [
+        "Smith, John",
+        "Müller, Hans",
+        "Ivanov, Ivan",
+        "Kowalski, Piotr",
+        "Hassan, Ahmad",
+        "Sharma, Raj",
+        "Wang, Xiaoming",
+        "Tanaka, Satoshi",
+        "García, María",
     ]
-
+    entries = []
     for i in range(n_entries):
-        pattern = test_patterns[i % len(test_patterns)]
-        name = f"{pattern[0].split(',')[0]}{i}, {pattern[0].split(',')[1].strip()}"
-        test_data[name] = {
-            "GlobalID": f"TEST{i:010d}",
-            "CanonicalLatin": name,
-            "UpdatedAt": "2025-01-01T00:00:00Z",
-        }
-
-    return test_data
+        base = patterns[i % len(patterns)]
+        surname, given = base.split(",")
+        name = f"{surname.strip()}{i}, {given.strip()}"
+        entries.append({"CanonicalLatin": name})
+    return entries
 
 
-@pytest.mark.timeout(15)
-def test_with_manager(manager_type: str, n_entries: int):
-    """Test pipeline with specified manager type."""
+@pytest.mark.timeout(30)
+def test_optimized_region_manager_detects_all():
+    """Every generated entry resolves to a non-empty region code."""
+    manager = RegionManager()
+    entries = _generate_entries(500)
 
-    # Temporarily modify the import
-    if manager_type == "optimized":
-        # Monkey patch to use optimized manager
-        import src.regions
-        from src.regions.manager_optimized import RegionManager
+    start = time.time()
+    results = [manager.detect_region(e) for e in entries]
+    duration = time.time() - start
 
-        src.regions.manager_optimized.RegionManager = RegionManager
+    assert len(results) == len(entries)
+    for entry, result in zip(entries, results):
+        assert result.region_code, f"empty region_code for {entry['CanonicalLatin']}"
+        assert isinstance(result.confidence, float)
+        assert isinstance(result.detection_method, str)
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-
-        # Create test data
-        test_data = generate_test_data(n_entries)
-        test_file = tmpdir_path / "test_data.yaml"
-        with open(test_file, "w") as f:
-            yaml.dump(test_data, f)
-
-        # Setup config
-        config = GMNAPConfig()
-        config.cache.cache_dir = str(tmpdir_path / "cache")
-
-        # Time the pipeline
-        start_time = time.time()
-
-        pipeline = GMNAPPipeline(config, mode=PipelineMode.QUICK)
-        result = pipeline.run(tmpdir_path)
-
-        end_time = time.time()
-        duration = end_time - start_time
-
-        return {
-            "duration": duration,
-            "entries_per_sec": n_entries / duration,
-            "success_rate": result.successful_entries / result.total_entries,
-            "total_entries": result.total_entries,
-        }
-
-
-def main():
-    """Compare performance between standard and optimized managers."""
-    print("🔬 GMNAP Performance Optimization Test")
-    print("=" * 60)
-
-    test_sizes = [100, 500, 1000]
-
-    for size in test_sizes:
-        print(f"\n📊 Testing with {size} entries...")
-
-        # Test with standard manager
-        print("  Standard RegionManager:", end=" ", flush=True)
-        standard_result = test_with_manager("standard", size)
-        print(
-            f"{standard_result['duration']:.2f}s ({standard_result['entries_per_sec']:.1f} entries/sec)"
-        )
-
-        # Reset import
-        import importlib
-
-        import src.regions.manager_optimized
-
-        importlib.reload(src.regions.manager_optimized)
-
-        # Test with optimized manager
-        print("  Optimized RegionManager:", end=" ", flush=True)
-        optimized_result = test_with_manager("optimized", size)
-        print(
-            f"{optimized_result['duration']:.2f}s ({optimized_result['entries_per_sec']:.1f} entries/sec)"
-        )
-
-        # Calculate improvement
-        improvement = (
-            (standard_result["duration"] - optimized_result["duration"])
-            / standard_result["duration"]
-            * 100
-        )
-        speedup = standard_result["duration"] / optimized_result["duration"]
-
-        print(f"  ⚡ Improvement: {improvement:.1f}% faster ({speedup:.2f}x speedup)")
-
-    print("\n" + "=" * 60)
-    print("💡 Recommendation: Use the optimized RegionManager for production")
-    print("   Update src/core/pipeline_v6.py to import from manager_optimized")
+    # Sanity: detection should be comfortably sub-millisecond per entry
+    # on the optimized manager (warm). This is a generous ceiling, not a
+    # tight benchmark — it just guards against a catastrophic regression.
+    per_entry_ms = (duration * 1000) / len(entries)
+    assert per_entry_ms < 50, f"detection too slow: {per_entry_ms:.1f} ms/entry"
 
 
 if __name__ == "__main__":
-    main()
+    test_optimized_region_manager_detects_all()
+    print("Detection throughput test passed.")

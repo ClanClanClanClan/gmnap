@@ -1,95 +1,40 @@
+#!/usr/bin/env python3
+"""Test the enhanced security validator against the 3 attacks that once slipped through.
+
+Migrated 2026-06-28 from V6. The original wrote these 3 payloads to YAML
+and ran `src.core.pipeline_v6.GMNAPPipeline.run(dir)` (now deleted),
+checking the on-disk output for survivors. The live gate behind that
+behavior is `src.core.security_validator.SecurityValidator`, so this now
+asserts the gate blocks each payload directly — the regression these
+three cases guard against (ReDoS, combining-character stacking, Cyrillic
+homograph) lives entirely in the validator.
+"""
+
 import pytest
 
-#!/usr/bin/env python3
-"""Test enhanced security validator against the 3 previously-passing attacks."""
-
-import sys
-import tempfile
-from pathlib import Path
-
-import yaml
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-import sys
-from pathlib import Path
-
-from src.core.pipeline_v6 import GMNAPPipeline
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.config import GMNAPConfig
+from src.core.security_validator import SecurityError, SecurityValidator
 
 
 @pytest.mark.timeout(15)
 def test_enhanced_security():
-    """Test that enhanced security validator blocks the 3 critical attacks."""
+    """The 3 critical attacks that previously passed must now be blocked."""
 
-    # The 3 malicious inputs that were previously passing
-    malicious_data = {
+    malicious_names = [
         # Regex DoS attack
-        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!": {"GlobalID": "dos001"},
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!",
         # Unicode combining character attack
-        "Ä̈": {"GlobalID": "unicode001"},
+        "Ä̈",
         # Homograph attack (Cyrillic lookalikes)
-        "Аррӏе": {"GlobalID": "homograph001"},
-    }
+        "Аррӏе",
+    ]
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
+    validator = SecurityValidator()
 
-        # Write malicious test file
-        test_file = tmpdir / "malicious.yaml"
-        with open(test_file, "w", encoding="utf-8") as f:
-            yaml.dump(malicious_data, f, allow_unicode=True)
-
-        print(f"Created test file with {len(malicious_data)} malicious entries")
-
-        # Run pipeline
-        config = GMNAPConfig()
-        config.cache.cache_dir = "./cache_security_test"
-        pipeline = GMNAPPipeline(config)
-
-        try:
-            result = pipeline.run(tmpdir)
-
-            # Check results
-            output_dir = Path(config.cache.cache_dir) / "output"
-
-            malicious_outputs = []
-            if (output_dir / "malicious.yaml").exists():
-                with open(output_dir / "malicious.yaml", "r", encoding="utf-8") as f:
-                    output_data = yaml.safe_load(f)
-                    if output_data:
-                        malicious_outputs = list(output_data.keys())
-
-            print(f"Pipeline processed {result.total_entries} entries")
-            print(f"Successful entries: {result.successful_entries}")
-            print(f"Failed entries: {result.failed_entries}")
-            print(f"Validation errors: {len(result.validation_errors)}")
-
-            if malicious_outputs:
-                print(
-                    f"FAIL SECURITY BREACH: {len(malicious_outputs)} malicious entries in output:"
-                )
-                for entry in malicious_outputs:
-                    print(f"  - {repr(entry)}")
-                return False
-            else:
-                print("PASS SECURITY SUCCESS: All malicious entries blocked!")
-                return True
-
-        except Exception as e:
-            print(f"Pipeline error: {e}")
-            return False
+    for name in malicious_names:
+        with pytest.raises(SecurityError):
+            validator.validate_string(name, context="CanonicalLatin")
 
 
 if __name__ == "__main__":
-    print("🛡️  Testing Enhanced Security Validator")
-    print("=" * 50)
-
-    success = test_enhanced_security()
-
-    print("=" * 50)
-    if success:
-        print("PASS Enhanced security validation working correctly!")
-    else:
-        print("FAIL Security vulnerabilities still present!")
+    test_enhanced_security()
+    print("PASS Enhanced security validation working correctly!")
