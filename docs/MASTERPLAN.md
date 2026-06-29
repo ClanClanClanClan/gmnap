@@ -392,17 +392,23 @@ refactor regressions. Validate every refactor step against the CI allowlist
 - All of the above: representative CI tests green + the 20-check pre-commit
   invariant battery passes on every commit.
 
-### 11.2 — TIER 1 remaining (safe org wins, low risk)
-- **`git rm` remaining tracked scratch dirs:** `analysis/` (3), `test_results/`
-  (4), `debug_tools/` (2), `genealogy-phase2/` (1), root `gmnap/` (1),
-  `Dockerfile.korea`, untracked `UNKNOWN.egg-info`.
-- **Move 137 dev scripts out of `src/`** → `tools/` (`e4_korea/scripts`,
-  `genealogy_expansion/scripts`; mind the `resources/`-relative paths) — or remove
-  the throwaway analysis ones per the keep-what's-useful rule.
-- **Remove dead `src/gmnap/`** (version stub; only consumer is a broken
-  `src.gmnap.core` import in a dead analysis script — handle with the script move).
-- Triage the pre-existing non-CI test rot (ghost `pipeline_v6` import, missing
-  `import pytest`) surfaced by the manager-repoint.
+### 11.2 — TIER 1 — ✅ COMPLETE (12 commits, `05f3a28`..`a1fb91e`)
+Beyond §11.1: removed tracked scratch dirs (`analysis/`, `test_results/` [stale
+dup of `tests/performance/`], `debug_tools/`, `genealogy-phase2/`), dead root
+`gmnap/` + `src/gmnap/` stubs; moved 137 dev scripts out of the `src/` package
+(`e4_korea/scripts` → `tools/korean_tuning/`, `genealogy_expansion/scripts` →
+`tools/genealogy_scripts/`) — **`src/` now ships only package code (0 scripts
+under `src/*/scripts/`)**. Kept `Dockerfile.korea` (documented in a README).
+
+### 11.2b — V6 TEST MIGRATION (distinct follow-up, contained)
+~19 non-CI test files (`tests/{performance,hardcore,paranoid,security}`) import
+the deleted `src.core.pipeline_v6.GMNAPPipeline`. They are **contained** — outside
+the CI allowlist and excluded from default `pytest` by `conftest.py`
+`collect_ignore_glob` — so they break nothing today. Migrating them to the
+`src.core.pipeline_v7.V7Pipeline` API (or retiring the genuinely obsolete ones) is
+a separate test-modernization task; some carry valuable logic (injection/fuzzing/
+chaos/unicode) worth porting, not deleting. Same root cause as the broken
+`make quick/full/extreme` targets (also reference `pipeline_v6`).
 
 ### 11.3 — TIER 2 structural consolidation (medium, import-touching; shim→migrate→drop)
 - Merge `src/authority` → `src/authorities` (10 importers; re-export shim keeps green).
