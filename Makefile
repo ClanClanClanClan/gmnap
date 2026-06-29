@@ -192,13 +192,13 @@ refresh-data-merge:
 
 # Pipeline execution modes
 quick:
-	PYTHONPATH=. python3 -m src.core.pipeline_v6 --mode quick
+	PYTHONPATH=. python3 -m src.core.pipeline_v7 --mode quick
 
 full:
-	PYTHONPATH=. python3 -m src.core.pipeline_v6 --mode full
+	PYTHONPATH=. python3 -m src.core.pipeline_v7 --mode full
 
 extreme:
-	PYTHONPATH=. python3 -m src.core.pipeline_v6 --mode extreme --force-extreme
+	PYTHONPATH=. python3 -m src.core.pipeline_v7 --mode extreme --force-extreme
 
 # Testing
 test:
