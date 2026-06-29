@@ -231,12 +231,13 @@ lint:
 	isort src/ tests/
 	yamllint docs/ config/
 
-# Analysis
+# Analysis — the canonical repo-invariant audit (analysis/comprehensive_audit.py
+# was removed in R41; tools/audit_repo.py supersedes it).
 audit:
-	PYTHONPATH=. python3 analysis/comprehensive_audit.py
+	PYTHONPATH=. python3 tools/audit_repo.py
 
 audit-quick:
-	PYTHONPATH=. python3 analysis/comprehensive_audit.py --quick-test
+	PYTHONPATH=. python3 tools/audit_repo.py --fast
 
 # Comprehensive repo-invariant audit (tools/audit_repo.py). 18 checks
 # across 10 categories: file-tree integrity, parse, JSON/YAML, doc-vs-
