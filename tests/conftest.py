@@ -59,10 +59,12 @@ collect_ignore_glob = [
     "unit/test_thread_safety_issues.py",
     # Validation tree imports legacy modules:
     "validation/test_v7_script_validation.py",
-    # CJK/quality_gates/scripts trees importing legacy:
+    # CJK/quality_gates trees importing legacy:
     "cjk/test_v7_cjk_roundtrip.py",
     "quality_gates/test_quality_requirements.py",
-    "scripts/realistic_production_test.py",
+    # NOTE: scripts/realistic_production_test.py was migrated off the
+    # deleted pipeline_v6 to V7Pipeline.process_batch / RegionManager and
+    # is no longer ignored.
 ]
 
 
