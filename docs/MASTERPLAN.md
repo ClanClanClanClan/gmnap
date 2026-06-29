@@ -433,3 +433,36 @@ Mass deletes (e4_korea cruft, empty-dir batch — done), the `src/authority`
 package rename, the canonical Helm path, and any touch to `security_validator.py`.
 Root `archive/` (1,270 untracked entries) is gitignored, not deleted — confirm
 disposable.
+
+### 11.6 — PRE-TIER-2 REVIEW + "fix everything" pass (DONE, verified green)
+A rigorous self-review before Tier 2 separated real defects from environment
+noise. **Crucial finding: the local env lacked the pinned `duckdb`/`neo4j`/
+`networkx`/`pydantic==2.9.2`** (never ran `pip install -r requirements.txt`).
+Every "test failure" the review first saw — including the stage-6 coherence one
+flagged as pre-existing CI-redness — was a missing dep; all pass once installed.
+CI installs them, so CI was never red on those.
+
+Genuine, version-independent defects found AND fixed (each test/audit-verified):
+- **`make audit`/`audit-quick`** called the deleted `analysis/comprehensive_
+  audit.py` → repointed to `tools/audit_repo.py` (`85b173a`).
+- **`pyproject` ruff ignore** pointed at the moved e4_korea scripts path → updated.
+- **`make quick/full/extreme`** ran the deleted `src.core.pipeline_v6` → repointed
+  to `pipeline_v7` + gave its `__main__` a real `--mode` argparse (`4d94871`);
+  `make quick` verified green.
+- **18 v6-rot test files** (last consumers of the deleted `pipeline_v6`) →
+  migrated to the v7 API (RegionManager / V7Pipeline.process_batch /
+  SecurityValidator) or retired (3 genuine dups/non-tests), test-verified, lint-
+  clean (`5db02cb`). Fixes ALL default-`pytest` collection errors (now 0).
+
+Confirmed **NOT** repo defects (env/tool-version artifacts, correctly left alone):
+- **audit I1** (openapi idempotency) — local pydantic 2.11.7 emits an extra
+  `additionalProperties: true`; with the pinned 2.9.2 the **full audit is 23/23
+  green**. The committed `openapi.json` is correct for CI.
+- **11 black-dirty files** — CI pins `black==26.3.1` (not installable in this
+  sandbox); local 25.11.0 disagrees only on the multiline-string-in-call style.
+  Reformatting with the wrong version would *introduce* a CI break, so left as-is
+  (they are 26.3.1-clean in CI). The 16 v6-migrated files WERE black-formatted
+  (new code).
+
+**End state:** full audit 23/23 (pinned toolchain), CI allowlist green, default
+pytest 0 collection errors, `make` targets work, zero `pipeline_v6` imports.
