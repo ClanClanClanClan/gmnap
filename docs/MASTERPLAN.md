@@ -410,12 +410,26 @@ a separate test-modernization task; some carry valuable logic (injection/fuzzing
 chaos/unicode) worth porting, not deleting. Same root cause as the broken
 `make quick/full/extreme` targets (also reference `pipeline_v6`).
 
-### 11.3 — TIER 2 structural consolidation (medium, import-touching; shim→migrate→drop)
-- Merge `src/authority` → `src/authorities` (10 importers; re-export shim keeps green).
-- Consolidate `src/core/{quality_gates,stage11_gate}.py` into `src/quality/`.
-- Dedupe the 6 stage pairs (`stage3/4/5/7/9/11` each have two files) — one pair per PR.
-- Migrate the 1 perf-test off `enricher.py`/`orcid.py`, the 5 v7 tests off
-  `stage2_detect_region.py`, then delete those (NOT deletable today — live test importers).
+### 11.3 — TIER 2 structural consolidation (in progress, `f94e110`..`99be860`)
+- ✅ **T2.1 — merged `src/authority` → `src/authorities`** (9 importers updated
+  atomically, no shim; the singular/plural confusion is gone). audit 23/23, 87
+  tests pass.
+- ✅ **T2.2 — consolidated `src/core/{quality_gates,stage11_gate}.py` →
+  `src/quality/`** (3 test importers updated; the 7 gate modules now live in one
+  package). audit 23/23, 27 gate tests pass.
+- ✅ **T2.3 (partial) — removed 5 dead unwired skeleton stage modules**
+  (`stage3_apply_rules`, `stage4_normalize`, `stage5_analytics`,
+  `stage7_shortforms`, `stage9_changelog_extend` — zero real importers).
+- ⏳ **T2.3 (remaining) + T2.4 — BLOCKED on the `scripts/` cleanup.** The
+  surviving stage-module dups (test-entangled: `stage4_authority_enrichment`,
+  `stage5_collision_analytics`, `stage7_tag_short_forms`, `stage9_write_and_diff`,
+  the `stage11_idempotency*` trio, `stage5_duckdb_analytics`) and the dead
+  authority orchestrators (`enricher.py`, `manager.py`, `tier0/orcid.py`) +
+  `stage2_detect_region.py` are kept alive almost entirely by **dead one-off
+  `scripts/`** (audits/tests/analysis). Deleting the modules now would scatter
+  broken imports through ~400 dead scripts. Correct sequence: do the **`scripts/`
+  cleanup first** (archive the dead one-offs — the code-arch "tools-scripts-org"
+  area), then migrate the few remaining test importers, then these delete cleanly.
 
 ### 11.4 — TIER 3 god-file splits (higher risk, incremental, facade-preserving)
 Safety net per split: 843-benchmark + 500-golden (0 detection regressions) +
