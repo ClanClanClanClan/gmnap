@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 try:
     from authorities.base import AuthorityFetcher, QuotaManager
     from src.core.pipeline_v7 import V7Pipeline
-    from src.core.quality_gates import EnhancedQualityGates
+    from src.quality.quality_gates import EnhancedQualityGates
     from src.regions.manager_optimized import RegionManager
 except ImportError as e:
     pytest.skip(f"Pipeline components not available: {e}", allow_module_level=True)
