@@ -102,7 +102,7 @@ def test_idempotency_whitespace():
 def test_stage11_integration():
     """Test Stage 11 gate integration"""
     try:
-        from src.core.stage11_gate import Stage11Gate
+        from src.quality.stage11_gate import Stage11Gate
 
         gate = Stage11Gate()
 
