@@ -49,7 +49,7 @@ class TestLifespanShutdown:
     def test_shutdown_closes_fetcher_pool(self, monkeypatch):
         from starlette.testclient import TestClient
 
-        import src.authority.manager_tier01 as mt
+        import src.authorities.manager_tier01 as mt
         from src.api.server import create_app
 
         # GMNAP_SHUTTING_DOWN is set by the shutdown path; isolate it so

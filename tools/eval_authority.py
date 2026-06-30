@@ -97,7 +97,7 @@ async def _query_one(name: str) -> Dict[str, Any]:
     populate the ``birth_year`` field end-to-end. Wikidata's P569
     closes that gap (added 2026-04-30).
     """
-    from src.authority.manager_tier01 import (
+    from src.authorities.manager_tier01 import (
         _fetch_crossref,
         _fetch_openalex,
         _fetch_orcid_etd,

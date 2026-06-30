@@ -127,7 +127,7 @@ def query(name: str, mode: str, as_json: bool, live: bool):
     # tier responses bring back over the curated baseline.
     if live:
         try:
-            from src.authority.manager_tier01 import enrich_all
+            from src.authorities.manager_tier01 import enrich_all
 
             live_entry = {
                 "CanonicalLatin": name,

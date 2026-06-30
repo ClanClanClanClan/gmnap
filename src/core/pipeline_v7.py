@@ -80,7 +80,7 @@ except ImportError:
     QualityGatesEnforcer = None
 
 try:
-    from src.authority.manager_tier01 import enrich_all as authority_enrich
+    from src.authorities.manager_tier01 import enrich_all as authority_enrich
 except ImportError:
     authority_enrich = None
 
