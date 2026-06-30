@@ -174,8 +174,8 @@ def _check_production_imports() -> Result:
         "src.regions.manager_optimized",
         "src.regions.benchmark_split",
         "src.regions.calibration",
-        "src.authority.manager_tier01",
-        "src.authority.common",
+        "src.authorities.manager_tier01",
+        "src.authorities.common",
     ]
     for mod in targets:
         proc = subprocess.run(

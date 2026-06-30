@@ -408,7 +408,7 @@ def create_app() -> FastAPI:
         # on every long-running-server restart. Lazy import keeps the
         # network stack off the import path for non-enrichment deploys.
         try:
-            from src.authority.manager_tier01 import _close_fetcher_pool
+            from src.authorities.manager_tier01 import _close_fetcher_pool
 
             await _close_fetcher_pool()
         except Exception as exc:  # pragma: no cover - best-effort
