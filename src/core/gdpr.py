@@ -246,6 +246,37 @@ def apply_drop_personal(
 # ---------------------------------------------------------------------------
 
 
+def annotate_licence_tier(entry: Dict[str, Any]) -> Dict[str, Any]:
+    """Spec §10 licence_tiers (R50): tag the record with the MOST
+    RESTRICTIVE tier among its (post-scrub) sources so output filters can
+    partition exports (public_cc0 / redistributable_cc-by /
+    non-redistributable). Records with no source provenance get no tag.
+    """
+    try:
+        from src.ops.licence_tiers import (
+            NON_REDISTRIBUTABLE,
+            PUBLIC_CC0,
+            REDISTRIBUTABLE_CC_BY,
+            tier_for_source,
+        )
+    except Exception:
+        return entry
+    rank = {PUBLIC_CC0: 0, REDISTRIBUTABLE_CC_BY: 1, NON_REDISTRIBUTABLE: 2}
+    # _sources_hit = sources that actually CONTRIBUTED data (provenance);
+    # _sources is just the queried-audit trail and would over-restrict
+    # every record to the worst tier of everything attempted.
+    sources = list(entry.get("_sources_hit") or [])
+    for s in entry.get("AuthoritySources") or []:
+        name = s.get("source") if isinstance(s, dict) else s
+        if name:
+            sources.append(name)
+    if not sources:
+        return entry
+    worst = max((tier_for_source(s) for s in sources), key=lambda t: rank[t])
+    entry["LicenceTier"] = worst
+    return entry
+
+
 def gdpr_pipeline(
     batch: List[Dict[str, Any]], *, drop_personal: bool = False
 ) -> List[Dict[str, Any]]:
@@ -264,5 +295,6 @@ def gdpr_pipeline(
     for e in batch:
         mark_gdpr_fields(e)
         scrub_sources(e)
+        annotate_licence_tier(e)
     apply_birth_year_privacy(batch)
     return apply_drop_personal(batch, drop_personal=drop_personal)
