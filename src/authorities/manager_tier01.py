@@ -72,6 +72,43 @@ def _no_name(adapter_name: str, *, reason: str = "no_name") -> Dict[str, Any]:
     return {adapter_name: {"hit": False, "reason": reason}}
 
 
+_QUOTA_MANAGER = None
+
+
+def _quota_manager():
+    """Lazy singleton QuotaManager seeded from the spec's per-source
+    daily_quota values (spec §9 — every source carries one, e.g. zbMATH
+    200/day). Fully implemented in src/authorities/base.py but never wired
+    until R49 (§3.8): live calls only recorded cost, so metered sources
+    had no ceiling. GMNAP_DISABLE_QUOTA=1 is the kill-switch.
+    """
+    global _QUOTA_MANAGER
+    if _QUOTA_MANAGER is None:
+        manifest: Dict[str, Any] = {}
+        try:
+            from src.ops.spec_loader import load_specs
+
+            for src in load_specs().get("authority_sources", []) or []:
+                service = src.get("service")
+                quota = src.get("daily_quota")
+                if service and isinstance(quota, int):
+                    # Spec service names carry U+00A0 non-breaking spaces
+                    # ("zbMATH\xa0Open") while the orchestrator's source
+                    # names use underscores ("zbMATH_Open") — normalise so
+                    # the quota actually binds. Keep the raw key too.
+                    import re as _re
+
+                    norm = _re.sub(r"[\s\u00a0]+", "_", str(service))
+                    manifest[norm] = {"daily_quota": quota}
+                    manifest[service] = {"daily_quota": quota}
+        except Exception:
+            pass  # QuotaManager falls back to its built-in defaults
+        from src.authorities.base import QuotaManager
+
+        _QUOTA_MANAGER = QuotaManager(manifest)
+    return _QUOTA_MANAGER
+
+
 def _offline_skip(adapter_name: str) -> Dict[str, Any]:
     """Standard 'OFFLINE=1, skipping live call' response."""
     return {adapter_name: {"hit": False}}
@@ -242,6 +279,15 @@ async def _call_canonical_fetcher(
     from src.core import cost_tracker
 
     from .common import retry_with_backoff
+
+    # Spec §9 per-source daily quota (R49 §3.8): metered sources short-
+    # circuit once the day's budget is spent instead of hammering the API.
+    if os.getenv("GMNAP_DISABLE_QUOTA") != "1":
+        try:
+            if not await _quota_manager().acquire_quota(source_name):
+                return {source_name: {"hit": False, "reason": "daily_quota_exceeded"}}
+        except Exception as exc:  # quota accounting must never poison a batch
+            logger.debug(f"quota check skipped for {source_name}: {exc}")
 
     try:
         fetcher = await _get_pooled_fetcher(fetcher_path, fetcher_class, extra_config)
