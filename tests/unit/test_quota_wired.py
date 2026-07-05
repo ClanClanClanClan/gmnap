@@ -17,9 +17,10 @@ from src.authorities.base import QuotaManager
 
 @pytest.mark.timeout(30)
 def test_spec_quota_binds_and_blocks(tmp_path):
-    qm = QuotaManager({"zbMATH_Open": {"daily_quota": 5}}, cache_dir=tmp_path)
-
     async def main():
+        # QuotaManager creates an asyncio.Lock — construct inside a loop
+        # (py3.9: Lock() outside a running loop is order-dependent flaky)
+        qm = QuotaManager({"zbMATH_Open": {"daily_quota": 5}}, cache_dir=tmp_path)
         granted = sum([1 for _ in range(8) if await qm.acquire_quota("zbMATH_Open")])
         blocked = not await qm.acquire_quota("zbMATH_Open")
         return granted, blocked
