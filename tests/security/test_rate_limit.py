@@ -5,7 +5,10 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.ops.rate_limit import RateLimiter
+# The class was renamed RateLimiter -> OpsRateLimiter; same API
+# (__init__(rpm_free, rpm_paid), async allow(key, paid, cost)). This import
+# had been broken (collection error) since the rename.
+from src.ops.rate_limit import OpsRateLimiter as RateLimiter
 
 
 @pytest.mark.timeout(15)
