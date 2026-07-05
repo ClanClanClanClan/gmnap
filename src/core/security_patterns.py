@@ -26,7 +26,11 @@ DANGEROUS_PATTERNS = [
     r"\|\s*(sh|bash|python|perl|ruby|php)\b",  # Pipe to interpreter
     # Path traversal
     r"\.\.[\\/]",
-    r"(?i)(\/etc\/|\/proc\/|\/sys\/|c:\\\\windows|c:\\\\system)",
+    # NOTE: `c:\\\\windows` (a raw string) compiles to a regex requiring TWO
+    # literal backslashes, so real single-backslash paths (C:\Windows\...)
+    # slipped through — test_path_traversal_windows had been red. [\\/]+
+    # matches one-or-more of either separator.
+    r"(?i)(\/etc\/|\/proc\/|\/sys\/|c:[\\/]+windows|c:[\\/]+system)",
     # LDAP injection
     r"(?i)(\)\(|\*\)|=\*|=.*\*)",
     # XML/XXE
