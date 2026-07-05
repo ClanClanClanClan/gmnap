@@ -785,9 +785,14 @@ class V7Pipeline:
         # Check quality gates
         if not self._check_quality_gates():
             logger.warning("Some quality gates did not pass")
-            # V7 requirement: Enforce quality gates (lenient for non-QUICK modes in dev)
-            # In production, stricter enforcement would be enabled
-            pass
+
+        # R47 §3.2 (spec §7): the mode-aware spec gates. QUICK stays
+        # advisory; FULL/EXTREME BLOCK (raise) on any measured-gate
+        # failure. Gates whose inputs weren't measured this run (stage-6
+        # score absent, sub-500 batches with no perf projection) are
+        # reported as skipped rather than spuriously failed.
+        # GMNAP_GATES_ADVISORY=1 is the operational kill-switch.
+        self._enforce_spec_gates(all_results)
 
         # Set end time properly
         if self.deterministic:
@@ -1627,6 +1632,72 @@ class V7Pipeline:
                     pass
 
         return entries
+
+    def _enforce_spec_gates(self, entries: List[Dict[str, Any]]) -> None:
+        """Evaluate the spec §7 quality gates via the mode-aware
+        QualityGateChecker and ENFORCE them: advisory in QUICK, blocking
+        (QualityGateBlockedException) in FULL/EXTREME. The dormant
+        blocking checker existed fully tested with zero callers
+        (MASTERPLAN §3.2); the previous behaviour was warn-then-pass with
+        the final gate fed an empty list.
+        """
+        if not self.enable_quality_gates:
+            return
+        if os.getenv("GMNAP_GATES_ADVISORY") == "1":
+            return
+
+        from src.quality.gates import QualityGateChecker
+
+        checker = QualityGateChecker(mode=self.mode.value)
+        results: Dict[str, Any] = {}
+        failed: List[str] = []
+
+        def _record(name, ok, value, measured=True):
+            results[name] = {"passed": bool(ok), "value": value, "measured": measured}
+            if measured and not ok:
+                failed.append(name)
+
+        ok, dupes = checker.check_duplicate_global_ids(entries)
+        _record("duplicate_global_id", ok, dupes)
+        ok, pct = checker.check_duplicate_external_ids(entries)
+        _record("duplicate_external_id_pct", ok, pct)
+        ok, rss = checker.check_memory_limit()
+        _record("peak_rss_gb", ok, rss)
+
+        # The spec's coherence gate scores the GENEALOGY graph. Without any
+        # advisor/student relations in the batch there is no graph — stage 6
+        # falls back to a field-frequency proxy (~0.5-0.7) that would fail
+        # the 0.92/0.97 thresholds spuriously on every relation-less batch.
+        # Only enforce when the batch actually carries graph structure.
+        stage6 = getattr(self.metrics, "stage6_score", None)
+        has_graph = any(e.get("Advisors") or e.get("Students") for e in entries)
+        if stage6 is not None and has_graph:
+            ok, score = checker.check_graph_coherence(stage6)
+            _record("graph_coherence_score", ok, score)
+        else:
+            _record("graph_coherence_score", True, stage6, measured=False)
+
+        # Dedicated attribute — _check_quality_gates() resets
+        # quality_gate_results on each call (the stage-10 report re-invokes
+        # it), which would wipe a nested entry.
+        self.spec_gate_results = {
+            "mode": self.mode.value,
+            "results": results,
+        }
+
+        if failed:
+            detail = ", ".join(f"{name}={results[name]['value']!r}" for name in failed)
+            if self.mode in (PipelineMode.FULL, PipelineMode.EXTREME):
+                from src.quality.strict_gates import QualityGateBlockedException
+
+                raise QualityGateBlockedException(
+                    f"Spec §7 quality gates failed in {self.mode.value} mode "
+                    f"(blocking): {detail}",
+                    {"failures": failed, "blocked": True, "results": results},
+                )
+            logger.warning(
+                "Spec §7 quality gates failed (advisory in quick mode): %s", detail
+            )
 
     def _check_quality_gates(self) -> bool:
         """Check if quality gates are met."""
