@@ -155,3 +155,23 @@ mis-classified region in the bundled data:
 - For MGP-sourced data: report to the MGP via their submission form.
 - For this project's adjudication (i.e. wrong `region_code`): open
   an issue or PR; see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Authority fetcher roster (spec §9: 14 sources — the repo ships more)
+
+Beyond-spec working code is a feature (see `docs/MASTERPLAN.md` §0). The
+spec's 14 sources are wired through `src/authorities/manager_tier01.py`
+(9 live HTTP, 2 API-key-gated, 3 deferred — see CLAUDE.md's authority
+table). On top of those, `src/authorities/tier0..2/` carries bonus
+fetchers, all construction-guarded by
+`tests/unit/test_authority_fetchstatus.py` (AST kwarg validity,
+FetchStatus members, ABC concreteness):
+
+| Fetcher | Status |
+|---|---|
+| ACM, IEEE, PubMed, Springer, VIAF, Wiley (tier1) | fixed + tested in R40.1 (were TypeError-on-call); available, not wired into the tier orchestrator |
+| DBLP, arXiv (tier1) | statically valid; construction-guarded; behavioral tests pending |
+| ResearchGate (tier1) | mock-mode by design — not a live source |
+| CNKI, JSTOR, EThOS, J-Stage, NARCIS, SciELO, TEL, CERN-CDS, Dimensions, MathSciNet-HTML, ProQuest (tier2) | template-engine stubs; package importable since R49 (`__init__` used to import 3 never-existing modules) |
+
+The live enrichment path only calls the spec'd 14; the bonus roster is
+kept + documented per the maintainer's beyond-spec rule.

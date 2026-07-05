@@ -8,12 +8,27 @@ except Exception:
     requests = None
 
 OFFLINE = os.getenv("OFFLINE", "1") == "1"
-FORCE_EXTREME = os.getenv("FORCE_EXTREME", "0") == "1"
+
+
+def _force_extreme() -> bool:
+    """The CLI's --force-extreme sets GMNAP_FORCE_EXTREME=1, but this gate
+    historically read un-prefixed FORCE_EXTREME — so the flag NEVER flipped
+    it (MASTERPLAN §4.6). Accept the canonical GMNAP_ name (legacy name kept
+    for back-compat), and read at call time so tests/CLI toggling works.
+    """
+    return (
+        os.getenv("GMNAP_FORCE_EXTREME", "0") == "1"
+        or os.getenv("FORCE_EXTREME", "0") == "1"
+    )
+
+
+# Back-compat module-level snapshot (import-time); prefer _force_extreme().
+FORCE_EXTREME = _force_extreme()
 
 
 def _require_extreme_and(env_key: str | None = None, expected: str | None = None):
-    if not FORCE_EXTREME:
-        return False, "FORCE_EXTREME=0"
+    if not _force_extreme():
+        return False, "GMNAP_FORCE_EXTREME=0"
     if env_key and expected is not None and os.getenv(env_key) != expected:
         return False, f"{env_key} must be '{expected}'"
     return True, ""

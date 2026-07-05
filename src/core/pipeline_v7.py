@@ -1397,10 +1397,39 @@ class V7Pipeline:
                 if entry.get("Aliases"):
                     short_forms.extend(entry["Aliases"])
 
-            # Store short forms in the entry
+            # Store short forms in the entry. sorted() — a raw list(set(...))
+            # iterates in hash-randomized order across processes, which
+            # breaks the stage-11 byte-identical idempotency contract.
             if short_forms:
-                entry["ShortForms"] = list(set(short_forms))  # Remove duplicates
+                entry["ShortForms"] = sorted(set(short_forms))
                 logger.debug(f"Generated short forms for {name}: {entry['ShortForms']}")
+
+        # Spec §5 stage 7 names ShortFormClusters — the CROSS-ENTRY mapping
+        # (which entries collapse to the same initials/short form), not just
+        # the per-entry list (MASTERPLAN §4.7, R49). Only forms shared by
+        # >= 2 entries form a cluster; each member gets the sorted GlobalID
+        # list so downstream disambiguation sees its collision set.
+        form_to_gids: Dict[str, List[str]] = {}
+        for entry in entries:
+            gid = entry.get("GlobalID")
+            if not gid:
+                continue
+            for form in entry.get("ShortForms", []):
+                form_to_gids.setdefault(form, []).append(gid)
+        clusters = {
+            form: sorted(gids)
+            for form, gids in form_to_gids.items()
+            if len(set(gids)) >= 2
+        }
+        if clusters:
+            for entry in entries:
+                mine = {
+                    form: clusters[form]
+                    for form in entry.get("ShortForms", [])
+                    if form in clusters
+                }
+                if mine:
+                    entry["ShortFormClusters"] = dict(sorted(mine.items()))
 
         return entries
 
