@@ -456,6 +456,14 @@ package rename, the canonical Helm path, and any touch to `security_validator.py
 Root `archive/` (1,270 untracked entries) is gitignored, not deleted — confirm
 disposable.
 
+**iso_territories LT (R49, needs a §14 ruling):** spec §2 lists LT under A3
+(Nordic–Baltic geo group); the code + 16 adjudicated test expectations
+deliberately map CC=LT → C9 (the Baltic *linguistic* leaf — "Most common
+Lithuanian"). Flipping code to spec breaks the adjudicated benchmark;
+flipping spec needs its author. Kept the adjudicated behaviour (documented
+at `src/regions/base.py` "LT"), pending your decision. Same class: HU→A2
+vs spec B2, SS in both C3/F2.
+
 ### 11.6 — PRE-TIER-2 REVIEW + "fix everything" pass (DONE, verified green)
 A rigorous self-review before Tier 2 separated real defects from environment
 noise. **Crucial finding: the local env lacked the pinned `duckdb`/`neo4j`/
