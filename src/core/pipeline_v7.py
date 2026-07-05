@@ -152,6 +152,38 @@ from src.core.pipeline_runtime import (  # noqa: F401
 )
 
 
+def _apply_detection_fields(entry, result):
+    """Copy the stage-2 detection result onto the entry.
+
+    Spec §2/§3 (split geo/name-origin + diaspora): every record carries both
+    axes, not just the collapsed region_code. RegionDetectionResult has
+    computed these since Phase 2/3; they were dropped at this boundary —
+    only DetectedRegion/Confidence/Method were copied (MASTERPLAN §3.4).
+    Optional axes are set only when present, so records without a geo signal
+    don't grow null fields; RegionConflict (the diaspora flag) is always set.
+    """
+    entry["DetectedRegion"] = result.region_code
+    entry["DetectionConfidence"] = result.confidence
+    entry["DetectionMethod"] = result.detection_method
+    entry["RegionConflict"] = bool(getattr(result, "conflict", False))
+    for attr, field in (
+        ("geo_region", "GeoRegion"),
+        ("name_region", "NameRegion"),
+        ("group_region", "GroupRegion"),
+        ("resolution_level", "ResolutionLevel"),
+    ):
+        value = getattr(result, attr, None)
+        if value is not None:
+            entry[field] = value
+    candidates = getattr(result, "candidates", None)
+    if candidates:
+        # tuples -> lists so the YAML/JSON writers stay schema-plain
+        entry["RegionCandidates"] = [
+            list(c) if isinstance(c, tuple) else c for c in candidates
+        ]
+    return entry
+
+
 class V7Pipeline:
     """
     V7-compliant processing pipeline implementing all 12 stages.
@@ -500,8 +532,7 @@ class V7Pipeline:
             if "DetectedRegion" not in processed and "CanonicalNative" in processed:
                 try:
                     detection_result = self._region_manager.detect_region(processed)
-                    processed["DetectedRegion"] = detection_result.region_code
-                    processed["DetectionConfidence"] = detection_result.confidence
+                    _apply_detection_fields(processed, detection_result)
                 except Exception:
                     # Skip detection on error for fast path
                     processed["DetectedRegion"] = "unknown"
@@ -857,9 +888,7 @@ class V7Pipeline:
 
         async def detect_single(entry):
             result = self.region_manager.detect_region(entry)
-            entry["DetectedRegion"] = result.region_code
-            entry["DetectionConfidence"] = result.confidence
-            entry["DetectionMethod"] = result.detection_method
+            _apply_detection_fields(entry, result)
             return entry
 
         # Process entries concurrently
@@ -877,9 +906,7 @@ class V7Pipeline:
 
         for entry in entries:
             result = manager.detect_region(entry)
-            entry["DetectedRegion"] = result.region_code
-            entry["DetectionConfidence"] = result.confidence
-            entry["DetectionMethod"] = result.detection_method
+            _apply_detection_fields(entry, result)
             results.append(entry)
 
         return results
@@ -896,9 +923,7 @@ class V7Pipeline:
             results = []
             for entry in batch:
                 result = manager.detect_region(entry)
-                entry["DetectedRegion"] = result.region_code
-                entry["DetectionConfidence"] = result.confidence
-                entry["DetectionMethod"] = result.detection_method
+                _apply_detection_fields(entry, result)
                 results.append(entry)
             return results
 
@@ -1681,12 +1706,15 @@ class V7Pipeline:
                 "processed_entries": self.metrics.processed_entries,
                 "failed_entries": self.metrics.failed_entries,
                 "success_rate": self.metrics.success_rate,
-                "success_count": self.metrics.processed_entries
-                - self.metrics.failed_entries,
+                "success_count": (
+                    self.metrics.processed_entries - self.metrics.failed_entries
+                ),
                 "failed_count": self.metrics.failed_entries,
                 "duration_seconds": self.metrics.duration_seconds,
                 "entries_per_second": self.metrics.entries_per_second,
-                "projected_time_per_million_minutes": self.metrics.projected_time_per_million,
+                "projected_time_per_million_minutes": (
+                    self.metrics.projected_time_per_million
+                ),
                 "duplicate_global_ids": self.metrics.duplicate_global_ids,
                 "stage_timings": self.metrics.stage_timings,
             },
@@ -1694,8 +1722,12 @@ class V7Pipeline:
                 "passed": self._check_quality_gates(),
                 "results": getattr(self, "quality_gate_results", {}),
                 "limits": {
-                    "duplicate_external_id_pct_max": self.quality_gates.cfg.duplicate_external_id_pct_max,
-                    "runtime_per_1M_min": self.quality_gates.cfg.projected_1m_minutes_max,
+                    "duplicate_external_id_pct_max": (
+                        self.quality_gates.cfg.duplicate_external_id_pct_max
+                    ),
+                    "runtime_per_1M_min": (
+                        self.quality_gates.cfg.projected_1m_minutes_max
+                    ),
                     "stage6_score_min": self.quality_gates.cfg.stage6_min,
                 },
             },
