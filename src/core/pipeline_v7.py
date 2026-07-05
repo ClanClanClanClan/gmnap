@@ -152,6 +152,38 @@ from src.core.pipeline_runtime import (  # noqa: F401
 )
 
 
+def _apply_detection_fields(entry, result):
+    """Copy the stage-2 detection result onto the entry.
+
+    Spec §2/§3 (split geo/name-origin + diaspora): every record carries both
+    axes, not just the collapsed region_code. RegionDetectionResult has
+    computed these since Phase 2/3; they were dropped at this boundary —
+    only DetectedRegion/Confidence/Method were copied (MASTERPLAN §3.4).
+    Optional axes are set only when present, so records without a geo signal
+    don't grow null fields; RegionConflict (the diaspora flag) is always set.
+    """
+    entry["DetectedRegion"] = result.region_code
+    entry["DetectionConfidence"] = result.confidence
+    entry["DetectionMethod"] = result.detection_method
+    entry["RegionConflict"] = bool(getattr(result, "conflict", False))
+    for attr, field in (
+        ("geo_region", "GeoRegion"),
+        ("name_region", "NameRegion"),
+        ("group_region", "GroupRegion"),
+        ("resolution_level", "ResolutionLevel"),
+    ):
+        value = getattr(result, attr, None)
+        if value is not None:
+            entry[field] = value
+    candidates = getattr(result, "candidates", None)
+    if candidates:
+        # tuples -> lists so the YAML/JSON writers stay schema-plain
+        entry["RegionCandidates"] = [
+            list(c) if isinstance(c, tuple) else c for c in candidates
+        ]
+    return entry
+
+
 class V7Pipeline:
     """
     V7-compliant processing pipeline implementing all 12 stages.
@@ -500,8 +532,7 @@ class V7Pipeline:
             if "DetectedRegion" not in processed and "CanonicalNative" in processed:
                 try:
                     detection_result = self._region_manager.detect_region(processed)
-                    processed["DetectedRegion"] = detection_result.region_code
-                    processed["DetectionConfidence"] = detection_result.confidence
+                    _apply_detection_fields(processed, detection_result)
                 except Exception:
                     # Skip detection on error for fast path
                     processed["DetectedRegion"] = "unknown"
@@ -727,6 +758,21 @@ class V7Pipeline:
                     logger.warning(f"Genealogy processing failed: {e}")
                 # Continue with pipeline even if genealogy fails
 
+        # GDPR treatment (spec §10) — runs after enrichment, before anything
+        # is written: GDPR_DATA marking, ToS-source scrubbing (GoogleScholar/
+        # ProQuest/CNKI), birth-year cohort masking (<5), and optional
+        # ShadowNode collapse. --drop-personal reaches us via the
+        # GMNAP_DROP_PERSONAL env the CLI sets (that flag had been plumbed
+        # but never honored — MASTERPLAN §3.1). GMNAP_DISABLE_GDPR=1 is the
+        # operational kill-switch.
+        if os.getenv("GMNAP_DISABLE_GDPR") != "1":
+            from src.core.gdpr import gdpr_pipeline
+
+            drop_personal = os.getenv("GMNAP_DROP_PERSONAL") == "1" or bool(
+                (self.config or {}).get("pipeline", {}).get("drop_personal")
+            )
+            all_results = gdpr_pipeline(all_results, drop_personal=drop_personal)
+
         # Final stages
         await self._stage_9_write_diff(all_results)
         await self._stage_10_report(all_results)
@@ -739,9 +785,14 @@ class V7Pipeline:
         # Check quality gates
         if not self._check_quality_gates():
             logger.warning("Some quality gates did not pass")
-            # V7 requirement: Enforce quality gates (lenient for non-QUICK modes in dev)
-            # In production, stricter enforcement would be enabled
-            pass
+
+        # R47 §3.2 (spec §7): the mode-aware spec gates. QUICK stays
+        # advisory; FULL/EXTREME BLOCK (raise) on any measured-gate
+        # failure. Gates whose inputs weren't measured this run (stage-6
+        # score absent, sub-500 batches with no perf projection) are
+        # reported as skipped rather than spuriously failed.
+        # GMNAP_GATES_ADVISORY=1 is the operational kill-switch.
+        self._enforce_spec_gates(all_results)
 
         # Set end time properly
         if self.deterministic:
@@ -857,9 +908,7 @@ class V7Pipeline:
 
         async def detect_single(entry):
             result = self.region_manager.detect_region(entry)
-            entry["DetectedRegion"] = result.region_code
-            entry["DetectionConfidence"] = result.confidence
-            entry["DetectionMethod"] = result.detection_method
+            _apply_detection_fields(entry, result)
             return entry
 
         # Process entries concurrently
@@ -877,9 +926,7 @@ class V7Pipeline:
 
         for entry in entries:
             result = manager.detect_region(entry)
-            entry["DetectedRegion"] = result.region_code
-            entry["DetectionConfidence"] = result.confidence
-            entry["DetectionMethod"] = result.detection_method
+            _apply_detection_fields(entry, result)
             results.append(entry)
 
         return results
@@ -896,9 +943,7 @@ class V7Pipeline:
             results = []
             for entry in batch:
                 result = manager.detect_region(entry)
-                entry["DetectedRegion"] = result.region_code
-                entry["DetectionConfidence"] = result.confidence
-                entry["DetectionMethod"] = result.detection_method
+                _apply_detection_fields(entry, result)
                 results.append(entry)
             return results
 
@@ -1588,6 +1633,72 @@ class V7Pipeline:
 
         return entries
 
+    def _enforce_spec_gates(self, entries: List[Dict[str, Any]]) -> None:
+        """Evaluate the spec §7 quality gates via the mode-aware
+        QualityGateChecker and ENFORCE them: advisory in QUICK, blocking
+        (QualityGateBlockedException) in FULL/EXTREME. The dormant
+        blocking checker existed fully tested with zero callers
+        (MASTERPLAN §3.2); the previous behaviour was warn-then-pass with
+        the final gate fed an empty list.
+        """
+        if not self.enable_quality_gates:
+            return
+        if os.getenv("GMNAP_GATES_ADVISORY") == "1":
+            return
+
+        from src.quality.gates import QualityGateChecker
+
+        checker = QualityGateChecker(mode=self.mode.value)
+        results: Dict[str, Any] = {}
+        failed: List[str] = []
+
+        def _record(name, ok, value, measured=True):
+            results[name] = {"passed": bool(ok), "value": value, "measured": measured}
+            if measured and not ok:
+                failed.append(name)
+
+        ok, dupes = checker.check_duplicate_global_ids(entries)
+        _record("duplicate_global_id", ok, dupes)
+        ok, pct = checker.check_duplicate_external_ids(entries)
+        _record("duplicate_external_id_pct", ok, pct)
+        ok, rss = checker.check_memory_limit()
+        _record("peak_rss_gb", ok, rss)
+
+        # The spec's coherence gate scores the GENEALOGY graph. Without any
+        # advisor/student relations in the batch there is no graph — stage 6
+        # falls back to a field-frequency proxy (~0.5-0.7) that would fail
+        # the 0.92/0.97 thresholds spuriously on every relation-less batch.
+        # Only enforce when the batch actually carries graph structure.
+        stage6 = getattr(self.metrics, "stage6_score", None)
+        has_graph = any(e.get("Advisors") or e.get("Students") for e in entries)
+        if stage6 is not None and has_graph:
+            ok, score = checker.check_graph_coherence(stage6)
+            _record("graph_coherence_score", ok, score)
+        else:
+            _record("graph_coherence_score", True, stage6, measured=False)
+
+        # Dedicated attribute — _check_quality_gates() resets
+        # quality_gate_results on each call (the stage-10 report re-invokes
+        # it), which would wipe a nested entry.
+        self.spec_gate_results = {
+            "mode": self.mode.value,
+            "results": results,
+        }
+
+        if failed:
+            detail = ", ".join(f"{name}={results[name]['value']!r}" for name in failed)
+            if self.mode in (PipelineMode.FULL, PipelineMode.EXTREME):
+                from src.quality.strict_gates import QualityGateBlockedException
+
+                raise QualityGateBlockedException(
+                    f"Spec §7 quality gates failed in {self.mode.value} mode "
+                    f"(blocking): {detail}",
+                    {"failures": failed, "blocked": True, "results": results},
+                )
+            logger.warning(
+                "Spec §7 quality gates failed (advisory in quick mode): %s", detail
+            )
+
     def _check_quality_gates(self) -> bool:
         """Check if quality gates are met."""
 
@@ -1681,12 +1792,15 @@ class V7Pipeline:
                 "processed_entries": self.metrics.processed_entries,
                 "failed_entries": self.metrics.failed_entries,
                 "success_rate": self.metrics.success_rate,
-                "success_count": self.metrics.processed_entries
-                - self.metrics.failed_entries,
+                "success_count": (
+                    self.metrics.processed_entries - self.metrics.failed_entries
+                ),
                 "failed_count": self.metrics.failed_entries,
                 "duration_seconds": self.metrics.duration_seconds,
                 "entries_per_second": self.metrics.entries_per_second,
-                "projected_time_per_million_minutes": self.metrics.projected_time_per_million,
+                "projected_time_per_million_minutes": (
+                    self.metrics.projected_time_per_million
+                ),
                 "duplicate_global_ids": self.metrics.duplicate_global_ids,
                 "stage_timings": self.metrics.stage_timings,
             },
@@ -1694,8 +1808,12 @@ class V7Pipeline:
                 "passed": self._check_quality_gates(),
                 "results": getattr(self, "quality_gate_results", {}),
                 "limits": {
-                    "duplicate_external_id_pct_max": self.quality_gates.cfg.duplicate_external_id_pct_max,
-                    "runtime_per_1M_min": self.quality_gates.cfg.projected_1m_minutes_max,
+                    "duplicate_external_id_pct_max": (
+                        self.quality_gates.cfg.duplicate_external_id_pct_max
+                    ),
+                    "runtime_per_1M_min": (
+                        self.quality_gates.cfg.projected_1m_minutes_max
+                    ),
                     "stage6_score_min": self.quality_gates.cfg.stage6_min,
                 },
             },

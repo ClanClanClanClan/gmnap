@@ -155,6 +155,17 @@ def scrub_sources(entry: Dict[str, Any]) -> Dict[str, Any]:
         entry["AuthorityIDs"] = {
             k: v for k, v in auth.items() if k not in SCRUBBED_SOURCES
         }
+    # Defense-in-depth: the legacy manager / external inputs carry
+    # ``AuthoritySources`` as a list of {"source": name, ...} dicts (or
+    # plain names). The live tier orchestrator writes ``_sources``, but a
+    # ToS-scrubbed source must not survive in EITHER shape (R47 §3.1).
+    auth_sources = entry.get("AuthoritySources")
+    if isinstance(auth_sources, list):
+        entry["AuthoritySources"] = [
+            s
+            for s in auth_sources
+            if (s.get("source") if isinstance(s, dict) else s) not in SCRUBBED_SOURCES
+        ]
     return entry
 
 
