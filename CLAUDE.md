@@ -1,5 +1,5 @@
 # GMNAP v7 / MathLineage — Current Development Status
-*Last Updated: 2026-04-27*
+*Last Updated: 2026-07-06*
 
 ## 🎯 System State (Honest Assessment)
 
@@ -58,15 +58,33 @@ All regions have full `clean()`, `augment()`, `validate()`, `order_key()`:
   "YAML Config" section below for the real state.)
 - C1 processor loads `config/script_switch.yaml` for Kazakh/Uzbek reform schedules
 - Region overlay map (spec §2a) wired for sub-national detection
-- Diaspora overlay wired for cross-border mathematician detection
+- Diaspora overlay APPLIED (R49): era-scoped CC→region rules from
+  `config/diaspora.yaml` drive the geo axis (e.g. TH pre-2015 → E6,
+  2016- → A1); detection cache key is era-aware (includes BirthYear)
+- Stage 2 copies the split axes onto every record (R47): GeoRegion /
+  NameRegion / GroupRegion / ResolutionLevel / RegionCandidates +
+  RegionConflict (the diaspora flag — Tao/AU → geo A1, name E1, True)
+- GenealogyRelation edges extracted every batch + stage-6 cycle
+  rejection (self-loop / mutual advisorship dropped, counted into the
+  genealogy_edge_conflict gate) (R48)
+- ATTRIBUTION.txt (SPDX per source) written by stage 10 every run (R48)
 
-### Quality Gates (8 gates)
-All 8 V7 quality gates implemented with mode-specific thresholds.
+### Quality Gates (8 gates) — ENFORCED, mode-aware (R47)
+All 8 V7 quality gates implemented with mode-specific thresholds — and since
+R47 they ENFORCE: QUICK is advisory (warn + complete); FULL/EXTREME BLOCK
+(`QualityGateBlockedException`) on measured-gate failures against the real
+accumulated entries. Unmeasured gates (e.g. graph coherence on a batch with
+no advisor relations) are reported as skipped, never spuriously failed.
+Results on `pipeline.spec_gate_results`; kill-switch `GMNAP_GATES_ADVISORY=1`.
 
-### GDPR Compliance
-- GDPR_DATA field marking, birth year decade-masking
-- ShadowNode conversion (`--drop-personal` flag) via `src/core/gdpr.py`
-- Source scrubbing (GoogleScholar, ProQuest, CNKI)
+### GDPR Compliance — LIVE in the pipeline (R47)
+`gdpr_pipeline` runs on every batch after enrichment, before the stage-9
+write (kill-switch `GMNAP_DISABLE_GDPR=1`):
+- GDPR_DATA field marking, birth-year decade-masking (cohort < 5)
+- ShadowNode conversion — the CLI `--drop-personal` flag is honored
+  end-to-end via `GMNAP_DROP_PERSONAL=1`
+- Source scrubbing (GoogleScholar, ProQuest, CNKI) across `_sources`,
+  `AuthorityIDs`, and the legacy `AuthoritySources` dict shape
 
 ### Cache System
 - Zstandard compression, 60-day TTL, 50GB max, LRU eviction
@@ -138,16 +156,16 @@ The 13 dead files that used to live in the old singular `src/authority/`
 confusing singular-vs-plural split is gone — all authority code now lives
 under `src/authorities/`.
 
-### YAML Config: extension point only, currently dormant
+### YAML Config: live for A2, defaults elsewhere
 `RegionSpec.load_yaml_config()` reads `config/regions/<lowercase_code>.yaml`
 and caches the result in the module-level `_YAML_CACHE`. Tests verify
 the loader (`tests/unit/test_region_processors.py::TestYAMLConfigLoader`).
 
-In practice the directory `config/regions/` does **not** currently
-exist in the repo — every region falls back to the hardcoded
-defaults set in its processor's `__init__`. The loader is wired and
-ready; populate the directory if/when YAML-driven overrides become
-the right way to tune a particular region.
+`config/regions/a2.yaml` exists and `A2_WesternEurope.__init__`
+consumes it (the first live per-region override — see the Region
+Config section above). The other 36 regions fall back to the
+hardcoded defaults in their processors' `__init__` until a YAML is
+added AND the processor is wired to read it (copy A2's pattern).
 
 The previous "ensure_yaml_loaded() / _apply_yaml_overrides()"
 auto-merge machinery was removed in the 2026-04-27 audit because it
