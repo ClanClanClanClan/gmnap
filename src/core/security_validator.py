@@ -788,8 +788,29 @@ class SecurityValidator:
             True if valid round-trip
 
         Raises:
-            SecurityError: If non-CJK text detected
+            SecurityError: If non-CJK text, null bytes, or DoS-length
+                input detected
         """
+        # Defense-in-depth (R46 test-repair audit): a *validation* method
+        # must never bless content that validate_string would reject.
+        # Before this check, validate_cjk_roundtrip("王\x00明", ...,
+        # "王\x00明") returned True — a null-byte payload judged a
+        # "valid" round-trip. The 200-char cap mirrors the DoS caps used
+        # elsewhere in this module (validate_string: 150/1000,
+        # sanitize_for_output: 200) — real CJK names never approach it.
+        for label, value in (
+            ("original", original),
+            ("romanized", romanized),
+            ("back_to_cjk", back_to_cjk),
+        ):
+            if "\x00" in value:
+                raise SecurityError(f"Null byte detected in {context} ({label})")
+            if len(value) > 200:
+                raise SecurityError(
+                    f"Excessively long CJK conversion in {context} "
+                    f"({label}: {len(value)} chars)"
+                )
+
         # Check if original contains CJK characters
         has_cjk = False
         for char in original:
