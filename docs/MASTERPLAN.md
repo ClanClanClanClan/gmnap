@@ -351,6 +351,34 @@ phases:
 
 ---
 
+## 10b. CONFORMANCE WIRING — DONE THROUGH R49 (PRs #5, #6, #7)
+
+- ✅ §3.4 split geo/name axes + RegionConflict on every record (R47)
+- ✅ §3.1 GDPR pipeline live: mark/scrub/mask/ShadowNode, --drop-personal
+  honored, kill-switch (R47)
+- ✅ §3.2 spec §7 gates ENFORCE mode-aware (QUICK advisory, FULL/EXTREME
+  block; measured/skipped semantics; kill-switch) (R47)
+- ✅ §3.3 (stages 5-6): GenealogyRelation extraction unconditional +
+  cycle rejection (<3) with name→GID resolution; feeds the conflict gate (R48)
+- ✅ §3.6 (partial): ATTRIBUTION.txt written every run; spec_loader fixed
+  (real path); **the ground-truth spec made parseable** (5 quoted lines);
+  SPDX U+2011 normalised (R48)
+- ✅ §3.5 diaspora overlay APPLIED (era rules; era-aware cache key) (R49)
+- ✅ §3.8 per-source daily quotas bind (spec-seeded, U+00A0-normalised,
+  kill-switch) (R49)
+- ✅ §4.6 GMNAP_FORCE_EXTREME honored; §4.7 ShortFormClusters cross-entry
+  (+ ShortForms determinism fix); §2b.1 AsyncBatchAggregator first tests;
+  §2b.4 SQLiteAnalytics first tests; §2c tier2 package importable (R49)
+- ✅ §7 doc reconciliation: CLAUDE.md updated to R47-R49 reality;
+  DATA_SOURCES.md full fetcher roster (R49)
+- ⏸ §4.5 iso_territories LT: genuine spec-vs-adjudication conflict —
+  documented in-code + §11.5, needs the maintainer's §14 ruling
+- ⏳ REMAINING: stage-8 round-trip wiring; §3.6-rest DOI draft + SFTP
+  (need creds; OFFLINE-guarded wiring); §3.7 tier-2 key-gated live calls;
+  §5 licence_tiers + §2a subnational overlay + F1/F4 particle stubs;
+  §2b.2/.3/.5-.9 remaining test/CI additions; deeper scripts/ triage;
+  stage-11 true re-run idempotency (§4.2).
+
 ## 11. WHOLE-PROJECT REFACTORING, DOC & ORG CLEANUP (R41)
 
 Driven by two verified audits (2026-06-28): a **doc + file-org** audit
