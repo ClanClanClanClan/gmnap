@@ -248,35 +248,15 @@ def verify_hashcash(stamp: str, required_bits: int = HASHCASH_BITS) -> bool:
         return True
 
 
-# ---------------------------------------------------------------------------
-# Request / response models
-# ---------------------------------------------------------------------------
-class ProcessRequest(BaseModel):
-    entries: List[Dict[str, Any]]
-    mode: str = "quick"
-    schema_strict: int = 0
-    limit: int = 100  # max entries to return per page (1-10000)
-    offset: int = 0  # skip first N results
-
-    @property
-    def pipeline_mode(self) -> str:
-        """Validated mode string."""
-        return self.mode if self.mode in ("quick", "full", "extreme") else "quick"
-
-
-class HealthResponse(BaseModel):
-    status: str
-    version: str = "7.0"
-    uptime_seconds: float = 0.0
-
-
-class CorrectionSuggestion(BaseModel):
-    original_name: str
-    correction_type: str  # advisor, institution, year, name, country, other
-    suggested_value: str
-    source_url: str = ""
-    submitter_note: str = ""
-
+# ── R46: request/response models + logging setup split into
+#    src/api/models.py and src/api/logging_setup.py; re-imported here so
+#    route annotations and external imports keep working unchanged.
+from src.api.logging_setup import _configure_logging, _JSONLogFormatter  # noqa: F401
+from src.api.models import (  # noqa: F401
+    CorrectionSuggestion,
+    HealthResponse,
+    ProcessRequest,
+)
 
 # ---------------------------------------------------------------------------
 # App factory
@@ -303,72 +283,6 @@ _PAID_TOKENS = set(
 #   json           — one JSON object per line (Loki/Datadog/Stackdriver)
 # GMNAP_LOG_LEVEL passes through to Python's logging level. Both env
 # vars are read at app-factory time; restart workers to change them.
-class _JSONLogFormatter(logging.Formatter):
-    """Minimal JSON formatter — no third-party dep needed."""
-
-    def format(self, record: logging.LogRecord) -> str:
-        import json as _json
-
-        payload: Dict[str, Any] = {
-            "ts": self.formatTime(record, datefmt="%Y-%m-%dT%H:%M:%S"),
-            "level": record.levelname,
-            "logger": record.name,
-            "msg": record.getMessage(),
-        }
-        if record.exc_info:
-            payload["exc"] = self.formatException(record.exc_info)
-        # Pass through any extra fields the caller attached with
-        # logger.info("msg", extra={"key": "value"}).
-        for k, v in record.__dict__.items():
-            if k not in {
-                "args",
-                "asctime",
-                "created",
-                "exc_info",
-                "exc_text",
-                "filename",
-                "funcName",
-                "levelname",
-                "levelno",
-                "lineno",
-                "message",
-                "module",
-                "msecs",
-                "msg",
-                "name",
-                "pathname",
-                "process",
-                "processName",
-                "relativeCreated",
-                "stack_info",
-                "thread",
-                "threadName",
-                "taskName",
-            }:
-                payload[k] = v
-        return _json.dumps(payload, default=str)
-
-
-def _configure_logging() -> None:
-    """Idempotent — safe to call from create_app and from CLI."""
-    level = os.getenv("GMNAP_LOG_LEVEL", "INFO").upper()
-    fmt = os.getenv("GMNAP_LOG_FORMAT", "text").lower()
-    root = logging.getLogger()
-    # Don't re-wire if we already installed a handler; respects
-    # operator pre-config (uvicorn --log-config etc).
-    if any(getattr(h, "_gmnap_managed", False) for h in root.handlers):
-        return
-    root.setLevel(level)
-    handler = logging.StreamHandler()
-    handler._gmnap_managed = True  # type: ignore[attr-defined]
-    if fmt == "json":
-        handler.setFormatter(_JSONLogFormatter())
-    else:
-        handler.setFormatter(
-            logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
-        )
-    root.addHandler(handler)
-
 
 _configure_logging()
 
