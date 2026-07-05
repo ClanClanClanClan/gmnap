@@ -152,6 +152,56 @@ from src.core.pipeline_runtime import (  # noqa: F401
 )
 
 
+def _reject_short_cycles(edges, entries):
+    """Spec §5 stage 6: "reject cycles <3". A person can't advise
+    themselves (length-1 cycle) and two people can't be each other's
+    doctoral advisor (length-2 cycle) — such edges are data errors.
+
+    Edge sources are GlobalIDs but targets are usually advisor NAMES, so
+    targets must be resolved through the batch's name->GlobalID index
+    (mirrors GraphCoherence.compute_coherence) before pair comparison —
+    a raw (gid, name) tuple check can never match its (name, gid) mirror.
+    Returns (clean_edges, rejected_count).
+    """
+    name_to_gid = {}
+    for e in entries:
+        gid = e.get("GlobalID")
+        if not gid:
+            continue
+        for key in ("CanonicalLatin", "CanonicalNative", "CanonicalName", "Name"):
+            v = e.get(key)
+            if isinstance(v, str) and v:
+                name_to_gid.setdefault(v, gid)
+                name_to_gid.setdefault(v.lower(), gid)
+
+    def _target_gid(e):
+        tid = e.get("target_id")
+        if tid:
+            return tid
+        name = e.get("target_name")
+        if isinstance(name, str) and name:
+            return name_to_gid.get(name) or name_to_gid.get(name.lower()) or name
+        return None
+
+    seen_pairs = set()
+    for e in edges:
+        src, tgt = e.get("source_id"), _target_gid(e)
+        if src and tgt:
+            seen_pairs.add((src, tgt))
+
+    clean, rejected = [], 0
+    for e in edges:
+        src, tgt = e.get("source_id"), _target_gid(e)
+        if src and tgt and src == tgt:
+            rejected += 1  # self-loop
+            continue
+        if src and tgt and (tgt, src) in seen_pairs:
+            rejected += 1  # mutual advisorship (2-cycle)
+            continue
+        clean.append(e)
+    return clean, rejected
+
+
 def _apply_detection_fields(entry, result):
     """Copy the stage-2 detection result onto the entry.
 
@@ -711,6 +761,31 @@ class V7Pipeline:
 
             all_results.extend(results)
 
+        # R48 §3.3: GenealogyRelation edge EXTRACTION is the spec §5 stage-5
+        # contract and runs unconditionally (pure function over the batch,
+        # no infra). Spec §5 stage-6 "reject cycles <3": self-loops and
+        # mutual advisorship are logically bogus edges — dropped here, and
+        # the conflict count feeds the §7 genealogy_edge_conflict gate with
+        # REAL measured values. Only the Memgraph graph-POPULATE below
+        # stays opt-in.
+        self.genealogy_edges = []
+        if extract_edges_from_entries is not None:
+            try:
+                raw_edges = extract_edges_from_entries(all_results)
+                self.genealogy_edges, rejected = _reject_short_cycles(
+                    raw_edges, all_results
+                )
+                self.metrics.genealogy_edges = len(self.genealogy_edges)
+                self.metrics.genealogy_edge_conflicts = rejected
+                if rejected:
+                    logger.warning(
+                        "Stage 6 cycle rejection: dropped %d bogus edge(s) "
+                        "(self-loop or mutual advisorship)",
+                        rejected,
+                    )
+            except Exception as e:
+                logger.warning(f"Genealogy edge extraction failed: {e}")
+
         # Genealogy graph stages (advisor enrich -> edge extract -> Memgraph
         # populate) — OPT-IN via GMNAP_GENEALOGY_GRAPH=1. The graph-write
         # path needs Memgraph (and the env-gated Wikidata/MathGen fetchers)
@@ -736,7 +811,8 @@ class V7Pipeline:
                 )
 
                 logger.info("Genealogy Stage 5: Edge extraction")
-                genealogy_edges = extract_edges_from_entries(all_results)
+                # reuse the unconditionally-extracted, cycle-rejected edges
+                genealogy_edges = self.genealogy_edges
                 logger.info(f"Extracted {len(genealogy_edges)} genealogy edges")
 
                 logger.info("Genealogy Stage 6: Graph population")
@@ -1663,6 +1739,16 @@ class V7Pipeline:
         _record("duplicate_external_id_pct", ok, pct)
         ok, rss = checker.check_memory_limit()
         _record("peak_rss_gb", ok, rss)
+
+        edges_total = getattr(self.metrics, "genealogy_edges", 0)
+        conflicts = getattr(self.metrics, "genealogy_edge_conflicts", 0)
+        if edges_total or conflicts:
+            ok, pct = checker.check_genealogy_edge_conflicts(
+                conflicts, edges_total + conflicts
+            )
+            _record("genealogy_edge_conflict_pct", ok, pct)
+        else:
+            _record("genealogy_edge_conflict_pct", True, 0.0, measured=False)
 
         # The spec's coherence gate scores the GENEALOGY graph. Without any
         # advisor/student relations in the batch there is no graph — stage 6
