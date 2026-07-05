@@ -67,7 +67,7 @@ glossary:
   - term: Variant-Synthesised
     definition: Object {str, type} with type ∈ {ascii-lossy, tone-number, diac-drop, order-swap, romanisation-alt, particle-drop, initial-collapse}.
   - term: FamilyNameType
-    definition: Enumerated: surname (default), patronymic, mononym.
+    definition: "Enumerated: surname (default), patronymic, mononym."
   - term: GlobalID
     definition: |
       128‑bit truncated SHA‑256 (22 Base32) of {CanonicalNative, BirthYear?, DeathYear?}.
@@ -75,7 +75,7 @@ glossary:
   - term: MSC
     definition: Object {code: 5‑digit string, source: authority}.
   - term: NameEvent
-    definition: {type, year, from, to} with type ∈ {marriage, religious, passport, transition, legal_change, alias}.
+    definition: "{type, year, from, to} with type ∈ {marriage, religious, passport, transition, legal_change, alias}."
   - term: LanguageOfPublication
     definition: ISO 639‑3 list (≤ 10 codes).
   - term: AffiliationTimeline
@@ -83,7 +83,7 @@ glossary:
   - term: Confidence
     definition: 0–100 score; weights stored in config/weights.yaml and must sum to 1.
   - term: Gender
-    definition: Enumerated: male, female, nonbinary, unspecified. Boolean GenderProvided records self‑declaration.
+    definition: "Enumerated: male, female, nonbinary, unspecified. Boolean GenderProvided records self‑declaration."
   - term: PipelineModes
     definition: Quick – tier‑0; Full – tier‑0+1; Extreme – Full+tier‑2‑3 (requires --force‑extreme).
   - term: CatchAllGroup_R0
@@ -97,7 +97,7 @@ glossary:
       {source_id, target_id, relation_type, qualifier?, confidence};
       relation_type ∈ {doctoralAdvisor, adviserCommitteeMember, postdocMentor, habilitationAdvisor}.
   - term: DegreeDate
-    definition: {date: YYYY‑MM‑DD, precision: {year, month, day}}.
+    definition: "{date: YYYY‑MM‑DD, precision: {year, month, day}}."
   - term: ShadowNode
     definition: Tomb‑stone placeholder for GDPR‑erased persons.
   - term: BetweennessScore
@@ -157,7 +157,7 @@ region_groups:
     name: Greater‑Turkic
     iso_territories: [TR, AZ, UZ, TM, KG, KZ]
     primary_scripts: ["Latin", "Cyrillic", "Arabic"]
-    distinct_features: Script reform schedules: UZ 2023‑, TM 2019‑, KZ 2023→2031
+    distinct_features: "Script reform schedules: UZ 2023‑, TM 2019‑, KZ 2023→2031"
   - code: C2
     name: Persian‑Tajik
     iso_territories: [IR, AF, TJ]
