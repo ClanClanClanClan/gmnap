@@ -745,6 +745,11 @@ class RegionManager:
         # (e.g. "Lee, Bruce" with CC=US vs CC=KR must not share a cache slot).
         cc = ",".join(sanitized_entry.get("CountryCodes", []))
         inst = sanitized_entry.get("Institution", "")
+        # BirthYear participates because the diaspora overlay (spec §3) makes
+        # geo detection ERA-dependent: the same name+CC can resolve to
+        # different geo regions in different eras (e.g. TH pre/post-2015).
+        # Without it, era-distinct entries collide in one cache slot (R49).
+        by = str(sanitized_entry.get("BirthYear", ""))
         cache_key = (
             (
                 sanitized_entry.get("CanonicalLatin", "")
@@ -754,6 +759,8 @@ class RegionManager:
             + cc
             + "|"
             + inst
+            + "|"
+            + by
         )
 
         # Check cache
@@ -806,6 +813,17 @@ class RegionManager:
 
     def _infer_geo(self, entry: Dict[str, Any]):
         """Geographic inference: CC -> ROR -> structured affiliation -> DOI."""
+        # Diaspora overlay (spec §3): era-scoped CC->region overrides take
+        # precedence over the static territory mapping.
+        overlay = self._detect_by_diaspora(entry)
+        if overlay is not None:
+            return (
+                overlay.region_code,
+                overlay.confidence,
+                overlay.detection_method,
+                overlay.metadata,
+            )
+
         # CountryCodes
         country_codes = entry.get("CountryCodes", [])
         if country_codes:
@@ -1961,20 +1979,63 @@ class RegionManager:
 
         return None
 
+    @staticmethod
+    def _diaspora_range_contains(rng: str, year: int) -> bool:
+        """Spec §3 interval syntax: "..2015", "2016..", "1980..2000" — the
+        committed config also uses the dash forms "-2015" / "2016-".
+        Bounds are inclusive."""
+        rng = str(rng).strip().replace("..", "-")
+        if "-" not in rng:
+            return rng.isdigit() and int(rng) == year
+        start, _, end = rng.partition("-")
+        if start and year < int(start):
+            return False
+        if end and year > int(end):
+            return False
+        return True
+
     def _detect_by_diaspora(
         self, entry: Dict[str, Any]
     ) -> Optional[RegionDetectionResult]:
-        """Detect region based on diaspora patterns."""
-        # Simplified diaspora detection
-        name = entry.get("CanonicalLatin", "")
-        countries = entry.get("CountryCodes", [])
-
-        if not name or not countries:
+        """Spec §3 diaspora overlay: era-scoped CC->region overrides from
+        config/diaspora.yaml (loaded into self._diaspora_config since Phase 2
+        but never READ — the previous body was a stub returning None,
+        MASTERPLAN §3.5). A country's rules map date intervals to regions
+        (e.g. TH pre-2015 -> E6, 2016- -> A1). The entry's era signal is
+        BirthYear; entries without one can't be placed in an interval and
+        fall through to the static territory mapping.
+        """
+        if not self._diaspora_config:
             return None
-
-        # Example: Chinese name in USA -> Still E1
-        # This would use the diaspora config in real implementation
-
+        countries = entry.get("CountryCodes", [])
+        year_raw = entry.get("BirthYear")
+        if not countries or year_raw in (None, ""):
+            return None
+        try:
+            year = int(str(year_raw)[:4])
+        except (TypeError, ValueError):
+            return None
+        for cc in countries:
+            rules = self._diaspora_config.get(cc)
+            if not rules:
+                continue
+            for rule in rules:
+                region = rule.get("region")
+                rng = rule.get("range")
+                if not region or rng in (None, ""):
+                    continue
+                try:
+                    matched = self._diaspora_range_contains(rng, year)
+                except (TypeError, ValueError):
+                    continue
+                if matched and region in self.IMPLEMENTED_REGIONS:
+                    return RegionDetectionResult(
+                        region_code=region,
+                        confidence=0.9,
+                        detection_method="diaspora_overlay",
+                        metadata={"country": cc, "range": str(rng)},
+                        geo_region=region,
+                    )
         return None
 
     def _detect_hybrid_name(
