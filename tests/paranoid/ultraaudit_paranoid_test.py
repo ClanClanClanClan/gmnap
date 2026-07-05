@@ -214,7 +214,7 @@ class V7ComplianceAuditor:
 
         # TEST 1: All 33 regions with real data
         try:
-            from src.regions.manager import RegionManager
+            from src.regions.manager_optimized import RegionManager
 
             manager = RegionManager(Path("./config"))
 

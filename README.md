@@ -115,10 +115,9 @@ hypothesis was wrong. Single-run numbers; ±15 % run-to-run variance
 is normal on a laptop.
 
 Reproduce:
-- Synthetic: `make bench-real` → no, that's real. Synthetic is
-  `PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000`
+- Synthetic: `PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000`
 - Real names: `make bench-real` (samples from
-  `data/genealogy_enrichment.json` so this needs `git lfs pull`
+  `data/genealogy_enrichment.json`, so this needs `git lfs pull`
   to have run).
 
 ## API Endpoints
@@ -130,7 +129,9 @@ Reproduce:
 | `/api/v1/query?name=...` | GET | Single name lookup |
 | `/api/v1/lineage/{id}` | GET | Academic genealogy |
 | `/api/v1/process` | POST | Batch processing |
+| `/api/v1/suggest` | POST | Queue a user correction for review (traversal-safe) |
 | `/metrics` | GET | Prometheus metrics |
+| `/` | GET | Web UI root |
 
 ## Python SDK
 

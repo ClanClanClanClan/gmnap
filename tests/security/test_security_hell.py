@@ -1,149 +1,81 @@
+#!/usr/bin/env python3
+"""Hell-level security testing for GMNAP v7.
+
+Migrated 2026-06-28 from V6. The original fed a YAML file of malicious
+canonical names through `src.core.pipeline_v6.GMNAPPipeline.run(dir)`
+(now deleted) and inspected the written output for leaked payloads. The
+live injection gate that the pipeline relies on is
+`src.core.security_validator.SecurityValidator` (wired into V7Pipeline's
+stage 8 / region detection), so this now exercises that gate directly:
+every malicious name MUST raise SecurityError before it can reach any
+output sink. This is the same property the old end-to-end test asserted,
+without depending on the deleted pipeline or on-disk output files.
+"""
+
 import pytest
 
-#!/usr/bin/env python3
-"""Hell-level security testing for GMNAP v7."""
-
-import sys
-import tempfile
-from pathlib import Path
-
-import yaml
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-import sys
-from pathlib import Path
-
-from src.core.pipeline_v6 import GMNAPPipeline
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.config import GMNAPConfig
+from src.core.security_validator import SecurityError, SecurityValidator
 
 
 @pytest.mark.timeout(15)
 def test_security_hell():
-    """Test with malicious inputs."""
+    """Every malicious canonical name must be blocked by the security gate."""
 
-    # Create malicious test data
-    evil_data = {
+    # Malicious canonical-name payloads. These were the YAML *keys* in the
+    # V6 test (the non-string `12345` key was already filtered out before
+    # YAML dump, so it is intentionally excluded here too).
+    evil_names = [
         # SQL injection attempt
-        "'; DROP TABLE users; --": {"GlobalID": "evil001"},
+        "'; DROP TABLE users; --",
         # XSS attempt
-        "<script>alert('XSS')</script>": {"GlobalID": "evil002"},
+        "<script>alert('XSS')</script>",
         # Command injection
-        "; rm -rf /": {"GlobalID": "evil003"},
+        "; rm -rf /",
         # Buffer overflow attempt
-        "A" * 10000: {"GlobalID": "evil004"},
+        "A" * 10000,
         # Null byte injection
-        "Smith\x00\x01\x02, John": {"GlobalID": "evil005"},
-        # Unicode normalization attack
-        "Ä" + "\u0308": {"GlobalID": "evil006"},  # A + combining diaeresis
+        "Smith\x00\x01\x02, John",
+        # Unicode normalization attack (A + combining diaeresis)
+        "Ä" + "̈",
         # Path traversal
-        "../../../etc/passwd": {"GlobalID": "evil007"},
+        "../../../etc/passwd",
         # LDAP injection
-        "admin)(|(password=*)": {"GlobalID": "evil008"},
+        "admin)(|(password=*)",
         # XML injection
-        "<?xml version='1.0'?><test>evil</test>": {"GlobalID": "evil009"},
-        # Type confusion - non-string
-        12345: {"GlobalID": "evil010"},  # This will fail YAML parsing
+        "<?xml version='1.0'?><test>evil</test>",
         # Regex DoS
-        "a" + "a" * 50 + "!": {"GlobalID": "evil011"},
+        "a" + "a" * 50 + "!",
         # Unicode direction override
-        "\u202e\u0061\u0062\u0063": {"GlobalID": "evil012"},
-        # Homograph attack
-        "Аррӏе": {"GlobalID": "evil013"},  # Cyrillic 'Apple'
+        "‮abc",
+        # Homograph attack (Cyrillic 'Apple')
+        "Аррӏе",
         # Zero-width characters
-        "John\u200b\u200c\u200dSmith": {"GlobalID": "evil014"},
+        "John​‌‍Smith",
         # Control characters
-        "Test\x1b[31mRed\x1b[0m": {"GlobalID": "evil015"},
-    }
+        "Test\x1b[31mRed\x1b[0m",
+    ]
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = Path(tmpdir)
+    validator = SecurityValidator()
 
-        # Write test file (filter out non-string keys for YAML)
-        yaml_data = {k: v for k, v in evil_data.items() if isinstance(k, str)}
-        test_file = tmpdir / "evil_inputs.yaml"
-        with open(test_file, "w", encoding="utf-8") as f:
-            yaml.dump(yaml_data, f, allow_unicode=True)
+    blocked = []
+    passed = []
 
-        # Run pipeline
-        config = GMNAPConfig()
-        pipeline = GMNAPPipeline(config)
-
-        # Track what gets through
-        blocked = []
-        passed = []
-
+    for name in evil_names:
         try:
-            pipeline.run(tmpdir)
+            validator.validate_string(name, context="CanonicalLatin")
+            # No SecurityError -> the gate let this malicious name through.
+            passed.append(name)
+        except SecurityError:
+            blocked.append(name)
 
-            # Check output
-            output_file = Path("./cache/output/evil_inputs.yaml")
-            if output_file.exists():
-                with open(output_file, encoding="utf-8") as f:
-                    output_data = yaml.safe_load(f)
-
-                for evil_input in yaml_data.keys():
-                    if evil_input in output_data:
-                        passed.append(evil_input)
-                    else:
-                        blocked.append(evil_input)
-
-            print("🔍 SECURITY TEST RESULTS:")
-            print(f"\nPASS BLOCKED ({len(blocked)}):")
-            for item in blocked[:5]:  # Show first 5
-                safe_display = repr(item)[:50]
-                print(f"  - {safe_display}")
-            if len(blocked) > 5:
-                print(f"  ... and {len(blocked) - 5} more")
-
-            print(f"\nFAIL PASSED ({len(passed)}):")
-            for item in passed[:5]:
-                safe_display = repr(item)[:50]
-                print(f"  - {safe_display}")
-            if len(passed) > 5:
-                print(f"  ... and {len(passed) - 5} more")
-
-            # Check for signs of successful attacks
-            if output_file.exists():
-                with open(output_file, "rb") as f:
-                    raw_output = f.read()
-
-                security_issues = []
-
-                # Check for null bytes
-                if b"\x00" in raw_output:
-                    security_issues.append("NULL BYTES in output!")
-
-                # Check for script tags
-                if b"<script>" in raw_output:
-                    security_issues.append("SCRIPT TAGS in output!")
-
-                # Check for SQL keywords
-                if b"DROP TABLE" in raw_output:
-                    security_issues.append("SQL KEYWORDS in output!")
-
-                # Check for command injection
-                if b"rm -rf" in raw_output:
-                    security_issues.append("SHELL COMMANDS in output!")
-
-                if security_issues:
-                    print("\n🚨 CRITICAL SECURITY ISSUES:")
-                    for issue in security_issues:
-                        print(f"  - {issue}")
-                else:
-                    print("\nPASS No critical security issues detected in output")
-
-            return len(passed) == 0  # Success if nothing malicious passed
-
-        except Exception as e:
-            print(f"Pipeline error (possibly good if it blocked attacks): {e}")
-            return False
+    # Every malicious payload must be blocked; none may pass.
+    assert not passed, (
+        f"SECURITY BREACH: {len(passed)} malicious name(s) were NOT blocked: "
+        + ", ".join(repr(p)[:50] for p in passed)
+    )
+    assert len(blocked) == len(evil_names)
 
 
 if __name__ == "__main__":
-    success = test_security_hell()
-    if success:
-        print("\nPASS SECURITY: All malicious inputs blocked!")
-    else:
-        print("\nFAIL SECURITY: Some malicious inputs passed through!")
+    test_security_hell()
+    print("PASS SECURITY: All malicious inputs blocked!")

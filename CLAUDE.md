@@ -9,7 +9,7 @@
 **Security**: Injection attack blocking validated
 **Performance**: **1 M real names processed in 362 seconds (6.0 min) — measured, not projected** (Apple M1, OFFLINE, single process, streaming path via `AsyncBatchAggregator`). Throughput: **2 763 entries/sec** at 1 M; 152/s at 10 k (smaller batches use the serial direct-batch path). RSS peaks at 769 MB. Round-28's `@functools.lru_cache` fix on `_wb()` was the unlock (was 7/s on 10 k pre-fix); round-30 ran the actual 1 M to verify the streaming-path scaling holds in production. Full benchmark + cProfile in `docs/perf_characterization.md`.
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
-**Authority Enrichment**: V7 tier orchestrator (`src/authority/manager_tier01.py`) delegates to canonical fetchers in `src/authorities/tierN/` when `OFFLINE=0`. 9 sources have real HTTP code (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH, Wikidata_P184, GND, HAL, OAI_University); 2 gated behind API keys (Scopus, Dimensions); 1 deferred for institutional access (ProQuest); 1 deferred for ToS (GoogleScholar). MathSciNet stub awaits AMS subscription
+**Authority Enrichment**: V7 tier orchestrator (`src/authorities/manager_tier01.py`) delegates to canonical fetchers in `src/authorities/tierN/` when `OFFLINE=0`. 9 sources have real HTTP code (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH, Wikidata_P184, GND, HAL, OAI_University); 2 gated behind API keys (Scopus, Dimensions); 1 deferred for institutional access (ProQuest); 1 deferred for ToS (GoogleScholar). MathSciNet stub awaits AMS subscription
 **Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. It is now LIVE: `config/regions/a2.yaml` exists and `A2_WesternEurope.__init__` consumes it (merging extra Germanic/Romance surname particles into its hardcoded defaults) — the first processor to actually apply a YAML override. Other regions still fall back to hardcoded defaults until a `config/regions/<code>.yaml` is added and the processor wired to read it (see A2 as the pattern). Covered by `tests/unit/test_region_yaml_overrides.py`
 **API Server**: FastAPI server with 8 endpoints (/healthz, /readyz, /api/v1/query, /api/v1/lineage, /api/v1/process, /api/v1/suggest, /metrics, /)
 **CLI**: full 7-command CLI (`query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve`) in `src/cli/gmnap.py`, wired to the `gmnap` console entry point via `gmnap = "src.cli.gmnap:cli"` in `pyproject.toml`'s `[project.scripts]`. (Earlier docs claimed the 7-command CLI was "NOT wired to the main entry point" and that only `serve`/`version` were exposed — that is stale; `pip install -e .` puts all seven subcommands behind `gmnap`.)
@@ -78,7 +78,7 @@ All 8 V7 quality gates implemented with mode-specific thresholds.
 
 ### Authority Enrichment: 9 of 14 Sources Have Real HTTP Code
 
-V7's tier orchestrator (`src/authority/manager_tier01.py`) holds the
+V7's tier orchestrator (`src/authorities/manager_tier01.py`) holds the
 `_fetch_*` shims; the real per-source HTTP code lives in the
 canonical fetchers under `src/authorities/tier0/`, `tier1/`, and
 `tier2/` (subclasses of `AuthorityFetcher` with an `async def fetch
@@ -130,10 +130,13 @@ enrichment. The tier-0 stubs short-circuit to OFFLINE-skip *before*
 the cache check is meaningful, so OFFLINE-mode is a no-op even if
 a stale cache exists from an earlier live run.
 
-The 13 dead files that used to live in `src/authority/` (`manager.py`
-and 9 `*_adapter.py` plus 3 helpers) were removed in the 2026-04-27
-audit pass — only `manager_tier01.py` and `common.py` remain in the
-singular package.
+The 13 dead files that used to live in the old singular `src/authority/`
+(`manager.py` and 9 `*_adapter.py` plus 3 helpers) were removed in the
+2026-04-27 audit pass. In R42 the two survivors (`manager_tier01.py` and
+`common.py`) were merged into the canonical plural package as
+`src/authorities/manager_tier01.py` and `src/authorities/common.py`, so the
+confusing singular-vs-plural split is gone — all authority code now lives
+under `src/authorities/`.
 
 ### YAML Config: extension point only, currently dormant
 `RegionSpec.load_yaml_config()` reads `config/regions/<lowercase_code>.yaml`

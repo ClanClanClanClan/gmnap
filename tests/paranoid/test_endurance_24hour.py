@@ -33,7 +33,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.core.globalid import GlobalIDGenerator
 from src.core.security_validator import SecurityValidator
 from src.core.unicode_handler import UnicodeNormalizer
-from src.regions.manager import RegionManager
+from src.regions.manager_optimized import RegionManager
 
 
 class EnduranceMonitor:

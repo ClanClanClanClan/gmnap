@@ -7,7 +7,7 @@ from unittest.mock import patch
 import httpx
 import pytest
 
-from src.authority.common import retry_with_backoff
+from src.authorities.common import retry_with_backoff
 
 
 @pytest.mark.asyncio
@@ -109,7 +109,7 @@ async def test_exponential_backoff_timing(monkeypatch):
         # Don't actually sleep to keep tests fast
         return
 
-    with patch("src.authority.common.asyncio.sleep", side_effect=mock_sleep):
+    with patch("src.authorities.common.asyncio.sleep", side_effect=mock_sleep):
         result = await retry_with_backoff(fails_twice, max_retries=2, base_delay=1.0)
 
     assert result == "done"

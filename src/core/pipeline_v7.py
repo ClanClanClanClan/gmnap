@@ -80,7 +80,7 @@ except ImportError:
     QualityGatesEnforcer = None
 
 try:
-    from src.authority.manager_tier01 import enrich_all as authority_enrich
+    from src.authorities.manager_tier01 import enrich_all as authority_enrich
 except ImportError:
     authority_enrich = None
 
@@ -325,7 +325,8 @@ class V7Pipeline:
     Stages (from specs_v7.yaml section 5):
     0. Config - Load specs, verify licenses, DOI credentials
     1. Ingest - Read YAML, Unicode NFC→NFKD→fold→NFC
-    1b. LLMExtract_ETD - Parse thesis PDFs with GPT-4o-mini
+    1b. LLMExtract_ETD - OPT-IN regex ETD/thesis record extraction (no live
+        LLM; the spec's GPT-4o-mini path is not built)
     2. DetectRegion - Script, ICU, fastText, affiliation, DOI prefix
     3. RegionHooks - clean→augment→validate→order_key
     4. AuthorityEnrich - Fetch ORCID_ETD, Crossref_Thesis, etc.
@@ -1893,8 +1894,12 @@ class V7Pipeline:
 PipelineV7 = V7Pipeline
 
 
-async def main():
-    """Example usage of V7 pipeline."""
+async def main(mode: PipelineMode = PipelineMode.QUICK):
+    """Example usage of V7 pipeline. Runs a small demo batch in ``mode``.
+
+    Invoked by ``make quick|full|extreme`` (which used to point at the
+    removed ``src.core.pipeline_v6``).
+    """
     # Load test data
     test_entries = [
         {"CanonicalLatin": "Wang, Wei", "BirthYear": 1970},
@@ -1904,13 +1909,30 @@ async def main():
         {"CanonicalLatin": "Müller, Hans", "BirthYear": 1960},
     ]
 
-    # Run pipeline
-    pipeline = V7Pipeline(mode=PipelineMode.QUICK)
+    # Run pipeline in the requested runtime profile
+    pipeline = V7Pipeline(mode=mode)
     report = await pipeline.process_batch(test_entries)
 
-    logger.info(f"Stage 10 Report: {json.dumps(report, indent=2)}")
+    logger.info(f"[{mode.value}] Stage 10 Report: {json.dumps(report, indent=2)}")
 
 
 if __name__ == "__main__":
+    import argparse
+
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    parser = argparse.ArgumentParser(description="Run the V7 pipeline demo batch")
+    parser.add_argument(
+        "--mode",
+        choices=[m.value for m in PipelineMode],
+        default=PipelineMode.QUICK.value,
+        help="Runtime profile (quick|full|extreme)",
+    )
+    parser.add_argument(
+        "--force-extreme",
+        action="store_true",
+        help="Acknowledge the extreme-mode ToS gate (sets GMNAP_FORCE_EXTREME=1)",
+    )
+    args = parser.parse_args()
+    if args.force_extreme:
+        os.environ["GMNAP_FORCE_EXTREME"] = "1"
+    asyncio.run(main(PipelineMode(args.mode)))

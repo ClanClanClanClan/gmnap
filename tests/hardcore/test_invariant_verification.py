@@ -6,20 +6,17 @@ These are the most important tests - they verify that the system's
 core guarantees are never violated.
 """
 
-import tempfile
+import asyncio
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
-import yaml
 
-from src.core.config import GMNAPConfig
 from src.core.globalid import GlobalIDGenerator, validate_global_id
-from src.core.pipeline_v6 import GMNAPPipeline, PipelineMode
+from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 from src.core.unicode_handler import UnicodeNormalizer
-from src.regions.manager import RegionManager
+from src.regions.manager_optimized import RegionManager
 
 
 class TestGlobalIDInvariants:
@@ -33,11 +30,19 @@ class TestGlobalIDInvariants:
         self.collision_tracking = defaultdict(int)
 
     def test_invariant_no_duplicate_globalids_ever(self):
-        """INVARIANT: No duplicate GlobalIDs are ever generated."""
-        # Generate IDs under various conditions
+        """INVARIANT: Distinct inputs never collide to the same GlobalID.
+
+        NOTE (2026-06-29 migration): the original v6 scenario fed 100
+        *identical* entries and expected 100 distinct IDs. The live V7
+        generator (``src/core/globalid.py``) is deterministic — identical
+        input (same CanonicalNative + BirthYear) is the same person and
+        correctly yields the *same* GlobalID, not a force-suffixed unique
+        one. That identical-input scenario was therefore removed; the
+        remaining scenarios all use genuinely distinct entries, which is
+        the real V7 uniqueness guarantee.
+        """
+        # Generate IDs under various conditions (all DISTINCT entries)
         test_scenarios = [
-            # Identical entries
-            [{"CanonicalNative": "Smith, John", "BirthYear": 1980}] * 100,
             # Similar entries
             [
                 {"CanonicalNative": f"Smith, John{i}", "BirthYear": 1980}
@@ -499,27 +504,18 @@ class TestRegionDetectionInvariants:
 
 
 class TestPipelineInvariants:
-    """Test that pipeline processing invariants are never violated."""
+    """Test that pipeline processing invariants are never violated.
 
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.config = GMNAPConfig()
-
-    def teardown_method(self):
-        """Clean up test fixtures."""
-        import shutil
-
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
+    Migrated from the v6 file-ingest ``GMNAPPipeline.run(input_dir)`` to
+    the V7 async ``V7Pipeline.process_batch(entries)``. V7 returns a flat
+    list of processed entry dicts (one per input), so the invariants are
+    re-expressed against that list / the per-run ``pipeline.metrics``.
+    """
 
     def test_invariant_pipeline_data_integrity(self):
         """INVARIANT: Pipeline never corrupts data."""
-        # Create test data
-        input_dir = Path(self.temp_dir) / "input"
-        input_dir.mkdir(parents=True)
-
-        original_entries = {
-            "Smith, John": {
+        original_entries = [
+            {
                 "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
                 "UpdatedAt": "2025-01-01T00:00:00Z",
                 "CanonicalLatin": "Smith, John",
@@ -528,7 +524,7 @@ class TestPipelineInvariants:
                 "CountryCodes": ["US"],
                 "Confidence": 85,
             },
-            "García, José": {
+            {
                 "GlobalID": "BCDEFGHIJKLMNOPQRSTUVW",
                 "UpdatedAt": "2025-01-01T00:00:00Z",
                 "CanonicalLatin": "García, José",
@@ -537,51 +533,34 @@ class TestPipelineInvariants:
                 "CountryCodes": ["ES"],
                 "Confidence": 90,
             },
-        }
+        ]
 
-        test_file = input_dir / "test_entries.yaml"
-        with open(test_file, "w", encoding="utf-8") as f:
-            yaml.dump(original_entries, f, allow_unicode=True)
-
-        # Run pipeline
-        pipeline = GMNAPPipeline(self.config, PipelineMode.QUICK)
-
-        with patch("src.authorities.tier0.openalex.OpenAlexFetcher") as mock_fetcher:
-            mock_instance = Mock()
-            mock_instance.fetch = Mock(
-                return_value=Mock(
-                    status=Mock(value="not_found"), error_message="Not found"
-                )
-            )
-            mock_fetcher.return_value = mock_instance
-
-            result = pipeline.run(input_dir)
+        pipeline = V7Pipeline(mode=PipelineMode.QUICK)
+        result = asyncio.run(pipeline.process_batch(original_entries))
 
         # INVARIANT: Pipeline should complete successfully
         assert result is not None, "INVARIANT VIOLATED: Pipeline failed to complete"
+        assert isinstance(result, list), "INVARIANT VIOLATED: result must be a list"
 
-        # INVARIANT: All original entries should be processed
-        assert result.total_entries == len(
+        # INVARIANT: All original entries should be processed (1:1 contract)
+        assert len(result) == len(
             original_entries
-        ), f"INVARIANT VIOLATED: Entry count mismatch: {result.total_entries} != {len(original_entries)}"
+        ), f"INVARIANT VIOLATED: Entry count mismatch: {len(result)} != {len(original_entries)}"
 
-        # INVARIANT: No critical errors should occur
-        for stage_name, stage_metrics in result.stage_metrics.items():
-            critical_errors = [
-                error for error in stage_metrics.errors if "critical" in error.lower()
-            ]
-            assert (
-                len(critical_errors) == 0
-            ), f"INVARIANT VIOLATED: Critical errors in {stage_name}: {critical_errors}"
+        # INVARIANT: Data not corrupted — each input name survives, and
+        # every processed entry carries a GlobalID.
+        in_names = {e["CanonicalLatin"] for e in original_entries}
+        out_names = {e.get("CanonicalLatin") for e in result}
+        assert (
+            in_names == out_names
+        ), f"INVARIANT VIOLATED: Names changed through pipeline: {in_names} != {out_names}"
+        for entry in result:
+            assert entry.get("GlobalID"), "INVARIANT VIOLATED: Missing GlobalID"
 
     def test_invariant_pipeline_idempotency(self):
         """INVARIANT: Pipeline is idempotent."""
-        # Create test data
-        input_dir = Path(self.temp_dir) / "input"
-        input_dir.mkdir(parents=True)
-
-        entries = {
-            "Smith, John": {
+        entries = [
+            {
                 "GlobalID": "ABCDEFGHIJKLMNOPQRSTUV",
                 "UpdatedAt": "2025-01-01T00:00:00Z",
                 "CanonicalLatin": "Smith, John",
@@ -590,40 +569,31 @@ class TestPipelineInvariants:
                 "CountryCodes": ["US"],
                 "Confidence": 85,
             }
-        }
+        ]
 
-        test_file = input_dir / "test_entries.yaml"
-        with open(test_file, "w") as f:
-            yaml.dump(entries, f)
+        # Run pipeline twice (fresh instance each run, mirroring two
+        # independent invocations).
+        result1 = asyncio.run(
+            V7Pipeline(mode=PipelineMode.QUICK).process_batch(entries)
+        )
+        result2 = asyncio.run(
+            V7Pipeline(mode=PipelineMode.QUICK).process_batch(entries)
+        )
 
-        # Run pipeline twice
-        pipeline = GMNAPPipeline(self.config, PipelineMode.QUICK)
+        # INVARIANT: Entry counts identical
+        assert len(result1) == len(
+            result2
+        ), f"INVARIANT VIOLATED: Non-idempotent pipeline: {len(result1)} != {len(result2)}"
 
-        with patch("src.authorities.tier0.openalex.OpenAlexFetcher") as mock_fetcher:
-            mock_instance = Mock()
-            mock_instance.fetch = Mock(
-                return_value=Mock(
-                    status=Mock(value="not_found"), error_message="Not found"
-                )
-            )
-            mock_fetcher.return_value = mock_instance
-
-            result1 = pipeline.run(input_dir)
-            result2 = pipeline.run(input_dir)
-
-        # INVARIANT: Results should be identical
-        assert (
-            result1.total_entries == result2.total_entries
-        ), f"INVARIANT VIOLATED: Non-idempotent pipeline: {result1.total_entries} != {result2.total_entries}"
-
-        # INVARIANT: Stage metrics should be similar
-        for stage_name in result1.stage_metrics:
-            if stage_name in result2.stage_metrics:
-                entries1 = result1.stage_metrics[stage_name].entries_processed
-                entries2 = result2.stage_metrics[stage_name].entries_processed
-                assert (
-                    entries1 == entries2
-                ), f"INVARIANT VIOLATED: Non-idempotent stage {stage_name}: {entries1} != {entries2}"
+        # INVARIANT: Deterministic identity — same input yields the same
+        # GlobalID and detected region across runs.
+        for e1, e2 in zip(result1, result2):
+            assert e1.get("GlobalID") == e2.get(
+                "GlobalID"
+            ), f"INVARIANT VIOLATED: Non-deterministic GlobalID: {e1.get('GlobalID')} != {e2.get('GlobalID')}"
+            assert e1.get("DetectedRegion") == e2.get(
+                "DetectedRegion"
+            ), "INVARIANT VIOLATED: Non-deterministic region detection"
 
 
 class TestSystemInvariants:

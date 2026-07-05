@@ -135,9 +135,7 @@ class VIAFFetcher(AuthorityFetcher):
             if not identifier.isdigit():
                 search_results = await self.search(identifier, limit=5)
                 if not search_results:
-                    return FetchResult(
-                        status=FetchStatus.NOT_FOUND, source="VIAF", query=identifier
-                    )
+                    return FetchResult(status=FetchStatus.NOT_FOUND)
                 # Use first result
                 identifier = search_results[0].get("viaf_id")
 
@@ -161,34 +159,57 @@ class VIAFFetcher(AuthorityFetcher):
                         sources=self._extract_sources(data),
                     )
 
-                    # Convert to AuthorityData
-                    authority_data = AuthorityData(
-                        source="VIAF",
-                        identifier=identifier,
-                        name=viaf_data.preferred_name,
-                        variants=viaf_data.name_variants,
-                        birth_year=viaf_data.birth_year,
-                        death_year=viaf_data.death_year,
-                        external_ids=viaf_data.national_library_ids,
-                        confidence=0.9,
-                    )
+                    # Convert to AuthorityData via the shared mapping
+                    # (real fields: source_id/canonical_name/name_variants/
+                    # identifiers/confidence_score — the old identifier=/name=/
+                    # variants=/external_ids=/confidence= kwargs are not
+                    # AuthorityData fields and raised TypeError).
+                    authority_data = self._to_authority_data(viaf_data)
 
                     return FetchResult(
                         status=FetchStatus.SUCCESS,
-                        source="VIAF",
-                        query=identifier,
                         data=authority_data,
                     )
                 else:
-                    return FetchResult(
-                        status=FetchStatus.NOT_FOUND, source="VIAF", query=identifier
-                    )
+                    return FetchResult(status=FetchStatus.NOT_FOUND)
 
         except Exception as e:
             logger.error(f"VIAF fetch error: {e}")
-            return FetchResult(
-                status=FetchStatus.ERROR, source="VIAF", query=identifier, error=str(e)
-            )
+            return FetchResult(status=FetchStatus.ERROR, error_message=str(e))
+
+    def _to_authority_data(self, viaf_data: "VIAFData") -> AuthorityData:
+        """Map a parsed VIAFData record onto the canonical AuthorityData
+        shape. Shared by fetch() and parse_response() so the two never
+        drift."""
+        return AuthorityData(
+            source="VIAF",
+            source_id=viaf_data.viaf_id,
+            canonical_name=viaf_data.preferred_name,
+            name_variants=viaf_data.name_variants,
+            birth_year=viaf_data.birth_year,
+            death_year=viaf_data.death_year,
+            identifiers=viaf_data.national_library_ids,
+            confidence_score=0.9,
+        )
+
+    def parse_response(self, response: Dict[str, Any]) -> AuthorityData:
+        """Parse a raw VIAF JSON record into AuthorityData.
+
+        Required by the AuthorityFetcher ABC. VIAF previously omitted it,
+        leaving the class abstract and impossible to instantiate (every
+        ``VIAFFetcher(...)`` raised TypeError: Can't instantiate abstract
+        class). Mirrors fetch()'s success-path mapping.
+        """
+        viaf_data = VIAFData(
+            viaf_id=str(response.get("viafID", "")),
+            preferred_name=self._extract_preferred_name(response),
+            name_variants=self._extract_variants(response),
+            birth_year=self._extract_year(response, "birthDate"),
+            death_year=self._extract_year(response, "deathDate"),
+            national_library_ids=self._extract_library_ids(response),
+            sources=self._extract_sources(response),
+        )
+        return self._to_authority_data(viaf_data)
 
     def _extract_preferred_name(self, data: Dict) -> str:
         """Extract preferred name from VIAF data."""
