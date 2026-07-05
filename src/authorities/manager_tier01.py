@@ -821,6 +821,15 @@ async def enrich_by_tiers(
                 continue
             if name not in sources:
                 sources.append(name)
+            # PROVENANCE (R50): _sources lists what was QUERIED (audit,
+            # regardless of hit); _sources_hit records only sources that
+            # actually returned data — the correct basis for spec §10
+            # licence-tier tagging and any redistribution filter.
+            payload = r.get(name) if isinstance(r, dict) else None
+            if isinstance(payload, dict) and payload.get("hit"):
+                hits = merged.setdefault("_sources_hit", [])
+                if name not in hits:
+                    hits.append(name)
             # Merge Wikidata advisor edges
             if name == "Wikidata_P184" and isinstance(r, dict):
                 wd = r.get("Wikidata_P184") or {}
