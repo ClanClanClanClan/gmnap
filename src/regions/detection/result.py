@@ -20,5 +20,3 @@ class RegionDetectionResult:
     conflict: bool = False
     # Phase 3: resolution level ("leaf", "group", or "abstain")
     resolution_level: Optional[str] = None
-
-
