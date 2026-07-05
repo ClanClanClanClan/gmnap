@@ -1,14 +1,40 @@
 #!/usr/bin/env python3
 """
-import unittest
-Comprehensive test suite for newly implemented SecurityValidator methods.
-Tests validate_cjk_roundtrip, normalize_unicode, and validate_entry methods.
+Test suite for SecurityValidator helper methods:
+validate_cjk_roundtrip, normalize_unicode, and validate_entry.
+
+R46 repair note: this file was written against an aspirational API that
+never shipped (``validate_entry`` returning a ``{'valid': ...}`` dict, an
+``enable_rate_limiting`` kwarg, a normalize-time expansion-attack check).
+It was rewritten against the REAL current API:
+
+- ``validate_entry(entry, context)`` returns a *sanitized copy* of the
+  entry and raises ``SecurityError`` on dangerous content (no status
+  dict, no per-call rate limiting — rate limiting is the separate
+  ``check_rate_limit(client_id, context)``, covered by the canonical
+  suite ``tests/security/test_security_validator.py``).
+- ``normalize_unicode`` rejects dangerous Unicode with the message
+  "Dangerous Unicode character (U+XXXX, <category>)".
+- ``validate_cjk_roundtrip`` rejects null bytes and DoS-length input
+  (hardening added in the R46 test-repair audit) and signals a failed
+  round-trip by returning ``False`` — it does not raise on mismatch.
+
+Retired tests (duplicates of canonical coverage or never-shipped API):
+- test_mixed_cjk_scripts — exact duplicate of canonical
+  test_cjk_mixed_scripts (same input, same assertion).
+- test_normalization_bomb_detection — mock-based test of a normalize-
+  time expansion check that never existed; the real combining-character
+  protection lives in ``validate_string`` and is covered by canonical
+  test_combining_character_attacks.
+- test_rate_limiting_rapid_requests / test_rate_limiting_disabled /
+  test_rate_limiting_preserves_state — tested a never-shipped
+  ``enable_rate_limiting`` kwarg; real rate limiting
+  (``check_rate_limit``) is covered by canonical test_rate_limiting
+  and test_rate_limit_reset.
 """
 
 import sys
-import time
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -82,7 +108,9 @@ class TestValidateCJKRoundtrip:
             self.validator.validate_cjk_roundtrip(
                 original, romanized, back_to_cjk, "Latin name"
             )
-        assert "Non-CJK text in CJK validation context" in str(exc_info.value)
+        # Current message is "Non-CJK text in <context>" (the old
+        # "... in CJK validation context" wording never shipped).
+        assert "Non-CJK text" in str(exc_info.value)
 
     @pytest.mark.timeout(15)
     def test_null_byte_injection_original(self):
@@ -124,6 +152,20 @@ class TestValidateCJKRoundtrip:
         assert "Null byte detected" in str(exc_info.value)
 
     @pytest.mark.timeout(15)
+    def test_null_byte_equal_roundtrip_still_blocked(self):
+        """A null-byte payload must not validate even as a perfect match.
+
+        Regression test for the R46 product fix: before it,
+        validate_cjk_roundtrip returned True here because
+        original == back_to_cjk.
+        """
+        with pytest.raises(SecurityError) as exc_info:
+            self.validator.validate_cjk_roundtrip(
+                "王\x00明", "Wang Ming", "王\x00明", "Null equal"
+            )
+        assert "Null byte detected" in str(exc_info.value)
+
+    @pytest.mark.timeout(15)
     def test_dos_prevention_long_original(self):
         """Test DoS prevention for excessively long original text."""
         original = "王" * 201  # Exceeds 200 char limit
@@ -151,7 +193,7 @@ class TestValidateCJKRoundtrip:
 
     @pytest.mark.timeout(15)
     def test_minor_length_mismatch_allowed(self):
-        """Test that minor length mismatches (<=2 chars) are allowed."""
+        """Test that a small round-trip mismatch fails softly (False)."""
         original = "王明华"
         romanized = "Wang Minghua"
         back_to_cjk = "王明"  # Missing one character
@@ -162,29 +204,22 @@ class TestValidateCJKRoundtrip:
         assert result is False  # Not equal, but no error raised
 
     @pytest.mark.timeout(15)
-    def test_major_length_mismatch_raises_error(self):
-        """Test that major length mismatches (>2 chars) raise error."""
+    def test_major_length_mismatch_fails_roundtrip(self):
+        """Test that a major round-trip mismatch is not validated.
+
+        The old raise-on-mismatch contract ("Suspicious CJK round-trip
+        length mismatch") never shipped; the current API signals a
+        failed round-trip by returning False. The security-relevant
+        outcome — the conversion is NOT blessed as valid — is preserved.
+        """
         original = "王明华李强"
         romanized = "Wang Minghua Li Qiang"
         back_to_cjk = "王"  # Missing 4 characters
 
-        with pytest.raises(SecurityError) as exc_info:
-            self.validator.validate_cjk_roundtrip(
-                original, romanized, back_to_cjk, "Major mismatch"
-            )
-        assert "Suspicious CJK round-trip length mismatch" in str(exc_info.value)
-
-    @pytest.mark.timeout(15)
-    def test_mixed_cjk_scripts(self):
-        """Test handling of mixed CJK scripts."""
-        original = "王さん김"  # Chinese + Japanese + Korean
-        romanized = "Wang-san-Kim"
-        back_to_cjk = "王さん김"
-
         result = self.validator.validate_cjk_roundtrip(
-            original, romanized, back_to_cjk, "Mixed CJK"
+            original, romanized, back_to_cjk, "Major mismatch"
         )
-        assert result is True
+        assert result is False
 
 
 class TestNormalizeUnicode:
@@ -217,7 +252,10 @@ class TestNormalizeUnicode:
 
         with pytest.raises(SecurityError) as exc_info:
             self.validator.normalize_unicode(text, "Null byte test")
-        assert "Null byte detected" in str(exc_info.value)
+        # Null byte is rejected as a dangerous Cc-category character;
+        # the old "Null byte detected" wording never shipped here.
+        assert "Dangerous Unicode character" in str(exc_info.value)
+        assert "U+0000" in str(exc_info.value)
 
     @pytest.mark.timeout(15)
     def test_control_character_rejection(self):
@@ -234,7 +272,10 @@ class TestNormalizeUnicode:
             text = f"Hello{char}World"
             with pytest.raises(SecurityError) as exc_info:
                 self.validator.normalize_unicode(text, f"Control char {ord(char)}")
-            assert "Suspicious Unicode category" in str(exc_info.value)
+            # Current wording: "Dangerous Unicode character (U+XXXX, Cc)"
+            # (formerly "Suspicious Unicode category").
+            assert "Dangerous Unicode character" in str(exc_info.value)
+            assert ", Cc)" in str(exc_info.value)
 
     @pytest.mark.timeout(15)
     def test_allowed_whitespace_characters(self):
@@ -252,14 +293,25 @@ class TestNormalizeUnicode:
             assert char in result
 
     @pytest.mark.timeout(15)
-    def test_format_character_rejection(self):
-        """Test rejection of format control characters."""
-        # Zero-width joiner
-        text = "Hello\u200dWorld"
+    def test_format_character_handling(self):
+        """Test format (Cf) character handling.
 
+        The Zero Width Joiner (U+200D) is ALLOWED BY DESIGN — it is in
+        the validator's safe_format_chars set because it is required for
+        legitimate text (emoji sequences, Indic scripts). Unsafe format
+        characters like the Zero Width Space (U+200B) are still rejected
+        (same semantics as the canonical suite's
+        test_unicode_category_filtering).
+        """
+        # ZWJ: allowed by design
+        result = self.validator.normalize_unicode("Hello\u200dWorld", "ZWJ test")
+        assert "\u200d" in result
+
+        # Zero-width space: dangerous Cf character, rejected
         with pytest.raises(SecurityError) as exc_info:
-            self.validator.normalize_unicode(text, "Format char test")
-        assert "Suspicious Unicode category Cf" in str(exc_info.value)
+            self.validator.normalize_unicode("Hello\u200bWorld", "ZWSP test")
+        assert "Dangerous Unicode character" in str(exc_info.value)
+        assert ", Cf)" in str(exc_info.value)
 
     @pytest.mark.timeout(15)
     def test_private_use_character_rejection(self):
@@ -268,38 +320,28 @@ class TestNormalizeUnicode:
 
         with pytest.raises(SecurityError) as exc_info:
             self.validator.normalize_unicode(text, "Private use test")
-        assert "Suspicious Unicode category Co" in str(exc_info.value)
+        # Current wording (formerly "Suspicious Unicode category Co").
+        assert "Dangerous Unicode character (U+E000, Co)" in str(exc_info.value)
 
     @pytest.mark.timeout(15)
-    def test_normalization_bomb_detection(self):
-        """Test detection of Unicode normalization expansion attacks."""
-        # Create a string that expands significantly during normalization
-        # Using multiple combining characters
-        base = "a"
-        combining = "\u0301" * 10  # Multiple combining acute accents
-        text = base + combining
+    def test_moderate_script_mixing_allowed_homograph_detectable(self):
+        """Moderate Latin/Cyrillic mixing is allowed by design.
 
-        # Mock normalize to simulate expansion attack
-        with patch("unicodedata.normalize") as mock_normalize:
-            mock_normalize.return_value = "a" * 50  # Expands to 50 chars
+        normalize_unicode performs no homograph analysis; legitimate
+        multilingual strings must pass. Lookalike detection is the job
+        of detect_homograph_attack (and validate_string's threshold
+        check, covered by the canonical suite).
+        """
+        text = "Hello Неllo"  # Latin "Hello" + Cyrillic "Н"/"е" lookalikes
 
-            with pytest.raises(SecurityError) as exc_info:
-                self.validator.normalize_unicode(text, "Expansion attack")
-            assert "Unicode normalization expansion attack" in str(exc_info.value)
+        # Allowed by design: below validate_string's 75% lookalike
+        # threshold, and normalize_unicode does not raise for it.
+        result = self.validator.normalize_unicode(text, "Homograph test")
+        assert result == text
 
-    @pytest.mark.timeout(15)
-    def test_homograph_attack_detection_cyrillic(self):
-        """Test detection of Cyrillic homograph attacks."""
-        # Mix Latin and Cyrillic lookalike characters
-        text = "Heⅼⅼo"  # Contains Roman numeral that looks like 'l'
-        # Note: This test may need adjustment based on actual Unicode names
-
-        # For testing, we'll use actual Cyrillic characters
-        text = "Hello Неllo"  # Mix Latin "Hello" with Cyrillic "Н"
-
-        with pytest.raises(SecurityError) as exc_info:
-            self.validator.normalize_unicode(text, "Homograph test")
-        assert "Excessive script mixing" in str(exc_info.value) or len(text) > 0
+        # But the lookalike characters ARE detectable via the
+        # dedicated homograph API.
+        assert self.validator.detect_homograph_attack(text, "Homograph test") is True
 
     @pytest.mark.timeout(15)
     def test_valid_script_mixing_allowed(self):
@@ -343,7 +385,13 @@ class TestNormalizeUnicode:
 
 
 class TestValidateEntry:
-    """Test cases for validate_entry method with rate limiting."""
+    """Test cases for validate_entry method.
+
+    validate_entry(entry, context) returns a sanitized copy of the entry
+    (all string fields run through validate_string, nested dicts/lists
+    recursed) and raises SecurityError on dangerous content. It does NOT
+    return a {'valid': ...} status dict and has no rate-limiting kwarg.
+    """
 
     def setup_method(self):
         """Set up test fixtures."""
@@ -360,14 +408,14 @@ class TestValidateEntry:
 
         result = self.validator.validate_entry(entry, "Basic entry")
 
-        assert result["valid"] is True
-        assert result["rate_limited"] is False
-        assert result["retry_after"] == 0
-        assert len(result["warnings"]) == 0
+        assert isinstance(result, dict)
+        assert result["GlobalID"] == "test-001"
+        assert result["CanonicalLatin"] == "John Smith"
+        assert result["CanonicalNative"] == "John Smith"
 
     @pytest.mark.timeout(15)
     def test_unicode_normalization_in_entry(self):
-        """Test that entry fields are normalized."""
+        """Test that string fields in the returned entry are NFC-normalized."""
         entry = {
             "GlobalID": "test-002",
             "CanonicalLatin": "Jose\u0301",  # Decomposed é
@@ -376,53 +424,10 @@ class TestValidateEntry:
 
         result = self.validator.validate_entry(entry, "Unicode entry")
 
-        assert result["valid"] is True
-        assert entry["CanonicalLatin"] == "José"  # Should be normalized
-        assert entry["CanonicalNative"] == "José"
-
-    @pytest.mark.timeout(15)
-    def test_rate_limiting_rapid_requests(self):
-        """Test rate limiting for rapid requests."""
-        entry1 = {"GlobalID": "test-003", "CanonicalLatin": "Test One"}
-        entry2 = {"GlobalID": "test-004", "CanonicalLatin": "Test Two"}
-
-        # First request should succeed
-        result1 = self.validator.validate_entry(
-            entry1, "First request", enable_rate_limiting=True
-        )
-        assert result1["valid"] is True
-        assert result1["rate_limited"] is False
-
-        # Immediate second request should be rate limited
-        result2 = self.validator.validate_entry(
-            entry2, "Second request", enable_rate_limiting=True
-        )
-        assert result2["rate_limited"] is True
-        assert result2["retry_after"] == 0.1
-
-        # Wait and retry
-        time.sleep(0.11)
-        result3 = self.validator.validate_entry(
-            entry2, "Third request", enable_rate_limiting=True
-        )
-        assert result3["rate_limited"] is False
-
-    @pytest.mark.timeout(15)
-    def test_rate_limiting_disabled(self):
-        """Test that rate limiting can be disabled."""
-        entry1 = {"GlobalID": "test-005", "CanonicalLatin": "Test One"}
-        entry2 = {"GlobalID": "test-006", "CanonicalLatin": "Test Two"}
-
-        # Both rapid requests should succeed with rate limiting disabled
-        result1 = self.validator.validate_entry(
-            entry1, "First request", enable_rate_limiting=False
-        )
-        result2 = self.validator.validate_entry(
-            entry2, "Second request", enable_rate_limiting=False
-        )
-
-        assert result1["rate_limited"] is False
-        assert result2["rate_limited"] is False
+        # validate_entry returns a sanitized COPY (it does not mutate
+        # the input); the copy carries the NFC-composed forms.
+        assert result["CanonicalLatin"] == "José"
+        assert result["CanonicalNative"] == "José"
 
     @pytest.mark.timeout(15)
     def test_security_error_propagation(self):
@@ -434,11 +439,14 @@ class TestValidateEntry:
 
         with pytest.raises(SecurityError) as exc_info:
             self.validator.validate_entry(entry, "Malicious entry")
-        assert "Null byte detected" in str(exc_info.value)
+        # Null bytes surface as dangerous control characters in
+        # validate_string (old "Null byte detected" wording never
+        # shipped for this path).
+        assert "Dangerous control character" in str(exc_info.value)
 
     @pytest.mark.timeout(15)
-    def test_cjk_roundtrip_validation_triggered(self):
-        """Test that CJK round-trip validation is triggered for CJK text."""
+    def test_cjk_entry_passes_untouched(self):
+        """Clean CJK entries pass validation with content preserved."""
         entry = {
             "GlobalID": "test-008",
             "CanonicalLatin": "Wang Ming",
@@ -447,25 +455,25 @@ class TestValidateEntry:
 
         result = self.validator.validate_entry(entry, "CJK entry")
 
-        assert result["valid"] is True
-        # Since it's not a perfect round-trip in our mock, check for warnings
-        # The actual round-trip would fail, generating a warning
+        assert result["CanonicalNative"] == "王明"
+        assert result["CanonicalLatin"] == "Wang Ming"
 
     @pytest.mark.timeout(15)
-    def test_cjk_roundtrip_warning_on_failure(self):
-        """Test that CJK round-trip failures generate warnings."""
+    def test_null_byte_in_cjk_field_rejected(self):
+        """A null byte inside a CJK field raises SecurityError.
+
+        (The old API expected a soft warning; the current API rejects
+        hard, which is strictly stronger.)
+        """
         entry = {
             "GlobalID": "test-009",
             "CanonicalLatin": "Test",
             "CanonicalNative": "王\x00明",  # Null byte in CJK text
         }
 
-        # Should not raise error but add warning
-        result = self.validator.validate_entry(entry, "Bad CJK entry")
-
-        assert (
-            result["valid"] is False
-        )  # Will fail due to null byte in normalize_unicode
+        with pytest.raises(SecurityError) as exc_info:
+            self.validator.validate_entry(entry, "Bad CJK entry")
+        assert "Dangerous control character" in str(exc_info.value)
 
     @pytest.mark.timeout(15)
     def test_missing_fields_handled_gracefully(self):
@@ -474,13 +482,14 @@ class TestValidateEntry:
         entry = {"GlobalID": "test-010"}
 
         result = self.validator.validate_entry(entry, "Minimal entry")
-        assert result["valid"] is True
+        assert result == {"GlobalID": "test-010"}
 
-        # Entry with empty strings
+        # Entry with empty string and None (non-strings pass through)
         entry = {"GlobalID": "test-011", "CanonicalLatin": "", "CanonicalNative": None}
 
         result = self.validator.validate_entry(entry, "Empty fields")
-        assert result["valid"] is True
+        assert result["CanonicalLatin"] == ""
+        assert result["CanonicalNative"] is None
 
     @pytest.mark.timeout(15)
     def test_entry_field_security_validation(self):
@@ -494,38 +503,25 @@ class TestValidateEntry:
 
     @pytest.mark.timeout(15)
     def test_all_fields_normalized(self):
-        """Test that all text fields are normalized."""
+        """Test that all text fields in the returned entry are normalized."""
         entry = {
-            "GlobalID": "test\u0301-013",  # Decomposed accent in ID
+            # Decomposed accent on the "e" (t+U+0301 has no precomposed
+            # form, so the old "test\u0301-013" input could never have
+            # NFC-composed to the expected "t\u00e8st-013")
+            "GlobalID": "te\u0301st-013",
             "CanonicalLatin": "Jose\u0301 Mari\u0301a",  # Decomposed accents
             "CanonicalNative": "Jose\u0301",
         }
 
         result = self.validator.validate_entry(entry, "Multi-field normalization")
 
-        assert result["valid"] is True
-        assert entry["GlobalID"] == "tèst-013"  # Normalized
-        assert entry["CanonicalLatin"] == "José María"  # Normalized
-        assert entry["CanonicalNative"] == "José"  # Normalized
+        assert result["GlobalID"] == "tést-013"  # NFC-composed é
+        assert result["CanonicalLatin"] == "José María"  # Normalized
+        assert result["CanonicalNative"] == "José"  # Normalized
 
     @pytest.mark.timeout(15)
-    def test_rate_limiting_preserves_state(self):
-        """Test that rate limiting state is preserved across calls."""
-        validator = SecurityValidator()  # Fresh instance
-
-        # Set up initial state
-        entry1 = {"GlobalID": "test-014", "CanonicalLatin": "Test"}
-        result1 = validator.validate_entry(entry1, "Setup", enable_rate_limiting=True)
-        assert result1["rate_limited"] is False
-
-        # Verify state is preserved
-        assert hasattr(validator, "_last_request_time")
-        assert validator._last_request_time > 0
-
-    @pytest.mark.timeout(15)
-    def test_cjk_detection_accuracy(self):
-        """Test accurate detection of CJK characters for round-trip validation."""
-        # Entry with actual CJK should trigger round-trip
+    def test_cjk_and_latin_entries_both_validate(self):
+        """CJK and pure-Latin entries both pass with content intact."""
         entry_cjk = {
             "GlobalID": "test-015",
             "CanonicalLatin": "Yamada Taro",
@@ -533,9 +529,8 @@ class TestValidateEntry:
         }
 
         result = self.validator.validate_entry(entry_cjk, "Japanese entry")
-        assert result["valid"] is True
+        assert result["CanonicalNative"] == "山田太郎"
 
-        # Entry without CJK should not trigger round-trip
         entry_latin = {
             "GlobalID": "test-016",
             "CanonicalLatin": "John Smith",
@@ -543,8 +538,7 @@ class TestValidateEntry:
         }
 
         result = self.validator.validate_entry(entry_latin, "Latin entry")
-        assert result["valid"] is True
-        assert len(result["warnings"]) == 0
+        assert result["CanonicalLatin"] == "John Smith"
 
 
 class TestIntegration:
@@ -564,20 +558,18 @@ class TestIntegration:
             "CanonicalNative": "王明华",
         }
 
-        # Process through validate_entry
+        # Process through validate_entry (returns sanitized copy)
         result = self.validator.validate_entry(entry, "Integration test")
 
         # Check that normalization occurred
-        assert entry["CanonicalLatin"] == "José María"
+        assert result["CanonicalLatin"] == "José María"
+        assert result["CanonicalNative"] == "王明华"
 
-        # Check that entry is valid
-        assert result["valid"] is True
-
-        # Manually verify CJK round-trip
+        # Manually verify CJK round-trip on the sanitized values
         is_valid_roundtrip = self.validator.validate_cjk_roundtrip(
-            entry["CanonicalNative"],
-            entry["CanonicalLatin"],
-            entry["CanonicalNative"],
+            result["CanonicalNative"],
+            result["CanonicalLatin"],
+            result["CanonicalNative"],
             "Manual check",
         )
         assert is_valid_roundtrip is True
@@ -597,25 +589,19 @@ class TestIntegration:
 
     @pytest.mark.timeout(15)
     def test_performance_dos_prevention(self):
-        """Test DoS prevention across all methods."""
+        """Test DoS prevention across methods."""
         # Test long string in normalize_unicode
         long_text = "A" * 1000
         normalized = self.validator.normalize_unicode(long_text, "Long text")
         assert len(normalized) == 1000  # Should not expand
 
-        # Test long string in CJK validation
+        # Test long string in CJK validation (200-char cap)
         long_cjk = "王" * 201
         with pytest.raises(SecurityError) as exc_info:
             self.validator.validate_cjk_roundtrip(
                 long_cjk, "Wang" * 201, long_cjk, "DoS test"
             )
         assert "Excessively long" in str(exc_info.value)
-
-        # Test rate limiting in validate_entry
-        entry = {"GlobalID": "dos-test", "CanonicalLatin": "Test"}
-        self.validator.validate_entry(entry, "DoS", enable_rate_limiting=True)
-        result2 = self.validator.validate_entry(entry, "DoS", enable_rate_limiting=True)
-        assert result2["rate_limited"] is True
 
     @pytest.mark.timeout(15)
     def test_unicode_security_comprehensive(self):
@@ -637,9 +623,9 @@ class TestIntegration:
 
             # Some should raise errors, others should be normalized
             try:
-                self.validator.validate_entry(entry, "Unicode security")
-                # If it doesn't raise, check it was normalized
-                assert "CanonicalLatin" in entry
+                result = self.validator.validate_entry(entry, "Unicode security")
+                # If it doesn't raise, check the field survived sanitization
+                assert "CanonicalLatin" in result
             except SecurityError:
                 # Expected for some inputs
                 pass
