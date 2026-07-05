@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import calendar
 import hashlib
 import time
 from dataclasses import dataclass
@@ -85,18 +86,32 @@ def verify_hashcash(
     if lzb < st.bits:
         return False, "invalid_proof"
 
-    # Date freshness check (tolerate formats YYYYMMDD or YYYYMMDDhhmmss)
+    # Date freshness check (tolerate formats YYYYMMDD or YYYYMMDDhhmmss).
+    # Stamp dates are UTC (classic Hashcash), so convert the parsed
+    # struct with calendar.timegm — NOT time.mktime, which would read it
+    # as *local* time and skew every age check by the host's UTC offset.
     try:
         now = time.time()
         # Accept either 8 or 14 digits
         if len(st.date) == 14:
             tm = time.strptime(st.date, "%Y%m%d%H%M%S")
+            stamp_start = calendar.timegm(tm)
+            stamp_end = stamp_start  # second resolution: a point in time
         elif len(st.date) == 8:
             tm = time.strptime(st.date, "%Y%m%d")
+            # Day resolution: the stamp only tells us the UTC day it was
+            # minted. Treat it as the whole-day interval, not midnight —
+            # otherwise any sub-day max_age_seconds would spuriously
+            # reject stamps minted later the same day.
+            stamp_start = calendar.timegm(tm)
+            stamp_end = stamp_start + 86400
         else:
             return False, "bad_date"
-        stamp_ts = time.mktime(tm)
-        if abs(now - stamp_ts) > max_age_seconds:
+        # Age = distance from `now` to the [start, end] interval (0 while
+        # inside it). Stale stamps (now far past end) and future-dated
+        # stamps (start far past now) are both rejected.
+        age = max(stamp_start - now, now - stamp_end, 0.0)
+        if age > max_age_seconds:
             return False, "expired"
     except Exception:
         return False, "bad_date"

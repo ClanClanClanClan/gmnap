@@ -57,6 +57,11 @@ class SecurityFilter:
                 r"\b(union|select|insert|update|delete|drop|alter|create|exec|execute)\b",
                 re.IGNORECASE,
             ),
+            # Trailing SQL comment terminator, e.g. "x' ORDER BY 1 --"
+            # (parity with src/core/security_patterns.py "--$" and
+            # base_enhanced's r"--\s*$"; collision suffixes like
+            # "Name--2" end with a digit and do not match).
+            re.compile(r"--\s*$"),
             re.compile(
                 r'[\'";]\s*(or|and)\s+[\'"]?1[\'"]?\s*=\s*[\'"]?1', re.IGNORECASE
             ),
@@ -74,6 +79,13 @@ class SecurityFilter:
             # Path traversal
             re.compile(r"\.\.[\\/]"),
             re.compile(r"[\\/]\.\."),
+            # Sensitive system paths (parity with the core
+            # SecurityValidator's path-traversal family in
+            # src/core/security_patterns.py).
+            re.compile(
+                r"(?:/etc/|/proc/|/sys/|c:[\\/]+windows|c:[\\/]+system)",
+                re.IGNORECASE,
+            ),
             # Template/expression injection
             re.compile(r"\{\{.*?\}\}"),  # Django/Jinja2 templates
             re.compile(r"\$\{.*?\}"),  # Spring EL, etc.

@@ -47,6 +47,7 @@ DANGEROUS_PATTERNS = [
     r"#\{.*\}",  # Ruby style #{expression}
     r"\[%.*%\]",  # Perl Template Toolkit style [%expression%]
     r"@\(.*\)",  # Razor syntax @(expression)
+    r"[*@~]\{.*\}",  # Thymeleaf style *{selection}, @{link}, ~{fragment}
     # NoSQL injection patterns
     r"(?i)(\$where|\$gt|\$lt|\$ne|\$eq|\$regex|\$exists|\$type|\$expr|\$nin|\$in|\$all)",
     r"'; return .* var .*=",  # JavaScript injection in NoSQL
@@ -137,6 +138,7 @@ PATTERN_DESCRIPTIONS = {
     r"#\{.*\}": "Template injection (Ruby)",
     r"@\(.*\)": "Template injection (Razor)",
     r"\[%.*%\]": "Template injection (Perl TT)",
+    r"[*@~]\{.*\}": "Template injection (Thymeleaf)",
     # Path traversal — different patterns are flagged in the
     # main list; align the exact strings here so dispatch
     # produces "Path traversal detected" instead of opaque
