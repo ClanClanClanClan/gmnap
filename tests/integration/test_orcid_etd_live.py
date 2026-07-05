@@ -48,7 +48,7 @@ def _run(coro):
 def test_orcid_etd_resolves_known_living_mathematician():
     """Tao's ORCID 0000-0002-0140-7641 must resolve via the
     name → OpenAlex → ORCID-ETD chain end-to-end."""
-    from src.authority.manager_tier01 import _fetch_orcid_etd
+    from src.authorities.manager_tier01 import _fetch_orcid_etd
 
     entry = {"CanonicalLatin": "Tao, T."}
     result = _run(_fetch_orcid_etd(entry))
@@ -95,7 +95,7 @@ def test_orcid_etd_returns_no_orcid_for_historical_mathematician():
     so historical mathematicians don't trigger 'Invalid ORCID
     format' log noise.
     """
-    from src.authority.manager_tier01 import _fetch_orcid_etd
+    from src.authorities.manager_tier01 import _fetch_orcid_etd
 
     entry = {"CanonicalLatin": "Euler, Leonhard"}
     result = _run(_fetch_orcid_etd(entry))

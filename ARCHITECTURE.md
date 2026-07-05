@@ -1,9 +1,10 @@
 # MathLineage — Architecture (reviewer one-pager)
 
 **Audience:** someone evaluating whether this project is methodologically
-sound. For a deep dive, see `docs/ARCHITECTURE_DEFINITIVE.md` (605
-lines) and `docs/EXPERT_CONSULTATION_*.md` (the onomastics expert's
-review thread). This file is a 10-minute read that answers the five
+sound. For a deep dive, see `docs/MASTERPLAN.md` (the current consolidated
+architecture, capabilities, and cleanup plan) and `docs/specs_v7_clean.yaml`
+(the ground-truth spec), plus `docs/EXPERT_CONSULTATION_*.md` (the onomastics
+expert's review thread). This file is a 10-minute read that answers the five
 questions a reviewer asks first.
 
 ---
@@ -132,14 +133,14 @@ Real leverage is in the rule families, not the thresholds.
 
 ## 12-stage pipeline (one-liner each)
 
-All stages are in `src/core/pipeline_v7.py`. Stages 0–8 are async,
-9–11 are sync.
+All stages are in `src/core/pipeline_v7.py`. Stages 0–8 are async, 9–11 are
+sync, and an optional stage 12 (genealogy enrichment) runs async after 11.
 
 | # | Stage | What it does |
 |---|---|---|
 | 0 | `_stage_0_config` | Validate mode, credentials, schema version |
 | 1 | `_stage_1_ingest` | NFC → NFKD → fold → NFC Unicode normalization |
-| 1b | `_stage_1b_llm_etd` | **NOT wired into V7** — `pipeline_v7.py:373` has the entry commented out (`# TODO: Implement`). The class `LLMExtractETDStage` exists at `src/pipeline/stage_1b_llm_extract.py` but the pipeline never calls it. Activate by un-commenting + setting `pipeline.enable_llm_extraction: True` + configuring an LLM provider. |
+| 1b | `_stage_1b_llm_extract` | **OPT-IN** ETD/thesis record extraction, wired at `pipeline_v7.py:743` (defined `:555`). Off by default; enable with `GMNAP_ENABLE_LLM_EXTRACT=1` or `config['pipeline']['enable_llm_extraction']`. Routes to the deterministic regex extractor `src/llm/stage1b_llmextract_etd.extract_from_text` — **no live LLM** (the spec's GPT-4o-mini path is not built; the non-importable `LLMExtractETDStage` class is unused). |
 | 2 | `_stage_2_detect_region` | The split geo/name-origin detection above |
 | 3 | `_stage_3_region_hooks` | `clean → augment → validate → order_key` per region |
 | 4 | `_stage_4_authority_enrich` | 9 tier-0/1 sources (OpenAlex, Crossref, ORCID, …) |
@@ -150,6 +151,7 @@ All stages are in `src/core/pipeline_v7.py`. Stages 0–8 are async,
 | 9 | `_stage_9_write_diff` | YAML snapshot + SQL/Cypher changelog |
 | 10 | `_stage_10_report` | DOI draft, SFTP archive, `ATTRIBUTION.txt` |
 | 11 | `_stage_11_idempotency_check` | Re-run must produce byte-identical output |
+| 12 | `_stage_12_genealogy_enrichment` | (optional) advisor / institution / birth-year enrichment from `data/genealogy_enrichment.json` |
 
 ---
 

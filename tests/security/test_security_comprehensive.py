@@ -44,7 +44,7 @@ try:
         os.environ["GMNAP_TEST_MODE"] = "true"
         from pathlib import Path
 
-        from src.regions.manager import RegionManager
+        from src.regions.manager_optimized import RegionManager
 
         # Create manager instance to get processors
         manager = RegionManager(Path("./config"))

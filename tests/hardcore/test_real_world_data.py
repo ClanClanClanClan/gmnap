@@ -11,7 +11,7 @@ import pytest
 
 from src.core.globalid import GlobalIDGenerator
 from src.core.unicode_handler import UnicodeNormalizer
-from src.regions.manager import RegionManager
+from src.regions.manager_optimized import RegionManager
 from src.validation.schema import SchemaValidator
 
 

@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from src.authority.manager_tier01 import (
+from src.authorities.manager_tier01 import (
     TIER_HANDLERS,
     _cache_get,
     _cache_key,
@@ -99,7 +99,7 @@ class TestCache:
 
     def test_cache_roundtrip(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)):
+            with patch("src.authorities.manager_tier01.CACHE_DIR", Path(tmpdir)):
                 key = _cache_key("test", {"name": "Smith"})
                 obj = {"hit": True, "source_id": "12345"}
                 _cache_set(key, obj)
@@ -108,7 +108,7 @@ class TestCache:
 
     def test_cache_miss(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)):
+            with patch("src.authorities.manager_tier01.CACHE_DIR", Path(tmpdir)):
                 key = _cache_key("nonexistent", {"name": "Nobody"})
                 assert _cache_get(key) is None
 
@@ -121,7 +121,7 @@ class TestEnrichment:
 
     def test_offline_enrichment(self):
         entries = [{"CanonicalLatin": "Smith, John"}]
-        with patch("src.authority.manager_tier01.OFFLINE", True):
+        with patch("src.authorities.manager_tier01.OFFLINE", True):
             result = _run(enrich_by_tiers(entries, tiers=[0]))
         assert len(result) == 1
         assert "_sources" in result[0]
@@ -168,8 +168,8 @@ class TestWikidataP184:
         # checking — it's checking the OFFLINE-with-empty-cache
         # branch where the function returns hit=False directly).
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch("src.authority.manager_tier01.OFFLINE", True):
-                with patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)):
+            with patch("src.authorities.manager_tier01.OFFLINE", True):
+                with patch("src.authorities.manager_tier01.CACHE_DIR", Path(tmpdir)):
                     result = _run(_fetch_wikidata_p184(entry))
         assert result["Wikidata_P184"]["hit"] is False
 
@@ -183,7 +183,7 @@ class TestWikidataP184:
         entry = {"CanonicalLatin": "Gauss, Carl Friedrich"}
         cached = {"Wikidata_P184": {"hit": True, "wikidata_id": "Q6722", "edges": []}}
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)):
+            with patch("src.authorities.manager_tier01.CACHE_DIR", Path(tmpdir)):
                 # The shim normalizes the canonical "Family, Given"
                 # to natural "Given Family" before building the cache
                 # key (so OpenAlex/Wikidata see a queryable form).
@@ -247,9 +247,9 @@ class TestWikidataP184:
 
         # Project targets py38 — parenthesized `with` is py310+, so
         # use nested context managers instead.
-        with patch("src.authority.manager_tier01.OFFLINE", False):
+        with patch("src.authorities.manager_tier01.OFFLINE", False):
             with tempfile.TemporaryDirectory() as tmpdir:
-                with patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)):
+                with patch("src.authorities.manager_tier01.CACHE_DIR", Path(tmpdir)):
                     with patch("aiohttp.ClientSession", return_value=MockSession()):
                         result = _run(_fetch_wikidata_p184(entry))
 
@@ -264,7 +264,7 @@ class TestCrossrefThesis:
 
     def test_offline_returns_no_match(self):
         entry = {"CanonicalLatin": "Smith, John"}
-        with patch("src.authority.manager_tier01.OFFLINE", True):
+        with patch("src.authorities.manager_tier01.OFFLINE", True):
             result = _run(_fetch_crossref_thesis(entry))
         assert result["Crossref_Thesis"]["match"] is False
         assert result["Crossref_Thesis"]["works"] == 0
@@ -284,7 +284,7 @@ class TestCrossrefThesis:
             }
         }
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)):
+            with patch("src.authorities.manager_tier01.CACHE_DIR", Path(tmpdir)):
                 ck = _cache_key("crossref_thesis", {"name": "Test, User"})
                 _cache_set(ck, cached)
                 result = _run(_fetch_crossref_thesis(entry))
@@ -296,7 +296,7 @@ class TestOAIUniversity:
 
     def test_offline_returns_no_hit(self):
         entry = {"CanonicalLatin": "Smith, John"}
-        with patch("src.authority.manager_tier01.OFFLINE", True):
+        with patch("src.authorities.manager_tier01.OFFLINE", True):
             result = _run(_fetch_oai_university(entry))
         assert result["OAI_University"]["hit"] is False
 
@@ -312,7 +312,7 @@ class TestMathSciNet:
 
     def test_offline_returns_no_hit(self):
         entry = {"CanonicalLatin": "Euler, Leonhard"}
-        with patch("src.authority.manager_tier01.OFFLINE", True):
+        with patch("src.authorities.manager_tier01.OFFLINE", True):
             result = _run(_fetch_mathscinet(entry))
         assert result["MathSciNet"]["hit"] is False
 
@@ -326,7 +326,7 @@ class TestMathSciNet:
         entry = {"CanonicalLatin": "Gauss, Carl Friedrich"}
         cached = {"MathSciNet": {"hit": True, "source_id": "MR0001234"}}
         with tempfile.TemporaryDirectory() as tmpdir:
-            with patch("src.authority.manager_tier01.CACHE_DIR", Path(tmpdir)):
+            with patch("src.authorities.manager_tier01.CACHE_DIR", Path(tmpdir)):
                 ck = _cache_key("mathscinet", {"name": "Gauss, Carl Friedrich"})
                 _cache_set(ck, cached)
                 result = _run(_fetch_mathscinet(entry))
@@ -353,7 +353,7 @@ class TestDimensions:
     def test_offline_returns_no_hit(self):
         entry = {"CanonicalLatin": "Smith, John"}
         # py38-compatible nested context (project pyproject pins py38).
-        with patch("src.authority.manager_tier01.OFFLINE", True):
+        with patch("src.authorities.manager_tier01.OFFLINE", True):
             with patch.dict(os.environ, {"DIMENSIONS_API_KEY": "test_key"}):
                 result = _run(_fetch_dimensions(entry))
         assert result["Dimensions"]["hit"] is False

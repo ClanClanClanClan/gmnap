@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.core.quality_gates import (
+from src.quality.quality_gates import (
     AuthorityValidator,
     CoherenceValidator,
     CompletenessChecker,
@@ -24,8 +24,8 @@ from src.core.quality_gates import (
     DuplicateDetector,
     EnhancedQualityGates,
 )
-from src.core.quality_gates import QualityGatesSchemaValidator as SchemaValidator
-from src.core.quality_gates import (
+from src.quality.quality_gates import QualityGatesSchemaValidator as SchemaValidator
+from src.quality.quality_gates import (
     RoundtripValidator,
 )
 

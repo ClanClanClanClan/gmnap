@@ -122,7 +122,7 @@ ignore = ["E402", "E722", "F821", "E741", "F601", "F811", "F402", "F403", "F401"
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "scripts/**" = ["F401", "F841", "E701", "E702"]
-"src/regions/e_groups/e4_korea/scripts/**" = ["F401", "F841", "E701", "E702"]
+"tools/korean_tuning/e4_korea_scripts/**" = ["F401", "F841", "E701", "E702"]
 "tools/**" = ["F401", "F841"]
 "tests/**" = ["F401", "E701", "E702"]
 

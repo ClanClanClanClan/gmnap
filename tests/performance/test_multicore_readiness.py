@@ -17,7 +17,7 @@ from typing import Dict
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from src.regions.manager import RegionManager
+from src.regions.manager_optimized import RegionManager
 
 
 def process_mathematician_batch(batch_info: Dict[str, Any]) -> Dict[str, Any]:

@@ -15,7 +15,7 @@ from queue import Empty, Queue
 import pytest
 
 from src.core.unicode_handler import UnicodeNormalizer
-from src.regions.manager import RegionManager
+from src.regions.manager_optimized import RegionManager
 
 
 class TestRegionDetectionAccuracy:

@@ -100,7 +100,7 @@ def test_regional_processor_infrastructure_integration():
     print("\n🧪 TESTING REGIONAL PROCESSOR + INFRASTRUCTURE INTEGRATION...")
 
     try:
-        from src.regions.manager import RegionManager
+        from src.regions.manager_optimized import RegionManager
 
         print("PASS RegionManager import successful")
 
@@ -207,7 +207,7 @@ def test_end_to_end_integration():
     try:
         # Test full workflow: Manager -> Region -> Security -> Processing
         from src.core.security_validator import SecurityValidator
-        from src.regions.manager import RegionManager
+        from src.regions.manager_optimized import RegionManager
 
         manager = RegionManager(Path("./config"))
         validator = SecurityValidator()

@@ -38,7 +38,7 @@ def fresh_module(monkeypatch):
 
     Earlier versions of this fixture did ``importlib.reload(m)`` to
     rebuild the module against a fresh env. That left other test
-    modules (which did ``from src.authority.manager_tier01 import
+    modules (which did ``from src.authorities.manager_tier01 import
     _fetch_X`` at file-load time) holding *stale* function references
     bound to a now-replaced module globals dict — so e.g.
     ``test_authority_manager.py``'s ``with patch("…OFFLINE", True)``
@@ -55,7 +55,7 @@ def fresh_module(monkeypatch):
     `OpenAlexFetcher.fetch` (which has been unwound by patch.object)
     would still apply via the cached instance.
     """
-    import src.authority.manager_tier01 as m
+    import src.authorities.manager_tier01 as m
 
     # Drain any stale pooled fetchers from a previous test.
     asyncio.run(m._close_fetcher_pool())
