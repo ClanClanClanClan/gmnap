@@ -1510,6 +1510,21 @@ class V7Pipeline:
 
         # Generate metrics report
         self._generate_report()
+
+        # R48 §3.6 (spec §10): ATTRIBUTION.txt — SPDX-tagged licence roster
+        # for every authority source, written alongside the report output.
+        # generate_attribution_text existed with zero callers (and its
+        # spec_loader searched only non-existent paths, so it raised).
+        try:
+            from src.ops.attribution import generate_attribution_text
+
+            attribution_path = Path("output/ATTRIBUTION.txt")
+            attribution_path.parent.mkdir(parents=True, exist_ok=True)
+            attribution_path.write_text(generate_attribution_text(), encoding="utf-8")
+            logger.info(f"ATTRIBUTION.txt written to {attribution_path}")
+        except Exception as e:
+            logger.warning(f"ATTRIBUTION.txt generation failed: {e}")
+
         timestamp_str = self.deterministic_mode.get_timestamp().strftime(
             "%Y%m%d_%H%M%S"
         )

@@ -5,7 +5,11 @@ from typing import Any, Dict
 
 import yaml
 
-SPEC_CANDIDATES = ("specs_v7.yaml", "v7.0.yaml")
+# docs/specs_v7_clean.yaml is the actual ground-truth spec shipped in the
+# repo; the two legacy root-level names never existed here, so every
+# spec_loader consumer (attribution, licence checks) raised SpecError
+# until R48 added the real path.
+SPEC_CANDIDATES = ("docs/specs_v7_clean.yaml", "specs_v7.yaml", "v7.0.yaml")
 
 
 class SpecError(RuntimeError):
