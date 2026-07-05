@@ -2,6 +2,10 @@
 """
 Security tests for authentication and authorization
 Tests JWT tokens, RBAC, and security edge cases
+
+src/core/auth.py is a dormant beyond-spec module needing PyJWT, which is not
+a declared dependency (the live API uses Bearer tokens + hashcash). Skip the
+whole module gracefully when jwt is absent instead of erroring collection.
 """
 
 import sys
@@ -9,6 +13,10 @@ import time
 from pathlib import Path
 
 import pytest
+
+pytest.importorskip(
+    "jwt", reason="src/core/auth.py needs PyJWT (optional, undeclared dep)"
+)
 
 # Add source to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
