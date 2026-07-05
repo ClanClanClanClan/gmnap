@@ -30,12 +30,17 @@ def test_spec_quota_binds_and_blocks(tmp_path):
 
 
 @pytest.mark.timeout(30)
-def test_manifest_built_from_spec_normalises_nbsp(monkeypatch, tmp_path):
+def test_manifest_built_from_spec_normalises_nbsp(monkeypatch):
     import src.authorities.manager_tier01 as m
 
     monkeypatch.setattr(m, "_QUOTA_MANAGER", None)
-    qm = m._quota_manager()
-    # the spec value (200/day) must bind under the orchestrator's name,
-    # despite the spec spelling the service with a non-breaking space
-    assert qm._get_quota("zbMATH_Open") == 200
+
+    async def main():
+        # QuotaManager creates an asyncio.Lock — construct inside a loop
+        qm = m._quota_manager()
+        # the spec value (200/day) must bind under the orchestrator's name,
+        # despite the spec spelling the service with a non-breaking space
+        return qm._get_quota("zbMATH_Open")
+
+    assert asyncio.run(main()) == 200
     monkeypatch.setattr(m, "_QUOTA_MANAGER", None)
