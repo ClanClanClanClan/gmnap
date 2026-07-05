@@ -431,16 +431,24 @@ chaos/unicode) worth porting, not deleting. Same root cause as the broken
   cleanup first** (archive the dead one-offs — the code-arch "tools-scripts-org"
   area), then migrate the few remaining test importers, then these delete cleanly.
 
-### 11.4 — TIER 3 god-file splits (higher risk, incremental, facade-preserving)
-Safety net per split: 843-benchmark + 500-golden (0 detection regressions) +
-perf gate (±15%) + full allowlist.
-- `manager_optimized.py` (6851) → `src/regions/detection/{scorer,fasttext_worker,
-  result,region_manager}.py`; **move the `@lru_cache` `_wb`/`_score_priority_rules`
-  scorer first and isolated**, perf gate immediately (it's the 2763/s unlock).
-- `pipeline_v7.py` (1916, 5 classes) → `src/core/pipeline/{aggregator,metrics,
-  gates,orchestrator}.py`.
-- `server.py` (1087) and `security_validator.py` (1021) → DEFER (API contract /
-  security-sensitive; do last, full suites as gate).
+### 11.4 — TIER 3 god-file splits (R45, `c475366` + `b3f84c5`)
+- ✅ **T3.1 — `manager_optimized.py` 6851 → 3762** + `src/regions/detection/
+  {scorer(2876), fasttext_worker(269), result(23)}.py`. Facade re-exports every
+  moved name (identity-asserted); `_wb`'s `@lru_cache` intact (asserted). Moved
+  code verbatim (kept CI-black-26.3.1 formatting). Verified: 1,597 detection/
+  golden/benchmark tests pass; perf gate 100/s vs 56/s pre-split sandbox
+  baseline (no regression); audit 23/23.
+- ✅ **T3.2 — `pipeline_v7.py` 1916 → 1771** + `src/core/pipeline_runtime.py`
+  (201): get_cached_component, BatchAggregator+singleton, PipelineMode,
+  V7QualityGates, PipelineMetrics. **Deliberate scope cut:** the `V7Pipeline`
+  orchestrator class STAYS in `pipeline_v7` — it is one cohesive 12-stage class
+  and CI tests monkeypatch its module globals (`pv.genealogy_enrich_batch`,
+  `pipeline_v7.V7Pipeline`); a class move breaks that patch contract. All split
+  files swept with an explicit ruff F821 undefined-name check.
+- ⏳ `server.py` (1087) and `security_validator.py` (1021) → DEFERRED (API
+  contract / security-sensitive; needs maintainer OK per §11.5). Further
+  `RegionManager` (3.7k) / `V7Pipeline` (1.6k) decomposition = separate
+  decision; both are now single cohesive classes, not mixed-concern files.
 
 ### 11.5 — Needs maintainer confirmation before running
 Mass deletes (e4_korea cruft, empty-dir batch — done), the `src/authority`
