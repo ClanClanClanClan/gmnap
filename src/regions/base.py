@@ -1015,6 +1015,12 @@ TERRITORY_TO_REGION = {
     "AX": "A3",
     "EE": "A3",
     "LV": "A3",
+    # SPEC CONFLICT (MASTERPLAN §4.5, needs a §14 decision): spec §2 lists
+    # LT under A3 (Nordic–Baltic geo group), but the code + 16 adjudicated
+    # test expectations deliberately map CC=LT -> C9 (the Baltic LINGUISTIC
+    # leaf — "Kazlauskas ... Most common Lithuanian"). Changing this to A3
+    # breaks the adjudicated benchmark; changing the spec needs the author.
+    # Keeping the adjudicated behaviour until the maintainer rules.
     "LT": "C9",
     # A4 - Oceania Island States
     "FJ": "A4",
