@@ -266,4 +266,3 @@ class FastTextCLIWorker:
                 pass
         except Exception:  # defensive, shutdown must not raise
             pass
-

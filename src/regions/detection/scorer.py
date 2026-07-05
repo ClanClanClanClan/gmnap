@@ -2487,7 +2487,7 @@ def _score_priority_rules(name, possible):
     else:
         # 3+ tokens: check first (CJK) and last 2 (Western compound surnames), skip middle
         surname_candidates = [
-            tok for tok in ([tokens[0]] + tokens[-2:]) if not is_given_name(tok)
+            tok for tok in [tokens[0]] + tokens[-2:] if not is_given_name(tok)
         ]
         if not surname_candidates:
             surname_candidates = [tokens[0]] + tokens[-2:]
@@ -2872,5 +2872,3 @@ def _nudge_by_doi_affiliation(entry, region, conf) -> float:
     if "univ" in aff or "institute" in aff or "department" in aff:
         bump += 0.02
     return min(0.95, conf + bump)
-
-

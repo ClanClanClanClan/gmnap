@@ -199,5 +199,3 @@ class PipelineMetrics:
         if self.entries_per_second > 0:
             return (1_000_000 / self.entries_per_second) / 60
         return float("inf")
-
-
