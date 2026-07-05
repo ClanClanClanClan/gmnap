@@ -758,6 +758,21 @@ class V7Pipeline:
                     logger.warning(f"Genealogy processing failed: {e}")
                 # Continue with pipeline even if genealogy fails
 
+        # GDPR treatment (spec §10) — runs after enrichment, before anything
+        # is written: GDPR_DATA marking, ToS-source scrubbing (GoogleScholar/
+        # ProQuest/CNKI), birth-year cohort masking (<5), and optional
+        # ShadowNode collapse. --drop-personal reaches us via the
+        # GMNAP_DROP_PERSONAL env the CLI sets (that flag had been plumbed
+        # but never honored — MASTERPLAN §3.1). GMNAP_DISABLE_GDPR=1 is the
+        # operational kill-switch.
+        if os.getenv("GMNAP_DISABLE_GDPR") != "1":
+            from src.core.gdpr import gdpr_pipeline
+
+            drop_personal = os.getenv("GMNAP_DROP_PERSONAL") == "1" or bool(
+                (self.config or {}).get("pipeline", {}).get("drop_personal")
+            )
+            all_results = gdpr_pipeline(all_results, drop_personal=drop_personal)
+
         # Final stages
         await self._stage_9_write_diff(all_results)
         await self._stage_10_report(all_results)
