@@ -574,7 +574,26 @@ jobs:
       - name: TruffleHog secret scan
         uses: trufflesecurity/trufflehog@main
         with:
+          # --only-verified: flag only secrets TruffleHog can LIVE-validate,
+          # to keep the scan low-noise on full history (fetch-depth: 0).
+          # R54 note: this deliberately does NOT re-flag the plain-UUID ORCID
+          # CLIENT_SECRET that lived in scripts/ (now scrubbed to env). That
+          # secret is in git HISTORY and is resolved by REVOKING the ORCID
+          # app, not by turning CI permanently red on a dead credential.
+          # --results=verified,unknown was tried and reverted: it re-flags
+          # that historical value on every run. The credential-LITERAL class
+          # (SECRET/KEY = "literal") is caught precisely by the grep below.
           extra_args: --only-verified
+      - name: Static credential grep (belt-and-suspenders)
+        run: |
+          # This is the real guard for the ORCID class: a *_SECRET / *_KEY /
+          # PASSWORD assigned a long literal in the WORKING TREE (not env).
+          # TruffleHog's --only-verified can't model a bare UUID; this can.
+          if git grep -nE '(CLIENT_SECRET|API_KEY|SECRET_KEY|PASSWORD)\s*=\s*["'"'"'][A-Za-z0-9_-]{16,}["'"'"']' -- ':!tests' ':!docs/archive' | grep -vE 'getenv|environ|os\.env'; then
+            echo "::error::Hard-coded credential literal found — read it from env instead."
+            exit 1
+          fi
+          echo "No hard-coded credential literals."
 
   # Performance regression gate. Runs a 1k-entry pipeline batch and
   # asserts throughput hasn't dropped >25% below the pinned floor.

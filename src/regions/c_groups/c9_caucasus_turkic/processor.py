@@ -552,7 +552,7 @@ class C9_CaucasusTurkic(RegionSpec):
             variants.append(name.replace(" gizi", " qızı"))
             variants.append(name.replace(" gizi", " qizi"))
 
-        return list(set(variants))  # Remove duplicates
+        return sorted(set(variants))  # Remove duplicates
 
     def _generate_ascii_variant(self, name: str) -> str:
         """Generate ASCII-only variant of Azerbaijani name."""

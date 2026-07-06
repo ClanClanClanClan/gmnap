@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 Rapid Real Mathematician Data Collection
@@ -362,8 +363,8 @@ def main():
     arxiv_profiles = collector.collect_arxiv(n_papers=500)
 
     # ORCID (with provided credentials)
-    CLIENT_ID = "APP-4OAPPEU02QJ92JX9"
-    CLIENT_SECRET = "cdf5b6de-7da4-40cb-983e-f8a29de0383a"
+    CLIENT_ID = os.environ["ORCID_CLIENT_ID"]  # R54: was a committed literal (rotate the old app!)
+    CLIENT_SECRET = os.environ["ORCID_CLIENT_SECRET"]  # R54: was a committed literal — REVOKE it in the ORCID dev dashboard
     orcid_profiles = collector.collect_orcid(CLIENT_ID, CLIENT_SECRET, n=500)
 
     # Combine and deduplicate

@@ -251,7 +251,7 @@ class E4_Korea(RegionSpec):
                 if isinstance(variants, str):
                     variants = [variants]
                 variants.append(standardized)
-                entry["LatinVariants"] = list(set(variants))
+                entry["LatinVariants"] = sorted(set(variants))
                 self.logger.debug(
                     f"Added standardized variant: {canonical} → {standardized}"
                 )

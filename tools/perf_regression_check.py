@@ -5,19 +5,19 @@ Runs a small but representative pipeline batch, measures wall-clock
 throughput, compares against the pinned baseline. Fails non-zero if
 throughput dropped more than the configured tolerance.
 
-Pinned baseline numbers from CLAUDE.md's round-30 measurement
-(2026-05-03, Apple M1, OFFLINE=1, real names, single process):
+Honest baseline numbers (R54, 2026-07-06, 8-core Apple-silicon laptop,
+OFFLINE=1, real names, clean output dir). The pre-R54 "1M in 362 s /
+2763-per-s" figure was RETRACTED: it measured a no-op path that skipped
+region detection and the whole batch-global tail. See
+docs/perf_characterization.md.
 
-    Size      Throughput   Wall-clock      Source
-    1 k       153 / s      6.6 s          docs/perf_characterization.md
-    10 k      135 / s      74.1 s          docs/perf_characterization.md
-    100 k     295 / s      339.6 s         docs/perf_characterization.md
-    1 M       2 763 / s    362.0 s         docs/perf_characterization.md
+    Size      Serial     Parallel   Source
+    4 k       184 / s    268 / s    docs/perf_characterization.md
+    10 k      233 / s    348 / s    docs/perf_characterization.md
 
-CI uses the 1 k point — fast enough to fit a CI job's 10-minute
-budget, large enough to amortize cold-start overhead. Tolerance
-defaults to 25 % below baseline (153 → 115 / s); any worse is a
-regression that gates the build.
+CI uses a 1 k synthetic point — fast enough for a CI job's budget,
+large enough to amortize cold start. This gate checks BOTH a throughput
+floor AND a correctness floor (region coverage), because a no-op is fast.
 
 Tolerance choice (25 %): laptop-to-CI variance + Python-version
 variance + GHA shared-runner noise typically bands ±15 %. A 25 %
@@ -51,26 +51,21 @@ os.environ["OFFLINE"] = "1"
 os.environ["GMNAP_NO_NETWORK"] = "1"
 
 # REGRESSION FLOORS (not aspirational targets) — pinned conservatively
-# below the round-30 numbers (CLAUDE.md) so the test catches genuine
-# regressions without being flaky across hardware tiers.
+# below the R54 honest numbers so the test catches genuine regressions
+# without being flaky across hardware tiers.
 #
-# Round-30 on Apple M1: synthetic 1k=273/s, 10k=192/s; real 1k=153/s,
-# 10k=135/s, 100k=295/s, 1M=2763/s.
+# R54 on an 8-core Apple-silicon laptop, real names, serial: 4k=184/s,
+# 10k=233/s. CI on GHA shared runners is typically 2-3× slower (no
+# fastText wheel, slower CPU, contended I/O), and the round-28 regression
+# this gate catches was 7/s end-to-end. So a 30 / s floor at 1k catches
+# anything in that class while leaving comfortable CI-vs-laptop variance.
 #
-# CI on GHA shared runners is typically 2-3× slower than M1 (no
-# fastText wheel, slower CPU, contended I/O), and the round-28
-# regression that this gate would have caught was 7/s end-to-end —
-# 39× below the post-fix number. So a 30 / s floor at 1k catches
-# anything in the round-28 class while leaving comfortable
-# CI-vs-laptop variance. Each level is calibrated for CI, not the
-# round-30 measurement.
-#
-# Each entry: minimum acceptable entries-per-second at the given
-# batch size BEFORE the --tolerance multiplier is applied.
+# Each entry: minimum acceptable entries-per-second at the given batch
+# size BEFORE the --tolerance multiplier is applied.
 _BASELINES = {
-    1000: 30.0,  # catches a 9× regression vs round-30 (273/s syn)
-    10_000: 40.0,  # catches a 5× regression vs round-30 (192/s syn)
-    100_000: 80.0,  # catches a 4× regression vs round-30 (295/s real)
+    1000: 30.0,
+    10_000: 40.0,
+    100_000: 80.0,
 }
 
 
@@ -90,11 +85,11 @@ def _make_entries(n: int) -> list:
     ]
 
 
-async def _run(entries: list) -> None:
+async def _run(entries: list) -> list:
     from src.core.pipeline_v7 import PipelineMode, V7Pipeline
 
     pipeline = V7Pipeline(mode=PipelineMode.QUICK)
-    await pipeline.process_batch(entries)
+    return await pipeline.process_batch(entries)
 
 
 def main() -> int:
@@ -145,16 +140,40 @@ def main() -> int:
     print(f"Timing {args.size:,}-entry run…")
     start = time.perf_counter()
     try:
-        asyncio.run(_run(entries[args.warmup :]))
+        rows = asyncio.run(_run(entries[args.warmup :]))
     except Exception as exc:
         print(f"::error::benchmark crashed: {exc}")
         return 2
     elapsed = time.perf_counter() - start
     eps = args.size / elapsed if elapsed > 0 else 0.0
 
+    # CORRECTNESS FLOOR (R54): throughput alone is not enough — the pre-R54
+    # ">100k streaming" path was "fast" precisely because it SKIPPED region
+    # detection (a dict-copy no-op that still cleared the throughput bar).
+    # These synthetic entries all carry a CountryCode, so region detection
+    # via the geo branch must classify ~100%. If coverage collapses, real
+    # work is being skipped again — fail regardless of speed.
+    classified = sum(
+        1
+        for r in rows
+        if isinstance(r, dict)
+        and r.get("DetectedRegion")
+        and r["DetectedRegion"] != "unknown"
+    )
+    coverage = classified / len(rows) if rows else 0.0
+    if len(rows) != args.size or coverage < 0.90:
+        print()
+        print(
+            f"::error::CORRECTNESS REGRESSION: {classified}/{len(rows)} entries "
+            f"classified ({coverage:.0%}); expected {args.size} rows at >=90%. "
+            f"A path is skipping region detection (the R54 no-op class) — "
+            f"throughput is meaningless if the work isn't done."
+        )
+        return 1
+
     print()
     print(f"Result : {eps:>7.1f} entries/s ({elapsed:.1f}s for {args.size:,})")
-    print(f"Baseline: {baseline:>7.1f} entries/s (round-30 pinned)")
+    print(f"Baseline: {baseline:>7.1f} entries/s (R54 pinned)")
     print(f"Floor   : {floor:>7.1f} entries/s (baseline × {1 - args.tolerance:.0%})")
 
     if eps < floor:

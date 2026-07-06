@@ -85,14 +85,17 @@ applies across the whole codebase. Full synthesis cited inline below.
 
 ### 2b. KEEP, BUT ADD TESTS FIRST — works, untested (ordered by value/effort)
 
-1. **`AsyncBatchAggregator` streaming path — URGENT.** This *is* the >100k /
-   ~2763-per-sec 1M production path, yet has **no valid coverage**: its would-be
-   tests import `StreamingPipeline`/`StreamingConfig` from
-   `src.core.streaming_pipeline`, which only defines `StreamingPipelineAdapter`
-   (stale imports that never touch the live aggregator). `src/core/async_batch_agg.py:24`,
-   wired `pipeline_v7.py:34,463`. **Add** `tests/unit/test_async_batch_agg.py`:
-   order-preservation over shuffled 1000-entry add_batch, coalescing respects
-   min/target/max + max_latency_ms, 100k+1 processes all under a memory ceiling.
+1. ~~**`AsyncBatchAggregator` streaming path — URGENT.**~~ **RESOLVED / OBSOLETE
+   (R54).** This item was based on the false premise that the streaming path
+   was "the >100k / ~2763-per-sec 1M production path". It was not a production
+   path at all — it fed 16-entry microbatches into a fast path that skipped
+   region detection and the whole batch-global tail (the "2763-per-sec" number
+   was a dict-copy no-op; see `docs/perf_characterization.md`). R54 **deleted**
+   the `StreamingPipelineAdapter` detour and the lossy fast path from
+   `pipeline_v7.py`; scale now comes from `_process_batch_parallel` (a real
+   process pool), covered by `tests/v7/test_parallel_path.py` (real-work +
+   serial==parallel byte-identity). `async_batch_agg.py` / `streaming_pipeline.py`
+   are no longer wired into the pipeline (their standalone unit tests remain).
 2. **Repo-invariant audit battery** (`tools/audit_repo.py`, 18 checks A–J, CI
    `audit-repo`) — no test of the auditor itself. Add `test_audit_repo.py`.
 3. **CI perf-regression tool internals** (`tools/perf_regression_check.py`
