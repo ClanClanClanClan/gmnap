@@ -161,6 +161,8 @@ class PipelineMetrics:
         # rejection counts (feed the §7 genealogy_edge_conflict gate).
         self.genealogy_edges: int = 0
         self.genealogy_edge_conflicts: int = 0
+        # R52 §4.2: stage-11 true re-run diff (None until measured)
+        self.idempotency_diff_bytes = None
         self.end_time: Optional[datetime] = None
         self.start_time: datetime = (
             get_deterministic_mode().get_timestamp()
