@@ -1,0 +1,54 @@
+# Weekly lockfile refresh (R53). The PR lint job's lockfile check is
+# ADVISORY (PyPI drift is not a PR author's fault); this scheduled job is
+# the blocking counterpart: it regenerates requirements.lock against
+# today's PyPI and opens/updates a bump PR when anything drifted, keeping
+# main's lock current without ever failing unrelated PRs.
+name: Lockfile refresh
+on:
+  schedule:
+    - cron: '17 5 * * 1'   # Mondays 05:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Regenerate lock
+        id: compile
+        run: |
+          pip install --quiet pip-tools==7.5.3
+          pip-compile --quiet --strip-extras --output-file=requirements.lock.new requirements.txt
+          if diff -q <(grep -v '^#' requirements.lock) <(grep -v '^#' requirements.lock.new) >/dev/null; then
+            echo "drifted=false" >> "$GITHUB_OUTPUT"
+            echo "Lock is current."
+          else
+            # keep the committed header style: replace body, show the diff
+            diff -u <(grep -v '^#' requirements.lock) <(grep -v '^#' requirements.lock.new) || true
+            mv requirements.lock.new requirements.lock
+            echo "drifted=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Open/update bump PR
+        if: steps.compile.outputs.drifted == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BRANCH=chore/lock-refresh
+          git checkout -B "$BRANCH"
+          git add requirements.lock
+          git commit -m "chore: refresh requirements.lock (weekly PyPI drift sync)"
+          git push -f origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" \
+            --title "chore: refresh requirements.lock (PyPI drift)" \
+            --body "Automated weekly lock refresh — transitive pins drifted on PyPI. Full CI runs on this PR; merge when green." \
+            2>/dev/null || echo "PR already open — branch updated."
