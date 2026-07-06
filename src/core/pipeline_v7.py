@@ -697,6 +697,55 @@ class V7Pipeline:
             logger.info("Stage 1b: extracted %d ETD record(s)", len(extracted))
         return entries + extracted
 
+    # Input name-field aliases, in priority order. The pipeline hashes and
+    # detects on CanonicalLatin/CanonicalNative; users routinely supply the
+    # name under "Name"/"FullName"/etc. We accept those rather than silently
+    # collapsing every such entry onto the empty-string hash.
+    _NAME_ALIASES = (
+        "CanonicalLatin",
+        "CanonicalNative",
+        "Name",
+        "name",
+        "FullName",
+        "full_name",
+        "DisplayName",
+    )
+
+    def _resolve_input_names(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Populate CanonicalLatin from a name alias when it is missing/empty,
+        and flag entries that have NO usable name in any known field.
+
+        A name-authority pipeline cannot meaningfully identify a nameless
+        record; assigning it an empty-content GlobalID (which then collides
+        with every other nameless record) is worse than useless. Such entries
+        are marked Status='failed' with a clear error and kept in place (the
+        1:1 row contract holds), so the caller sees exactly which inputs were
+        unusable instead of getting silently-collapsed identities.
+        """
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            current = entry.get("CanonicalLatin")
+            if isinstance(current, str) and current.strip():
+                continue  # already has a usable primary name
+            resolved = ""
+            for key in self._NAME_ALIASES:
+                val = entry.get(key)
+                if isinstance(val, str) and val.strip():
+                    resolved = val.strip()
+                    break
+            if resolved:
+                entry["CanonicalLatin"] = resolved
+            else:
+                entry["Status"] = "failed"
+                entry["StatusError"] = (
+                    "no usable name: none of "
+                    f"{', '.join(self._NAME_ALIASES)} is a non-empty string"
+                )
+        return entries
+
     async def process_batch(
         self, entries: List[Dict[str, Any]], chunk_size: int = 8000
     ) -> List[Dict[str, Any]]:
@@ -704,18 +753,24 @@ class V7Pipeline:
         # sizes (small/medium/large/streaming). Per-run metrics are on
         # self.metrics. See tests/v7/test_v7_batch_shape.py.
 
-        # Reset GlobalID collision tracking ONCE per batch run, here at
-        # the public entry point — NOT inside _process_batch_internal.
-        # The >100k streaming path invokes _process_batch_internal once
-        # per coalesced microbatch (via the StreamingPipelineAdapter's
-        # process_func); resetting inside it would wipe the cross-batch
-        # collision cache between microbatches, so duplicate people in
-        # different microbatches would both get the same UNSUFFIXED
-        # GlobalID (collision suffix lost). Resetting once here keeps the
-        # cache alive across every microbatch of the whole run.
+        # Reset GlobalID collision tracking ONCE per batch run, here at the
+        # public entry point — NOT inside _process_batch_internal (the serial
+        # worker) or the parallel parent, both of which would otherwise reset
+        # mid-run and lose cross-chunk collision suffixes.
         from src.core.global_id import reset_collision_tracking
 
         reset_collision_tracking()
+
+        # Resolve a usable name from common aliases BEFORE anything hashes it.
+        # R54: an entry keyed {"Name": ...} (or with an empty CanonicalLatin)
+        # used to reach GlobalID assignment with no name content, so EVERY
+        # such entry hashed the empty string to the same base id — five
+        # distinct people collapsed onto one identity, masked by --1/--2
+        # collision suffixes. Now: map aliases into CanonicalLatin so region
+        # detection and the id hash see the name; entries with NO usable name
+        # in ANY field are flagged (Status=failed) rather than silently
+        # assigned an empty-content identity.
+        entries = self._resolve_input_names(entries)
 
         # Stage 1b (OPT-IN): ETD/thesis extraction. Runs ONCE on the whole
         # input here — before the size dispatch / chunking — so any rows it
@@ -1051,8 +1106,13 @@ class V7Pipeline:
                     normalized = self.unicode_handler.normalize(canonical_latin)
                     entry["CanonicalLatinNormalized"] = normalized
 
-                # Set Status field to track success
-                entry["Status"] = "processing"
+                # Set Status field to track success — but DON'T clobber a
+                # pre-existing "failed" (e.g. _resolve_input_names flags a
+                # nameless entry before stage 1; stage 8's success setters are
+                # already guarded by != "failed", so preserving it here makes
+                # the failure stick end-to-end).
+                if entry.get("Status") != "failed":
+                    entry["Status"] = "processing"
                 processed.append(entry)
                 self.metrics.processed_entries += 1
             except Exception as e:
@@ -1994,9 +2054,17 @@ class V7Pipeline:
         # advisor/student relations in the batch there is no graph — stage 6
         # falls back to a field-frequency proxy (~0.5-0.7) that would fail
         # the 0.92/0.97 thresholds spuriously on every relation-less batch.
-        # Only enforce when the batch actually carries graph structure.
+        # Only enforce when the batch actually carries graph STRUCTURE.
+        #
+        # R54: the signal is extracted in-batch EDGES, not the mere presence
+        # of an Advisors field. Enrichment attaches advisor NAMES to famous
+        # mathematicians (pointing outside the batch), so `any(Advisors)` was
+        # true for, e.g., a 5-name batch of unrelated luminaries — the gate
+        # then enforced against the degenerate 0.68 proxy and BLOCKED every
+        # FULL-mode run OFFLINE. genealogy_edges > 0 means there are real
+        # advisor→student edges BETWEEN entries here, i.e. a graph to score.
         stage6 = getattr(self.metrics, "stage6_score", None)
-        has_graph = any(e.get("Advisors") or e.get("Students") for e in entries)
+        has_graph = getattr(self.metrics, "genealogy_edges", 0) > 0
         if stage6 is not None and has_graph:
             ok, score = checker.check_graph_coherence(stage6)
             _record("graph_coherence_score", ok, score)
