@@ -1241,7 +1241,7 @@ class C1TurkicProcessor(RegionSpec):
                 case_variants.extend([alt.lower(), alt.upper(), alt.capitalize()])
             alternatives.extend(case_variants)
 
-        return list(set(alternatives))  # Remove duplicates
+        return sorted(set(alternatives))  # Remove duplicates
 
     def _generate_patronymic_variants(
         self, name: str, components: Dict[str, Any]
