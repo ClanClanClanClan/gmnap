@@ -794,8 +794,13 @@ class V7Pipeline:
         # (5-11 + gates) once in the parent — producing output byte-identical
         # to the serial path, just faster. Kill-switch: GMNAP_NO_PARALLEL=1.
         if self._should_parallelize(len(entries)):
+            # Remembered for the §7 warm-cache-runtime gate: a 1M projection
+            # is only honest when made from the same execution path a 1M run
+            # would take (see _enforce_spec_gates).
+            self._last_run_parallel = True
             return await self._process_batch_parallel(entries)
 
+        self._last_run_parallel = False
         return await self._process_batch_internal(entries)
 
     async def _process_batch_internal(
@@ -2070,6 +2075,39 @@ class V7Pipeline:
             _record("graph_coherence_score", ok, score)
         else:
             _record("graph_coherence_score", True, stage6, measured=False)
+
+        # Gate 7 (spec §7 warm_cache_runtime_per_1M_min) — R55: the checker's
+        # check_runtime() existed fully tested with ZERO callers, so only 7 of
+        # the 8 spec gates were ever recorded (ironically the missing one is
+        # the gate that would have flagged the retracted fake 1M claim).
+        # Project this run's measured throughput to 1M entries. Measured only
+        # when BOTH hold:
+        #   (a) the batch is big enough to amortize setup (>= 500 entries,
+        #       same floor as _check_quality_gates), and
+        #   (b) this run took the same execution path a 1M run would — a
+        #       serial sub-threshold run linearly projects SERIAL 1M runtime,
+        #       but a real 1M batch engages the process pool, so enforcing
+        #       the spec limit against the wrong path's number would produce
+        #       false verdicts in both directions.
+        # Otherwise the projection is still recorded, flagged unmeasured.
+        perf_minutes = None
+        if self.metrics.duration_seconds > 0 and self.metrics.processed_entries >= 500:
+            eps = self.metrics.processed_entries / self.metrics.duration_seconds
+            if eps > 0:
+                perf_minutes = (1_000_000 / eps) / 60.0
+        same_path_as_1m = getattr(
+            self, "_last_run_parallel", False
+        ) == self._should_parallelize(1_000_000)
+        if perf_minutes is not None and same_path_as_1m:
+            ok, val = checker.check_runtime(perf_minutes)
+            _record("warm_cache_runtime_per_1M_min", ok, val)
+        else:
+            _record(
+                "warm_cache_runtime_per_1M_min",
+                True,
+                perf_minutes,
+                measured=False,
+            )
 
         # Dedicated attribute — _check_quality_gates() resets
         # quality_gate_results on each call (the stage-10 report re-invokes
