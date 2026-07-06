@@ -37,8 +37,11 @@ class TestBirthYearPrivacy:
         result = apply_birth_year_privacy(batch)
         for e in result:
             assert e["BirthYear"] == "1980s"
-            assert e["BirthYear_Original"] == 1985
             assert e["BirthYear_Privacy"] == "decade_masked"
+            # R54: the exact year must NOT survive the mask (it used to be
+            # stashed under BirthYear_Original, defeating the whole point).
+            assert "BirthYear_Original" not in e
+            assert e["BirthYear"] != 1985
 
     def test_large_cohort_keeps_exact_year(self):
         batch = [

@@ -110,9 +110,12 @@ def apply_birth_year_privacy(
       - Entries lacking ``BirthYear`` are untouched.
       - Cohort key is ``(DetectedRegion, decade)``. Different regions
         with the same decade are independent cohorts.
-      - When masked, set ``BirthYear`` to e.g. ``"1980s"`` and stash
-        the original under ``BirthYear_Original``; mark
-        ``BirthYear_Privacy = "decade_masked"``.
+      - When masked, set ``BirthYear`` to e.g. ``"1980s"`` and mark
+        ``BirthYear_Privacy = "decade_masked"``. The exact year is
+        DROPPED — R54: it used to be stashed under ``BirthYear_Original``
+        on the same output record, which defeated the mask entirely (the
+        exact value the mask exists to hide was sitting right beside it).
+        Masking a small cohort now genuinely removes the precise year.
       - When NOT masked (cohort large enough), leave the entry alone.
     """
     cohort_counts: Counter = Counter()
@@ -129,9 +132,12 @@ def apply_birth_year_privacy(
             continue
         key = (e.get("DetectedRegion"), _decade_label(by))
         if cohort_counts[key] < min_cohort_size:
-            e["BirthYear_Original"] = by
+            # DROP the exact year — do NOT stash it under BirthYear_Original
+            # (that leak defeated the mask). Also clear any pre-existing
+            # BirthYear_Original in case an upstream/earlier pass set one.
             e["BirthYear"] = _decade_label(by)
             e["BirthYear_Privacy"] = "decade_masked"
+            e.pop("BirthYear_Original", None)
         # else: cohort large enough, exact year survives
     return batch
 

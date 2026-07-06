@@ -427,20 +427,32 @@ def regions():
     help="Schema strict mode: 0=advisory, 1=quarantine, 2=reject",
 )
 @click.option("--json-output", "as_json", is_flag=True, help="Output raw JSON")
-def validate(input_file: str, schema_strict: int, as_json: bool):
-    """Validate a processed entry against the GMNAP v7 OUTPUT schema.
+@click.option(
+    "--output-schema",
+    is_flag=True,
+    help=(
+        "Validate against the strict v7 OUTPUT schema (GlobalID, Field, "
+        "Source, … — the fields the pipeline ASSIGNS) instead of the input "
+        "schema. Use this on a file produced by `gmnap process`, not on raw "
+        "input."
+    ),
+)
+def validate(input_file: str, schema_strict: int, as_json: bool, output_schema: bool):
+    """Validate a file of entries.
 
-    This command runs the same V7SchemaValidator that pipeline Stage 8
-    runs, so it tells you whether an entry is shaped correctly for
-    downstream consumers (DB write, YAML snapshot, etc.).
+    By DEFAULT this checks the *input* schema — is each entry something the
+    pipeline can process? — so `gmnap validate my_input.json` is useful
+    BEFORE you run `gmnap process`. An entry is valid input if it is an
+    object carrying at least one usable name (CanonicalLatin, CanonicalNative,
+    Name, FullName, …).
 
-    Required fields per V7 schema v2.0: GlobalID, CanonicalLatin, Field,
-    Source, LastUpdated, ValidationStatus.
+    Pass `--output-schema` to instead run the strict Stage-8 V7SchemaValidator
+    (requires GlobalID/Field/Source/… — fields the pipeline assigns), for
+    checking a file that `gmnap process` already produced.
 
-    NOTE: this is the strict *output* schema, not the looser *input*
-    schema accepted by `gmnap process`. A bare `[{"FullName": "Smith,
-    John"}]` is a legal input but not a valid output; run it through
-    `gmnap process` first if you want to validate the result.
+    R54: the command used to ALWAYS run the output schema, so validating raw
+    input reported every entry invalid ("Missing required field: GlobalID") —
+    a confusing dead end for the exact pre-flight use it is named for.
     """
     import os
 
@@ -452,9 +464,34 @@ def validate(input_file: str, schema_strict: int, as_json: bool):
         click.echo(f"No entries found in {input_file}", err=True)
         sys.exit(1)
 
-    from src.validation.schema_validator import V7SchemaValidator
+    # Input name-field aliases (kept in sync with V7Pipeline._NAME_ALIASES).
+    _NAME_ALIASES = (
+        "CanonicalLatin",
+        "CanonicalNative",
+        "Name",
+        "name",
+        "FullName",
+        "full_name",
+        "DisplayName",
+    )
 
-    validator = V7SchemaValidator()
+    def _validate_input(entry):
+        """Loose input check: an object with at least one usable name."""
+        for key in _NAME_ALIASES:
+            val = entry.get(key)
+            if isinstance(val, str) and val.strip():
+                return True, []
+        return False, [
+            "no usable name: expected a non-empty string in one of "
+            + ", ".join(_NAME_ALIASES)
+        ]
+
+    validator = None
+    if output_schema:
+        from src.validation.schema_validator import V7SchemaValidator
+
+        validator = V7SchemaValidator()
+
     total = 0
     errors_found = 0
     all_errors = []
@@ -467,10 +504,13 @@ def validate(input_file: str, schema_strict: int, as_json: bool):
                 {"entry": f"entry_{i}", "errors": ["Entry must be an object"]}
             )
             continue
-        is_valid, errors = validator.validate(entry)
+        if output_schema:
+            is_valid, errors = validator.validate(entry)
+        else:
+            is_valid, errors = _validate_input(entry)
         if not is_valid:
             errors_found += 1
-            name = entry.get("CanonicalLatin", f"entry_{i}")
+            name = entry.get("CanonicalLatin") or entry.get("Name") or f"entry_{i}"
             all_errors.append({"entry": name, "errors": errors})
 
     if as_json:
@@ -488,7 +528,8 @@ def validate(input_file: str, schema_strict: int, as_json: bool):
             )
         )
     else:
-        click.echo(f"Validated {total} entries against schema v7.0")
+        which = "OUTPUT schema v7.0" if output_schema else "INPUT schema"
+        click.echo(f"Validated {total} entries against the {which}")
         click.echo(f"  Valid:   {total - errors_found}")
         click.echo(f"  Invalid: {errors_found}")
         if all_errors:
