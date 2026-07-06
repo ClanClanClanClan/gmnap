@@ -35,7 +35,11 @@ jobs:
         run: conda install -y -c conda-forge pynini=2.1.5 rapidfuzz pandas pyyaml regex tqdm
       - name: Build FSTs
         working-directory: src/regions/e_groups/e4_korea
-        run: python "$GITHUB_WORKSPACE/tools/korean_tuning/e4_korea_scripts/build_fsts_multi.py"
+        run: |
+          python "$GITHUB_WORKSPACE/tools/korean_tuning/e4_korea_scripts/build_fsts_multi.py"
+          # the converter needs two more FSTs the multi-builder doesn't make:
+          python build_han2rom_loan.py
+          python build_rom2han_fallback.py
       - name: Run scoring
         id: score
         working-directory: src/regions/e_groups/e4_korea
