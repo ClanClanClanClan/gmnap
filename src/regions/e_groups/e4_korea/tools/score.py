@@ -11,11 +11,15 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+# The tuning/validation scripts were de-vendored to tools/korean_tuning/
+# (R41); they still run with cwd=e4_korea so their relative resources/
+# reads keep working (R51 gate rebuild).
+SCRIPTS = ROOT.parents[3] / "tools" / "korean_tuning" / "e4_korea_scripts"
 
 
 def run_math():
     res = subprocess.run(
-        [sys.executable, "scripts/validate.py"],
+        [sys.executable, str(SCRIPTS / "validate.py")],
         cwd=ROOT,
         capture_output=True,
         text=True,
@@ -33,7 +37,7 @@ def run_math():
 
 def run_diverse():
     res = subprocess.run(
-        [sys.executable, "scripts/test_diverse_dataset.py"],
+        [sys.executable, str(SCRIPTS / "test_diverse_dataset.py")],
         cwd=ROOT,
         capture_output=True,
         text=True,

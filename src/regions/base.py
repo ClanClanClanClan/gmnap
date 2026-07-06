@@ -1015,12 +1015,11 @@ TERRITORY_TO_REGION = {
     "AX": "A3",
     "EE": "A3",
     "LV": "A3",
-    # SPEC CONFLICT (MASTERPLAN §4.5, needs a §14 decision): spec §2 lists
-    # LT under A3 (Nordic–Baltic geo group), but the code + 16 adjudicated
-    # test expectations deliberately map CC=LT -> C9 (the Baltic LINGUISTIC
-    # leaf — "Kazlauskas ... Most common Lithuanian"). Changing this to A3
-    # breaks the adjudicated benchmark; changing the spec needs the author.
-    # Keeping the adjudicated behaviour until the maintainer rules.
+    # RESOLVED 2026-07-06 (maintainer §14 ruling, R51): the spec was
+    # amended to match this adjudicated mapping — C9 is now the spec's
+    # Baltic leaf with iso_territories [LT] (its old "Caucasus-Turkic"
+    # [RU, AZ] entry was vestigial, shadowed by B1/C1). Guarded by
+    # tests/unit/test_spec_territory_consistency.py.
     "LT": "C9",
     # A4 - Oceania Island States
     "FJ": "A4",

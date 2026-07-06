@@ -1,6 +1,0 @@
-# Korean v6 converter requirements
-# Locked versions for deterministic builds
-pynini==2.1.5
-openfst==1.8.2
-unicodedata2==15.1.0
-pyyaml==6.0.1
