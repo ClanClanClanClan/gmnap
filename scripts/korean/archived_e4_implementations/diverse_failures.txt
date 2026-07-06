@@ -1,2 +1,0 @@
-Diverse Dataset: 86.50% accuracy (173/200)
-{"diverse": [173, 200]}

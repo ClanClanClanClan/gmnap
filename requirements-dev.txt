@@ -11,3 +11,7 @@ playwright>=1.45
 #   pip install -r requirements-dev.txt
 #   PYTHONPATH=. pytest tests/unit/ --cov=src --cov-report=html
 pytest-cov>=4.0
+
+# Optional encryption-at-rest (src/core/encryption.py, R51) — promote to
+# requirements.txt + 'make lock' if encryption becomes a prod requirement.
+cryptography

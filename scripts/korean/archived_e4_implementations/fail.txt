@@ -1,2 +1,0 @@
-Top ENG→KOR fails: [('kim', 5), ('paek', 3), ('chung', 2), ('pak', 2), ('huh', 2), ('yun', 2), ('kang', 2), ('chun', 2), ('hong', 2), ('shin', 2)]
-Top round‑trip surname failures: [('kim,', 58), ('lee,', 26), ('shin,', 20), ('oh,', 17), ('jang,', 17), ('choi,', 16), ('yun,', 16), ('jeong,', 14), ('jung,', 14), ('kwon,', 13)]

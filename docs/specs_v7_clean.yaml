@@ -116,12 +116,12 @@ region_groups:
     distinct_features: Middle initials; generational suffixes
   - code: A2
     name: Western Europe
-    iso_territories: [FR, DE, IT, ES, PT, NL, BE, CH, AT, LU, LI, SM, MC, GI, AD, MT, VA]
+    iso_territories: [FR, DE, IT, ES, PT, NL, BE, CH, AT, HU, LU, LI, SM, MC, GI, AD, MT, VA]
     primary_scripts: ["Latin with diacritics"]
     distinct_features: Iberian dual surnames; de/von/van particles
   - code: A3
     name: Nordic–Baltic
-    iso_territories: [DK, NO, SE, FI, IS, FO, AX, EE, LV, LT]
+    iso_territories: [DK, "NO", SE, FI, IS, FO, AX, EE, LV]
     primary_scripts: ["Latin with diacritics"]
     distinct_features: Icelandic patronymic system
   - code: A4
@@ -143,7 +143,7 @@ region_groups:
     distinct_features: Patronymic endings; gender suffixes
   - code: B2
     name: South‑Slavic & Central Europe
-    iso_territories: [BG, RS, ME, HR, SI, BA, MK, PL, CZ, SK, HU, RO, AL, XK]
+    iso_territories: [BG, RS, ME, HR, SI, BA, MK, PL, CZ, SK, RO, AL, XK]
     primary_scripts: ["Latin", "Cyrillic"]
     distinct_features: Gaj alphabet; Hungarian name‑order flip
   - code: B3
@@ -165,7 +165,7 @@ region_groups:
     distinct_features: Ezāfe connectors; nisba elements; ISO 233‑3:2023 & DIN 31635
   - code: C3
     name: Arabic Levant–Nile
-    iso_territories: [IQ, JO, LB, SY, PS, EG, SD, SS]
+    iso_territories: [IQ, JO, LB, SY, PS, EG, SD]
     primary_scripts: ["Arabic"]
     distinct_features: al‑ assimilation; root clustering
   - code: C4
@@ -194,9 +194,9 @@ region_groups:
     primary_scripts: ["Georgian"]
     distinct_features: ISO 9984 transliteration
   - code: C9
-    name: Caucasus‑Turkic
-    iso_territories: [RU, AZ]
-    primary_scripts: ["Mixed"]
+    name: Baltic
+    iso_territories: [LT]
+    primary_scripts: ["Latin with diacritics"]
     distinct_features: Latin/Cyrillic/Arabic hybrids
 
   # D‑groups
@@ -524,6 +524,18 @@ roadmap:
 # ---------------------------------------------------------------------
 # 14 · CHANGE CONTROL
 # ---------------------------------------------------------------------
+# Amendment 2026-07-06 (spec 7.0 -> 7.0, backward-compatible data fixes;
+# per change_control no version increment needed — no schema change):
+#   - A3: quote "NO" (unquoted Norway parsed as YAML boolean False);
+#     LT moved out (see C9).
+#   - C9: redefined from the vestigial "Caucasus-Turkic" [RU, AZ] (both
+#     territories were intentionally shadowed by B1/C1) to "Baltic" [LT] —
+#     formalizing the shipped taxonomy validated by 16 adjudicated
+#     benchmark cases (distinctive Lithuanian onomastics: -auskas,
+#     -evicius, -iene, -aite). EE (Uralic) and LV stay in A3.
+#   - HU: B2 -> A2 (Hungarian is Uralic, not Slavic; naming conventions
+#     are Central/Western European — matches the justified code mapping).
+#   - SS: removed from C3 (South Sudan is Nilotic/Anglophone; stays F2).
 change_control:
   - "Increment spec_version (7 → 7.1) upon any backward‑incompatible change."
   - "Update inline JSON Schemas and all fixtures on every schema modification."
