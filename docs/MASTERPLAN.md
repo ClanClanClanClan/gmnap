@@ -351,6 +351,24 @@ phases:
 
 ---
 
+## 10c. R51-R52 CLOSEOUT (PRs #9, #10)
+- ✅ Maintainer rulings implemented (spec territory amendments + Norway
+  YAML-bool bug; encryption kept+repaired; orchestrator deleted; scripts
+  406→105; GS declined).
+- ✅ Korean FST accuracy RESTORED + gated: genesis tokeniser bug (r"[-\\s]+"
+  matched the letter s); 3 lost artifacts reconstructed; measured math
+  677-680/733 (≥641) + diverse 184/200 (≥182) on two platforms; korean.yml
+  gate green and path-filtered.
+- ✅ Hangul decisive-script fast path (Lee, 정은 → E4; 김, Min-jun → E4);
+  korean_hell honestly triaged (6 aspirational xfails, 3 xpass).
+- ✅ Stage-8 round-trip pass + stage-11 TRUE re-run — all 8 spec §7 gates
+  now have real measurement paths.
+- REMAINING (small tail): §2b.2/.3/.5/.6 test additions (audit-battery
+  self-test, perf-tool internals, DBLP/arXiv behavioral), helm-lint CI
+  step, OFFLINE-guarded DOI/SFTP wiring (creds still needed for live use),
+  lockfile-gate redesign (will drift red on its own again — maintainer to
+  say the word).
+
 ## 10b. CONFORMANCE WIRING — DONE THROUGH R49 (PRs #5, #6, #7)
 
 - ✅ §3.4 split geo/name axes + RegionConflict on every record (R47)

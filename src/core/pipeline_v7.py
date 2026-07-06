@@ -706,6 +706,14 @@ class V7Pipeline:
             entries: List of entry dictionaries
             chunk_size: Streaming chunk size (default 8000 from spec)
         """
+        # R52 §4.2: pristine input sample for the stage-11 TRUE re-run
+        # (entries are mutated in place through the stages, so the copy
+        # must happen before stage 1). Skipped inside the re-run itself.
+        if not getattr(self, "_is_idempotency_rerun", False):
+            import copy as _copy
+
+            self._idem_input_sample = _copy.deepcopy(entries[:20])
+
         # NB: GlobalID collision tracking is reset ONCE per batch run by
         # the public process_batch() entry point, NOT here. This method
         # is the streaming path's per-microbatch worker, so resetting
@@ -1439,6 +1447,38 @@ class V7Pipeline:
         """Stage 8: GlobalValidate - JSON-Schema, roundtrip, coherence gate."""
         logger.info(f"Stage 8: GlobalValidate - validating {len(entries)} entries")
 
+        # R52 §3.3 (spec §5 stage 8): the round-trip check — re-cleaning a
+        # processed entry must preserve the name (script-preservation, rule
+        # 34 determinism). Pairs feed the §7 roundtrip_script_rate gate with
+        # REAL measured values (previously never computed — the gate always
+        # passed vacuously on an empty list). Bounded + casefolded (case is
+        # a clean() normalisation concern, not script loss).
+        rt_pairs: List[Tuple[str, str]] = []
+        try:
+            mgr = self.region_manager
+            for entry in entries[:500]:
+                code = entry.get("DetectedRegion")
+                processor = mgr.get_region(code) if code else None
+                if processor is None:
+                    continue
+                before = entry.get("CanonicalLatin") or ""
+                if not before:
+                    continue
+                try:
+                    report = processor.validate_round_trip_determinism(entry)
+                    if not report.get("rule_34_compliant", True):
+                        self.metrics.roundtrip_failures += 1
+                    work = dict(entry)
+                    processor.clean(work)
+                    after = work.get("CanonicalLatin") or ""
+                    if after:
+                        rt_pairs.append((before.casefold(), after.casefold()))
+                except Exception:
+                    continue
+        except Exception as e:
+            logger.debug(f"round-trip pass skipped: {e}")
+        self._roundtrip_pairs = rt_pairs
+
         # Apply schema validation if available
         try:
             from src.validation.schema_validator import (
@@ -1634,36 +1674,59 @@ class V7Pipeline:
         """Stage 11: IdempotencyCheck - Rerun pipeline, assert 0-byte diff."""
         logger.info("Stage 11: IdempotencyCheck - Verifying 0-byte idempotency")
 
+        # R52 §4.2: TRUE re-run idempotency. The previous check serialized
+        # the SAME in-memory list twice — it tested only the YAML writer's
+        # determinism, never the spec's contract (re-running the pipeline on
+        # the same input yields byte-identical output). Now: a fresh
+        # pipeline instance re-processes a pristine 20-entry sample of the
+        # ORIGINAL input and the canonical bytes are diffed. Sets
+        # metrics.idempotency_diff_bytes for the §7 gate. Kill-switch:
+        # GMNAP_SKIP_IDEMPOTENCY_RERUN=1.
+        if getattr(self, "_is_idempotency_rerun", False):
+            return
+        if os.getenv("GMNAP_SKIP_IDEMPOTENCY_RERUN") == "1":
+            return
         try:
-            import hashlib
+            import json as _json
 
-            from src.core.stage9_write_diff.write_and_diff import write_yaml_sorted
+            sample = getattr(self, "_idem_input_sample", None) or []
+            # Batch-quality gate only: re-running a 1-2 entry interactive/API
+            # call doubles its latency for no statistical signal (the CI
+            # browser harness's rapid-fire scenario breached its 10s budget).
+            if len(sample) < 5:
+                return
+            if not sample:
+                return
 
-            # Write entries twice and verify identical output
-            output1 = Path("output/idempotency_test1.yaml")
-            output2 = Path("output/idempotency_test2.yaml")
-            output1.parent.mkdir(exist_ok=True)
+            def _canon(items):
+                out = []
+                for e in items:
+                    d = {k: v for k, v in sorted(e.items()) if not k.startswith("_")}
+                    out.append(d)
+                return _json.dumps(
+                    out, sort_keys=True, ensure_ascii=False, default=str
+                ).encode("utf-8")
 
-            # Write deterministically twice
-            write_yaml_sorted(entries, str(output1))
-            write_yaml_sorted(entries, str(output2))
+            first = _canon(entries[: len(sample)])
 
-            # Read and compare bytes
-            bytes1 = output1.read_bytes()
-            bytes2 = output2.read_bytes()
+            rerun_pipeline = V7Pipeline(mode=self.mode)
+            rerun_pipeline._is_idempotency_rerun = True
+            rerun_results = await rerun_pipeline.process_batch(
+                [dict(e) for e in sample]
+            )
+            second = _canon(rerun_results)
 
-            if bytes1 != bytes2:
-                sha1 = hashlib.sha256(bytes1).hexdigest()
-                sha2 = hashlib.sha256(bytes2).hexdigest()
-                logger.error(f"IDEMPOTENCY VIOLATION: SHA256 mismatch {sha1} != {sha2}")
-                self.metrics.failed_entries += 1
+            diff_bytes = 0 if first == second else abs(len(first) - len(second)) or 1
+            self.metrics.idempotency_diff_bytes = diff_bytes
+            if diff_bytes:
+                logger.error(
+                    f"IDEMPOTENCY VIOLATION: re-run differs ({diff_bytes} diff bytes "
+                    f"over a {len(sample)}-entry sample)"
+                )
             else:
-                logger.info("Stage 11 PASSED: 0-byte idempotency verified")
-
-            # Clean up test files
-            output1.unlink()
-            output2.unlink()
-
+                logger.info(
+                    f"Stage 11 PASSED: true re-run idempotent over {len(sample)} entries"
+                )
         except Exception as e:
             logger.error(f"Stage 11 idempotency check failed: {e}")
 
@@ -1783,6 +1846,20 @@ class V7Pipeline:
         _record("duplicate_external_id_pct", ok, pct)
         ok, rss = checker.check_memory_limit()
         _record("peak_rss_gb", ok, rss)
+
+        idem = getattr(self.metrics, "idempotency_diff_bytes", None)
+        if idem is not None:
+            ok, db = checker.check_idempotency(idem)
+            _record("idempotent_diff_bytes", ok, db)
+        else:
+            _record("idempotent_diff_bytes", True, None, measured=False)
+
+        rt_pairs = getattr(self, "_roundtrip_pairs", None)
+        if rt_pairs:
+            ok, rate = checker.check_roundtrip_rate(rt_pairs)
+            _record("roundtrip_script_rate", ok, rate)
+        else:
+            _record("roundtrip_script_rate", True, None, measured=False)
 
         edges_total = getattr(self.metrics, "genealogy_edges", 0)
         conflicts = getattr(self.metrics, "genealogy_edge_conflicts", 0)
