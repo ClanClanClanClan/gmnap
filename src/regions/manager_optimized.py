@@ -858,6 +858,22 @@ class RegionManager:
 
         Returns a (region, confidence, method, metadata) tuple.
         """
+        # Decisive-script fast path (R52): Hangul is used ONLY for Korean —
+        # unlike Han ideographs (shared across CJK), ANY Hangul character is
+        # conclusive. This must precede surname-exact: "Lee, 정은" was
+        # resolving A1@0.95 via the adjudicated-Anglo surname "Lee" with the
+        # Hangul given name never examined, and single-jamo surnames
+        # ("김, Min-jun") fell through to R0 because the script-ratio
+        # threshold ignored short Hangul runs.
+        name_for_script = entry.get("CanonicalLatin", "") or entry.get(
+            "CanonicalNative", ""
+        )
+        if any(
+            "\uac00" <= ch <= "\ud7af" or "\u1100" <= ch <= "\u11ff"
+            for ch in name_for_script
+        ):
+            return ("E4", 0.95, "script-hangul", {"script": "Hangul"})
+
         # Surname exact match (high confidence)
         result = self._detect_by_surname(entry)
         if result and result.confidence >= 0.95:
