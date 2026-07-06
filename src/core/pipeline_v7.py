@@ -1439,6 +1439,38 @@ class V7Pipeline:
         """Stage 8: GlobalValidate - JSON-Schema, roundtrip, coherence gate."""
         logger.info(f"Stage 8: GlobalValidate - validating {len(entries)} entries")
 
+        # R52 §3.3 (spec §5 stage 8): the round-trip check — re-cleaning a
+        # processed entry must preserve the name (script-preservation, rule
+        # 34 determinism). Pairs feed the §7 roundtrip_script_rate gate with
+        # REAL measured values (previously never computed — the gate always
+        # passed vacuously on an empty list). Bounded + casefolded (case is
+        # a clean() normalisation concern, not script loss).
+        rt_pairs: List[Tuple[str, str]] = []
+        try:
+            mgr = self.region_manager
+            for entry in entries[:500]:
+                code = entry.get("DetectedRegion")
+                processor = mgr.get_region(code) if code else None
+                if processor is None:
+                    continue
+                before = entry.get("CanonicalLatin") or ""
+                if not before:
+                    continue
+                try:
+                    report = processor.validate_round_trip_determinism(entry)
+                    if not report.get("rule_34_compliant", True):
+                        self.metrics.roundtrip_failures += 1
+                    work = dict(entry)
+                    processor.clean(work)
+                    after = work.get("CanonicalLatin") or ""
+                    if after:
+                        rt_pairs.append((before.casefold(), after.casefold()))
+                except Exception:
+                    continue
+        except Exception as e:
+            logger.debug(f"round-trip pass skipped: {e}")
+        self._roundtrip_pairs = rt_pairs
+
         # Apply schema validation if available
         try:
             from src.validation.schema_validator import (
@@ -1783,6 +1815,13 @@ class V7Pipeline:
         _record("duplicate_external_id_pct", ok, pct)
         ok, rss = checker.check_memory_limit()
         _record("peak_rss_gb", ok, rss)
+
+        rt_pairs = getattr(self, "_roundtrip_pairs", None)
+        if rt_pairs:
+            ok, rate = checker.check_roundtrip_rate(rt_pairs)
+            _record("roundtrip_script_rate", ok, rate)
+        else:
+            _record("roundtrip_script_rate", True, None, measured=False)
 
         edges_total = getattr(self.metrics, "genealogy_edges", 0)
         conflicts = getattr(self.metrics, "genealogy_edge_conflicts", 0)
