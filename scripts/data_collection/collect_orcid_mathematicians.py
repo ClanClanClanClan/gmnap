@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 ORCID Data Collector - Real Mathematician Names
@@ -8,8 +9,8 @@ Uses ORCID API to collect real mathematician profiles with:
 - Research areas (to filter for mathematics)
 
 Authentication provided by user:
-- Client ID: APP-4OAPPEU02QJ92JX9
-- Client Secret: cdf5b6de-7da4-40cb-983e-f8a29de0383a
+- Client ID: (env ORCID_CLIENT_ID)
+- Client Secret: (env ORCID_CLIENT_SECRET)
 """
 
 import requests
@@ -232,9 +233,10 @@ def main():
     print("=" * 80)
     print()
 
-    # ORCID credentials (provided by user)
-    CLIENT_ID = "APP-4OAPPEU02QJ92JX9"
-    CLIENT_SECRET = "cdf5b6de-7da4-40cb-983e-f8a29de0383a"
+    # ORCID credentials — read from env (ORCID_CLIENT_ID/_SECRET).
+    # The previously-committed literals are in git history: REVOKE that app.
+    CLIENT_ID = os.environ["ORCID_CLIENT_ID"]  # R54: was a committed literal (rotate the old app!)
+    CLIENT_SECRET = os.environ["ORCID_CLIENT_SECRET"]  # R54: was a committed literal — REVOKE it in the ORCID dev dashboard
 
     # Initialize collector
     collector = ORCIDCollector(CLIENT_ID, CLIENT_SECRET)

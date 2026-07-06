@@ -574,7 +574,21 @@ jobs:
       - name: TruffleHog secret scan
         uses: trufflesecurity/trufflehog@main
         with:
-          extra_args: --only-verified
+          # R54: dropped --only-verified. It only flags secrets TruffleHog
+          # can live-validate, so a plain-UUID ORCID CLIENT_SECRET committed
+          # in scripts/ slipped through (found by the readiness audit).
+          # --results=verified,unknown surfaces high-entropy/generic secrets
+          # too. --fail makes the step block.
+          extra_args: --results=verified,unknown --fail
+      - name: Static credential grep (belt-and-suspenders)
+        run: |
+          # Catch the specific class TruffleHog's detectors don't model:
+          # a *_SECRET / *_KEY assigned a long literal (not os.getenv).
+          if git grep -nE '(CLIENT_SECRET|API_KEY|SECRET_KEY|PASSWORD)\s*=\s*["'"'"'][A-Za-z0-9_-]{16,}["'"'"']' -- ':!tests' ':!docs/archive' | grep -vE 'getenv|environ|os\.env'; then
+            echo "::error::Hard-coded credential literal found — read it from env instead."
+            exit 1
+          fi
+          echo "No hard-coded credential literals."
 
   # Performance regression gate. Runs a 1k-entry pipeline batch and
   # asserts throughput hasn't dropped >25% below the pinned floor.
