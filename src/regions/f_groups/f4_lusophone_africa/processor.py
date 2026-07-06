@@ -9,6 +9,18 @@ from typing import Any, Dict
 from ...base_enhanced import EnhancedRegionSpec as RegionSpec
 from ...base_enhanced import RegionRuleError
 
+# Spec §2 F4: Portuguese surname particles (lowercase in-name, excluded
+# from collation). Includes the contracted forms.
+_PORTUGUESE_PARTICLES = {
+    "da",
+    "das",
+    "de",
+    "do",
+    "dos",
+    "e",
+    "d'",
+}
+
 
 class F4_LusophoneAfrica(RegionSpec):
     """
@@ -44,6 +56,20 @@ class F4_LusophoneAfrica(RegionSpec):
         # Basic cleaning
         canonical = canonical.strip()
         canonical = re.sub(r"\s+", " ", canonical)
+
+        # Spec §2 F4 distinct_features: "Portuguese particles" (R50 — this
+        # processor was a stub, MASTERPLAN §5). Particles inside the name
+        # are lowercase-normalised ("Maria DOS Santos" -> "Maria dos
+        # Santos"); a leading token stays as written.
+        tokens = canonical.split(" ")
+        if len(tokens) > 1:
+            canonical = " ".join(
+                [tokens[0]]
+                + [
+                    tok.lower() if tok.lower() in _PORTUGUESE_PARTICLES else tok
+                    for tok in tokens[1:]
+                ]
+            )
 
         entry["CanonicalLatin"] = canonical
 
@@ -108,6 +134,15 @@ class F4_LusophoneAfrica(RegionSpec):
         return True
 
     def order_key(self, entry: Dict[str, Any]) -> str:
-        """Generate sort key for F4 Lusophone Africa names."""
+        """Generate sort key for F4 Lusophone Africa names.
+
+        Particle-aware family sort (spec §2 F4): leading Portuguese
+        particles don't drive collation — "dos Santos" sorts under
+        "SANTOS", "da Silva" under "SILVA".
+        """
         canonical = entry.get("CanonicalLatin", "")
-        return canonical.upper()
+        family = canonical.split(", ")[0] if ", " in canonical else canonical
+        words = family.split()
+        while len(words) > 1 and words[0].lower() in _PORTUGUESE_PARTICLES:
+            words = words[1:]
+        return (" ".join(words) if words else canonical).upper()
