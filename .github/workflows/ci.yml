@@ -626,7 +626,10 @@ jobs:
       - name: Lint the canonical chart
         run: |
           helm lint deploy/helm/gmnap
-          helm template smoke deploy/helm/gmnap >/dev/null
+          # the chart REQUIRES memgraph.password by design (secret.yaml
+          # `required` guard) — a dummy satisfies the render smoke
+          helm template smoke deploy/helm/gmnap \
+            --set memgraph.password=ci-smoke-only >/dev/null
 
   cost-guard:
     runs-on: ubuntu-latest
