@@ -12,10 +12,20 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding, rsa
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+# `cryptography` is an OPTIONAL dependency (declared in requirements-dev
+# only — R51 maintainer ruling: keep + repair). The module stays importable
+# without it; instantiating GMNAPEncryption raises a clear error instead.
+# To use encryption-at-rest in production, add `cryptography` to
+# requirements.txt and re-run `make lock`.
+try:
+    from cryptography.hazmat.backends import default_backend
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import padding, rsa
+    from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+    CRYPTOGRAPHY_AVAILABLE = True
+except ImportError:  # pragma: no cover - exercised only without the extra
+    CRYPTOGRAPHY_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +42,12 @@ class GMNAPEncryption:
     """
 
     def __init__(self, config_dir: Optional[Path] = None):
+        if not CRYPTOGRAPHY_AVAILABLE:
+            raise RuntimeError(
+                "GMNAPEncryption needs the optional 'cryptography' package "
+                "(pip install cryptography, or add it to requirements.txt "
+                "+ 'make lock' for production use)"
+            )
         self.config_dir = config_dir or Path("./cache/encryption")
         self.config_dir.mkdir(parents=True, exist_ok=True)
 
