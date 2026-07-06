@@ -288,7 +288,15 @@ side-by-side reliability diagrams.
 - MEDIUM_SUFFIXES_TO_LEAF: 11 (fire group at 1.2, leaf at +1.0 if corroborated)
 - MEDIUM_SUFFIXES_TO_GROUP: 4 (bare -ski/-sky/-ou/-is → group only)
 - REGION_GROUPS: 23 groups, 34 leaves
-- ft_name_classifier.ftz: 50MB quantized model (23K aligned training entries)
+- ft_name_classifier.ftz: 50MB quantized model (23K aligned training
+  entries). **Gitignored — NOT bundled.** A fresh clone rebuilds it from
+  the committed corpus `data/ml_training/ft_name_training.txt` via
+  `make model` (`scripts/ml/build_name_classifier.py`); `make setup` does
+  this automatically. Without it, region detection runs rules-only and
+  logs a loud warning (R54 — it used to fall back on a silent DEBUG line).
+  A rebuild is comparable to, not identical to, the reference artifact
+  (fastText training is nondeterministic), so validate before citing the
+  exact detection KPIs above.
 - Same-group gate: fastText can only refine within scorer's group, never cross groups
 
 ## 📊 Testing

@@ -1,12 +1,13 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help setup install-fasttext install-hooks quick full extreme test lint update-sources clean audit audit-repo browser-test eval-authority eval-orcid-live harvest-mgp api-docs bench-real lock refresh-data refresh-data-wikidata refresh-data-mgp refresh-data-merge
+.PHONY: help setup model install-fasttext install-hooks quick full extreme test lint update-sources clean audit audit-repo browser-test eval-authority eval-orcid-live harvest-mgp api-docs bench-real lock refresh-data refresh-data-wikidata refresh-data-mgp refresh-data-merge
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
 	@echo ""
 	@echo "Available targets:"
 	@echo "  setup        - One-time setup (pip install + compile fasttext + install git hooks)"
+	@echo "  model        - Rebuild the fastText name classifier (.ftz) from the committed corpus"
 	@echo "  install-fasttext - Compile the fasttext CLI binary"
 	@echo "  install-hooks - Install git pre-commit hook(s) into .git/hooks/"
 	@echo "  quick        - Run pipeline in Quick mode (tier-0 APIs only)"
@@ -73,10 +74,26 @@ setup:
 	}
 	@bash scripts/install_hooks.sh || \
 		echo "⚠️  pre-commit hook install skipped (not a git checkout?)"
+	@# Build the ML name classifier from the committed corpus if it isn't
+	@# already present (the 50 MB .ftz is gitignored). Non-fatal: detection
+	@# falls back to rules-only without it, but loudly (R54).
+	@if [ ! -f data/ml_training/ft_name_classifier.ftz ]; then \
+		echo ""; \
+		echo "ℹ️  Building the fastText name classifier (make model)…"; \
+		$(MAKE) --no-print-directory model || \
+			echo "⚠️  model build skipped/failed — detection will run rules-only. Run 'make model' later."; \
+	fi
 	@echo ""
 	@command -v gmnap >/dev/null 2>&1 && \
 		echo "✅ Setup complete. Try:  gmnap query \"Euler, Leonhard\"" || \
 		echo "⚠️  Setup complete but 'gmnap' is not on PATH. Try: python3 -m src.cli.gmnap query \"Euler, Leonhard\""
+
+# Rebuild the fastText name-origin classifier (data/ml_training/
+# ft_name_classifier.ftz) from the committed training corpus. The model is
+# gitignored (50 MB); this makes it reproducible from data in the repo. See
+# scripts/ml/build_name_classifier.py.
+model:
+	python3 scripts/ml/build_name_classifier.py
 
 install-fasttext:
 	@bash scripts/install_fasttext.sh

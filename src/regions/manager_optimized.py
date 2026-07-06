@@ -1204,7 +1204,19 @@ class RegionManager:
                         f"Failed to load surname fastText model from {path}: {e}"
                     )
 
-        logger.debug("No surname fastText model found (graceful fallback)")
+        # LOUD, ONE-TIME (this method is guarded by _surname_ft_attempted).
+        # R54: this used to be a DEBUG log, so a fresh clone silently ran in
+        # rules-only mode with no hint the ML tiebreaker was missing — and the
+        # docs' detection KPIs assume the model is present. Say so clearly.
+        logger.warning(
+            "fastText name classifier NOT found (looked for "
+            "data/ml_training/ft_name_classifier.ftz and 5 fallbacks). "
+            "Region detection is running RULES-ONLY — the ML tiebreaker that "
+            "the documented detection KPIs assume is disabled. The model is "
+            "gitignored (50 MB); obtain it with `git lfs pull` (if the "
+            "maintainer LFS-committed it) or rebuild it from the committed "
+            "training corpus: `make model` (see scripts/ml/build_name_classifier.py)."
+        )
         return None
 
     def _load_surname_fasttext_cli(self, model_candidates):
