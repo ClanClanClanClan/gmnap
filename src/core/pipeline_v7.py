@@ -17,9 +17,6 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
-# Performance optimization imports
-from src.core.async_batch_agg import AsyncBatchAggregator, LegacyAggConfig
-
 # Expert solution: Add result normalization import
 from src.core.compat.normalize_result import normalize_result
 from src.core.deterministic_mode import (
@@ -29,7 +26,6 @@ from src.core.deterministic_mode import (
 )
 from src.core.memgraph_client import get_memgraph_client
 from src.core.preflight_sanitiser import sanitise_entry
-from src.core.streaming_pipeline import StreamingPipelineAdapter
 from src.core.unicode_handler import UnicodeNormalizer
 
 # Expert solution: Add streaming executor imports
@@ -234,6 +230,48 @@ def _apply_detection_fields(entry, result):
     return entry
 
 
+# Stage 7 bound: a short form shared by k entries would store a k-length gid
+# list on EACH of its k members — O(k²) memory, which for pathological inputs
+# (many identical initials) explodes RAM and the stage-9 write. Cap the stored
+# collision set per cluster; the cap keeps the disambiguation signal (which
+# other ids collide) while making storage O(k · CAP). Tunable via env.
+_SHORTFORM_CLUSTER_CAP = int(os.getenv("GMNAP_SHORTFORM_CLUSTER_CAP", "64"))
+
+
+# --- Parallel large-batch workers (module-level so `spawn` can pickle them
+# by reference). One V7Pipeline is built per worker process via the pool
+# initializer and reused across the chunks that worker handles, so the region
+# manager / caches are constructed once per worker, not once per chunk. See
+# V7Pipeline._process_batch_parallel. ---
+_WORKER_PIPELINE: "V7Pipeline | None" = None
+
+
+def _parallel_worker_init(init_kwargs: Dict[str, Any], config: Any) -> None:
+    """ProcessPoolExecutor initializer: build the per-worker pipeline once,
+    with the parent's exact construction kwargs, then graft on the parent's
+    (possibly caller-mutated) config so per-entry stages behave identically.
+    """
+    global _WORKER_PIPELINE
+    # Workers must not accidentally go live; inherit the parent's OFFLINE
+    # posture, defaulting to offline if unset.
+    os.environ.setdefault("OFFLINE", os.environ.get("OFFLINE", "1"))
+    pipe = V7Pipeline(**init_kwargs)
+    if config is not None:
+        pipe.config = config
+    _WORKER_PIPELINE = pipe
+
+
+def _parallel_worker_run(chunk: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Run the per-entry stages (1-4) on one chunk inside a worker process.
+
+    ``assign_ids=False``: the parent already minted every GlobalID over the
+    whole batch (the collision cache is process-local, so workers must not
+    re-mint). Each chunk is independent, so a fresh event loop per call is
+    fine and keeps workers stateless between chunks.
+    """
+    return asyncio.run(_WORKER_PIPELINE._run_per_entry_stages(chunk, assign_ids=False))
+
+
 class V7Pipeline:
     """
     V7-compliant processing pipeline implementing all 12 stages.
@@ -267,6 +305,14 @@ class V7Pipeline:
         self.deterministic_mode = DeterministicMode(seed=seed)
         self.deterministic_mode.enabled = deterministic
         self.enable_quality_gates = enable_quality_gates  # Allow disabling O(n²) gates
+        # Exact construction kwargs, so the parallel large-batch path can
+        # rebuild an identical pipeline inside each worker process.
+        self._init_kwargs = {
+            "mode": mode,
+            "deterministic": deterministic,
+            "seed": seed,
+            "enable_quality_gates": enable_quality_gates,
+        }
 
         # Enable global deterministic mode if requested
         if deterministic:
@@ -285,16 +331,6 @@ class V7Pipeline:
             )
         )
         self.metrics = PipelineMetrics()
-
-        # Initialize AsyncBatchAggregator lazily (will be created when needed)
-        self._batch_aggregator = None
-        self._batch_aggregator_config = LegacyAggConfig(
-            min_size=32,
-            target_size=128,
-            max_size=512,
-            max_latency_ms=25,
-            fastpath_threshold=10,
-        )
 
         # Lazy initialization for performance optimization
         self._region_manager = None
@@ -446,28 +482,143 @@ class V7Pipeline:
                 logger.info(f"Genealogy enricher initialized in {mode} mode")
         return self._genealogy_enricher
 
-    async def get_batch_aggregator(self):
-        """Lazy initialization of batch aggregator (requires event loop)."""
-        if self._batch_aggregator is None:
-            # Create a dummy process function for the aggregator
-            async def process_func(entries):
-                return await self._process_batch_internal(entries)
+    def _should_parallelize(self, n: int) -> bool:
+        """Whether the large-batch process-parallel path applies.
 
-            self._batch_aggregator = AsyncBatchAggregator(
-                process_func, self._batch_aggregator_config
-            )
-        return self._batch_aggregator
+        The per-entry stages (region detection etc.) are CPU-bound and
+        asyncio gives zero CPU parallelism, so real speedup needs multiple
+        processes — but the pool spawn + cross-process pickling only pays off
+        above a threshold, and a single-core host can't benefit. Kill-switch
+        GMNAP_NO_PARALLEL=1 forces serial (used by determinism tests and the
+        stage-11 re-run).
+        """
+        import multiprocessing as _mp
 
-    async def get_streaming_adapter(self):
-        """Get streaming pipeline adapter for very large batches."""
+        if os.getenv("GMNAP_NO_PARALLEL") == "1":
+            return False
+        if getattr(self, "_is_idempotency_rerun", False):
+            return False  # the ≤20-row re-run is always serial
+        try:
+            threshold = int(os.getenv("GMNAP_PARALLEL_THRESHOLD", "20000"))
+        except ValueError:
+            threshold = 20000
+        if n < threshold:
+            return False
+        try:
+            return (_mp.cpu_count() or 1) > 1
+        except NotImplementedError:
+            return False
 
-        # Create a process function for the streaming adapter
-        async def process_func(entries):
-            return await self._process_batch_internal(entries)
+    def _parallel_worker_count(self) -> int:
+        """Worker-process count: cpu_count-1 by default (leave one core for
+        the parent's tail work), overridable via GMNAP_PARALLEL_WORKERS."""
+        import multiprocessing as _mp
 
-        return StreamingPipelineAdapter(
-            process_func, micro_cfg=self._batch_aggregator_config, inflight_limit=4
+        try:
+            default = max(1, (_mp.cpu_count() or 2) - 1)
+        except NotImplementedError:
+            default = 1
+        try:
+            n = int(os.getenv("GMNAP_PARALLEL_WORKERS", str(default)))
+        except ValueError:
+            n = default
+        return max(1, n)
+
+    def _assign_global_ids(self, entries: List[Dict[str, Any]]) -> None:
+        """Mint GlobalIDs across the WHOLE batch in the parent, with global
+        collision suffixing, BEFORE parallel fan-out.
+
+        The collision cache (src.core.global_id._cross_batch) is process-
+        local module state, so worker subprocesses can't share it; letting
+        them mint ids would lose cross-worker suffixes and silently collide
+        two distinct people onto one id. Doing it once in the parent keeps
+        uniqueness correct and matches what stage 1 does in the serial path
+        (so ids are identical either way). O(n) via an identity set — NOT
+        stage 1's historical ``entry not in list`` membership, which is
+        O(n²) on a 1M batch.
+        """
+        from src.core.global_id import (
+            compute_global_id_for_pipeline,
+            generate_batch_global_ids,
+            get_duplicate_count,
         )
+
+        needing = [e for e in entries if not e.get("GlobalID")]
+        minted = set()
+        if needing:
+            for e, gid in zip(needing, generate_batch_global_ids(needing)):
+                e["GlobalID"] = gid
+                minted.add(id(e))
+        for e in entries:
+            if e.get("GlobalID") and id(e) not in minted:
+                compute_global_id_for_pipeline(e)
+        self.metrics.duplicate_global_ids = get_duplicate_count()
+
+    async def _process_batch_parallel(
+        self, entries: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Large-batch path: fan the per-entry stages (1-4) across a process
+        pool, then run the batch-global tail (5-11 + gates) once in the
+        parent.
+
+        Output is byte-identical to the serial path by construction:
+          (1) the parent mints every GlobalID over the whole batch first,
+          (2) stages 2-4 are pure per row so chunking/worker-order can't
+              change them,
+          (3) the tail runs on the fully assembled, in-order results.
+        """
+        import concurrent.futures as _cf
+        import multiprocessing as _mp
+
+        # Stage-11 idempotency re-run pristine sample (parent-side; workers
+        # never see it). Mirrors _process_batch_internal.
+        if not getattr(self, "_is_idempotency_rerun", False):
+            import copy as _copy
+
+            self._idem_input_sample = _copy.deepcopy(entries[:20])
+
+        await self._stage_0_config()
+
+        # (1) Parent owns GlobalID assignment (authoritative collision cache).
+        self._assign_global_ids(entries)
+
+        # (2) Fan per-entry stages out. Aim for ~4 chunks per worker so the
+        # load balances even if some chunks are heavier, but keep chunks big
+        # enough to amortize cross-process pickling (>=500) and not so big
+        # that a 1M batch makes giant pickles (<=5000).
+        import math as _math
+
+        workers = self._parallel_worker_count()
+        chunk_size = min(5000, max(500, _math.ceil(len(entries) / (workers * 4))))
+        chunks = [
+            entries[i : i + chunk_size] for i in range(0, len(entries), chunk_size)
+        ]
+        logger.info(
+            "Parallel path: %d entries -> %d chunks across %d worker(s)",
+            len(entries),
+            len(chunks),
+            workers,
+        )
+
+        loop = asyncio.get_running_loop()
+        ctx = _mp.get_context("spawn")
+        with _cf.ProcessPoolExecutor(
+            max_workers=workers,
+            mp_context=ctx,
+            initializer=_parallel_worker_init,
+            initargs=(self._init_kwargs, self.config),
+        ) as pool:
+            tasks = [
+                loop.run_in_executor(pool, _parallel_worker_run, chunk)
+                for chunk in chunks
+            ]
+            # gather preserves task order -> results line up with chunks.
+            chunk_outputs = await asyncio.gather(*tasks)
+
+        all_results = [row for chunk_out in chunk_outputs for row in chunk_out]
+
+        # (3) Batch-global tail once, in the parent.
+        return await self._run_batch_tail(all_results, len(entries))
 
     def _stage_1b_llm_extract(
         self, entries: List[Dict[str, Any]]
@@ -546,91 +697,6 @@ class V7Pipeline:
             logger.info("Stage 1b: extracted %d ETD record(s)", len(extracted))
         return entries + extracted
 
-    async def _process_small_batch_fast(
-        self, entries: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
-        """Fast processing path for small batches (≤25 entries)."""
-        start_time = time.time()
-
-        # Use cached components for better performance
-        if not self._unicode_handler:
-            self._unicode_handler = get_cached_component(
-                "unicode_normalizer", UnicodeNormalizer
-            )
-        if not self._region_manager:
-            self._region_manager = get_cached_component(
-                "region_manager", lambda: RegionManager()
-            )
-
-        # Skip expensive operations for small batches
-        results = []
-        # Process entries with minimal overhead
-        for entry in entries:
-            # Essential stages only: ingest → region detection → basic processing
-            processed = entry.copy()
-
-            # Stage 1: Basic ingest (unicode normalization) - optimized
-            if "CanonicalNative" in processed and processed["CanonicalNative"]:
-                # Only normalize if not already normalized
-                native = processed["CanonicalNative"]
-                if isinstance(native, str) and native:
-                    processed["CanonicalNative"] = self._unicode_handler.normalize(
-                        native
-                    )
-
-            # Stage 2: Region detection (only if needed) - optimized
-            if "DetectedRegion" not in processed and "CanonicalNative" in processed:
-                try:
-                    detection_result = self._region_manager.detect_region(processed)
-                    _apply_detection_fields(processed, detection_result)
-                except Exception:
-                    # Skip detection on error for fast path
-                    processed["DetectedRegion"] = "unknown"
-                    processed["DetectionConfidence"] = 0.0
-
-            # Stage 3: Basic region processing - optimized
-            region_code = processed.get("DetectedRegion")
-            if region_code and region_code != "unknown":
-                # Use cached region processor lookup
-                processor = self._region_manager._regions.get(region_code)
-                if processor and hasattr(processor, "process"):
-                    try:
-                        # Direct process call without additional checks for speed
-                        processed = processor.process(processed)
-                    except Exception:
-                        # Skip processing on error for fast path
-                        pass
-
-            # Generate GlobalID via the canonical deterministic scheme — the
-            # SAME one the full pipeline uses (SHA-256 base32 + --N collision
-            # suffix). The previous "gmnap_{region}_{abs(hash(native))%1e6}"
-            # was (a) seeded by Python's per-process-salted hash() so it was
-            # NON-DETERMINISTIC across runs (idempotency violation), (b) a
-            # different id FORMAT than every other path, and (c) trivially
-            # collision-prone (mod 1e6). Using the canonical function also
-            # gives correct cross-batch collision suffixing for this path.
-            if "GlobalID" not in processed:
-                from src.core.global_id import compute_global_id_for_pipeline
-
-                compute_global_id_for_pipeline(processed)
-
-            results.append(processed)
-
-        # Update metrics
-        self.metrics.processed_entries = len(results)
-        duration = time.time() - start_time
-        self.metrics.total_duration = duration
-
-        return {
-            "results": results,
-            "metrics": {
-                "processed_entries": len(results),
-                "duration_seconds": duration,
-                "entries_per_second": len(results) / duration if duration > 0 else 0,
-                "mode": "fast_path",
-            },
-        }
-
     async def process_batch(
         self, entries: List[Dict[str, Any]], chunk_size: int = 8000
     ) -> List[Dict[str, Any]]:
@@ -658,42 +724,23 @@ class V7Pipeline:
         # config['pipeline']['enable_llm_extraction'] is True.
         entries = self._stage_1b_llm_extract(entries)
 
-        # Performance optimization: Adjust chunk size based on batch size
-        if len(entries) < 100:
-            chunk_size = len(entries)  # Process small batches in one chunk
-        elif len(entries) < 1000:
-            chunk_size = 100  # Smaller chunks for medium batches
-        else:
-            chunk_size = min(chunk_size, 1000)  # Cap chunk size for large batches
+        # Large-batch path: real CPU parallelism across processes.
+        #
+        # R54 replaced the old ">100k → StreamingPipelineAdapter" branch,
+        # which was BOTH slow-truth and wrong: the adapter fed 16-entry
+        # microbatches serially into _process_batch_internal, every one of
+        # which hit the (now-removed) ≤25 "fast path" that emitted entries
+        # with NO region detection. The documented "1M in 362s / 2763-per-s"
+        # was that no-op shadow — a dict-copy loop, not the pipeline. The
+        # pipeline is CPU-bound (region detection dominates), and asyncio
+        # gives zero CPU parallelism, so the ONLY honest way to go faster is
+        # multiple processes. _process_batch_parallel fans the per-entry
+        # stages (1-4) across a process pool and runs the batch-global tail
+        # (5-11 + gates) once in the parent — producing output byte-identical
+        # to the serial path, just faster. Kill-switch: GMNAP_NO_PARALLEL=1.
+        if self._should_parallelize(len(entries)):
+            return await self._process_batch_parallel(entries)
 
-        # Use streaming adapter for very large batches (>100k entries)
-        if len(entries) > 100000:
-            streaming_adapter = await self.get_streaming_adapter()
-            # Create a simple sink that collects results
-            results = []
-
-            async def sink(batch_results):
-                results.extend(batch_results)
-
-            metrics = await streaming_adapter.run_stream(entries, sink)
-            # process_batch returns a flat LIST of entry dicts for ALL
-            # batch sizes — the standardized contract guarded by
-            # tests/v7/test_v7_batch_shape.py. The streaming branch used
-            # to be the lone exception, returning a dict, which made
-            # process_batch's return type depend on batch size (>100k vs
-            # <=100k). Record the streaming metrics on self.metrics so
-            # callers can still read them via pipeline.metrics, exactly
-            # like the non-streaming paths, then return the flat list.
-            self.metrics.total_entries = metrics["processed"]
-            self.metrics.processed_entries = metrics["processed"]
-            return results
-
-        # Performance optimization for small batches
-        # For now, skip batch aggregator until it's properly integrated
-        # Defensive check for _force_immediate_processing attribute
-        getattr(self, "_force_immediate_processing", False)
-
-        # Direct processing for all batch sizes until aggregator is fixed
         return await self._process_batch_internal(entries)
 
     async def _process_batch_internal(
@@ -714,60 +761,98 @@ class V7Pipeline:
 
             self._idem_input_sample = _copy.deepcopy(entries[:20])
 
-        # NB: GlobalID collision tracking is reset ONCE per batch run by
-        # the public process_batch() entry point, NOT here. This method
-        # is the streaming path's per-microbatch worker, so resetting
-        # here would wipe the cross-batch collision cache between
-        # microbatches (see process_batch for the full rationale).
+        # NB: GlobalID collision tracking is reset ONCE per batch run by the
+        # public process_batch() entry point, NOT here — this is the serial
+        # worker for one batch and the stage-11 idempotency re-run re-enters
+        # it, so a reset here would wipe the run's collision cache.
         self.metrics.total_entries = len(entries)
 
-        # Fast path for very small batches - reduced threshold for better performance
-        # The overhead of the fast path isn't worth it for batches under 10
-        if len(entries) <= 5:
-            # For truly tiny batches, skip the fast path overhead
-            pass
-        elif len(entries) <= 25:
-            # The fast path returns a {"results": [...], "metrics": {...}}
-            # dict, but every caller (API /api/v1/process, CLI, SDK) and
-            # the >25 path return a flat LIST of entries. Without this
-            # normalization, 6-25-entry batches came back as a dict, so
-            # the API's len()/iteration reported processed:0 and silently
-            # dropped all results. normalize_result extracts the list and
-            # gives both paths one shape.
-            fast = await self._process_small_batch_fast(entries)
-            rows, _ = normalize_result(fast)
-            return rows
-
+        # R54: every batch size now runs the identical real stage sequence.
+        # The old ≤5 "skip overhead" branch and 6-25 _process_small_batch_fast
+        # early-return are gone — the latter emitted entries with NO region
+        # detection (it only detected when CanonicalNative was set), so a
+        # 10-name batch of ordinary CanonicalLatin input came back
+        # un-classified. A path that skips the product's core work is not a
+        # "fast path", it's a wrong one.
         logger.info(f"Starting V7 pipeline in {self.mode.value} mode")
         logger.info(f"Processing {len(entries)} entries with {self.workers} workers")
 
-        # Stage 0: Config
         await self._stage_0_config()
 
-        # Process in chunks for memory efficiency
+        # GlobalID assignment is inherently batch-global (cross-entry collision
+        # suffixing), so it runs ONCE over the whole batch here — NOT per chunk.
+        # R54: stage 1 used to mint ids per 8000-chunk, so a duplicate name
+        # spanning the chunk boundary got no "--N" suffix (two people, one id).
+        # Assigning upfront fixes that AND makes this serial path produce output
+        # byte-identical to the parallel path (which also assigns in the parent).
+        self._assign_global_ids(entries)
+
+        # Per-entry stages (1-4) chunk for memory (assign_ids=False: ids are
+        # already minted above). The batch-global tail (5-11 + gates) then runs
+        # ONCE on the assembled set.
         all_results = []
         for i in range(0, len(entries), chunk_size):
             chunk = entries[i : i + chunk_size]
             logger.info(f"Processing chunk {i//chunk_size + 1}: {len(chunk)} entries")
+            all_results.extend(
+                await self._run_per_entry_stages(chunk, assign_ids=False)
+            )
 
-            # Run pipeline stages
-            results = chunk
-            for stage_num in [1, 2, 3, 4, 5, 6, 7, 8]:
-                stage_func = self.stages[stage_num]
-                start_time = time.time() if not self.deterministic else 0
+        return await self._run_batch_tail(all_results, len(entries))
 
-                try:
-                    results = await stage_func(results)
-                    elapsed = (
-                        (time.time() - start_time) if not self.deterministic else 0.1
-                    )
-                    self.metrics.stage_timings[f"stage_{stage_num}"] = elapsed
-                    logger.info(f"Stage {stage_num} completed in {elapsed:.2f}s")
-                except Exception as e:
-                    logger.error(f"Stage {stage_num} failed: {e}")
-                    raise
+    async def _run_per_entry_stages(
+        self, chunk: List[Dict[str, Any]], assign_ids: bool = True
+    ) -> List[Dict[str, Any]]:
+        """Stages 1-4 — the per-entry, pure-per-row work: ingest + Unicode +
+        GlobalID (stage 1), region detection (stage 2, the CPU bottleneck),
+        region hooks (stage 3), authority enrichment (stage 4).
 
-            all_results.extend(results)
+        Because every row is independent here, this is what fans out across
+        processes in the parallel large-batch path. ``assign_ids=False`` is
+        passed by worker subprocesses (the parent already minted GlobalIDs
+        over the whole batch — see _stage_1_ingest).
+        """
+        results = chunk
+        for stage_num in [1, 2, 3, 4]:
+            start_time = time.time() if not self.deterministic else 0
+            try:
+                if stage_num == 1:
+                    results = await self._stage_1_ingest(results, assign_ids=assign_ids)
+                else:
+                    results = await self.stages[stage_num](results)
+                elapsed = (time.time() - start_time) if not self.deterministic else 0.1
+                self.metrics.stage_timings[f"stage_{stage_num}"] = elapsed
+            except Exception as e:
+                logger.error(f"Stage {stage_num} failed: {e}")
+                raise
+        return results
+
+    async def _run_batch_tail(
+        self, all_results: List[Dict[str, Any]], total_input: int
+    ) -> List[Dict[str, Any]]:
+        """Batch-global stages 5-8 + edges + genealogy + GDPR + 9-11 + gates,
+        run ONCE over the full assembled set. Shared verbatim by the serial
+        (_process_batch_internal) and parallel (_process_batch_parallel)
+        paths, so their outputs are byte-identical.
+
+        R54: stages 5-8 previously ran per-1000-chunk INSIDE the stage loop,
+        so >1000-entry batches silently missed cross-chunk ShortFormClusters
+        (stage 7) and cross-chunk collision analytics (stage 5). Running them
+        once here is both correct and path-independent.
+        """
+        self.metrics.total_entries = total_input
+        self.metrics.processed_entries = len(all_results)
+
+        for stage_num in [5, 6, 7, 8]:
+            start_time = time.time() if not self.deterministic else 0
+            try:
+                all_results = await self.stages[stage_num](all_results)
+                elapsed = (time.time() - start_time) if not self.deterministic else 0.1
+                self.metrics.stage_timings[f"stage_{stage_num}"] = elapsed
+                logger.info(f"Stage {stage_num} completed in {elapsed:.2f}s")
+            except Exception as e:
+                logger.error(f"Stage {stage_num} failed: {e}")
+                raise
 
         # R48 §3.3: GenealogyRelation edge EXTRACTION is the spec §5 stage-5
         # contract and runs unconditionally (pure function over the batch,
@@ -913,9 +998,20 @@ class V7Pipeline:
         pass
 
     async def _stage_1_ingest(
-        self, entries: List[Dict[str, Any]]
+        self, entries: List[Dict[str, Any]], assign_ids: bool = True
     ) -> List[Dict[str, Any]]:
-        """Stage 1: Read YAML, Unicode NFC→NFKD→fold→NFC."""
+        """Stage 1: Read YAML, Unicode NFC→NFKD→fold→NFC.
+
+        ``assign_ids=False`` skips GlobalID minting/collision-suffixing —
+        used by the parallel large-batch path (``_process_batch_parallel``),
+        where the PARENT process assigns every id over the whole batch
+        BEFORE fan-out. GlobalID collision tracking is process-global module
+        state (``src.core.global_id._cross_batch``); a worker subprocess has
+        its own empty copy, so letting workers mint ids would lose cross-
+        worker collision suffixes. The parent owning id assignment keeps
+        uniqueness correct and makes the serial and parallel outputs
+        byte-identical.
+        """
         logger.info(f"Stage 1: Ingest - processing {len(entries)} entries")
 
         from src.core.global_id import (
@@ -925,7 +1021,10 @@ class V7Pipeline:
         )
 
         # Optimize GlobalID generation for batches
-        if len(entries) > 10:
+        if not assign_ids:
+            # Parent already assigned ids; nothing to mint here.
+            pass
+        elif len(entries) > 10:
             # Use batch processing for better performance
             entries_needing_ids = [e for e in entries if not e.get("GlobalID")]
             if entries_needing_ids:
@@ -965,8 +1064,12 @@ class V7Pipeline:
                 processed.append(entry)
                 self.metrics.failed_entries += 1
 
-        # Record duplicate count after processing all entries
-        self.metrics.duplicate_global_ids = get_duplicate_count()
+        # Record duplicate count after processing all entries. Only when THIS
+        # call minted the ids — in the parallel path the parent already
+        # assigned them and owns the authoritative count; a worker's local
+        # (empty) collision cache would report 0 and clobber it.
+        if assign_ids:
+            self.metrics.duplicate_global_ids = get_duplicate_count()
 
         return processed
 
@@ -1416,7 +1519,9 @@ class V7Pipeline:
         # (which entries collapse to the same initials/short form), not just
         # the per-entry list (MASTERPLAN §4.7, R49). Only forms shared by
         # >= 2 entries form a cluster; each member gets the sorted GlobalID
-        # list so downstream disambiguation sees its collision set.
+        # list so downstream disambiguation sees its collision set. The list
+        # is capped at _SHORTFORM_CLUSTER_CAP to bound O(k²) storage (see the
+        # module constant); oversized clusters are logged, not silently cut.
         form_to_gids: Dict[str, List[str]] = {}
         for entry in entries:
             gid = entry.get("GlobalID")
@@ -1424,11 +1529,25 @@ class V7Pipeline:
                 continue
             for form in entry.get("ShortForms", []):
                 form_to_gids.setdefault(form, []).append(gid)
-        clusters = {
-            form: sorted(gids)
-            for form, gids in form_to_gids.items()
-            if len(set(gids)) >= 2
-        }
+        clusters: Dict[str, List[str]] = {}
+        capped = 0
+        for form, gids in form_to_gids.items():
+            uniq = sorted(set(gids))
+            if len(uniq) < 2:
+                continue
+            if len(uniq) > _SHORTFORM_CLUSTER_CAP:
+                capped += 1
+                clusters[form] = uniq[:_SHORTFORM_CLUSTER_CAP]
+            else:
+                clusters[form] = uniq
+        if capped:
+            logger.info(
+                "Stage 7: capped %d oversized ShortFormCluster(s) to the first "
+                "%d gids (bounding O(k²) storage; raise "
+                "GMNAP_SHORTFORM_CLUSTER_CAP to widen)",
+                capped,
+                _SHORTFORM_CLUSTER_CAP,
+            )
         if clusters:
             for entry in entries:
                 mine = {

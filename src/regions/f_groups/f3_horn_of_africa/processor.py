@@ -600,7 +600,7 @@ class F3_HornOfAfrica(RegionSpec):
                 # Sometimes grandfather-father-given (rare but occurs)
                 variants.append(f"{grandfather} {father} {given}")
 
-        return list(set(variants))  # Remove duplicates
+        return sorted(set(variants))  # Remove duplicates
 
     def _generate_transliteration_variants(self, entry: Dict[str, Any]) -> List[str]:
         """Generate transliteration variants for Ethiopic names."""
