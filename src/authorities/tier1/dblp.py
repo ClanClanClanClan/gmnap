@@ -317,9 +317,13 @@ class DBLPFetcher(AuthorityFetcher):
             union = len(query_words.union(name_words))
             similarity = intersection / union if union > 0 else 0
 
-            # Boost score for publication count
+            # Boost score for publication count — CAPPED (R53): the
+            # uncapped `pubs * 0.01` let any author with >70 papers outrank
+            # an EXACT name match (prolific-author capture: querying
+            # "Leonhard Euler" returned whoever published most). Volume is
+            # a tie-breaker, never a substitute for identity.
             pub_count = result.get("publications", 0)
-            score = similarity + (pub_count * 0.01)  # Small boost for more publications
+            score = similarity + min(pub_count, 20) * 0.01
 
             if score > best_score:
                 best_score = score

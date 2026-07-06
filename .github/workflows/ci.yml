@@ -87,9 +87,14 @@ jobs:
           # one cosmetic line. Strip leading-# header lines from both
           # before comparing — only the resolved-pin body matters for
           # reproducibility.
+          # R53 redesign: ADVISORY on PRs. PyPI drift (a transitive dep
+          # publishing a new version) used to fail every PR through no
+          # fault of the author — twice in five days (rpds-py,
+          # typing-extensions). Drift is now surfaced as a warning here
+          # and handled by the scheduled lock-refresh workflow, which
+          # opens an auto-PR with the regenerated lock.
           if ! diff -u <(grep -v '^#' requirements.lock) <(grep -v '^#' requirements.lock.ci); then
-            echo "::error::requirements.lock is stale. Run 'make lock' and commit the result."
-            exit 1
+            echo "::warning::requirements.lock has drifted from PyPI (not this PR's fault). The weekly lock-refresh workflow will open a bump PR; or run 'make lock' locally."
           fi
 
   # Repository-invariant audit (tools/audit_repo.py). 18 checks across
@@ -609,6 +614,20 @@ jobs:
   # tracker; before that the file was reinitialized each CI run and
   # the budget was theatre). For prod deploys, mount the cache/
   # volume across container restarts so spend persists.
+  # Helm chart validity (R53 §2b.8): deploy/helm/gmnap is the canonical
+  # chart (3 dup charts were unified in R41) — nothing gated its
+  # correctness, so a template typo would only surface at deploy time.
+  helm-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - name: Lint the canonical chart
+        run: |
+          helm lint deploy/helm/gmnap
+          helm template smoke deploy/helm/gmnap >/dev/null
+
   cost-guard:
     runs-on: ubuntu-latest
     steps:
