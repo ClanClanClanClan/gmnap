@@ -4,6 +4,32 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [Unreleased] — 2026-07-06 (R54 — performance reality: streaming no-op retracted)
+
+### Fixed / Retracted
+
+- **RETRACTION: the "1 M in 362 s / 2 763-per-s" performance claim was
+  false.** Earlier entries in this changelog (round 30, and the table
+  below) recorded that number as a measured production result. It was
+  not. The `>100_000`-entry "streaming" path fed 16-entry microbatches
+  into a fast path that skipped region detection and the entire
+  batch-global tail — a dict-copy loop. Forcing that path yields
+  `DetectedRegion` 0/30; the real path yields 30/30. **Treat every
+  pre-R54 "2 763/s" / "362 s" / "streaming path scales to 1 M" statement
+  in this file as retracted.**
+- **Real fix.** Deleted the `StreamingPipelineAdapter` detour and the
+  lossy `_process_small_batch_fast` (≤25-entry) path; every batch size
+  now runs the real stages. Added `_process_batch_parallel` (a real
+  process pool) — output byte-identical to serial, verified. Batched the
+  stage-9 DuckDB changelog writer (was 2 single-row inserts/entry).
+  Fixed a latent GlobalID-per-chunk collision bug and 7 hash-ordered
+  `list(set())` name-variant dedups (cross-process determinism). Capped
+  `ShortFormClusters` at 64 gids (was O(k²)).
+- **Honest numbers** (8-core Apple-silicon, OFFLINE, real names, clean
+  `output/`): serial 4 k=184/s, 10 k=233/s; parallel 4 k=268/s,
+  10 k=348/s; region coverage 100 %. 1 M is a labeled projection
+  (~48 min parallel), NOT measured. See `docs/perf_characterization.md`.
+
 ## [Unreleased] — 2026-05-06 (round 33 — H5 dual-class audit + dead-cluster purge)
 
 Continuation of the round-32 RegionRuleError collapse: built the audit
@@ -213,6 +239,11 @@ catching the next round's class-of-bug, and the docs had drifted
 
 ### Changed (stale-claim sweep across docs)
 
+> **⚠️ RETRACTED by R54 (2026-07-06).** Everything in this round-31/32
+> entry about "round-30 1 M measurement", "2 763/s", "362 s", and the
+> "streaming cliff" is FALSE — see the R54 entry at the top of this file.
+> The numbers below are left in place as history, not as truth.
+
 After the round-30 1 M measurement, several docs still carried the
 pre-round-28 `~7 e/s, ~41 h/1M` headline numbers. Updated:
 
@@ -261,12 +292,12 @@ Probed at 100 k first to verify linear scaling and that no OOM /
 quadratic-memory pathologies surfaced. Probe was clean
 (339.6 s, 295/s, 812 MB), so the 1 M run launched in background.
 
-### Result
+### Result — ⚠️ RETRACTED by R54: this "measurement" was a no-op (see top of file)
 
 | Size | Wall clock | Throughput | RSS peak |
 |-----:|-----------:|-----------:|---------:|
 | 100 k|  339.6 s  |  295 /s    |  812 MB  |
-| 1 M  | **362.0 s** (6.0 min) | **2 763 /s** | **769 MB** |
+| 1 M  | ~~**362.0 s** (6.0 min)~~ | ~~**2 763 /s**~~ | ~~**769 MB**~~ |
 
 The 1 M batch finished in 6 minutes — **18× faster than the
 "~1.8 h" linear extrapolation from the 10 k baseline**. Reason: at

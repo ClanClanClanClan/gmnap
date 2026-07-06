@@ -7,7 +7,20 @@
 **Regional Coverage**: 37/37 regions fully implemented (100%), 38 processor files
 **Region Detection**: Split geo/name-origin architecture with three-tier suffix system, fastText CLI tiebreaker, same-group gate. Expert-validated as production-ready.
 **Security**: Injection attack blocking validated
-**Performance**: **1 M real names processed in 362 seconds (6.0 min) — measured, not projected** (Apple M1, OFFLINE, single process, streaming path via `AsyncBatchAggregator`). Throughput: **2 763 entries/sec** at 1 M; 152/s at 10 k (smaller batches use the serial direct-batch path). RSS peaks at 769 MB. Round-28's `@functools.lru_cache` fix on `_wb()` was the unlock (was 7/s on 10 k pre-fix); round-30 ran the actual 1 M to verify the streaming-path scaling holds in production. Full benchmark + cProfile in `docs/perf_characterization.md`.
+**Performance**: **RETRACTED and corrected in R54.** The former headline
+("1 M in 362 s / 2 763-per-s, streaming path via `AsyncBatchAggregator`")
+was FALSE: that path was a no-op — it fed 16-entry microbatches into a fast
+path that skipped region detection and the whole batch-global tail, so the
+benchmark measured a dict-copy loop, not the pipeline (proven: forcing the
+old streaming path yielded DetectedRegion 0/30; the real path gives 30/30).
+The streaming detour and the lossy fast path are removed. Real CPU
+parallelism (`_process_batch_parallel`, a process pool) replaces them. Honest
+measured numbers (8-core Apple-silicon laptop, OFFLINE, real names, clean
+output dir): **serial 4 k = 184/s, 10 k = 233/s; parallel 4 k = 268/s,
+10 k = 348/s** (~1.5× from parallelism, Amdahl-capped by the batch-global
+tail). Region coverage 100 %; serial and parallel output byte-identical at
+10 k. **1 M is a labeled projection (~48 min parallel / ~72 min serial),
+NOT a measured number.** Full detail in `docs/perf_characterization.md`.
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
 **Authority Enrichment**: V7 tier orchestrator (`src/authorities/manager_tier01.py`) delegates to canonical fetchers in `src/authorities/tierN/` when `OFFLINE=0`. 9 sources have real HTTP code (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH, Wikidata_P184, GND, HAL, OAI_University); 2 gated behind API keys (Scopus, Dimensions); 1 deferred for institutional access (ProQuest); 1 deferred for ToS (GoogleScholar). MathSciNet stub awaits AMS subscription
 **Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. It is now LIVE: `config/regions/a2.yaml` exists and `A2_WesternEurope.__init__` consumes it (merging extra Germanic/Romance surname particles into its hardcoded defaults) — the first processor to actually apply a YAML override. Other regions still fall back to hardcoded defaults until a `config/regions/<code>.yaml` is added and the processor wired to read it (see A2 as the pattern). Covered by `tests/unit/test_region_yaml_overrides.py`
@@ -25,7 +38,7 @@
 All stages execute in sequence with real code:
 - Stage 0: Config/credential validation
 - Stage 1: Unicode normalisation (NFC→NFKD→fold→NFC)
-- Stage 1b: ETD/thesis extraction — **wired as an OPT-IN** (`V7Pipeline._stage_1b_llm_extract`, called once at the top of `process_batch` before chunking so it can add rows without breaking the streaming 1:1 contract). Off by default; enable with `GMNAP_ENABLE_LLM_EXTRACT=1` (or `config['pipeline']['enable_llm_extraction']`). It routes through the deterministic regex extractor `src/llm/stage1b_llmextract_etd.extract_from_text` (NOT the old `LLMExtractETDStage` class, which is non-importable — it imports a non-existent `AIIntelligence`/`ExtractionError`), so it stays idempotent with no live LLM. Extracted records carry no GlobalID; stage 1 assigns them canonical SHA-256 ids. Covered by `tests/v7/test_stage1b_etd_extract.py`.
+- Stage 1b: ETD/thesis extraction — **wired as an OPT-IN** (`V7Pipeline._stage_1b_llm_extract`, called once at the top of `process_batch` before chunking / parallel fan-out so it can add rows without breaking the per-chunk 1:1 contract). Off by default; enable with `GMNAP_ENABLE_LLM_EXTRACT=1` (or `config['pipeline']['enable_llm_extraction']`). It routes through the deterministic regex extractor `src/llm/stage1b_llmextract_etd.extract_from_text` (NOT the old `LLMExtractETDStage` class, which is non-importable — it imports a non-existent `AIIntelligence`/`ExtractionError`), so it stays idempotent with no live LLM. Extracted records carry no GlobalID; stage 1 assigns them canonical SHA-256 ids. Covered by `tests/v7/test_stage1b_etd_extract.py`.
 - Stage 2: Region detection (split geo/name-origin, three-tier suffixes, fastText CLI, same-group gate)
 - Stage 3: Region hooks (clean→augment→validate→order_key per region)
 - Stage 4: Authority enrichment via `manager_tier01.enrich_all` → `_call_canonical_fetcher` → `src/authorities/tierN/X.Fetcher.fetch()`. 9 sources with real HTTP. DegreeDate from thesis sources, AffiliationTimeline from last-known institution, NameEvents from alternative name forms. Each `_fetch_*` shim wraps the live call in `retry_with_backoff` (2 retries × 0.5 s exp backoff) and caches the response on disk by SHA-256 of the canonical query payload
@@ -172,78 +185,68 @@ auto-merge machinery was removed in the 2026-04-27 audit because it
 had no production caller. Reinstating it would require both the
 YAMLs and a hook in each processor's pre-call path.
 
-### Performance (Measured 2026-05-03, Python 3.12, Apple M1, OFFLINE)
+### Performance (Measured 2026-07-06, R54, 8-core Apple-silicon, OFFLINE)
 
-Numbers below are from `tools/run_benchmark.py`. Real names sample
-from `data/genealogy_enrichment.json`; synthetic uses `Surname{i},
-Given{i}` with rotated country codes.
+**The former "1 M in 362 s / 2 763-per-s" claim was FALSE and is
+retracted.** It measured a no-op: the pre-R54 ">100 k streaming"
+branch (`AsyncBatchAggregator` / `StreamingPipelineAdapter`) fed
+16-entry microbatches serially into a fast path that emitted entries
+with **no region detection, no enrichment, no GDPR, no writes** — a
+dict-copy loop. Proof: forcing that path yielded `DetectedRegion`
+**0/30**; the real path gives **30/30**. R54 removed the detour and
+the lossy 6-25-entry fast path; every batch size now runs the real
+stages.
 
-**1 M is now an actual measurement, not a projection.** The
-streaming path (`process_batch` switches to `AsyncBatchAggregator`
-at >100k entries) parallelizes coalesced 1000-entry chunks across
-multiple async workers, giving a ~10× boost over the serial direct-
-batch path used at smaller sizes.
+Numbers below are honest, measured, and reproducible on a clean
+`output/` dir (the changelog DB persists across runs — an 800 MB
+stale DB inflates stage 9, so wipe `output/` before benchmarking).
+Real names sample from `data/genealogy_enrichment.json`.
 
-Single-run numbers; ±15 % run-to-run variance is normal on a
-laptop. The 100 k and 1 M rows were measured separately in round
-30; the 1 k / 10 k rows are from the round-30 sanity re-measure
-(within noise of the round-28 originals).
-
-| Path | Throughput | Wall clock | RSS peak |
+| Path | N | Throughput | Region coverage |
 |---|---|---|---|
-| `RegionManager.detect_region` (stage 2 only, warm) | ~780 / s | — | 230 MB |
-| `V7Pipeline.process_batch` (synthetic, 1 k) | 273 / s | 3.7 s | 355 MB |
-| `V7Pipeline.process_batch` (synthetic, 10 k) | 192 / s | 52.1 s | 450 MB |
-| `V7Pipeline.process_batch` (real, 1 k) | 153 / s | 6.6 s | 379 MB |
-| `V7Pipeline.process_batch` (real, 10 k) | 135 / s | 74.1 s | 496 MB |
-| `V7Pipeline.process_batch` (real, 100 k) | 295 / s | 339.6 s | 812 MB |
-| **`V7Pipeline.process_batch` (real, 1 M) — production** | **2 763 / s** | **362.0 s (6.0 min)** | **769 MB** |
+| `process_batch` serial (`GMNAP_NO_PARALLEL=1`), real | 4 k | 184 / s | 4000/4000 |
+| `process_batch` serial, real | 10 k | 233 / s | 10000/10000 |
+| `process_batch` parallel (process pool), real | 4 k | 268 / s | 4000/4000 |
+| **`process_batch` parallel, real** | **10 k** | **348 / s** | **10000/10000** |
 
-The 100k → 1M throughput jump (295/s → 2 763/s, ~9.4×) is the
-streaming-path kick-in at the >100 k threshold. Smaller batches
-serialize chunks; ≥ 100 k+1 entries trigger
-`AsyncBatchAggregator` which coalesces and runs chunks concurrently
-under `max_concurrency`. RSS at 1 M is *lower* than at 100 k —
-streaming releases each chunk's intermediate state as soon as the
-sink consumes it, so memory plateaus rather than accumulating.
+Serial and parallel output are **byte-identical** at 10 k (verified;
+`tests/v7/test_parallel_path.py`). The ~1.5× parallel speedup is
+Amdahl-capped by the batch-global tail (stages 5-11 run once in the
+parent and cannot be process-parallelized); at larger N the per-entry
+stages (region detection dominates) are a bigger fraction, so the
+speedup grows — hence the 1 M projection below is higher than 1.5×.
 
-In production: a 1 M batch finishes in ~6 minutes on a modest
-Apple M1 laptop, OFFLINE, single process. A 100 k batch finishes
-in ~5.5 minutes. **The cliff at 100 k is real — sized batches
-above that threshold are dramatically more efficient per entry.**
+**1 M is a PROJECTION, clearly labeled, NOT a measurement:**
+extrapolating the per-entry + tail split gives ~48 min parallel /
+~72 min serial on this laptop. Do not cite it as measured.
 
-Round-28 perf finding: the previous "7 entries/sec" claim came from
-uncached `re.compile` calls in `manager_optimized._wb()` — the
-priority-rules scorer was recompiling the same ~50-100 patterns
-**~4 million times** during a 1k batch. Adding
-`@functools.lru_cache(maxsize=None)` to `_wb` brought the bottleneck
-from 357 s of regex re-compilation down to a single round of
-compiles plus cache hits. Net: **22× speedup** (7/s → 152/s on real-
-name 10k). 1M projection collapses from ~41 h to ~1.8 h.
+Where the time goes (real names, per-entry vs tail):
+- **Stage 2 region detection** dominates per-entry cost (~6 ms/name)
+  — this is the actual product work and is what the process pool
+  parallelizes.
+- The batch-global tail (stages 5 collision, 9 write, 10 report, 11
+  idempotency) is serial in the parent, ~8-9 s at 4 k. R54 fixed the
+  stage-9 DuckDB changelog (was 2 single-row `execute()`s per entry —
+  ~7.5 ms/entry; now batched `executemany` in one transaction, ~5×).
+- `ShortFormClusters` is capped at 64 gids/cluster
+  (`GMNAP_SHORTFORM_CLUSTER_CAP`) to bound the O(k²) storage a
+  shared short form otherwise creates (pathological synthetic input
+  hit 100 KB/entry pre-cap).
 
-Earlier hypothesis that fastText subprocess was the bottleneck was
-wrong — cProfile (round 28) showed 99 % of time in stage 5's
-`_score_priority_rules → _wb → re.compile`. Round 26's "in-process
-fastText" deferral was therefore right (it's not the bottleneck)
-but for the wrong reason; the actual bottleneck was regex caching.
+Knobs: `GMNAP_NO_PARALLEL=1` (force serial),
+`GMNAP_PARALLEL_THRESHOLD` (default 20000 — batches ≥ this use the
+pool), `GMNAP_PARALLEL_WORKERS` (default cpu_count-1).
 
-Reproduce + profile:
+Reproduce:
 ```bash
+rm -rf output/   # stale changelog DB inflates stage 9
 PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000 --real-names
-PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000 --real-names --profile
-# → docs/perf_profile_1000_real.txt with cumulative-time stats
 ```
 
-Reproduce with:
-```bash
-PYTHONPATH=. python3 tools/run_benchmark.py --sizes 1000,10000
-```
-
-The dramatic gap between detection-only and full pipeline is because
-synthetic names never hit a handcrafted rule, so the fastText CLI is
-invoked per entry via subprocess. With real names the gap is much
-smaller. Live authority enrichment (OFFLINE=0) is slower still because
-tier-0 APIs rate-limit.
+Live authority enrichment (OFFLINE=0) is slower because tier-0 APIs
+rate-limit. The round-28 `@functools.lru_cache` fix on
+`manager_optimized._wb()` (regex-recompile hot loop) remains in
+place and is real; it is unrelated to the retracted streaming claim.
 
 ---
 
@@ -359,4 +362,11 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 - ❌ "100% name-origin accuracy" — 100% emitted-leaf precision on adjudicated set, but 28% abstention rate; 56% on raw citizenship labels (wrong metric for name-origin)
 - ❌ "1,090 tests" — actual count is ~2,376 collected, all run by CI's Core-tests step
 - ❌ "Genealogy data for every mathematician" — enrichment covers ~39,500 entries (MGP + Wikidata P184 + OpenAlex affiliations). Only ~20,800 have a full advisor chain; the other ~18,700 have Institution + Country only. Historical / obscure mathematicians without any of these sources pass through with no enrichment.
-- ❌ "3 000 entries/sec at all batch sizes" — only the 1 M streaming-path run hits ~2 763 / s. Sub-100 k batches use the serial direct-batch path and run 130–300 / s. See Performance table for the full curve.
+- ❌ "1 M in 362 s / 2 763-per-s" — **RETRACTED (R54).** That was a no-op path
+  that skipped region detection and the batch-global tail. Honest measured
+  numbers: real names ~184-233/s serial, ~268-348/s parallel (4 k-10 k, 8-core
+  laptop, OFFLINE). 1 M is a labeled projection (~48-72 min), not measured.
+- ❌ "streaming path scales to 1 M" — the `AsyncBatchAggregator` /
+  `StreamingPipelineAdapter` streaming path is DELETED. Scale now comes from
+  `_process_batch_parallel` (a real process pool), not async coalescing (which
+  gives zero CPU parallelism for this CPU-bound workload).
