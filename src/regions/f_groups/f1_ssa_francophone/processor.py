@@ -25,6 +25,25 @@ class F1_SSAFrancophone(RegionSpec):
         )
         # Initialize logger for F1 region
         self.logger = logging.getLogger(f"gmnap.regions.{self.code}")
+        # Spec §2 F1 distinct_features: "Accented French particles" (R50 —
+        # this processor was a stub, MASTERPLAN §5). Particles are
+        # lowercase-normalised in clean() and excluded from the sort key so
+        # "Le Grand" sorts under G and "de la Croix" under C, matching the
+        # francophone convention. Includes the accented d'/l' forms.
+        self.french_particles = {
+            "de",
+            "du",
+            "des",
+            "le",
+            "la",
+            "les",
+            "l'",
+            "d'",
+            "de la",
+            "de le",
+            "van",
+            "von",
+        }
 
     def clean(self, entry: Dict[str, Any]) -> None:
         # Apply enhanced base security and normalization
@@ -45,9 +64,20 @@ class F1_SSAFrancophone(RegionSpec):
             # Don't fail - just skip cleaning if no name available
             return
 
-        # Apply region-specific cleaning rules here
-        # This is a stub implementation - region-specific logic should be added
-        pass
+        # Accented-French-particle normalisation (spec §2 F1): particles
+        # inside the name are lowercased ("Jean DE LA Croix" -> "Jean de la
+        # Croix"); a leading family-name particle in "Family, Given" form is
+        # preserved as written (it is part of the registered surname).
+        for field in ("CanonicalLatin",):
+            name = entry.get(field)
+            if not isinstance(name, str) or " " not in name:
+                continue
+            tokens = name.split(" ")
+            fixed = [tokens[0]] + [
+                tok.lower() if tok.lower() in self.french_particles else tok
+                for tok in tokens[1:]
+            ]
+            entry[field] = " ".join(fixed)
 
     def augment(self, entry: Dict[str, Any]) -> None:
         # Ensure idempotency
@@ -105,12 +135,19 @@ class F1_SSAFrancophone(RegionSpec):
         """Generate sort key for F1 names."""
         canonical = entry.get("CanonicalLatin", "")
 
-        # Simple sort by family name
+        # Particle-aware family sort (spec §2 F1): leading French
+        # particles don't drive collation — "de la Croix" sorts under
+        # "croix", "Le Grand" under "grand".
         if ", " in canonical:
             family = canonical.split(", ")[0]
-            return family.lower()
-
-        return canonical.lower()
+        else:
+            family = canonical
+        words = family.split()
+        while len(words) > 1 and words[0].lower().rstrip("'") in {
+            w.rstrip("'") for w in self.french_particles
+        }:
+            words = words[1:]
+        return " ".join(words).lower() if words else canonical.lower()
 
     def _extract_components(self, name: str) -> Dict[str, Any]:
         """Extract name components."""
@@ -120,6 +157,13 @@ class F1_SSAFrancophone(RegionSpec):
             parts = name.split(", ", 1)
             components["family_name"] = parts[0].strip()
             components["given_name"] = parts[1].strip() if len(parts) > 1 else ""
+            fam_words = components["family_name"].split()
+            particles = []
+            while len(fam_words) > 1 and fam_words[0].lower() in self.french_particles:
+                particles.append(fam_words.pop(0))
+            if particles:
+                components["family_particle"] = " ".join(particles)
+                components["family_core"] = " ".join(fam_words)
         else:
             # Space-separated
             parts = name.split(None, 1)
