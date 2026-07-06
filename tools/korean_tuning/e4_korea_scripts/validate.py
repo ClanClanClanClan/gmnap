@@ -4,10 +4,25 @@ import unicodedata
 
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "src"))
+# The converter package lives in the e4_korea REGION dir; these scripts
+# run with cwd=src/regions/e_groups/e4_korea (they read resources/ etc.),
+# so resolve via cwd with a repo-layout fallback (R51 gate rebuild — the
+# import below had been commented out, so the script NameError'd, and the
+# old script-relative path broke when the scripts were de-vendored).
+_E4 = pathlib.Path.cwd()
+if not (_E4 / "src" / "converter.py").exists():
+    _E4 = (
+        pathlib.Path(__file__).resolve().parents[2]
+        / "src"
+        / "regions"
+        / "e_groups"
+        / "e4_korea"
+    )
+sys.path.insert(0, str(_E4 / "src"))
+
+from converter import _enhanced_dice, eng2kor, eng2kor_nbest, kor2eng  # noqa: E402
 
 
-# from converter import eng2kor, kor2eng, eng2kor_nbest, _enhanced_dice
 def norm(s):
     # Remove punctuation and normalize for fair comparison
     s = s.replace(",", "").replace("-", " ")
