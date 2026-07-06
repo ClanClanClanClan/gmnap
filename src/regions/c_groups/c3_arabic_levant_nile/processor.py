@@ -829,7 +829,7 @@ class C3_ArabicLevantNile(RegionSpec):
             ):
                 invalid_chars.append(char)
 
-        return list(set(invalid_chars))  # Remove duplicates
+        return sorted(set(invalid_chars))  # Remove duplicates
 
     def _has_security_risks(self, name: str) -> bool:
         """Check for dangerous characters that pose security risks."""

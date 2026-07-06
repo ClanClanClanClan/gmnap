@@ -21,6 +21,18 @@ def write_yaml(entries: List[Dict[str, Any]], path: str):
 def write_duckdb_changelog(
     old: List[Dict[str, Any]], new: List[Dict[str, Any]], db_path: str
 ):
+    """Write an INSERT/UPDATE/DELETE changelog of ``new`` vs ``old`` to DuckDB.
+
+    Performance (R54): the previous implementation issued TWO individual
+    ``con.execute()`` statements PER entry (one upsert + one changes-row).
+    DuckDB is a columnar OLAP engine where single-row inserts are effectively
+    micro-transactions — that made stage 9 the pipeline's dominant cost
+    (~7.5 ms/entry; ~15 s per 2 000-entry batch, i.e. ~2 hours projected for
+    1 M just to write the changelog). The rows are now grouped and pushed with
+    ``executemany`` inside ONE explicit transaction, which is the DuckDB-
+    recommended shape for bulk row insertion. Output is byte-identical — same
+    tables, same rows, same canonical payloads.
+    """
     if duckdb is None:
         Path(db_path + ".SKIPPED").write_text("duckdb not available", encoding="utf-8")
         return
@@ -33,23 +45,48 @@ def write_duckdb_changelog(
     )
     o = {e.get("GlobalID"): e for e in old if e.get("GlobalID")}
     n = {e.get("GlobalID"): e for e in new if e.get("GlobalID")}
-    for gid in sorted(set(n) - set(o)):
-        con.execute(
-            "INSERT OR REPLACE INTO entries VALUES (?, ?)", [gid, canonical(n[gid])]
-        )
-        con.execute("INSERT INTO changes(action, GlobalID) VALUES ('INSERT', ?)", [gid])
-    for gid in sorted(set(o) - set(n)):
-        con.execute("DELETE FROM entries WHERE GlobalID=?", [gid])
-        con.execute("INSERT INTO changes(action, GlobalID) VALUES ('DELETE', ?)", [gid])
-    for gid in sorted(set(o) & set(n)):
-        if canonical(o[gid]) != canonical(n[gid]):
-            con.execute(
-                "UPDATE entries SET payload=? WHERE GlobalID=?",
-                [canonical(n[gid]), gid],
+
+    # Canonical-JSON is hashed/compared repeatedly below; compute each once.
+    n_canon = {gid: canonical(e) for gid, e in n.items()}
+
+    added = sorted(set(n) - set(o))
+    removed = sorted(set(o) - set(n))
+    updated = [
+        gid for gid in sorted(set(o) & set(n)) if canonical(o[gid]) != n_canon[gid]
+    ]
+
+    insert_rows = [(gid, n_canon[gid]) for gid in added]
+    update_rows = [(n_canon[gid], gid) for gid in updated]
+
+    con.execute("BEGIN TRANSACTION")
+    try:
+        if insert_rows:
+            con.executemany("INSERT OR REPLACE INTO entries VALUES (?, ?)", insert_rows)
+            con.executemany(
+                "INSERT INTO changes(action, GlobalID) VALUES ('INSERT', ?)",
+                [(gid,) for gid in added],
             )
-            con.execute(
-                "INSERT INTO changes(action, GlobalID) VALUES ('UPDATE', ?)", [gid]
+        if removed:
+            con.executemany(
+                "DELETE FROM entries WHERE GlobalID=?", [(gid,) for gid in removed]
             )
+            con.executemany(
+                "INSERT INTO changes(action, GlobalID) VALUES ('DELETE', ?)",
+                [(gid,) for gid in removed],
+            )
+        if update_rows:
+            con.executemany(
+                "UPDATE entries SET payload=? WHERE GlobalID=?", update_rows
+            )
+            con.executemany(
+                "INSERT INTO changes(action, GlobalID) VALUES ('UPDATE', ?)",
+                [(gid,) for gid in updated],
+            )
+        con.execute("COMMIT")
+    except Exception:
+        con.execute("ROLLBACK")
+        con.close()
+        raise
     con.close()
 
 
