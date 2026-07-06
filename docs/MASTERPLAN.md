@@ -484,6 +484,16 @@ package rename, the canonical Helm path, and any touch to `security_validator.py
 Root `archive/` (1,270 untracked entries) is gitignored, not deleted — confirm
 disposable.
 
+**RESOLVED R51 (maintainer rulings, 2026-07-06):** territories reconciled by
+SPEC amendment (LT→C9-Baltic formalized, HU→A2, SS→F2-only, Norway "NO"
+boolean bug fixed); encryption kept+repaired (optional dep, 4 tests);
+parallel orchestrator deleted (CI test migrated to the live contract);
+scripts/ ruled 406→105 py (11 operational clusters kept, 7 dev-debris
+clusters removed); Korean FST gate rebuilt on conda-forge with restored
+validate.py + the never-existed diverse validator written. **Google
+Scholar: permanently DECLINED (legal ruling)** — the ToS-gated stub stays
+off. Historical note follows:
+
 **iso_territories LT (R49, needs a §14 ruling):** spec §2 lists LT under A3
 (Nordic–Baltic geo group); the code + 16 adjudicated test expectations
 deliberately map CC=LT → C9 (the Baltic *linguistic* leaf — "Most common

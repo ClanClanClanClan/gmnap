@@ -1,0 +1,53 @@
+# Korean-v6 FST regression gate (rebuilt R51 — maintainer: "the gate mattered").
+#
+# The original never ran successfully: it pip-installed the e4_korea
+# requirements.lock pinning openfst==1.8.2, which is CONDA-ONLY (pip's
+# openfst stops at 1.6.9), and after the R41 de-vendoring its script paths
+# were stale. Rebuilt on conda-forge (pynini bundles its own OpenFst) with
+# the moved script locations, preserving the original quality thresholds:
+# math >= 641, diverse >= 182.
+#
+# Path-filtered: runs only when Korean converter inputs change (plus the
+# workflow itself, so edits here self-validate on their own PR).
+name: Korean-v6 regression gate
+on:
+  pull_request:
+    paths:
+      - 'src/regions/e_groups/e4_korea/**'
+      - 'tools/korean_tuning/**'
+      - '.github/workflows/korean.yml'
+  workflow_dispatch:
+
+jobs:
+  fst-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash -el {0}   # -l so the conda env activates in every step
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          python-version: '3.10'
+      - name: Install FST toolchain (conda-forge)
+        run: conda install -y -c conda-forge pynini=2.1.5 rapidfuzz pandas pyyaml regex tqdm
+      - name: Build FSTs
+        working-directory: src/regions/e_groups/e4_korea
+        run: python "$GITHUB_WORKSPACE/tools/korean_tuning/e4_korea_scripts/build_fsts_multi.py"
+      - name: Run scoring
+        id: score
+        working-directory: src/regions/e_groups/e4_korea
+        run: |
+          SCORE_JSON=$(python tools/score.py)
+          echo "score json: $SCORE_JSON"
+          echo "math=$(echo "$SCORE_JSON" | jq '.math[0]')" >> "$GITHUB_OUTPUT"
+          echo "div=$(echo "$SCORE_JSON" | jq '.diverse[0]')" >> "$GITHUB_OUTPUT"
+      - name: Gate (math >= 641, diverse >= 182)
+        run: |
+          math=${{ steps.score.outputs.math }}
+          div=${{ steps.score.outputs.div }}
+          echo "Current scores: math=$math diverse=$div"
+          [ "$math" -ge 641 ] && [ "$div" -ge 182 ] && exit 0
+          echo "❌ Regression! math=$math (min 641) diverse=$div (min 182)" && exit 1
