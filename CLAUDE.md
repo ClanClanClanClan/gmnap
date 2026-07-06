@@ -70,7 +70,12 @@ All regions have full `clean()`, `augment()`, `validate()`, `order_key()`:
   files in `config/regions/`"; that was aspirational — see the
   "YAML Config" section below for the real state.)
 - C1 processor loads `config/script_switch.yaml` for Kazakh/Uzbek reform schedules
-- Region overlay map (spec §2a) wired for sub-national detection
+- Region overlay map (spec §2a) wired for sub-national detection (R55 —
+  earlier docs claimed this was wired; it was not. `REGION_OVERLAY_MAP`
+  in `src/regions/base.py` + `_infer_geo` now resolve sub-national codes
+  in CountryCodes: `IN-WB`→D3, `LK-TA`→D2, `RU-NC`→C9, … taking
+  precedence over the bare CC. `tests/unit/test_region_overlay_map.py`
+  pins the full 10-entry spec contract)
 - Diaspora overlay APPLIED (R49): era-scoped CC→region rules from
   `config/diaspora.yaml` drive the geo axis (e.g. TH pre-2015 → E6,
   2016- → A1); detection cache key is era-aware (includes BirthYear)
@@ -82,13 +87,23 @@ All regions have full `clean()`, `augment()`, `validate()`, `order_key()`:
   genealogy_edge_conflict gate) (R48)
 - ATTRIBUTION.txt (SPDX per source) written by stage 10 every run (R48)
 
-### Quality Gates (8 gates) — ENFORCED, mode-aware (R47)
+### Quality Gates (8 gates) — ENFORCED, mode-aware (R47, completed R55)
 All 8 V7 quality gates implemented with mode-specific thresholds — and since
 R47 they ENFORCE: QUICK is advisory (warn + complete); FULL/EXTREME BLOCK
 (`QualityGateBlockedException`) on measured-gate failures against the real
 accumulated entries. Unmeasured gates (e.g. graph coherence on a batch with
 no advisor relations) are reported as skipped, never spuriously failed.
 Results on `pipeline.spec_gate_results`; kill-switch `GMNAP_GATES_ADVISORY=1`.
+
+R55 note: until R55 only 7 of the 8 gates were actually recorded —
+`warm_cache_runtime_per_1M_min` (the performance gate, ironically the one
+that would have flagged the retracted fake 1M claim) had a fully-tested
+`check_runtime()` with zero callers. It is now recorded every run: measured
+when the batch is ≥500 entries AND took the same execution path a 1M run
+would (serial sub-threshold runs can't honestly project pooled-1M runtime);
+otherwise reported unmeasured with the projection still visible.
+`tests/v7/test_spec_gates_blocking.py::test_all_eight_spec_gates_recorded`
+pins the full set.
 
 ### GDPR Compliance — LIVE in the pipeline (R47)
 `gdpr_pipeline` runs on every batch after enrichment, before the stage-9
