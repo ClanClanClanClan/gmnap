@@ -31,7 +31,8 @@ OpenAlex affiliations).
 ## Quick Start
 
 ```bash
-# One-time setup (pip install + compile fasttext CLI; ~30 seconds)
+# One-time setup: pip install + compile fasttext CLI + build the ML name
+# classifier from the committed corpus (make model). ~a few minutes.
 make setup
 
 # Query a name (region + genealogy + institution)
@@ -48,6 +49,17 @@ open http://localhost:8080
 fasttext tiebreaker (rules-based detection only) run
 `pip install -r requirements.txt` instead; the CLI and API still work,
 just with lower name-origin accuracy on hard cases.
+
+**The ML name classifier is not bundled.** `data/ml_training/
+ft_name_classifier.ftz` (50 MB) is gitignored, so a fresh clone does NOT
+have it and region detection falls back to RULES-ONLY (you'll see a loud
+warning; the documented detection KPIs assume the model is present).
+`make setup` rebuilds it from the committed corpus
+(`data/ml_training/ft_name_training.txt`, 23 470 entries) via `make model`
+— run `make model` directly to (re)build it any time. fastText training is
+not bit-deterministic, so a rebuild is *comparable to*, not identical to,
+the reference model; validate a rebuild against the 843-entry benchmark
+before relying on the exact KPI numbers.
 
 For a reproducible install matching exactly the dependency graph CI
 runs against, use `pip install -r requirements.lock` (transitive
