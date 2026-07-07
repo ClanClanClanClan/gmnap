@@ -121,8 +121,12 @@ byte-identical (verified). The ~1.5× parallel speedup is Amdahl-capped
 by the batch-global tail (stages 5-11 run once in the parent); it
 grows at larger N as the per-entry fraction rises.
 
-**1 M is a projection (~48 min parallel / ~72 min laptop), clearly
-labeled — NOT a measured number.**
+**1 M is MEASURED (R56): 1 000 000 synthetic+CC entries in 19.6 min
+(849/s), RSS peak 10.3 GB, region coverage verified 100.00 % across all
+1 M rows.** CC-less real names run the full name-origin cascade and
+measure 221/s on the complete 39 891-entry real dataset; a real-name
+1 M-scale workload projects to ~75 min from that anchor (that single
+number is a projection, labeled as such).
 
 Reproduce (wipe `output/` first — a stale changelog DB inflates
 stage 9):

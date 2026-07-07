@@ -37,21 +37,51 @@ sampled from `data/genealogy_enrichment.json`, **clean `output/` dir**
 
 | Path | N | Throughput | Region coverage |
 |---|---:|---:|---:|
-| serial (`GMNAP_NO_PARALLEL=1`) | 4 000 | 184 / s | 4000/4000 |
-| serial | 10 000 | 233 / s | 10000/10000 |
-| parallel (process pool) | 4 000 | 268 / s | 4000/4000 |
-| **parallel** | **10 000** | **348 / s** | **10000/10000** |
+| serial (`GMNAP_NO_PARALLEL=1`), real names | 4 000 | 184 / s | 4000/4000 |
+| serial, real names | 10 000 | 233 / s | 10000/10000 |
+| parallel (process pool), real names | 4 000 | 268 / s | 4000/4000 |
+| parallel, real names | 10 000 | 348 / s | 10000/10000 |
+| parallel, real names — full dataset (R56) | 39 891 | 221 / s | 100 % |
+| **parallel, synthetic+CC (R56) — MEASURED 1 M** | **1 000 000** | **849 / s — 19.6 min** | **1 000 000 / 1 000 000** |
 
 - Serial and parallel outputs are **byte-identical** at 10 k
   (`tests/v7/test_parallel_path.py`).
-- The ~1.5× parallel speedup is **Amdahl-capped by the batch-global
-  tail** (stages 5-11 run once in the parent and can't be
-  process-parallelized). The per-entry fraction grows with N, so the
-  speedup improves at larger batches.
-- **1 M is a PROJECTION, not a measurement:** extrapolating the
-  measured per-entry + tail split → ~48 min parallel / ~72 min serial
-  on this laptop. It is labeled as a projection everywhere it appears.
-  Do not cite it as measured.
+- The ~1.5× parallel speedup at 10 k is **Amdahl-capped by the
+  batch-global tail**; the per-entry fraction grows with N.
+
+## The measured 1 M (R56, 2026-07-07)
+
+**1 000 000 entries end-to-end in 1 178 s (19.6 min), 849 entries/s.**
+RSS peak 10.3 GB (24 GB machine), on-disk output 1.4 GB (changelog DB).
+Region coverage verified by querying **all 1 000 000 rows** in the
+stage-9 DuckDB: 100.00 % carry a real `DetectedRegion`. The spec §7
+warm-cache gate passes at measured scale (19.6 ≤ 35 min QUICK).
+
+Two honest qualifiers:
+
+1. **Workload shape.** The 1 M run is the synthetic benchmark corpus,
+   which carries `CountryCodes` — the geo branch resolves via the CC
+   fast path, so per-entry cost is lower than CC-less input. Real names
+   with no CC take the full name-origin cascade and measure **221 / s on
+   the complete 39 891-entry real dataset** (the largest real workload
+   that exists in this repo). A CC-less 1 M-scale run projects to
+   ~75 min from that anchor — that single number is a projection and is
+   labeled as one.
+2. **Memory.** Results are held in memory: budget ~10 GB per 1 M rows,
+   or split the caller's batch on smaller machines.
+
+### The four scale defects the campaign found (all fixed)
+
+Getting 1 M to *complete at all* took three attempts; each found a
+latent defect no test had ever exercised (nothing had genuinely run
+≥ 100 k before):
+
+| # | Defect | Impact at 1 M | Fix |
+|---|---|---|---|
+| 1 | Stage-5 `DuckDBAnalytics.load_entries`: `executemany` (row-wise parameter conversion, ~1.5 ms/row) + a per-row `json.dumps` payload nothing reads | **6 hours** (run killed) | temp-CSV + vectorized `read_csv` — 0.23 s / 100 k, **~370× measured**; payload dropped |
+| 2 | Stage-6 fallback: `e.get("GlobalID", f"unknown_{entries.index(e)}")` — `dict.get` evaluates its default EAGERLY, so an O(n) full-dict-comparison scan ran per entry → **O(n²)** | projected **days** (run killed at 100 % CPU in `PyObject_RichCompare`) | `enumerate()` — 0.52 s at 200 k; plus k-sampled betweenness for > 10 k-node graphs |
+| 3 | Stage-9 writers built monolithic strings (canonical JSON of everything; an HTML diff with **two** canonical dumps per entry) | multi-GB strings / HTML | streamed `json.dump` (byte-identical); HTML capped at `GMNAP_HTML_DIFF_MAX_ROWS` (5 000) with an announced truncation row |
+| 4 | Stage-11 idempotency re-run ran its own stage 9 into the same `output/`, **overwriting the main run's artifacts** with the 20-entry sample | 1 M run left a 20-entry `stage9.yaml` | re-run skips write stages (comparison is in-memory); `tests/v7/test_stage11_no_clobber.py` |
 
 ## Where the time goes (real names)
 

@@ -1712,6 +1712,15 @@ class V7Pipeline:
 
     async def _stage_9_write_diff(self, entries: List[Dict[str, Any]]) -> None:
         """Stage 9: Write&Diff - Deterministic YAML, HTML diff, SQL changelog."""
+        # R56: the stage-11 idempotency re-run must not write — its full
+        # re-pipeline used to OVERWRITE output/stage9.* with the 20-entry
+        # sample, silently destroying the main run's artifacts (caught by
+        # the 1M benchmark: a 1,000,000-entry run left a 20-entry yaml on
+        # disk). The idempotency comparison is in-memory canonical bytes;
+        # stages 9/10 never mutate entries, so skipping writes changes
+        # nothing about what stage 11 compares.
+        if getattr(self, "_is_idempotency_rerun", False):
+            return
         logger.info(
             f"Stage 9: Write&Diff - writing {len(entries)} entries deterministically"
         )
@@ -1759,6 +1768,10 @@ class V7Pipeline:
 
     async def _stage_10_report(self, entries: List[Dict[str, Any]]) -> None:
         """Stage 10: Report - Markdown metrics, draft DOI, push snapshot."""
+        # R56: no writes from the stage-11 idempotency re-run (see stage 9 —
+        # the re-run clobbered the main run's report/ATTRIBUTION artifacts).
+        if getattr(self, "_is_idempotency_rerun", False):
+            return
         logger.info("Stage 10: Report - generating comprehensive analytics report")
 
         # Generate metrics report

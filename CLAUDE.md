@@ -19,8 +19,10 @@ measured numbers (8-core Apple-silicon laptop, OFFLINE, real names, clean
 output dir): **serial 4 k = 184/s, 10 k = 233/s; parallel 4 k = 268/s,
 10 k = 348/s** (~1.5× from parallelism, Amdahl-capped by the batch-global
 tail). Region coverage 100 %; serial and parallel output byte-identical at
-10 k. **1 M is a labeled projection (~48 min parallel / ~72 min serial),
-NOT a measured number.** Full detail in `docs/perf_characterization.md`.
+10 k. **1 M is now MEASURED (R56): 1 000 000 synthetic+CC entries in
+19.6 min (849/s), 100.00 % region coverage verified; CC-less real-name
+1 M projects ~75 min from the measured full-real-set anchor (221/s at
+39 891).** Full detail in `docs/perf_characterization.md`.
 **Schema Validation**: v2.0 schema; configurable strict mode (advisory/quarantine/reject)
 **Authority Enrichment**: V7 tier orchestrator (`src/authorities/manager_tier01.py`) delegates to canonical fetchers in `src/authorities/tierN/` when `OFFLINE=0`. 9 sources have real HTTP code (OpenAlex, Crossref, ORCID_ETD, Crossref_Thesis, zbMATH, Wikidata_P184, GND, HAL, OAI_University); 2 gated behind API keys (Scopus, Dimensions); 1 deferred for institutional access (ProQuest); 1 deferred for ToS (GoogleScholar). MathSciNet stub awaits AMS subscription
 **Region Config**: `RegionSpec.load_yaml_config()` is the per-region YAML extension point, cached in `_YAML_CACHE`. It is now LIVE: `config/regions/a2.yaml` exists and `A2_WesternEurope.__init__` consumes it (merging extra Germanic/Romance surname particles into its hardcoded defaults) — the first processor to actually apply a YAML override. Other regions still fall back to hardcoded defaults until a `config/regions/<code>.yaml` is added and the processor wired to read it (see A2 as the pattern). Covered by `tests/unit/test_region_yaml_overrides.py`
@@ -222,18 +224,33 @@ Real names sample from `data/genealogy_enrichment.json`.
 | `process_batch` serial (`GMNAP_NO_PARALLEL=1`), real | 4 k | 184 / s | 4000/4000 |
 | `process_batch` serial, real | 10 k | 233 / s | 10000/10000 |
 | `process_batch` parallel (process pool), real | 4 k | 268 / s | 4000/4000 |
-| **`process_batch` parallel, real** | **10 k** | **348 / s** | **10000/10000** |
+| `process_batch` parallel, real | 10 k | 348 / s | 10000/10000 |
+| `process_batch` parallel, real (full set, R56) | 39 891 | 221 / s | 100 % |
+| **`process_batch` parallel, synthetic + CC (R56) — MEASURED 1 M** | **1 000 000** | **849 / s (19.6 min)** | **1 000 000/1 000 000** |
 
 Serial and parallel output are **byte-identical** at 10 k (verified;
-`tests/v7/test_parallel_path.py`). The ~1.5× parallel speedup is
-Amdahl-capped by the batch-global tail (stages 5-11 run once in the
-parent and cannot be process-parallelized); at larger N the per-entry
-stages (region detection dominates) are a bigger fraction, so the
-speedup grows — hence the 1 M projection below is higher than 1.5×.
+`tests/v7/test_parallel_path.py`).
 
-**1 M is a PROJECTION, clearly labeled, NOT a measurement:**
-extrapolating the per-entry + tail split gives ~48 min parallel /
-~72 min serial on this laptop. Do not cite it as measured.
+**1 M IS NOW MEASURED (R56, 2026-07-07): 1 000 000 entries in 19.6 min
+(849/s), RSS peak 10.3 GB on a 24 GB machine, output 1.4 GB, region
+coverage verified 100.00 % by querying all 1 M rows in the changelog
+DB.** The synthetic workload carries CountryCodes, so the geo branch
+resolves via the CC fast path — cheaper per entry than CC-less real
+names (221/s at 39.9 k, the full real dataset; a real-name 1 M-scale
+run projects to ~75 min from that anchor — that one number is still a
+projection, labeled as such). The spec §7 warm-cache gate PASSES at
+measured 1 M (19.6 ≤ 35 min QUICK). Memory scales with batch size
+(results are held in memory): budget ~10 GB per 1 M rows or chunk the
+caller's batches on smaller machines.
+
+Getting to a completable 1 M took a measurement campaign (R56) that
+found and fixed four latent scale defects no test had ever exercised:
+stage-5's row-wise DuckDB load (6 h at 1 M → ~2 s via CSV+read_csv,
+370× measured), stage-6's O(n²) eager `.index()` default (days at 1 M
+→ 0.5 s at 200 k), stage-9's monolithic multi-GB string builds
+(streamed; HTML diff capped at `GMNAP_HTML_DIFF_MAX_ROWS`), and the
+stage-11 re-run clobbering the main run's output artifacts
+(`tests/v7/test_stage11_no_clobber.py`).
 
 Where the time goes (real names, per-entry vs tail):
 - **Stage 2 region detection** dominates per-entry cost (~6 ms/name)
@@ -388,7 +405,8 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 - ❌ "1 M in 362 s / 2 763-per-s" — **RETRACTED (R54).** That was a no-op path
   that skipped region detection and the batch-global tail. Honest measured
   numbers: real names ~184-233/s serial, ~268-348/s parallel (4 k-10 k, 8-core
-  laptop, OFFLINE). 1 M is a labeled projection (~48-72 min), not measured.
+  laptop, OFFLINE); synthetic+CC 1 M MEASURED at 849/s / 19.6 min (R56).
+  Only the CC-less real-name 1 M figure (~75 min) remains a projection.
 - ❌ "streaming path scales to 1 M" — the `AsyncBatchAggregator` /
   `StreamingPipelineAdapter` streaming path is DELETED. Scale now comes from
   `_process_batch_parallel` (a real process pool), not async coalescing (which
