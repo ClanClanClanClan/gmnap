@@ -4,6 +4,8 @@ from typing import Any, Dict, List
 
 from pydantic import BaseModel
 
+from src import __version__
+
 
 class ProcessRequest(BaseModel):
     entries: List[Dict[str, Any]]
@@ -20,7 +22,10 @@ class ProcessRequest(BaseModel):
 
 class HealthResponse(BaseModel):
     status: str
-    version: str = "7.0"
+    # The SOFTWARE release version (single source: src.__version__) — R55.
+    # This used to be a hardcoded "7.0", which is the SPEC generation, not
+    # the release; the two had drifted apart across five surfaces.
+    version: str = __version__
     uptime_seconds: float = 0.0
 
 

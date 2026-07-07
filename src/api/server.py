@@ -25,6 +25,8 @@ from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
+from src import __version__
+
 try:
     from fastapi import FastAPI, HTTPException, Query, Request, Response
     from fastapi.middleware.cors import CORSMiddleware
@@ -329,9 +331,9 @@ def create_app() -> FastAPI:
             logger.debug("fetcher pool close on shutdown failed: %s", exc)
 
     app = FastAPI(
-        title="GMNAP V7 API",
+        title="GMNAP API (spec v7)",
         description="Global Mathematician Name Authority Project — REST API",
-        version="7.0",
+        version=__version__,
         lifespan=lifespan,
     )
 
@@ -891,7 +893,7 @@ def create_app() -> FastAPI:
         # Fallback: return basic metrics as JSON
         return {
             "uptime_seconds": round(time.time() - _start_time, 1),
-            "version": "7.0",
+            "version": __version__,
         }
 
     # ------------------------------------------------------------------

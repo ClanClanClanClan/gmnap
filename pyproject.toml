@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gmnap"
-version = "7.0.0"
+version = "0.6.0"  # mirrors src/__init__.__version__; "v7" = SPEC generation, not the release
 description = "Global Mathematician Name Authority Platform"
 readme = "README.md"
 authors = [
