@@ -30,7 +30,9 @@ class TestHealthEndpoints:
         assert r.status_code == 200
         data = r.json()
         assert data["status"] == "ok"
-        assert data["version"] == "7.0"
+        from src import __version__
+
+        assert data["version"] == __version__
         assert "uptime_seconds" in data
 
     def test_readyz_returns_ready_without_memgraph(self, client):

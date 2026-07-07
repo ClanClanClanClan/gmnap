@@ -4,7 +4,7 @@ description: Global Mathematician Name Authority — disambiguates mathematician
 type: application
 # Chart version tracks chart changes; appVersion tracks the gmnap image.
 version: 0.1.0
-appVersion: "0.1.0"
+appVersion: "0.6.0"
 home: https://github.com/ClanClanClanClan/gmnap
 sources:
   - https://github.com/ClanClanClanClan/gmnap

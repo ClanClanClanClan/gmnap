@@ -9,12 +9,14 @@ from pathlib import Path
 
 import click
 
+from src import __version__
+
 # Maximum input file size: 100 MB
 _MAX_INPUT_SIZE = 100 * 1024 * 1024
 
 
 @click.group()
-@click.version_option(version="7.0.0", prog_name="gmnap")
+@click.version_option(version=__version__, prog_name="gmnap")
 def cli():
     """GMNAP V7 - Global Mathematician-Name Authority Project."""
     pass

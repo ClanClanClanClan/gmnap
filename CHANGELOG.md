@@ -4,6 +4,37 @@ All notable changes to this project go here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning
 follows [SemVer](https://semver.org/) once a tagged release lands.
 
+## [0.6.0] — 2026-07-07 (R54 + R55 — readiness-audit remediation)
+
+Everything from the R54 entry below (streaming no-op retraction, real
+process-pool parallelism, ORCID secret scrub, functional cliffs, fastText
+model reproducibility) plus the R55 non-blocking findings:
+
+### Added
+
+- **8th spec gate wired** — `warm_cache_runtime_per_1M_min` was the one
+  §7 gate never recorded (a fully-tested `check_runtime()` with zero
+  callers — ironically the gate that would have flagged the retracted
+  fake 1 M claim). Measured when the batch is ≥ 500 entries AND took the
+  same execution path a 1 M run would; otherwise reported unmeasured.
+- **Spec §2a region overlay map wired** — the 10 sub-national codes
+  (`IN-WB`→D3, `LK-TA`→D2, `RU-NC`→C9, …) existed only in the spec;
+  the geo branch dropped them to R0. Now `REGION_OVERLAY_MAP` +
+  `_infer_geo` precedence (overlay > bare CC), pinned verbatim by
+  `tests/unit/test_region_overlay_map.py`.
+- **PRIVACY.md** — data-protection notice for the ~39,500-person
+  genealogy dataset (categories, sources, lawful basis, pipeline
+  protections, erasure contact).
+
+### Fixed
+
+- **Version coherence (R55)** — tags (v0.5.1), pyproject (7.0.0),
+  `src.__version__` (6.0.0), CLI (7.0.0) and API ("7.0") had drifted to
+  four different values. Single source of truth now: `src.__version__ =
+  "0.6.0"`, read by pyproject, the CLI `--version`, FastAPI meta,
+  `/healthz`, `/metrics`, and the Helm `appVersion`. "v7" remains ONLY
+  as the SPEC generation label (docs/specs_v7_clean.yaml).
+
 ## [Unreleased] — 2026-07-06 (R54 — performance reality: streaming no-op retracted)
 
 ### Fixed / Retracted
