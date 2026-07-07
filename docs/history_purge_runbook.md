@@ -1,23 +1,46 @@
-# Git history purge runbook (R55 — prepared, NOT yet executed)
+# Git history purge runbook (R55 — EXECUTED 2026-07-07)
+
+> **Status: executed, with a corrected diagnosis.** Mirroring the remote
+> revealed the original premise was half-wrong: GitHub's pack was already
+> only **20.79 MiB** — the two giant blobs below were anchored solely by
+> **local-only, never-pushed v6-era refs**, so fresh clones never
+> downloaded them. What was actually executed:
+>
+> 1. **Remote rewrite (secret only).** `git filter-repo --replace-text`
+>    redacted the historical ORCID `CLIENT_SECRET` across all 366
+>    commits; every branch and tag force-pushed; LFS objects re-pushed.
+>    Verified by fresh clone: secret unreachable at any commit, pack
+>    20.79 MiB, tree intact. (All commit SHAs changed — anyone with an
+>    old clone must re-clone or hard-reset to the new remote.)
+> 2. **Local purge (the actual 1.16 GiB).** The 1,073 MB kowiki blob was
+>    anchored by the single dead local branch `v6_empirical_baseline_REAL`
+>    — bundled to scratch as insurance, branch deleted, reflogs expired,
+>    `git gc --prune=now`: local pack **1.16 GiB → 122.6 MiB**.
+> 3. **Not purged (deliberately):** the 299 MB `c4_ko_sample.txt` blob is
+>    still anchored by the primary checkout's branch
+>    (`fix/regional-detection-systematic`), several old local branches,
+>    and the v5/v6-era stashes. Freeing it means deleting those refs and
+>    stashes — a maintainer call, since they are the only copy of the
+>    pre-GitHub working history. The simplest complete cure remains a
+>    fresh re-clone next to the old repo.
+
+The original (pre-execution) analysis and procedure follow, kept for
+reference.
 
 ## Why
 
-The pack is **1.16 GiB** for a working tree of a few tens of MB. Two
-long-deleted blobs are ~95 % of it:
+The LOCAL pack was **1.16 GiB** for a working tree of a few tens of MB.
+Two long-deleted blobs were ~95 % of it:
 
 | Blob (historical path) | Size |
 |---|---|
 | `src/gmnap/regions/e_groups/e4_korea/data/data/kowiki.xml.bz2` | 1,073 MB |
 | `archive/korean_data/c4_ko_sample.txt` | 299 MB |
 
-Both were committed at repo genesis (pre-reorg layout) and deleted long
-ago — every fresh `git clone` still downloads them. Additionally, the
-ORCID `CLIENT_ID`/`CLIENT_SECRET` scrubbed from the working tree in R54
-remains readable in 4 historical commits (`184a384c` → `e8b6eb2e`); the
-same rewrite can redact it.
-
-Expected result: clone size **1.16 GiB → roughly 60–90 MB**, secret no
-longer present at any commit.
+Both were committed in the pre-GitHub v6 era. The ORCID
+`CLIENT_ID`/`CLIENT_SECRET` scrubbed from the working tree in R54
+remained readable in historical commits on the REMOTE; the rewrite
+redacted it.
 
 ## Cost — read before running
 
