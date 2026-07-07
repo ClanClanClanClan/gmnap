@@ -1215,6 +1215,33 @@ TERRITORY_TO_REGION = {
 }
 
 
+# Spec §2a: REGION OVERLAY MAP — sub-national codes that resolve to a MORE
+# SPECIFIC region than the country-level TERRITORY_TO_REGION entry. These
+# matter where one country spans multiple name regions: e.g. "IN" alone maps
+# to D1 (Hindi belt), but "IN-WB" (West Bengal) is D3 (Bengali) and
+# "IN-SOUTH" is D2 (Dravidian); "LK-TA" (Sri Lanka Tamil) is D2 where plain
+# "LK" is D5 (Sinhala). Callers pass these codes in CountryCodes alongside or
+# instead of the 2-letter CC. (R55: this map existed in the spec with zero
+# code references — the geo branch silently dropped sub-national codes to R0.)
+REGION_OVERLAY_MAP = {
+    "CH-FR": "A2",  # Switzerland, French-speaking
+    "RU-NC": "C9",  # Russia, North Caucasus (plain RU -> B1)
+    "AZ-IR": "C9",  # Azerbaijani community in Iran (plain AZ -> C1)
+    "IN-HN": "D1",  # India, Hindi belt
+    "IN-SOUTH": "D2",  # India, Dravidian south (plain IN -> D1)
+    "IN-WB": "D3",  # India, West Bengal / Bengali (plain IN -> D1)
+    "LK-TA": "D2",  # Sri Lanka, Tamil (plain LK -> D5)
+    "LK-SI": "D5",  # Sri Lanka, Sinhala
+    "TR-TRP": "D3",  # Tripura, Bengali-speaking (avoids TR=Turkey collision)
+    "AS-ASM": "D3",  # Assam (avoids AS=American Samoa collision)
+}
+
+
+def get_region_for_overlay(code: str) -> "str | None":
+    """Spec §2a lookup: sub-national overlay code -> region, else None."""
+    return REGION_OVERLAY_MAP.get(code.upper().strip())
+
+
 def get_region_for_territory(territory_code: str) -> str:
     """
     Get region code for ISO territory.

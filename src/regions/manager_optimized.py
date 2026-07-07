@@ -826,6 +826,28 @@ class RegionManager:
 
         # CountryCodes
         country_codes = entry.get("CountryCodes", [])
+
+        # Region overlay map (spec §2a) — R55 wiring. Sub-national codes
+        # ("IN-WB", "CH-FR", "LK-TA", …) are strictly more specific than the
+        # 2-letter CC, so they take precedence over the plain territory
+        # lookup: "IN-WB" -> D3 (Bengali) where bare "IN" -> D1. Scan ALL
+        # provided codes (an entry may carry ["IN-WB", "IN"]). Before this,
+        # a sub-national code silently fell through get_region_for_territory
+        # to R0 and the entry lost its geo signal entirely.
+        from src.regions.base import get_region_for_overlay
+
+        for code in country_codes:
+            if not isinstance(code, str):
+                continue
+            overlay_region = get_region_for_overlay(code)
+            if overlay_region and overlay_region in self.IMPLEMENTED_REGIONS:
+                return (
+                    overlay_region,
+                    0.88,  # above the 0.85 plain-CC path: strictly more specific
+                    "region-overlay",
+                    {"overlay_code": code.upper().strip()},
+                )
+
         if country_codes:
             region = get_region_for_territory(country_codes[0])
             if region in self.IMPLEMENTED_REGIONS:
@@ -1116,7 +1138,9 @@ class RegionManager:
         geo = self._infer_geo(entry)
         # Fast path: when CC provides definitive geo, skip full scorer.
         # Only run fast name-origin (surname exact + CJK) for diaspora detection.
-        if geo is not None and geo[2] == "country-code":
+        # A spec-§2a overlay hit is strictly MORE definitive than a plain CC,
+        # so it qualifies for the same fast path (R55).
+        if geo is not None and geo[2] in ("country-code", "region-overlay"):
             name = self._infer_name_origin_fast(entry)
         else:
             name = self._infer_name_origin(entry)
@@ -1155,7 +1179,8 @@ class RegionManager:
         """
         geo = self._infer_geo(entry)
         # Fast path: when CC provides definitive geo, skip full scorer.
-        if geo is not None and geo[2] == "country-code":
+        # Spec-§2a overlay hits are more definitive than plain CCs (R55).
+        if geo is not None and geo[2] in ("country-code", "region-overlay"):
             name = self._infer_name_origin_fast(entry)
         else:
             name = await self._infer_name_origin_async(entry)

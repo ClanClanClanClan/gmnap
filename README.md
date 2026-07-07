@@ -81,7 +81,10 @@ hook, audit battery, CI gates). For security policy and how to report
 a vulnerability, see **[SECURITY.md](SECURITY.md)**. For the licensing
 status of the bundled data (`data/genealogy_enrichment.json`) — which
 is a derivative of Wikidata + OpenAlex + curated MGP entries, each with
-its own provenance — see **[DATA_SOURCES.md](DATA_SOURCES.md)**.
+its own provenance — see **[DATA_SOURCES.md](DATA_SOURCES.md)**. The
+bundled data describes ~39,900 real people (many living): what is held,
+why, and how to request correction or removal is in
+**[PRIVACY.md](PRIVACY.md)**.
 
 ## Features
 
@@ -215,7 +218,12 @@ scraping, secrets generation).
 Copy `.env.example` to `.env` and configure. Key variables:
 - `OFFLINE=1` — cache-only mode (default, no network needed)
 - `PIPELINE_MODE=quick` — quick/full/extreme
-- `GMNAP_API_TOKENS=token1,token2` — paid tier Bearer tokens
+- `GMNAP_API_TOKENS=token1,token2` — paid tier Bearer tokens.
+  ⚠️ A token gates *rate limits*, not data rights: the default bundled
+  dataset contains ~490 MGP-derived records under **non-commercial**
+  terms. Commercial deployments must serve the CC0-clean variant
+  (`python3 tools/build_genealogy_enrichment.py --no-mgp`) — see
+  [DATA_SOURCES.md](DATA_SOURCES.md#commercial-use).
 
 ## Testing
 

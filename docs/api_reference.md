@@ -1,7 +1,7 @@
-# GMNAP V7 API reference
+# GMNAP API (spec v7) reference
 
 Auto-generated from the FastAPI OpenAPI schema by
-`tools/gen_api_reference.py`. Version: **7.0**.
+`tools/gen_api_reference.py`. Version: **0.6.0**.
 
 Endpoints: **9**. Re-generate after any endpoint
 change with `make api-docs`. The full machine-readable schema

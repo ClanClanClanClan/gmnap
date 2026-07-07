@@ -127,6 +127,44 @@ data, no addresses. The `--drop-personal` CLI flag and
 the right-to-be-forgotten and the underlying upstream source has
 also removed the record.
 
+The full data-protection notice — data categories, lawful basis,
+pipeline protections, and the erasure-request process (including the
+`data/removal_requests.txt` suppression list that
+`tools/build_genealogy_enrichment.py` honours on every rebuild, so a
+granted request survives future re-harvests) — is
+**[PRIVACY.md](PRIVACY.md)**.
+
+## Commercial use
+
+The code is MIT — commercially usable. The **default bundled dataset is
+not**: ~490 of its ~39,900 records (and the advisor chains they carry,
+plus `data/mgp_full.jsonl` in its entirety) derive from the Mathematics
+Genealogy Project, whose terms are **non-commercial with attribution**.
+The API's paid tier (`GMNAP_API_TOKENS`) gates *rate limits*; it does
+not — and cannot — grant data rights the upstream licence withholds.
+
+A commercial deployment therefore has exactly two clean options:
+
+1. **Serve the CC0-clean dataset** — rebuild without any MGP input:
+
+   ```bash
+   PYTHONPATH=. python3 tools/build_genealogy_enrichment.py --no-mgp
+   ```
+
+   This skips the MGP seeds and the bulk-harvest merge, yielding a
+   Wikidata (CC0) + OpenAlex (CC0) + MIT-curated-stub artefact —
+   ~39,500 entries, zero MGP-tagged records (the build prints the
+   MGP-derived count so you can verify it is 0). Do not ship
+   `data/mgp_full.jsonl` with a commercial deployment either.
+
+2. **Obtain permission from MGP / NDSU** to serve their data
+   commercially, and keep the attribution their terms require.
+
+Runtime records whose provenance actually includes an MGP-class source
+are conservatively tagged `LicenceTier: non-redistributable` by the
+spec-§10 tier machinery (`src/ops/licence_tiers.py`) — unknown sources
+deliberately fall to the most restrictive tier.
+
 ## Updating these sources
 
 To re-harvest from upstream:

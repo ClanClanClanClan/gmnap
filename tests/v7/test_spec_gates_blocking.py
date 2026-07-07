@@ -72,3 +72,36 @@ def test_gates_advisory_kill_switch(monkeypatch):
     p, out = _run(PipelineMode.FULL, _REL_BATCH)  # would block without switch
     assert len(out) == 2
     assert not hasattr(p, "spec_gate_results")
+
+
+@pytest.mark.timeout(60)
+def test_all_eight_spec_gates_recorded():
+    """Spec §7 defines EIGHT gates; every run must record all of them
+    (measured or explicitly unmeasured). R55: warm_cache_runtime_per_1M_min
+    was never recorded — only 7 of 8 gates existed in spec_gate_results,
+    and the missing one was exactly the gate that would have flagged the
+    retracted fake 1M perf claim."""
+    p, _ = _run(PipelineMode.QUICK, _PLAIN_BATCH)
+    recorded = set(p.spec_gate_results["results"])
+    expected = {
+        "duplicate_global_id",
+        "duplicate_external_id_pct",
+        "roundtrip_script_rate",
+        "genealogy_edge_conflict_pct",
+        "graph_coherence_score",
+        "peak_rss_gb",
+        "warm_cache_runtime_per_1M_min",
+        "idempotent_diff_bytes",
+    }
+    assert recorded == expected, f"missing: {expected - recorded}"
+
+
+@pytest.mark.timeout(60)
+def test_runtime_gate_unmeasured_on_small_batches():
+    """Sub-500 batches can't produce a meaningful 1M projection (setup
+    overhead dominates) — the runtime gate must be skipped, never failed."""
+    p, out = _run(PipelineMode.FULL, _PLAIN_BATCH)
+    assert len(out) == 2  # completed: unmeasured gate never blocks
+    gate = p.spec_gate_results["results"]["warm_cache_runtime_per_1M_min"]
+    assert gate["measured"] is False
+    assert gate["passed"] is True
