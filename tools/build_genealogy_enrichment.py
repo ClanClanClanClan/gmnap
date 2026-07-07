@@ -486,40 +486,53 @@ def assign_global_id(record: dict) -> str:
     return generate_global_id(entry)
 
 
-def build() -> dict:
+def build(no_mgp: bool = False) -> dict:
+    """Build the enrichment dict.
+
+    ``no_mgp=True`` (the ``--no-mgp`` CLI flag) skips EVERY MGP input —
+    the validation seeds (step 1) and the bulk harvest merge (step 2d) —
+    producing a CC0-clean artefact (Wikidata + OpenAlex + MIT-licensed
+    curated stubs only). This is the supported path for COMMERCIAL
+    deployments: MGP's terms are non-commercial-with-attribution
+    (DATA_SOURCES.md), so the default bundled artefact, which contains
+    ~490 MGP-derived records, must not be served commercially as-is.
+    """
     by_name: dict[str, dict] = {}
 
-    # 1. Seed from MGP validation data
-    mgp_path = MGP_SOURCE
-    if not mgp_path.exists():
-        print(f"ERROR: {mgp_path} not found")
-        sys.exit(1)
+    # 1. Seed from MGP validation data (skipped under --no-mgp)
+    if no_mgp:
+        print("--no-mgp: skipping MGP validation seeds (CC0-clean build)")
+    else:
+        mgp_path = MGP_SOURCE
+        if not mgp_path.exists():
+            print(f"ERROR: {mgp_path} not found")
+            sys.exit(1)
 
-    mgp_entries = json.loads(mgp_path.read_text())
-    print(f"Loaded {len(mgp_entries)} seed entries from {mgp_path}")
+        mgp_entries = json.loads(mgp_path.read_text())
+        print(f"Loaded {len(mgp_entries)} seed entries from {mgp_path}")
 
-    for e in mgp_entries:
-        key = normalize_key(e["name"])
-        record = {
-            "CanonicalLatin": to_canonical_latin(e["name"]),
-            "Source": "MGP validation seed",
-        }
-        if e.get("institution"):
-            record["Institution"] = e["institution"]
-        if e.get("year"):
-            record["ThesisYear"] = e["year"]
-        if e.get("thesis"):
-            record["Thesis"] = e["thesis"]
-        if e.get("advisors"):
-            record["Advisors"] = [
-                {
-                    "name": to_canonical_latin(a["name"]),
-                    "mgp_id": a.get("mgp_id"),
-                }
-                for a in e["advisors"]
-                if a.get("name")
-            ]
-        by_name[key] = record
+        for e in mgp_entries:
+            key = normalize_key(e["name"])
+            record = {
+                "CanonicalLatin": to_canonical_latin(e["name"]),
+                "Source": "MGP validation seed",
+            }
+            if e.get("institution"):
+                record["Institution"] = e["institution"]
+            if e.get("year"):
+                record["ThesisYear"] = e["year"]
+            if e.get("thesis"):
+                record["Thesis"] = e["thesis"]
+            if e.get("advisors"):
+                record["Advisors"] = [
+                    {
+                        "name": to_canonical_latin(a["name"]),
+                        "mgp_id": a.get("mgp_id"),
+                    }
+                    for a in e["advisors"]
+                    if a.get("name")
+                ]
+            by_name[key] = record
 
     # 2. Merge in hand-curated stubs (birth years, countries, advisor chains)
     for key, stub in ADVISOR_STUBS.items():
@@ -654,8 +667,8 @@ def build() -> dict:
     # mathematician advisor chains — MGP is hand-curated. When
     # present, MGP advisors override Wikidata's (MGP is upstream of
     # most Wikidata P184 entries anyway). Optional — empty / missing
-    # file is fine.
-    if MGP_FULL.exists() and MGP_FULL.stat().st_size > 0:
+    # file is fine. Skipped entirely under --no-mgp (CC0-clean build).
+    if not no_mgp and MGP_FULL.exists() and MGP_FULL.stat().st_size > 0:
         added = 0
         enriched = 0
         with MGP_FULL.open(encoding="utf-8") as f:
@@ -820,18 +833,42 @@ def apply_suppression_list(
 
 
 def main() -> None:
-    output = build()
+    import argparse
+
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument(
+        "--no-mgp",
+        action="store_true",
+        help=(
+            "Exclude every MGP input (validation seeds + bulk harvest), "
+            "producing a CC0-clean artefact (Wikidata + OpenAlex + MIT "
+            "curated stubs). REQUIRED for commercial deployments: MGP's "
+            "terms are non-commercial-with-attribution — see "
+            "DATA_SOURCES.md 'Commercial use'."
+        ),
+    )
+    args = ap.parse_args()
+
+    output = build(no_mgp=args.no_mgp)
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(output, indent=2, ensure_ascii=False, sort_keys=True))
     n = output["source_count"]
     with_adv = sum(1 for r in output["by_name"].values() if r.get("Advisors"))
     with_birth = sum(1 for r in output["by_name"].values() if r.get("BirthYear"))
     with_inst = sum(1 for r in output["by_name"].values() if r.get("Institution"))
+    mgp_n = sum(
+        1 for r in output["by_name"].values() if "MGP" in (r.get("Source") or "")
+    )
     print(
         f"Wrote {OUTPUT}: {n} entries "
         f"({with_adv} with Advisors, {with_birth} with BirthYear, "
-        f"{with_inst} with Institution)"
+        f"{with_inst} with Institution, {mgp_n} MGP-derived)"
     )
+    if args.no_mgp and mgp_n:
+        print(
+            f"WARNING: --no-mgp build still contains {mgp_n} MGP-tagged "
+            f"record(s) — investigate before commercial use."
+        )
 
 
 if __name__ == "__main__":
