@@ -747,12 +747,76 @@ def build() -> dict:
         record["GlobalID"] = gid
         by_gid[gid] = key
 
+    # 5. Data-subject suppression list (PRIVACY.md, R55).
+    apply_suppression_list(by_name, by_gid, Path("data/removal_requests.txt"))
+
     return {
         "version": "1.0",
         "source_count": len(by_name),
         "by_name": by_name,
         "by_global_id": by_gid,
     }
+
+
+def apply_suppression_list(
+    by_name: dict, by_gid: dict, removal_path: Path
+) -> tuple[int, int]:
+    """Honour data-subject erasure requests (PRIVACY.md, R55).
+
+    ``removal_path`` holds one canonical name or GlobalID per line ('#'
+    comments allowed). Because the enrichment is periodically REBUILT from
+    upstream harvests, a one-off deletion would silently reappear on the
+    next refresh — this list is consulted on every build so an honoured
+    request stays honoured. Removes the person's own record AND their
+    appearances in other records' Advisors lists (their name is personal
+    data wherever it occurs). Returns (records_removed, refs_scrubbed).
+    """
+    if not removal_path.exists():
+        return (0, 0)
+    suppressed_keys: set[str] = set()
+    suppressed_gids: set[str] = set()
+    for raw in removal_path.read_text(encoding="utf-8").splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line:
+            continue
+        # A GlobalID is 22 Base32 chars (optionally --N suffixed); anything
+        # else is treated as a name.
+        if re.fullmatch(r"[A-Z2-7]{22}(--\d+)?", line):
+            suppressed_gids.add(line)
+        else:
+            key = normalize_key(line)
+            if key:
+                suppressed_keys.add(key)
+    removed = 0
+    for key in list(by_name):
+        rec = by_name[key]
+        if key in suppressed_keys or rec.get("GlobalID") in suppressed_gids:
+            by_gid.pop(rec.get("GlobalID"), None)
+            del by_name[key]
+            removed += 1
+    scrubbed_refs = 0
+    for rec in by_name.values():
+        advisors = rec.get("Advisors")
+        if not advisors:
+            continue
+        kept = [
+            a
+            for a in advisors
+            if normalize_key((a.get("name") if isinstance(a, dict) else a) or "")
+            not in suppressed_keys
+        ]
+        if len(kept) != len(advisors):
+            scrubbed_refs += len(advisors) - len(kept)
+            if kept:
+                rec["Advisors"] = kept
+            else:
+                rec.pop("Advisors", None)
+    if removed or scrubbed_refs:
+        print(
+            f"Suppression list: removed {removed} record(s), scrubbed "
+            f"{scrubbed_refs} advisor reference(s) ({removal_path})"
+        )
+    return (removed, scrubbed_refs)
 
 
 def main() -> None:

@@ -127,6 +127,13 @@ data, no addresses. The `--drop-personal` CLI flag and
 the right-to-be-forgotten and the underlying upstream source has
 also removed the record.
 
+The full data-protection notice — data categories, lawful basis,
+pipeline protections, and the erasure-request process (including the
+`data/removal_requests.txt` suppression list that
+`tools/build_genealogy_enrichment.py` honours on every rebuild, so a
+granted request survives future re-harvests) — is
+**[PRIVACY.md](PRIVACY.md)**.
+
 ## Updating these sources
 
 To re-harvest from upstream:
