@@ -11,7 +11,12 @@ def canonical(obj: Any) -> str:
 
 
 def write_yaml_sorted(entries: List[Dict[str, Any]], out_path: str) -> None:
-    Path(out_path).write_text(canonical(entries), encoding="utf-8")
+    # R56: stream with json.dump instead of materialising canonical(entries)
+    # as one Python string — at 1M entries that string is multi-GB and the
+    # dumps+write_text peak doubles it. json.dump with identical arguments
+    # produces byte-identical output.
+    with Path(out_path).open("w", encoding="utf-8") as f:
+        json.dump(entries, f, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
 
 
 class DeterministicWriter:

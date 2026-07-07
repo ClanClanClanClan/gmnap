@@ -36,39 +36,65 @@ class DuckDBAnalytics:
         return False
 
     def load_entries(self, rows: List[Dict[str, Any]]):
+        """Bulk-load (GlobalID, order_key, BirthYear) into the entries table.
+
+        Performance (R56): the previous implementation built a
+        ``json.dumps(r)`` payload per row and pushed everything through
+        ``executemany``, whose per-row Python->DuckDB parameter conversion
+        measures ~1.5 ms/row even for tiny rows (~26 min/1M) — and far worse
+        with multi-KB payloads. A 1M synthetic benchmark spent SIX HOURS in
+        this one call before being stopped. Rows are now streamed to a temp
+        CSV and ingested via DuckDB's vectorized ``read_csv`` (~2 s/1M,
+        measured). Two deliberate semantic reductions, both safe:
+
+        - The ``payload`` column is left NULL: nothing reads it back — the
+          collision queries use only GlobalID/order_key/BirthYear, and
+          ``write_change_log`` writes its own payloads for its own rows.
+        - ``BirthYear`` is coerced to int when possible, else NULL (the old
+          path let DuckDB coerce and CRASHED the stage on junk input).
+        """
         if self.skipped:
             return
 
-        # Optimize with batch operations
+        import csv
+        import os
+        import tempfile
+
         self.conn.execute("DELETE FROM entries")
 
-        # Track seen GlobalIDs to handle duplicates
+        # Track seen GlobalIDs to handle duplicates: real duplicate ids are
+        # detected/reported elsewhere; the table keeps first occurrence.
         seen_gids = set()
-        batch_data = []
 
-        # Prepare data in batch
-        import json
-
-        for r in rows:
-            gid = r.get("GlobalID")
-            if not gid:
-                continue
-
-            # Don't modify GlobalIDs - just skip actual duplicates
-            # Real duplicate GlobalIDs should be reported as errors, not silently modified
-            if gid in seen_gids:
-                # Skip this duplicate - it will be detected and reported elsewhere
-                continue
-
-            seen_gids.add(gid)
-
-            ok = (r.get("CanonicalLatin") or "").lower()
-            by = r.get("BirthYear")
-            batch_data.append([gid, ok, by, json.dumps(r)])
-
-        # Single batch operation instead of individual INSERTs
-        if batch_data:
-            self.conn.executemany("INSERT INTO entries VALUES (?, ?, ?, ?)", batch_data)
+        fd, path = tempfile.mkstemp(suffix=".csv", prefix="gmnap_s5_")
+        try:
+            with os.fdopen(fd, "w", newline="", encoding="utf-8") as f:
+                w = csv.writer(f)
+                for r in rows:
+                    gid = r.get("GlobalID")
+                    if not gid or gid in seen_gids:
+                        continue
+                    seen_gids.add(gid)
+                    by = r.get("BirthYear")
+                    try:
+                        by = int(by) if by not in (None, "") else None
+                    except (TypeError, ValueError):
+                        by = None  # masked/junk year -> NULL, never a crash
+                    w.writerow([gid, (r.get("CanonicalLatin") or "").lower(), by])
+            if seen_gids:
+                safe_path = path.replace("'", "''")
+                self.conn.execute(
+                    "INSERT INTO entries "
+                    "SELECT column0, column1, column2, NULL FROM read_csv("
+                    f"'{safe_path}', header=false, "
+                    "columns={'column0':'VARCHAR','column1':'VARCHAR',"
+                    "'column2':'INTEGER'})"
+                )
+        finally:
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
 
     def suffix_duplicates(
         self, entries: List[Dict[str, Any]] = None

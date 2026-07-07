@@ -43,6 +43,7 @@ def test_audit_a1_catches_seeded_broken_reference(audit, tmp_path_factory, monke
         "ARCHITECTURE.md",
         "CONTRIBUTING.md",
         "SECURITY.md",
+        "PRIVACY.md",  # R55: A1 scans the privacy notice too
     ):
         (fake / doc).write_text("clean\n")
     monkeypatch.setattr(audit, "REPO", fake)
@@ -63,6 +64,7 @@ def test_audit_a1_passes_on_clean_fixture(audit, tmp_path_factory, monkeypatch):
         "ARCHITECTURE.md",
         "CONTRIBUTING.md",
         "SECURITY.md",
+        "PRIVACY.md",  # R55: A1 scans the privacy notice too
     ):
         (fake / doc).write_text("clean\n")
     monkeypatch.setattr(audit, "REPO", fake)
