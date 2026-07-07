@@ -69,6 +69,7 @@ def _check_referenced_files_exist() -> Result:
         "ARCHITECTURE.md",
         "CONTRIBUTING.md",
         "SECURITY.md",
+        "PRIVACY.md",  # R55: the data-protection notice cites code paths too
         # CHANGELOG.md excluded: documents historical state
     ]
     pattern = re.compile(

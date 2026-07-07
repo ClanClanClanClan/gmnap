@@ -81,7 +81,10 @@ hook, audit battery, CI gates). For security policy and how to report
 a vulnerability, see **[SECURITY.md](SECURITY.md)**. For the licensing
 status of the bundled data (`data/genealogy_enrichment.json`) — which
 is a derivative of Wikidata + OpenAlex + curated MGP entries, each with
-its own provenance — see **[DATA_SOURCES.md](DATA_SOURCES.md)**.
+its own provenance — see **[DATA_SOURCES.md](DATA_SOURCES.md)**. The
+bundled data describes ~39,900 real people (many living): what is held,
+why, and how to request correction or removal is in
+**[PRIVACY.md](PRIVACY.md)**.
 
 ## Features
 
