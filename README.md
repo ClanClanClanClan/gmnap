@@ -218,7 +218,12 @@ scraping, secrets generation).
 Copy `.env.example` to `.env` and configure. Key variables:
 - `OFFLINE=1` — cache-only mode (default, no network needed)
 - `PIPELINE_MODE=quick` — quick/full/extreme
-- `GMNAP_API_TOKENS=token1,token2` — paid tier Bearer tokens
+- `GMNAP_API_TOKENS=token1,token2` — paid tier Bearer tokens.
+  ⚠️ A token gates *rate limits*, not data rights: the default bundled
+  dataset contains ~490 MGP-derived records under **non-commercial**
+  terms. Commercial deployments must serve the CC0-clean variant
+  (`python3 tools/build_genealogy_enrichment.py --no-mgp`) — see
+  [DATA_SOURCES.md](DATA_SOURCES.md#commercial-use).
 
 ## Testing
 
