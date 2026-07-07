@@ -112,7 +112,19 @@ class GraphCoherence:
         if edges_added > 0 and G.number_of_nodes() > 1:
             # Use betweenness centrality
             try:
-                bc = nx.betweenness_centrality(G, normalized=True)
+                # R56: exact betweenness is O(V*E) — fine for the usual
+                # few-thousand-node genealogy graphs, intractable at 1M
+                # nodes. Above the cutoff, use NetworkX's documented
+                # k-source sampling (an unbiased estimator; k pivots
+                # instead of all V), which keeps large batches feasible
+                # while small graphs stay exact.
+                n_nodes = G.number_of_nodes()
+                if n_nodes > 10_000:
+                    bc = nx.betweenness_centrality(
+                        G, normalized=True, k=min(256, n_nodes), seed=42
+                    )
+                else:
+                    bc = nx.betweenness_centrality(G, normalized=True)
 
                 # Also calculate degree centrality for combination
                 dc = nx.degree_centrality(G)
@@ -146,9 +158,16 @@ class GraphCoherence:
                 field = e.get("Field", "Unknown")
                 field_counts[field] = field_counts.get(field, 0) + 1
 
-            # Assign scores based on field frequency
-            for e in entries:
-                gid = e.get("GlobalID", f"unknown_{entries.index(e)}")
+            # Assign scores based on field frequency.
+            # R56: the previous line was
+            #   gid = e.get("GlobalID", f"unknown_{entries.index(e)}")
+            # — dict.get evaluates its default EAGERLY, so entries.index(e)
+            # (an O(n) scan doing full dict comparisons) ran for EVERY entry
+            # even when GlobalID existed: O(n²) overall. Invisible at 4k
+            # (~0.1 s); at a 1M batch it projected to DAYS and pinned a core
+            # at 100% in PyObject_RichCompare. enumerate() is the O(n) form.
+            for i, e in enumerate(entries):
+                gid = e.get("GlobalID") or f"unknown_{i}"
                 field = e.get("Field", "Unknown")
 
                 if len(entries) > 0:
