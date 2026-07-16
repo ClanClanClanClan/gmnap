@@ -927,11 +927,24 @@ class RegionManager:
         result = self._detect_by_script(entry)
         if result:
             if result.detection_method in ("scorer-abstain", "weak-evidence-abstain"):
-                # Capture group hint from scorer for terminal R0 metadata
+                # Capture group hint from scorer for terminal R0 metadata.
+                # weak_group/weak_best_region (R58) ride along for the
+                # same-group fastText gate below but are deliberately NOT the
+                # 'group' key — terminal R0 must not claim a group_region
+                # from a sub-2.0 single-suffix hit.
                 scorer_hint = {
                     k: v
                     for k, v in result.metadata.items()
-                    if k in ("group", "best_region", "best_score", "margin", "reason")
+                    if k
+                    in (
+                        "group",
+                        "best_region",
+                        "best_score",
+                        "margin",
+                        "reason",
+                        "weak_group",
+                        "weak_best_region",
+                    )
                 }
             elif (
                 result.detection_method == "script"
@@ -974,10 +987,15 @@ class RegionManager:
         if ft_result:
             ft_group = LEAF_TO_GROUP.get(ft_result.region_code)
             rules_group = scorer_hint.get("group")
+            # R58: a weak-evidence (<2.0) scorer hit still anchors the gate —
+            # ft may refine it WITHIN that group ('Kratsios' weak-HELLENIC +
+            # ft B3 -> B3), while a cross-group ft verdict lets the weak hint
+            # die with the abstention ('Lörler' weak-HELLENIC + ft A2 -> R0).
+            anchor_group = rules_group or scorer_hint.get("weak_group")
 
-            if rules_group is not None:
-                # Rules identified a group — fastText must agree
-                if ft_group == rules_group:
+            if anchor_group is not None:
+                # An anchor exists — fastText must agree with it
+                if ft_group == anchor_group:
                     # Same group: accept with tighter threshold
                     if (
                         ft_result.metadata.get("ft_prob", 0) >= 0.70
@@ -987,7 +1005,9 @@ class RegionManager:
                         )
                         >= 0.20
                     ):
-                        ft_result.metadata["gated"] = "same_group"
+                        ft_result.metadata["gated"] = (
+                            "same_group" if rules_group else "same_group_weak"
+                        )
                         return (
                             ft_result.region_code,
                             ft_result.confidence,
@@ -995,23 +1015,18 @@ class RegionManager:
                             ft_result.metadata,
                         )
                 # Different group: reject fastText, keep rules group hint
-            else:
-                # No rules group at all — fastText is only signal, require high conf
-                if (
-                    ft_result.metadata.get("ft_prob", 0) >= 0.80
-                    and (
-                        ft_result.metadata.get("ft_prob", 0)
-                        - ft_result.metadata.get("ft_prob2", 0)
-                    )
-                    >= 0.25
-                ):
-                    ft_result.metadata["gated"] = "ft_only_high_conf"
-                    return (
-                        ft_result.region_code,
-                        ft_result.confidence,
-                        ft_result.detection_method,
-                        ft_result.metadata,
-                    )
+            # R58: the former 'ft_only_high_conf' branch (raw promotion with
+            # NO group anchor at prob>=0.80, margin>=0.25) is REMOVED, and no
+            # threshold knob may ever reinstate it. Measured against the
+            # 271-name adjudicated pilot ground truth, raw promotion tops out
+            # at 77-81% verifiable-leaf precision even at prob>=0.99, and the
+            # model is confidently wrong AT prob 1.0 ('U. Cetin'->A1@1.00,
+            # true C1; 'R. S. Hazra'->A1@1.00, true D3; 'Nizar
+            # Touzi'->A1@0.98, true C3) with a systematic A1 over-prediction
+            # bias. The project's contract is 100% emitted-leaf precision:
+            # fastText NEVER emits without a group anchor (scorer, weak-
+            # evidence, or orthographic). See docs/calibration.md (R58) and
+            # tools/ft_threshold_sweep.py for the reproducible rejection.
 
         # Terminal: R0 (never A1). Include scorer hints for group-level output.
         return ("R0", 0.10, "name-abstain", scorer_hint)
@@ -1481,6 +1496,16 @@ class RegionManager:
                     metadata={
                         "reasons": dbg.get("reasons", []),
                         "best_score": raw_score,
+                        # R58: a weak (<2.0) hit can still serve as a GROUP
+                        # anchor for the same-group fastText gate — but it
+                        # must NOT be exposed under the 'group'/'best_region'
+                        # keys, which flow into terminal-R0 metadata and
+                        # would surface a group_region claimed from a single
+                        # 1.2-score bare-suffix hit (breaking the 100 %
+                        # group-or-better KPI). Distinct weak_* keys: the ft
+                        # gate reads them; nothing else does.
+                        "weak_group": LEAF_TO_GROUP.get(region),
+                        "weak_best_region": region,
                     },
                 )
             dom_ratio = min(1.0, dom_count / total)
@@ -1521,6 +1546,18 @@ class RegionManager:
         dominant, dom_count = max(scripts.items(), key=lambda kv: kv[1])
         possible = self._script_to_regions.get(dominant, [])
         region, conf, dbg = _score_priority_rules(icu_name, possible)
+        # R58 (pilot: 'Francis Lörler' -> B3@0.76 via icu-priority): for Latin
+        # input the ICU normalization is a no-op, so this scorer call exactly
+        # duplicates _detect_by_script's — minus its Fix-4 weak-evidence gate.
+        # Every pilot AND benchmark icu-priority emission was a single
+        # uncorroborated 1.2-1.9 suffix hit that the script path had just
+        # REJECTED as weak evidence, resurrected here at 0.76-0.81. Apply the
+        # same standard; the weak signal still reaches the same-group fastText
+        # gate via the weak_group anchor (see _detect_by_script), which
+        # recovers the genuinely-correct subset (e.g. Greek -is names whose ft
+        # verdict agrees within HELLENIC) and drops the cross-group misfires.
+        if region and dbg.get("best_score", 0) < 2.0:
+            return None
         if region:
             final_conf = min(
                 0.90, 0.4 * (dom_count / total) + 0.6 * conf
