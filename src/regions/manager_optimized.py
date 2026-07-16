@@ -1334,11 +1334,11 @@ class RegionManager:
             if model == "CLI_MODE":
                 label, p1, p2 = self._predict_via_cli(surname_lower)
             else:
-                pred = model.predict(surname_lower, k=2)
-                if pred and len(pred[0]) > 0:
-                    label = pred[0][0].replace("__label__", "")
-                    p1 = float(pred[1][0])
-                    p2 = float(pred[1][1]) if len(pred[1]) > 1 else 0.0
+                pairs = self._ft_predict_pairs(model, surname_lower, k=2)
+                if pairs:
+                    label = pairs[0][1].replace("__label__", "")
+                    p1 = pairs[0][0]
+                    p2 = pairs[1][0] if len(pairs) > 1 else 0.0
                 else:
                     return None
 
@@ -1366,9 +1366,46 @@ class RegionManager:
                     },
                 )
         except Exception as e:
-            logger.debug(f"Surname fastText prediction failed: {e}")
+            # LOUD, ONE-TIME. R58 (real-data pilot root cause): this used to
+            # be a logger.debug, and the fasttext wheel's predict() raises
+            # ValueError under NumPy 2.x ("Unable to avoid copy...") — so the
+            # ENTIRE ML tier was silently dead on modern installs while the
+            # docs cited its accuracy. A dead tier must announce itself.
+            if not getattr(self, "_surname_ft_error_warned", False):
+                self._surname_ft_error_warned = True
+                logger.warning(
+                    "Surname fastText prediction FAILED (%s: %s) — the ML "
+                    "tiebreaker tier is NOT contributing to detection. If "
+                    "this mentions numpy array copies, the installed "
+                    "fasttext wheel is NumPy-2-incompatible; the pipeline's "
+                    "low-level fallback should have handled it — report "
+                    "this.",
+                    type(e).__name__,
+                    e,
+                )
 
         return None
+
+    @staticmethod
+    def _ft_predict_pairs(model, text: str, k: int = 2):
+        """Predict via fastText, robust to the NumPy-2 wheel incompatibility.
+
+        fasttext's Python ``predict()`` wraps its result in
+        ``np.array(probs, copy=False)``, which RAISES under NumPy >= 2 (the
+        copy=False semantics changed) — silently killing the ML tier on any
+        modern install (R58 pilot root cause). The underlying
+        ``model.f.predict`` returns plain (prob, label) tuples with no numpy
+        involved, so use it directly and keep the high-level call only as a
+        fallback for exotic builds. Returns a list of (prob, label) sorted
+        by prob desc, or [].
+        """
+        f = getattr(model, "f", None)
+        if f is not None:
+            # signature: f.predict(text, k, threshold, on_unicode_error)
+            pairs = f.predict(text, k, 0.0, "strict")
+            return [(float(p), str(lbl)) for p, lbl in pairs]
+        labels, probs = model.predict(text, k=k)
+        return [(float(p), str(lbl)) for lbl, p in zip(labels, probs)]
 
     def _detect_by_script(
         self, entry: Dict[str, Any]
