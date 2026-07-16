@@ -852,10 +852,24 @@ class TestKoreanProcessingHell:
         """Korean processor instance."""
         return E4KoreanProcessor()
 
+    # R56 marker precision: the blanket xfail hid that 3 of the 5 cases
+    # actually PASS (they XPASSed for months, so a real regression in them
+    # would have been invisible). Only the two genuinely-unmet variant sets
+    # keep the ASPIRATIONAL marker; the other three are real guards now.
+    _VARIANT_XFAIL = pytest.mark.xfail(
+        reason="ASPIRATIONAL (R52): expects the runtime romanizer to emit "
+        "every historical variant set; current coverage is RR-primary.",
+        strict=False,
+    )
+
     @pytest.mark.parametrize(
         "korean_name,romanized_variants",
         [
-            ("김정은", ["Kim Jong-un", "Kim Jong un", "Kim Jongun", "Gim Jong-eun"]),
+            pytest.param(
+                "김정은",
+                ["Kim Jong-un", "Kim Jong un", "Kim Jongun", "Gim Jong-eun"],
+                marks=_VARIANT_XFAIL,
+            ),
             (
                 "박근혜",
                 ["Park Geun-hye", "Park Geun hye", "Pak Keun-hye", "Bak Geun-hye"],
@@ -868,19 +882,15 @@ class TestKoreanProcessingHell:
                 "최지훈",
                 ["Choi Ji-hoon", "Choe Ji-hun", "Ch'oe Chi-hun", "Tsoi Ji-hoon"],
             ),
-            (
+            pytest.param(
                 "정수진",
                 ["Jung Soo-jin", "Jeong Su-jin", "Chung Soo-jin", "Jong Su-jin"],
+                marks=_VARIANT_XFAIL,
             ),
         ],
     )
     @pytest.mark.paranoid
     @pytest.mark.timeout(15)
-    @pytest.mark.xfail(
-        reason="ASPIRATIONAL (R52): expects the runtime romanizer to emit "
-        "every historical variant set; current coverage is RR-primary.",
-        strict=False,
-    )
     def test_korean_variant_generation_comprehensive(
         self, korean_processor, korean_name, romanized_variants
     ):
