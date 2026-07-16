@@ -329,7 +329,24 @@ side-by-side reliability diagrams.
   A rebuild is comparable to, not identical to, the reference artifact
   (fastText training is nondeterministic), so validate before citing the
   exact detection KPIs above.
-- Same-group gate: fastText can only refine within scorer's group, never cross groups
+- Same-group gate: fastText can only refine within an anchored group, never
+  cross groups — and NEVER emits without an anchor (R58: the raw
+  ft_only_high_conf promotion was removed after adjudicated measurement
+  showed 67-81% precision at every threshold; see docs/calibration.md R58
+  and tools/ft_threshold_sweep.py)
+- R58 accuracy round (real-data pilot -> 40-agent adjudication -> 4 designs
+  -> precision+adversarial judges): NumPy-2-dead ML tier revived
+  (fasttext predict raises under NumPy>=2; low-level API + loud failure);
+  icu-priority weak-evidence gate (sub-2.0 hits route through the
+  same-group ft gate as weak_group anchors instead of emitting at 0.76);
+  205 curated surname_exact YAML entries across 14 config/regions files
+  (every entry backed by a named adjudicated bearer); orthographic group
+  anchors (src/regions/detection/orthography.py — Tier-1 signature marks
+  veto-immune, Tier-2 contextual marks ft-vetoable, Benaïm group_cap).
+  Measured on the 456-name arXiv pilot vs adjudicated truth: abstention
+  59% -> 21%, 183 correct conversions, 0 wrong leaves. Guards:
+  test_ft_adversarial_pins, test_surname_yaml_supplement,
+  test_ortho_group_anchor, test_icu_weak_evidence_gate.
 
 ## 📊 Testing
 
