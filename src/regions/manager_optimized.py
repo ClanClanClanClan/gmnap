@@ -982,8 +982,29 @@ class RegionManager:
                     result.metadata,
                 )
 
+        # R58: orthographic group anchor (src/regions/detection/orthography.py)
+        # — distinctive surname diacritics establish a GROUP so the same-group
+        # gate below can let fastText refine to a leaf. Never overrides a real
+        # scorer group. Judge modifications: Tier-1 signature marks beat weak
+        # suffix hints; a Tier-2 anchor CONFLICTING with a weak hint yields no
+        # anchor; a confident cross-group ft verdict (>=0.80) vetoes Tier-2.
+        ortho = None
+        if not scorer_hint.get("group"):
+            from src.regions.detection.orthography import detect_ortho_group_anchor
+
+            ortho = detect_ortho_group_anchor(
+                entry.get("CanonicalLatin", "") or entry.get("CanonicalNative", "")
+            )
+            weak = scorer_hint.get("weak_group")
+            if ortho is not None and ortho.tier == 2 and weak:
+                if ortho.kind in ("group", "group_cap") and ortho.payload != weak:
+                    ortho = None
+                elif ortho.kind == "permitted" and weak not in ortho.payload:
+                    ortho = None
+
         # Surname fastText model (Step 7 - lazy loaded, same-group gated)
         ft_result = self._detect_by_surname_fasttext(entry)
+        ortho_vetoed = False
         if ft_result:
             ft_group = LEAF_TO_GROUP.get(ft_result.region_code)
             rules_group = scorer_hint.get("group")
@@ -992,6 +1013,51 @@ class RegionManager:
             # ft B3 -> B3), while a cross-group ft verdict lets the weak hint
             # die with the abstention ('Lörler' weak-HELLENIC + ft A2 -> R0).
             anchor_group = rules_group or scorer_hint.get("weak_group")
+
+            # Tier-2 ortho anchors are VETOED by a confident cross-group ft
+            # verdict (the Maghrebi-French trap: 'René Aïd' carries ï but ft
+            # says ARABIC C3@0.90 — the orthography is transliteration, not
+            # French origin). Tier-1 signature marks are veto-immune.
+            if ortho is not None and ortho.tier == 2 and ft_group:
+                ft_prob = ft_result.metadata.get("ft_prob", 0)
+                if ortho.kind in ("group", "group_cap"):
+                    if ft_group != ortho.payload and ft_prob >= 0.80:
+                        ortho = None
+                        ortho_vetoed = True
+                elif ortho.kind == "permitted":
+                    if ft_group not in ortho.payload and ft_prob >= 0.80:
+                        ortho = None
+                        ortho_vetoed = True
+
+            # Ortho anchors join the gate: a 'group' anchor acts like a rules
+            # group; 'permitted' sets accept ft leaves inside the set;
+            # 'group_cap' (Benaïm guard) never licenses a LEAF — the group
+            # claim it justifies is surfaced on the terminal abstention below.
+            if anchor_group is None and ortho is not None:
+                if ortho.kind == "group":
+                    anchor_group = ortho.payload
+                elif ortho.kind == "permitted":
+                    surname_len = len(
+                        (ft_result.metadata.get("surname") or "").replace(" ", "")
+                    )
+                    if (
+                        ft_group in ortho.payload
+                        and surname_len >= 4
+                        and ft_result.metadata.get("ft_prob", 0) >= 0.70
+                        and (
+                            ft_result.metadata.get("ft_prob", 0)
+                            - ft_result.metadata.get("ft_prob2", 0)
+                        )
+                        >= 0.20
+                    ):
+                        ft_result.metadata["gated"] = "ortho_permitted_set"
+                        ft_result.metadata["ortho_marks"] = ortho.marks
+                        return (
+                            ft_result.region_code,
+                            ft_result.confidence,
+                            ft_result.detection_method,
+                            ft_result.metadata,
+                        )
 
             if anchor_group is not None:
                 # An anchor exists — fastText must agree with it.
@@ -1044,6 +1110,27 @@ class RegionManager:
             # tools/ft_threshold_sweep.py for the reproducible rejection.
 
         # Terminal: R0 (never A1). Include scorer hints for group-level output.
+        # R58: an unvetoed orthographic 'group'/'group_cap' anchor is honest
+        # group-level knowledge even when no leaf could be emitted — surface
+        # it so GroupRegion carries e.g. GERMANIC_WESTERN for 'Pagès' (the
+        # Benaïm guard capped the leaf, not the group). Vetoed anchors and
+        # bare permitted-sets claim nothing. Tier-2 anchors surface ONLY when
+        # the ft veto had its chance (a rules-only install must not claim
+        # GERMANIC for Maghrebi-French 'Aïd' just because no model was there
+        # to contradict it); Tier-1 signature marks are exclusive by
+        # construction and stand on their own.
+        if (
+            ortho is not None
+            and not ortho_vetoed
+            and ortho.kind in ("group", "group_cap")
+            and (ortho.tier == 1 or ft_result is not None)
+        ):
+            scorer_hint = {
+                **scorer_hint,
+                "group": ortho.payload,
+                "reason": "ortho-group-anchor",
+                "ortho_marks": ortho.marks,
+            }
         return ("R0", 0.10, "name-abstain", scorer_hint)
 
     def _infer_name_origin(self, entry: Dict[str, Any]):
