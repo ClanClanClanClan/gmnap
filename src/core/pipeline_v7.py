@@ -1895,10 +1895,36 @@ class V7Pipeline:
             if not sample:
                 return
 
+            # R56.4 (real-data pilot finding): the re-run processes the
+            # 20-entry sample as its OWN batch, so fields whose value is
+            # BATCH-SCOPED by design legitimately differ from the main run
+            # (which computed them over the full batch): ShortFormClusters
+            # (cross-entry collision sets), the stage-6 batch-global
+            # coherence scores stamped on every entry, and the GDPR
+            # birth-year mask (cohort-size-dependent). Comparing those
+            # across different batch compositions reported phantom
+            # "idempotency violations" (1,293 diff bytes on a 456-entry
+            # arXiv batch) while true per-entry determinism was intact.
+            # Full-batch byte-identity is separately guaranteed by
+            # tests/v7/test_parallel_path.py.
+            _BATCH_SCOPED = {
+                "ShortFormClusters",
+                "BayesianCoherence",
+                "BetweennessScore",
+                "AuthorityConfidence",
+                "GraphCoherence",
+                "BirthYear",
+                "BirthYear_Privacy",
+            }
+
             def _canon(items):
                 out = []
                 for e in items:
-                    d = {k: v for k, v in sorted(e.items()) if not k.startswith("_")}
+                    d = {
+                        k: v
+                        for k, v in sorted(e.items())
+                        if not k.startswith("_") and k not in _BATCH_SCOPED
+                    }
                     out.append(d)
                 return _json.dumps(
                     out, sort_keys=True, ensure_ascii=False, default=str
@@ -2183,8 +2209,14 @@ class V7Pipeline:
             if entries_per_sec > 0:
                 perf_minutes = (1000000 / entries_per_sec) / 60.0
 
-        # Get stage 6 score if available
-        if hasattr(self.metrics, "stage6_score"):
+        # Get stage 6 score if available. R56.4: mirror the spec-gate logic
+        # (R55) — the coherence score is only MEASURED when the batch carries
+        # real in-batch advisor edges; otherwise stage 6 falls back to a
+        # field-frequency proxy (~0.68) that failed the 0.85 threshold on
+        # EVERY relation-less OFFLINE run, printing "FAIL: stage6" noise a
+        # new user reasonably reads as a defect.
+        stage6_measured = getattr(self.metrics, "genealogy_edges", 0) > 0
+        if hasattr(self.metrics, "stage6_score") and stage6_measured:
             stage6_score = self.metrics.stage6_score
 
         # Note: FastQualityGates check_batch expects entries, but for final check we can pass empty list
@@ -2195,26 +2227,29 @@ class V7Pipeline:
 
         gates_passed = result.get("ok", True)
 
-        # Store results for reporting
+        # Store results for reporting. Unmeasured gates report passed=True
+        # with an explicit "not measured" message — "FAIL: Not measured" is
+        # a contradiction in terms (the R55 spec gates get this right; this
+        # legacy reporting layer now matches).
         self.quality_gate_results = {
             "duplicate_detection": {
                 "passed": True,
                 "message": f"{self.metrics.duplicate_global_ids} duplicates tracked",
             },
             "performance": {
-                "passed": gates_passed,
+                "passed": gates_passed if perf_minutes else True,
                 "message": (
                     f"Projected 1M time: {perf_minutes:.1f} min"
                     if perf_minutes
-                    else "Not measured"
+                    else "not measured (batch < 500 entries)"
                 ),
             },
             "stage6": {
                 "passed": True if stage6_score is None else stage6_score >= 0.85,
                 "message": (
                     f"Stage 6 score: {stage6_score:.2f}"
-                    if stage6_score
-                    else "Not measured"
+                    if stage6_score is not None
+                    else "not measured (no in-batch advisor graph)"
                 ),
             },
         }
