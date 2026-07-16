@@ -1,0 +1,18 @@
+# R58 surname_exact supplement — EXACT-only direct-match entries for the
+# manager's surname tier (score 10 -> confidence 0.95). Derived from the
+# R58 adjudicated pilot ground truth (data/eval/pilot_adjudicated.json;
+# both-agree, leaf-confident verdicts only) under the curation policy:
+# no cross-region bearers, no diaspora-split surnames, cleaned token
+# length >= 4 (>=2 for diacritic-bearing), ASCII variant listed only when
+# still region-specific. Collisions with any hardcoded set or another
+# region's supplement are DROPPED at load time (see _init_surname_patterns).
+surname_exact:
+  - soner        # H. Mete Soner
+  - büke         # B. Büke
+  - buke
+  - çetin        # U. Çetin (ft confidently wrong: A1@1.00)
+  - cetin
+  - bayraktar    # Turgay Bayraktar
+  - alpay        # Natanael Alpay
+  - özkan        # Recep Özkan
+  - ozkan

@@ -994,8 +994,23 @@ class RegionManager:
             anchor_group = rules_group or scorer_hint.get("weak_group")
 
             if anchor_group is not None:
-                # An anchor exists — fastText must agree with it
-                if ft_group == anchor_group:
+                # An anchor exists — fastText must agree with it.
+                # R58: ft emission additionally requires a >=4-char surname,
+                # UNCONDITIONALLY. Reaching this tier at all means the scorer
+                # abstained, so every anchor here is a HINT (scorer-abstain
+                # group — often driven by GIVEN names — or a sub-2.0 weak
+                # suffix), never a confirmed group. Short romanized surnames
+                # are homograph territory across families: 'Timothy L. H.
+                # Wee' got an ANGLO hint from its given names while the
+                # surname 'wee' (adjudicated E1, Chinese-Singaporean) drew
+                # ft's documented-biased A1@0.999 — hint and model error
+                # CORRELATE, so agreement is not independent evidence. The
+                # >=4 cutoff mirrors the curated dictionary's P2 policy,
+                # which excludes tan/yan/wee/foo/ng for the same reason.
+                surname_len = len(
+                    (ft_result.metadata.get("surname") or "").replace(" ", "")
+                )
+                if ft_group == anchor_group and surname_len >= 4:
                     # Same group: accept with tighter threshold
                     if (
                         ft_result.metadata.get("ft_prob", 0) >= 0.70
@@ -1764,15 +1779,41 @@ class RegionManager:
                 # Clean surname for matching
                 cleaned_candidate = self._clean_surname_for_matching(candidate)
 
-                for region_code, surnames in self.surname_patterns.items():
+                # R58: iterate hardcoded AND yaml-supplement regions (a
+                # supplement-only region like H1 has no hardcoded set).
+                # sorted() keeps candidate scanning deterministic.
+                for region_code in sorted(
+                    set(self.surname_patterns) | set(self._surname_yaml)
+                ):
+                    surnames = self.surname_patterns.get(region_code, frozenset())
                     # Only check implemented regions
                     if region_code not in self.IMPLEMENTED_REGIONS:
                         continue
 
                     score = 0
 
+                    # R58 yaml-supplement direct match — EXACT-only, and with
+                    # a position guard: only CJK-order regions (E1/E3) may
+                    # match the FIRST token as a surname; for every other
+                    # region the supplement applies to the Western position
+                    # (parts[-1]) only. Kills the verified given-name
+                    # misfires: 'T. Güneş' (taha is a Turkish given name;
+                    # c3.yaml carries taha for 'Diaaeldin Taha' at parts[-1])
+                    # and 'Mitra Fatemi' (Persian given name vs d3.yaml
+                    # mitra for 'Siddharth Mitra').
+                    in_yaml = cleaned_candidate in self._surname_yaml.get(
+                        region_code, frozenset()
+                    )
+                    if (
+                        in_yaml
+                        and candidate == parts[0].lower()
+                        and len(parts) >= 2
+                        and region_code not in ("E1", "E3")
+                    ):
+                        in_yaml = False
+
                     # Direct match
-                    if cleaned_candidate in surnames:
+                    if cleaned_candidate in surnames or in_yaml:
                         score = 10
                         # For ambiguous surnames like "Lee", check given name patterns
                         if (
@@ -1880,15 +1921,21 @@ class RegionManager:
         # Score each region based on surname matches
         region_scores = {}
 
-        for region_code, surnames in self.surname_patterns.items():
+        # R58: include yaml-supplement-only regions (sorted = deterministic).
+        for region_code in sorted(set(self.surname_patterns) | set(self._surname_yaml)):
+            surnames = self.surname_patterns.get(region_code, frozenset())
             # Only check implemented regions
             if region_code not in self.IMPLEMENTED_REGIONS:
                 continue
 
             score = 0
 
-            # Direct match
-            if family_name in surnames:
+            # Direct match. The comma form declares the surname position, so
+            # the R58 yaml supplement applies without a position guard —
+            # still EXACT-only (partial loops below iterate hardcoded sets).
+            if family_name in surnames or family_name in self._surname_yaml.get(
+                region_code, frozenset()
+            ):
                 score = 10
                 # For ambiguous surnames, check given name for disambiguation
                 if family_name in ["lee", "li", "kim"] and "," in name:
@@ -3497,6 +3544,66 @@ class RegionManager:
                 "jang",
                 "im",
             }
+
+        # R58: curated per-region `surname_exact:` YAML supplements
+        # (config/regions/<code>.yaml — same file and cache as the processor
+        # override hook). EXACT-only membership at the direct-match position;
+        # never fed to the prefix/substring partial loops, so a supplement
+        # entry can neither prefix-fire on longer surnames nor create new
+        # 0.85-confidence results anywhere. Entries derive from the R58
+        # adjudicated pilot ground truth under the curation policy recorded
+        # in each YAML header. Load-time cross-region uniqueness gate:
+        # a key claimed by any hardcoded set or by two supplements is
+        # DROPPED (loudly) — deterministic fail-safe over silent ambiguity.
+        from src.regions.base import load_region_yaml
+
+        self._surname_yaml: Dict[str, set] = {}
+        hardcoded_claims: Dict[str, str] = {}
+        for rc, pats in self.surname_patterns.items():
+            for s in pats:
+                hardcoded_claims.setdefault(s, rc)
+        yaml_claims: Dict[str, str] = {}
+        for code in sorted(self.IMPLEMENTED_REGIONS):
+            raw = load_region_yaml(code).get("surname_exact") or []
+            if not isinstance(raw, list):
+                logger.warning(
+                    "surname_exact in %s.yaml is not a list — ignored", code.lower()
+                )
+                continue
+            for s in sorted({str(x) for x in raw}):
+                key = self._clean_surname_for_matching(
+                    unicodedata.normalize("NFC", s).lower().strip()
+                )
+                if not key or len(key) < 2:
+                    continue
+                if key in hardcoded_claims:
+                    if hardcoded_claims[key] != code:
+                        logger.warning(
+                            "surname_exact %r in %s.yaml collides with the "
+                            "hardcoded %s set — dropped",
+                            key,
+                            code.lower(),
+                            hardcoded_claims[key],
+                        )
+                    continue  # same-region duplicate of hardcoded: redundant
+                prior = yaml_claims.get(key)
+                if prior is not None and prior != code:
+                    logger.warning(
+                        "surname_exact %r claimed by both %s.yaml and %s.yaml "
+                        "— dropped from BOTH (ambiguous)",
+                        key,
+                        prior.lower(),
+                        code.lower(),
+                    )
+                    self._surname_yaml.get(prior, set()).discard(key)
+                    continue
+                yaml_claims[key] = code
+                self._surname_yaml.setdefault(code, set()).add(key)
+        if self._surname_yaml:
+            logger.info(
+                "Loaded surname_exact YAML supplements: %s",
+                {k: len(v) for k, v in sorted(self._surname_yaml.items())},
+            )
 
     def _detect_by_surname_patterns(
         self, name: str, possible_regions: List[str]

@@ -42,6 +42,35 @@ _REGION_CONFIG_DIR: Path = Path("config/regions")
 _YAML_CACHE: Dict[str, Dict[str, Any]] = {}
 
 
+def load_region_yaml(code: str) -> Dict[str, Any]:
+    """Load ``config/regions/<lowercase code>.yaml`` with caching.
+
+    Module-level (R58) so BOTH consumers share one cache and one set of
+    semantics: the region processors' override hook
+    (``RegionSpec.load_yaml_config``) and the manager's ``surname_exact:``
+    supplement loader. Missing or malformed files return ``{}`` — never
+    raises.
+    """
+    if code in _YAML_CACHE:
+        return _YAML_CACHE[code]
+    path = _REGION_CONFIG_DIR / f"{code.lower()}.yaml"
+    if not path.exists():
+        cfg: Dict[str, Any] = {}
+        _YAML_CACHE[code] = cfg
+        return cfg
+    try:
+        import yaml as _yaml  # local import keeps cold-start light
+
+        data = _yaml.safe_load(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        logger.debug("YAML config for %s unreadable: %s", code, exc)
+        data = None
+    if not isinstance(data, dict):
+        data = {}
+    _YAML_CACHE[code] = data
+    return data
+
+
 class RegionRuleError(Exception):
     """Entry fails region-specific rule."""
 
@@ -79,30 +108,14 @@ class RegionSpec(ABC):
     def load_yaml_config(self) -> Dict[str, Any]:
         """Load this region's YAML override file (if any) with caching.
 
-        Looks for ``<_REGION_CONFIG_DIR>/<lowercase code>.yaml``. On
-        a cache hit returns the same dict (so identity comparison
-        ``cfg1 is cfg2`` holds). On a missing or malformed file
-        returns ``{}`` and logs at debug level — never raises, never
-        blocks the processor.
+        Delegates to the module-level :func:`load_region_yaml` (R58 — the
+        manager's surname-supplement loader shares the exact same file,
+        cache, and semantics). On a cache hit returns the same dict (so
+        identity comparison ``cfg1 is cfg2`` holds). On a missing or
+        malformed file returns ``{}`` and logs at debug level — never
+        raises, never blocks the processor.
         """
-        if self.code in _YAML_CACHE:
-            return _YAML_CACHE[self.code]
-        path = _REGION_CONFIG_DIR / f"{self.code.lower()}.yaml"
-        if not path.exists():
-            cfg: Dict[str, Any] = {}
-            _YAML_CACHE[self.code] = cfg
-            return cfg
-        try:
-            import yaml as _yaml  # local import keeps cold-start light
-
-            data = _yaml.safe_load(path.read_text(encoding="utf-8"))
-        except Exception as exc:
-            logger.debug("YAML config for %s unreadable: %s", self.code, exc)
-            data = None
-        if not isinstance(data, dict):
-            data = {}
-        _YAML_CACHE[self.code] = data
-        return data
+        return load_region_yaml(self.code)
 
     @classmethod
     def clear_yaml_cache(cls) -> None:

@@ -36,6 +36,10 @@ _PINS = [
     ("J. Cvitanić", "A1", "B2"),
     ("L. Tangpi", "E1", "F-group"),  # ft E1@0.85; adjudicated F GROUP_ONLY
     ("B. Büke", "A1", "C1"),
+    # Short-homograph class: given-name-driven ANGLO hint + ft's A1 bias
+    # correlate on a 3-char Chinese-Singaporean surname. The unconditional
+    # >=4-char surname guard on ft emissions keeps this abstained.
+    ("Timothy L. H. Wee", "A1", "E1"),
 ]
 
 

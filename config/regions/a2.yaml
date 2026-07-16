@@ -11,3 +11,111 @@ germanic_particles:
   - vom        # German "von dem" contraction
 romance_particles:
   - dei        # Italian "of the" (plural)
+
+# R58 surname_exact supplement (see a1.yaml header for provenance/policy).
+surname_exact:
+  # French
+  - réveillac
+  - reveillac
+  - pagès
+  - royer
+  - bergault
+  - alasseur
+  - piozin
+  - warin
+  - jeanblanc
+  - gardelein
+  - barthelemy
+  - gilot
+  - sequies
+  - bourdarot
+  - boulanger
+  - boutou
+  - bouzat
+  - chabanol
+  - moulin
+  - niot
+  - casse
+  - poutrel
+  - delarue
+  - pineau
+  - brémont
+  - bremont
+  - bénichou
+  - benichou
+  - portier
+  - bovier
+  - lancien
+  - guédon
+  - guedon
+  - delacour
+  - bourgade
+  - vial
+  - bono
+  - ouimet       # Québécois; name-origin axis = French
+  # German / Austrian / Swiss
+  - reisinger
+  - schmitt
+  - feusi
+  - gehrunger
+  - appenzeller
+  - lengler
+  - metzler
+  - oberdieck
+  - doerr
+  - grünwald
+  - schnider
+  - schuler
+  - muhle-karbe  # Johannes Muhle-Karbe (the cleaner preserves hyphens)
+  - imkeller
+  - cuchiero
+  - ortgiese
+  - kraut
+  - eberle
+  - maus
+  - birkner
+  - rissel
+  - breit
+  - hirsch
+  - rödder
+  - fink
+  # Dutch / Flemish
+  - dekoninck
+  - belmans
+  - kool
+  - garrel       # van Garrel, particle-stripped
+  - spelier
+  - trapman
+  - mandjes
+  - vereecke
+  - warnaar
+  - vrins
+  # Italian
+  - mastrolia
+  - bottini
+  - fontanari
+  - meroni
+  - rizzoli
+  - cesari
+  - colomboni
+  - brigo
+  - callegaro
+  - d'auria
+  - dauria
+  - passuello
+  - bellavita
+  - lamberti
+  - carfagnini
+  - stecconi
+  - todino
+  - baldassarri
+  - sfragara
+  - pesenti
+  - sassone
+  - bartaloni
+  - bernuzzi
+  # Catalan
+  - vitrià
+  - vitria
+  # Misc
+  - jaeck
