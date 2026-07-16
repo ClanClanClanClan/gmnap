@@ -162,3 +162,28 @@ result.confidence  # now isotonic-calibrated
 When the env var is unset (the default), confidence is the raw
 detector score — preserving back-compat for anything that pinned
 specific values in tests or fixtures.
+
+## R58 (2026-07-16): raw fastText promotion is rejected — measured
+
+The real-data pilot (456 arXiv author strings) exposed the question: when
+the rules tiers abstain, may the surname-fastText leaf be promoted on
+confidence alone? A 40-agent adjudication workflow labeled all 271
+scorer-abstained pilot names (two independent lenses + reconciler per
+name; 263/271 both-agree; `data/eval/pilot_adjudicated.json`), giving
+ground truth to answer it:
+
+| t | converted (of 271) | correct | WRONG (cross-family) | overclaim | verifiable-leaf precision |
+|---|---|---|---|---|---|
+| 0.85 | 172 | 99 | 48 (25) | 13 | 67.3% |
+| 0.90 | 147 | 87 | 39 (18) | 9 | 69.0% |
+| 0.95 | 117 | 71 | 31 (13) | 6 | 69.6% |
+| 0.99 | 72 | 51 | 14 (7) | 5 | 78.5% |
+| 0.999 | 30 | 21 | 5 (3) | 2 | 80.8% |
+
+Confidence is nearly uninformative about correctness above 0.85, and the
+model asserts wrong leaves **at probability 1.0** ("U. Cetin"→A1@1.00,
+true C1; "R. S. Hazra"→A1@1.00, true D3), with a systematic A1
+over-prediction bias. Raw promotion is therefore permanently rejected:
+fastText emits only behind a group anchor (scorer, weak-evidence, or
+orthographic), enforced by `tests/unit/test_ft_adversarial_pins.py`.
+Reproduce: `PYTHONPATH=. python3 tools/ft_threshold_sweep.py`.
