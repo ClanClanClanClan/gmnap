@@ -46,3 +46,5 @@ surname_exact:
   - castravet    # Ana-Maria Castravet
   - robu         # Bogdan Robu
   - marinescu    # George Marinescu
+  # R59.4: Polish -sson bearer (protect from the Nordic A3 -sson signature)
+  - mathisson    # Myron Mathisson

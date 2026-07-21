@@ -12,3 +12,10 @@ surname_exact:
   - chaudhary    # Abhishek Chaudhary
   - vishwakarma  # Pradeep Vishwakarma
   - pathak       # Reese Pathak
+  # R59.4: Gujarati/Parsi occupational -wala surnames. A '-wala' SUFFIX rule
+  # was REJECTED (only 4 corpus bearers — under the >=8 attestation floor);
+  # exact entries instead, each backed by a named corpus bearer.
+  - rangwala     # S. A. Rangwala
+  - kagalwala    # Kumel H. Kagalwala
+  - raniwala     # Hamza Raniwala
+  - fruitwala    # Neelay Fruitwala

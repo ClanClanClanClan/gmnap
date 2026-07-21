@@ -373,7 +373,12 @@ _STRONG = {
         },
     },
     "A3": {  # Nordic-Baltic (Sweden, Norway, Denmark, Finland, Iceland, Baltic states)
-        "surname_suffix": {"sen", "sson", "sdóttir", "sdotter"},
+        # R59.4: 'dottir' (ASCII, folded tokens) + 'dóttir' (raw tokens)
+        # close the verified gap where ASCII-transliterated and non-s
+        # weak-genitive Icelandic patronymics (Gudmundsdottir,
+        # Finnbogadóttir, Helgadóttir) fell to R0 because only 'sdóttir'
+        # existed and it never matches folded text.
+        "surname_suffix": {"sen", "sson", "sdóttir", "sdotter", "dottir", "dóttir"},
         "surnames": {
             "andersson",
             "johansson",
@@ -780,7 +785,12 @@ _STRONG = {
         },
     },
     "B3": {  # Greek & Cypriot
-        "surname_suffix": {"poulos", "akis", "opoulos", "ides"},
+        # R59.4: 'idis'/'iadis' — corpus bearers 13/13 and 4/4 Greek
+        # (Souganidis, Daniilidis, Garoufalidis, Antoniadis…). Excluded in
+        # the scoring loop: davidis/aidis/naidis (Latin-German David-form,
+        # Lithuanian). A token ending -iadis double-fires both (5.0, same
+        # leaf — harmless, mirrors the sdóttir/dóttir pair).
+        "surname_suffix": {"poulos", "akis", "opoulos", "ides", "idis", "iadis"},
         "surnames": {
             "papadopoulos",
             "papadakis",
@@ -941,7 +951,10 @@ _STRONG = {
         },
     },
     "C2": {  # Persian-Tajik
-        "surname_suffix": {"zadeh", "pour", "nejad", "khani"},
+        # R59.4: 'nezhad' — the other standard romanization of signature
+        # 'nejad' (Hassannezhad, Ahmadinezhad); no non-Persian collision
+        # class exists for the string.
+        "surname_suffix": {"zadeh", "pour", "nejad", "nezhad", "khani"},
         "surnames": {
             "hosseini",
             "ahmadi",
@@ -2270,6 +2283,10 @@ SIGNATURE_SUFFIXES = {
     "eanu",  # B2 Romanian (RO -> B2 in this taxonomy)
     "ovic",
     "evic",  # B2 ASCII South-Slavic patronymics
+    "idis",
+    "iadis",  # B3 Greek patronymics (R59.4)
+    "nezhad",  # C2 Persian — romanization twin of 'nejad' (R59.4)
+    "dottir",  # A3 Icelandic patronymic, ASCII form (R59.4)
 }
 
 # Tier 2: Medium suffixes — fire GROUP by themselves, need corroboration for LEAF.
@@ -2687,6 +2704,37 @@ def _score_priority_rules(name, possible):
                     cand = []
             elif suf == "eanu":
                 cand = [t for t in surname_candidates if len(t) > len(suf) + 1]
+            elif suf in ("idis", "iadis"):
+                # R59.4 Greek patronymic suffixes. Curated exclusions from
+                # verified non-Greek bearers: 'davidis' (Latin/German form
+                # of David), 'aidis'/'naidis' (Lithuanian). Length guard
+                # keeps the bare token from matching itself.
+                cand = [
+                    t
+                    for t in surname_candidates
+                    if len(t) > len(suf) + 1
+                    and t not in ("davidis", "aidis", "naidis")
+                ]
+            elif suf == "sson":
+                # R59.4 curated exclusions — non-Nordic -sson surnames that
+                # cannot claim a single leaf: 'frasson' (Italian A2 /
+                # Brazilian G1 bearers), 'masson' (dual etymology: French
+                # Masson AND Scottish Mass-son, live corpus bearers on both
+                # sides), 'wasson' (no named corpus bearer to back a YAML
+                # claim). These abstain. The other verified non-Nordic
+                # -sson names (Besson, Casson, Mathisson, Malbouisson…)
+                # are claimed upstream by curated surname_exact YAML
+                # entries, each backed by a named corpus bearer.
+                cand = [
+                    t
+                    for t in surname_candidates
+                    if t not in ("frasson", "masson", "wasson")
+                ]
+            elif suf == "dottir":
+                # R59.4 ASCII Icelandic patronymic: real bearers always
+                # carry a stem (Óladóttir -> 'oladottir'); a bare 'Dottir'
+                # surname does not exist and must not self-match.
+                cand = [t for t in surname_candidates if len(t) > len(suf) + 1]
             else:
                 cand = surname_candidates
             # R58.8: non-ASCII suffixes ('ová', 'ský', 'ović'…) were DEAD
@@ -2714,9 +2762,13 @@ def _score_priority_rules(name, possible):
         for pfx in strong.get("surname_prefix", set()):
             # R58.8: a bare token EQUAL to the prefix is a given name, not a
             # prefixed surname ('Bratteli Ola' fired F2's ola- prefix on the
-            # given name Ola; Oladipo/Olawale still match).
+            # given name Ola; Oladipo/Olawale still match). R59.4: tokens
+            # ending -dottir are Icelandic patronymics, never Yoruba
+            # ('Oladottir' = Óladóttir, daughter of Óli — fired F2 wrongly).
             if any(
-                tok.startswith(pfx) and len(tok) > len(pfx) + 1
+                tok.startswith(pfx)
+                and len(tok) > len(pfx) + 1
+                and not tok.endswith("dottir")
                 for tok in surname_candidates
             ):
                 surname_scores[r] += 3.0
@@ -2806,8 +2858,13 @@ def _score_priority_rules(name, possible):
                 matched_medium = True
                 break  # longest match wins
         if not matched_medium:
-            # Bare short suffixes → group only
+            # Bare short suffixes → group only. R59.4: the bare '-is' rule
+            # fired HELLENIC on Baltic/Latin-German lookalikes ('Aidis,
+            # Ruta' — Lithuanian — emitted B3@0.75, a live wrong leaf);
+            # same curated exclusion trio as the STRONG idis/iadis rules.
             for suf, group in MEDIUM_SUFFIXES_TO_GROUP.items():
+                if suf == "is" and tok in ("davidis", "aidis", "naidis"):
+                    continue
                 if tok.endswith(suf) and len(tok) > len(suf) + 1:
                     for r in possible:
                         if LEAF_TO_GROUP.get(r) == group:

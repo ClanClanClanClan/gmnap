@@ -316,7 +316,15 @@ artefactually small because PAV collapses everything into one
 side-by-side reliability diagrams.
 
 ### Key Constants
-- SIGNATURE_SUFFIXES: 29 (fire leaf at 2.5). R59.3 added the guarded
+- SIGNATURE_SUFFIXES: 33 (fire leaf at 2.5). R59.4 added dimension B:
+  Greek idis/iadis→B3 (exclusion trio davidis/aidis/naidis applied to
+  BOTH the STRONG rule and the pre-existing bare '-is' medium rule,
+  which was emitting wrong B3@0.75 on Lithuanian 'Aidis'), Persian
+  nezhad→C2, Icelandic dottir(+raw dóttir)→A3 (ola- prefix carve-out);
+  and fixed the live -sson precision bug — 12 verified non-Nordic -sson
+  bearers claimed via surname_exact YAML (a1/a2/b2/g1 — first g1.yaml),
+  frasson/masson/wasson abstain via curated scorer exclusion. Pins:
+  tests/unit/test_suffix_dimension_b.py. R59.3 added the guarded
   Turkic/Balkan seven (maz/mez/oglu/escu/eanu/ovic/evic): -maz/-mez need
   len≥6 + consonant stem (Hispanic -ez/-az class excluded, 'gormaz'
   curated out); bare ASCII -oglu needs Turkic corroboration (ı/ş/ğ/ö/ü/ç

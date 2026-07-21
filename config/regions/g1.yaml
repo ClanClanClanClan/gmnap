@@ -1,0 +1,7 @@
+# R59.4 surname_exact supplement — EXACT-only direct-match entries (see
+# a1.yaml for the full provenance/policy header). First G1 supplement file;
+# the loader iterates IMPLEMENTED_REGIONS, so this file is picked up
+# automatically and its keys pass the cross-region collision gate.
+surname_exact:
+  - malbouisson  # J. M. C. Malbouisson (Brazilian; protects from the
+                 # Nordic A3 -sson signature suffix)

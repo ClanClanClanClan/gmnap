@@ -126,3 +126,14 @@ surname_exact:
   - berczi
   - balázs       # Márton Balázs
   - balazs
+  # R59.4: French/German -sson bearers (protect from the Nordic A3 -sson
+  # signature suffix; each backed by a named corpus bearer). 'masson' and
+  # 'wasson' are deliberately ABSENT — masson has dual etymology (French
+  # Masson / Scottish Mass-son) with corpus bearers on both sides, wasson
+  # has no named corpus bearer; both abstain via the scorer's curated
+  # -sson exclusion instead.
+  - besson       # G. Besson
+  - buisson      # O. Buisson
+  - cusson       # P. Cusson (Québécois French form)
+  - gosson       # Maurice A. de Gosson
+  - hermisson    # J. Hermisson
