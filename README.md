@@ -55,11 +55,15 @@ ft_name_classifier.ftz` (50 MB) is gitignored, so a fresh clone does NOT
 have it and region detection falls back to RULES-ONLY (you'll see a loud
 warning; the documented detection KPIs assume the model is present).
 `make setup` rebuilds it from the committed corpus
-(`data/ml_training/ft_name_training.txt`, 23 470 entries) via `make model`
-— run `make model` directly to (re)build it any time. fastText training is
-not bit-deterministic, so a rebuild is *comparable to*, not identical to,
-the reference model; validate a rebuild against the 843-entry benchmark
-before relying on the exact KPI numbers.
+(`data/ml_training/ft_name_training_clean.txt`, 13 429 entries — the R59
+de-biased corpus; the original geo-labeled corpus is retired alongside it
+and the drop-only derivation is `scripts/ml/clean_ft_corpus.py`) via
+`make model` — run `make model` directly to (re)build it any time. The
+build is byte-deterministic (`thread=1`, verified md5-identical across
+consecutive builds on the pinned fasttext wheel), and the trainer
+hard-fails if known geo-label contamination reappears (cetin/hazra → A1).
+Still validate a rebuild against the 843-entry benchmark before relying
+on the exact KPI numbers.
 
 For a reproducible install matching exactly the dependency graph CI
 runs against, use `pip install -r requirements.lock` (transitive

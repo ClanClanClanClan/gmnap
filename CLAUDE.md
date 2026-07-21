@@ -290,6 +290,11 @@ Architecture: split geo/name-origin branches, hierarchical selective classificat
 - **Output**: `region_code`, `geo_region`, `name_region`, `group_region`, `resolution_level`, `candidates`, `conflict`
 
 ### Detection KPIs (843-entry adjudicated benchmark)
+*(R58-era adjudication snapshot. R59.3–R59.5 changes were A/B-gated per
+corpus: on the 843 the deltas are abstention→correct conversions plus one
+wrong→abstention kill (Grušas) — 0 new wrong. The enforced floor is
+`tests/unit/test_benchmark_evaluation.py` (≥95 % high-confidence leaf
+precision); current held-out numbers live in docs/calibration.md R59.5.)*
 | Metric | Value | Notes |
 |--------|-------|-------|
 | MGP ground truth (15 names, no CC) | 15/15 = 100% | All via surname exact or fastText |
@@ -302,18 +307,20 @@ Architecture: split geo/name-origin branches, hierarchical selective classificat
 | Abstention rate | 235/843 = 28% | Coverage ceiling for name-only classification |
 
 ### Calibration KPIs (held-out test set, `src/regions/benchmark_split.py`)
+Re-fit in R59.5 on the CURRENT (post-retrain) system:
 | Metric | Value | Notes |
 |--------|-------|-------|
-| Raw ECE (test set) | 0.188 | substantial miscalibration before fix |
-| Calibrated ECE (held-out) | **0.039** | PAV fit on 675 train; evaluated on 168 test |
-| Brier (raw / calibrated) | 0.151 / 0.133 | re-fit on train-only changed the numbers slightly |
-| 5-fold CV ECE on train | 0.002 | within-train variance estimate |
+| Raw ECE (test set) | 0.166 | before calibration |
+| Calibrated ECE (held-out) | **0.048** | PAV fit on 675 train; evaluated on 168 test (56 emissions — abstention rose with the R59 precision-first retirements) |
+| Brier (raw / calibrated) | 0.204 / 0.182 | |
+| 5-fold CV ECE on train | 0.012 | within-train variance estimate |
 
-The headline ECE = **0.039** is the honest out-of-sample number.
-Earlier reports of "ECE = 0.0009" were measured-on-train and
-artefactually small because PAV collapses everything into one
-10-bucket bin in-sample. See `docs/calibration.md` for the four
-side-by-side reliability diagrams.
+The headline ECE = **0.048** is the honest out-of-sample number for the
+current system ("0.039" belonged to the R58-era system; "ECE = 0.0009"
+was measured-on-train and artefactually small). `tools/calibration.py`
+now preserves the manual history sections in `docs/calibration.md`
+across re-fits (R59.5 — a plain regeneration used to clobber the R58+
+audit trail). See `docs/calibration.md` for the reliability diagrams.
 
 ### Key Constants
 - SIGNATURE_SUFFIXES: 33 (fire leaf at 2.5). R59.4 added dimension B:
@@ -333,30 +340,49 @@ side-by-side reliability diagrams.
   A/B-gated: 843 benchmark + 456 pilot + 450 held-out — deltas are
   abstention→correct only (Moisescu, Iosifescu, Cerrahoğlu, Novaković),
   0 new wrong. Pins: tests/unit/test_signature_suffixes_turkic_balkan.py
-- MEDIUM_SUFFIXES_TO_LEAF: 11 (fire group at 1.2, leaf at +1.0 if corroborated)
-- MEDIUM_SUFFIXES_TO_GROUP: 4 (bare -ski/-sky/-ou/-is → group only)
+- MEDIUM_SUFFIXES_TO_LEAF: 12 (fire group at 1.2, leaf at +1.0 if
+  corroborated; R59.5 added raw-only 'ičius'→C9 — folded 'icius' would
+  collide with the Fabricius class)
+- MEDIUM_SUFFIXES_TO_GROUP: 4 (bare -ski/-sky/-ou/-is → group only; the
+  bare '-is' rule carries the R59.4 davidis/aidis/naidis exclusion trio)
 - REGION_GROUPS: 23 groups, 34 leaves
-- ft_name_classifier.ftz: 50MB quantized model (23K aligned training
-  entries). **Gitignored — NOT bundled.** A fresh clone rebuilds it from
-  the committed corpus `data/ml_training/ft_name_training.txt` via
-  `make model` (`scripts/ml/build_name_classifier.py`); `make setup` does
-  this automatically. Without it, region detection runs rules-only and
-  logs a loud warning (R54 — it used to fall back on a silent DEBUG line).
-  A rebuild is comparable to, not identical to, the reference artifact
-  (fastText training is nondeterministic), so validate before citing the
-  exact detection KPIs above.
+- Raw tokenizer (R59.5): scorer `_WORD` uses the full Unicode letter
+  class. The old Latin-1 class split tokens at č/ć/š/ž/ő/ū (U+0100+),
+  silently killing every raw-diacritic rule for those marks (the
+  'ović'/'ević' raw suffixes, the -ovic dedupe guard, the Łacinka
+  '-ovič' abstention — all documented-dead-now-live).
+- ft_name_classifier.ftz: ~100MB quantized model, retrained in R59.5 on
+  the DE-BIASED committed corpus
+  `data/ml_training/ft_name_training_clean.txt` (13,427 lines; derived
+  drop-only by `scripts/ml/clean_ft_corpus.py` from the retired
+  geo-labeled original — R59 forensics proved the old labels were
+  OpenAlex affiliation countries, not etymologies, with the A1 class
+  62% contaminated by sampled audit). **Gitignored — NOT bundled.** A
+  fresh clone rebuilds it via `make model`
+  (`scripts/ml/build_name_classifier.py`); `make setup` does this
+  automatically. The build is BYTE-DETERMINISTIC (thread=1, verified
+  md5-identical consecutive builds) and hard-fails if known
+  contamination reappears (cetin/hazra→A1). Without it, region
+  detection runs rules-only with a loud warning (R54).
 - Same-group gate: fastText can only refine within an anchored group, never
   cross groups — and NEVER emits without an anchor (R58: the raw
   ft_only_high_conf promotion was removed after adjudicated measurement
   showed 67-81% precision at every threshold; see docs/calibration.md R58
-  and tools/ft_threshold_sweep.py)
+  and tools/ft_threshold_sweep.py). R59.5 closed the one remaining
+  cross-group hole: anchorless multi-group orthographic 'permitted' sets
+  (š/č/ž → {SLAVIC, BALTIC}) no longer license leaves — the retrained
+  model produced the measured counterexample (Grušas, Lithuanian, emitted
+  B2@0.93 across the set boundary). Permitted sets still narrow weak
+  hints and serve as ft-veto surfaces.
 - R58 accuracy round (real-data pilot -> 40-agent adjudication -> 4 designs
   -> precision+adversarial judges): NumPy-2-dead ML tier revived
   (fasttext predict raises under NumPy>=2; low-level API + loud failure);
   icu-priority weak-evidence gate (sub-2.0 hits route through the
   same-group ft gate as weak_group anchors instead of emitting at 0.76);
   205 curated surname_exact YAML entries across 14 config/regions files
-  (every entry backed by a named adjudicated bearer); orthographic group
+  (every entry backed by a named adjudicated bearer; R59.4 grew this to
+  ~216 accepted keys across 15 files — g1.yaml added, 'sabbagh' removed
+  by the errata provenance rule); orthographic group
   anchors (src/regions/detection/orthography.py — Tier-1 signature marks
   veto-immune, Tier-2 contextual marks ft-vetoable, Benaïm group_cap).
   Measured on the 456-name arXiv pilot vs adjudicated truth: abstention

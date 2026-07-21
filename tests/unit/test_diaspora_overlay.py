@@ -16,7 +16,13 @@ from src.regions.manager_optimized import RegionManager
 
 
 def _detect(m, year):
-    e = {"CanonicalLatin": "Suwannarat, Somchai", "CountryCodes": ["TH"]}
+    # R59.5: fixture surname changed Suwannarat -> Chaiyaporn. The test's
+    # subject is the era-overlay + conflict-flag MECHANICS, so the name
+    # axis must come from the RULES tier (Chaiyaporn is a hardcoded E6
+    # STRONG surname, 0.89): the old fixture's E6 emission rode the
+    # geo-labeled model's ft confidence (0.902), which the R59.5
+    # de-biased retrain honestly lowered below the 0.70 gate (0.643).
+    e = {"CanonicalLatin": "Chaiyaporn, Somchai", "CountryCodes": ["TH"]}
     if year is not None:
         e["BirthYear"] = year
     r = m.detect_region(e)

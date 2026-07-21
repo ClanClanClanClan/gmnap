@@ -36,6 +36,14 @@ _PINS = [
     ("J. Cvitanić", "A1", "B2"),
     ("L. Tangpi", "E1", "F-group"),  # ft E1@0.85; adjudicated F GROUP_ONLY
     ("B. Büke", "A1", "C1"),
+    # R59.5: the RETRAINED (de-biased) model is wrong on these bearers in
+    # NEW directions — Büke drifts A2-ward, Çetin's top-1 hovers between
+    # B1 and A1 at knife-edge confidence. The curated surname tier emits
+    # C1@0.95 for both today; these rows forbid the new wrong directions
+    # from ever being emitted no matter how future models drift.
+    ("B. Büke", "A2", "C1"),
+    ("U. Cetin", "B1", "C1"),
+    ("U. Çetin", "B1", "C1"),
     # Short-homograph class: given-name-driven ANGLO hint + ft's A1 bias
     # correlate on a 3-char Chinese-Singaporean surname. The unconditional
     # >=4-char surname guard on ft emissions keeps this abstained.

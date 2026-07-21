@@ -1040,16 +1040,40 @@ class RegionManager:
 
             # Tier-2 ortho anchors are VETOED by a confident cross-group ft
             # verdict (the Maghrebi-French trap: 'René Aïd' carries ï but ft
-            # says ARABIC C3@0.90 — the orthography is transliteration, not
-            # French origin). Tier-1 signature marks are veto-immune.
+            # says ARABIC — the orthography is transliteration, not French
+            # origin). Tier-1 signature marks are veto-immune. R59.5: the
+            # veto consults the FOLDED surname as a second witness when the
+            # raw-form verdict misses the bar — the de-biased model splits
+            # its confidence across romanization variants ('aïd' C3@0.57
+            # raw, 'aid' C5@0.89 folded; both ARABIC-family, and the old
+            # model's raw 0.90 was a geo-label artifact). Same 0.80 bar,
+            # no new thresholds.
             if ortho is not None and ortho.tier == 2 and ft_group:
                 ft_prob = ft_result.metadata.get("ft_prob", 0)
+
+                def _cross_group_confident(target_ok) -> bool:
+                    if not target_ok(ft_group) and ft_prob >= 0.80:
+                        return True
+                    raw_sur = ft_result.metadata.get("surname") or ""
+                    folded = (
+                        unicodedata.normalize("NFKD", raw_sur)
+                        .encode("ascii", "ignore")
+                        .decode("ascii")
+                    )
+                    if folded and folded != raw_sur:
+                        fp = self._ft_folded_verdict(folded)
+                        if fp is not None:
+                            f_group, f_prob = fp
+                            if not target_ok(f_group) and f_prob >= 0.80:
+                                return True
+                    return False
+
                 if ortho.kind in ("group", "group_cap"):
-                    if ft_group != ortho.payload and ft_prob >= 0.80:
+                    if _cross_group_confident(lambda g: g == ortho.payload):
                         ortho = None
                         ortho_vetoed = True
                 elif ortho.kind == "permitted":
-                    if ft_group not in ortho.payload and ft_prob >= 0.80:
+                    if _cross_group_confident(lambda g: g in ortho.payload):
                         ortho = None
                         ortho_vetoed = True
 
@@ -1060,28 +1084,20 @@ class RegionManager:
             if anchor_group is None and ortho is not None:
                 if ortho.kind == "group":
                     anchor_group = ortho.payload
-                elif ortho.kind == "permitted":
-                    surname_len = len(
-                        (ft_result.metadata.get("surname") or "").replace(" ", "")
-                    )
-                    if (
-                        ft_group in ortho.payload
-                        and surname_len >= 4
-                        and ft_result.metadata.get("ft_prob", 0) >= 0.70
-                        and (
-                            ft_result.metadata.get("ft_prob", 0)
-                            - ft_result.metadata.get("ft_prob2", 0)
-                        )
-                        >= 0.20
-                    ):
-                        ft_result.metadata["gated"] = "ortho_permitted_set"
-                        ft_result.metadata["ortho_marks"] = ortho.marks
-                        return (
-                            ft_result.region_code,
-                            ft_result.confidence,
-                            ft_result.detection_method,
-                            ft_result.metadata,
-                        )
+                # R59.5: an ANCHORLESS multi-group 'permitted' set no longer
+                # licenses a leaf. The removed branch let fastText choose
+                # BETWEEN the set's groups (š/č/ž -> {SLAVIC, BALTIC}), which
+                # is exactly the decision the same-group principle forbids —
+                # and the R59 retrained model produced the measured
+                # counterexample: 'Grušas, Gintaras' (Lithuanian, C9) emitted
+                # B2@0.75 because ft was confidently wrong ACROSS the set's
+                # group boundary (B2@0.93). The flaw was latent with the old
+                # geo-labeled model only because it rarely cleared the
+                # prob/margin bar here. Permitted sets still function where
+                # they are principled: intersected with a weak scorer hint
+                # (single group, above) and as an ft-veto surface. Bare
+                # permitted-sets claim nothing — the terminal abstention
+                # keeps them out of group-level output too.
 
             if anchor_group is not None:
                 # An anchor exists — fastText must agree with it.
@@ -1451,6 +1467,32 @@ class RegionManager:
             else:
                 return None, 0.0, 0.0
         return self._ft_cli_worker.predict(text)
+
+    def _ft_folded_verdict(self, folded_surname: str):
+        """(group, prob) of the model's top-1 on a FOLDED surname, or None.
+
+        R59.5: second witness for the Tier-2 ortho veto — the model
+        splits confidence across romanization variants, so a raw-form
+        verdict under the veto bar can hide a confident folded-form one
+        ('aïd' C3@0.57 vs 'aid' C5@0.89).
+        """
+        model = self._load_surname_fasttext()
+        if model is None or not folded_surname:
+            return None
+        try:
+            if model == "CLI_MODE":
+                label, p1, _p2 = self._predict_via_cli(folded_surname)
+            else:
+                pairs = self._ft_predict_pairs(model, folded_surname, k=1)
+                if not pairs:
+                    return None
+                p1, label = pairs[0]
+                label = str(label).replace("__label__", "")
+        except Exception:
+            return None
+        if not label:
+            return None
+        return (LEAF_TO_GROUP.get(label), float(p1))
 
     def _detect_by_surname_fasttext(
         self, entry: Dict[str, Any]

@@ -14,9 +14,27 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-_WORD = re.compile(
-    r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?:['-][A-Za-zÀ-ÖØ-öø-ÿ]+)*"
-)  # token incl. hyphenated (jae-in) and apostrophe (o'brien, o'sullivan)
+# Two token alphabets, deliberately different (R59.5):
+#
+# _WORD (RAW tokens): FULL Unicode letters ([^\W\d_]) — the old Latin-1
+# class stopped at U+00FF, so č/ć/š/ž/ő/ū (Latin Extended-A) SPLIT the
+# raw token ('čekanavičius' -> 'ekanavi'+'ius') and silently killed
+# every raw-diacritic rule for those marks: the 'ović'/'ević' raw
+# suffixes (documented as mysteriously dead), the -ovic dedupe guard,
+# the Łacinka '-ovič' abstention, and the C9 'ičius' rule.
+#
+# _LATIN1_WORD (FOLDED tokens, _latin_tokens): the ORIGINAL Latin-1
+# class, kept on purpose. _latin_tokens' isalnum() filter passes
+# CJK/Greek/Cyrillic characters, so this class doubles as the de-facto
+# SCRIPT GATE: a pure-CJK name must tokenize to [] ('no_tokens') so the
+# manager falls through to script-based detection. Broadening it to
+# Unicode letters routed 王小明 into the Latin scorer, whose 'no_signal'
+# is a HARD abstain that shadowed the script tier (measured: every
+# non-Latin native fell to R0 and stage-3 romanization died). Post-NFKD
+# Latin text is inside Latin-1 (č -> c; ø/æ/ß don't decompose and are in
+# the class), so folded tokens are byte-identical to the old behavior.
+_WORD = re.compile(r"[^\W\d_]+(?:['-][^\W\d_]+)*")
+_LATIN1_WORD = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?:['-][A-Za-zÀ-ÖØ-öø-ÿ]+)*")
 
 
 def _latin_tokens(name: str) -> list[str]:
@@ -28,7 +46,7 @@ def _latin_tokens(name: str) -> list[str]:
     # suffix match. Fold it to plain 'i' like every other diacritic.
     name_nfkd = name_nfkd.replace("ı", "i")
     name_ascii = "".join(ch for ch in name_nfkd if ch.isalnum() or ch in "- '")
-    return _WORD.findall(name_ascii)
+    return _LATIN1_WORD.findall(name_ascii)
 
 
 @functools.lru_cache(maxsize=None)
@@ -332,6 +350,13 @@ _STRONG = {
         "given_frag": {
             "hans",
             "karl",
+            # R59.5: 'kurt' was missing — 'Kurt Girstmair' (Austrian,
+            # held-out corpus) scored 'kurt' against C1's STRONG surname
+            # table (Kurt is also a common Turkish surname) and emitted
+            # C1@0.875. As a known given name it is filtered from
+            # no-comma surname candidates; comma'd 'Kurt, Mehmet' and
+            # surname-last 'Mehmet Kurt' still fire C1 correctly.
+            "kurt",
             "friedrich",
             "wolfgang",
             "helmut",
@@ -2105,7 +2130,10 @@ _STRONG = {
             "asefa",
             "tsegaye",
             "mulugeta",
-            "solomon",
+            # R59.5: 'solomon' REMOVED — cross-group ambiguous form
+            # (Ethiopian patronymic F3, Hebrew C6, Anglo A1 bearers all
+            # common; held-out counterexample 'Noah Solomon' adjudicated
+            # C6 emitted F3@0.875). No single leaf admissible; abstain.
             "yohannes",
             "mohamed",
             "hassan",
@@ -2306,6 +2334,12 @@ MEDIUM_SUFFIXES_TO_LEAF = {
     "auskas": "C9",
     "aitis": "C9",
     "evicius": "C9",
+    # R59.5: raw-diacritic form only — the folded 'icius' would collide
+    # with the Latin-humanist class (Fabricius, A2/A3 bearers); 'ičius'
+    # with the háček is Lithuanian-specific (Čekanavičius, adjudicated).
+    # Recovers part of the coverage retired with the anchorless
+    # permitted-set license.
+    "ičius": "C9",
 }
 
 # Bare short suffixes that only fire a GROUP, never a leaf alone.
@@ -2845,7 +2879,20 @@ def _score_priority_rules(name, possible):
         for suf, leaf in sorted(
             MEDIUM_SUFFIXES_TO_LEAF.items(), key=lambda x: -len(x[0])
         ):
-            if tok.endswith(suf) and len(tok) > len(suf) + 1:
+            # R59.5: non-ASCII medium suffixes ('ičius') match against the
+            # RAW token whose folded form is this candidate — same R58.8
+            # rationale as the STRONG loop (folding destroys the mark that
+            # IS the discriminator).
+            if not suf.isascii():
+                hit = any(
+                    rt.endswith(suf)
+                    and len(rt) > len(suf) + 1
+                    and _latin_tokens(rt) == [tok]
+                    for rt in _raw_tokens
+                )
+            else:
+                hit = tok.endswith(suf) and len(tok) > len(suf) + 1
+            if hit:
                 group = LEAF_TO_GROUP.get(leaf)
                 if group:
                     for r in possible:

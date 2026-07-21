@@ -42,6 +42,9 @@ REPO = Path(__file__).resolve().parent.parent
 BENCHMARK = REPO / "tests" / "fixtures" / "name_origin_benchmark.json"
 OUT_JSON = REPO / "docs" / "calibration.json"
 OUT_MD = REPO / "docs" / "calibration.md"
+# Everything from this marker onward in calibration.md is hand-maintained
+# history (R58+ audit records) and is preserved across regenerations.
+_MANUAL_MARKER = "<!-- MANUAL HISTORY BELOW — preserved by tools/calibration.py -->"
 # Knots for the runtime isotonic calibrator. Read by
 # src/regions/calibration.py when GMNAP_CALIBRATE_CONFIDENCE=1.
 OUT_KNOTS = REPO / "data" / "calibration_isotonic.json"
@@ -558,7 +561,17 @@ def main() -> int:
 
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    OUT_MD.write_text(_md_report(report), encoding="utf-8")
+    # R59.5: docs/calibration.md carries hand-written historical sections
+    # (R58 rejection record, R59 rounds) BELOW a marker line. Regenerating
+    # the auto report must preserve them — a plain write_text destroyed
+    # the audit trail.
+    md = _md_report(report)
+    if OUT_MD.exists():
+        old = OUT_MD.read_text(encoding="utf-8")
+        idx = old.find(_MANUAL_MARKER)
+        if idx != -1:
+            md = md.rstrip() + "\n\n" + old[idx:]
+    OUT_MD.write_text(md, encoding="utf-8")
 
     OUT_KNOTS.parent.mkdir(parents=True, exist_ok=True)
     OUT_KNOTS.write_text(

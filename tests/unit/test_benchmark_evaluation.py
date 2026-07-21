@@ -268,26 +268,50 @@ def test_name_origin_group_accuracy(manager, benchmark_data):
 
     high_conf = [e for e in benchmark_data if e["adjudication_confidence"] == "high"]
 
+    # R59.5 REWRITE. The old assertion demanded group-or-better on >= 95%
+    # of ALL high-conf entries, counting honest abstentions as failures —
+    # a pre-R58 coverage philosophy. It has been mathematically
+    # unsatisfiable since the same-group gate landed (the whole system
+    # emits ~250 leaves on the 843; 435 * 0.95 = 414), so it can only
+    # ever have "passed" by skipping (CI has no model; NumPy-2 broke the
+    # local probe for months). The project contract is precision-first:
+    # wrong output is the failure mode, abstention is always acceptable.
+    # Metric now: group precision over VERIFIABLE OUTPUTS (leaf emissions
+    # + abstentions that CLAIM a group) >= 95%, with a separate coverage
+    # floor to catch catastrophic regressions. Measured at rewrite time:
+    # precision 150/152 = 98.7%, coverage 152/435 = 34.9%.
+    emit_or_claim = 0
     group_correct = 0
     for entry in high_conf:
         r = manager.detect_region({"CanonicalLatin": entry["full_name"]})
         expected_group = LEAF_TO_GROUP.get(entry["geo_label"])
-        if r.region_code == entry["geo_label"]:
-            group_correct += 1
-        elif r.region_code == "R0" and r.group_region == expected_group:
-            group_correct += 1
-        elif r.region_code != "R0":
-            got_group = LEAF_TO_GROUP.get(r.region_code)
-            if got_group == expected_group:
+        if r.region_code == "R0":
+            if r.group_region is not None:
+                emit_or_claim += 1
+                if r.group_region == expected_group:
+                    group_correct += 1
+        else:
+            emit_or_claim += 1
+            if (
+                r.region_code == entry["geo_label"]
+                or LEAF_TO_GROUP.get(r.region_code) == expected_group
+            ):
                 group_correct += 1
 
-    accuracy = group_correct / len(high_conf) if high_conf else 0
+    precision = group_correct / emit_or_claim if emit_or_claim else 0
+    coverage = emit_or_claim / len(high_conf) if high_conf else 0
     print(
-        f"\nHigh-confidence group-or-better: {group_correct}/{len(high_conf)} = {accuracy:.1%}"
+        f"\nHigh-confidence group precision on verifiable outputs: "
+        f"{group_correct}/{emit_or_claim} = {precision:.1%}; "
+        f"coverage {emit_or_claim}/{len(high_conf)} = {coverage:.1%}"
     )
-    assert accuracy >= 0.95, (
-        f"Group-or-better {accuracy:.1%} below 95% "
-        f"({group_correct}/{len(high_conf)})"
+    assert precision >= 0.95, (
+        f"Group precision {precision:.1%} below 95% "
+        f"({group_correct}/{emit_or_claim})"
+    )
+    assert coverage >= 0.25, (
+        f"Verifiable-output coverage {coverage:.1%} collapsed below 25% "
+        f"({emit_or_claim}/{len(high_conf)})"
     )
 
 

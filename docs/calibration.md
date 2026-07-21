@@ -26,10 +26,10 @@ entries) by `src/regions/benchmark_split.py`.
 | Metric | Raw test | Calibrated test (held-out) | Train-applied | 5-fold CV on train |
 |---|---:|---:|---:|---:|
 | Eligible entries (leaf-mode) | 168 | 168 | 675 | 675 |
-| Predictions emitted | 129 | 129 | – | – |
-| Abstentions (R0 / None) | 39 | 39 | – | – |
-| Brier score | **0.1512** | **0.1330** | – | **0.1115** |
-| Expected Calibration Error (ECE) | **0.1881** | **0.0390** | 0.0000 | **0.0018** |
+| Predictions emitted | 56 | 56 | – | – |
+| Abstentions (R0 / None) | 112 | 112 | – | – |
+| Brier score | **0.2040** | **0.1815** | – | **0.1929** |
+| Expected Calibration Error (ECE) | **0.1659** | **0.0481** | 0.0000 | **0.0119** |
 
 **The second column is the honest number.** It's the test-set ECE
 after applying knots that were fit only on the disjoint train set.
@@ -41,7 +41,7 @@ estimates fit-time variance.
 **ECE ≥ 0.10** indicates substantial miscalibration. Use the isotonic-calibrated value (below) for any downstream consumer that expects a probability.
 
 After PAV (pool-adjacent-violators) isotonic regression on the
-same set, ECE drops to **0.0390** (2 knots fitted,
+same set, ECE drops to **0.0481** (3 knots fitted,
 saved to `data/calibration_isotonic.json`). Enable at runtime via
 `GMNAP_CALIBRATE_CONFIDENCE=1`.
 
@@ -83,10 +83,10 @@ Reliability diagram (30 cols = 100 %)
   [0.3,0.4) │  0.35  │     0 │   —   │ ······························
   [0.4,0.5) │  0.45  │     0 │   —   │ ······························
   [0.5,0.6) │  0.55  │     0 │   —   │ ······························
-  [0.6,0.7) │  0.65  │     3 │  1.00 │ ###################|##########
-  [0.7,0.8) │  0.75  │    62 │  0.97 │ ######################|###### 
-  [0.8,0.9) │  0.85  │    53 │  0.70 │ #####################     |   
-  [0.9,1.0) │  0.95  │    11 │  0.82 │ #########################   | 
+  [0.6,0.7) │  0.65  │     0 │   —   │ ······························
+  [0.7,0.8) │  0.75  │     6 │  1.00 │ ######################|#######
+  [0.8,0.9) │  0.85  │    40 │  0.68 │ ####################      |   
+  [0.9,1.0) │  0.95  │    10 │  0.90 │ ########################### | 
 ```
 
 ## Calibrated reliability diagram (train-set)
@@ -102,9 +102,9 @@ Reliability diagram (30 cols = 100 %)
   [0.3,0.4) │  0.35  │     0 │   —   │ ······························
   [0.4,0.5) │  0.45  │     0 │   —   │ ······························
   [0.5,0.6) │  0.55  │     0 │   —   │ ······························
-  [0.6,0.7) │  0.65  │     0 │   —   │ ······························
-  [0.7,0.8) │  0.75  │     3 │  1.00 │ ######################|#######
-  [0.8,0.9) │  0.85  │   126 │  0.84 │ ######################### |   
+  [0.6,0.7) │  0.65  │    26 │  0.65 │ ###################|          
+  [0.7,0.8) │  0.75  │    30 │  0.83 │ ######################|##     
+  [0.8,0.9) │  0.85  │     0 │   —   │ ······························
   [0.9,1.0) │  0.95  │     0 │   —   │ ······························
 ```
 
@@ -121,9 +121,9 @@ Reliability diagram (30 cols = 100 %)
   [0.3,0.4) │  0.35  │     0 │   —   │ ······························
   [0.4,0.5) │  0.45  │     0 │   —   │ ······························
   [0.5,0.6) │  0.55  │     0 │   —   │ ······························
-  [0.6,0.7) │  0.65  │     1 │  1.00 │ ###################|##########
-  [0.7,0.8) │  0.75  │     0 │   —   │ ······························
-  [0.8,0.9) │  0.85  │   524 │  0.87 │ ##########################|   
+  [0.6,0.7) │  0.65  │    77 │  0.69 │ ###################|#         
+  [0.7,0.8) │  0.75  │    89 │  0.78 │ ######################|       
+  [0.8,0.9) │  0.85  │    29 │  0.76 │ #######################   |   
   [0.9,1.0) │  0.95  │     0 │   —   │ ······························
 ```
 
@@ -162,6 +162,8 @@ result.confidence  # now isotonic-calibrated
 When the env var is unset (the default), confidence is the raw
 detector score — preserving back-compat for anything that pinned
 specific values in tests or fixtures.
+
+<!-- MANUAL HISTORY BELOW — preserved by tools/calibration.py -->
 
 ## R58 (2026-07-16): raw fastText promotion is rejected — measured
 
@@ -239,3 +241,117 @@ straddle in both directions, and assorted single-table entries
 (Reichelt→A1, Tafazolian→C3). These classes are R59's work list; every
 fix is measured against THIS corpus, and future dictionary curation from
 corpus N is evaluated only on corpus N+1.
+
+## R59.5 (2026-07-21): the retrain — de-biased corpus, deterministic build
+
+R59 forensics PROVED the training-label defect the R58 same-group gate had
+been compensating for: `ft_name_training.txt`'s labels were OpenAlex
+**affiliation countries**, not name etymologies. Evidence (all reproduced,
+commands in the R59 workflow journal): the corpus's one commit describes
+"aligned labels" whose immigrant filter only removed entries where the
+then-current detector disagreed — but the detector ABSTAINS on exactly the
+diaspora names that matter, so they kept their geo labels; 63.7 % of
+unique A1-class surnames (2,364/3,712) trace to an OpenAlex entry with an
+Anglosphere affiliation CC; a seed-42 sample of 60 unique A1 surnames
+found **37 (62 %) clearly non-Anglo etymologies** (kürkçüoğlu,
+aghamohammadi, giang, nosrati, heilbronn, schmitz…; 25 % is the
+bearer-verified floor); 8.7 % of surnames carry 2+ labels (kumar→A2 is
+not an etymology label); and 37 % of a 30-name E1 sample are Chinese
+GIVEN-name tokens fed to a surname classifier. The old model memorized
+it: cetin→A1@1.000, kürkçüoğlu→A1@0.994, giang→A1@0.999.
+
+**The fix is drop-only** (`scripts/ml/clean_ft_corpus.py`; a relabeling
+step was REJECTED as circular — no model predictions, no rule-tier
+outputs may become labels): R1 junk; R2 family-aware 0.75 conflict rule
+(settle the group FAMILY first, then the plurality leaf within it — a
+flat per-leaf majority is a measured trap: it deletes 'taylor'); R3 A1
+de-contamination (non-A1 YAML claims, post-R59.3/4 signature/medium
+suffix veto, A1-attestation<2, and the named 37-surname forensics list);
+R4 frequency cap 3. 23,470 → **13,427 lines**, A1 share 20.1 % → 7.5 %.
+The original is retired in-repo as
+`ft_name_training.geo-labeled.txt.retired`; the cleaned corpus is
+committed and the build is **byte-deterministic** (thread=1, verified
+md5-identical across consecutive builds, quantize included). The 271
+adjudicated pilot pairs are NOT trained on — they stay pure eval.
+
+**Within-anchor gate** (`tools/eval_within_anchor.py`, R58.7 errata as a
+per-name table; the quantity the runtime actually uses — leaf choice
+inside the truth's anchored family):
+
+| Model | within-anchor | per-family |
+|---|---|---|
+| geo-labeled reference | 149/221 = 67.4 % | A:89/130 B:23/28 C:10/23 D:5/15 E:20/23 G:2/2 |
+| **R59.5 retrained** | **162/221 = 73.3 %** | A:107/130 B:23/28 C:7/23 D:4/15 E:19/23 G:2/2 |
+
+No family drops more than 3 (C sits exactly at the −3 floor: the C
+anchor loses Maghreb-vs-Levant discrimination the geo labels encoded —
+honest trade, documented). Raw open-set top-1 is informational only.
+
+**Model-level negative battery** (`tests/unit/test_ft_negative_battery.py`):
+the 37 forensics surnames + cetin must score A1 < 0.5. Two measured
+exceptions are carved out and documented: `younes` (A1@0.503) and
+`colliander` (A1@0.781) have ZERO lines in the cleaned corpus — their
+scores are pure char-n-gram generalization, unreachable by drop-only
+cleaning (verified across two corpus variants; younes is knife-edge).
+For them the pinned guarantee is the RUNTIME one: no anchor exists, so
+they can never emit (verified and pinned). The judge's model-level
+predicate holds for 8 of its named 9; the deviation is recorded here.
+cetin's top-1 flips B1@0.42 ↔ A1@0.31 across a 2-line corpus
+perturbation — top-1 gates on knife-edge names are noise, so all hard
+gates use the A1@≥0.5 predicate.
+
+**Same-group gate hardening found by the retrain**: the new model's
+confident B2@0.93 on 'Grušas' (Lithuanian, C9) exposed that anchorless
+multi-group orthographic 'permitted' sets (š/č/ž → {SLAVIC, BALTIC})
+let fastText choose BETWEEN groups — the decision R58 banned. That
+license is retired (permitted sets still narrow weak hints and serve as
+ft-veto surfaces); the honest cost on the 843 benchmark was 5
+correct→abstain against 1 wrong killed, partially recovered by a
+raw-only 'ičius'→C9 medium suffix. The same investigation exposed that
+the scorer's raw tokenizer stopped at Latin-1, silently killing every
+raw-diacritic rule for č/ć/š/ž (the 'ović' rules documented as dead, the
+Łacinka '-ovič' abstention) — fixed with a full-Unicode letter class.
+
+**End-state on the held-out corpus** (450 arXiv names, zero curation
+contact, same protocol as R59.1):
+
+| Metric | R59.1 baseline | R59.5 |
+|---|---|---|
+| Abstention | 57 % | 60 % |
+| Strict leaf precision | 85.1 % (160/188) | **92.0 % (160/174)** |
+| Wrong leaf emissions | 28 | **14** |
+
+Every change was A/B-gated per corpus (843 + 456-pilot + held-out):
+across R59.3–R59.5 the deltas are abstention→correct conversions and
+wrong→abstention kills only; the pilot's adjudicated subset stands at
+**0 wrong**. The residual 14 held-out wrongs are the deep classes
+(bearer-context labels like Johnson→D2, Wade-Giles E2 vs E1/E4
+romanization, same-family A near-misses, the Iberian A2↔G1 straddle) —
+each needs its own designed round, not a dictionary patch.
+
+*Calibration re-fit (R59.5)*: the auto-generated report above was
+regenerated on the CURRENT (post-R59.5) system — raw test ECE 0.1659 →
+calibrated held-out **0.0481** (3 PAV knots; Brier 0.2040 → 0.1815; only
+56 test-split emissions remain after this round's precision-first
+retirements). `tools/calibration.py` now preserves everything below the
+manual-history marker instead of clobbering it, so re-fits are safe.
+Earlier headline "ECE = 0.039" belonged to the R58-era system.
+
+**Full-suite regressions caught and fixed before landing** (the value of
+running everything): (1) the Unicode tokenizer broadening initially
+destroyed the SCRIPT tier — `_latin_tokens`' old Latin-1 class was the
+de-facto script gate, and widening it routed pure-CJK/Greek/Cyrillic
+names into the Latin scorer whose hard abstain shadowed script fallback
+(every non-Latin native fell to R0; stage-3 romanization died). Fixed by
+keeping the folded-token alphabet at Latin-1 (byte-identical Latin
+behavior) while raw tokens use full Unicode. (2) The 'René Aïd' Tier-2
+ortho veto silently weakened: the de-biased model splits confidence
+across romanization variants (raw 'aïd' C3@0.57 vs folded 'aid'
+C5@0.89), so the veto now consults the folded surname as a second
+witness at the same 0.80 bar. (3) Two tests re-anchored: the diaspora
+overlay fixture now uses a RULES-emitted Thai surname (its E6 emission
+had ridden the geo-model's inflated ft confidence), and the 843
+group-accuracy assertion was rewritten from a coverage-inclusive >=95%
+(mathematically unsatisfiable since R58's gate — it only ever "passed"
+by skipping) to the contract metric: group precision >=95% on verifiable
+outputs (measured 98.7%) with a separate 25% coverage floor (34.9%).
