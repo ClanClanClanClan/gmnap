@@ -946,6 +946,19 @@ class RegionManager:
                         "weak_best_region",
                     )
                 }
+                # R58.8 (adversarial verification): a 'given_only_no_surname'
+                # abstention scores GIVEN-name fragments only — often a
+                # coin-flip tie between groups. Its group/best_region must
+                # neither anchor the ft gate (verified wrong leaves: 'Thabo
+                # Mbeki'→E3/JAPANESE@0.74, 'Ján Ďurica'→A2) nor surface as an
+                # output group_region claim (verified wrong claims: Wee→
+                # ANGLO, 'Mitra Fatemi'→JAPANESE, 'Martin Ødegaard'→SLAVIC).
+                # The reason stays for debugging; the authority dies here.
+                if scorer_hint.get("reason") == "given_only_no_surname":
+                    scorer_hint.pop("group", None)
+                    scorer_hint.pop("best_region", None)
+                    scorer_hint.pop("weak_group", None)
+                    scorer_hint.pop("weak_best_region", None)
             elif (
                 result.detection_method == "script"
                 and result.metadata.get("script") == "Latin"
@@ -1125,12 +1138,24 @@ class RegionManager:
             and ortho.kind in ("group", "group_cap")
             and (ortho.tier == 1 or ft_result is not None)
         ):
+            # R58.8: group_region is promoted by _merge_geo_name from
+            # metadata['best_region'] via LEAF_TO_GROUP — the 'group' key
+            # alone never reaches the output axis (verified: the R58.5
+            # terminal left GroupRegion=None). Supply a deterministic
+            # representative leaf of the anchored group so the claim is
+            # actually visible downstream.
+            rep_leaf = min(
+                (l for l, g in LEAF_TO_GROUP.items() if g == ortho.payload),
+                default=None,
+            )
             scorer_hint = {
                 **scorer_hint,
                 "group": ortho.payload,
                 "reason": "ortho-group-anchor",
                 "ortho_marks": ortho.marks,
             }
+            if rep_leaf:
+                scorer_hint["best_region"] = rep_leaf
         return ("R0", 0.10, "name-abstain", scorer_hint)
 
     def _infer_name_origin(self, entry: Dict[str, Any]):
@@ -1902,9 +1927,13 @@ class RegionManager:
                     # Direct match
                     if cleaned_candidate in surnames or in_yaml:
                         score = 10
-                        # For ambiguous surnames like "Lee", check given name patterns
+                        # For ambiguous surnames like "Lee", check given name
+                        # patterns. R58.8: 'lim' (Korean 임 AND Hokkien 林 —
+                        # 'Lim Chin Siong' emitted E4@0.95) and 'do' (Korean
+                        # 도 AND folded Vietnamese Đỗ — 'Do Thi Huong'
+                        # emitted E4@0.95) join the ambiguity set.
                         if (
-                            cleaned_candidate in ["lee", "li", "kim"]
+                            cleaned_candidate in ["lee", "li", "kim", "lim", "do"]
                             and len(parts) >= 2
                         ):
                             # Check for Western and Korean given name patterns
@@ -1962,6 +1991,18 @@ class RegionManager:
                                 score = 11  # Slight boost for non-Korean
                             elif has_western_given and region_code == "E4":
                                 score = 5  # Reduce Korean score for Western given names
+                            elif (
+                                cleaned_candidate in ("lim", "do")
+                                and region_code == "E4"
+                                and not has_korean_pattern
+                            ):
+                                # R58.8: lim/do exist ONLY in the E4 table,
+                                # so without positive Korean evidence they
+                                # must not emit at all — fall through to the
+                                # scorer/ft tiers ('Lim Chin Siong',
+                                # 'Do Thi Huong' abstain here instead of
+                                # claiming Korea at 0.95).
+                                score = 0
                     else:
                         # Partial match scoring - only for surnames of reasonable length
                         for surname in surnames:
@@ -2025,7 +2066,8 @@ class RegionManager:
             ):
                 score = 10
                 # For ambiguous surnames, check given name for disambiguation
-                if family_name in ["lee", "li", "kim"] and "," in name:
+                # (R58.8: lim/do joined — see the no-comma branch rationale).
+                if family_name in ["lee", "li", "kim", "lim", "do"] and "," in name:
                     given_parts = name.split(",")[1].strip().lower()
                     # Common Korean given name patterns
                     korean_patterns = [
@@ -2051,6 +2093,14 @@ class RegionManager:
                         score = 12  # Boost Korean match
                     elif not has_korean_pattern and region_code != "E4":
                         score = 11  # Slight boost for non-Korean
+                    elif (
+                        family_name in ("lim", "do")
+                        and region_code == "E4"
+                        and not has_korean_pattern
+                    ):
+                        # R58.8: no positive Korean evidence -> no E4 claim
+                        # ('Lim, Chin Siong' / 'Do, Thi Huong' fall through).
+                        score = 0
             else:
                 # Partial match scoring - only for surnames of reasonable length
                 for surname in surnames:
@@ -2891,7 +2941,9 @@ class RegionManager:
                 "bombieri",
                 "fubini",
                 "vitali",
-                # Hungarian
+                # Hungarian (R58.7: consolidated here — HU→A2 per the R51
+                # maintainer ruling and the benchmark's own Erdős→A2 pins;
+                # the duplicate A3 block is gone)
                 "nagy",
                 "kovács",
                 "tóth",
@@ -2919,6 +2971,13 @@ class RegionManager:
                 "lovász",
                 "szemerédi",
                 "babai",
+                "erdős",
+                "bollobás",
+                "katona",
+                "kövári",
+                "szekeres",
+                "komlós",
+                "simonovits",
                 # Polish mathematicians
                 "banach",
                 "steinhaus",
@@ -3046,29 +3105,14 @@ class RegionManager:
                 "jansons",
                 "pētersons",
                 "kļaviņš",
-                # Hungarian (mathematicians and common surnames)
-                "erdős",
-                "rényi",
-                "turán",
-                "kövári",
-                "szekeres",
-                "lovász",
-                "szemerédi",
-                "babai",
-                "bollobás",
-                "komlós",
-                "rödl",
-                "freud",
-                "katona",
-                "simonovits",
-                "nagy",
-                "kovács",
-                "tóth",
-                "szabó",
-                "horváth",
-                "varga",
-                "kiss",
-                "molnár",
+                # R58.7: the '# Hungarian' block that lived here was REMOVED.
+                # A3 is Nordic-Baltic; Hungarian surnames (Erdős, Bollobás,
+                # Katona, …) emitted A3@0.95 — wrong leaf AND wrong group
+                # (NORDIC_BALTIC), contradicting the project's own benchmark,
+                # which pins Erdős under A2 (HU→A2, R51 maintainer ruling).
+                # Nine of those names were ALSO in the A2 table, so which
+                # wrong leaf won was an arbitrary tie-break. Hungarian names
+                # now live ONLY in the A2 block below.
             }
 
         if "B1" in self.IMPLEMENTED_REGIONS:
@@ -3371,17 +3415,17 @@ class RegionManager:
                 "kapoor",
                 "chopra",
                 "ramanujan",
-                "bose",
                 "chandrasekhar",
                 "raman",
-                "saha",
                 "mahalanobis",
                 "rao",
-                "bhattacharya",
                 "das",
                 "sen",
-                "mukherjee",
-                "chatterjee",
+                # R58.8: bose/bhattacharya/mukherjee/chatterjee/saha REMOVED
+                # from D1 — they are distinctly BENGALI surnames and the
+                # hybrid-CJK fallback already routes them to D3; having them
+                # here made the emitted leaf depend on which tier caught the
+                # name (Chatterjee -> D1@0.95 exact vs Banerjee -> D3).
             }
 
         if "E1" in self.IMPLEMENTED_REGIONS:

@@ -41,3 +41,8 @@ surname_exact:
   - czyz
   - šebek        # Stjepan Šebek
   - sebek
+  # R58.7: Romanian entries moved from b3.yaml (B3 is 'Greek World'; the
+  # codebase maps RO -> B2 'South-Slavic & Central Europe')
+  - castravet    # Ana-Maria Castravet
+  - robu         # Bogdan Robu
+  - marinescu    # George Marinescu

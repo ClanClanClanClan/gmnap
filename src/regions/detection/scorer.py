@@ -1530,7 +1530,8 @@ _STRONG = {
             "fu",
             "mok",
             "chung",
-            "pang",
+            # R58.8: "pang" removed — Korean 방 shares the romanization
+            # ("Pang, Min-su" fired STRONG_SURNAME:pang:5.00 -> E1).
             "hang",
             "lie",
             "sun",
@@ -1691,7 +1692,11 @@ _STRONG = {
             "cho",
             "yoon",
             "jang",
-            "lim",
+            # R58.8: "lim" REMOVED from the scorer's STRONG set — it is
+            # equally the Hokkien 林 romanization ('Lim Chin Siong' fired
+            # STRONG_SURNAME:lim:5.00 -> E4). The manager's surname tier
+            # upstream keeps Korean Lims via its given-name disambiguation
+            # ('Lim, Jae-woo' -> E4 there); the scorer has no such machinery.
             "han",
             "oh",
             "seo",
@@ -2099,12 +2104,12 @@ _STRONG = {
             "machado",
             "lopes",
             "rodrigues",
-            "manuel",
-            "antonio",
-            "jose",
-            "francisco",
-            "eduardo",
-            "carlos",
+            # R58.8: manuel/antonio/jose/francisco/eduardo/carlos REMOVED —
+            # they are Iberian GIVEN names, not Lusophone-African surnames,
+            # and as 5.0-weight STRONG surnames they emitted F4 for any
+            # 'X, Carlos Eduardo' ('Bortolotti, Carlos Eduardo' -> F4@0.88;
+            # true A2-Italian diaspora). They remain in given_frag below,
+            # which is their correct role.
             "marques",
             "sousa",
             "costa",
@@ -2445,6 +2450,14 @@ def _score_priority_rules(name, possible):
     set(tokens)
     name_l = " ".join(tokens)
 
+    # R58.8: raw (unfolded) view of the name for diacritic-aware rules —
+    # _latin_tokens NFKD-folds to ASCII, which destroyed every non-ASCII
+    # suffix rule and every orthographic guard. NFC keeps the marks.
+    _raw_name = unicodedata.normalize("NFC", name).lower()
+    _raw_tokens = _WORD.findall(_raw_name)
+    # Definitive Turkic orthography (dotless ı, ş, ğ — no Spanish use).
+    _raw_turkic_marked = any(c in "ışğ" for c in _raw_name)
+
     # Build set of ALL known given name fragments across all regions
     # Used to prevent matching given names as surnames
     all_given_frags = set()
@@ -2472,11 +2485,25 @@ def _score_priority_rules(name, possible):
                 return True
         return False
 
+    # R58.8 (adversarial verification): when the name carries a comma, the
+    # surname position is DECLARED — only pre-comma tokens are surname
+    # candidates. Previously given-name tokens were scored against other
+    # regions' STRONG surname lexicons and won: 'Mahler, Kurt' -> C1
+    # [STRONG_SURNAME:kurt:5.00], 'Bortolotti, Carlos Eduardo' -> F4
+    # [STRONG_SURNAME:eduardo:5.00].
+    _comma_candidates = None
+    if "," in name:
+        _pre = _latin_tokens(name.split(",", 1)[0])
+        if _pre:
+            _comma_candidates = _pre
+
     # For surname matching: check first and last tokens, but skip known given names
     # - Western names: surname is LAST token (e.g., "Antonio Fernández")
     # - CJK names: surname is FIRST token (e.g., "Zhao Min")
     # - Skip middle tokens (typically given names)
-    if len(tokens) == 1:
+    if _comma_candidates is not None:
+        surname_candidates = _comma_candidates
+    elif len(tokens) == 1:
         surname_candidates = tokens
     elif len(tokens) == 2:
         # For 2-token names: check both, but filter out known given names
@@ -2549,7 +2576,38 @@ def _score_priority_rules(name, possible):
         # ONLY check surname candidates, not given names
         # (prevents "luis" matching Greek -is suffix)
         for suf in strong.get("surname_suffix", set()):
-            if any(tok.endswith(suf) for tok in surname_candidates):
+            # R58.8: the Hispanic -ez/-az/-iz/-oz rule fired on the commonest
+            # Turkish surnames (Yılmaz -> G1@0.85). Two guards, both from
+            # verified counterexamples: (1) definitive Turkic orthography
+            # anywhere in the raw name (dotless ı, ş, ğ — no Spanish use)
+            # kills the Hispanic suffix; (2) tokens ending -maz/-mez (the
+            # Turkish negative-aorist surname family: Yılmaz, Sönmez,
+            # Korkmaz, Söylemez) never count for it.
+            if suf in ("ez", "az", "iz", "oz"):
+                if _raw_turkic_marked:
+                    continue
+                cand = [
+                    t
+                    for t in surname_candidates
+                    if not (t.endswith("maz") or t.endswith("mez"))
+                ]
+            else:
+                cand = surname_candidates
+            # R58.8: non-ASCII suffixes ('ová', 'ský', 'ović'…) were DEAD
+            # CODE — tokens are NFKD-folded to ASCII before matching, so
+            # e.g. B2's 'ová' never matched and Czech feminine surnames fell
+            # to B1's 'ova' (Svobodová -> B1/SLAVIC_EAST). Match non-ASCII
+            # suffixes against the RAW (unfolded) tokens; and the B1 'ova'
+            # rule skips names whose raw form carries the diacritic feminine
+            # 'ová' (the diacritic IS the Czech/Slovak-vs-East-Slavic
+            # disambiguator).
+            if not suf.isascii():
+                hit = any(rt.endswith(suf) for rt in _raw_tokens)
+            elif suf == "ova" and any(rt.endswith("ová") for rt in _raw_tokens):
+                hit = False
+            else:
+                hit = any(tok.endswith(suf) for tok in cand)
+            if hit:
                 w = 2.5
                 if suf == "ian":
                     w = 1.5  # ambiguous with Armenian
@@ -2558,7 +2616,13 @@ def _score_priority_rules(name, possible):
 
         # Strong: prefix patterns (Irish O', Scottish Mac/Mc, Anglo-Norman Fitz)
         for pfx in strong.get("surname_prefix", set()):
-            if any(tok.startswith(pfx) for tok in surname_candidates):
+            # R58.8: a bare token EQUAL to the prefix is a given name, not a
+            # prefixed surname ('Bratteli Ola' fired F2's ola- prefix on the
+            # given name Ola; Oladipo/Olawale still match).
+            if any(
+                tok.startswith(pfx) and len(tok) > len(pfx) + 1
+                for tok in surname_candidates
+            ):
                 surname_scores[r] += 3.0
                 reasons[r].append(f"STRONG_SURNAME_PREFIX:{pfx}:3.00")
 

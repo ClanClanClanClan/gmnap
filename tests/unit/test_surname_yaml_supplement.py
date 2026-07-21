@@ -30,11 +30,11 @@ def _detect(manager, name):
     [
         ("A. Réveillac", "A2"),
         ("D. Kršek", "B2"),
-        ("N. Touzi", "C3"),  # ft confidently wrong (A1@0.983) — dict precedes ft
+        ("N. Touzi", "C5"),  # Maghrebi (R58.7 taxonomy fix); ft wrong (A1@0.983)
         ("U. Cetin", "C1"),  # ft wrong at prob 1.00
         ("R. S. Hazra", "D3"),  # ft wrong at prob 1.00
-        ("M. Nabil Kazi-Tani", "C3"),  # hyphenated cleaned form
-        ("G. Bérczi", "H1"),  # supplement-only region (no hardcoded set)
+        ("M. Nabil Kazi-Tani", "C5"),  # Algerian (R58.7); hyphenated cleaned form
+        ("G. Bérczi", "A2"),  # Hungarian -> A2 (R58.7; H1 is "Historical")
         ("T. Furuya", "E3"),
     ],
 )

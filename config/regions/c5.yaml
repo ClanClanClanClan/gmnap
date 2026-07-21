@@ -5,5 +5,8 @@
 # 'B3' meant Balkan, 'H1' meant Hungarian — the codebase defines C6=Hebrew,
 # B3=Greek World, H1=Historical). See docs/calibration.md R58 errata.
 surname_exact:
-  - saplaouras   # Alexandros Saplaouras (Greek)
-  - skretas      # George Skretas (Greek)
+  - touzi        # N. Touzi (Tunisian; MA/DZ/TN -> C5 per base.py)
+  - talbi        # Mehdi Talbi
+  - tahar        # Imen Ben Tahar
+  - alaoui       # Ahmed El Alaoui (Alaouite/Moroccan)
+  - kazi-tani    # M. Nabil + Nabil Kazi-Tani (Algerian)

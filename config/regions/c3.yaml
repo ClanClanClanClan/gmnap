@@ -1,18 +1,11 @@
-# R58 surname_exact supplement — EXACT-only direct-match entries for the
-# manager's surname tier (score 10 -> confidence 0.95). Derived from the
-# R58 adjudicated pilot ground truth (data/eval/pilot_adjudicated.json;
-# both-agree, leaf-confident verdicts only) under the curation policy:
-# no cross-region bearers, no diaspora-split surnames, cleaned token
-# length >= 4 (>=2 for diacritic-bearing), ASCII variant listed only when
-# still region-specific. Collisions with any hardcoded set or another
-# region's supplement are DROPPED at load time (see _init_surname_patterns).
+# R58 surname_exact supplement — EXACT-only direct-match entries (see a1.yaml
+# for the full provenance/policy header). R58.7: entries remapped to the
+# codebase's REAL leaf taxonomy after adversarial verification exposed that
+# the adjudication workflow used simplified labels (its 'C6' meant Persian,
+# 'B3' meant Balkan, 'H1' meant Hungarian — the codebase defines C6=Hebrew,
+# B3=Greek World, H1=Historical). See docs/calibration.md R58 errata.
 surname_exact:
-  - kazi-tani    # M. Nabil + Nabil Kazi-Tani (the cleaner preserves hyphens)
-  - touzi        # N. Touzi (ft confidently wrong: A1@0.983)
-  - talbi        # Mehdi Talbi
-  - sabbagh      # Wissal Sabbagh
-  - tahar        # Imen Ben Tahar
-  - taha         # Diaaeldin Taha (position-guarded: parts[-1]/comma only)
+  - sabbagh      # Wissal Sabbagh (Levantine)
+  - taha         # Diaaeldin Taha (Egyptian; position-guarded)
   - saad         # Feras A. Saad
-  - alaoui       # Ahmed El Alaoui
   - abdalla      # Pedro Abdalla (name-origin axis)

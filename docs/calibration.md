@@ -187,3 +187,26 @@ over-prediction bias. Raw promotion is therefore permanently rejected:
 fastText emits only behind a group anchor (scorer, weak-evidence, or
 orthographic), enforced by `tests/unit/test_ft_adversarial_pins.py`.
 Reproduce: `PYTHONPATH=. python3 tools/ft_threshold_sweep.py`.
+
+### R58.7 errata: adjudication-taxonomy miscodes (found by adversarial verification)
+
+The R58 adjudication workflow labeled with a simplified taxonomy that
+diverges from the codebase's leaf definitions in four places. The YAML
+supplements inherited those miscodes and have been remapped; the
+committed ground-truth file (`data/eval/pilot_adjudicated.json`) is left
+as the historical record — read its labels through this table:
+
+| Adjudication label | It meant | Correct codebase leaf |
+|---|---|---|
+| `C6` | Persian | `C2` (Persian-Tajik; C6 is Hebrew & Diaspora) |
+| `B3` (for Romanian bearers) | Balkan/Romanian | `B2` (South-Slavic & Central; B3 is Greek World) |
+| `C3` (for Maghrebi bearers) | Arabic | `C5` (Arabic Maghreb; C3 is Levant-Nile) |
+| `H1` | Hungarian | `A2` (per the R51 HU→A2 ruling and the benchmark's own Erdős→A2 pins; H1 is "Historical ≤1850") |
+
+The same verification round also confirmed seven PRE-EXISTING wrong-leaf
+classes in the legacy tiers (Hungarian surnames hardcoded under A3/A2 in
+duplicate, Turkish -maz/-mez names emitted G1 via the Spanish -ez suffix,
+given-name tokens scored as surnames, dead non-ASCII suffix rules — the
+Czech feminine -ová could never match post-NFKD-fold, ambiguous lim/do/pang
+CJK claims, Bengali surnames split between D1/D3) — all fixed in R58.7/8
+with named counterexample pins.

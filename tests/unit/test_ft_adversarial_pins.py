@@ -27,7 +27,7 @@ _MODEL = Path("data/ml_training/ft_name_classifier.ftz")
 
 # (name, model's confidently-wrong leaf, adjudicated leaf-or-group)
 _PINS = [
-    ("N. Touzi", "A1", "C3"),  # ft A1@0.983
+    ("N. Touzi", "A1", "C5"),  # ft A1@0.983; Maghrebi (R58.7)
     ("U. Cetin", "A1", "C1"),  # ft A1@1.00
     ("U. Çetin", "A1", "C1"),
     ("R. S. Hazra", "A1", "D3"),  # ft A1@1.00

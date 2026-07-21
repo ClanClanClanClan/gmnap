@@ -119,3 +119,10 @@ surname_exact:
   - vitria
   # Misc
   - jaeck
+  # R58.7: Hungarian entries (moved from the deleted h1.yaml — H1 is
+  # 'Historical (<=1850)', not a name-origin leaf; the benchmark and the R51
+  # maintainer ruling both put Hungarian/HU under A2)
+  - bérczi       # G. Bérczi
+  - berczi
+  - balázs       # Márton Balázs
+  - balazs

@@ -10,9 +10,10 @@
 # would misfire E1; adversarial-judge modification (b)).
 surname_exact:
   - kuang        # Jiaqi Kuang
-  - weng         # Zhangchi Weng
+  # 'weng' REMOVED (R58.7): real Bavarian/Austrian + Norwegian surname
+  #   (Heidi Weng) — cross-region bearer, violates curation policy P3.
   - yuan         # Yaotong Yuan
-  - xiong        # Jie Xiong
+  # 'xiong' REMOVED (R58.7): major Hmong surname — cross-region bearer.
   - shao         # Yufei Shao
   - yeung        # L. C. Yeung (ft confidently wrong: A1@0.999)
   - kuan         # Jeffrey Kuan
