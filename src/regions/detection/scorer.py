@@ -2211,6 +2211,14 @@ _STRONG = {
     # ========== G GROUP: LATIN AMERICA ==========
     "G1": {  # Latin America (Spanish & Portuguese Americas)
         "surname_suffix": {"ez", "az", "iz", "oz"},
+        # R60.1: STRONG surname sets match FOLDED (ASCII) tokens, so the
+        # accented entries (gómez, gonzález, pérez, sánchez, ramírez,
+        # díaz, gutiérrez) were DEAD — those names only reached G1 via
+        # the weaker -ez suffix (2.5), and 'Gomez' lost outright to E7's
+        # ASCII entry (5.0): 'Gomez, Maria' emitted E7@0.89. ASCII forms
+        # restore the symmetric G1-vs-E7 competition the other shared
+        # Filipino-Hispanic surnames already have (given evidence
+        # decides, like Mendoza).
         "surnames": {
             "garcia",
             "rodriguez",
@@ -2218,19 +2226,19 @@ _STRONG = {
             "lopez",
             "roman",
             "hernandez",
-            "gonzález",
-            "pérez",
-            "sánchez",
-            "ramírez",
+            "gonzalez",
+            "perez",
+            "sanchez",
+            "ramirez",
             "torres",
             "flores",
             "rivera",
-            "gómez",
-            "díaz",
+            "gomez",
+            "diaz",
             "cruz",
             "morales",
             "reyes",
-            "gutiérrez",
+            "gutierrez",
             "ortiz",
             "mendoza",
         },
