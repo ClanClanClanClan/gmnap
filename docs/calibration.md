@@ -355,3 +355,26 @@ group-accuracy assertion was rewritten from a coverage-inclusive >=95%
 (mathematically unsatisfiable since R58's gate — it only ever "passed"
 by skipping) to the contract metric: group precision >=95% on verifiable
 outputs (measured 98.7%) with a separate 25% coverage floor (34.9%).
+
+## R59.6 (2026-07-21): OFFLINE=0 geo pilot — measurement harness only
+
+`tools/geo_pilot_offline0.py` (design dim-5, adopted as HARNESS only):
+re-derives the pilot's abstention set at run time (111 of 456 after
+R59.5), does one identity-gated OpenAlex lookup per abstained name
+(disk-cached), injects the max-affiliation-year country code, and
+re-detects. Result: **86/111 (77 %) become GEO fills**, 11 identity-gate
+failures preserved as abstentions, 14 no-CC, 0 fetch errors, 13 CC ties
+recorded. The mandatory 10-name manual audit caught one false accept
+('Garrett G. Wen' matched 'Guangrui Wen' through a bare-initial prefix)
+and two diacritic false rejects ('Possamai' vs its own 'Possamaï'
+record) — the gate now folds diacritics and never accepts on initials
+alone; re-audit clean.
+
+**The 10 geo-vs-adjudication divergences are diaspora signal, not
+error** (Aïd/Nadri/Sabbagh: FR affiliation, Maghrebi name-origin;
+Foo/Wee/Pang: US affiliation, Sinophone name-origin) — empirical proof
+that a geo fill is a claim on a DIFFERENT AXIS. Nothing from this
+harness enters the name-origin emitted-leaf-precision KPI, and
+productionizing geo-fill emission needs its own design first:
+resolution_level/conflict semantics would currently mislabel a geo fill
+as an unconflicted leaf.
