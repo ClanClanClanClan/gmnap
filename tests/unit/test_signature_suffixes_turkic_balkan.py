@@ -101,6 +101,7 @@ def test_ez_az_collision_class_abstains(manager, name):
 # -oglu: Turkic corroboration gate
 # ---------------------------------------------------------------------------
 
+
 def test_papasoglu_anatolian_greek_abstains(manager):
     # Adjudicated counterexample on the 843 benchmark: 'Papasoglu, P.'
     # is Greek (B3). Bare ASCII -oglu without Turkic corroboration must
@@ -129,6 +130,7 @@ def test_terzioglu_diacritic_emits_c1(manager):
 # Romanian -escu/-eanu → B2; South-Slavic ASCII -ovic/-evic → B2;
 # East-Slavic -ovich → B1 (unchanged)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.parametrize(
     "name",

@@ -2746,8 +2746,7 @@ def _score_priority_rules(name, possible):
                 cand = [
                     t
                     for t in surname_candidates
-                    if len(t) > len(suf) + 1
-                    and t not in ("davidis", "aidis", "naidis")
+                    if len(t) > len(suf) + 1 and t not in ("davidis", "aidis", "naidis")
                 ]
             elif suf == "sson":
                 # R59.4 curated exclusions — non-Nordic -sson surnames that

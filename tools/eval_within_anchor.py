@@ -108,8 +108,12 @@ def main() -> int:
             wrongs.append((a["name"], t, in_group[0][0], round(in_group[0][1], 3)))
 
     print(f"{sys.argv[1]}")
-    print(f"  within-anchor {ok}/{n} = {ok / n:.1%}   (raw top-1 {top1_ok}, informational)")
-    print("  per-family:", "  ".join(f"{f}:{fam_ok[f]}/{fam_n[f]}" for f in sorted(fam_n)))
+    print(
+        f"  within-anchor {ok}/{n} = {ok / n:.1%}   (raw top-1 {top1_ok}, informational)"
+    )
+    print(
+        "  per-family:", "  ".join(f"{f}:{fam_ok[f]}/{fam_n[f]}" for f in sorted(fam_n))
+    )
     for w in wrongs:
         print("   wrong:", w)
     print(f"  ({len(wrongs)} within-anchor errors)")

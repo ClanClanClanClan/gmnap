@@ -85,13 +85,44 @@ DEFAULT_OUT = REPO / "data" / "ml_training" / "ft_name_training_clean.txt"
 # 'cetina' (Marko Cetina, US/Duke — the traced training source of the old
 # model's cetin→A1@1.000). A1 lines carrying these surnames are dropped.
 FORENSICS_NON_ANGLO_A1 = {
-    "chandra", "giang", "soh", "kurkcuoglu", "esin", "nosrati",
-    "khoshnoud", "aghamohammadi", "younes", "sajjad", "shmoys",
-    "morgenstern", "heilbronn", "asban", "giarmatzi", "buehler",
-    "arens", "gerrits", "eisenhart", "kiess", "eberlein", "schmitz",
-    "brauer", "vissers", "tempelaar", "otterbach", "tentrup",
-    "colliander", "porto", "ferrus", "braccia", "spallitta", "arnault",
-    "cognee", "ortega-taberner", "aspuru-guzik", "nori", "cetina",
+    "chandra",
+    "giang",
+    "soh",
+    "kurkcuoglu",
+    "esin",
+    "nosrati",
+    "khoshnoud",
+    "aghamohammadi",
+    "younes",
+    "sajjad",
+    "shmoys",
+    "morgenstern",
+    "heilbronn",
+    "asban",
+    "giarmatzi",
+    "buehler",
+    "arens",
+    "gerrits",
+    "eisenhart",
+    "kiess",
+    "eberlein",
+    "schmitz",
+    "brauer",
+    "vissers",
+    "tempelaar",
+    "otterbach",
+    "tentrup",
+    "colliander",
+    "porto",
+    "ferrus",
+    "braccia",
+    "spallitta",
+    "arnault",
+    "cognee",
+    "ortega-taberner",
+    "aspuru-guzik",
+    "nori",
+    "cetina",
 }
 
 
@@ -142,9 +173,7 @@ def _suffix_veto_table() -> dict[str, str]:
     return table
 
 
-def clean(
-    src: Path, out: Path, cap: int, a1_min: int
-) -> dict[str, object]:
+def clean(src: Path, out: Path, cap: int, a1_min: int) -> dict[str, object]:
     lines: list[tuple[str, str]] = []
     for line in src.open(encoding="utf-8"):
         parts = line.split(None, 1)
@@ -189,9 +218,7 @@ def clean(
     suffix_table = _suffix_veto_table()
 
     def suffix_veto(s: str) -> bool:
-        return any(
-            s.endswith(suf) and len(s) > len(suf) + 1 for suf in suffix_table
-        )
+        return any(s.endswith(suf) and len(s) > len(suf) + 1 for suf in suffix_table)
 
     a1_count = Counter(s for l, s in lines2 if l == "A1")
     lines3: list[tuple[str, str]] = []
@@ -252,13 +279,19 @@ def main() -> int:
     print(f"input:        {src.relative_to(REPO) if src.is_relative_to(REPO) else src}")
     print(f"R1 junk:      {n0} -> {n1}  (-{n0 - n1})")
     print(f"R2 conflict:  {n1} -> {n2}  (-{n1 - n2})")
-    print(f"R3 a1-veto:   {n2} -> {n3}  (-{n2 - n3})  e.g. {stats['dropped_a1_sample']}")
+    print(
+        f"R3 a1-veto:   {n2} -> {n3}  (-{n2 - n3})  e.g. {stats['dropped_a1_sample']}"
+    )
     print(f"R4 cap:       {n3} -> {n4}  (-{n3 - n4})")
     dist = stats["dist"]
     tot = sum(dist.values())
     for l, c in dist.most_common(10):
         print(f"  {l}: {c} ({c / tot:.1%})")
-    rel = args.output.relative_to(REPO) if args.output.is_relative_to(REPO) else args.output
+    rel = (
+        args.output.relative_to(REPO)
+        if args.output.is_relative_to(REPO)
+        else args.output
+    )
     print(f"wrote {rel} ({tot} lines)")
     return 0
 

@@ -94,9 +94,11 @@ def identity_gate(query: str, display: str) -> bool:
     if not q or not d:
         return False
     if "," in query:
-        surname = _fold(query.split(",")[0]).split()[-1] if _fold(
-            query.split(",")[0]
-        ).split() else ""
+        surname = (
+            _fold(query.split(",")[0]).split()[-1]
+            if _fold(query.split(",")[0]).split()
+            else ""
+        )
         givens = _fold(query.split(",", 1)[1]).split()
     else:
         surname = q[-1]
@@ -165,9 +167,7 @@ def main() -> int:
         display = author.get("display_name") or ""
         if not identity_gate(n, display):
             gate_fail += 1
-            rows.append(
-                {"name": n, "outcome": "identity_gate_fail", "hit": display}
-            )
+            rows.append({"name": n, "outcome": "identity_gate_fail", "hit": display})
             continue
         cc, tie = latest_cc(author)
         if not cc:
@@ -175,9 +175,8 @@ def main() -> int:
             rows.append({"name": n, "outcome": "no_cc", "hit": display})
             continue
         r2 = m.detect_region({"CanonicalLatin": n, "CountryCodes": [cc]})
-        geo_fill = (
-            r2.region_code not in (None, "R0", "XX")
-            and (r2.name_region in (None, "R0"))
+        geo_fill = r2.region_code not in (None, "R0", "XX") and (
+            r2.name_region in (None, "R0")
         )
         rows.append(
             {

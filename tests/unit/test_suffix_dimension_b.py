@@ -83,6 +83,7 @@ def test_anglo_is_names_never_b3(manager, name):
 # Persian -nezhad → C2
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.parametrize(
     "name",
     ["Hassannezhad, Asma", "Ahmadinezhad, Hamid", "Akbarinezhad, R."],
@@ -200,6 +201,7 @@ def test_wala_bearers_via_d1_yaml(manager, name):
 # ---------------------------------------------------------------------------
 # Cross-family regression pins (unchanged by dimension B)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.parametrize(
     "name,expected",
