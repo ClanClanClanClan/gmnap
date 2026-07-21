@@ -848,7 +848,11 @@ _STRONG = {
         # Albanian given-name collisions live), and the curated
         # exclusion 'gormaz' (Spanish toponymic, San Esteban de
         # Gormaz). -oglu: Turkish patronymic (Terzioğlu, Çavuşoğlu);
-        # Greek renderings end -oglou and never match.
+        # Greek renderings usually end -oglou, but bare ASCII -oglu on
+        # Anatolian-Greek surnames is real ('Papasoglu, P.' -> B3,
+        # adjudicated), so bare -oglu additionally requires Turkic
+        # corroboration (orthographic marks or a C1 given-name hit) in
+        # the scoring loop.
         "surname_suffix": {"maz", "mez", "oglu"},
         "surnames": {
             "yılmaz",
@@ -2662,7 +2666,26 @@ def _score_priority_rules(name, possible):
                     cand = [
                         t for t in surname_candidates if len(t) > 5 and t != "ludovic"
                     ]
-            elif suf in ("eanu", "oglu"):
+            elif suf == "oglu":
+                # Turkish patronymic — but Anatolian-Greek families carry
+                # ASCII -oglu too (adjudicated counterexample: 'Papasoglu,
+                # Panos' -> B3 on the 843 benchmark; Greek renderings are
+                # usually -oglou, yet bare -oglu occurs). The bare ASCII
+                # form therefore needs TURKIC corroboration: definitive
+                # Turkic orthography anywhere in the raw name (ı/ş/ğ, or
+                # ö/ü/ç which Greek romanizations never carry), or a C1
+                # given-name hit (the given loop above has already run for
+                # this region). Uncorroborated -oglu abstains.
+                _turkic_corroborated = (
+                    _raw_turkic_marked
+                    or any(c in "öüç" for c in _raw_name)
+                    or any("STRONG_GIVEN" in x for x in reasons[r])
+                )
+                if _turkic_corroborated:
+                    cand = [t for t in surname_candidates if len(t) > len(suf) + 1]
+                else:
+                    cand = []
+            elif suf == "eanu":
                 cand = [t for t in surname_candidates if len(t) > len(suf) + 1]
             else:
                 cand = surname_candidates

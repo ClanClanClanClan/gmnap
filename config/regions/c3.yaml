@@ -4,8 +4,11 @@
 # the adjudication workflow used simplified labels (its 'C6' meant Persian,
 # 'B3' meant Balkan, 'H1' meant Hungarian — the codebase defines C6=Hebrew,
 # B3=Greek World, H1=Historical). See docs/calibration.md R58 errata.
+# R59.3: 'sabbagh' REMOVED — its named bearer (Wissal Sabbagh) was
+# re-adjudicated C5-Maghrebi by the R58.7 errata, invalidating the entry
+# by the provenance rule; the surname form is pan-Arab (Levant + Maghreb
+# bearers), so no single leaf is admissible. Abstention is correct.
 surname_exact:
-  - sabbagh      # Wissal Sabbagh (Levantine)
   - taha         # Diaaeldin Taha (Egyptian; position-guarded)
   - saad         # Feras A. Saad
   - abdalla      # Pedro Abdalla (name-origin axis)

@@ -316,7 +316,15 @@ artefactually small because PAV collapses everything into one
 side-by-side reliability diagrams.
 
 ### Key Constants
-- SIGNATURE_SUFFIXES: 22 (fire leaf at 2.5)
+- SIGNATURE_SUFFIXES: 29 (fire leaf at 2.5). R59.3 added the guarded
+  Turkic/Balkan seven (maz/mez/oglu/escu/eanu/ovic/evic): -maz/-mez need
+  len≥6 + consonant stem (Hispanic -ez/-az class excluded, 'gormaz'
+  curated out); bare ASCII -oglu needs Turkic corroboration (ı/ş/ğ/ö/ü/ç
+  or a C1 STRONG given) because 'Papasoglu' is adjudicated Greek;
+  -escu/-eanu→B2, ASCII -ovic/-evic→B2 (raw ović/ević dedupe-guarded).
+  A/B-gated: 843 benchmark + 456 pilot + 450 held-out — deltas are
+  abstention→correct only (Moisescu, Iosifescu, Cerrahoğlu, Novaković),
+  0 new wrong. Pins: tests/unit/test_signature_suffixes_turkic_balkan.py
 - MEDIUM_SUFFIXES_TO_LEAF: 11 (fire group at 1.2, leaf at +1.0 if corroborated)
 - MEDIUM_SUFFIXES_TO_GROUP: 4 (bare -ski/-sky/-ou/-is → group only)
 - REGION_GROUPS: 23 groups, 34 leaves
