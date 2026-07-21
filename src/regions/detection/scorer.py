@@ -22,6 +22,11 @@ _WORD = re.compile(
 def _latin_tokens(name: str) -> list[str]:
     """Extract tokens from name, normalized and lowercased."""
     name_nfkd = unicodedata.normalize("NFKD", name).lower()
+    # Turkish dotless ı (U+0131) has NO NFKD decomposition and sits outside
+    # _WORD's [A-Za-zÀ-ÖØ-öø-ÿ] class, so 'yılmaz' used to tokenize as
+    # 'y'+'lmaz' — silently killing every ı-bearing exact-surname entry and
+    # suffix match. Fold it to plain 'i' like every other diacritic.
+    name_nfkd = name_nfkd.replace("ı", "i")
     name_ascii = "".join(ch for ch in name_nfkd if ch.isalnum() or ch in "- '")
     return _WORD.findall(name_ascii)
 
@@ -690,6 +695,20 @@ _STRONG = {
             "ček",
             "ović",
             "ević",
+            # ASCII South-Slavic patronymics (Petrovic, Markovic ... the
+            # diacritic-stripped forms arXiv actually carries). Guarded in
+            # the scoring loop: skipped when the raw name carries the
+            # diacritic form (ović/ević/ovič/evič — the raw rules above
+            # own those), and the French given name 'ludovic' (Ludovic
+            # Rifford, Ludovic Goudenège) never counts.
+            "ovic",
+            "evic",
+            # Romanian patronymic/toponymic suffixes (RO -> B2 in this
+            # codebase's taxonomy): Popescu, Ionescu, Voiculescu;
+            # Munteanu, Olteanu, Corduneanu. Guarded in the scoring
+            # loop: 'francescu' (Corsican given name) never counts.
+            "escu",
+            "eanu",
         },
         "surnames": {
             "nowak",
@@ -820,6 +839,17 @@ _STRONG = {
     },
     # ========== C GROUP: MIDDLE EAST & CAUCASUS ==========
     "C1": {  # Turkic (Turkish, Azerbaijani, Turkmen, Uzbek, Kazakh, Kyrgyz)
+        # -maz/-mez: Turkish negative-aorist surname family (Yılmaz,
+        # Korkmaz, Sönmez, Dönmez, Durmaz, Kaçmaz...). Guarded in the
+        # scoring loop: consonant before the suffix (all verified
+        # Hispanic/Romance bearers — Gómez, Gámez, Jaimez, Tomaz,
+        # Grumaz — carry a vowel there), min length 6 (drops the
+        # 2-letter-stem family Almaz/Elmaz/Ölmez where Ethiopian and
+        # Albanian given-name collisions live), and the curated
+        # exclusion 'gormaz' (Spanish toponymic, San Esteban de
+        # Gormaz). -oglu: Turkish patronymic (Terzioğlu, Çavuşoğlu);
+        # Greek renderings end -oglou and never match.
+        "surname_suffix": {"maz", "mez", "oglu"},
         "surnames": {
             "yılmaz",
             "kaya",
@@ -1398,8 +1428,10 @@ _STRONG = {
             "bose",
             "dutta",
             "sarkar",
-            "dan",
-            "paul",
+            # R59.2: "dan" and "paul" removed — both are extremely common
+            # Western GIVEN names; at STRONG(5.0) they hijacked given-name
+            # tokens ('Dan Popovici' (Romanian) -> D3@0.875). Bengali Paul/
+            # Dan bearers still resolve via other evidence.
             "khatun",
         },
         "given_frag": {
@@ -2227,6 +2259,13 @@ SIGNATURE_SUFFIXES = {
     "nejad",  # C2 Persian
     "mann",
     "stein",  # A2 Germanic (very distinctive)
+    "maz",
+    "mez",
+    "oglu",  # C1 Turkic (negative-aorist family + patronymic)
+    "escu",
+    "eanu",  # B2 Romanian (RO -> B2 in this taxonomy)
+    "ovic",
+    "evic",  # B2 ASCII South-Slavic patronymics
 }
 
 # Tier 2: Medium suffixes — fire GROUP by themselves, need corroboration for LEAF.
@@ -2591,6 +2630,40 @@ def _score_priority_rules(name, possible):
                     for t in surname_candidates
                     if not (t.endswith("maz") or t.endswith("mez"))
                 ]
+            elif suf in ("maz", "mez"):
+                # C1 Turkish negative-aorist family. Three guards, all from
+                # verified counterexamples (see the C1 table comment):
+                # consonant before the suffix (Gómez/Gámez/Jaimez/Tomaz/
+                # Grumaz all have a vowel there; Söylemez-type vowel-stem
+                # Turkish names are sacrificed to abstention), length >= 6
+                # (drops Almaz/Elmaz/Ölmez, the short-stem collision zone),
+                # curated exclusion 'gormaz' (Spanish toponymic surname).
+                cand = [
+                    t
+                    for t in surname_candidates
+                    if len(t) >= 6 and t != "gormaz" and t[-4] not in "aeiou"
+                ]
+            elif suf == "escu":
+                # Romanian -escu. 'francescu' is the Corsican given name.
+                cand = [
+                    t for t in surname_candidates if len(t) > 5 and t != "francescu"
+                ]
+            elif suf in ("ovic", "evic"):
+                # ASCII South-Slavic patronymic. When the raw name carries
+                # the diacritic form the raw-token rules (ović/ević) own the
+                # match — skip to avoid double-counting; Belarusian Łacinka
+                # (-evič/-ovič) is NOT B2, so it abstains rather than fires.
+                # 'ludovic' is a French given name, never a Slavic surname.
+                if any(
+                    rt.endswith(("ović", "ević", "ovič", "evič")) for rt in _raw_tokens
+                ):
+                    cand = []
+                else:
+                    cand = [
+                        t for t in surname_candidates if len(t) > 5 and t != "ludovic"
+                    ]
+            elif suf in ("eanu", "oglu"):
+                cand = [t for t in surname_candidates if len(t) > len(suf) + 1]
             else:
                 cand = surname_candidates
             # R58.8: non-ASCII suffixes ('ová', 'ský', 'ović'…) were DEAD
@@ -2851,11 +2924,28 @@ def _score_priority_rules(name, possible):
         for r in reasons.get("B1", [])
     )
     has_turkic_given = any("STRONG_GIVEN" in r for r in reasons.get("C1", []))
+    # R59.2 (held-out finding: 'Rifat Jumagulov'->B1, true C1; 'Abdulkadyr
+    # Buchaev'->B1, true C9): the given-lexicon check misses most Turkic/
+    # Muslim given names. Two additional high-precision signals: (a) a
+    # Turkic stem morpheme inside the -ov/-ev token itself (jumaGULov,
+    # nurBEKov — gul/bek/bay/khan/kul are Turkic elements, not Slavic), and
+    # (b) an Abdul-/Magomed-class given token. Russian names (Nikolaev,
+    # Ivanov) carry neither and stay B1.
+    _TURKIC_STEMS = ("gul", "bek", "bay", "khan", "kul")
+    turkic_stem = any(
+        (tok.endswith("ov") or tok.endswith("ev"))
+        and any(mrk in tok[:-2] for mrk in _TURKIC_STEMS)
+        for tok in surname_candidates
+    )
+    muslim_given = any(
+        tok.startswith(("abdul", "abdel", "magomed", "muhamm", "mohamm"))
+        for tok in tokens
+    )
     if (
         has_slavic_surname
-        and has_turkic_given
+        and (has_turkic_given or turkic_stem or muslim_given)
         and best_region == "B1"
-        and "C1" in possible
+        and ("C1" in possible or "C9" in possible)
     ):
         return (
             None,

@@ -959,6 +959,17 @@ class RegionManager:
                     scorer_hint.pop("best_region", None)
                     scorer_hint.pop("weak_group", None)
                     scorer_hint.pop("weak_best_region", None)
+                # R59.2 (held-out finding: 'Mohsen Asgharzadeh' abstained
+                # with a NORDIC_BALTIC claim): a DEAD TIE (margin == 0, e.g.
+                # A3 2.5 vs C2 2.5) carries no group information — which
+                # side lands in best_region is arbitrary. A tie claims
+                # nothing.
+                if (
+                    scorer_hint.get("margin") == 0
+                    and scorer_hint.get("reason") == "low_score_or_margin"
+                ):
+                    scorer_hint.pop("group", None)
+                    scorer_hint.pop("best_region", None)
             elif (
                 result.detection_method == "script"
                 and result.metadata.get("script") == "Latin"
@@ -1924,8 +1935,25 @@ class RegionManager:
                     ):
                         in_yaml = False
 
+                    # R59.2 (held-out finding): the FIRST token is a surname
+                    # only in surname-first naming orders. The hardcoded
+                    # tables were matched at parts[0] for EVERY region, so
+                    # GIVEN names hijacked Western-region tables: 'Thomas
+                    # Reichelt' -> A1 via the given name Thomas; 'Saeed
+                    # Tafazolian' -> C3 via the given name Saeed. Restrict
+                    # parts[0] candidacy to surname-first regions (CJK +
+                    # Vietnamese); comma forms and parts[-1] are untouched.
+                    in_table = cleaned_candidate in surnames
+                    if (
+                        in_table
+                        and candidate == parts[0].lower()
+                        and len(parts) >= 2
+                        and region_code not in ("E1", "E2", "E3", "E4", "E5")
+                    ):
+                        in_table = False
+
                     # Direct match
-                    if cleaned_candidate in surnames or in_yaml:
+                    if in_table or in_yaml:
                         score = 10
                         # For ambiguous surnames like "Lee", check given name
                         # patterns. R58.8: 'lim' (Korean 임 AND Hokkien 林 —
@@ -1933,7 +1961,18 @@ class RegionManager:
                         # 도 AND folded Vietnamese Đỗ — 'Do Thi Huong'
                         # emitted E4@0.95) join the ambiguity set.
                         if (
-                            cleaned_candidate in ["lee", "li", "kim", "lim", "do"]
+                            cleaned_candidate
+                            in [
+                                "lee",
+                                "li",
+                                "kim",
+                                "lim",
+                                "do",
+                                "han",
+                                "yu",
+                                "kang",
+                                "song",
+                            ]
                             and len(parts) >= 2
                         ):
                             # Check for Western and Korean given name patterns
@@ -1992,7 +2031,8 @@ class RegionManager:
                             elif has_western_given and region_code == "E4":
                                 score = 5  # Reduce Korean score for Western given names
                             elif (
-                                cleaned_candidate in ("lim", "do")
+                                cleaned_candidate
+                                in ("lim", "do", "han", "yu", "kang", "song")
                                 and region_code == "E4"
                                 and not has_korean_pattern
                             ):
@@ -2067,7 +2107,11 @@ class RegionManager:
                 score = 10
                 # For ambiguous surnames, check given name for disambiguation
                 # (R58.8: lim/do joined — see the no-comma branch rationale).
-                if family_name in ["lee", "li", "kim", "lim", "do"] and "," in name:
+                if (
+                    family_name
+                    in ["lee", "li", "kim", "lim", "do", "han", "yu", "kang", "song"]
+                    and "," in name
+                ):
                     given_parts = name.split(",")[1].strip().lower()
                     # Common Korean given name patterns
                     korean_patterns = [
@@ -2094,7 +2138,7 @@ class RegionManager:
                     elif not has_korean_pattern and region_code != "E4":
                         score = 11  # Slight boost for non-Korean
                     elif (
-                        family_name in ("lim", "do")
+                        family_name in ("lim", "do", "han", "yu", "kang", "song")
                         and region_code == "E4"
                         and not has_korean_pattern
                     ):
@@ -2536,7 +2580,9 @@ class RegionManager:
             "gu",
             "qiu",
             "meng",
-            "long",
+            # R59.2: "long" removed — also a common Anglo surname
+            # ('Christopher D. Long' -> E1@0.95 via the trump rule; the rule
+            # is only sound for distinctly-CJK surnames).
             "wan",
             "duan",
             "zhang",
@@ -2992,7 +3038,6 @@ class RegionManager:
                 "ulam",
                 "zygmund",
                 # Portuguese (PT → A2)
-                "silva",
                 "santos",
                 "oliveira",
                 "rodrigues",
@@ -3535,7 +3580,6 @@ class RegionManager:
                 "castro",
                 "ortiz",
                 # Portuguese
-                "silva",
                 "santos",
                 "oliveira",
                 "souza",
@@ -3557,7 +3601,6 @@ class RegionManager:
                 "freitas",
                 "barbosa",
                 "pinto",
-                "moreira",
                 "cavalcanti",
                 # Latin American
                 "garcia",
