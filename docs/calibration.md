@@ -210,3 +210,32 @@ given-name tokens scored as surnames, dead non-ASCII suffix rules — the
 Czech feminine -ová could never match post-NFKD-fold, ambiguous lim/do/pang
 CJK claims, Bengali surnames split between D1/D3) — all fixed in R58.7/8
 with named counterexample pins.
+
+## R59.1 (2026-07-21): the held-out measurement — honest out-of-sample state
+
+The R58 headline (abstention 22%, 0 wrong) was flagged as partly IN-SAMPLE
+at the time it was reported: the dictionary was curated from the same 456
+names it was measured on. R59 built the held-out corpus that ends that:
+450 fresh author strings from five arXiv fields the pilot never touched
+(math.AG/NT/CO/AP/DG), pilot-names excluded, blind-adjudicated by two
+independent lenses + reconciler per chunk with the CODEBASE taxonomy
+embedded (437/450 both-agree; a taxonomy validator found 0 miscodes this
+time). Files: `data/eval/heldout/`.
+
+**Out-of-sample truth for the composed R58 system:**
+
+| Metric | in-sample (pilot) | held-out |
+|---|---|---|
+| Abstention | 22% | **57%** |
+| Verifiable-leaf precision | 100% (181/181) | **85.1% (160/188)** |
+| Wrong leaf emissions | 0 | **28** |
+
+The generalizing tiers hold; the dictionary contributes only where
+surnames repeat; and the wild data exposes legacy-tier error classes the
+benchmark's shape never exercises: E4-vs-E1 on shared CJK romanizations
+(Han/Yu claiming Chinese bearers), sovietized Turkic/Caucasus names
+captured by Slavic -ov/-ev (Jumagulov→B1, true C1), the Iberian A2↔G1
+straddle in both directions, and assorted single-table entries
+(Reichelt→A1, Tafazolian→C3). These classes are R59's work list; every
+fix is measured against THIS corpus, and future dictionary curation from
+corpus N is evaluated only on corpus N+1.
