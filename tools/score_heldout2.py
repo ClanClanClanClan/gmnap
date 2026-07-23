@@ -80,7 +80,10 @@ def truth_of(label: dict) -> str | None:
 def main() -> int:
     snap = json.load(open(D / "heldout2_system.json"))
     adj = json.load(open(D / "heldout2_adjudicated.json"))
-    truths = {a["name"]: a for a in adj["labels"]}
+    # tools/assemble_heldout2_adjudication.py writes a flat list; older
+    # snapshots used a {"labels": [...]} wrapper. Accept both.
+    adj_rows = adj["labels"] if isinstance(adj, dict) else adj
+    truths = {a["name"]: a for a in adj_rows}
     rows = snap["rows"]
 
     buckets = Counter()

@@ -1,0 +1,34 @@
+A1 [ANGLO_SPHERE]: Core Anglo-Sphere
+A2 [GERMANIC_WESTERN]: Western Europe
+A3 [NORDIC_BALTIC]: Nordic-Baltic
+A4 [OCEANIA_PACIFIC]: Oceania Island States
+A5 [CARIBBEAN_FRENCH]: Dutch/French Caribbean
+B1 [SLAVIC_EAST]: East-Slavic
+B2 [SLAVIC_CENTRAL]: South-Slavic & Central Europe
+B3 [HELLENIC]: Greek World
+C1 [TURKIC]: Greater-Turkic
+C2 [PERSIAN]: Persian-Tajik
+C3 [ARABIC]: Arabic Levant-Nile
+C4 [ARABIC]: Arabic Gulf
+C5 [ARABIC]: Arabic Maghreb
+C6 [HEBREW]: Hebrew & Diaspora
+C7 [ARMENIAN]: Armenian
+C8 [GEORGIAN]: Georgian
+C9 [BALTIC]: Baltic
+D1 [SOUTH_ASIAN]: South Asia - Hindi Belt
+D2 [SOUTH_ASIAN]: South Asia - Dravidian
+D3 [SOUTH_ASIAN]: South Asia - Bengali
+D4 [SOUTH_ASIAN]: Pakistan & Urdu
+D5 [SOUTH_ASIAN]: Sinhala
+E1 [SINOPHONE]: Sinophone Mainland
+E2 [SINOPHONE]: Sinophone Traditional
+E3 [JAPANESE]: Japan
+E4 [KOREAN]: Korea
+E5 [VIETNAMESE]: Vietnam
+E6 [SEA]: Mainland SEA
+E7 [SEA]: Maritime SEA
+F1 [SSA]: SSA - Francophone
+F2 [SSA]: SSA - Anglophone
+F3 [SSA]: Horn of Africa
+F4 [SSA]: Lusophone Africa
+G1 [LATIN_AMERICAN]: Latin America & Iberian Caribbean

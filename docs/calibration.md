@@ -378,3 +378,53 @@ harness enters the name-origin emitted-leaf-precision KPI, and
 productionizing geo-fill emission needs its own design first:
 resolution_level/conflict semantics would currently mislabel a geo fill
 as an unconflicted leaf.
+
+## R60.2 (2026-07-23): corpus N+2 and two maintainer rulings
+
+**Why a third corpus.** The R59 discipline is "curate from corpus N,
+evaluate only on corpus N+1". The 450-name held-out set produced the
+kurt / solomon / gomez fixes, so it has become a dev set. Corpus N+2 is
+2,307 names, person-disjoint from all prior eval sets
+(`tools/build_heldout2_corpus.py`): 1,863 from eight arXiv fields
+untouched by the pilot and held-out-1, plus 444 OpenAlex-stratified
+across under-represented regions (Africa 132, MENA 72, LatAm 72, SEA 60,
+Central Asia/Caucasus 60, South-Asia-non-IN 48).
+
+**Affiliation country is a SAMPLING KEY ONLY.** The stratified slice
+asks OpenAlex which authors published mathematics from institutions in a
+given country, purely so the corpus CONTAINS enough Yoruba, Persian,
+Lusophone, Thai and Kazakh name-forms to measure the thin families.
+The country is then discarded: adjudicators receive names alone, blind
+to stratum and source, and the detector snapshot is name-only (no
+CountryCodes). Sampling shapes corpus COMPOSITION; it cannot touch the
+LABELS. This is the same defect-class R59 forensics found in the old
+training corpus (affiliation used AS truth) and it is structurally
+excluded here.
+
+**Ruling 1 — Ashkenazi-associated surnames follow the FORM.** The
+adjudication prompt initially said Ashkenazi surnames map to C6 "when
+the Jewish identity of the name form is the dominant signal". That was
+wrong on three counts: it contradicted the R58 pilot precedent
+(`Mathieu Rosenbaum` -> A2), it contradicted the codebase's own
+form-over-bearer rule (Abramovich -> B1, pinned), and it asked
+adjudicators to infer ethnicity from a German-language surname — not
+the axis this project classifies, and unreliable (Silberberg and
+Rosenberg have non-Jewish German bearers). Corrected ruling: German /
+Yiddish-German forms take A2, East-Slavic forms take B1, West/South
+Slavic B2, Anglo A1. **C6 is reserved for genuinely Hebrew/Israeli name
+forms** — Hebrew lexical stems (Yashfe, Algom, Shalom, Sharon, Garti),
+Hebrew patronymics (Bar-Natan, Ben-David), and the Hebrew-form priestly
+surnames (Cohen, Katz, Levi). The 48 C6 labels the flawed rule produced
+are NOT hand-rewritten; they are re-adjudicated by a dedicated
+corrected-rule pass (`tools/gen_c6_errata_workflow.py`, same two-blind-
+lens + reconciler protocol), and that pass's output is the errata — the
+R58.7 pattern.
+
+**Ruling 2 — Hispanic AND Lusophone surnames map to G1.** The system was
+internally inconsistent: Spanish surnames reached G1 through the curated
+tables while Portuguese surnames (Oliveira, Carvalho, Fernandes,
+Rodrigues, Almeida) fell to A2 through another path, which the corpus
+exposed as a ~10-name wrong class. Both adjudication rounds
+independently label Lusophone surnames G1. Ruling: Iberian-origin
+surnames — Spanish and Portuguese alike — take G1; this is a SYSTEM fix,
+not a label errata.

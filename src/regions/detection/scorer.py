@@ -317,21 +317,12 @@ _STRONG = {
             "abate",
             "bracci",
             "tovena",
-            # Portuguese surnames (PT → A2)
-            "pinto",
-            "soares",
-            "correia",
-            "teixeira",
-            "gomes",
-            "lopes",
-            "pereira",
-            "almeida",
-            "carvalho",
-            "ferreira",
-            "coelho",
-            "nogueira",
-            "figueiredo",
-            "azevedo",
+            # R60.2 MAINTAINER RULING (2026-07-23): the 14-name
+            # "Portuguese surnames (PT → A2)" block MOVED to G1 below.
+            # Iberian-origin surnames — Spanish and Portuguese alike —
+            # take G1; keeping Portuguese here while Spanish sat in G1
+            # was the inconsistency corpus N+2 exposed. Moved, not
+            # deleted: deleting would cost the whole class its coverage.
         },
         "particles": {
             "van",
@@ -2241,6 +2232,23 @@ _STRONG = {
             "gutierrez",
             "ortiz",
             "mendoza",
+            # R60.2 ruling: Lusophone surnames moved here from A2 (see
+            # the note at A2's surname set). Spanish and Portuguese
+            # Iberian-origin surnames both resolve G1.
+            "pinto",
+            "soares",
+            "correia",
+            "teixeira",
+            "gomes",
+            "lopes",
+            "pereira",
+            "almeida",
+            "carvalho",
+            "ferreira",
+            "coelho",
+            "nogueira",
+            "figueiredo",
+            "azevedo",
         },
         "given_frag": {
             "josé",

@@ -3079,26 +3079,19 @@ class RegionManager:
                 "borsuk",
                 "ulam",
                 "zygmund",
-                # Portuguese (PT → A2)
-                "santos",
-                "oliveira",
-                "rodrigues",
-                "almeida",
-                "fernandes",
-                "carvalho",
-                "gomes",
-                "martins",
-                "pinto",
-                "soares",
-                "correia",
-                "teixeira",
-                "ferreira",
-                "lopes",
-                "pereira",
-                "coelho",
-                "nogueira",
-                "figueiredo",
-                "azevedo",
+                # R60.2 MAINTAINER RULING (2026-07-23): the 19-name
+                # "Portuguese (PT → A2)" block is REMOVED. It duplicated
+                # entries that G1 also claims, and A2 won by iteration
+                # order — so Spanish surnames resolved G1 (via the
+                # scorer's G1 table) while Portuguese surnames resolved
+                # A2, an internal inconsistency the 2,307-name corpus
+                # N+2 exposed as a ~10-name wrong class (Oliveira,
+                # Carvalho, Fernandes, Rodrigues, Almeida … adjudicated
+                # G1 by two independent rounds). Ruling: Iberian-origin
+                # surnames — Spanish AND Portuguese alike — take G1.
+                # The names live on in G1's table below; removing them
+                # here lets that claim win. See docs/calibration.md
+                # (R60.2) and tests/unit/test_iberian_ruling.py.
             }
 
         if "A3" in self.IMPLEMENTED_REGIONS:
