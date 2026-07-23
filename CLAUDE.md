@@ -424,12 +424,12 @@ gmnap validate input.json        # Schema validation
 ```
 
 ### Genealogy enrichment
-Curated `data/genealogy_enrichment.json` (~39,500 mathematicians: 15
-MGP seed + 25 curated stubs + 20,833 Wikidata SPARQL P184 entries +
+Curated `data/genealogy_enrichment.json` (~48,500 mathematicians: 15
+MGP seed + 25 curated stubs + 28,179 Wikidata SPARQL P184 entries +
 14,432 OpenAlex author affiliations + transitive advisor stubs)
 enriches API / CLI output with BirthYear / Institution / Advisors.
-Advisor chains come only from MGP + Wikidata P184 (~20,800 people);
-OpenAlex adds Institution + Country coverage for ~18,760 working
+Advisor chains come only from MGP + Wikidata P184 (~28,100 people);
+OpenAlex adds Institution + Country coverage for ~14,800 working
 mathematicians without a formally-recorded doctoral advisor. Same data backs the `/api/v1/lineage/{id}` endpoint as a third
 fallback after neo4j and `out/yaml/` lookups. `name:` prefix on the path
 parameter lets users query by canonical name instead of GlobalID.
@@ -465,7 +465,7 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 - ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly
 - ❌ "100% name-origin accuracy" — 100% emitted-leaf precision on adjudicated set, but 28% abstention rate; 56% on raw citizenship labels (wrong metric for name-origin)
 - ❌ "1,090 tests" — actual count is ~2,376 collected, all run by CI's Core-tests step
-- ❌ "Genealogy data for every mathematician" — enrichment covers ~39,500 entries (MGP + Wikidata P184 + OpenAlex affiliations). Only ~20,800 have a full advisor chain; the other ~18,700 have Institution + Country only. Historical / obscure mathematicians without any of these sources pass through with no enrichment.
+- ❌ "Genealogy data for every mathematician" — enrichment covers ~48,500 entries (MGP + Wikidata P184 + OpenAlex affiliations). Only ~28,100 have a full advisor chain; the rest have Institution + Country only. Historical / obscure mathematicians without any of these sources pass through with no enrichment.
 - ❌ "1 M in 362 s / 2 763-per-s" — **RETRACTED (R54).** That was a no-op path
   that skipped region detection and the batch-global tail. Honest measured
   numbers: real names ~184-233/s serial, ~268-348/s parallel (4 k-10 k, 8-core

@@ -81,12 +81,22 @@ KNOWN_DECEASED = {"Turing, Alan", "Luogeng, Hua", "Hua, Luogeng"}
 # GENERIC NAME PATTERNS, not claims about individuals. These are stock
 # test inputs chosen because their SHAPE exercises a classifier path
 # (Han-Chinese given+surname pairs, Korean hyphenated givens, common
-# Anglo/Indian/Germanic forms). They collide with real people only
+# Anglo/Indian/Germanic/Slavic forms). They collide with real people only
 # because such names are common — which is precisely why they identify
 # nobody. They are NOT de-identified because several tests depend on the
 # given name carrying the signal under test (Korean E4 detection needs
 # "Min-Su"; CJK disambiguation needs a real given-name token).
+#
+# "Kowalski, Piotr" is the Polish "John Smith" — THE most common Polish
+# surname + a top-five given name — used across the B2 suite exactly like
+# "Novak, Jan" (Czech) and "Horvat, Ivan" (Croatian) beside it: a generic
+# Slavic-morphology fixture, not a person. It landed here in R62 when the
+# no-DOB Wikidata harvest happened to add one real (presumed-living)
+# mathematician of that name, tripping the k==1 P2 oracle; the fixture
+# predates and does not refer to them. Registering it is the documented
+# mechanism for generic-everyman fixtures, not a suppression.
 SYNTHETIC_TEST_NAMES = {
+    "Kowalski, Piotr",
     "Zhang, Wei",
     "Wang, Wei",
     "Chen, Wei",

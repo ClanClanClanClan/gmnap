@@ -27,7 +27,7 @@ practice that's CC-BY for some of our sources).
 
 ## `data/genealogy_enrichment.json`
 
-The largest bundled artefact (~39,500 entries). Composite:
+The largest bundled artefact (~48,500 entries). Composite:
 
 ### Mathematics Genealogy Project (MGP)
 
@@ -48,7 +48,7 @@ The largest bundled artefact (~39,500 entries). Composite:
 ### Wikidata SPARQL (P184 = doctoral advisor)
 
 - **Source**: [Wikidata Query Service](https://query.wikidata.org/)
-- **Scope**: 20,833 mathematicians carrying ~24,822 P184 advisor
+- **Scope**: 28,179 mathematicians carrying ~33,773 P184 advisor
   edges, with 17,357 P569 (date of birth) and 20,224 P69
   (institution) fields. Harvested by
   `scripts/data/fetch_wikidata_genealogy.py` using decade-
@@ -137,7 +137,7 @@ granted request survives future re-harvests) — is
 ## Commercial use
 
 The code is MIT — commercially usable. The **default bundled dataset is
-not**: ~490 of its ~39,900 records (and the advisor chains they carry,
+not**: ~490 of its ~48,500 records (and the advisor chains they carry,
 plus `data/mgp_full.jsonl` in its entirety) derive from the Mathematics
 Genealogy Project, whose terms are **non-commercial with attribution**.
 The API's paid tier (`GMNAP_API_TOKENS`) gates *rate limits*; it does
@@ -153,7 +153,7 @@ A commercial deployment therefore has exactly two clean options:
 
    This skips the MGP seeds and the bulk-harvest merge, yielding a
    Wikidata (CC0) + OpenAlex (CC0) + MIT-curated-stub artefact —
-   ~39,500 entries, zero MGP-tagged records (the build prints the
+   ~48,100 entries, zero MGP-tagged records (the build prints the
    MGP-derived count so you can verify it is 0). Do not ship
    `data/mgp_full.jsonl` with a commercial deployment either.
 

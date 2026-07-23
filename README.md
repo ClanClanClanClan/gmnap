@@ -25,14 +25,14 @@ name-matching libraries don't know that Hungarian writes family-
 first, that Tamil names are patronymic-not-surname, or that
 `van der Waerden` is one particle-and-surname not three tokens.
 This project encodes those 37 region-specific rules + a vetted
-genealogy of ~39,500 mathematicians (MGP seed + Wikidata SPARQL +
+genealogy of ~48,500 mathematicians (MGP seed + Wikidata SPARQL +
 OpenAlex affiliations).
 
 ## Quick Start
 
 ```bash
 # Fetch the LFS-tracked data first. data/genealogy_enrichment.json (~13 MB,
-# ~39.9k mathematicians) is stored with Git LFS; a plain `git clone` leaves
+# ~48.5k mathematicians) is stored with Git LFS; a plain `git clone` leaves
 # a small pointer file and the genealogy/lineage features silently return
 # nothing until you pull it.
 git lfs install && git lfs pull
@@ -92,7 +92,7 @@ a vulnerability, see **[SECURITY.md](SECURITY.md)**. For the licensing
 status of the bundled data (`data/genealogy_enrichment.json`) — which
 is a derivative of Wikidata + OpenAlex + curated MGP entries, each with
 its own provenance — see **[DATA_SOURCES.md](DATA_SOURCES.md)**. The
-bundled data describes ~39,900 real people (many living): what is held,
+bundled data describes ~48,500 real people (many living): what is held,
 why, and how to request correction or removal is in
 **[PRIVACY.md](PRIVACY.md)**.
 
@@ -101,7 +101,7 @@ why, and how to request correction or removal is in
 - **37 Regions**: Full linguistic processing (clean/augment/validate/order_key) for Anglo, Germanic, Slavic, Arabic, CJK, South Asian, African, and more
 - **9 Authority Sources**: OpenAlex, Crossref, ORCID, HAL, GND, Wikidata, zbMATH, OAI, Crossref Thesis
 - **12-Stage Pipeline**: Unicode normalization → region detection → authority enrichment → collision analytics → schema validation → output
-- **Genealogy Enrichment**: ~39,500 mathematicians with advisor chains, birth years, and institutions (seeded from MGP + Wikidata SPARQL)
+- **Genealogy Enrichment**: ~48,500 mathematicians, ~28,100 with advisor chains, plus birth years, and institutions (seeded from MGP + Wikidata SPARQL)
 - **Web Interface**: Dark-themed SPA at localhost:8080
 - **API**: REST endpoints with rate limiting, hashcash PoW, Prometheus metrics
 - **GDPR Compliant**: ShadowNode conversion, birth year masking
@@ -258,7 +258,7 @@ Split geo/name-origin architecture validated by external onomastics expert:
 
 ## Genealogy Enrichment
 
-`data/genealogy_enrichment.json` (~39,500 mathematicians) backs the
+`data/genealogy_enrichment.json` (~48,500 mathematicians) backs the
 Advisors / Institution / BirthYear fields in CLI and API responses.
 Sources, in order of priority:
 
@@ -266,7 +266,7 @@ Sources, in order of priority:
    Math Genealogy Project.
 2. Hand-curated stubs in `tools/build_genealogy_enrichment.py` for
    transitive advisors like Johann Bernoulli and Pfaff.
-3. `data/wikidata_genealogy.json` — 20,833 mathematicians fetched from
+3. `data/wikidata_genealogy.json` — 28,179 mathematicians fetched from
    Wikidata SPARQL (`P184` doctoral advisor, `P569` birth date, `P69`
    institution). Fetched with `scripts/data/fetch_wikidata_genealogy.py`.
 4. `data/ml_training/openalex_10k_mathematicians.json` — 15,120

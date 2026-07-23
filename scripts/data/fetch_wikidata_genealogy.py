@@ -78,22 +78,32 @@ WHERE {{
 """
 
 # Fallback for entries with no P569 (date of birth). These would
-# otherwise be silently excluded by the decade FILTER. Smaller set
-# (most mathematicians have a birth date), so a single page works.
+# otherwise be silently excluded by the decade FILTER.
+#
+# R62: PAGINATED. This was a single ``LIMIT 5000`` query, but live
+# Wikidata has ~12,900 P184 advisor edges from ~10,900 no-DOB
+# mathematicians — so the cap silently TRUNCATED ~8k real advisor edges
+# (the bulk of the built-graph-vs-Wikidata coverage gap). ``ORDER BY``
+# makes OFFSET pagination stable; the set is ~13k rows, well under the
+# ~28k offset that caused the round-18 504 timeout, so a few pages is
+# safe.
 SPARQL_NO_DOB = """
 SELECT ?person ?personLabel ?dob ?dod ?countryLabel
        ?advisor ?advisorLabel ?institutionLabel
-WHERE {
+WHERE {{
   ?person wdt:P106 wd:Q170790 ;
           wdt:P184 ?advisor .
-  FILTER NOT EXISTS { ?person wdt:P569 ?dob }
-  OPTIONAL { ?person wdt:P570 ?dod . }
-  OPTIONAL { ?person wdt:P27 ?country . }
-  OPTIONAL { ?person wdt:P69 ?institution . }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }
-}
-LIMIT 5000
+  FILTER NOT EXISTS {{ ?person wdt:P569 ?dob }}
+  OPTIONAL {{ ?person wdt:P570 ?dod . }}
+  OPTIONAL {{ ?person wdt:P27 ?country . }}
+  OPTIONAL {{ ?person wdt:P69 ?institution . }}
+  SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en" . }}
+}}
+ORDER BY ?person ?advisor
+LIMIT {limit} OFFSET {offset}
 """
+
+NO_DOB_PAGE = 5000
 
 DECADE_PARTITIONS = [
     (start, start + 10) for start in range(1500, 2020, 10)
@@ -225,17 +235,33 @@ def fetch_all(limit: int | None = None) -> list[dict]:
                 break
             time.sleep(2)  # be polite
 
-        # No-DOB fallback bucket
-        print("  no-DOB fallback…", end=" ", flush=True)
-        rows = _query(client, SPARQL_NO_DOB, headers, label="no-dob")
-        _absorb_rows(rows, collected)
-        print(
-            f"rows={len(rows):4d}  cumulative={len(collected)}",
-            flush=True,
-        )
+        # No-DOB fallback bucket (paginated — see SPARQL_NO_DOB comment)
+        fetch_no_dob(client, headers, collected)
 
     # Drop entries that lost their advisor for any reason
     return [e for e in collected.values() if e["Advisors"]]
+
+
+def fetch_no_dob(
+    client: "httpx.Client", headers: dict, collected: dict[str, dict]
+) -> None:
+    """Absorb the FULL no-DOB advisor set into ``collected``, paginated.
+
+    Reusable so a targeted refresh (R62) can recover the ~8k advisor edges
+    the old single ``LIMIT 5000`` truncated, without re-running the 52
+    decade queries.
+    """
+    offset = 0
+    while True:
+        print(f"  no-DOB offset={offset}…", end=" ", flush=True)
+        query = SPARQL_NO_DOB.format(limit=NO_DOB_PAGE, offset=offset)
+        rows = _query(client, query, headers, label=f"no-dob@{offset}")
+        _absorb_rows(rows, collected)
+        print(f"rows={len(rows):4d}  cumulative={len(collected)}", flush=True)
+        if len(rows) < NO_DOB_PAGE:
+            break
+        offset += NO_DOB_PAGE
+        time.sleep(2)
 
 
 def main() -> None:
