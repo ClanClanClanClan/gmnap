@@ -651,7 +651,12 @@ def _build_scenarios() -> list[tuple[str, Callable[..., None], tuple, dict]]:
         ("happy:Euler", scenario_happy_path, ("Euler, Leonhard",), {}),
         ("happy:Hilbert", scenario_happy_path, ("Hilbert, David",), {}),
         ("happy:Newton", scenario_happy_path, ("Newton, Isaac",), {}),
-        ("happy:Tao", scenario_happy_path, ("Tao, T.",), {}),
+        # R57: was "Tao, T." — Terence Tao is living, so the string was
+        # de-identified out of the repo, which left no enrichment key and
+        # broke the lineage-tree assertion. Chern (d. 2004) is deceased,
+        # detects the same Sinophone region (E1), and HAS an advisor chain,
+        # so it exercises the full happy path without naming a living person.
+        ("happy:Chern", scenario_happy_path, ("Chern, Shiing-Shen",), {}),
         ("happy:Mirzakhani", scenario_happy_path, ("Mirzakhani, Maryam",), {}),
     ]
     xss = [
