@@ -410,6 +410,12 @@ def create_app() -> FastAPI:
         if auth.startswith("Bearer ") and _PAID_TOKENS:
             token = auth[7:]
             is_paid = any(hmac.compare_digest(token, t) for t in _PAID_TOKENS)
+        # R57: endpoints need this to decide whether they may return the
+        # name-origin classification. Anonymous callers get genealogy only
+        # (the MGP-equivalent surface); the derived origin label is
+        # restricted to authenticated research callers. See the privacy
+        # rationale in docs/PRIVACY.md.
+        request.state.is_authenticated = is_paid
 
         # V7 spec §12: free tier requires hashcash 18-bit PoW for /api/ endpoints.
         # Operators can disable via GMNAP_REQUIRE_HASHCASH=0 (local dev, CI,
@@ -551,6 +557,7 @@ def create_app() -> FastAPI:
     # ------------------------------------------------------------------
     @app.get("/api/v1/query")
     async def query_name(
+        request: Request,
         name: str = Query(..., description="Mathematician name to look up"),
         mode: str = Query("quick", description="Pipeline mode: quick/full/extreme"),
     ):
@@ -583,14 +590,38 @@ def create_app() -> FastAPI:
                 "CanonicalLatin": name,
                 "global_id": gid,
                 "GlobalID": gid,
-                "region_code": result.region_code,
-                "DetectedRegion": result.region_code,
-                "confidence": result.confidence,
-                "DetectionConfidence": result.confidence,
-                "detection_method": result.detection_method,
-                "DetectionMethod": result.detection_method,
-                "metadata": result.metadata,
             }
+
+            # R57 PRIVACY GATE. The name-origin classification is a DERIVED
+            # attribute that can reveal ethnic or religious origin — GDPR
+            # Art. 9 special-category data once attached to an identifiable
+            # person (CJEU C-184/20 treats inferred data as special-category
+            # too). Names, advisors and institutions are ordinary personal
+            # data already published by MGP/OpenAlex/arXiv and stay open;
+            # the origin label does not.
+            #
+            # Anonymous callers therefore get the genealogy surface only.
+            # Without this gate the free tier can be walked over the ~39.9 k
+            # enrichment names to reconstitute exactly the labelled corpus
+            # we decline to publish — rate limiting slows that, it does not
+            # prevent it.
+            if getattr(request.state, "is_authenticated", False):
+                response.update(
+                    {
+                        "region_code": result.region_code,
+                        "DetectedRegion": result.region_code,
+                        "confidence": result.confidence,
+                        "DetectionConfidence": result.confidence,
+                        "detection_method": result.detection_method,
+                        "DetectionMethod": result.detection_method,
+                        "metadata": result.metadata,
+                    }
+                )
+            else:
+                response["name_origin"] = (
+                    "restricted: the name-origin classification is available "
+                    "to authenticated research callers only (see docs/PRIVACY.md)"
+                )
 
             # Enrich with curated genealogy data (Advisors/Institution/BirthYear)
             try:

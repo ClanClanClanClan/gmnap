@@ -168,3 +168,13 @@ config/*.bin
 # SQLite WAL/SHM sidecars from SQLiteAnalytics / test runs
 *.db-shm
 *.db-wal
+
+# R57 PRIVACY: adjudicated name-origin corpora are NOT published.
+# They pair identifiable living academics (arXiv/OpenAlex author lists)
+# with a DERIVED ethno-linguistic origin label — GDPR Art. 9
+# special-category data once attached to a person, and unlike the
+# genealogy surface it is novel inference, not republication of
+# something MGP/OpenAlex already make public.
+# The BUILD METHOD is public (tools/build_heldout2_corpus.py) so the
+# corpus is reproducible; the labelled result stays local.
+data/eval/

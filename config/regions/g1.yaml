@@ -3,5 +3,5 @@
 # the loader iterates IMPLEMENTED_REGIONS, so this file is picked up
 # automatically and its keys pass the cross-region collision gate.
 surname_exact:
-  - malbouisson  # J. M. C. Malbouisson (Brazilian; protects from the
+  - malbouisson  # adjudicated bearer (Brazilian; protects from the
                  # Nordic A3 -sson signature suffix)

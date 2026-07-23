@@ -66,7 +66,7 @@ surname_exact:
   - grünwald
   - schnider
   - schuler
-  - muhle-karbe  # Johannes Muhle-Karbe (the cleaner preserves hyphens)
+  - muhle-karbe  # adjudicated bearer (the cleaner preserves hyphens)
   - imkeller
   - cuchiero
   - ortgiese
@@ -122,9 +122,9 @@ surname_exact:
   # R58.7: Hungarian entries (moved from the deleted h1.yaml — H1 is
   # 'Historical (<=1850)', not a name-origin leaf; the benchmark and the R51
   # maintainer ruling both put Hungarian/HU under A2)
-  - bérczi       # G. Bérczi
+  - bérczi       # adjudicated bearer
   - berczi
-  - balázs       # Márton Balázs
+  - balázs       # adjudicated bearer
   - balazs
   # R59.4: French/German -sson bearers (protect from the Nordic A3 -sson
   # signature suffix; each backed by a named corpus bearer). 'masson' and
@@ -132,8 +132,8 @@ surname_exact:
   # Masson / Scottish Mass-son) with corpus bearers on both sides, wasson
   # has no named corpus bearer; both abstain via the scorer's curated
   # -sson exclusion instead.
-  - besson       # G. Besson
-  - buisson      # O. Buisson
-  - cusson       # P. Cusson (Québécois French form)
-  - gosson       # Maurice A. de Gosson
-  - hermisson    # J. Hermisson
+  - besson       # adjudicated bearer
+  - buisson      # adjudicated bearer
+  - cusson       # adjudicated bearer (Québécois French form)
+  - gosson       # adjudicated bearer de Gosson
+  - hermisson    # adjudicated bearer

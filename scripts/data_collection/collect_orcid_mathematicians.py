@@ -1,4 +1,5 @@
 import os
+
 #!/usr/bin/env python3
 """
 ORCID Data Collector - Real Mathematician Names
@@ -235,8 +236,12 @@ def main():
 
     # ORCID credentials — read from env (ORCID_CLIENT_ID/_SECRET).
     # The previously-committed literals are in git history: REVOKE that app.
-    CLIENT_ID = os.environ["ORCID_CLIENT_ID"]  # R54: was a committed literal (rotate the old app!)
-    CLIENT_SECRET = os.environ["ORCID_CLIENT_SECRET"]  # R54: was a committed literal — REVOKE it in the ORCID dev dashboard
+    CLIENT_ID = os.environ[
+        "ORCID_CLIENT_ID"
+    ]  # R54: was a committed literal (rotate the old app!)
+    CLIENT_SECRET = os.environ[
+        "ORCID_CLIENT_SECRET"
+    ]  # R54: was a committed literal — REVOKE it in the ORCID dev dashboard
 
     # Initialize collector
     collector = ORCIDCollector(CLIENT_ID, CLIENT_SECRET)

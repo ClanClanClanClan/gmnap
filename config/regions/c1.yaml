@@ -7,12 +7,12 @@
 # still region-specific. Collisions with any hardcoded set or another
 # region's supplement are DROPPED at load time (see _init_surname_patterns).
 surname_exact:
-  - soner        # H. Mete Soner
-  - büke         # B. Büke
+  - soner        # adjudicated bearer
+  - büke         # adjudicated bearer
   - buke
-  - çetin        # U. Çetin (ft confidently wrong: A1@1.00)
+  - çetin        # adjudicated bearer (ft confidently wrong: A1@1.00)
   - cetin
-  - bayraktar    # Turgay Bayraktar
-  - alpay        # Natanael Alpay
-  - özkan        # Recep Özkan
+  - bayraktar    # adjudicated bearer
+  - alpay        # adjudicated bearer
+  - özkan        # adjudicated bearer
   - ozkan

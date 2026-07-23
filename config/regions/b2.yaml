@@ -7,44 +7,44 @@
 # still region-specific. Collisions with any hardcoded set or another
 # region's supplement are DROPPED at load time (see _init_surname_patterns).
 surname_exact:
-  - kršek        # D. Kršek
+  - kršek        # adjudicated bearer
   - krsek
-  - kurpisz      # Adam Kurpisz
-  - mijatović    # Aleksandar Mijatović + Nenad Mijatovic
+  - kurpisz      # adjudicated bearer
+  - mijatović    # adjudicated bearer + Nenad Mijatovic
   - mijatovic
-  - cvitanić     # J. Cvitanić
+  - cvitanić     # adjudicated bearer
   - cvitanic
-  - raonić       # Bogdan Raonić
+  - raonić       # adjudicated bearer
   - raonic
-  - aleksić      # Danijel G. Aleksić
+  - aleksić      # adjudicated bearer
   - aleksic
-  - džamić       # Dušan Džamić
+  - džamić       # adjudicated bearer
   - dzamic
-  - milošević    # Bojana Milošević
+  - milošević    # adjudicated bearer
   - milosevic
-  - obradović    # Marko Obradović
+  - obradović    # adjudicated bearer
   - obradovic
-  - grzywny      # Tomasz Grzywny
-  - sztonyk      # Paweł Sztonyk
-  - lucić        # Vladimir Lucic (diacritic form only; ascii 'lucic' cross-Slavic)
-  - bajović      # Dušan Bajović
+  - grzywny      # adjudicated bearer
+  - sztonyk      # adjudicated bearer
+  - lucić        # adjudicated bearer (diacritic form only; ascii 'lucic' cross-Slavic)
+  - bajović      # adjudicated bearer
   - bajovic
-  - petković     # Boris Petković
+  - petković     # adjudicated bearer
   - petkovic
-  - đogaš        # Vesna Gotovac Đogaš
+  - đogaš        # adjudicated bearer Đogaš
   - gotovac      # same bearer
-  - mandarić     # Marcela Mandarić
+  - mandarić     # adjudicated bearer
   - mandaric
-  - brzeźniak    # Z. Brzeźniak
+  - brzeźniak    # adjudicated bearer
   - brzezniak
-  - czyż         # Rafał Czyż
+  - czyż         # adjudicated bearer
   - czyz
   - šebek        # Stjepan Šebek
   - sebek
   # R58.7: Romanian entries moved from b3.yaml (B3 is 'Greek World'; the
   # codebase maps RO -> B2 'South-Slavic & Central Europe')
-  - castravet    # Ana-Maria Castravet
-  - robu         # Bogdan Robu
-  - marinescu    # George Marinescu
+  - castravet    # adjudicated bearer
+  - robu         # adjudicated bearer
+  - marinescu    # adjudicated bearer
   # R59.4: Polish -sson bearer (protect from the Nordic A3 -sson signature)
-  - mathisson    # Myron Mathisson
+  - mathisson    # adjudicated bearer

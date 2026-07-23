@@ -9,6 +9,6 @@
 # by the provenance rule; the surname form is pan-Arab (Levant + Maghreb
 # bearers), so no single leaf is admissible. Abstention is correct.
 surname_exact:
-  - taha         # Diaaeldin Taha (Egyptian; position-guarded)
-  - saad         # Feras A. Saad
-  - abdalla      # Pedro Abdalla (name-origin axis)
+  - taha         # adjudicated bearer (Egyptian; position-guarded)
+  - saad         # adjudicated bearer
+  - abdalla      # adjudicated bearer (name-origin axis)

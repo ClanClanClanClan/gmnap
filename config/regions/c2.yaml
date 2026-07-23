@@ -5,6 +5,6 @@
 # 'B3' meant Balkan, 'H1' meant Hungarian — the codebase defines C6=Hebrew,
 # B3=Greek World, H1=Historical). See docs/calibration.md R58 errata.
 surname_exact:
-  - monavari     # Sergej Monavari (Persian; adjudication miscoded as 'C6')
-  - mirabi       # Mostafa Mirabi
-  - anari        # Nima Anari
+  - monavari     # adjudicated bearer (Persian; adjudication miscoded as 'C6')
+  - mirabi       # adjudicated bearer
+  - anari        # adjudicated bearer

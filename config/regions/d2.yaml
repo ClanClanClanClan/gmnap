@@ -7,9 +7,9 @@
 # still region-specific. Collisions with any hardcoded set or another
 # region's supplement are DROPPED at load time (see _init_surname_patterns).
 surname_exact:
-  - rajendran        # Rajesh Rajendran
-  - sakthivadivel    # Dalton A R Sakthivadivel
-  - srinivasan       # Vishwak Srinivasan
-  - gullipalli       # Sai Sathvik Gullipalli
-  - rajagopal        # Isaac Rajagopal
-  - polavarapu       # Achintya Raya Polavarapu
+  - rajendran        # adjudicated bearer
+  - sakthivadivel    # adjudicated bearer
+  - srinivasan       # adjudicated bearer
+  - gullipalli       # adjudicated bearer
+  - rajagopal        # adjudicated bearer
+  - polavarapu       # adjudicated bearer

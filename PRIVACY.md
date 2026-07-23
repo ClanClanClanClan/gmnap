@@ -27,6 +27,46 @@ confidence score and an abstention path (`R0`), and it deliberately says
 nothing about citizenship, ethnicity, or residence (`GeoRegion` vs
 `NameRegion` are split axes precisely so the two are never conflated).
 
+### Correction (R57, 2026-07-23): the Art. 9 claim above was too strong
+
+The sentence "does NOT contain … any GDPR Art. 9 special-category data"
+was written about the *fields we collect*, and it is accurate about
+those. It was **wrong about the field we derive**. A name-origin label
+attached to an identifiable person is capable of *revealing* ethnic or
+religious origin, and Art. 9 covers data "revealing" such origin — under
+CJEU C-184/20 that includes data from which it can be **inferred**. So
+"we only computed it from a public name" is not an exemption, and our
+internal framing (we classify the *name form*, not the bearer) is a real
+distinction that nonetheless does not survive publication of a
+per-person label. The `C6` category, whose label is "Hebrew &
+Diaspora", is the clearest case.
+
+Three things follow, and all are implemented:
+
+1. **The adjudicated corpora are not published.** ~3 000 arXiv/OpenAlex
+   authors with origin labels (`data/eval/`) are gitignored and absent
+   from git history. The *build method*
+   (`tools/build_heldout2_corpus.py`) is public, so the corpus stays
+   reproducible without publishing labelled individuals. Aggregate
+   accuracy figures are in `docs/calibration.md`.
+2. **The API does not hand out labels anonymously.** `/api/v1/query`
+   returns the genealogy surface (name, advisors, institution, birth
+   year — the same class of data MGP and OpenAlex publish) to everyone,
+   and the name-origin classification only to authenticated research
+   callers. Without that gate the free tier could be walked over the
+   ~39.9 k enrichment names to rebuild exactly the corpus we decline to
+   publish.
+3. **A CI gate enforces it.** `tools/privacy_audit.py` fails the build
+   if any tracked file pairs a presumed-living person with a leaf code.
+   Two Wikidata-derived fixtures are allowlisted with their rationale
+   recorded in `tests/fixtures/PROVENANCE.md`; the test is *marginal
+   disclosure* — Wikidata already publishes those subjects'
+   nationality, whereas for ordinary working academics our label is
+   novel inference published nowhere else.
+
+**If you are in this data and want out**, see "How to object" below.
+Removal requests are honoured for the bundled data and the fixtures.
+
 ## Where the data comes from
 
 - **Wikidata** (CC0) — names, P184 doctoral-advisor edges, P569 birth

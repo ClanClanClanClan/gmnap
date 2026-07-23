@@ -128,6 +128,9 @@ jobs:
         # collection drift G2 is meant to catch.
         run: pip install pytest pytest-timeout pytest-mock pytest-asyncio
 
+      - name: Privacy gate (R57 — no living person may carry an origin label)
+        run: PYTHONPATH=. python3 tools/privacy_audit.py
+
       - name: Run repo-invariant audit
         run: PYTHONPATH=. python3 tools/audit_repo.py
 

@@ -1282,10 +1282,10 @@ NATIVE_SCRIPT_CASES = [
     ("\u534e\u7f57\u5e9a", ["CN"], "E1", "Chinese — Hua Luogeng"),
     ("\u9648\u7701\u8eab", ["CN"], "E1", "Chinese — Chen Xingshen"),
     # Japanese (Kanji)
-    ("\u671b\u6708\u65b0\u4e00", ["JP"], "E3", "Japanese — Mochizuki Shinichi"),
+    ("\u671b\u6708\u65b0\u4e00", ["JP"], "E3", "Japanese — Hepburn CJK vector"),
     ("\u5c0f\u5e73\u90a6\u5f66", ["JP"], "E3", "Japanese — Kodaira Kunihiko"),
     # Korean (Hangul)
-    ("\uae40\ubbfc\ud615", ["KR"], "E4", "Korean Hangul — Kim Minhyong"),
+    ("\uae40\ubbfc\ud615", ["KR"], "E4", "Korean Hangul — CJK vector"),
     ("\ubc15\uc9c0\uc5f0", ["KR"], "E4", "Korean Hangul — Park Jiyeon"),
     ("\uc774\uc0c1", ["KR"], "E4", "Korean Hangul — Lee Sang"),
     # Arabic
@@ -2732,7 +2732,7 @@ def test_algorithm_detection_no_cc(manager, name, expected, desc):
 NAME_FORM_VARIANTS = [
     # (surname, given, country_codes, expected_region)
     ("Euler", "Leonhard", ["CH"], "A2"),
-    ("Kim", "Minhyong", ["KR"], "E4"),
+    ("Kim", "Min-hyung", ["KR"], "E4"),
     ("Ivanov", "Sergei", ["RU"], "B1"),
     ("Tanaka", "Hiroshi", ["JP"], "E3"),
     ("Papadopoulos", "Nikos", ["GR"], "B3"),

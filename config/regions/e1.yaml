@@ -9,11 +9,11 @@
 # NOTE: 'pang' deliberately EXCLUDED (common Korean surname — 'Pang, Min-su'
 # would misfire E1; adversarial-judge modification (b)).
 surname_exact:
-  - kuang        # Jiaqi Kuang
+  - kuang        # adjudicated bearer
   # 'weng' REMOVED (R58.7): real Bavarian/Austrian + Norwegian surname
   #   (Heidi Weng) — cross-region bearer, violates curation policy P3.
-  - yuan         # Yaotong Yuan
+  - yuan         # adjudicated bearer
   # 'xiong' REMOVED (R58.7): major Hmong surname — cross-region bearer.
-  - shao         # Yufei Shao
-  - yeung        # L. C. Yeung (ft confidently wrong: A1@0.999)
-  - kuan         # Jeffrey Kuan
+  - shao         # adjudicated bearer
+  - yeung        # adjudicated bearer (ft confidently wrong: A1@0.999)
+  - kuan         # adjudicated bearer

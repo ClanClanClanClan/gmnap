@@ -47,7 +47,7 @@ _PINS = [
     # Short-homograph class: given-name-driven ANGLO hint + ft's A1 bias
     # correlate on a 3-char Chinese-Singaporean surname. The unconditional
     # >=4-char surname guard on ft emissions keeps this abstained.
-    ("Timothy L. H. Wee", "A1", "E1"),
+    ("T. L. H. Wee", "A1", "E1"),
 ]
 
 

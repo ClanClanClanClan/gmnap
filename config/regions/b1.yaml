@@ -7,4 +7,4 @@
 # still region-specific. Collisions with any hardcoded set or another
 # region's supplement are DROPPED at load time (see _init_surname_patterns).
 surname_exact:
-  - vershynin    # Roman Vershynin
+  - vershynin    # adjudicated bearer

@@ -127,7 +127,13 @@ def test_client_ready(base_url: str) -> None:
 def test_client_query_known_name(base_url: str) -> None:
     with Client(base_url, hashcash_bits=None) as c:
         result = c.query("Hilbert, David")
-        assert result["region_code"] == "A2"
+        # R57: the name-origin classification is NOT returned to
+        # anonymous callers — see the privacy gate in src/api/server.py
+        # and PRIVACY.md. An unauthenticated client gets the genealogy
+        # surface (the same class of data MGP/OpenAlex publish) plus an
+        # explicit note that the label is restricted.
+        assert "region_code" not in result
+        assert "restricted" in result["name_origin"]
         # Genealogy enrichment from curated JSON
         assert result["BirthYear"] == 1862
         assert "Königsberg" in (result.get("Institution") or "")
@@ -242,7 +248,8 @@ async def test_async_client_health(base_url: str) -> None:
 async def test_async_client_query(base_url: str) -> None:
     async with AsyncClient(base_url, hashcash_bits=None) as c:
         result = await c.query("Hilbert, David")
-        assert result["region_code"] == "A2"
+        assert "region_code" not in result  # R57 privacy gate (see above)
+        assert "restricted" in result["name_origin"]
 
 
 @pytest.mark.asyncio

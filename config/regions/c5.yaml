@@ -5,8 +5,8 @@
 # 'B3' meant Balkan, 'H1' meant Hungarian — the codebase defines C6=Hebrew,
 # B3=Greek World, H1=Historical). See docs/calibration.md R58 errata.
 surname_exact:
-  - touzi        # N. Touzi (Tunisian; MA/DZ/TN -> C5 per base.py)
-  - talbi        # Mehdi Talbi
-  - tahar        # Imen Ben Tahar
-  - alaoui       # Ahmed El Alaoui (Alaouite/Moroccan)
-  - kazi-tani    # M. Nabil + Nabil Kazi-Tani (Algerian)
+  - touzi        # adjudicated bearer (Tunisian; MA/DZ/TN -> C5 per base.py)
+  - talbi        # adjudicated bearer
+  - tahar        # adjudicated bearer
+  - alaoui       # adjudicated bearer (Alaouite/Moroccan)
+  - kazi-tani    # adjudicated bearer + Nabil Kazi-Tani (Algerian)

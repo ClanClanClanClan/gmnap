@@ -7,12 +7,12 @@
 # still region-specific. Collisions with any hardcoded set or another
 # region's supplement are DROPPED at load time (see _init_surname_patterns).
 surname_exact:
-  - ekeland      # Ivar Ekeland
-  - harang       # Fabian N. Harang
+  - ekeland      # adjudicated bearer
+  - harang       # adjudicated bearer
   - søjmark
   - sojmark
-  - rasila       # Antti Rasila
-  - sottinen     # Tommi Sottinen
-  - åhag         # Per Åhag
-  - lundow       # Per-Håkan Lundow
-  - ljung        # Per Ljung
+  - rasila       # adjudicated bearer
+  - sottinen     # adjudicated bearer
+  - åhag         # adjudicated bearer
+  - lundow       # adjudicated bearer
+  - ljung        # adjudicated bearer

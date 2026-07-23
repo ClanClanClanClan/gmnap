@@ -7,15 +7,15 @@
 # still region-specific. Collisions with any hardcoded set or another
 # region's supplement are DROPPED at load time (see _init_surname_patterns).
 surname_exact:
-  - tripathi     # Raghavendra Tripathi (ft wrong: E6)
-  - singhal      # Deepesh Singhal
-  - chaudhary    # Abhishek Chaudhary
-  - vishwakarma  # Pradeep Vishwakarma
-  - pathak       # Reese Pathak
+  - tripathi     # adjudicated bearer (ft wrong: E6)
+  - singhal      # adjudicated bearer
+  - chaudhary    # adjudicated bearer
+  - vishwakarma  # adjudicated bearer
+  - pathak       # adjudicated bearer
   # R59.4: Gujarati/Parsi occupational -wala surnames. A '-wala' SUFFIX rule
   # was REJECTED (only 4 corpus bearers — under the >=8 attestation floor);
   # exact entries instead, each backed by a named corpus bearer.
-  - rangwala     # S. A. Rangwala
-  - kagalwala    # Kumel H. Kagalwala
-  - raniwala     # Hamza Raniwala
-  - fruitwala    # Neelay Fruitwala
+  - rangwala     # adjudicated bearer
+  - kagalwala    # adjudicated bearer
+  - raniwala     # adjudicated bearer
+  - fruitwala    # adjudicated bearer

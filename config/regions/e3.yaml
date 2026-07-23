@@ -7,8 +7,8 @@
 # still region-specific. Collisions with any hardcoded set or another
 # region's supplement are DROPPED at load time (see _init_surname_patterns).
 surname_exact:
-  - furuya       # T. Furuya
-  - tsugawa      # Kotaro Tsugawa
-  - shiozawa     # Yuichi Shiozawa
-  - kanazawa     # Takahiro Kanazawa
-  - nakabayashi  # Yutaro Nakabayashi
+  - furuya       # adjudicated bearer
+  - tsugawa      # adjudicated bearer
+  - shiozawa     # adjudicated bearer
+  - kanazawa     # adjudicated bearer
+  - nakabayashi  # adjudicated bearer

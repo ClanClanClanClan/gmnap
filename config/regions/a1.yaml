@@ -7,14 +7,14 @@
 # still region-specific. Collisions with any hardcoded set or another
 # region's supplement are DROPPED at load time (see _init_surname_patterns).
 surname_exact:
-  - howison      # Sam D. Howison
+  - howison      # adjudicated bearer
   - holmes       # Daniel + David Holmes
-  - rolfe        # Joseph Rolfe
-  - hambly       # Ben Hambly
-  - clay         # Alexander Clay
-  - davies       # Ewan Davies
+  - rolfe        # adjudicated bearer
+  - hambly       # adjudicated bearer
+  - clay         # adjudicated bearer
+  - davies       # adjudicated bearer
   # R59.4: Anglo -sson bearers (protect from the Nordic A3 -sson signature
   # suffix; each backed by a named corpus bearer)
-  - casson       # Andrew Casson
-  - sisson       # Scott A. Sisson
-  - whisson      # S. Whisson
+  - casson       # adjudicated bearer
+  - sisson       # adjudicated bearer
+  - whisson      # adjudicated bearer

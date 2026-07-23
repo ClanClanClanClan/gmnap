@@ -7,6 +7,6 @@
 # still region-specific. Collisions with any hardcoded set or another
 # region's supplement are DROPPED at load time (see _init_surname_patterns).
 surname_exact:
-  - mukhopadhyay # Arpan Mukhopadhyay
-  - mitra        # Siddharth Mitra (position-guarded: Persian given name 'Mitra')
-  - hazra        # R. S. Hazra (ft confidently wrong: A1@1.0)
+  - mukhopadhyay # adjudicated bearer
+  - mitra        # adjudicated bearer (position-guarded: Persian given name 'Mitra')
+  - hazra        # adjudicated bearer (ft confidently wrong: A1@1.0)
