@@ -428,3 +428,48 @@ exposed as a ~10-name wrong class. Both adjudication rounds
 independently label Lusophone surnames G1. Ruling: Iberian-origin
 surnames — Spanish and Portuguese alike — take G1; this is a SYSTEM fix,
 not a label errata.
+
+### R60.2 results — corpus N+2 measured (2,307 names)
+
+Adjudication: 239/239 agents, 0 errors, 2,307/2,307 labeled (2,306 by
+reconciler). Inter-lens agreement 94.8 % both-agree, 106 reconciled, 14
+unresolved. 2,174 concrete leaves, 93 GROUP_ONLY, 40 UNKNOWN.
+
+**Ruling 1 applied as an errata, not by hand.** The corrected-rule
+re-adjudication of all 59 C6-labeled names (two blind lenses +
+reconciler, same protocol) rewrote **40** of them and confirmed **19**:
+C6→A2 23, C6→B1 10, C6→UNKNOWN 4, C6→A1/B2/G1 1 each. Two thirds of the
+original C6 labels were German- or Slavic-FORM surnames that the flawed
+prompt rule had captured — the ruling's premise, measured. The pass
+also drew distinctions the bulk rule could not: Bershtein (Russian
+`sht` transliteration) → B1 vs Berenstein (German) → A2; Halperin (H
+preserved) → A2 vs the Galperin form that would mark Russian mediation;
+and it abstained on genuine homographs (Doukhan — Hebrew *dukhan* vs
+Maghrebi Arabic *dukhān*; Alper — Ashkenazi vs Turkic *alp-er*, citing
+R59.3's -oglu precedent). Every rewritten row carries an `errata` field
+recording its previous leaf and the ruling.
+
+**Measured, name-only detection, no CountryCodes:**
+
+| stage | strict precision | wrong |
+|---|---|---|
+| frozen baseline @ab83e3f | 82.3 % (682/829) | 147 |
+| + Iberian ruling @f177bd4 | 83.5 % (692/829) | 137 |
+| + C6 errata (labels corrected) | **84.3 % (698/828)** | **130** |
+
+Per-family: A 79 %, B 93 %, C 70 %, D 83 %, E 89 %, F 68 %, G 74 %.
+Per-stratum: arXiv 87 %, africa 81 %, mena 83 %, south-asia 78 %,
+central-asia 65 %, sea 61 %, latam 50 %. Abstention 64 % overall, but
+80 %+ in the African and South-Asian slices — the thin families are
+thin in COVERAGE, not only in accuracy, which the 450-name corpus could
+not show.
+
+**R61 work list** (the 130 wrongs, 58 classes, concentrated head):
+15 B1→C1 sovietized Turkic (-ov/-ev on Mukhamedov-type names);
+12 A2→G1 residual Iberian tail beyond the 33 moved names (Mariño,
+de Diego, López Neumann — same ruling, more surnames);
+11 E1→E2 Wade-Giles / Taiwan romanization;
+10 E4→E1 Korean tables claiming Chinese pinyin;
+5 B1→B2 Bulgarian -ev/-ov read as East Slavic;
+4 A3→A2 Nordic -sen on Dutch/German names.
+Every one is a designed round, not a name-by-name patch.
