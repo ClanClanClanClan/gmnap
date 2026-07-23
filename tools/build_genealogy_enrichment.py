@@ -486,6 +486,134 @@ def assign_global_id(record: dict) -> str:
     return generate_global_id(entry)
 
 
+# ---------------------------------------------------------------------------
+# R62: per-edge identity + provenance + confidence (the safe-ingestion
+# backbone). Every advisor edge is stamped with its source, a confidence
+# tier, and — when known — the Wikidata QID that makes cross-source fusion
+# false-merge-resistant. License is DERIVED from source (SOURCE_META), not
+# stored per edge. Verified tiers are FLOOR-LOCKED: automation may fill an
+# empty slot or corroborate, but may never override a verified edge. This
+# is the contract every future source (P185, theses.fr, MathTree) plugs
+# into — see docs/DATA_SOURCES.md and the R62 tasks.
+# ---------------------------------------------------------------------------
+CONFIDENCE_ORDER = {"verified": 3, "high": 2, "medium": 1, "low": 0}
+
+SOURCE_META = {
+    "curated": {"confidence": "verified", "license": "MIT"},
+    "MGP validation seed": {"confidence": "verified", "license": "MGP-noncommercial"},
+    "MGP": {"confidence": "verified", "license": "MGP-noncommercial"},
+    "Wikidata-P184": {"confidence": "high", "license": "CC0"},
+    "Wikidata-P185": {"confidence": "high", "license": "CC0"},
+    "theses.fr": {"confidence": "high", "license": "Etalab-2.0"},
+    "MathTree": {"confidence": "medium", "license": "CC-BY-3.0"},
+    "referenced advisor (no metadata)": {"confidence": "low", "license": "n/a"},
+}
+
+# Verified, hand-curated tiers — never overridden by an automated source.
+FLOOR_LOCKED = {"curated", "MGP", "MGP validation seed"}
+
+
+def make_edge(name, *, qid=None, source, year=None, relation="doctoral"):
+    """Construct a typed advisor edge with provenance + confidence.
+
+    Keeps ``name`` so every existing reader (``adv["name"]``) still works;
+    ADDS qid/source/confidence/relation/year alongside it.
+    """
+    meta = SOURCE_META.get(source, {"confidence": "low"})
+    edge = {
+        "name": name,
+        "source": source,
+        "confidence": meta["confidence"],
+        "relation": relation,
+    }
+    if qid:
+        edge["qid"] = qid
+    if year:
+        edge["year"] = year
+    return edge
+
+
+def _stamp_edges(advisors, source):
+    """Map a raw advisor list (dicts or strings) to typed edges, preserving
+    a QID / year / mgp_id when the source carried one."""
+    out = []
+    for a in advisors or []:
+        if isinstance(a, dict):
+            name = a.get("name")
+            if not name:
+                continue
+            edge = make_edge(
+                name,
+                qid=a.get("qid"),
+                source=source,
+                year=a.get("year"),
+                relation=a.get("relation", "doctoral"),
+            )
+            if a.get("mgp_id"):
+                edge["mgp_id"] = a["mgp_id"]
+            out.append(edge)
+        elif isinstance(a, str) and a:
+            out.append(make_edge(a, source=source))
+    return out
+
+
+def _same_advisor(a, b):
+    """Two edges denote the same advisor iff their QIDs agree, OR (when at
+    least one lacks a QID) their normalized names match. Two DIFFERENT QIDs
+    are different people even under the same name spelling (a Wikidata
+    duplicate is not a merge signal)."""
+    qa, qb = a.get("qid"), b.get("qid")
+    if qa and qb:
+        return qa == qb
+    na = normalize_key(a.get("name", ""))
+    nb = normalize_key(b.get("name", ""))
+    return bool(na) and na == nb
+
+
+def merge_advisor_edges(existing, incoming):
+    """Fill / corroborate / override-only-lower. Returns the merged list.
+
+    - fill: an advisor not already present is added.
+    - corroborate: an incoming edge matching an existing advisor (by QID,
+      else by normalized name — see ``_same_advisor``) accumulates its
+      source into ``sources`` and upgrades a missing QID.
+    - override: only when the incoming edge has STRICTLY higher confidence,
+      and never when that would demote a FLOOR_LOCKED verified edge to an
+      automated one. Accumulated provenance + QID are always carried across.
+    """
+    merged: list = []
+    for e in existing:
+        m = dict(e)
+        srcs = list(m.get("sources") or [])
+        if m.get("source") and m["source"] not in srcs:
+            srcs.append(m["source"])
+        m["sources"] = srcs
+        merged.append(m)
+    for inc in incoming:
+        match = next((cur for cur in merged if _same_advisor(cur, inc)), None)
+        if match is None:
+            m = dict(inc)
+            m["sources"] = [inc["source"]] if inc.get("source") else []
+            merged.append(m)
+            continue
+        if inc.get("source") and inc["source"] not in match["sources"]:
+            match["sources"].append(inc["source"])
+        if not match.get("qid") and inc.get("qid"):
+            match["qid"] = inc["qid"]
+        cur_c = CONFIDENCE_ORDER.get(match.get("confidence", "low"), 0)
+        inc_c = CONFIDENCE_ORDER.get(inc.get("confidence", "low"), 0)
+        cur_locked = match.get("source") in FLOOR_LOCKED
+        inc_locked = inc.get("source") in FLOOR_LOCKED
+        if inc_c > cur_c and not (cur_locked and not inc_locked):
+            keep_sources, keep_qid = match["sources"], match.get("qid")
+            match.clear()
+            match.update(inc)
+            match["sources"] = keep_sources
+            if keep_qid:
+                match["qid"] = keep_qid
+    return merged
+
+
 def build(no_mgp: bool = False) -> dict:
     """Build the enrichment dict.
 
@@ -524,14 +652,17 @@ def build(no_mgp: bool = False) -> dict:
             if e.get("thesis"):
                 record["Thesis"] = e["thesis"]
             if e.get("advisors"):
-                record["Advisors"] = [
-                    {
-                        "name": to_canonical_latin(a["name"]),
-                        "mgp_id": a.get("mgp_id"),
-                    }
-                    for a in e["advisors"]
-                    if a.get("name")
-                ]
+                record["Advisors"] = _stamp_edges(
+                    [
+                        {
+                            "name": to_canonical_latin(a["name"]),
+                            "mgp_id": a.get("mgp_id"),
+                        }
+                        for a in e["advisors"]
+                        if a.get("name")
+                    ],
+                    "MGP validation seed",
+                )
             by_name[key] = record
 
     # 2. Merge in hand-curated stubs (birth years, countries, advisor chains)
@@ -542,12 +673,14 @@ def build(no_mgp: bool = False) -> dict:
             for field, value in stub.items():
                 if field == "Advisors":
                     # Only add if MGP didn't provide any advisors
-                    by_name[key].setdefault("Advisors", value)
+                    by_name[key].setdefault("Advisors", _stamp_edges(value, "curated"))
                 elif not by_name[key].get(field):
                     by_name[key][field] = value
         else:
             stub_copy = dict(stub)
             stub_copy.setdefault("Source", "curated stub")
+            if stub_copy.get("Advisors"):
+                stub_copy["Advisors"] = _stamp_edges(stub_copy["Advisors"], "curated")
             by_name[key] = stub_copy
 
     # 2b. Merge in the Wikidata genealogy dataset (thousands of
@@ -564,13 +697,27 @@ def build(no_mgp: bool = False) -> dict:
             key = normalize_key(e["CanonicalLatin"])
             if not key:
                 continue
-            advisors = [
-                {"name": a["name"]} for a in e.get("Advisors", []) if a.get("name")
-            ]
+            # R62: preserve the Wikidata QID on every advisor edge (it was
+            # dropped here — the identity that makes fusion false-merge-safe).
+            advisors = _stamp_edges(
+                [
+                    {"name": a["name"], "qid": a.get("qid")}
+                    for a in e.get("Advisors", [])
+                    if a.get("name")
+                ],
+                "Wikidata-P184",
+            )
             institutions = e.get("Institutions") or []
             institution = institutions[0] if institutions else None
             if key in by_name:
                 rec = by_name[key]
+                # R62: fill-empty only. A record that already carries curated/
+                # MGP-seed advisors holds them under a different name form and
+                # with NO QID, so merging Wikidata's QID-bearing variant here
+                # would DUPLICATE the same advisor (name-vs-QID identity
+                # mismatch). Cross-source co-advisor reconciliation needs fuzzy
+                # name matching and is deferred to the ID-bearing sources
+                # (theses.fr/P185), which merge cleanly via merge_advisor_edges.
                 if advisors and not rec.get("Advisors"):
                     rec["Advisors"] = advisors
                     enriched += 1
@@ -687,18 +834,23 @@ def build(no_mgp: bool = False) -> dict:
                 if not key:
                     continue
                 advisors_raw = e.get("advisors") or []
-                advisors = [
-                    {"name": a[0]} if isinstance(a, (list, tuple)) and a else None
-                    for a in advisors_raw
-                ]
-                advisors = [a for a in advisors if a]
+                advisors = _stamp_edges(
+                    [
+                        {"name": a[0]}
+                        for a in advisors_raw
+                        if isinstance(a, (list, tuple)) and a
+                    ],
+                    "MGP",
+                )
                 year = e.get("year")
                 institution = e.get("institution")
                 country = e.get("country")
                 if key in by_name:
                     rec = by_name[key]
-                    # MGP is authoritative — replace advisor list.
-                    if advisors:
+                    # R62: fill-empty (was blind-replace, which dropped
+                    # curated edges). Same name-vs-QID rationale as the
+                    # Wikidata block above — cross-source merge is deferred.
+                    if advisors and not rec.get("Advisors"):
                         rec["Advisors"] = advisors
                         enriched += 1
                     if institution and not rec.get("Institution"):
@@ -716,7 +868,10 @@ def build(no_mgp: bool = False) -> dict:
                     if advisors:
                         record["Advisors"] = advisors
                     if year:
-                        record["BirthYear"] = year - 28  # rough estimate
+                        # R62: a thesis-year-minus-28 guess is NOT a verified
+                        # birth year — keep it clearly labelled so it never
+                        # masquerades as fact (was record["BirthYear"]).
+                        record["BirthYearEstimated"] = year - 28
                     if institution:
                         record["Institution"] = institution
                     if country:
