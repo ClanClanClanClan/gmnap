@@ -75,21 +75,31 @@ INDEX_NAME = "CREATE INDEX ON :Person(name);"
 
 # UPSERT a person node. All optional fields are set via COALESCE so
 # re-runs don't overwrite richer data with NULL.
+# R60.3: these are UNWIND-batched. The previous versions took one
+# parameter set each and were executed inside a per-row Python loop
+# (`for p in batch: tx.run(...)`), so the "batch" only batched the
+# TRANSACTION — every one of the ~39 k persons and ~21 k edges still
+# cost its own Bolt round-trip, ~60 k in total. That is the same defect
+# class as R56's row-wise DuckDB load (stage 5) and R54's per-entry
+# changelog writes (stage 9). Runtime drifted into the e2e fixture's
+# 900 s ceiling and started failing CI. One round-trip per batch now.
 UPSERT_PERSON = """
-MERGE (p:Person {key: $key})
-SET  p.name        = COALESCE(p.name, $name),
-     p.global_id   = COALESCE(p.global_id, $global_id),
-     p.birth_year  = COALESCE(p.birth_year, $birth_year),
-     p.death_year  = COALESCE(p.death_year, $death_year),
-     p.institution = COALESCE(p.institution, $institution),
-     p.country     = COALESCE(p.country, $country),
-     p.source      = COALESCE(p.source, $source)
+UNWIND $rows AS row
+MERGE (p:Person {key: row.key})
+SET  p.name        = COALESCE(p.name, row.name),
+     p.global_id   = COALESCE(p.global_id, row.global_id),
+     p.birth_year  = COALESCE(p.birth_year, row.birth_year),
+     p.death_year  = COALESCE(p.death_year, row.death_year),
+     p.institution = COALESCE(p.institution, row.institution),
+     p.country     = COALESCE(p.country, row.country),
+     p.source      = COALESCE(p.source, row.source)
 """
 
 UPSERT_EDGE = """
-MATCH (src:Person {key: $src_key})
-MERGE (adv:Person {key: $adv_key})
-  ON CREATE SET adv.name = $adv_name
+UNWIND $rows AS row
+MATCH (src:Person {key: row.src_key})
+MERGE (adv:Person {key: row.adv_key})
+  ON CREATE SET adv.name = row.adv_name
 MERGE (src)-[r:DOCTORAL_ADVISOR]->(adv)
 """
 
@@ -167,8 +177,10 @@ def load(
                 return
             tx = session.begin_transaction()
             try:
-                for p in batch:
-                    tx.run(UPSERT_PERSON, **p)
+                # list(...) — NOT the live `batch` object: the flush
+                # clears it in place right after, which would blank the
+                # payload the driver is about to serialize.
+                tx.run(UPSERT_PERSON, rows=list(batch))
                 tx.commit()
             except Exception:
                 tx.rollback()
@@ -203,8 +215,7 @@ def load(
                 return
             tx = session.begin_transaction()
             try:
-                for e in edge_batch:
-                    tx.run(UPSERT_EDGE, **e)
+                tx.run(UPSERT_EDGE, rows=list(edge_batch))  # copy: see above
                 tx.commit()
             except Exception:
                 tx.rollback()
