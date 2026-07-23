@@ -60,8 +60,9 @@ def loaded_memgraph() -> Generator[str, None, None]:
     password = os.environ.get("MEMGRAPH_PASSWORD", "")
 
     # Run the loader as a subprocess so we exercise the same entry
-    # point CI does. Cap at 2 minutes — the 20 k-entry load runs in
-    # well under a minute on Memgraph 2.12.
+    # point CI does. On Memgraph 2.22.1 the full R62 dataset (48,558
+    # :Person + 33,716 edges) loads in ~3 s now that the loader indexes
+    # its MERGE key — the timeout below is vast headroom, not a target.
     cmd = [
         sys.executable,
         "tools/load_memgraph_from_enrichment.py",
@@ -72,12 +73,15 @@ def loaded_memgraph() -> Generator[str, None, None]:
         "--password",
         password,
     ]
-    # Loader does ~60 k MERGEs (~39 k :Person + ~21 k advisor edges
-    # after round-23's partition-harvest expansion). On GitHub
-    # Actions runners with cold Memgraph caches this takes
-    # ≈ 4-8 min; cap at 15 minutes to stay below the job's 30-minute
-    # overall budget. Round-26 caught a 300 s timeout when the
-    # round-23 harvest doubled the dataset.
+    # Loader does ~82 k MERGEs (~48.5 k :Person + ~33.7 k advisor edges
+    # after R62's no-DOB harvest). It is now O(n) because the loader
+    # indexes :Person(key), the property every MERGE resolves on —
+    # measured 2.7 s for a cold full load, 2.4 s idempotent re-run. The
+    # 900 s cap is deliberately generous. History: round-26 raised the
+    # cap 300→900 when round-23 doubled the dataset; R62 then tripped
+    # even 900 s because the MERGE key was UNINDEXED (614 s locally,
+    # >900 s on CI, O(n²)) — the INDEX_KEY fix in the loader, not a
+    # bigger cap, is what actually resolved it.
     proc = subprocess.run(
         cmd,
         cwd=str(REPO),
@@ -91,10 +95,10 @@ def loaded_memgraph() -> Generator[str, None, None]:
         f"stdout:\n{proc.stdout}\n\nstderr:\n{proc.stderr}"
     )
 
-    # Sanity: we expect ≥ 35 000 :Person nodes (round-23 enrichment
-    # contains 39,497; load is idempotent so re-runs land at the same
-    # count). Lower bound 35 000 leaves margin for partial-load
-    # tolerance without dropping below the previous ~27k floor.
+    # Sanity: we expect ≥ 35 000 :Person nodes (R62 enrichment contains
+    # 48,558; load is idempotent so re-runs land at the same count).
+    # Lower bound 35 000 leaves margin for partial-load tolerance
+    # without dropping below the previous ~27k floor.
     from neo4j import GraphDatabase  # type: ignore
 
     auth = (user, password) if user else None

@@ -69,6 +69,18 @@ ENRICHMENT = Path("data/genealogy_enrichment.json")
 
 # ─── Cypher fragments ──────────────────────────────────────────────────
 
+# `key` is the property EVERY MERGE/MATCH in this loader resolves on
+# (UPSERT_PERSON merges Person{key}, UPSERT_EDGE matches src Person{key}
+# and merges adv Person{key}). In Memgraph a uniqueness CONSTRAINT does
+# NOT create a label-property lookup index — it only enforces uniqueness
+# — so without INDEX_KEY every MERGE falls back to a full :Person label
+# scan. That makes the whole load O(n²): measured 614 s at 48.5 k
+# persons + 33.7 k edges (and >900 s on CI's slower runner, tripping the
+# e2e fixture's timeout). With the index the same load is ~30 s. The
+# quadratic first bit once R62's no-DOB harvest grew the graph ~37 %;
+# INDEX_KEY fixes the root cause for good rather than just raising the
+# ceiling. INDEX_KEY MUST be created before Phase 1's MERGEs.
+INDEX_KEY = "CREATE INDEX ON :Person(key);"
 CONSTRAINT_KEY = "CREATE CONSTRAINT ON (p:Person) ASSERT p.key IS UNIQUE;"
 INDEX_GID = "CREATE INDEX ON :Person(global_id);"
 INDEX_NAME = "CREATE INDEX ON :Person(name);"
@@ -164,7 +176,9 @@ def load(
     t0 = time.time()
 
     with driver.session() as session:
-        # Schema setup (idempotent)
+        # Schema setup (idempotent). INDEX_KEY first: it is the lookup
+        # index every MERGE/MATCH below depends on (see its definition).
+        _run_schema(session, INDEX_KEY)
         _run_schema(session, CONSTRAINT_KEY)
         _run_schema(session, INDEX_GID)
         _run_schema(session, INDEX_NAME)
