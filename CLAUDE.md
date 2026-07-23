@@ -292,9 +292,14 @@ Architecture: split geo/name-origin branches, hierarchical selective classificat
 ### Detection KPIs (843-entry adjudicated benchmark)
 *(R58-era adjudication snapshot. R59.3–R59.5 changes were A/B-gated per
 corpus: on the 843 the deltas are abstention→correct conversions plus one
-wrong→abstention kill (Grušas) — 0 new wrong. The enforced floor is
-`tests/unit/test_benchmark_evaluation.py` (≥95 % high-confidence leaf
-precision); current held-out numbers live in docs/calibration.md R59.5.)*
+wrong→abstention kill (Grušas) — 0 new wrong. The ≥95 % high-confidence
+leaf-precision floor is `tests/unit/test_benchmark_evaluation.py:162`, but
+it is enforced LOCALLY ONLY: the assertion `pytest.skip`s when the
+gitignored fastText model is absent, and CI does not build the model
+(no `make model` step in ci.yml), so the CI run skips it. Rebuild the
+model and run pytest locally to actually enforce it; wiring the model
+build into CI is R61 material. Current held-out numbers live in
+docs/calibration.md R59.5.)*
 | Metric | Value | Notes |
 |--------|-------|-------|
 | MGP ground truth (15 names, no CC) | 15/15 = 100% | All via surname exact or fastText |

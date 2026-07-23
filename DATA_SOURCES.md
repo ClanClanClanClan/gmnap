@@ -19,10 +19,10 @@ practice that's CC-BY for some of our sources).
 | Artefact | Path | Source | Licence | Attribution required? |
 |---|---|---|---|---|
 | Genealogy enrichment | `data/genealogy_enrichment.json` | composite, see below | mixed | yes |
-| Adjudicated benchmark | `data/benchmarks/adjudicated_843.json` | composite | mixed | yes |
+| Adjudicated benchmark | `tests/fixtures/name_origin_benchmark.json` | composite | mixed | yes |
 | Region YAML overlays | `config/regions/*.yaml` (none yet) | hand-curated | MIT (this repo) | no |
 | Script-switch table | `config/script_switch.yaml` | hand-curated | MIT | no |
-| Surname fastText model | `data/ml_training/regional_classifier.bin` | trained on aligned MGP + Wikidata + OpenAlex | CC0 derivative | no |
+| Surname fastText model | `data/ml_training/ft_name_classifier.ftz` | trained on aligned MGP + Wikidata + OpenAlex | CC0 derivative | no |
 | Country-code → region map | `data/cc_to_region.json` | composite | MIT | no |
 
 ## `data/genealogy_enrichment.json`
@@ -68,7 +68,7 @@ The largest bundled artefact (~39,500 entries). Composite:
 
 ## Adjudicated benchmark
 
-`data/benchmarks/adjudicated_843.json` — 843 mathematician name
+`tests/fixtures/name_origin_benchmark.json` — 843 mathematician name
 entries with hand-checked ground-truth `name_region` labels, used
 by `tests/unit/test_region_detection_accuracy.py`. Source mix:
 
@@ -80,12 +80,12 @@ classification, MIT-licensed.
 
 ## Models
 
-`data/ml_training/regional_classifier.bin` (50 MB quantised
+`data/ml_training/ft_name_classifier.ftz` (50 MB quantised
 fastText model). Trained on:
 
 - ~23 000 aligned (name, region) pairs derived from the genealogy
   enrichment file above.
-- Training script: `scripts/ml/train_regional_classifier.py`.
+- Training script: `scripts/ml/build_name_classifier.py`.
 
 Since the training corpus is itself derivative of CC0 Wikidata +
 OpenAlex + the non-commercial MGP subset, the model inherits the

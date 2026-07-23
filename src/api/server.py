@@ -289,6 +289,44 @@ _PAID_TOKENS = set(
 _configure_logging()
 
 
+# R57: the name-origin classification cluster stamped onto pipeline entries.
+# Stripped from /process results for anonymous callers (parity with the
+# /query gate). Genealogy fields (Advisors/Institution/BirthYear/Country/
+# Thesis), IDs, and non-origin analytics are NOT here — they stay.
+_ORIGIN_FIELDS = frozenset(
+    {
+        "DetectedRegion",
+        "_region_code",
+        "region_code",
+        "NameRegion",
+        "GroupRegion",
+        "GeoRegion",
+        "ResolutionLevel",
+        "RegionCandidates",
+        "RegionConflict",
+        "RegionalExtras",
+        "DetectionConfidence",
+        "confidence",
+        "DetectionMethod",
+        "detection_method",
+        "_region_processed",
+    }
+)
+
+
+def _strip_origin_fields(entry: dict) -> None:
+    """Remove the name-origin classification from an entry in place, leaving
+    a short restricted note (mirrors the /query anonymous response)."""
+    had = any(k in entry for k in _ORIGIN_FIELDS)
+    for k in _ORIGIN_FIELDS:
+        entry.pop(k, None)
+    if had:
+        entry["name_origin"] = (
+            "restricted: the name-origin classification is available to "
+            "authenticated research callers only (see PRIVACY.md)"
+        )
+
+
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
 
@@ -414,7 +452,7 @@ def create_app() -> FastAPI:
         # name-origin classification. Anonymous callers get genealogy only
         # (the MGP-equivalent surface); the derived origin label is
         # restricted to authenticated research callers. See the privacy
-        # rationale in docs/PRIVACY.md.
+        # rationale in PRIVACY.md.
         request.state.is_authenticated = is_paid
 
         # V7 spec §12: free tier requires hashcash 18-bit PoW for /api/ endpoints.
@@ -620,7 +658,7 @@ def create_app() -> FastAPI:
             else:
                 response["name_origin"] = (
                     "restricted: the name-origin classification is available "
-                    "to authenticated research callers only (see docs/PRIVACY.md)"
+                    "to authenticated research callers only (see PRIVACY.md)"
                 )
 
             # Enrich with curated genealogy data (Advisors/Institution/BirthYear)
@@ -768,7 +806,7 @@ def create_app() -> FastAPI:
     # Batch processing endpoint
     # ------------------------------------------------------------------
     @app.post("/api/v1/process")
-    async def process_batch(req: ProcessRequest):
+    async def process_batch(req: ProcessRequest, request: Request):
         """Run V7 pipeline on a batch of entries."""
         if len(req.entries) > 10_000:
             raise HTTPException(
@@ -841,6 +879,21 @@ def create_app() -> FastAPI:
                         lookup.enrich(entry)
             except Exception as exc:
                 logger.debug("Genealogy enrichment skipped: %s", exc)
+
+            # R57 PRIVACY GATE (parity with /api/v1/query). /process stamps
+            # the name-origin classification onto EVERY entry (DetectedRegion,
+            # the split axes, candidates, confidence). That is the same
+            # special-category-capable inference /query gates — and without a
+            # gate here the free tier can script the ~39.9k enrichment names
+            # through /process to reconstitute exactly the labelled corpus we
+            # decline to publish. Anonymous callers get the genealogy surface
+            # (Advisors/Institution/BirthYear — the MGP-equivalent data) with
+            # the region cluster stripped; authenticated research callers get
+            # the full classification. See PRIVACY.md.
+            if not getattr(request.state, "is_authenticated", False):
+                for entry in page:
+                    if isinstance(entry, dict):
+                        _strip_origin_fields(entry)
 
             return {
                 "processed": len(entries),

@@ -31,6 +31,12 @@ OpenAlex affiliations).
 ## Quick Start
 
 ```bash
+# Fetch the LFS-tracked data first. data/genealogy_enrichment.json (~13 MB,
+# ~39.9k mathematicians) is stored with Git LFS; a plain `git clone` leaves
+# a small pointer file and the genealogy/lineage features silently return
+# nothing until you pull it.
+git lfs install && git lfs pull
+
 # One-time setup: pip install + compile fasttext CLI + build the ML name
 # classifier from the committed corpus (make model). ~a few minutes.
 make setup
@@ -248,7 +254,7 @@ Split geo/name-origin architecture validated by external onomastics expert:
 - **100% CC-based accuracy** across 216 territories
 - Three-tier suffix system + fastText CLI tiebreaker + same-group gate
 - Honest abstention: returns R0 + group hint when uncertain, never forces a wrong leaf
-- Confidence calibration: PAV isotonic fit on 675-entry train, **held-out test ECE = 0.039** (raw 0.188; full report in `docs/calibration.md`). Enable runtime via `GMNAP_CALIBRATE_CONFIDENCE=1`
+- Confidence calibration: PAV isotonic fit on 675-entry train, **held-out test ECE = 0.048** (raw 0.166; full report in `docs/calibration.md`). Enable runtime via `GMNAP_CALIBRATE_CONFIDENCE=1`
 
 ## Genealogy Enrichment
 

@@ -11,7 +11,7 @@ what is held, why, and how to object.*
 |---|---|---|
 | `data/genealogy_enrichment.json` | ~39,900 mathematicians (living and deceased) | canonical name, country, institution, birth year / death year (where public), doctoral-advisor names, source tag |
 | `data/mgp_full.jsonl` | 475 mathematicians | name, degree, institution, year, dissertation title, advisor/student names |
-| `data/benchmarks/adjudicated_843.json` | 843 mathematicians | name, region-of-name-origin label (this project's classification) |
+| `tests/fixtures/name_origin_benchmark.json` | 843 mathematicians | name, region-of-name-origin label (this project's classification) |
 | `data/ml_training/*` corpora | subsets of the above | (surname, region-label) pairs |
 | Pipeline outputs (`out/`, `output/`, API responses) | whatever you process | the above plus derived fields (region axes, short forms, confidence) |
 
