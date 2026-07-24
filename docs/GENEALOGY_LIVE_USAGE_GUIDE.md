@@ -622,16 +622,24 @@ python3 -c "from neo4j import GraphDatabase; d = GraphDatabase.driver('bolt://lo
 - **Temporal validation**: 0% violations
 
 ### Extending Data
-```bash
-# Harvest more data
-cd src/genealogy
-python3 -m harvest_fr_full --target 20000  # Increase to 20K records
 
-# Run pipeline
-python3 -m extract_edges
-python3 -m normalize_names
-python3 -m match_person_ids
-python3 -m load_memgraph
+The genealogy graph is (re)built by harvesting the open sources into
+`data/*.json`, then merging them into `data/genealogy_enrichment.json`.
+(The older per-source `harvest_fr_full` / `extract_edges` / `normalize_names`
+/ `match_person_ids` / `load_memgraph` modules were removed in R64 — the
+native-API fetchers below supersede them.)
+
+```bash
+# 1. Harvest the open sources (Wikidata P184 + French theses / theses.fr)
+python3 scripts/data/fetch_wikidata_genealogy.py     # -> data/wikidata_genealogy.json
+python3 scripts/data/fetch_theses_fr.py              # -> data/theses_fr_math.json
+
+# 2. Merge + integrity-clean into the enrichment graph
+PYTHONPATH=. python3 tools/build_genealogy_enrichment.py   # -> data/genealogy_enrichment.json
+PYTHONPATH=. python3 tools/validate_genealogy_integrity.py # graph invariants (R64)
+
+# 3. (optional) load into Memgraph for lineage queries
+python3 tools/load_memgraph_from_enrichment.py --bolt bolt://localhost:7687
 ```
 
 ---
