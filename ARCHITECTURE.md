@@ -168,9 +168,10 @@ sync, and an optional stage 12 (genealogy enrichment) runs async after 11.
    Batches 256 SHA-256 digests per `Promise.all` instead of awaiting
    per iteration → ~10× faster 18-bit mining in the browser.
 3. **Curated genealogy JSON** (`data/genealogy_enrichment.json`,
-   ~48,500 entries — Git LFS-tracked; expanded via the R62 no-DOB
-   Wikidata harvest (28,179 P184-bearing people) + OpenAlex affiliation
-   merge). Loaded once per process into the `GenealogyLookup`
+   ~67,500 entries — Git LFS-tracked; expanded via the R62 no-DOB
+   Wikidata harvest (28,179 P184-bearing people) + the R63 theses.fr
+   harvest (16,086 IdRef-disambiguated French-math students) + OpenAlex
+   affiliation merge). Loaded once per process into the `GenealogyLookup`
    singleton; all CLI / API / web-UI enrichment goes through it.
    Diacritic- and particle-aware name matching covered by
    `tests/unit/test_genealogy_lookup.py` (23 tests).

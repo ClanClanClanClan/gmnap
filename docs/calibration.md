@@ -405,8 +405,8 @@ excluded here.
 adjudication prompt initially said Ashkenazi surnames map to C6 "when
 the Jewish identity of the name form is the dominant signal". That was
 wrong on three counts: it contradicted the R58 pilot precedent
-(`Mathieu Rosenbaum` -> A2), it contradicted the codebase's own
-form-over-bearer rule (Abramovich -> B1, pinned), and it asked
+(German-form surnames like `Rosenbaum` -> A2), it contradicted the
+codebase's own form-over-bearer rule (Abramovich -> B1, pinned), and it asked
 adjudicators to infer ethnicity from a German-language surname — not
 the axis this project classifies, and unreliable (Silberberg and
 Rosenberg have non-Jewish German bearers). Corrected ruling: German /

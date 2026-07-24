@@ -272,10 +272,10 @@ Response:
   out-of-sample (4.8× reduction; documented with reliability diagrams
   in `docs/calibration.md`). Enable the calibrator at runtime via
   `GMNAP_CALIBRATE_CONFIDENCE=1`.
-- **Genealogy is seeded + enriched.** ~48,500 mathematicians: ~28,100
-  with full doctoral-advisor chains (15 MGP-curated + 28,179 Wikidata
-  SPARQL P184) plus ~14,800 records from OpenAlex with Institution +
-  Country only. Name matching is diacritic-insensitive (`Erdős` ↔
+- **Genealogy is seeded + enriched.** ~67,500 mathematicians: ~43,300
+  with doctoral-advisor chains (15 MGP-curated + 28,179 Wikidata SPARQL
+  P184 + 16,086 theses.fr French-math students, IdRef-disambiguated)
+  plus ~14,800 records from OpenAlex with Institution + Country only. Name matching is diacritic-insensitive (`Erdős` ↔
   `Erdos`) and handles Dutch/German particles (`von Neumann` ↔
   `Neumann … von`), hyphenated given names, and parenthetical aliases.
 - **The web UI has been stress-tested.** `tools/browser_smoke.py`

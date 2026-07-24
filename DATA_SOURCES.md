@@ -27,7 +27,7 @@ practice that's CC-BY for some of our sources).
 
 ## `data/genealogy_enrichment.json`
 
-The largest bundled artefact (~48,500 entries). Composite:
+The largest bundled artefact (~67,500 entries). Composite:
 
 ### Mathematics Genealogy Project (MGP)
 
@@ -56,6 +56,23 @@ The largest bundled artefact (~48,500 entries). Composite:
 - **Licence**: **CC0** (Creative Commons Public Domain Dedication).
 - **Attribution**: not legally required but politely included
   ("data from Wikidata, CC0").
+
+### theses.fr (French doctoral theses — directeur de thèse)
+
+- **Source**: [theses.fr](https://theses.fr/) — ABES' national
+  doctoral-thesis registry (2024-relaunch JSON API).
+- **Scope**: 16,086 defended French **mathematics** theses (discipline
+  filter `Mathématiques`), carrying 22,035 student→advisor
+  (`directeur de thèse`) edges — 99.4% with a **PPN/IdRef** persistent
+  identifier, so fusion into the graph is IdRef-disambiguated (~920 of
+  them corroborate an existing Wikidata edge). ~21k are net-new,
+  overwhelmingly recent French PhDs absent from Wikidata. Harvested by
+  `scripts/data/fetch_theses_fr.py`; ingested by
+  `tools/build_genealogy_enrichment.py` (`SOURCE_META["theses.fr"]`,
+  confidence tier `high`).
+- **Licence**: **Etalab / Licence Ouverte 2.0** (attribution, including
+  commercial use) — France's default open-data licence.
+- **Attribution**: "Données theses.fr — ABES, Licence Ouverte 2.0."
 
 ### OpenAlex (affiliations + concepts)
 
@@ -137,7 +154,7 @@ granted request survives future re-harvests) — is
 ## Commercial use
 
 The code is MIT — commercially usable. The **default bundled dataset is
-not**: ~490 of its ~48,500 records (and the advisor chains they carry,
+not**: ~490 of its ~67,500 records (and the advisor chains they carry,
 plus `data/mgp_full.jsonl` in its entirety) derive from the Mathematics
 Genealogy Project, whose terms are **non-commercial with attribution**.
 The API's paid tier (`GMNAP_API_TOKENS`) gates *rate limits*; it does

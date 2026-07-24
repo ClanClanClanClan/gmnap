@@ -48,6 +48,7 @@ import json
 import re
 import subprocess
 import sys
+import unicodedata
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -95,8 +96,27 @@ KNOWN_DECEASED = {"Turing, Alan", "Luogeng, Hua", "Hua, Luogeng"}
 # mathematician of that name, tripping the k==1 P2 oracle; the fixture
 # predates and does not refer to them. Registering it is the documented
 # mechanism for generic-everyman fixtures, not a suppression.
+#
+# The R63 theses.fr harvest (~16k French math PhDs) grew the oracle and
+# tripped the same collision on this next batch of generic region-detection
+# SHAPE fixtures — everyman names chosen for their MORPHOLOGY (the test
+# comment beside each says "(most) common X surname"), colliding with a real
+# bearer only because such names are common. Specific, identifiable people
+# named in prose (a real French quant, a Romanian geometer) were NOT added
+# here — they were de-identified at the source instead, because labelling a
+# specific person "generic" would be false. Only everyman fixtures belong.
 SYNTHETIC_TEST_NAMES = {
     "Kowalski, Piotr",
+    "Rossi, Paolo",  # Italian "John Smith" — most common Italian surname (A2)
+    "Popov, Georgi",  # common Bulgarian surname (B2)
+    "Coulibaly, Ibrahim",  # common Ivorian/Malian surname (F1)
+    "Durand, Marie",  # French "Jane Doe" (A4 fixture)
+    "Lee, David",  # generic Korean-surname + Western-given fixture
+    "Alexander, David",  # cross-regional given-name TOKENS, not a person
+    "Bondarenko, Andriy",  # common Ukrainian -enko surname (B1)
+    "Dinh, Tien-Cuong",  # Vietnamese surname-shape fixture (E5)
+    "Tô, Tat Dat",  # short 2-char Vietnamese surname fixture (E5)
+    "Hoang, Duc-Trung",  # common Vietnamese Hoang surname (E5)
     "Zhang, Wei",
     "Wang, Wei",
     "Chen, Wei",
@@ -118,6 +138,15 @@ SYNTHETIC_TEST_NAMES = {
     "Zhang, Ming",
     "Liu, Yang",
 }
+
+# NFC-normalized views for NF-INSENSITIVE membership. Source data (theses.fr
+# / ABES in particular) stores DECOMPOSED diacritics (NFD: "Tô" = o + U+0302)
+# while these hand-typed sets are precomposed (NFC: U+00F4), so a raw ``in``
+# check silently misses accented names. We fold BOTH sides to NFC only for
+# the exclusion check — never for the _norm key, which relies on NFD's
+# separable combining marks to fold "Tô"→"to" and match ASCII fixtures.
+_SYNTHETIC_NFC = {unicodedata.normalize("NFC", n) for n in SYNTHETIC_TEST_NAMES}
+_KNOWN_DECEASED_NFC = {unicodedata.normalize("NFC", n) for n in KNOWN_DECEASED}
 
 
 def _norm(s: str) -> str:
@@ -154,15 +183,18 @@ def living_forms() -> dict[str, str]:
             key = _norm(f)
             counts[key] += 1
             owner.setdefault(key, name)
-            if rec.get("DeathYear") or name in KNOWN_DECEASED:
+            if (
+                rec.get("DeathYear")
+                or unicodedata.normalize("NFC", name) in _KNOWN_DECEASED_NFC
+            ):
                 dead.add(key)
     return {
         k: owner[k]
         for k, n in counts.items()
         if n == 1
         and k not in dead
-        and owner[k] not in KNOWN_DECEASED
-        and owner[k] not in SYNTHETIC_TEST_NAMES
+        and unicodedata.normalize("NFC", owner[k]) not in _KNOWN_DECEASED_NFC
+        and unicodedata.normalize("NFC", owner[k]) not in _SYNTHETIC_NFC
     }
 
 

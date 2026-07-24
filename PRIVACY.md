@@ -9,7 +9,7 @@ what is held, why, and how to object.*
 
 | Artefact | People | Fields |
 |---|---|---|
-| `data/genealogy_enrichment.json` | ~48,500 mathematicians (living and deceased) | canonical name, country, institution, birth year / death year (where public), doctoral-advisor names, source tag |
+| `data/genealogy_enrichment.json` | ~67,500 mathematicians (living and deceased) | canonical name, country, institution, birth year / death year (where public), doctoral-advisor names, source tag |
 | `data/mgp_full.jsonl` | 475 mathematicians | name, degree, institution, year, dissertation title, advisor/student names |
 | `tests/fixtures/name_origin_benchmark.json` | 843 mathematicians | name, region-of-name-origin label (this project's classification) |
 | `data/ml_training/*` corpora | subsets of the above | (surname, region-label) pairs |
@@ -54,7 +54,7 @@ Three things follow, and all are implemented:
    year — the same class of data MGP and OpenAlex publish) to everyone,
    and the name-origin classification only to authenticated research
    callers. Without that gate the free tier could be walked over the
-   ~48.5 k enrichment names to rebuild exactly the corpus we decline to
+   ~67.5 k enrichment names to rebuild exactly the corpus we decline to
    publish.
 3. **A CI gate enforces it.** `tools/privacy_audit.py` fails the build
    if any tracked file pairs a presumed-living person with a leaf code.

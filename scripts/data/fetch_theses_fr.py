@@ -114,14 +114,25 @@ def _to_record(these: dict) -> dict | None:
     # A doctoral thesis has one author in practice; if the API ever lists
     # several, the first is the doctoral candidate.
     student = auteurs[0]
-    advisors = [
-        (
+    # Dedup directeurs within the thesis: theses.fr occasionally lists the
+    # same director twice (e.g. once with a PPN, once without). Key on the
+    # lowercased name — consistent with the name-keyed downstream graph —
+    # and keep/upgrade the PPN-bearing form so the person yields one edge.
+    advisors: list[dict] = []
+    by_name_seen: dict[str, dict] = {}
+    for d in directeurs:
+        nk = d["canonical"].lower()
+        if nk in by_name_seen:
+            if "ppn" in d and "ppn" not in by_name_seen[nk]:
+                by_name_seen[nk]["ppn"] = d["ppn"]
+            continue
+        entry = (
             {"ppn": d["ppn"], "name": d["canonical"]}
             if "ppn" in d
             else {"name": d["canonical"]}
         )
-        for d in directeurs
-    ]
+        by_name_seen[nk] = entry
+        advisors.append(entry)
     rec = {
         "CanonicalLatin": student["canonical"],
         "DefenseYear": _year(these.get("dateSoutenance")),

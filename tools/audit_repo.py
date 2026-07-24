@@ -350,18 +350,19 @@ def _check_genealogy_count_matches_docs() -> Result:
         errors.append(f"file unparseable: {exc}")
         return ("D4: genealogy count claim", errors)
     count = len(payload.get("by_global_id") or {})
-    # Allow LFS-stub files (tiny payload). Real file has ~48,500 (R62 no-DOB
-    # harvest recovered ~8.9k previously-truncated Wikidata advisor edges).
+    # Allow LFS-stub files (tiny payload). Real file has ~67,500 (R63
+    # theses.fr harvest added ~15k IdRef-disambiguated French math students +
+    # ~21k advisor edges on top of the R62 Wikidata base).
     if count < 1000:
         errors.append(
             f"by_global_id count={count} — looks like an LFS stub, "
             f"run `git lfs install && git lfs pull`"
         )
         return ("D4: genealogy count claim", errors)
-    # Docs say ~48,500. Allow 45,000-52,000 range.
-    if not (45000 <= count <= 52000):
+    # Docs say ~67,500. Allow 62,000-74,000 range.
+    if not (62000 <= count <= 74000):
         errors.append(
-            f"by_global_id count={count} outside expected ~48,500 range; "
+            f"by_global_id count={count} outside expected ~67,500 range; "
             f"update README + CLAUDE if data has grown"
         )
     return ("D4: genealogy count claim", errors)

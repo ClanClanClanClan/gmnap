@@ -2,10 +2,13 @@
 
 These pin the safe-ingestion contract every future edge source (Wikidata
 P185, theses.fr, MathTree) plugs into:
-  - every edge carries source + confidence (+ QID when the source had one);
-  - identity is QID-first (false-merge-resistant), name-fallback;
+  - every edge carries source + confidence (+ QID and/or IdRef when the
+    source had one — theses.fr supplies IdRef/PPN, Wikidata supplies QID);
+  - identity is QID-first, then IdRef, then name-fallback (false-merge-
+    resistant: two different QIDs — or two different IdRefs — are two people);
   - merge FILLS an empty slot, CORROBORATES a match (accumulating sources
-    + upgrading a QID), and only OVERRIDES with strictly-higher confidence;
+    + upgrading a missing QID/IdRef), only OVERRIDES with strictly-higher
+    confidence;
   - a verified/floor-locked edge is NEVER replaced by an automated source.
 """
 
@@ -99,3 +102,54 @@ def test_distinct_advisors_are_both_kept():
         [make_edge("B", source="Wikidata-P184", qid="Q2")],
     )
     assert {e["name"] for e in out} == {"A", "B"}
+
+
+# ── R63: IdRef (theses.fr / PPN) as the second persistent-identity axis ──
+
+
+def test_make_edge_stamps_idref():
+    e = make_edge("Bayart, Frédéric", source="theses.fr", idref="070378304")
+    assert e["idref"] == "070378304"
+    assert e["source"] == "theses.fr"
+    assert e["confidence"] == "high"  # theses.fr is a high-confidence source
+
+
+def test_merge_dedups_by_idref_not_name_spelling():
+    # Same person, two accent spellings, same IdRef, neither with a QID -> ONE.
+    a = make_edge("Perthame, Benoit", source="theses.fr", idref="026927489")
+    b = make_edge("Perthame, Benoît", source="theses.fr", idref="026927489")
+    out = merge_advisor_edges([a], [b])
+    assert len(out) == 1, [e["name"] for e in out]
+
+
+def test_different_idrefs_are_distinct_people():
+    # Two DIFFERENT IdRefs under one name spelling are two people — the
+    # false-merge-resistance guarantee, now on the IdRef axis too.
+    a = make_edge("Martin, Jean", source="theses.fr", idref="111111111")
+    b = make_edge("Martin, Jean", source="theses.fr", idref="222222222")
+    out = merge_advisor_edges([a], [b])
+    assert len(out) == 2
+
+
+def test_idref_upgrades_a_name_only_edge():
+    # A floor-locked MGP edge (no IdRef) corroborated by theses.fr keeps its
+    # source but GAINS the IdRef — parallel to the QID-upgrade path.
+    name_only = make_edge("Adv", source="MGP")
+    with_idref = make_edge("Adv", source="theses.fr", idref="123456789")
+    out = merge_advisor_edges([name_only], [with_idref])
+    assert len(out) == 1
+    assert out[0]["source"] == "MGP"  # floor-locked, stays
+    assert out[0]["idref"] == "123456789"  # but gains the IdRef
+
+
+def test_qid_and_idref_coexist_after_cross_source_corroboration():
+    # The real Abatangelo->Valdinoci case: a Wikidata edge (QID, no IdRef)
+    # corroborated by theses.fr (IdRef, no QID, same name) ends up carrying
+    # BOTH persistent ids and both sources.
+    wiki = make_edge("Valdinoci, Enrico", source="Wikidata-P184", qid="Q88478244")
+    thes = make_edge("Valdinoci, Enrico", source="theses.fr", idref="10843401X")
+    out = merge_advisor_edges([wiki], [thes])
+    assert len(out) == 1
+    assert out[0]["qid"] == "Q88478244"
+    assert out[0]["idref"] == "10843401X"
+    assert set(out[0]["sources"]) == {"Wikidata-P184", "theses.fr"}

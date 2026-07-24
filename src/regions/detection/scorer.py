@@ -1463,8 +1463,9 @@ _STRONG = {
             "sarkar",
             # R59.2: "dan" and "paul" removed — both are extremely common
             # Western GIVEN names; at STRONG(5.0) they hijacked given-name
-            # tokens ('Dan Popovici' (Romanian) -> D3@0.875). Bengali Paul/
-            # Dan bearers still resolve via other evidence.
+            # tokens (the given name 'Dan' in a Romanian full name ->
+            # D3@0.875). Bengali Paul/Dan bearers still resolve via other
+            # evidence.
             "khatun",
         },
         "given_frag": {

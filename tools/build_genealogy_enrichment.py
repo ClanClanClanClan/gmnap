@@ -97,6 +97,10 @@ def _fold_particles(key: str) -> str:
 
 MGP_SOURCE = Path("data/mgp_validation_data.json")
 WIKIDATA_GENEALOGY = Path("data/wikidata_genealogy.json")
+# theses.fr French math theses — IdRef(PPN)-disambiguated student→advisor
+# edges (scripts/data/fetch_theses_fr.py). Etalab-2.0. Merges via IdRef
+# identity (SOURCE_META["theses.fr"] = high confidence).
+THESES_FR = Path("data/theses_fr_math.json")
 # OpenAlex-sourced 15k author affiliations — gives us Institution +
 # Country for thousands of mathematicians the Wikidata P184 query
 # misses (those without a recorded doctoral advisor). No advisor
@@ -513,11 +517,13 @@ SOURCE_META = {
 FLOOR_LOCKED = {"curated", "MGP", "MGP validation seed"}
 
 
-def make_edge(name, *, qid=None, source, year=None, relation="doctoral"):
+def make_edge(name, *, qid=None, idref=None, source, year=None, relation="doctoral"):
     """Construct a typed advisor edge with provenance + confidence.
 
     Keeps ``name`` so every existing reader (``adv["name"]``) still works;
-    ADDS qid/source/confidence/relation/year alongside it.
+    ADDS qid/idref/source/confidence/relation/year alongside it. ``qid``
+    (Wikidata) and ``idref`` (SUDOC/IdRef, e.g. from theses.fr) are the two
+    persistent-identity axes fusion keys on — see ``_same_advisor``.
     """
     meta = SOURCE_META.get(source, {"confidence": "low"})
     edge = {
@@ -528,6 +534,8 @@ def make_edge(name, *, qid=None, source, year=None, relation="doctoral"):
     }
     if qid:
         edge["qid"] = qid
+    if idref:
+        edge["idref"] = idref
     if year:
         edge["year"] = year
     return edge
@@ -545,6 +553,7 @@ def _stamp_edges(advisors, source):
             edge = make_edge(
                 name,
                 qid=a.get("qid"),
+                idref=a.get("idref"),
                 source=source,
                 year=a.get("year"),
                 relation=a.get("relation", "doctoral"),
@@ -558,13 +567,22 @@ def _stamp_edges(advisors, source):
 
 
 def _same_advisor(a, b):
-    """Two edges denote the same advisor iff their QIDs agree, OR (when at
-    least one lacks a QID) their normalized names match. Two DIFFERENT QIDs
-    are different people even under the same name spelling (a Wikidata
-    duplicate is not a merge signal)."""
+    """Two edges denote the same advisor iff a shared persistent id agrees.
+
+    Precedence: QID first, then IdRef, then normalized name. Two DIFFERENT
+    ids of the same kind are different people even under one spelling (a
+    Wikidata/IdRef duplicate is not a merge signal). When the two edges
+    carry DIFFERENT id kinds (one QID-only, one IdRef-only — the common
+    Wikidata-vs-theses.fr case) there is no crosswalk here, so they fall
+    back to a normalized-name match — conservative: a spelling difference
+    leaves them un-merged (a rare near-dup) rather than risking a false
+    merge."""
     qa, qb = a.get("qid"), b.get("qid")
     if qa and qb:
         return qa == qb
+    ia, ib = a.get("idref"), b.get("idref")
+    if ia and ib:
+        return ia == ib
     na = normalize_key(a.get("name", ""))
     nb = normalize_key(b.get("name", ""))
     return bool(na) and na == nb
@@ -600,6 +618,8 @@ def merge_advisor_edges(existing, incoming):
             match["sources"].append(inc["source"])
         if not match.get("qid") and inc.get("qid"):
             match["qid"] = inc["qid"]
+        if not match.get("idref") and inc.get("idref"):
+            match["idref"] = inc["idref"]
         cur_c = CONFIDENCE_ORDER.get(match.get("confidence", "low"), 0)
         inc_c = CONFIDENCE_ORDER.get(inc.get("confidence", "low"), 0)
         cur_locked = match.get("source") in FLOOR_LOCKED
@@ -754,6 +774,72 @@ def build(no_mgp: bool = False) -> dict:
         print(
             f"Wikidata merge: +{added} new entries, enriched {enriched} "
             f"existing entries"
+        )
+
+    # 2b-fr. Merge in the theses.fr French math theses. Unlike the Wikidata
+    # block's fill-empty, these student→advisor edges carry an IdRef (PPN),
+    # so merge_advisor_edges fuses them cleanly: an existing advisor is
+    # corroborated (its source list accumulates "theses.fr"), a genuinely
+    # new advisor is added, and a FLOOR_LOCKED curated/MGP edge is never
+    # demoted. The bulk are net-new students — recent French PhDs absent
+    # from Wikidata — added outright. See scripts/data/fetch_theses_fr.py.
+    if THESES_FR.exists():
+        fr_entries = json.loads(THESES_FR.read_text(encoding="utf-8"))
+        added = 0
+        merged = 0
+        for e in fr_entries:
+            canonical = e.get("CanonicalLatin")
+            if not canonical:
+                continue
+            key = normalize_key(canonical)
+            if not key:
+                continue
+            # Map the harvest's ``ppn`` → ``idref`` at the ingestion boundary
+            # so _stamp_edges / _same_advisor stay generic on 'idref'.
+            advisors = _stamp_edges(
+                [
+                    {"name": a["name"], "idref": a.get("ppn")}
+                    for a in e.get("Advisors", [])
+                    if a.get("name")
+                ],
+                "theses.fr",
+            )
+            if not advisors:
+                continue
+            institution = e.get("Institution")
+            if key in by_name:
+                rec = by_name[key]
+                rec["Advisors"] = merge_advisor_edges(
+                    rec.get("Advisors") or [], advisors
+                )
+                for field, value in (
+                    ("Country", e.get("Country")),
+                    ("Institution", institution),
+                ):
+                    if value and not rec.get(field):
+                        rec[field] = value
+                if "theses.fr" not in (rec.get("Source") or ""):
+                    rec["Source"] = (rec.get("Source", "") + "+theses.fr").lstrip("+")
+                merged += 1
+            else:
+                record = {
+                    "CanonicalLatin": canonical,
+                    "Source": "theses.fr",
+                    "Advisors": advisors,
+                }
+                if e.get("Country"):
+                    record["Country"] = e["Country"]
+                if institution:
+                    record["Institution"] = institution
+                if e.get("DefenseYear"):
+                    record["DefenseYear"] = e["DefenseYear"]
+                if e.get("person_ppn"):
+                    record["IdRef"] = e["person_ppn"]
+                by_name[key] = record
+                added += 1
+        print(
+            f"theses.fr merge: +{added} new entries, {merged} existing "
+            f"students merged"
         )
 
     # 2c. Merge in the OpenAlex affiliations dataset (15 k entries).

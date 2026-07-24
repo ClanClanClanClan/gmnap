@@ -5,8 +5,8 @@ The corpus-N+2 adjudication prompt carried a rule that turned out to be
 wrong: it told adjudicators that Ashkenazi-associated surnames map to C6
 "when the JEWISH identity of the name form is the dominant signal". That
 instruction (a) contradicts the R58 pilot precedent, which adjudicated
-'Mathieu Rosenbaum' -> A2 by FORM, (b) contradicts the codebase's own
-form-over-bearer rule (Abramovich -> B1, pinned in
+German-form surnames like 'Rosenbaum' -> A2 by FORM, (b) contradicts the
+codebase's own form-over-bearer rule (Abramovich -> B1, pinned in
 tests/unit/test_signature_suffixes_turkic_balkan.py), and (c) asks an
 adjudicator to infer ethnicity from a German-language surname, which is
 both unreliable (Silberberg/Rosenberg have non-Jewish German bearers)
