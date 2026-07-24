@@ -634,6 +634,69 @@ def merge_advisor_edges(existing, incoming):
     return merged
 
 
+def apply_edge_integrity(by_name: dict) -> dict:
+    """Drop genealogically-impossible advisor edges from the merged graph.
+
+    Three classes, all unambiguous — nobody can be their own ancestor:
+      - SELF-LOOP: advisor == student (theses.fr occasionally records a
+        thesis's author as its own director; a NNT collision, R64).
+      - MUTUAL advisorship: A->B AND B->A. One direction is wrong and the
+        data can't tell us which (R64: a Wikidata P184 entered backwards —
+        Da Prato is decades senior to Tauraso), so BOTH edges are dropped
+        rather than assert a possibly-reversed one. Mirrors the pipeline's
+        stage-6 cycle rejection.
+      - WITHIN-RECORD same-name duplicate: one real advisor entered under
+        two Wikidata QIDs (an upstream dup); keep one edge, preserve the
+        extra QID as ``qid_dup`` so provenance isn't lost.
+
+    Longer (3+ node) cycles are left to the validator to report — they are
+    rare and picking an edge to cut needs human judgement. Returns a stats
+    dict; mutates ``by_name`` in place. Idempotent.
+    """
+    stats = {"selfloops": 0, "mutual_edges": 0, "dups": 0}
+
+    def _edges(r):
+        return [
+            a
+            for a in (r.get("Advisors") or [])
+            if isinstance(a, dict) and a.get("name")
+        ]
+
+    # Adjacency of normalized keys, computed once from the pre-clean graph so
+    # the mutual set is stable while we mutate the Advisors lists below.
+    adj = {k: {normalize_key(a["name"]) for a in _edges(r)} for k, r in by_name.items()}
+    mutual = {
+        frozenset((k, t))
+        for k, targets in adj.items()
+        for t in targets
+        if k in adj.get(t, ())
+    }
+
+    for k, r in by_name.items():
+        edges = _edges(r)
+        if not edges:
+            continue
+        cleaned: list = []
+        seen: dict = {}
+        for a in edges:
+            ak = normalize_key(a["name"])
+            if ak == k:
+                stats["selfloops"] += 1
+                continue
+            if frozenset((k, ak)) in mutual:
+                stats["mutual_edges"] += 1
+                continue
+            if ak in seen:
+                stats["dups"] += 1
+                if a.get("qid") and seen[ak].get("qid") != a.get("qid"):
+                    seen[ak].setdefault("qid_dup", a["qid"])
+                continue
+            seen[ak] = a
+            cleaned.append(a)
+        r["Advisors"] = cleaned
+    return stats
+
+
 def build(no_mgp: bool = False) -> dict:
     """Build the enrichment dict.
 
@@ -967,6 +1030,17 @@ def build(no_mgp: bool = False) -> dict:
         print(
             f"MGP merge: +{added} new entries, enriched {enriched} " f"existing entries"
         )
+
+    # 2e. Edge integrity — drop the genealogically-impossible edges every
+    # multi-source merge can introduce (self-loops, mutual advisorship,
+    # same-name-two-QID dups). Runs on the fully-merged graph, before stubs
+    # and GlobalID assignment. Pinned by tools/validate_genealogy_integrity.py.
+    integ = apply_edge_integrity(by_name)
+    print(
+        f"Edge integrity: dropped {integ['selfloops']} self-loops, "
+        f"{integ['mutual_edges']} mutual-advisor edges, {integ['dups']} "
+        f"same-name dup edges"
+    )
 
     # 3. Ensure every referenced advisor has at least a stub entry so
     # chain traversal can find it (otherwise it becomes a dead end).
