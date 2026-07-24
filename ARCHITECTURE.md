@@ -186,7 +186,7 @@ sync, and an optional stage 12 (genealogy enrichment) runs async after 11.
 - **Not a citizenship predictor.** 56 % on citizenship labels looks bad
   until you realise that's the wrong target.
 - **Not currently wired to Memgraph in production.** The graph DB
-  code paths exist (`src/genealogy/load_memgraph.py`, the lineage
+  code paths exist (`tools/load_memgraph_from_enrichment.py`, the lineage
   endpoint's first-try branch), but production serves genealogy from
   the curated JSON. Graph store becomes worthwhile past ~100 k entries.
 - **Not a replacement for the MGP.** Complements it: we add
