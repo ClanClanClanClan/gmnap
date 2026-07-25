@@ -558,6 +558,14 @@ def _traces_to_mgp(edge: dict) -> bool:
     return "genealogy project" in (edge.get("stated_in") or "").lower()
 
 
+def _risk_stratify(by_name: dict, edge: dict, student: dict) -> dict:
+    """R65.3 tier for one MGP-derived edge (see tools/vetting_risk.py)."""
+    from tools.vetting_risk import classify_edge
+
+    adv_key = normalize_key(edge.get("name") or "")
+    return classify_edge(edge, student, by_name.get(adv_key))
+
+
 def mark_vetting_status(by_name: dict) -> dict:
     """Label every MGP-derived advisor edge as vetted or needing vetting.
 
@@ -566,7 +574,15 @@ def mark_vetting_status(by_name: dict) -> dict:
     adjudication backlog. An MGP-derived edge that an independent source also
     asserts gets ``vetted_by: [those sources]``.
     """
-    stats = {"mgp_derived": 0, "vetted": 0, "needs_vetting": 0}
+    stats = {
+        "mgp_derived": 0,
+        "vetted": 0,
+        "needs_vetting": 0,
+        "TRUST": 0,
+        "REVIEW": 0,
+        "SUSPECT": 0,
+        "RETYPE": 0,
+    }
     for rec in by_name.values():
         for e in rec.get("Advisors") or []:
             if not isinstance(e, dict) or not _traces_to_mgp(e):
@@ -586,10 +602,32 @@ def mark_vetting_status(by_name: dict) -> dict:
             if independent:
                 e["vetted_by"] = independent
                 e.pop("needs_vetting", None)
+                e.pop("vetting", None)
                 stats["vetted"] += 1
+                continue
+            # R65.3: no independent source — stratify by risk instead of
+            # flagging uniformly. TRUST genuinely means "we do not flag this".
+            verdict = _risk_stratify(by_name, e, rec)
+            tier = verdict["tier"]
+            stats[tier] += 1
+            e["vetting"] = verdict
+            if tier == "TRUST":
+                e.pop("needs_vetting", None)
+                e.pop("relation_disputed", None)
             else:
                 e["needs_vetting"] = True
                 stats["needs_vetting"] += 1
+                if tier == "RETYPE":
+                    # The people are probably right; the LABEL is wrong. So the
+                    # fix is a relabel, not a re-verification — confidence is
+                    # deliberately NOT demoted.
+                    e["relation_disputed"] = True
+                elif tier == "SUSPECT":
+                    e["confidence"] = {
+                        "verified": "high",
+                        "high": "medium",
+                        "medium": "low",
+                    }.get(e.get("confidence", "low"), "low")
     return stats
 
 
@@ -937,6 +975,9 @@ def build(no_mgp: bool = False) -> dict:
                     ("Thesis", prov.get("Thesis")),
                     ("BirthPlace", prov.get("BirthPlace")),
                     ("DeathPlace", prov.get("DeathPlace")),
+                    # R65.3: ISO-2 countries of every P69 "educated at"
+                    # institution (via P17) — the risk model's country key.
+                    ("DegreeCountries", prov.get("DegreeCountries")),
                 ):
                     if value and not rec.get(field):
                         rec[field] = value
@@ -969,6 +1010,7 @@ def build(no_mgp: bool = False) -> dict:
                     ("Thesis", prov.get("Thesis")),
                     ("BirthPlace", prov.get("BirthPlace")),
                     ("DeathPlace", prov.get("DeathPlace")),
+                    ("DegreeCountries", prov.get("DegreeCountries")),
                 ):
                     if value:
                         record[field] = value
@@ -1206,8 +1248,10 @@ def build(no_mgp: bool = False) -> dict:
     vet = mark_vetting_status(by_name)
     print(
         f"Vetting: {vet['mgp_derived']} MGP-derived edges — "
-        f"{vet['vetted']} corroborated independently, "
-        f"{vet['needs_vetting']} need vetting"
+        f"{vet['vetted']} independently corroborated; risk tiers: "
+        f"TRUST {vet['TRUST']} (unflagged), REVIEW {vet['REVIEW']}, "
+        f"SUSPECT {vet['SUSPECT']}, RETYPE {vet['RETYPE']} "
+        f"-> {vet['needs_vetting']} still flagged"
     )
 
     # 3. Ensure every referenced advisor has at least a stub entry so

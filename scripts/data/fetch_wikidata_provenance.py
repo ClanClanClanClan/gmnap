@@ -52,7 +52,7 @@ OUTPUT = Path("data/wikidata_provenance.json")
 # prov:wasDerivedFrom -> pr:P248 for the "stated in" source.
 SPARQL_DECADE = """
 SELECT ?person ?advisor ?refSrcLabel ?degreeLabel ?thesisLabel
-       ?birthPlaceLabel ?deathPlaceLabel
+       ?birthPlaceLabel ?deathPlaceLabel ?almaCC
 WHERE {{
   ?person wdt:P106 wd:Q170790 ;
           wdt:P569 ?dob ;
@@ -64,13 +64,15 @@ WHERE {{
   OPTIONAL {{ ?person wdt:P1026 ?thesis . }}
   OPTIONAL {{ ?person wdt:P19   ?birthPlace . }}
   OPTIONAL {{ ?person wdt:P20   ?deathPlace . }}
+  OPTIONAL {{ ?person wdt:P69 ?alma . ?alma wdt:P17 ?almaCtry .
+             ?almaCtry wdt:P297 ?almaCC . }}
   SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en" . }}
 }}
 """
 
 SPARQL_NO_DOB = """
 SELECT ?person ?advisor ?refSrcLabel ?degreeLabel ?thesisLabel
-       ?birthPlaceLabel ?deathPlaceLabel
+       ?birthPlaceLabel ?deathPlaceLabel ?almaCC
 WHERE {{
   ?person wdt:P106 wd:Q170790 ;
           p:P184 ?stmt .
@@ -81,6 +83,8 @@ WHERE {{
   OPTIONAL {{ ?person wdt:P1026 ?thesis . }}
   OPTIONAL {{ ?person wdt:P19   ?birthPlace . }}
   OPTIONAL {{ ?person wdt:P20   ?deathPlace . }}
+  OPTIONAL {{ ?person wdt:P69 ?alma . ?alma wdt:P17 ?almaCtry .
+             ?almaCtry wdt:P297 ?almaCC . }}
   SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en" . }}
 }}
 ORDER BY ?person ?advisor
@@ -115,6 +119,19 @@ def _absorb(rows: list, collected: dict) -> None:
         ref = _label(b, "refSrcLabel")
         if aq and ref:
             entry["advisor_refs"][aq] = ref
+        # DegreeCountries: ISO-2 codes of the countries of every "educated at"
+        # (P69) institution, straight from Wikidata's P17 on the institution.
+        # This replaces name-matching an institution LABEL against a hand-built
+        # gazetteer — which mis-filed e.g. New York University as British on
+        # 231 edges. P69 ("educated at") is also a far better proxy for where
+        # the degree was taken than P27 citizenship, which disagrees on ~22%
+        # of edges in the systematic study-abroad direction. A LIST, because
+        # P69 is multi-valued and picking [0] is arbitrary.
+        cc = _label(b, "almaCC")
+        if cc and len(cc) == 2:
+            ccs = entry.setdefault("DegreeCountries", [])
+            if cc not in ccs:
+                ccs.append(cc)
         for field, key in (
             ("AcademicDegree", "degreeLabel"),
             ("Thesis", "thesisLabel"),
