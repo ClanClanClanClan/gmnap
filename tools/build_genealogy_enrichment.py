@@ -97,6 +97,12 @@ def _fold_particles(key: str) -> str:
 
 MGP_SOURCE = Path("data/mgp_validation_data.json")
 WIKIDATA_GENEALOGY = Path("data/wikidata_genealogy.json")
+# R65: statement-level provenance + degree facts for the same Wikidata people
+# (scripts/data/fetch_wikidata_provenance.py). Keyed by person QID; supplies
+# `advisor_refs` (the "stated in" source behind each P184 statement — the
+# vetting key, since ~97% cite MGP), plus P512 degree, P1026 thesis and
+# P19/P20 places. A SIDECAR: optional, and the main harvest is untouched.
+WIKIDATA_PROVENANCE = Path("data/wikidata_provenance.json")
 # theses.fr French math theses — IdRef(PPN)-disambiguated student→advisor
 # edges (scripts/data/fetch_theses_fr.py). Etalab-2.0. Merges via IdRef
 # identity (SOURCE_META["theses.fr"] = high confidence).
@@ -869,6 +875,11 @@ def build(no_mgp: bool = False) -> dict:
     # the curated labels stay authoritative on famous names.
     if WIKIDATA_GENEALOGY.exists():
         wiki_entries = json.loads(WIKIDATA_GENEALOGY.read_text(encoding="utf-8"))
+        # R65 sidecar: statement provenance + degree facts, keyed by person QID.
+        provenance: dict = {}
+        if WIKIDATA_PROVENANCE.exists():
+            provenance = json.loads(WIKIDATA_PROVENANCE.read_text(encoding="utf-8"))
+            print(f"Wikidata provenance sidecar: {len(provenance)} people")
         added = 0
         enriched = 0
         for e in wiki_entries:
@@ -877,11 +888,20 @@ def build(no_mgp: bool = False) -> dict:
             key = normalize_key(e["CanonicalLatin"])
             if not key:
                 continue
+            prov = provenance.get(e.get("person_qid") or "") or {}
+            adv_refs = prov.get("advisor_refs") or {}
             # R62: preserve the Wikidata QID on every advisor edge (it was
             # dropped here — the identity that makes fusion false-merge-safe).
+            # R65: also carry `stated_in`, the source the Wikidata statement
+            # cites. Mostly "Mathematics Genealogy Project" — which is exactly
+            # what stops such an edge counting as independent corroboration.
             advisors = _stamp_edges(
                 [
-                    {"name": a["name"], "qid": a.get("qid")}
+                    {
+                        "name": a["name"],
+                        "qid": a.get("qid"),
+                        "stated_in": adv_refs.get(a.get("qid")),
+                    }
                     for a in e.get("Advisors", [])
                     if a.get("name")
                 ],
@@ -906,14 +926,27 @@ def build(no_mgp: bool = False) -> dict:
                     ("DeathYear", e.get("DeathYear")),
                     ("Country", e.get("Country")),
                     ("Institution", institution),
+                    # R65 sidecar facts. DegreeType holds the RAW P512 label
+                    # ("Doctor of Philosophy", "Habilitation", "doctorat
+                    # d'État"…) — deliberately un-normalised for now: a
+                    # controlled vocabulary must be country- AND era-scoped
+                    # (Dr. sc. nat. is a first doctorate in CH but
+                    # habilitation-equivalent in the DDR), so inventing one
+                    # here would encode a wrong mapping at scale.
+                    ("DegreeType", prov.get("AcademicDegree")),
+                    ("Thesis", prov.get("Thesis")),
+                    ("BirthPlace", prov.get("BirthPlace")),
+                    ("DeathPlace", prov.get("DeathPlace")),
                 ):
                     if value and not rec.get(field):
                         rec[field] = value
-                # Track source so downstream users can see where it came from
-                if rec.get("Source") == "MGP validation seed":
-                    pass
-                else:
-                    rec["Source"] = rec.get("Source", "") + "+Wikidata"
+                # Track source so downstream users can see where it came from.
+                # R65: guard against re-appending — a person appearing twice in
+                # the harvest produced 'Wikidata+Wikidata' (44 records) and one
+                # 'Wikidata+Wikidata+Wikidata+Wikidata+theses.fr'.
+                src = rec.get("Source") or ""
+                if src != "MGP validation seed" and "Wikidata" not in src:
+                    rec["Source"] = (src + "+Wikidata") if src else "Wikidata"
             else:
                 record = {
                     "CanonicalLatin": e["CanonicalLatin"],
@@ -929,6 +962,20 @@ def build(no_mgp: bool = False) -> dict:
                     record["Institution"] = institution
                 if advisors:
                     record["Advisors"] = advisors
+                # R65 sidecar facts (see the fill-empty branch above for why
+                # DegreeType stays a raw P512 label).
+                for field, value in (
+                    ("DegreeType", prov.get("AcademicDegree")),
+                    ("Thesis", prov.get("Thesis")),
+                    ("BirthPlace", prov.get("BirthPlace")),
+                    ("DeathPlace", prov.get("DeathPlace")),
+                ):
+                    if value:
+                        record[field] = value
+                # R65: preserve the subject QID — it was dropped here, so
+                # Wikidata identity survived only on advisor edges.
+                if e.get("person_qid"):
+                    record["QID"] = e["person_qid"]
                 by_name[key] = record
                 added += 1
         print(
