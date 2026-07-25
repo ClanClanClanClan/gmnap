@@ -106,10 +106,12 @@ THESES_FR = Path("data/theses_fr_math.json")
 # misses (those without a recorded doctoral advisor). No advisor
 # chains here, but a valuable coverage boost.
 OPENALEX_AFFILIATIONS = Path("data/ml_training/openalex_10k_mathematicians.json")
-# Round-23: bulk MGP harvest from `tools/harvest_mgp.py`.
-# JSONL, one record per line. When present, merges authoritative
-# MGP advisor chains over Wikidata's (MGP is the curated source for
-# mathematicians, Wikidata's P184 derives from MGP for many entries).
+# Round-23: bulk MGP harvest from `tools/harvest_mgp.py`. JSONL, one record
+# per line. Supplies thesis TITLES and years; its `degree` field is ignored
+# (uniformly "Ph.D." — MGP's degree flattening). R65: MGP is NOT treated as
+# authoritative — see MGP_DERIVED. Wikidata's P184 does largely derive from
+# MGP, which is precisely why a Wikidata edge is not independent
+# corroboration of an MGP claim.
 # Optional — empty / missing means we use Wikidata + OpenAlex only.
 MGP_FULL = Path("data/mgp_full.jsonl")
 OUTPUT = Path("data/genealogy_enrichment.json")
@@ -504,20 +506,97 @@ CONFIDENCE_ORDER = {"verified": 3, "high": 2, "medium": 1, "low": 0}
 
 SOURCE_META = {
     "curated": {"confidence": "verified", "license": "MIT"},
-    "MGP validation seed": {"confidence": "verified", "license": "MGP-noncommercial"},
-    "MGP": {"confidence": "verified", "license": "MGP-noncommercial"},
+    "MGP validation seed": {"confidence": "medium", "license": "MGP-noncommercial"},
+    "MGP": {"confidence": "medium", "license": "MGP-noncommercial"},
     "Wikidata-P184": {"confidence": "high", "license": "CC0"},
     "Wikidata-P185": {"confidence": "high", "license": "CC0"},
     "theses.fr": {"confidence": "high", "license": "Etalab-2.0"},
+    "Sudoc": {"confidence": "high", "license": "Etalab-2.0"},
     "MathTree": {"confidence": "medium", "license": "CC-BY-3.0"},
     "referenced advisor (no metadata)": {"confidence": "low", "license": "n/a"},
 }
 
-# Verified, hand-curated tiers — never overridden by an automated source.
-FLOOR_LOCKED = {"curated", "MGP", "MGP validation seed"}
+# R65 — MGP is BROAD but ERROR-PRONE, so a claim that traces only to it is
+# provisional. Measured failure modes: it flattens every degree to "Ph.D."
+# (472/472 rows in data/mgp_full.jsonl), overloads its role-less "Advisor 1/2"
+# slots with the advisors of DIFFERENT degrees (Brézis: 3e-cycle under Choquet
+# + doctorat d'État under Lions, rendered as co-advisors), and carries
+# honorary and habilitation edges as if doctoral. Maintainer rule: MGP-derived
+# facts must be VETTED against an independent source.
+#
+# Consequences encoded here: MGP sits at `medium` (was `verified`) and is no
+# longer FLOOR_LOCKED, so a primary registry (theses.fr / Sudoc / Wikidata)
+# now OVERRIDES it rather than being blocked by it.
+MGP_DERIVED = {"MGP", "MGP validation seed"}
+
+# Only genuinely hand-adjudicated project data is floor-locked. (Was
+# {"curated", "MGP", "MGP validation seed"} — which made MGP unoverridable by
+# the primary registries: the exact inverse of the intended trust ordering.)
+FLOOR_LOCKED = {"curated"}
 
 
-def make_edge(name, *, qid=None, idref=None, source, year=None, relation="doctoral"):
+def _traces_to_mgp(edge: dict) -> bool:
+    """True when an edge's provenance ultimately reaches MGP.
+
+    Either it was stamped by an MGP source directly, or it came from Wikidata
+    whose statement REFERENCE cites the Mathematics Genealogy Project — which
+    is the common case: ~97% of referenced Wikidata P184 statements cite MGP,
+    so most of that CC0 advisor graph is MGP at one remove. The ultimate
+    source is carried in ``stated_in`` (populated by the R65.2 reference
+    harvest); until then only direct MGP stamps are detectable.
+    """
+    if edge.get("source") in MGP_DERIVED:
+        return True
+    if any(s in MGP_DERIVED for s in (edge.get("sources") or [])):
+        return True
+    return "genealogy project" in (edge.get("stated_in") or "").lower()
+
+
+def mark_vetting_status(by_name: dict) -> dict:
+    """Label every MGP-derived advisor edge as vetted or needing vetting.
+
+    Nothing is dropped — this is a LABEL, so consumers choose: the canonical
+    tree can prefer vetted edges, and ``needs_vetting`` is a queryable
+    adjudication backlog. An MGP-derived edge that an independent source also
+    asserts gets ``vetted_by: [those sources]``.
+    """
+    stats = {"mgp_derived": 0, "vetted": 0, "needs_vetting": 0}
+    for rec in by_name.values():
+        for e in rec.get("Advisors") or []:
+            if not isinstance(e, dict) or not _traces_to_mgp(e):
+                continue
+            stats["mgp_derived"] += 1
+            srcs = set(e.get("sources") or [])
+            if e.get("source"):
+                srcs.add(e["source"])
+            independent_set = {s for s in srcs if s and s not in MGP_DERIVED}
+            if "genealogy project" in (e.get("stated_in") or "").lower():
+                # This edge's proximate source merely RELAYS MGP (a Wikidata
+                # statement referenced to it). Relaying is not independent
+                # evidence — otherwise MGP would launder itself into `vetted`
+                # simply by passing through a CC0 mirror.
+                independent_set.discard(e.get("source"))
+            independent = sorted(independent_set)
+            if independent:
+                e["vetted_by"] = independent
+                e.pop("needs_vetting", None)
+                stats["vetted"] += 1
+            else:
+                e["needs_vetting"] = True
+                stats["needs_vetting"] += 1
+    return stats
+
+
+def make_edge(
+    name,
+    *,
+    qid=None,
+    idref=None,
+    source,
+    year=None,
+    relation="doctoral",
+    stated_in=None,
+):
     """Construct a typed advisor edge with provenance + confidence.
 
     Keeps ``name`` so every existing reader (``adv["name"]``) still works;
@@ -538,6 +617,10 @@ def make_edge(name, *, qid=None, idref=None, source, year=None, relation="doctor
         edge["idref"] = idref
     if year:
         edge["year"] = year
+    if stated_in:
+        # The ULTIMATE source behind an aggregator's statement (e.g. a
+        # Wikidata P248 reference naming MGP). Drives _traces_to_mgp.
+        edge["stated_in"] = stated_in
     return edge
 
 
@@ -557,6 +640,7 @@ def _stamp_edges(advisors, source):
                 source=source,
                 year=a.get("year"),
                 relation=a.get("relation", "doctoral"),
+                stated_in=a.get("stated_in"),
             )
             if a.get("mgp_id"):
                 edge["mgp_id"] = a["mgp_id"]
@@ -620,15 +704,28 @@ def merge_advisor_edges(existing, incoming):
             match["qid"] = inc["qid"]
         if not match.get("idref") and inc.get("idref"):
             match["idref"] = inc["idref"]
+        if not match.get("stated_in") and inc.get("stated_in"):
+            match["stated_in"] = inc["stated_in"]
         cur_c = CONFIDENCE_ORDER.get(match.get("confidence", "low"), 0)
         inc_c = CONFIDENCE_ORDER.get(inc.get("confidence", "low"), 0)
         cur_locked = match.get("source") in FLOOR_LOCKED
         inc_locked = inc.get("source") in FLOOR_LOCKED
         if inc_c > cur_c and not (cur_locked and not inc_locked):
+            # Identity + provenance survive an override: the winning edge may
+            # carry a higher confidence but FEWER identifiers, and losing a
+            # QID/IdRef would undo the false-merge resistance those provide.
+            # (R65: idref and stated_in were dropped here; only sources+qid
+            # were carried.)
             keep_sources, keep_qid = match["sources"], match.get("qid")
+            keep_idref = match.get("idref")
+            keep_stated = match.get("stated_in")
             match.clear()
             match.update(inc)
             match["sources"] = keep_sources
+            if keep_idref and not match.get("idref"):
+                match["idref"] = keep_idref
+            if keep_stated and not match.get("stated_in"):
+                match["stated_in"] = keep_stated
             if keep_qid:
                 match["qid"] = keep_qid
     return merged
@@ -959,11 +1056,12 @@ def build(no_mgp: bool = False) -> dict:
             f"existing entries"
         )
 
-    # 2d. Merge MGP bulk-harvest (round 23). Authoritative for
-    # mathematician advisor chains — MGP is hand-curated. When
-    # present, MGP advisors override Wikidata's (MGP is upstream of
-    # most Wikidata P184 entries anyway). Optional — empty / missing
-    # file is fine. Skipped entirely under --no-mgp (CC0-clean build).
+    # 2d. Merge MGP bulk-harvest (round 23). R65: NOT authoritative — MGP
+    # edges enter at `medium` and are overridable by the primary registries;
+    # its thesis titles/years are taken, its flattened `degree` is not.
+    # (Earlier this comment claimed MGP was authoritative and its advisors
+    # overrode Wikidata's — the inverse of the trust ordering we now hold.)
+    # Optional — empty / missing file is fine. Skipped under --no-mgp.
     if not no_mgp and MGP_FULL.exists() and MGP_FULL.stat().st_size > 0:
         added = 0
         enriched = 0
@@ -994,8 +1092,19 @@ def build(no_mgp: bool = False) -> dict:
                 year = e.get("year")
                 institution = e.get("institution")
                 country = e.get("country")
+                # R65: the harvest's thesis TITLE and YEAR are real facts and
+                # were being dropped (460 titles / 469 years sat unread).
+                # e["degree"] is deliberately NOT ingested: it reads "Ph.D."
+                # for 472/472 rows — MGP's documented degree flattening. It
+                # carries zero information and would actively misreport any
+                # habilitation / doctorat d'État / Kandidat holder as a PhD.
+                title = e.get("dissertation_title")
                 if key in by_name:
                     rec = by_name[key]
+                    if title and not rec.get("Thesis"):
+                        rec["Thesis"] = title
+                    if year and not rec.get("ThesisYear"):
+                        rec["ThesisYear"] = year
                     # R62: fill-empty (was blind-replace, which dropped
                     # curated edges). Same name-vs-QID rationale as the
                     # Wikidata block above — cross-source merge is deferred.
@@ -1016,7 +1125,10 @@ def build(no_mgp: bool = False) -> dict:
                     }
                     if advisors:
                         record["Advisors"] = advisors
+                    if title:
+                        record["Thesis"] = title
                     if year:
+                        record["ThesisYear"] = year
                         # R62: a thesis-year-minus-28 guess is NOT a verified
                         # birth year — keep it clearly labelled so it never
                         # masquerades as fact (was record["BirthYear"]).
@@ -1040,6 +1152,15 @@ def build(no_mgp: bool = False) -> dict:
         f"Edge integrity: dropped {integ['selfloops']} self-loops, "
         f"{integ['mutual_edges']} mutual-advisor edges, {integ['dups']} "
         f"same-name dup edges"
+    )
+
+    # 2f. Vetting labels (R65) — an MGP-derived claim is provisional until an
+    # independent source corroborates it. Labels only; nothing is dropped.
+    vet = mark_vetting_status(by_name)
+    print(
+        f"Vetting: {vet['mgp_derived']} MGP-derived edges — "
+        f"{vet['vetted']} corroborated independently, "
+        f"{vet['needs_vetting']} need vetting"
     )
 
     # 3. Ensure every referenced advisor has at least a stub entry so

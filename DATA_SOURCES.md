@@ -44,6 +44,21 @@ The largest bundled artefact (~67,500 entries). Composite:
   drawn from MGP must credit "Mathematics Genealogy Project,
   © North Dakota State University" — the API response carries the
   `mgp_id` so downstream consumers can construct backlinks.
+- **Trust tier (R65): `medium`, and NOT floor-locked.** MGP is broad but
+  error-prone, so a claim resting only on it is provisional. Measured
+  failure modes: every degree is flattened to `"Ph.D."` (472/472 rows in
+  `data/mgp_full.jsonl`, so the field is not ingested); the role-less
+  "Advisor 1 / Advisor 2" slots are overloaded with the advisors of
+  *different* degrees (Brézis: 3e cycle under Choquet, doctorat d'État
+  under Lions, rendered as co-advisors); and honorary/habilitation edges
+  appear as doctoral ones. A primary registry (theses.fr, Sudoc,
+  Wikidata) therefore **overrides** an MGP claim, and MGP-derived edges
+  carry `needs_vetting` until an independent source corroborates them —
+  at which point they gain `vetted_by`.
+- **Laundering caveat**: ~97 % of *referenced* Wikidata `P184` statements
+  cite MGP, so a Wikidata edge is **not** independent corroboration of an
+  MGP claim. Edges record the ultimate source in `stated_in`, and the
+  vetting pass discards a relaying source from the independence test.
 
 ### Wikidata SPARQL (P184 = doctoral advisor)
 

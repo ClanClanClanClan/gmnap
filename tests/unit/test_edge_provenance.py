@@ -18,6 +18,7 @@ from tools.build_genealogy_enrichment import (
     FLOOR_LOCKED,
     SOURCE_META,
     make_edge,
+    mark_vetting_status,
     merge_advisor_edges,
 )
 
@@ -87,13 +88,15 @@ def test_higher_confidence_upgrades_a_low_edge_but_keeps_provenance():
 
 
 def test_qid_upgrades_a_name_only_edge():
-    name_only = make_edge("Adv", source="MGP")  # verified, no qid
+    # R65 trust ordering: MGP is `medium` and NO LONGER floor-locked, so a
+    # higher-confidence source overrides it — while both provenances survive.
+    name_only = make_edge("Adv", source="MGP")
     with_qid = make_edge("Adv", source="Wikidata-P184", qid="Q9")
     out = merge_advisor_edges([name_only], [with_qid])
     assert len(out) == 1
-    # verified MGP stays the source (floor-locked), but gains the QID
-    assert out[0]["source"] == "MGP"
+    assert out[0]["source"] == "Wikidata-P184"  # overrides MGP now
     assert out[0]["qid"] == "Q9"
+    assert set(out[0]["sources"]) == {"MGP", "Wikidata-P184"}
 
 
 def test_distinct_advisors_are_both_kept():
@@ -132,14 +135,84 @@ def test_different_idrefs_are_distinct_people():
 
 
 def test_idref_upgrades_a_name_only_edge():
-    # A floor-locked MGP edge (no IdRef) corroborated by theses.fr keeps its
-    # source but GAINS the IdRef — parallel to the QID-upgrade path.
+    # R65: theses.fr (a primary registry, `high`) now OVERRIDES an MGP claim
+    # (`medium`) rather than being blocked by it, and carries its IdRef.
     name_only = make_edge("Adv", source="MGP")
     with_idref = make_edge("Adv", source="theses.fr", idref="123456789")
     out = merge_advisor_edges([name_only], [with_idref])
     assert len(out) == 1
-    assert out[0]["source"] == "MGP"  # floor-locked, stays
-    assert out[0]["idref"] == "123456789"  # but gains the IdRef
+    assert out[0]["source"] == "theses.fr"
+    assert out[0]["idref"] == "123456789"
+    assert "MGP" in out[0]["sources"]  # provenance is not lost
+
+
+# ── R65: MGP is distrusted-by-default and must be vetted ────────────────
+
+
+def test_mgp_is_not_floor_locked_and_not_verified():
+    """The maintainer's trust rule, pinned: MGP is a corroboration target, not
+    an authority. A regression to MGP-supremacy must fail here."""
+    assert SOURCE_META["MGP"]["confidence"] == "medium"
+    assert SOURCE_META["MGP validation seed"]["confidence"] == "medium"
+    assert "MGP" not in FLOOR_LOCKED
+    assert "MGP validation seed" not in FLOOR_LOCKED
+    assert FLOOR_LOCKED == {"curated"}  # only hand-adjudicated data is locked
+
+
+def test_curated_is_still_floor_locked_against_mgp():
+    curated = make_edge("Adv", source="curated")  # verified
+    mgp = dict(make_edge("Adv", source="MGP"))
+    mgp["confidence"] = "verified"  # even forced equal, must not win
+    out = merge_advisor_edges([curated], [mgp])
+    assert out[0]["source"] == "curated"
+
+
+def test_mgp_only_edge_is_flagged_needs_vetting():
+    by_name = {"s, x": {"Advisors": [make_edge("Adv", source="MGP")]}}
+    stats = mark_vetting_status(by_name)
+    e = by_name["s, x"]["Advisors"][0]
+    assert e["needs_vetting"] is True
+    assert stats["needs_vetting"] == 1 and stats["vetted"] == 0
+
+
+def test_independently_corroborated_mgp_edge_is_vetted():
+    merged = merge_advisor_edges(
+        [make_edge("Adv", source="MGP")],
+        [make_edge("Adv", source="theses.fr", idref="1")],
+    )
+    by_name = {"s, x": {"Advisors": merged}}
+    stats = mark_vetting_status(by_name)
+    e = by_name["s, x"]["Advisors"][0]
+    assert e["vetted_by"] == ["theses.fr"]
+    assert "needs_vetting" not in e
+    assert stats["vetted"] == 1
+
+
+def test_wikidata_statement_sourced_to_mgp_counts_as_mgp_derived():
+    """A Wikidata P184 statement whose reference cites MGP is MGP at one
+    remove — ~97% of referenced P184 statements are. It must not launder into
+    'independent'."""
+    e = make_edge(
+        "Adv",
+        source="Wikidata-P184",
+        qid="Q1",
+        stated_in="Mathematics Genealogy Project",
+    )
+    by_name = {"s, x": {"Advisors": [e]}}
+    mark_vetting_status(by_name)
+    assert by_name["s, x"]["Advisors"][0]["needs_vetting"] is True
+
+
+def test_override_preserves_idref_and_stated_in():
+    """Identity must survive an override — a winning edge may carry higher
+    confidence but fewer identifiers."""
+    low = dict(make_edge("Adv", source="theses.fr", idref="IDR"))
+    low["stated_in"] = "Sudoc"
+    high = make_edge("Adv", source="curated")  # verified, no ids
+    out = merge_advisor_edges([low], [high])
+    assert out[0]["source"] == "curated"
+    assert out[0]["idref"] == "IDR"
+    assert out[0]["stated_in"] == "Sudoc"
 
 
 def test_qid_and_idref_coexist_after_cross_source_corroboration():
