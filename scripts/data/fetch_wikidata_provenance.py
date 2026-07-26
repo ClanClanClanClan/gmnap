@@ -52,7 +52,7 @@ OUTPUT = Path("data/wikidata_provenance.json")
 # prov:wasDerivedFrom -> pr:P248 for the "stated in" source.
 SPARQL_DECADE = """
 SELECT ?person ?advisor ?refSrcLabel ?degreeLabel ?thesisLabel
-       ?birthPlaceLabel ?deathPlaceLabel ?almaCC
+       ?birthPlaceLabel ?deathPlaceLabel ?almaCC ?idref
 WHERE {{
   ?person wdt:P106 wd:Q170790 ;
           wdt:P569 ?dob ;
@@ -66,13 +66,14 @@ WHERE {{
   OPTIONAL {{ ?person wdt:P20   ?deathPlace . }}
   OPTIONAL {{ ?person wdt:P69 ?alma . ?alma wdt:P17 ?almaCtry .
              ?almaCtry wdt:P297 ?almaCC . }}
+  OPTIONAL {{ ?person wdt:P269 ?idref . }}
   SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en" . }}
 }}
 """
 
 SPARQL_NO_DOB = """
 SELECT ?person ?advisor ?refSrcLabel ?degreeLabel ?thesisLabel
-       ?birthPlaceLabel ?deathPlaceLabel ?almaCC
+       ?birthPlaceLabel ?deathPlaceLabel ?almaCC ?idref
 WHERE {{
   ?person wdt:P106 wd:Q170790 ;
           p:P184 ?stmt .
@@ -85,6 +86,7 @@ WHERE {{
   OPTIONAL {{ ?person wdt:P20   ?deathPlace . }}
   OPTIONAL {{ ?person wdt:P69 ?alma . ?alma wdt:P17 ?almaCtry .
              ?almaCtry wdt:P297 ?almaCC . }}
+  OPTIONAL {{ ?person wdt:P269 ?idref . }}
   SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en" . }}
 }}
 ORDER BY ?person ?advisor
@@ -127,6 +129,13 @@ def _absorb(rows: list, collected: dict) -> None:
         # the degree was taken than P27 citizenship, which disagrees on ~22%
         # of edges in the systematic study-abroad direction. A LIST, because
         # P69 is multi-valued and picking [0] is arbitrary.
+        # R66: P269 = the IdRef/SUDOC authority PPN. This is the EXACT join
+        # key into Sudoc (UNIMARC $3 on 700/701/702 is the same identifier),
+        # which is what lets us decide pre-1985 French doctorate types without
+        # any name matching. Measured 90.6% coverage on our French records.
+        idref = _label(b, "idref")
+        if idref and not entry.get("IdRef"):
+            entry["IdRef"] = idref
         cc = _label(b, "almaCC")
         if cc and len(cc) == 2:
             ccs = entry.setdefault("DegreeCountries", [])
