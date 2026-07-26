@@ -182,6 +182,50 @@ def test_advisor_breaks_the_multi_country_tie():
     assert cc == "US" and basis == "P69_advisor_tiebreak"
 
 
+# ── R66: un-parked countries, and the rows we REFUSED ───────────────────
+
+
+def test_unparked_countries_trust_only_after_their_reform():
+    """Each un-parked country gets ONE researched reform date; earlier eras
+    fall through to REVIEW (no matching window)."""
+    for cc, reform in (
+        ("IL", 1936),
+        ("IR", 1984),
+        ("CN", 1983),
+        ("KR", 1980),
+        ("MX", 1968),
+        ("AR", 1995),
+        ("EE", 1995),
+    ):
+        assert tier(S(DegreeCountries=[cc], DefenseYear=reform + 10)) == "TRUST", cc
+        assert tier(S(DegreeCountries=[cc], DefenseYear=reform - 30)) == "REVIEW", cc
+
+
+def test_no_retype_window_was_added_for_the_pre_reform_eras():
+    """REVIEW-FIX: the research proposed RETYPE for the pre-reform periods.
+    All were rejected — 27 of 48 such edges merely STRADDLED the boundary, so
+    RETYPE would convert ignorance into a positive 'the label is wrong' claim.
+    Concrete false positives avoided: Estonians who defended in INDEPENDENT
+    Estonia; Cheng Shiu-Yuen (PhD Berkeley 1974) retyped via a CN tiebreak."""
+    for cc in ("IL", "IR", "CN", "KR", "MX", "AR", "EE"):
+        assert not any(t == "RETYPE" for _, _, t in REGIME[cc]), cc
+
+
+def test_turkey_stays_unmodelled_not_trusted():
+    """Turkey adopted the GERMAN model in 1933 and the research could not date
+    when doçentlik stopped being required. TRUSTing it open-ended would repeat
+    the Greece error exactly."""
+    assert "TR" not in REGIME
+    assert tier(S(DegreeCountries=["TR"], BirthYear=1970)) == "REVIEW"
+
+
+def test_estonia_soviet_era_is_review_not_retype():
+    """Soviet Estonia WAS the Soviet system, which this file models as REVIEW
+    (kandidat is supervised, doktor nauk is not, and they are indistinguishable
+    here) — so a RETYPE row there contradicted the file's own SU/RU rows."""
+    assert tier(S(DegreeCountries=["EE"], DefenseYear=1975)) == "REVIEW"
+
+
 # ── era band ────────────────────────────────────────────────────────────
 
 

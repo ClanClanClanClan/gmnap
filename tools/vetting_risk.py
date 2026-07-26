@@ -123,6 +123,36 @@ REGIME: dict[str, list[tuple[int, int, str]]] = {
     # Japan: ronbun hakase (thesis doctorate, no coursework, no formal
     # supervisor) coexists with katei hakase to this day.
     "JP": [(0, INF, REVIEW)],
+    # R66 — countries un-parked from `regime_unknown`. Each has ONE researched
+    # reform date after which a single supervised research doctorate is the
+    # only doctoral credential; everything earlier stays REVIEW (no window
+    # matches -> era_out_of_range -> REVIEW), which is the safe default.
+    #
+    # The research also proposed RETYPE windows for the PRE-reform periods.
+    # Every one was REJECTED on adversarial review, because RETYPE asserts
+    # "the relation label is wrong" and 27 of 48 such edges had an era band
+    # merely STRADDLING the boundary — converting ignorance into a positive
+    # claim. Concrete false positives it would have shipped: Estonians who
+    # defended in INDEPENDENT Estonia retyped as Soviet; Cheng Shiu-Yuen
+    # (PhD Berkeley 1974 under Chern) retyped via a CN tiebreak. RETYPE is
+    # reserved for "the first tier did not exist" (Italy pre-1983, Britain
+    # pre-1920), NOT for "two routes coexisted" — coexistence is REVIEW.
+    "IL": [(0, 1936, REVIEW), (1936, INF, TRUST)],
+    "IR": [(0, 1984, REVIEW), (1984, INF, TRUST)],
+    "CN": [(0, 1983, REVIEW), (1983, INF, TRUST)],
+    "KR": [(0, 1980, REVIEW), (1980, INF, TRUST)],
+    "MX": [(0, 1968, REVIEW), (1968, INF, TRUST)],
+    "AR": [(0, 1995, REVIEW), (1995, INF, TRUST)],
+    "EE": [(0, 1995, REVIEW), (1995, INF, TRUST)],
+    # DELIBERATELY ABSENT (stay `regime_unknown` -> REVIEW):
+    #   TR — adopted the GERMAN model in 1933, and the research could not date
+    #        when the doçentlik requirement was dropped. TRUSTing it open-ended
+    #        would repeat the Greece error exactly (DE is REVIEW to 1945; GR,
+    #        the same institution, REVIEW to 1983).
+    #   DZ — its stated rationale is identical to France's, and FR is REVIEW
+    #        to 1985.
+    #   BR/IN/ZA — the proposed rows were all-REVIEW no-ops: real code, zero
+    #        edges moved. Left unmodelled until DegreeType coverage grows.
 }
 
 # Permanent structural caveats — TRUE but NOT flags. A caveat annotates; it

@@ -1036,6 +1036,7 @@ def build(no_mgp: bool = False) -> dict:
         fr_entries = json.loads(THESES_FR.read_text(encoding="utf-8"))
         added = 0
         merged = 0
+        conflicts: list = []
         for e in fr_entries:
             canonical = e.get("CanonicalLatin")
             if not canonical:
@@ -1064,9 +1065,27 @@ def build(no_mgp: bool = False) -> dict:
                 for field, value in (
                     ("Country", e.get("Country")),
                     ("Institution", institution),
+                    # R66: DefenseYear and the IdRef were set ONLY on the
+                    # net-new branch, so an already-known person silently lost
+                    # both. The IdRef loss is the costly one: it is the exact
+                    # ABES/Sudoc join key (UNIMARC $3 == Wikidata P269), and
+                    # its absence is why IdRef ∩ QID was empty across the
+                    # whole corpus. 885 records gain one here, for free.
+                    ("DefenseYear", e.get("DefenseYear")),
+                    ("IdRef", e.get("person_ppn")),
                 ):
                     if value and not rec.get(field):
                         rec[field] = value
+                    elif (
+                        field == "DefenseYear"
+                        and value
+                        and rec.get(field)
+                        and rec[field] != value
+                    ):
+                        # Existing value wins, but a genuine disagreement with
+                        # the French national registry is worth surfacing
+                        # rather than silently dropping (41 records).
+                        conflicts.append((key, rec[field], value))
                 if "theses.fr" not in (rec.get("Source") or ""):
                     rec["Source"] = (rec.get("Source", "") + "+theses.fr").lstrip("+")
                 merged += 1
@@ -1087,7 +1106,13 @@ def build(no_mgp: bool = False) -> dict:
                 by_name[key] = record
                 added += 1
         print(
-            f"theses.fr merge: +{added} new entries, {merged} existing "
+            (
+                f"theses.fr merge: {len(conflicts)} DefenseYear conflicts kept "
+                f"existing (e.g. {conflicts[:2]})\n"
+                if conflicts
+                else ""
+            )
+            + f"theses.fr merge: +{added} new entries, {merged} existing "
             f"students merged"
         )
 
