@@ -225,7 +225,19 @@ def main() -> None:
                 ):
                     best[k] = r
             recs = list(best.values())
-            pre85 = [r for r in recs if (r.get("year") or 9999) < 1985]
+            # Count only records Sudoc actually TYPES as a thesis/doctorate.
+            # Without this, an early-modern professor's presided disputations
+            # are counted as his own degrees: Q122366 (IdRef 031854338) showed
+            # SIX "pre-1985 doctorates" dated 1721-1777 — "Dissertatio
+            # inauguralis physico-medica", "Positiones medicae tumultuariae" —
+            # because in that era the *praeses* was catalogued as the author of
+            # every disputation he chaired. They all classify to degree=None,
+            # so requiring a classified degree removes them.
+            pre85 = [
+                r
+                for r in recs
+                if (r.get("year") or 9999) < 1985 and r.get("degree") is not None
+            ]
             if recs:
                 collected[qid] = {
                     "IdRef": ppn,
