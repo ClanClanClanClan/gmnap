@@ -422,6 +422,29 @@
 
     // ── Result Card Rendering ────────────────────────────────────────
 
+    // R67: human-readable "why is this flagged" for an advisor edge, built
+    // from the vetting verdict. Deliberately explains the REASON CLASS
+    // ("Italy had no research doctorate before 1983") and never renders a
+    // judgement about the named person — a negative badge on a living
+    // mathematician is a defamation-shaped object (cf. the R57 privacy work).
+    function advisorReasonText(adv) {
+        var v = adv.vetting || {};
+        var parts = [];
+        if (v.tier) parts.push("review tier: " + v.tier);
+        var reasons = v.reasons || [];
+        for (var r = 0; r < reasons.length && r < 3; r++) {
+            parts.push(String(reasons[r]).replace(/_/g, " "));
+        }
+        var caveats = v.caveats || [];
+        for (var c = 0; c < caveats.length && c < 2; c++) {
+            parts.push(String(caveats[c]).replace(/_/g, " "));
+        }
+        if (!parts.length) {
+            parts.push("no independent source corroborates this edge yet");
+        }
+        return parts.join(" · ");
+    }
+
     function confidenceClass(score) {
         if (score >= 0.8) return "confidence-high";
         if (score >= 0.5) return "confidence-medium";
@@ -441,14 +464,35 @@
         var flag = countryFlag(region);
         var confClass = confidenceClass(conf);
 
+        // R67: the name-origin classification is withheld from anonymous
+        // callers (PRIVACY.md / the R57 gate), so `region`, `conf` and
+        // `method` are ALL empty on every public search. Rendering them
+        // unconditionally produced "🌍  ()", a red 0.0% badge and an empty
+        // span on literally every result a logged-out visitor ever sees.
+        // Show the meta row only when we actually have something to say.
+        var meta = "";
+        if (region) {
+            meta +=
+                "<span>" + escapeHtml(flag) + " " +
+                escapeHtml(REGION_NAMES[region] || region) +
+                " (" + escapeHtml(region) + ")</span>";
+        }
+        if (conf > 0) {
+            meta +=
+                '<span class="confidence-badge ' + escapeHtml(confClass) + '">' +
+                escapeHtml((conf * 100).toFixed(1) + "%") + "</span>";
+        }
+        if (method) {
+            meta += "<span>" + escapeHtml(method) + "</span>";
+        }
+        if (!meta && entry.name_origin) {
+            // Say WHY it is absent rather than showing a broken-looking row.
+            meta = '<span class="meta-restricted">name-origin restricted</span>';
+        }
+
         card.innerHTML =
             '<div class="result-name">' + escapeHtml(name) + "</div>" +
-            '<div class="result-meta">' +
-            "<span>" + escapeHtml(flag) + " " + escapeHtml(REGION_NAMES[region] || region) + " (" + escapeHtml(region) + ")</span>" +
-            '<span class="confidence-badge ' + escapeHtml(confClass) + '">' +
-            escapeHtml(((conf) * 100).toFixed(1) + "%") + "</span>" +
-            "<span>" + escapeHtml(method) + "</span>" +
-            "</div>";
+            (meta ? '<div class="result-meta">' + meta + "</div>" : "");
 
         card.addEventListener("click", function () {
             renderProfile(entry);
@@ -499,11 +543,19 @@
         html += '<div class="profile-card">';
         html += '<div class="profile-header">';
         html += '<h2 class="profile-name">' + escapeHtml(name) + "</h2>";
-        html += '<div class="profile-region">' + escapeHtml(flag) + " " + escapeHtml(REGION_NAMES[region] || region) + " (" + escapeHtml(region) + ")";
-        if (conf > 0) {
-            html += ' &middot; ' + escapeHtml(((conf) * 100).toFixed(0) + "% confidence");
+        // R67: same restricted-result problem as the result card above.
+        if (region) {
+            html += '<div class="profile-region">' + escapeHtml(flag) + " " +
+                escapeHtml(REGION_NAMES[region] || region) +
+                " (" + escapeHtml(region) + ")";
+            if (conf > 0) {
+                html += " &middot; " + escapeHtml((conf * 100).toFixed(0) + "% confidence");
+            }
+            html += "</div>";
+        } else if (entry.name_origin) {
+            html += '<div class="profile-region meta-restricted">' +
+                escapeHtml(entry.name_origin) + "</div>";
         }
-        html += "</div>";
         if (birthYear || institution) {
             html += '<div class="profile-bio">';
             if (birthYear) html += "Born: " + escapeHtml(String(birthYear));
@@ -525,18 +577,53 @@
             for (var i = 0; i < advisors.length; i++) {
                 var adv = advisors[i];
                 var advName = typeof adv === "string" ? adv : (adv.name || adv.CanonicalLatin || "");
-                var advInst = typeof adv === "object" ? (adv.institution || adv.Institution || "") : "";
-                var advYear = typeof adv === "object" ? (adv.year || adv.Year || "") : "";
+                var isObj = typeof adv === "object" && adv !== null;
 
                 html += '<div class="advisor-card" tabindex="0" data-advisor-name="' + escapeHtml(advName) + '">';
                 html += '<span class="advisor-arrow">&rarr;</span> ';
                 html += '<span class="advisor-name">' + escapeHtml(advName) + "</span>";
-                if (advInst || advYear) {
-                    html += '<div class="advisor-detail">';
-                    if (advInst) html += escapeHtml(advInst);
-                    if (advInst && advYear) html += ", ";
-                    if (advYear) html += "~" + escapeHtml(String(advYear));
-                    html += "</div>";
+
+                // R67: this used to read adv.institution / adv.year, NEITHER of
+                // which is ever a key on an advisor object — so the detail line
+                // was permanently blank. The payload does carry the thing worth
+                // showing: where the claim comes from and how far we trust it.
+                // Surfacing it is the one thing MGP structurally cannot do — it
+                // has no source field on an advisor edge at all.
+                if (isObj) {
+                    var bits = "";
+                    // The ULTIMATE source, not the relay. ~99% of our Wikidata
+                    // advisor statements are MGP at one remove, so naming the
+                    // relay would overstate independence.
+                    var src = adv.stated_in || adv.source || "";
+                    if (src) {
+                        bits += '<span class="source-badge">' + escapeHtml(src) + "</span>";
+                    }
+                    if (adv.confidence) {
+                        bits += '<span class="confidence-badge confidence-' +
+                            escapeHtml(String(adv.confidence)) + '">' +
+                            escapeHtml(String(adv.confidence)) + "</span>";
+                    }
+                    if (adv.vetted_by && adv.vetted_by.length) {
+                        bits += '<span class="advisor-chip chip-ok" title="independently corroborated by ' +
+                            escapeHtml(adv.vetted_by.join(", ")) +
+                            '">corroborated</span>';
+                    }
+                    // Disputed RELATION is a different claim from doubted
+                    // EDGE: the people are probably right, the label is not.
+                    if (adv.relation_disputed) {
+                        var proposed = adv.proposed_relation
+                            ? String(adv.proposed_relation).replace(/_/g, " ")
+                            : "not a doctoral advisor";
+                        bits += '<span class="advisor-chip chip-retype" title="' +
+                            escapeHtml(advisorReasonText(adv)) + '">likely ' +
+                            escapeHtml(proposed) + "</span>";
+                    } else if (adv.needs_vetting) {
+                        bits += '<span class="advisor-chip chip-review" title="' +
+                            escapeHtml(advisorReasonText(adv)) + '">unverified</span>';
+                    }
+                    if (bits) {
+                        html += '<div class="advisor-detail">' + bits + "</div>";
+                    }
                 }
                 html += "</div>";
             }
