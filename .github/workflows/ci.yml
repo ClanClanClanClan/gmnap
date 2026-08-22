@@ -79,8 +79,22 @@ jobs:
           # pip's PackageFinder API ("'PackageFinder' object has no
           # attribute 'allow_all_prereleases'"). Local Makefile lock
           # target uses the same version so the diff is reproducible.
-          pip install --quiet pip-tools==7.5.3
-          pip-compile --quiet --strip-extras --output-file=requirements.lock.ci requirements.txt
+          # R67: the DIFF below is guarded, but the tooling was not — so an
+          # upstream resolution failure hard-failed this step and, because
+          # every other job `needs: lint`, took the WHOLE pipeline with it.
+          # That happened here: pip 26.x + a source build of `zstandard`
+          # fails during resolution ("FailedToPrepareCandidate: Failed to
+          # build 'zstandard'"), which is neither drift nor any author's
+          # fault. Reproduced locally in a clean venv. The step's stated
+          # intent is advisory, so make the tooling advisory too — the
+          # committed requirements.lock is what installs are pinned against,
+          # and real drift is still surfaced as a warning below.
+          if ! pip install --quiet pip-tools==7.5.3 \
+             || ! pip-compile --quiet --strip-extras \
+                  --output-file=requirements.lock.ci requirements.txt; then
+            echo "::warning::lockfile check skipped — pip-compile could not resolve (upstream build failure, not this change). requirements.lock is unchanged and still authoritative."
+            exit 0
+          fi
           # pip-compile bakes the output filename into the header
           # comment, so a raw diff between requirements.lock (committed)
           # and requirements.lock.ci (regenerated) always trips on that
