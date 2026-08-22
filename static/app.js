@@ -825,13 +825,34 @@
      * is the person the caller queried. We duplicate shared ancestors
      * at each occurrence (d3.hierarchy requires a strict tree).
      */
+    // One definition of the edge key, used by both the writer and the reader.
+    // They were previously built inline on both sides and drifted (a stray NUL
+    // byte replaced the separator on the write side), so every lookup missed
+    // and the tree silently lost its vetting state. A shared helper makes that
+    // class of bug impossible.
+    function edgeKey(from, to) {
+        return String(from) + "\u001f" + String(to);
+    }
+
     function edgesToHierarchy(rootId, edges) {
         // Build adjacency: from -> [to, to, ...]
         var childrenOf = {};
+        // R67: carry each edge's vetting state onto the child node so the
+        // tree can SHOW which links are disputed. Without this the tree drew
+        // every edge identically and presented as plain fact the very claims
+        // the system internally disputes.
+        var edgeState = {};
         for (var i = 0; i < edges.length; i++) {
             var e = edges[i];
             if (!e || !e.from || !e.to) continue;
             (childrenOf[e.from] = childrenOf[e.from] || []).push(e.to);
+            edgeState[edgeKey(e.from, e.to)] = {
+                disputed: !!e.relation_disputed,
+                unverified: !!e.needs_vetting && !e.relation_disputed,
+                proposed: e.proposed_relation || "",
+                source: e.stated_in || e.source || "",
+                tier: e.vetting_tier || ""
+            };
         }
         // Recursively build tree, duplicating shared nodes (DAG → tree).
         // Guard against cycles with a per-path visited set.
@@ -846,7 +867,10 @@
             nextPath[id] = true;
             var kids = childrenOf[id] || [];
             for (var j = 0; j < kids.length; j++) {
-                node.children.push(build(kids[j], nextPath));
+                var child = build(kids[j], nextPath);
+                // The edge INTO this child, so d3 can style the link.
+                child.edge = edgeState[edgeKey(id, kids[j])] || null;
+                node.children.push(child);
             }
             return node;
         }
@@ -993,8 +1017,31 @@
             .selectAll("path")
             .data(root.links())
             .join("path")
-            .attr("class", "tree-link")
-            .attr("d", linkGen);
+            // R67: a disputed link is drawn dashed + tinted, an unverified one
+            // dashed and faint, so the tree stops asserting contested edges as
+            // plain fact. The <title> explains the REASON, never a judgement
+            // about the person (cf. the R57 privacy work).
+            .attr("class", function (d) {
+                var st = (d.target && d.target.data && d.target.data.edge) || null;
+                if (!st) return "tree-link";
+                if (st.disputed) return "tree-link tree-link-disputed";
+                if (st.unverified) return "tree-link tree-link-unverified";
+                return "tree-link tree-link-ok";
+            })
+            .attr("d", linkGen)
+            .append("title")
+            .text(function (d) {
+                var st = (d.target && d.target.data && d.target.data.edge) || null;
+                if (!st) return "";
+                var t = st.source ? "source: " + st.source : "";
+                if (st.disputed) {
+                    t += (t ? " — " : "") + "relationship disputed" +
+                        (st.proposed ? " (likely " + String(st.proposed).replace(/_/g, " ") + ")" : "");
+                } else if (st.unverified) {
+                    t += (t ? " — " : "") + "no independent source corroborates this edge yet";
+                }
+                return t;
+            });
 
         // Nodes
         var nodeG = g.append("g")

@@ -620,6 +620,20 @@ nav {
     stroke-width: 1.5px;
 }
 
+/* R67: tree links carry their vetting state. A dashed link means "we are not
+   asserting this as settled" — the tree previously drew every edge identically,
+   including the ones the system internally disputes. */
+.tree-link-disputed {
+    stroke: #a173b8;
+    stroke-dasharray: 5 3;
+}
+
+.tree-link-unverified {
+    stroke: var(--text-muted);
+    stroke-dasharray: 2 3;
+    opacity: 0.75;
+}
+
 /* ── R67: per-edge provenance on advisor cards ─────────────────────────── */
 .advisor-detail {
     display: flex;

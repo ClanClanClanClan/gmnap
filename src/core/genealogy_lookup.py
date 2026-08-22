@@ -100,6 +100,45 @@ _ENRICHMENT_FIELDS = (
 )
 
 
+# R67: the provenance a lineage edge carries. traverse_lineage used to rebuild
+# every edge as {from, to, relation:"doctoralAdvisor"} — a hardcoded literal,
+# not even the stored `relation` — discarding 100% of the per-edge provenance
+# the graph holds. So the TREE, the biggest visual differentiator over MGP,
+# presented as plain fact the very claims the system internally disputes.
+#
+# Deliberately a whitelist, not a blob copy: the tree is a public surface and
+# the edge object is free-form, so new internal fields must be opted in rather
+# than leaking by default.
+_EDGE_PROVENANCE_FIELDS = (
+    "confidence",
+    "source",
+    "sources",
+    "stated_in",
+    "qid",
+    "idref",
+    "needs_vetting",
+    "vetted_by",
+    "relation_disputed",
+    "proposed_relation",
+)
+
+
+def _edge_provenance(adv: object) -> dict:
+    """Provenance fields to copy from a stored advisor edge onto a tree edge.
+
+    ``relation`` is left alone by callers for backward compatibility (it stays
+    the "doctoralAdvisor" literal every existing consumer expects); a disputed
+    relation surfaces as ``relation_disputed`` + ``proposed_relation`` instead.
+    """
+    if not isinstance(adv, dict):
+        return {}
+    out = {k: adv[k] for k in _EDGE_PROVENANCE_FIELDS if adv.get(k) is not None}
+    vetting = adv.get("vetting")
+    if isinstance(vetting, dict) and vetting.get("tier"):
+        out["vetting_tier"] = vetting["tier"]
+    return out
+
+
 def _normalize_key(name: str) -> str:
     """Match the normalization used when the enrichment file was built.
 
@@ -361,7 +400,7 @@ class GenealogyLookup:
                 record = self._by_name.get(key)
                 if not record:
                     continue
-                neighbours: list[tuple[str, str]] = []
+                neighbours: list[tuple[str, str, object]] = []
                 for adv in record.get("Advisors", []) or []:
                     adv_name = adv.get("name") if isinstance(adv, dict) else adv
                     if not adv_name:
@@ -369,15 +408,20 @@ class GenealogyLookup:
                     nk = _normalize_key(adv_name)
                     nrec = self._by_name.get(nk, {})
                     nlabel = nrec.get("CanonicalLatin") or adv_name
-                    neighbours.append((nk, nlabel))
+                    # Carry the edge object itself, not just its endpoints —
+                    # see _edge_provenance.
+                    neighbours.append((nk, nlabel, adv))
                 # Edge: child → advisor
-                for nk, nlabel in neighbours:
+                for nk, nlabel, adv in neighbours:
                     edges.append(
-                        {
-                            "from": from_label,
-                            "to": nlabel,
-                            "relation": "doctoralAdvisor",
-                        }
+                        dict(
+                            {
+                                "from": from_label,
+                                "to": nlabel,
+                                "relation": "doctoralAdvisor",
+                            },
+                            **_edge_provenance(adv),
+                        )
                     )
                     if nk in self._by_name:
                         queue.append((nk, nlabel, remaining - 1))
@@ -386,15 +430,18 @@ class GenealogyLookup:
                 # student_label) tuples whose Advisors list pointed at
                 # the current node.
                 students = (children_of or {}).get(key, [])
-                for sk, slabel in students:
+                for sk, slabel, adv in students:
                     # Edge: advisor → student (still doctoralAdvisor:
                     # the advisor advised the student).
                     edges.append(
-                        {
-                            "from": from_label,
-                            "to": slabel,
-                            "relation": "doctoralAdvisor",
-                        }
+                        dict(
+                            {
+                                "from": from_label,
+                                "to": slabel,
+                                "relation": "doctoralAdvisor",
+                            },
+                            **_edge_provenance(adv),
+                        )
                     )
                     if sk not in visited:
                         queue.append((sk, slabel, remaining - 1))
@@ -410,7 +457,7 @@ class GenealogyLookup:
         """
         if getattr(self, "_children_cache", None) is not None:
             return self._children_cache  # type: ignore[return-value]
-        cache: Dict[str, List[tuple[str, str]]] = {}
+        cache: Dict[str, List[tuple]] = {}
         for child_key, record in self._by_name.items():
             child_label = record.get("CanonicalLatin") or child_key
             for adv in record.get("Advisors", []) or []:
@@ -420,6 +467,8 @@ class GenealogyLookup:
                 parent_key = _normalize_key(adv_name)
                 if not parent_key:
                     continue
-                cache.setdefault(parent_key, []).append((child_key, child_label))
+                # Third element is the edge object, so the descendants
+                # traversal can carry provenance the same way ancestors does.
+                cache.setdefault(parent_key, []).append((child_key, child_label, adv))
         self._children_cache = cache  # type: ignore[attr-defined]
         return cache
