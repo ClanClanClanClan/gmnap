@@ -222,8 +222,14 @@ def query_lineage(
         WITH p LIMIT 1
         MATCH path = (p){arrow}(a:Person)
         UNWIND relationships(path) AS r
-        WITH DISTINCT startNode(r) AS src, endNode(r) AS dst
-        RETURN src.name AS from_name, dst.name AS to_name
+        WITH DISTINCT startNode(r) AS src, endNode(r) AS dst, r
+        RETURN src.name AS from_name, dst.name AS to_name,
+               r.confidence        AS confidence,
+               r.source            AS source,
+               r.stated_in         AS stated_in,
+               r.needs_vetting     AS needs_vetting,
+               r.relation_disputed AS relation_disputed,
+               r.vetting_tier      AS vetting_tier
     """
 
     edges: List[Dict[str, str]] = []
@@ -256,7 +262,26 @@ def query_lineage(
                 frm = row["from_name"]
                 to = row["to_name"]
                 if frm and to:
-                    edges.append({"from": frm, "to": to, "relation": "doctoralAdvisor"})
+                    # R67: carry the relationship's provenance, matching the
+                    # JSON fallback path (src/core/genealogy_lookup.py). The
+                    # loader previously created these relationships with NO
+                    # properties at all, so this — the PREFERRED lineage path —
+                    # had nothing to expose and the tree asserted every edge as
+                    # plain fact. Older graphs loaded before R67 simply return
+                    # NULLs here, which are dropped.
+                    edge = {"from": frm, "to": to, "relation": "doctoralAdvisor"}
+                    for field in (
+                        "confidence",
+                        "source",
+                        "stated_in",
+                        "needs_vetting",
+                        "relation_disputed",
+                        "vetting_tier",
+                    ):
+                        val = row.get(field) if hasattr(row, "get") else row[field]
+                        if val is not None:
+                            edge[field] = val
+                    edges.append(edge)
     except (Neo4jError, ServiceUnavailable, OSError) as exc:
         logger.debug("Memgraph lineage query failed: %s", exc)
         return None

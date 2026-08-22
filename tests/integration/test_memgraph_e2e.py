@@ -303,3 +303,48 @@ def test_readyz_returns_503_when_memgraph_unreachable(loaded_memgraph):
             proc.wait(timeout=5)
         except subprocess.TimeoutExpired:
             proc.kill()
+
+
+def test_loaded_relationships_carry_provenance(loaded_memgraph):
+    """R67: the loader used to create DOCTORAL_ADVISOR relationships with ZERO
+    properties — ``r`` was bound and never SET — so when Memgraph is up (the
+    PREFERRED lineage path) there was nothing for the API to expose and the
+    tree asserted every edge as plain fact, including the ones the system
+    internally disputes. This pins that the provenance survives the load."""
+    from neo4j import GraphDatabase  # type: ignore
+
+    bolt = loaded_memgraph
+    drv = GraphDatabase.driver(bolt, connection_timeout=5)
+    try:
+        with drv.session() as s:
+            typed = s.run(
+                "MATCH ()-[r:DOCTORAL_ADVISOR]->() "
+                "WHERE r.vetting_tier IS NOT NULL RETURN count(r) AS n"
+            ).single()["n"]
+            assert typed > 1000, f"only {typed} relationships carry a vetting_tier"
+
+            sourced = s.run(
+                "MATCH ()-[r:DOCTORAL_ADVISOR]->() "
+                "WHERE r.source IS NOT NULL RETURN count(r) AS n"
+            ).single()["n"]
+            assert sourced > 1000, f"only {sourced} relationships carry a source"
+    finally:
+        drv.close()
+
+
+def test_lineage_query_returns_edge_provenance(loaded_memgraph):
+    """The Memgraph query path must surface the same provenance the JSON
+    fallback does, or the two paths disagree about what we claim to know."""
+    import os
+
+    os.environ["MEMGRAPH_BOLT"] = loaded_memgraph
+    from src.genealogy.query import query_lineage
+
+    res = query_lineage("name:Euler, Leonhard", depth=3, direction="ancestors")
+    assert res is not None and res.get("edges"), "no edges returned"
+    # At least one edge should carry a source; provenance is not universal
+    # (curated edges predate it) so we assert presence, not totality.
+    assert any(
+        e.get("source") or e.get("stated_in") or e.get("confidence")
+        for e in res["edges"]
+    ), "no edge carried any provenance"

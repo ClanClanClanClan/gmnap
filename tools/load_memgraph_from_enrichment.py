@@ -113,6 +113,12 @@ MATCH (src:Person {key: row.src_key})
 MERGE (adv:Person {key: row.adv_key})
   ON CREATE SET adv.name = row.adv_name
 MERGE (src)-[r:DOCTORAL_ADVISOR]->(adv)
+SET  r.confidence        = row.confidence,
+     r.source            = row.source,
+     r.stated_in         = row.stated_in,
+     r.needs_vetting     = row.needs_vetting,
+     r.relation_disputed = row.relation_disputed,
+     r.vetting_tier      = row.vetting_tier
 """
 
 
@@ -245,8 +251,38 @@ def load(
                 adv_key = _normalize_key(adv_name)
                 if not adv_key:
                     continue
+                # R67: the relationship was created with ZERO properties — `r`
+                # was bound and never SET — so when Memgraph is up (the
+                # PREFERRED lineage path) there was nothing for the API to
+                # return, and the tree fell back to asserting every edge as
+                # plain fact. Carry the same provenance the JSON path carries.
+                vet = adv.get("vetting") if isinstance(adv, dict) else None
                 edge_batch.append(
-                    {"src_key": src_key, "adv_key": adv_key, "adv_name": adv_name}
+                    {
+                        "src_key": src_key,
+                        "adv_key": adv_key,
+                        "adv_name": adv_name,
+                        "confidence": (
+                            adv.get("confidence") if isinstance(adv, dict) else None
+                        ),
+                        "source": adv.get("source") if isinstance(adv, dict) else None,
+                        "stated_in": (
+                            adv.get("stated_in") if isinstance(adv, dict) else None
+                        ),
+                        "needs_vetting": (
+                            bool(adv.get("needs_vetting"))
+                            if isinstance(adv, dict)
+                            else False
+                        ),
+                        "relation_disputed": (
+                            bool(adv.get("relation_disputed"))
+                            if isinstance(adv, dict)
+                            else False
+                        ),
+                        "vetting_tier": (
+                            (vet or {}).get("tier") if isinstance(vet, dict) else None
+                        ),
+                    }
                 )
                 if len(edge_batch) >= batch_size:
                     _flush_edges()
