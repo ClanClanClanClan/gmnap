@@ -15,6 +15,7 @@ import hashlib
 import hmac
 import logging
 import os
+import re
 import threading
 import time
 from collections import defaultdict
@@ -298,6 +299,10 @@ _ORIGIN_FIELDS = frozenset(
         "DetectedRegion",
         "_region_code",
         "region_code",
+        # R67: 11 region processors stamp "RegionCode" (this casing). It was
+        # absent here, so the name-origin classification the R57 gate exists
+        # to WITHHOLD was shipping to anonymous callers under that key.
+        "RegionCode",
         "NameRegion",
         "GroupRegion",
         "GeoRegion",
@@ -314,11 +319,21 @@ _ORIGIN_FIELDS = frozenset(
 )
 
 
+_REGION_CODE_RE = re.compile(r"region.?code", re.I)
+
+
 def _strip_origin_fields(entry: dict) -> None:
     """Remove the name-origin classification from an entry in place, leaving
     a short restricted note (mirrors the /query anonymous response)."""
-    had = any(k in entry for k in _ORIGIN_FIELDS)
-    for k in _ORIGIN_FIELDS:
+    # Match the explicit set OR any region-code spelling. The explicit set is
+    # not enough on its own: region processors independently stamp their own
+    # casing (RegionCode / region_code / _region_code all exist today), so a
+    # twelfth processor with a thirteenth spelling would silently re-open the
+    # leak. Belt and braces, because the failure mode here is a privacy
+    # regression, not a bug.
+    leaking = {k for k in entry if _REGION_CODE_RE.search(k)}
+    had = any(k in entry for k in _ORIGIN_FIELDS) or bool(leaking)
+    for k in _ORIGIN_FIELDS | leaking:
         entry.pop(k, None)
     if had:
         entry["name_origin"] = (

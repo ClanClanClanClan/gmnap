@@ -34,6 +34,11 @@ from src.api.server import create_app  # noqa: E402
 ORIGIN_FIELDS = {
     "DetectedRegion",
     "region_code",
+    # R67: 11 region processors stamp THIS casing, and it was absent from the
+    # server's strip-set — so the name-origin classification shipped to
+    # anonymous callers under it. The server now also regex-matches any
+    # region-code spelling.
+    "RegionCode",
     "NameRegion",
     "GroupRegion",
     "GeoRegion",

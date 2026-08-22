@@ -838,6 +838,31 @@ def apply_edge_integrity(by_name: dict) -> dict:
     return stats
 
 
+def strip_mgp_derived_edges(by_name: dict) -> dict:
+    """Drop every advisor edge whose provenance reaches MGP. For --no-mgp only.
+
+    R67 — WITHOUT THIS, ``--no-mgp`` IS A FALSE CLAIM. It skipped MGP *inputs*
+    (the validation seeds and the bulk harvest) but left the LAUNDERED edges
+    untouched: 28,901 of 54,818 edges (52.7%) have source="Wikidata-P184" and
+    stated_in="Mathematics Genealogy Project". That is exactly the laundering
+    ``_traces_to_mgp`` was written to detect, and it means the supposedly
+    CC0-clean artefact was more than half MGP-derived — a licence exposure for
+    anyone who relied on the flag for commercial or CC0 reuse.
+
+    The honest MGP-free edge set is ~25,900 (essentially theses.fr), not
+    54,818. Callers get that, plus a truthful count.
+    """
+    dropped = 0
+    for rec in by_name.values():
+        edges = rec.get("Advisors") or []
+        if not edges:
+            continue
+        kept = [e for e in edges if not (isinstance(e, dict) and _traces_to_mgp(e))]
+        dropped += len(edges) - len(kept)
+        rec["Advisors"] = kept
+    return {"dropped": dropped}
+
+
 def build(no_mgp: bool = False) -> dict:
     """Build the enrichment dict.
 
@@ -1261,6 +1286,16 @@ def build(no_mgp: bool = False) -> dict:
     # multi-source merge can introduce (self-loops, mutual advisorship,
     # same-name-two-QID dups). Runs on the fully-merged graph, before stubs
     # and GlobalID assignment. Pinned by tools/validate_genealogy_integrity.py.
+    if no_mgp:
+        # Must run BEFORE integrity + vetting so the CC0-clean artefact is the
+        # one that gets validated and labelled.
+        strip = strip_mgp_derived_edges(by_name)
+        print(
+            f"--no-mgp: dropped {strip['dropped']} MGP-DERIVED edges "
+            f"(source=MGP or stated_in=MGP) — these were previously kept, "
+            f"making the 'CC0-clean' build mostly MGP-derived"
+        )
+
     integ = apply_edge_integrity(by_name)
     print(
         f"Edge integrity: dropped {integ['selfloops']} self-loops, "
@@ -1416,11 +1451,24 @@ def main() -> None:
         f"({with_adv} with Advisors, {with_birth} with BirthYear, "
         f"{with_inst} with Institution, {mgp_n} MGP-derived)"
     )
-    if args.no_mgp and mgp_n:
-        print(
-            f"WARNING: --no-mgp build still contains {mgp_n} MGP-tagged "
-            f"record(s) — investigate before commercial use."
+    if args.no_mgp:
+        # The old warning counted only node-level Source containing "MGP"
+        # (21 records), so it printed nothing while 28,901 laundered EDGES
+        # remained — it made an unclean build look clean. Count edges.
+        laundered = sum(
+            1
+            for r in output["by_name"].values()
+            for a in (r.get("Advisors") or [])
+            if isinstance(a, dict) and _traces_to_mgp(a)
         )
+        if mgp_n or laundered:
+            print(
+                f"WARNING: --no-mgp build still contains {mgp_n} MGP-tagged "
+                f"record(s) and {laundered} MGP-derived edge(s) — "
+                f"investigate before commercial use."
+            )
+        else:
+            print("--no-mgp: verified 0 MGP-derived edges remain.")
 
 
 if __name__ == "__main__":
