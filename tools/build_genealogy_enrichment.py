@@ -875,6 +875,56 @@ def strip_mgp_derived_edges(by_name: dict) -> dict:
 
 
 CORRECTIONS = Path("data/adjudicated_corrections.json")
+SUDOC_EVIDENCE = Path("data/sudoc_thesis_types.json")
+
+
+def apply_sudoc_evidence(by_name: dict, path: Path) -> dict:
+    """Stamp ABES/Sudoc pre-1985 doctorate facts onto the student records.
+
+    WHY THIS EXISTS AS A SEPARATE STEP. The harvester
+    (`scripts/data/fetch_sudoc_thesis_types.py`) wrote its sidecar and its
+    docstring said "the build merges it" — but NO code anywhere read
+    `data/sudoc_thesis_types.json`. Running the harvest could not have moved a
+    single tier. That is the same defect class as the three dead authority
+    fetchers and the inoperative role filter inside the harvester itself: the
+    claim was in prose, and nothing measured it. `tests/unit/
+    test_sudoc_evidence.py::test_build_consumes_the_sudoc_sidecar` now fails
+    if this call is ever removed.
+
+    The fields land on the STUDENT record because that is where `vetting_risk`
+    already looks for degree evidence (`DegreeType`, `DegreeCountries`), so
+    the lift needs no extra plumbing. Join is by QID — exact, never by name.
+    """
+    stats = {"loaded": 0, "matched": 0, "decidable": 0, "multi": 0}
+    if not path.exists():
+        return stats
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        print(f"WARNING: could not read {path}: {exc}")
+        return stats
+    people = payload.get("people") if isinstance(payload, dict) else None
+    if not isinstance(people, dict):
+        return stats
+    stats["loaded"] = len(people)
+    by_qid = {r["QID"]: r for r in by_name.values() if r.get("QID")}
+    for qid, info in people.items():
+        rec = by_qid.get(qid)
+        if rec is None or not isinstance(info, dict):
+            continue
+        count = info.get("pre1985_count")
+        if not isinstance(count, int):
+            continue
+        stats["matched"] += 1
+        rec["SudocPre1985Count"] = count
+        rec["SudocIdRef"] = info.get("IdRef")
+        if count == 1:
+            stats["decidable"] += 1
+            rec["SudocPre1985Degree"] = info.get("pre1985_degree")
+            rec["SudocPre1985Year"] = info.get("pre1985_year")
+        elif count > 1:
+            stats["multi"] += 1
+    return stats
 
 
 def apply_corrections(by_name: dict, ledger_path: Path) -> dict:
@@ -1424,6 +1474,17 @@ def build(no_mgp: bool = False) -> dict:
         f"{integ['mutual_edges']} mutual-advisor edges, {integ['dups']} "
         f"same-name dup edges"
     )
+
+    # 2e-sudoc. Registry evidence about WHICH French doctorate an edge belongs
+    # to. Must run BEFORE vetting: it is the input that lets vetting_risk lift
+    # a France-window edge out of REVIEW.
+    sud = apply_sudoc_evidence(by_name, SUDOC_EVIDENCE)
+    if sud["loaded"]:
+        print(
+            f"Sudoc evidence: {sud['loaded']} people in sidecar, "
+            f"{sud['matched']} matched by QID — {sud['decidable']} with exactly "
+            f"one pre-1985 doctorate, {sud['multi']} multi-degree"
+        )
 
     # 2f. Vetting labels (R65) — an MGP-derived claim is provisional until an
     # independent source corroborates it. Labels only; nothing is dropped.

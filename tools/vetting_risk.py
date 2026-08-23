@@ -144,6 +144,35 @@ REGIME: dict[str, list[tuple[int, int, str]]] = {
     "MX": [(0, 1968, REVIEW), (1968, INF, TRUST)],
     "AR": [(0, 1995, REVIEW), (1995, INF, TRUST)],
     "EE": [(0, 1995, REVIEW), (1995, INF, TRUST)],
+    # R70 — the three countries that actually held the parked edges. Measured
+    # BEFORE deciding: of the 756 edges then parked on `regime_unknown`,
+    # BR+IN+ZA held 343 of them and 171 of the 227 that could ever flip. The
+    # rest of the tail was 45 countries holding 1-30 edges each, most with no
+    # era at all, so researching them buys almost nothing and risks a lot.
+    # Measured AFTER: these rows moved exactly the predicted 171 (78 IN,
+    # 57 BR, 36 ZA), leaving 413 parked. `make regime-coverage` re-derives it.
+    #
+    # Each row follows a precedent ALREADY in this table rather than a fresh
+    # judgement — that is the check the six wrongly-TRUSTed countries failed:
+    #   BR post-1965 :: DE post-1945 — a habilitation-like sibling
+    #     (livre-docencia) exists, but it is POST-doctoral and distinct, so it
+    #     is a caveat, not a blocker.
+    #   IN post-1956 :: GB post-1920 — a higher doctorate on published work
+    #     (D.Sc., first awarded in mathematics at Allahabad in 1898) coexists
+    #     with the supervised PhD. Britain has exactly this and is TRUSTed
+    #     from 1920.
+    #   ZA post-1922 :: GB post-1920 — same structure, same reasoning.
+    # NOT the NO/DK precedent: there the higher doctorate is a PRIMARY route
+    # taken INSTEAD of a supervised doctorate, so an advisor edge is fabricated
+    # by construction. A post-doctoral higher degree is not that.
+    "BR": [(0, 1965, REVIEW), (1965, INF, TRUST)],
+    # India: the conservative anchor. The supervised PhD dates to the 1910s-20s
+    # (Calcutta 1909/1921), which would justify a much earlier window; the UGC
+    # Act 1956 is used instead because that is when doctoral standards became
+    # nationally regulated. It leaves the 1920s-50s edges at REVIEW — the safe
+    # direction — and can be loosened later WITH evidence.
+    "IN": [(0, 1956, REVIEW), (1956, INF, TRUST)],
+    "ZA": [(0, 1922, REVIEW), (1922, INF, TRUST)],
     # DELIBERATELY ABSENT (stay `regime_unknown` -> REVIEW):
     #   TR — adopted the GERMAN model in 1933, and the research could not date
     #        when the doçentlik requirement was dropped. TRUSTing it open-ended
@@ -151,8 +180,9 @@ REGIME: dict[str, list[tuple[int, int, str]]] = {
     #        the same institution, REVIEW to 1983).
     #   DZ — its stated rationale is identical to France's, and FR is REVIEW
     #        to 1985.
-    #   BR/IN/ZA — the proposed rows were all-REVIEW no-ops: real code, zero
-    #        edges moved. Left unmodelled until DegreeType coverage grows.
+    #   (BR/IN/ZA sat here until R70. The R66 note called their proposed rows
+    #        "all-REVIEW no-ops"; re-measured, they were the three LARGEST
+    #        parked populations. They have researched rows above now.)
 }
 
 # Permanent structural caveats — TRUE but NOT flags. A caveat annotates; it
@@ -172,7 +202,116 @@ CAVEAT: dict[str, str] = {
     "JP": "ronbun_hakase_unsupervised_exists",
     "GR": "yfigesia_habilitation_until_1983",
     "BE": "agregation_habilitation_until_2010",
+    "BR": "livre_docencia_sibling_exists",
+    "IN": "dsc_higher_doctorate_on_published_work_exists",
+    "ZA": "dsc_higher_doctorate_on_published_work_exists",
 }
+
+# ── Why each TRUST window opens ─────────────────────────────────────────
+#
+# WHY THIS TABLE EXISTS. A TRUST row REMOVES a flag: it is the only direction
+# in this model that can silently launder a wrong MGP edge into the canonical
+# graph. Six countries were TRUSTed wrongly (Greece running the yfigesia to
+# 1983, Belgium the agregation to 2010, Norway's and Denmark's unsupervised
+# higher doctorates, and two more), and every one was caught by a HUMAN
+# fact-check pass that happened to be run. Nothing in the code required a row
+# to say what it rested on, so nothing would have caught the seventh.
+#
+# So: evidence is mandatory exactly where the flag is removed. REVIEW needs no
+# anchor — "we cannot affirm this" is the safe default and asserts nothing.
+#
+# `year` MUST equal the year the TRUST window opens in REGIME. That is the
+# enforced part, and it is the real teeth: it catches a date edited without
+# its reason, which is close to how the six got in. `source` is a URL where
+# the claim was checked against a document; "" marks an anchor CARRIED FROM AN
+# EARLIER ROUND AND NOT INDEPENDENTLY SOURCED. Those are not silently
+# tolerated — tests/unit/test_vetting_risk.py pins how many there are, so the
+# number can only go DOWN without a deliberate edit.
+TRUST_ANCHOR: dict[str, tuple[int, str, str]] = {
+    # (year, the documented event that opens the window, source URL or "")
+    "BR": (
+        1965,
+        "Parecer CFE 977/1965 (the 'Parecer Sucupira', 3 Dec 1965) structures "
+        "master's and doctoral courses; still the basis of CAPES regulation.",
+        "https://www.gov.br/capes/pt-br/assuntos/noticias/"
+        "regulamentacao-da-pos-graduacao-do-pais-completa-60-anos",
+    ),
+    "IN": (
+        1956,
+        "UGC Act 1956 puts doctoral standards under a national regulator. "
+        "Deliberately later than the first supervised PhDs (Calcutta, 1909/"
+        "1921) — the conservative end of the defensible range.",
+        "https://en.wikipedia.org/wiki/UGC_India",
+    ),
+    "ZA": (
+        1922,
+        "First South African PhD (S. H. Skaife, 1922); doctoral education "
+        "surveyed from the 1899 LLD onward by Herman (2017).",
+        "https://doi.org/10.1080/03075079.2015.1101756",
+    ),
+    # ── carried from earlier rounds, not independently sourced ──────────
+    "US": (1861, "Yale confers the first US PhD, 1861.", ""),
+    "CA": (1900, "Research doctorate established by ~1900.", ""),
+    "AU": (1948, "First Australian PhDs conferred from 1948.", ""),
+    "NZ": (1948, "First New Zealand PhDs conferred from 1948.", ""),
+    "IE": (1920, "PhD adopted alongside the British reform, ~1920.", ""),
+    "GB": (1920, "The DPhil/PhD arrives in Britain 1917-1920.", ""),
+    "DE": (
+        1945,
+        "Post-war Promotion is the doctorate; Habilitation is a "
+        "separate post-doctoral credential.",
+        "",
+    ),
+    "AT": (1945, "As DE — post-war Promotion is the doctorate.", ""),
+    "CH": (1810, "Single Promotion from the modern-university anchor.", ""),
+    "DD": (1991, "Reunification ends the Promotion A / Promotion B split.", ""),
+    "FR": (
+        1985,
+        "The 1984 reform replaces doctorat d'Etat / 3e cycle / "
+        "d'universite with the single doctorat.",
+        "",
+    ),
+    "IT": (
+        1983,
+        "Italy's research doctorate is created in 1983; before it "
+        "there is only the laurea relatore.",
+        "",
+    ),
+    "GR": (1983, "The yfigesia (Greek habilitation) is abolished in 1983.", ""),
+    "BE": (
+        2010,
+        "The agregation de l'enseignement superieur (Belgium's "
+        "habilitation) runs until 2010.",
+        "",
+    ),
+    "NL": (1900, "Single promotie; the promotor-of-record caveat is separate.", ""),
+    "ES": (1900, "Single doctorado from ~1900.", ""),
+    "PT": (1930, "Single doutoramento from ~1930.", ""),
+    "SE": (
+        1970,
+        "The 1969 reform replaces the old doktorsgrad; licentiate "
+        "becomes a separate lesser degree.",
+        "",
+    ),
+    "FI": (1970, "As SE — the parallel Nordic reform.", ""),
+    "IL": (1936, "Doctoral studies at the Hebrew University from 1936.", ""),
+    "IR": (1984, "Post-revolution reorganisation of doctoral education.", ""),
+    "CN": (
+        1983,
+        "China's first PhDs are conferred in 1983 under the 1981 "
+        "Academic Degrees Regulations.",
+        "",
+    ),
+    "KR": (1980, "Single supervised doctorate from ~1980.", ""),
+    "MX": (1968, "Single doctorado from ~1968.", ""),
+    "AR": (
+        1995,
+        "Ley de Educacion Superior 24.521 (1995) regulates " "postgraduate degrees.",
+        "",
+    ),
+    "EE": (1995, "Post-Soviet reform replaces the kandidat with the PhD.", ""),
+}
+
 
 # A recorded credential that is NOT a first doctorate. This DOMINATES the
 # country/era logic: it is direct evidence about what the edge is.
@@ -284,6 +423,42 @@ def classify_edge(edge: dict, student: dict, advisor_rec: dict | None) -> dict:
 
     tier, reasons = _regime_tier(cc, lo, hi)
     caveats = [CAVEAT[cc]] if cc in CAVEAT else []
+
+    # R69 — REGISTRY EVIDENCE LIFTS THE FRANCE WINDOW.
+    #
+    # France is REVIEW for 1810-1985 for ONE reason: several doctorates ran in
+    # parallel (d'Etat, 3e cycle, d'universite, d'ingenieur) and a
+    # mathematician routinely held two of them, years apart, under DIFFERENT
+    # advisors. We could not AFFIRM which degree an edge belonged to.
+    #
+    # Sudoc answers exactly that question. When ABES records exactly ONE
+    # pre-1985 doctorate for this person, there is no second degree for the
+    # edge to be confused with, so the specific doubt that put it in REVIEW is
+    # resolved and the edge is TRUSTed. This is person-level registry evidence
+    # overriding a country-level prior — the direction the maintainer asked
+    # for ("do not throw away MGP data"), and the only kind of lift in this
+    # model.
+    #
+    # NARROW BY CONSTRUCTION. It fires only when the France window is the SOLE
+    # reason. Every other reason (a straddled regime change, an unknown era, a
+    # recorded habilitation) leaves the edge exactly where it was, and the
+    # SUSPECT / RETYPE rules below still run and still override downward.
+    sudoc_n = student.get("SudocPre1985Count")
+    if isinstance(sudoc_n, int) and cc == "FR":
+        if (
+            sudoc_n == 1
+            and tier == REVIEW
+            and reasons == ["regime_FR_1810_1985_review"]
+        ):
+            tier = TRUST
+            reasons = [
+                f"sudoc_single_pre1985_doctorate_{student.get('SudocPre1985Year')}"
+            ]
+        elif sudoc_n > 1:
+            # The Brezis pattern. Still REVIEW — but now a KNOWN multi-degree
+            # case rather than an unexplained flag, which is precisely where
+            # MGP tends to flatten two sequential advisors into "co-advisors".
+            reasons = reasons + [f"sudoc_multi_pre1985_doctorate_{sudoc_n}"]
 
     # Pre-modern: no research doctorate existed to supervise.
     if hi is not None and hi < PREMODERN_BEFORE:

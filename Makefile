@@ -1,6 +1,6 @@
 # GMNAP Makefile - Specs v6 Compliance
 
-.PHONY: help setup model install-fasttext install-hooks quick full extreme test lint update-sources clean audit audit-repo browser-test eval-authority eval-orcid-live harvest-mgp api-docs bench-real lock refresh-data refresh-data-wikidata refresh-data-mgp refresh-data-merge
+.PHONY: help setup model regime-coverage install-fasttext install-hooks quick full extreme test lint update-sources clean audit audit-repo browser-test eval-authority eval-orcid-live harvest-mgp api-docs bench-real lock refresh-data refresh-data-wikidata refresh-data-mgp refresh-data-merge
 
 help:
 	@echo "GMNAP - Global Mathematician-Name Authority Project"
@@ -252,6 +252,13 @@ lint:
 # was removed in R41; tools/audit_repo.py supersedes it).
 audit:
 	PYTHONPATH=. python3 tools/audit_repo.py
+
+# R70 — what the risk model cannot affirm, and why. Prints the parked
+# population from the graph rather than from a doc that rots. See
+# docs/regime_coverage.md for the reasoning behind which countries are
+# researched and which stay parked.
+regime-coverage:
+	PYTHONPATH=. python3 tools/regime_coverage.py
 
 audit-quick:
 	PYTHONPATH=. python3 tools/audit_repo.py --fast

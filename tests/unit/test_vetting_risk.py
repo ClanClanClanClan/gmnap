@@ -5,7 +5,14 @@ countries; be careful with older degrees and two-tier countries. These pin
 that behaviour, and pin the corrections the adversarial review forced.
 """
 
-from tools.vetting_risk import REGIME, classify_edge, degree_country, era_band
+from tools.vetting_risk import (
+    REGIME,
+    TRUST,
+    TRUST_ANCHOR,
+    classify_edge,
+    degree_country,
+    era_band,
+)
 
 
 def S(**kw):
@@ -236,3 +243,156 @@ def test_direct_year_beats_birth_year_band():
 def test_birth_year_yields_a_band_not_a_point():
     lo, hi, basis = era_band(S(BirthYear=1960))
     assert basis == "BirthYear" and lo < hi  # a band, deliberately not b+27
+
+
+# ── R70: evidence is mandatory exactly where the flag is REMOVED ────────
+
+
+def _trust_countries():
+    return {cc for cc, rows in REGIME.items() if any(t == TRUST for _, _, t in rows)}
+
+
+def test_every_trust_window_names_the_event_that_opens_it():
+    """A TRUST row is the only thing in this model that REMOVES a flag, so it
+    is the only direction that can launder a wrong MGP edge into the canonical
+    graph. Six countries were TRUSTed wrongly and every one was caught by a
+    human fact-check that happened to be run — nothing in the code required a
+    row to say what it rested on, so nothing would have caught the seventh.
+
+    REVIEW deliberately needs no anchor: "we cannot affirm this" asserts
+    nothing and is the safe default."""
+    missing = _trust_countries() - set(TRUST_ANCHOR)
+    assert not missing, f"TRUST window with no stated basis: {sorted(missing)}"
+    orphan = set(TRUST_ANCHOR) - _trust_countries()
+    assert not orphan, f"anchor for a country with no TRUST window: {sorted(orphan)}"
+
+
+def test_anchor_year_matches_the_window_it_justifies():
+    """THE TEETH. Catches a date edited without its reason — close to how the
+    six wrong rows got in (a year with no stated basis behind it)."""
+    for cc in sorted(_trust_countries()):
+        window_opens = next(a for a, _b, t in REGIME[cc] if t == TRUST)
+        anchor_year, event, _src = TRUST_ANCHOR[cc]
+        assert (
+            anchor_year == window_opens
+        ), f"{cc}: TRUST opens {window_opens} but its anchor says {anchor_year}"
+        assert event.strip(), f"{cc}: empty anchor text"
+
+
+def test_unsourced_anchors_are_a_ratchet_that_can_only_tighten():
+    """26 of the 29 anchors are carried from earlier rounds without an
+    external source. That is the honest state, not a passing grade — pinning
+    the COUNT means a new TRUST country cannot be added sourceless without
+    deliberately editing this number, and the backlog can only shrink."""
+    unsourced = sorted(cc for cc, (_y, _e, src) in TRUST_ANCHOR.items() if not src)
+    assert len(unsourced) <= 26, f"a new unsourced TRUST window appeared: {unsourced}"
+
+
+# ── R70: the three researched rows ─────────────────────────────────────
+
+
+def test_brazil_trusts_after_the_sucupira_reform_only():
+    """Parecer CFE 977/1965 structures the doutorado. Before it, Brazilian
+    academic credentials were the catedra and the livre-docencia."""
+    assert tier(S(DegreeCountries=["BR"], DefenseYear=1990)) == "TRUST"
+    assert tier(S(DegreeCountries=["BR"], DefenseYear=1950)) == "REVIEW"
+
+
+def test_india_uses_the_conservative_anchor():
+    """The supervised PhD dates to the 1910s-20s, which would justify a much
+    earlier window. 1956 (UGC Act) is chosen deliberately: it leaves the
+    1920s-50s edges at REVIEW, the safe direction."""
+    assert tier(S(DegreeCountries=["IN"], DefenseYear=1975)) == "TRUST"
+    assert tier(S(DegreeCountries=["IN"], DefenseYear=1935)) == "REVIEW"
+
+
+def test_south_africa_trusts_from_the_first_phd():
+    assert tier(S(DegreeCountries=["ZA"], DefenseYear=1990)) == "TRUST"
+    assert tier(S(DegreeCountries=["ZA"], DefenseYear=1905)) == "REVIEW"
+
+
+def test_new_rows_follow_the_GB_precedent_not_the_NO_precedent():
+    """BR/IN/ZA each have a higher doctorate or habilitation sibling, and so
+    does Britain (DSc on published work) — which is TRUSTed from 1920. What
+    keeps NO and DK at REVIEW is different in kind: there the unsupervised
+    doctorate is a PRIMARY route taken INSTEAD of a supervised one, so an
+    advisor edge is fabricated by construction. If that distinction is ever
+    dropped, this test should fail before the tiers move."""
+    for cc in ("BR", "IN", "ZA", "GB"):
+        assert any(t == TRUST for _, _, t in REGIME[cc]), cc
+    for cc in ("NO", "DK"):
+        assert not any(t == TRUST for _, _, t in REGIME[cc]), cc
+
+
+def test_the_researched_rows_carry_their_caveat():
+    """TRUST removes the flag; the structural 'yes but' still reaches the
+    reader."""
+    from tools.vetting_risk import CAVEAT
+
+    assert CAVEAT["BR"] == "livre_docencia_sibling_exists"
+    assert "published_work" in CAVEAT["IN"]
+    v = classify_edge({}, S(DegreeCountries=["BR"], DefenseYear=1990), None)
+    assert v["tier"] == "TRUST" and v["caveats"] == ["livre_docencia_sibling_exists"]
+
+
+# ── R69: Sudoc registry evidence lifts the France window ───────────────
+
+
+def test_single_pre1985_doctorate_lifts_france_out_of_review():
+    """France is REVIEW 1810-1985 for ONE reason: several doctorates ran in
+    parallel and a mathematician routinely held two, under different advisors.
+    ABES evidence of exactly one pre-1985 doctorate removes that specific
+    doubt."""
+    base = S(DegreeCountries=["FR"], DefenseYear=1970)
+    assert tier(base) == "REVIEW"
+    lifted = classify_edge(
+        {}, S(**base, SudocPre1985Count=1, SudocPre1985Year=1970), None
+    )
+    assert lifted["tier"] == "TRUST"
+    assert lifted["reasons"] == ["sudoc_single_pre1985_doctorate_1970"]
+
+
+def test_two_pre1985_doctorates_stay_review_but_explained():
+    """The Brezis pattern: 3e cycle 1966 under Choquet, doctorat d'Etat 1971
+    under Lions. Still REVIEW — but a KNOWN multi-degree case, which is
+    exactly where MGP flattens two sequential advisors into 'co-advisors'."""
+    v = classify_edge(
+        {}, S(DegreeCountries=["FR"], DefenseYear=1970, SudocPre1985Count=2), None
+    )
+    assert v["tier"] == "REVIEW"
+    assert "sudoc_multi_pre1985_doctorate_2" in v["reasons"]
+
+
+def test_sudoc_lift_is_narrow_and_never_overrides_a_real_doubt():
+    """It fires ONLY when the France window is the sole reason. A recorded
+    habilitation, an impossible birth order, or another country must all
+    survive the evidence."""
+    # a recorded habilitation still RETYPEs
+    v = classify_edge(
+        {},
+        S(
+            DegreeCountries=["FR"],
+            DefenseYear=1970,
+            DegreeType="Habilitation",
+            SudocPre1985Count=1,
+        ),
+        None,
+    )
+    assert v["tier"] == "RETYPE"
+    # advisor born after the student is still impossible
+    v = classify_edge(
+        {},
+        S(
+            DegreeCountries=["FR"],
+            DefenseYear=1970,
+            BirthYear=1940,
+            SudocPre1985Count=1,
+        ),
+        S(BirthYear=1960),
+    )
+    assert v["tier"] == "SUSPECT"
+    # and it does not leak to other countries
+    v = classify_edge(
+        {}, S(DegreeCountries=["PL"], DefenseYear=1970, SudocPre1985Count=1), None
+    )
+    assert v["tier"] == "REVIEW"

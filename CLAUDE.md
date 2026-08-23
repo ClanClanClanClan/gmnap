@@ -444,6 +444,47 @@ curl "localhost:8080/api/v1/lineage/name:Hilbert,%20David?depth=3"
 Rebuild: `python3 scripts/data/fetch_wikidata_genealogy.py` (optional
 refetch) then `PYTHONPATH=. python3 tools/build_genealogy_enrichment.py`.
 
+### Edge trust — every advisor edge is stratified, never blanket-flagged
+~99% of referenced Wikidata P184 statements cite MGP, so a Wikidata edge is
+**not** independent corroboration of an MGP claim. Rather than flag all of
+them, `tools/vetting_risk.py` stratifies by (degree country x era x recorded
+credential) into four tiers: **TRUST** (flag removed), **REVIEW** (cannot
+affirm — absence of evidence), **SUSPECT** (a positive marker it is wrong),
+**RETYPE** (people right, relation label wrong — a habilitation sponsor, a
+laurea relatore; confidence deliberately NOT demoted).
+
+Two mechanisms feed it, and both are gated by tests because both had already
+failed silently once:
+
+- **`TRUST_ANCHOR`** — a TRUST row is the only thing that REMOVES a flag, so
+  every country with one must name the documented event that opens it, and
+  the anchor year must EQUAL the window start. Six countries were TRUSTed
+  wrongly (Greece ran the yfigesia to 1983, Belgium the agregation to 2010,
+  Norway/Denmark's higher doctorates are unsupervised by design) and each was
+  caught only by a human fact-check that happened to be run. REVIEW needs no
+  anchor: "we cannot affirm this" asserts nothing. The count of anchors with
+  no external source is pinned, so it can only shrink.
+- **Sudoc registry evidence** — France is REVIEW for 1810-1985 because several
+  doctorates ran in parallel and a mathematician routinely held two under
+  DIFFERENT advisors (Brezis: 3e cycle 1966 under Choquet, doctorat d'Etat
+  1971 under Lions). `scripts/data/fetch_sudoc_thesis_types.py` joins by exact
+  P269/IdRef — never by name, because 9.9% of French advisor surnames map to
+  more than one real person — and exactly ONE pre-1985 doctorate resolves that
+  specific doubt, lifting the edge to TRUST.
+
+What the model cannot affirm is a measurement, not a paragraph:
+
+```bash
+make regime-coverage        # parked population, by country, with the ceiling
+```
+
+`era_unknown` is the single largest reason across the whole classified graph —
+larger than every country rule combined. **Date coverage, not country
+research, is the binding constraint.** See `docs/regime_coverage.md`.
+
+Corrections are append-only and applied on EVERY build, so a retraction
+survives the next harvest re-asserting the error (`docs/CORRECTIONS.md`).
+
 ### Docker Compose
 ```bash
 docker compose up -d             # Memgraph + nginx + GMNAP API
