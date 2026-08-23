@@ -34,12 +34,84 @@ review's corrections are applied here and marked `# REVIEW-FIX`.
 
 from __future__ import annotations
 
+import re
+from typing import NamedTuple
+
 TRUST, REVIEW, SUSPECT, RETYPE = "TRUST", "REVIEW", "SUSPECT", "RETYPE"
 _ORDER = {TRUST: 0, REVIEW: 1, SUSPECT: 2}
 
 
 def _worse(a: str, b: str) -> str:
     return a if _ORDER.get(a, 0) >= _ORDER.get(b, 0) else b
+
+
+# ── The sibling-credential test ─────────────────────────────────────────
+#
+# R71 ADDED THIS BECAUSE ITS ABSENCE WAS THE REAL DEFECT. Every failure this
+# model has had — the six wrongly-TRUSTed countries, and the contradictions an
+# adversarial review found in R71 — comes from one unwritten decision: when a
+# SECOND doctoral-level credential exists in a country, does it disqualify the
+# country or merely annotate it? With no stated test, each country was decided
+# on its own and the answers stopped agreeing with each other. A reviewer put
+# it exactly right: a taxonomy that can be bent either way to reach an answer
+# already chosen has stopped doing work.
+#
+# THE TEST. A second doctoral-level credential DISQUALIFIES a country (no
+# TRUST window, ever) if and only if it is BOTH:
+#
+#   1. UNGATED — obtainable without already holding the supervised doctorate,
+#      so it can be somebody's FIRST and only doctorate; and
+#   2. A MATERIAL ROUTE — actually used, not a rarity awarded late in a career.
+#
+# If it is gated on a prior doctorate it is POST-doctoral by construction, a
+# person holding it also holds a supervised doctorate, and it is a CAVEAT:
+# German Habilitation, Polish dr hab., French HDR, Portuguese agregacao,
+# GDR Promotion B, the British/Irish/Indian/South African higher doctorate in
+# its modern form (formally gated only on a first degree plus 8-12 years'
+# standing, but in practice taken by people who already hold a doctorate).
+#
+# Worked both ways, so the test is falsifiable rather than decorative:
+#   NO  dr.philos.  -> ungated (no doctorate required) + a real route -> DISQUALIFY
+#   DK  dr.phil.    -> "requires a master's degree, but not necessarily a
+#                       ph.d." -> ungated -> DISQUALIFY
+#   PT  art. 33 "regime especial" -> thesis defended "sem inscricao no ciclo de
+#                       estudos ... e sem a orientacao", open to anyone meeting
+#                       the ENTRY conditions for the doctorate -> ungated ->
+#                       DISQUALIFY (found in R71; PT had been TRUSTed since 1930)
+#   DE  Habilitation-> "umfassen als Vorbedingung immer die Promotion" -> gated
+#                       -> CAVEAT, country stays TRUSTed
+#   GB  ScD/LittD   -> published work, no supervisor, but "almost all of those
+#                       receiving them have a PhD already" -> not a first
+#                       doctorate in practice -> CAVEAT
+#
+# KNOWN UNRESOLVED CONTRADICTION, recorded rather than quietly settled: by this
+# test Poland's dr hab. is GATED ("posiadala stopien doktora") and should be a
+# caveat, yet PL is REVIEW open-ended — i.e. the model is probably too harsh on
+# 1,330 Polish edges. It is NOT being changed here. Unflagging is the dangerous
+# direction and needs far stronger evidence than flagging does; the asymmetry
+# is deliberate. Same for NO/DK/JP, where a late supervised-PhD window was
+# proposed and REFUTED BY MEASUREMENT: credential names survive in the corpus
+# (73 distinct DegreeType values) but on only 5.3% of records, so for 94.7% a
+# dr.philos. is indistinguishable from a ph.d. and no name-scoped exclusion can
+# rescue those countries.
+
+
+# ── East German doctorates ──────────────────────────────────────────────
+#
+# GDR doctorates resolve to DE, not DD: Wikidata P69 -> P17 gives modern
+# Germany for Leipzig, Humboldt, Jena and the rest, so the DD row written to
+# handle Promotion A vs Promotion B holds 13 edges while 202 East German
+# doctorates sit inside DE and are TRUSTed by the West German rule. That is the
+# Greece/Belgium shape exactly — a second credential inside a TRUST window,
+# reached by a code path nobody checked. Institution is present on 84% of
+# records, so the era band plus the institution routes them back.
+GDR_INSTITUTIONS = re.compile(
+    r"leipzig|humboldt|jena|halle-wittenberg|martin luther univ|rostock"
+    r"|greifswald|dresden|magdeburg|ilmenau|freiberg|chemnitz|karl-marx"
+    r"|akademie der wissenschaften der ddr",
+    re.IGNORECASE,
+)
+GDR_FROM, GDR_TO = 1949, 1990
 
 
 # ── Regime table ────────────────────────────────────────────────────────
@@ -57,14 +129,22 @@ PREMODERN_BEFORE = 1810
 
 REGIME: dict[str, list[tuple[int, int, str]]] = {
     # Single-tier PhD systems — the segment the maintainer expects to trust.
-    "US": [(0, 1861, SUSPECT), (1861, INF, TRUST)],  # Yale 1861 = first US PhD
+    # R71: was [(0,1861,SUSPECT),(1861,INF,TRUST)]. Yale 1861 is the first US
+    # PhD — but that marks when the degree BEGAN, not when it became a
+    # reliable supervised credential. The AAU was founded in 1900 precisely
+    # because US PhD-granting was unregulated and diploma mills proliferated,
+    # so 1861-1900 is REVIEW, not TRUST. Costs 62 of 6,750 US TRUST edges
+    # (0.9%) — the anchor was wrong in KIND, and fixing it was nearly free.
+    "US": [(0, 1861, SUSPECT), (1861, 1900, REVIEW), (1900, INF, TRUST)],
     "CA": [(0, 1900, REVIEW), (1900, INF, TRUST)],
     "AU": [(0, 1948, REVIEW), (1948, INF, TRUST)],
     "NZ": [(0, 1948, REVIEW), (1948, INF, TRUST)],
     "IE": [(0, 1920, REVIEW), (1920, INF, TRUST)],
     # GB: no mathematics PhD until ~1920 (the DPhil/PhD arrives 1917-1920).
     # Earlier "advisor" edges are tutor/mentor chains -> RETYPE, not SUSPECT.
-    "GB": [(0, 1920, RETYPE), (1920, INF, TRUST)],
+    # R71: 1920 -> 1921, the first mathematics DPhil (Oxford). The old anchor
+    # said "1917-1920", a range rather than a date. Costs 1 edge.
+    "GB": [(0, 1921, RETYPE), (1921, INF, TRUST)],
     # Germanic: Promotion is the doctorate and the Doktorvater IS the advisor,
     # so this is NOT blanket-flagged (that would recreate the undifferentiated
     # flag over 5,758 edges). The Habilitation sibling is carried as a caveat
@@ -109,8 +189,21 @@ REGIME: dict[str, list[tuple[int, int, str]]] = {
     # habilitation) ran until 2010; the draft TRUSTed 2008+.
     "BE": [(0, 1930, REVIEW), (1930, 2010, REVIEW), (2010, INF, TRUST)],
     "NL": [(0, 1900, REVIEW), (1900, INF, TRUST)],  # promotor-of-record caveat
-    "ES": [(0, 1900, REVIEW), (1900, INF, TRUST)],
-    "PT": [(0, 1930, REVIEW), (1930, INF, TRUST)],
+    # R71: 1900 -> 1954. From the Ley Moyano (1857) until 1954 ONLY the
+    # Universidad Central de Madrid could confer a doctorate, so a
+    # mathematician based elsewhere took the degree in Madrid and the recorded
+    # director may be the Madrid formality rather than the actual mentor —
+    # exactly what REVIEW is for. Costs 38 of 433 (the Spanish population is
+    # overwhelmingly modern; median era 1983).
+    "ES": [(0, 1954, REVIEW), (1954, INF, TRUST)],
+    # R71: was [(0,1930,REVIEW),(1930,INF,TRUST)]. Portuguese law keeps a
+    # statutory UNSUPERVISED route to the grau de doutor — art. 33 "regime
+    # especial de apresentacao da tese" lets a candidate defend "sem inscricao
+    # no ciclo de estudos ... e sem a orientacao", open to anyone meeting the
+    # ENTRY conditions for the doctorate rather than to existing doctors. That
+    # is ungated and therefore the Norway/Denmark shape, not the habilitation
+    # shape. Verified against the statute text, not inferred.
+    "PT": [(0, INF, REVIEW)],
     # REVIEW-FIX (S2): Norway's dr.philos. is STILL awarded and is
     # unsupervised BY DESIGN — an advisor edge there is fabricated by
     # construction. The draft TRUSTed post-2003. Never blanket-TRUST NO.
@@ -189,7 +282,10 @@ REGIME: dict[str, list[tuple[int, int, str]]] = {
 # never moves the tier. These are exactly the "yes but" facts a reader of the
 # edge deserves.
 CAVEAT: dict[str, str] = {
-    "DE": "habilitation_sibling_exists",
+    # R71: the DE caveat now names the GDR problem too. 202 East German
+    # doctorates are coded DE (see GDR_INSTITUTIONS); they are re-routed to the
+    # DD regime, but any that lack an Institution string still land here.
+    "DE": "habilitation_sibling_plus_gdr_promotion_b_inside_window",
     "AT": "habilitation_sibling_exists",
     "CH": "habilitation_sibling_exists",
     "DD": "promotion_b_habilitation_equivalent",
@@ -202,6 +298,25 @@ CAVEAT: dict[str, str] = {
     "JP": "ronbun_hakase_unsupervised_exists",
     "GR": "yfigesia_habilitation_until_1983",
     "BE": "agregation_habilitation_until_2010",
+    # R71 — two siblings that were documented in this file's own prose but
+    # never recorded as caveats, while the SAME credential was recorded for
+    # India and South Africa. That inconsistency is the shape of the original
+    # six-country error.
+    "FR": "hdr_habilitation_since_1984",
+    "GB": "higher_doctorate_on_published_work_exists",
+    # R71 — siblings surfaced by the adversarial verification pass. All are
+    # GATED credentials, so by the sibling-credential test above they annotate
+    # and do not disqualify. Recording them is the whole point: the six wrong
+    # countries were wrong because nobody had written the sibling down.
+    "IE": "higher_doctorate_on_published_work_exists",
+    "AU": "higher_doctorate_on_published_work_exists",
+    "NZ": "higher_doctorate_on_published_work_exists",
+    "US": "honorary_phd_conferred_until_1937",
+    "PT": "unsupervised_thesis_route_art33_still_in_force",
+    "CA": "quebec_francophone_and_pontifical_doctorates_unverified",
+    "CN": "tongdengxueli_non_enrolled_doctorate_route",
+    "EE": "research_masters_teadusmagister_until_2002",
+    "IT": "abilitazione_scientifica_nazionale",
     "BR": "livre_docencia_sibling_exists",
     "IN": "dsc_higher_doctorate_on_published_work_exists",
     "ZA": "dsc_higher_doctorate_on_published_work_exists",
@@ -220,96 +335,213 @@ CAVEAT: dict[str, str] = {
 # So: evidence is mandatory exactly where the flag is removed. REVIEW needs no
 # anchor — "we cannot affirm this" is the safe default and asserts nothing.
 #
-# `year` MUST equal the year the TRUST window opens in REGIME. That is the
-# enforced part, and it is the real teeth: it catches a date edited without
-# its reason, which is close to how the six got in. `source` is a URL where
-# the claim was checked against a document; "" marks an anchor CARRIED FROM AN
-# EARLIER ROUND AND NOT INDEPENDENTLY SOURCED. Those are not silently
-# tolerated — tests/unit/test_vetting_risk.py pins how many there are, so the
-# number can only go DOWN without a deliberate edit.
-TRUST_ANCHOR: dict[str, tuple[int, str, str]] = {
-    # (year, the documented event that opens the window, source URL or "")
-    "BR": (
+# R71 SPLIT THE BACKLOG IN TWO. R70 recorded every anchor as either sourced or
+# "unsourced", which lumped together two completely different situations:
+#
+#   * an anchor that NAMES A REAL EVENT and simply had not been checked yet
+#     (Italy's 1983 research doctorate, Greece's 1983 abolition) — that is a
+#     genuine backlog item, and it is what the ratchet now counts; and
+#   * an anchor for which NO SINGLE DOCUMENTED EVENT EXISTS, where the year is
+#     a deliberate conservative choice (Germany 1945 is the post-war boundary,
+#     not a doctorate reform; nothing happened to the German Promotion in
+#     1945). Chasing a citation for those is chasing something that does not
+#     exist, and leaving them labelled "unsourced" implies a debt that can
+#     never be paid.
+#
+# Conflating the two made the backlog look uniformly like missing homework. It
+# is not: some of it is missing homework, and some of it is judgement that
+# should be labelled as judgement and argued on its merits.
+#
+# ENFORCED (tests/unit/test_vetting_risk.py):
+#   * `year` MUST equal the year the TRUST window opens in REGIME — the real
+#     teeth, catching a date edited without its reason, which is close to how
+#     the six wrong rows got in;
+#   * basis="document" means a specific datable event, and its `event` must
+#     name one;
+#   * a `source` URL is only credible if someone actually opened it, so a
+#     source MUST carry the `quote` seen there and the `retrieved` date. A URL
+#     nobody ever fetched is the same defect class as a sidecar nothing reads;
+#   * basis="judgement" MUST NOT carry a source — if there is a document to
+#     cite, it is not a judgement;
+#   * the count of document-basis anchors still missing a source is pinned, so
+#     the real backlog can only shrink.
+
+
+class Anchor(NamedTuple):
+    """The documented event (or stated judgement) that opens a TRUST window."""
+
+    year: int
+    event: str
+    basis: str = "judgement"  # "document" | "judgement"
+    source: str = ""
+    quote: str = ""  # text actually read on that page
+    retrieved: str = ""  # ISO date it was read
+
+
+TRUST_ANCHOR: dict[str, Anchor] = {
+    # ── verified against a fetched page ─────────────────────────────────
+    "US": Anchor(
+        1900,
+        "The AAU is founded (28 Feb 1900) by fourteen doctoral-granting "
+        "universities to standardise American doctoral programmes. R71 moved "
+        "this from 1861: Yale's first PhD marks when the degree BEGAN, not "
+        "when it became a reliable supervised credential — before the AAU, "
+        "US PhD-granting was unregulated and diploma mills proliferated.",
+        "document",
+        "https://en.wikipedia.org/wiki/Association_of_American_Universities",
+        "strengthen and standardize American doctoral programs",
+        "2026-08-23",
+    ),
+    "GB": Anchor(
+        1921,
+        "First mathematics DPhil awarded (Oxford, 1921); British universities "
+        "resolved to create the PhD in 1917 and Cambridge's first "
+        "mathematics PhD followed in 1924. R71 replaced the range "
+        "'1917-1920' with the dated first award in this discipline.",
+        "document",
+        "https://www.economics.soton.ac.uk/staff/aldrich/Doc1.htm",
+        "In 1917 British universities resolved to create a PhD degree",
+        "2026-08-23",
+    ),
+    "ES": Anchor(
+        1954,
+        "Madrid's monopoly on conferring the doctorate ends. From the Ley "
+        "Moyano (1857) until 1954 ONLY the Universidad Central de Madrid "
+        "could award a doctorate, so a mathematician based anywhere else took "
+        "the degree in Madrid and the recorded director may be the Madrid "
+        "formality rather than the actual mentor. R71 moved this from 1900.",
+        "document",
+        "https://www.ucm.es/la-universidad-en-el-franquismo",
+        "sólo en Madrid se alcanzaría, hasta 1954, el título de doctor",
+        "2026-08-23",
+    ),
+    "BR": Anchor(
         1965,
         "Parecer CFE 977/1965 (the 'Parecer Sucupira', 3 Dec 1965) structures "
         "master's and doctoral courses; still the basis of CAPES regulation.",
+        "document",
         "https://www.gov.br/capes/pt-br/assuntos/noticias/"
         "regulamentacao-da-pos-graduacao-do-pais-completa-60-anos",
+        "estruturou os cursos de mestrado e doutorado",
+        "2026-08-23",
     ),
-    "IN": (
+    "IN": Anchor(
         1956,
         "UGC Act 1956 puts doctoral standards under a national regulator. "
         "Deliberately later than the first supervised PhDs (Calcutta, 1909/"
         "1921) — the conservative end of the defensible range.",
+        "document",
         "https://en.wikipedia.org/wiki/UGC_India",
+        "University Grants Commission Act, 1956",
+        "2026-08-23",
     ),
-    "ZA": (
+    "ZA": Anchor(
         1922,
         "First South African PhD (S. H. Skaife, 1922); doctoral education "
         "surveyed from the 1899 LLD onward by Herman (2017).",
+        "document",
         "https://doi.org/10.1080/03075079.2015.1101756",
+        "Looking back at doctoral education in South Africa",
+        "2026-08-23",
     ),
-    # ── carried from earlier rounds, not independently sourced ──────────
-    "US": (1861, "Yale confers the first US PhD, 1861.", ""),
-    "CA": (1900, "Research doctorate established by ~1900.", ""),
-    "AU": (1948, "First Australian PhDs conferred from 1948.", ""),
-    "NZ": (1948, "First New Zealand PhDs conferred from 1948.", ""),
-    "IE": (1920, "PhD adopted alongside the British reform, ~1920.", ""),
-    "GB": (1920, "The DPhil/PhD arrives in Britain 1917-1920.", ""),
-    "DE": (
-        1945,
-        "Post-war Promotion is the doctorate; Habilitation is a "
-        "separate post-doctoral credential.",
-        "",
-    ),
-    "AT": (1945, "As DE — post-war Promotion is the doctorate.", ""),
-    "CH": (1810, "Single Promotion from the modern-university anchor.", ""),
-    "DD": (1991, "Reunification ends the Promotion A / Promotion B split.", ""),
-    "FR": (
+    # ── document-basis, NOT YET SOURCED — this is the real backlog ───────
+    "FR": Anchor(
         1985,
-        "The 1984 reform replaces doctorat d'Etat / 3e cycle / "
-        "d'universite with the single doctorat.",
-        "",
+        "The 1984 Savary law replaces doctorat d'Etat / 3e cycle / "
+        "d'universite with a single doctorat, and creates the HDR as a "
+        "POST-doctoral qualification (see the FR caveat).",
+        "document",
     ),
-    "IT": (
+    "IT": Anchor(
         1983,
-        "Italy's research doctorate is created in 1983; before it "
-        "there is only the laurea relatore.",
-        "",
+        "Italy's research doctorate (dottorato di ricerca) is created; before "
+        "it an 'advisor' is a laurea relatore.",
+        "document",
     ),
-    "GR": (1983, "The yfigesia (Greek habilitation) is abolished in 1983.", ""),
-    "BE": (
+    "GR": Anchor(
+        1983, "The yfigesia (Greek habilitation) is abolished in 1983.", "document"
+    ),
+    "BE": Anchor(
         2010,
-        "The agregation de l'enseignement superieur (Belgium's "
-        "habilitation) runs until 2010.",
-        "",
+        "The agregation de l'enseignement superieur (Belgium's habilitation) "
+        "runs until 2010.",
+        "document",
     ),
-    "NL": (1900, "Single promotie; the promotor-of-record caveat is separate.", ""),
-    "ES": (1900, "Single doctorado from ~1900.", ""),
-    "PT": (1930, "Single doutoramento from ~1930.", ""),
-    "SE": (
+    "DD": Anchor(
+        1991, "Reunification ends the Promotion A / Promotion B split.", "document"
+    ),
+    "SE": Anchor(
         1970,
-        "The 1969 reform replaces the old doktorsgrad; licentiate "
-        "becomes a separate lesser degree.",
-        "",
+        "The 1969 reform replaces the old doktorsgrad; the licentiate becomes "
+        "a separate lesser degree.",
+        "document",
     ),
-    "FI": (1970, "As SE — the parallel Nordic reform.", ""),
-    "IL": (1936, "Doctoral studies at the Hebrew University from 1936.", ""),
-    "IR": (1984, "Post-revolution reorganisation of doctoral education.", ""),
-    "CN": (
+    "FI": Anchor(1970, "The parallel Nordic reform, as SE.", "document"),
+    "AU": Anchor(1948, "First Australian PhDs conferred from 1948.", "document"),
+    "NZ": Anchor(1948, "First New Zealand PhDs conferred from 1948.", "document"),
+    "IL": Anchor(
+        1936,
+        "Doctoral studies begin at the Hebrew University of Jerusalem.",
+        "document",
+    ),
+    "CN": Anchor(
         1983,
-        "China's first PhDs are conferred in 1983 under the 1981 "
-        "Academic Degrees Regulations.",
-        "",
+        "China's first PhDs are conferred in 1983 under the Academic Degrees "
+        "Regulations (in force 1981). Art. 6 also opens the doctorate to "
+        "non-enrolled candidates of 'equivalent academic ability' — recorded "
+        "as the CN caveat.",
+        "document",
+        "https://zh.wikisource.org/wiki/中华人民共和国学位条例",
+        "高等学校和科学研究机构的研究生，或具有研究生毕业同等学力的人员，"
+        "通过博士学位的课程考试和论文答辩",
+        "2026-08-23",
     ),
-    "KR": (1980, "Single supervised doctorate from ~1980.", ""),
-    "MX": (1968, "Single doctorado from ~1968.", ""),
-    "AR": (
+    "AR": Anchor(
         1995,
-        "Ley de Educacion Superior 24.521 (1995) regulates " "postgraduate degrees.",
-        "",
+        "Ley de Educacion Superior 24.521 (1995), art. 39: postgraduate "
+        "education runs exclusively in university institutions, and doctoral "
+        "programmes must be accredited by CONEAU.",
+        "document",
+        "http://servicios.infoleg.gob.ar/infolegInternet/anexos/25000-29999/"
+        "25394/texact.htm",
+        "La formación de posgrado se desarrollará exclusivamente en "
+        "instituciones universitarias",
+        "2026-08-23",
     ),
-    "EE": (1995, "Post-Soviet reform replaces the kandidat with the PhD.", ""),
+    # ── judgement: NO single documented event exists ─────────────────────
+    # These are deliberate conservative choices, not missing homework. Marking
+    # them "unsourced" implied a debt that can never be paid; the honest thing
+    # is to label the judgement and argue it. Each must still be a SAFE
+    # choice — later than the earliest defensible date, never earlier.
+    "DE": Anchor(
+        1945,
+        "No doctorate reform happened in 1945; the German Promotion is "
+        "continuous. This is the conservative post-war boundary, chosen "
+        "because the Habilitation's much stronger role in the earlier period "
+        "makes the recorded advisor less determinate. Earlier would be the "
+        "unsafe direction.",
+    ),
+    "AT": Anchor(1945, "As DE — the same conservative post-war boundary."),
+    "CH": Anchor(
+        1810,
+        "1810 is the Berlin/Humboldt anchor for the modern research "
+        "university, not a Swiss event; Switzerland follows the German "
+        "Promotion + Habilitation model. Pre-1810 doctorates are caught by "
+        "PREMODERN_BEFORE regardless.",
+    ),
+    "CA": Anchor(1900, "Research doctorate established around 1900; no single reform."),
+    "IE": Anchor(
+        1920, "PhD adopted alongside the British reform; no separate statute."
+    ),
+    "NL": Anchor(
+        1900,
+        "The Dutch promotie is continuous; 1900 is a conservative modern "
+        "boundary. The promotor-of-record caveat is the real issue here.",
+    ),
+    "IR": Anchor(1984, "Post-revolution reorganisation of doctoral education."),
+    "KR": Anchor(1980, "Single supervised doctorate from around 1980."),
+    "MX": Anchor(1968, "Single doctorado from around 1968."),
+    "EE": Anchor(1995, "Post-Soviet reform replaces the kandidat with the PhD."),
 }
 
 
@@ -420,6 +652,23 @@ def classify_edge(edge: dict, student: dict, advisor_rec: dict | None) -> dict:
         if a_lo is not None:
             lo, hi, era_basis = a_lo + 20, a_hi + 40, f"advisor_{a_basis}"
     cc, cc_basis = degree_country(student, advisor_rec)
+
+    # R71 — East German doctorates arrive here labelled DE (Wikidata P69->P17
+    # returns modern Germany for Leipzig, Humboldt, Jena...), so the DD row
+    # written to handle Promotion A vs Promotion B was covering 13 edges while
+    # 202 GDR doctorates were being TRUSTed by the West German rule. Route them
+    # back using the era band plus the institution. Both conditions are
+    # required: the band must sit ENTIRELY inside the GDR's existence, so a
+    # career straddling reunification is never mislabelled.
+    if (
+        cc == "DE"
+        and lo is not None
+        and hi is not None
+        and lo >= GDR_FROM
+        and hi <= GDR_TO
+        and GDR_INSTITUTIONS.search(student.get("Institution") or "")
+    ):
+        cc, cc_basis = "DD", "gdr_institution_in_gdr_era"
 
     tier, reasons = _regime_tier(cc, lo, hi)
     caveats = [CAVEAT[cc]] if cc in CAVEAT else []

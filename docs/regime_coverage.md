@@ -107,3 +107,89 @@ Evidence is mandatory exactly where a flag is **removed**:
   number, and the backlog can only shrink.
 
 Pinned by `tests/unit/test_vetting_risk.py`.
+
+---
+
+# R71 — verifying the anchors themselves
+
+R70 left 26 anchors carried from earlier rounds with no external source. That
+looked like bookkeeping. It was not: **those 26 anchors were unflagging 15,419
+edges — 98.9% of the entire TRUST tier.** The three sourced in R70 covered 171.
+Essentially the whole trusted graph rested on claims nobody had checked.
+
+A 25-agent verification pass ran each country twice and independently — one
+agent re-deriving the anchor year **blind to the current value**, another told
+the current value and tasked only with breaking it — then adjudicated the pair
+and fetched the citations. 877 tool calls, ~2.7M tokens.
+
+## The backlog was never one thing
+
+R70's "26 unsourced" conflated two situations needing opposite responses:
+
+* **document basis** — the anchor names a real datable event that simply had
+  not been checked. That is genuine backlog.
+* **judgement basis** — no such event exists. Nothing happened to the German
+  *Promotion* in 1945; that year is a conservative post-war boundary. Chasing
+  a citation for it is chasing something that does not exist, and calling it
+  "unsourced" implies a debt that can never be paid.
+
+`TRUST_ANCHOR` now records which kind each is. A `source` is only accepted
+together with **the quote actually read on the page and the retrieval date** —
+a URL nobody opened is the same defect class as a sidecar nothing reads, and
+worse than an honest blank, because it looks like evidence.
+
+## What was actually wrong
+
+| | was | now | why |
+|---|---|---|---|
+| **DE→DD routing** | 202 GDR doctorates TRUSTed as West German | routed to the DD regime | Wikidata P69→P17 returns *modern Germany* for Leipzig, Humboldt, Jena, so the DD row written for Promotion A vs B covered **13 edges** while the real GDR population sat inside DE |
+| **PT** | TRUST from 1930 | **no TRUST window** | art. 33 lets a thesis be defended *"sem inscrição no ciclo de estudos… e sem a orientação"* — a statutory **unsupervised** route to the first doctorate |
+| **US** | 1861 (first-ever PhD) | **1900** | 1861 marks when the degree *began*; the AAU formed in 1900 because PhD-granting was unregulated and diploma mills proliferated |
+| **ES** | ~1900 | **1954** | until then only Madrid could confer a doctorate, so the recorded director may be a formality |
+| **GB** | "1917-1920" (a range) | **1921** | first mathematics DPhil, Oxford |
+| **FR, GB, IE, AU, NZ, US, CA, CN, EE, IT** | no caveat | caveat recorded | siblings that existed all along, several described in this module's own prose |
+
+315 edges left TRUST. **Every single movement was toward more flagging** —
+nothing was unflagged on the strength of an agent's say-so.
+
+## The real defect was a missing rule
+
+The adversarial pass produced 13 year-moves, and most of them were wrong in the
+same way: `GB`, `IE`, `AU` and `NZ` were all moved to 1970 because a higher
+doctorate on published work exists — while the *identical* credential is a mere
+caveat for India and South Africa. A reviewer put it exactly right: **a
+taxonomy that can be bent either way to reach an answer already chosen has
+stopped doing work.**
+
+So the sibling-credential test is now written down. A second doctoral
+credential disqualifies a country only if it is **ungated** (obtainable without
+already holding the supervised doctorate) **and a material route**. Gated
+credentials — German *Habilitation*, French HDR, Polish *dr hab.*, the British
+higher doctorate — are post-doctoral by construction and only annotate.
+
+That test is what makes Portugal a real find rather than an arbitrary one, and
+it is why the four 1970 moves were rejected.
+
+## Recorded, not quietly settled
+
+* **Poland may be too harsh.** By this test the *dr hab.* is gated
+  (*"posiadała stopień doktora"*) and should be a caveat, yet PL is REVIEW
+  open-ended — 1,330 edges possibly over-flagged. **Not changed.** Unflagging
+  is the dangerous direction and needs far stronger evidence than flagging;
+  the asymmetry is deliberate.
+* **Norway / Denmark / Japan cannot be rescued.** A late supervised-PhD window
+  with a name-scoped credential exclusion was proposed, and **refuted by
+  measurement**: credential names do survive in the corpus (73 distinct
+  `DegreeType` values) but on only **5.3%** of records, so for 94.7% a
+  *dr.philos.* is indistinguishable from a *ph.d.*
+* **The US anchor is a judgement between two defensible years.** The
+  verification pass argued 1920 (the Doctorate Records File is complete from
+  then); 1900 was chosen because 1920 would flag the founding era of American
+  mathematics — E. H. Moore's Chicago school, Bôcher and Osgood's Harvard
+  students — which is among the best-documented material in the corpus. A flag
+  that fires on the highest-quality data teaches users to ignore flags. The
+  residual honorary-PhD hazard is recorded as a caveat instead.
+* **Citations were spot-checked, not fully re-verified.** 3 of the 15 adopted
+  (Portugal's statute via local `pdftotext`, Argentina's InfoLeg, China's
+  Wikisource) were re-read by hand; all three matched exactly, including two
+  non-English primary sources. The other 12 rest on the agents' fetches.

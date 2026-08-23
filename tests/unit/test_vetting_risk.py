@@ -5,6 +5,8 @@ countries; be careful with older degrees and two-tier countries. These pin
 that behaviour, and pin the corrections the adversarial review forced.
 """
 
+import re
+
 from tools.vetting_risk import (
     REGIME,
     TRUST,
@@ -91,7 +93,10 @@ def test_germany_caveat_annotates_without_flagging():
     """A caveat is a TRUE 'yes but' — it must never move the tier."""
     v = classify_edge({}, S(DegreeCountries=["DE"], BirthYear=1960), None)
     assert v["tier"] == "TRUST"
-    assert v["caveats"] == ["habilitation_sibling_exists"]
+    # Matched on substance, not on the exact string: R71 extended the DE
+    # caveat to name the GDR Promotion B problem as well, and a test that
+    # pins the wording blocks that kind of honest improvement.
+    assert len(v["caveats"]) == 1 and "habilitation" in v["caveats"][0]
 
 
 # ── credential dominates ────────────────────────────────────────────────
@@ -269,23 +274,90 @@ def test_every_trust_window_names_the_event_that_opens_it():
 
 def test_anchor_year_matches_the_window_it_justifies():
     """THE TEETH. Catches a date edited without its reason — close to how the
-    six wrong rows got in (a year with no stated basis behind it)."""
+    six wrong rows got in (a year with no stated basis behind it). It already
+    earns its keep: it caught all three R71 year corrections (US 1861->1900,
+    GB 1920->1921, ES 1900->1954) the moment the anchors were updated but the
+    REGIME rows had not been."""
     for cc in sorted(_trust_countries()):
         window_opens = next(a for a, _b, t in REGIME[cc] if t == TRUST)
-        anchor_year, event, _src = TRUST_ANCHOR[cc]
+        anchor = TRUST_ANCHOR[cc]
         assert (
-            anchor_year == window_opens
-        ), f"{cc}: TRUST opens {window_opens} but its anchor says {anchor_year}"
-        assert event.strip(), f"{cc}: empty anchor text"
+            anchor.year == window_opens
+        ), f"{cc}: TRUST opens {window_opens} but its anchor says {anchor.year}"
+        assert anchor.event.strip(), f"{cc}: empty anchor text"
 
 
-def test_unsourced_anchors_are_a_ratchet_that_can_only_tighten():
-    """26 of the 29 anchors are carried from earlier rounds without an
-    external source. That is the honest state, not a passing grade — pinning
-    the COUNT means a new TRUST country cannot be added sourceless without
-    deliberately editing this number, and the backlog can only shrink."""
-    unsourced = sorted(cc for cc, (_y, _e, src) in TRUST_ANCHOR.items() if not src)
-    assert len(unsourced) <= 26, f"a new unsourced TRUST window appeared: {unsourced}"
+def test_anchor_basis_is_one_of_the_two_honest_kinds():
+    for cc, a in TRUST_ANCHOR.items():
+        assert a.basis in ("document", "judgement"), f"{cc}: bad basis {a.basis!r}"
+
+
+def test_a_cited_source_must_have_actually_been_READ():
+    """A URL nobody ever opened is the same defect class as a sidecar nothing
+    reads — it LOOKS like evidence, which is worse than an honest blank. So a
+    source is only accepted together with the text seen on the page and the
+    date it was read."""
+    for cc, a in TRUST_ANCHOR.items():
+        if not a.source:
+            continue
+        assert a.quote.strip(), f"{cc}: cites {a.source} but records no quote from it"
+        assert re.fullmatch(
+            r"\d{4}-\d{2}-\d{2}", a.retrieved
+        ), f"{cc}: cites a source but has no valid retrieval date ({a.retrieved!r})"
+
+
+def test_a_judgement_cannot_carry_a_citation():
+    """If there is a document to cite, it is not a judgement. Keeping these
+    disjoint is what stops the backlog count from being gamed by relabelling
+    an un-cited document anchor as 'judgement'."""
+    for cc, a in TRUST_ANCHOR.items():
+        if a.basis == "judgement":
+            assert not a.source, f"{cc}: judgement basis but cites {a.source}"
+
+
+def test_the_real_backlog_is_a_ratchet_that_can_only_tighten():
+    """R70 counted 26 'unsourced' anchors, lumping together two different
+    things: anchors naming a real event that simply had not been checked
+    (genuine backlog), and anchors for which NO single documented event exists
+    (Germany 1945 is the conservative post-war boundary — nothing happened to
+    the German Promotion that year). Chasing a citation for the second kind is
+    chasing something that does not exist.
+
+    The backlog is therefore only the document-basis anchors still missing a
+    source."""
+    backlog = sorted(
+        cc for cc, a in TRUST_ANCHOR.items() if a.basis == "document" and not a.source
+    )
+    assert len(backlog) <= 10, f"the sourcing backlog grew: {backlog}"
+
+
+def test_the_two_credential_siblings_missed_until_R71():
+    """France created the HDR in 1984 and Britain still awards higher
+    doctorates on published work. Both were described in this module's own
+    prose while the SAME credential was already recorded as a caveat for India
+    and South Africa. That inconsistency is the exact shape of the original
+    six-country error."""
+    from tools.vetting_risk import CAVEAT
+
+    assert CAVEAT["FR"] == "hdr_habilitation_since_1984"
+    assert "published_work" in CAVEAT["GB"]
+    assert "published_work" in CAVEAT["IN"] and "published_work" in CAVEAT["ZA"]
+
+
+def test_us_window_opens_at_standardisation_not_at_the_first_phd():
+    """Yale 1861 marks when the US PhD BEGAN, not when it became a reliable
+    supervised credential: the AAU was founded in 1900 because PhD-granting
+    was unregulated and diploma mills proliferated."""
+    assert tier(S(DegreeCountries=["US"], DefenseYear=1875)) == "REVIEW"
+    assert tier(S(DegreeCountries=["US"], DefenseYear=1930)) == "TRUST"
+
+
+def test_spain_window_opens_when_madrid_loses_its_monopoly():
+    """Until 1954 only the Universidad Central de Madrid could confer a
+    doctorate, so the recorded director may be the Madrid formality rather
+    than the actual mentor."""
+    assert tier(S(DegreeCountries=["ES"], DefenseYear=1940)) == "REVIEW"
+    assert tier(S(DegreeCountries=["ES"], DefenseYear=1980)) == "TRUST"
 
 
 # ── R70: the three researched rows ─────────────────────────────────────
@@ -396,3 +468,85 @@ def test_sudoc_lift_is_narrow_and_never_overrides_a_real_doubt():
         {}, S(DegreeCountries=["PL"], DefenseYear=1970, SudocPre1985Count=1), None
     )
     assert v["tier"] == "REVIEW"
+
+
+# ── R71: the sibling-credential test, and what it caught ───────────────
+
+
+def test_portugal_is_disqualified_by_an_UNGATED_unsupervised_route():
+    """Portugal was TRUSTed from 1930 until R71. Portuguese law keeps art. 33,
+    "regime especial de apresentacao da tese": a candidate may defend "sem
+    inscricao no ciclo de estudos ... e sem a orientacao" — without enrolment
+    and WITHOUT SUPERVISION — and it is open to anyone meeting the ENTRY
+    conditions for the doctorate, not to existing doctors.
+
+    That is ungated, so by the sibling-credential test it is the Norway/
+    Denmark shape, not the habilitation shape. An advisor edge on such a
+    doctorate is fabricated by construction."""
+    assert not any(t == TRUST for _, _, t in REGIME["PT"])
+    assert tier(S(DegreeCountries=["PT"], DefenseYear=1990)) == "REVIEW"
+    assert tier(S(DegreeCountries=["PT"], DefenseYear=2015)) == "REVIEW"
+
+
+def test_gated_habilitations_annotate_and_do_NOT_disqualify():
+    """The other half of the test. Germany's Habilitation "umfasst als
+    Vorbedingung immer die Promotion" — gated on a prior doctorate, so a
+    holder also holds a supervised doctorate. Countries keep their windows and
+    carry a caveat. If this ever flips, the model has started disqualifying on
+    the mere existence of a second credential, which would take out most of
+    Europe."""
+    from tools.vetting_risk import CAVEAT
+
+    for cc in ("DE", "AT", "FR", "GB"):
+        assert any(t == TRUST for _, _, t in REGIME[cc]), cc
+        assert CAVEAT.get(cc), f"{cc}: gated sibling must still be recorded"
+
+
+# ── R71: East German doctorates were being TRUSTed as West German ──────
+
+
+def _de(year, institution):
+    return S(DegreeCountries=["DE"], DefenseYear=year, Institution=institution)
+
+
+def test_gdr_doctorates_route_to_the_DD_regime_not_the_west_german_one():
+    """THE BIGGEST CORRECTNESS FIND OF R71. Wikidata P69->P17 returns modern
+    Germany for Leipzig, Humboldt, Jena and the rest, so GDR doctorates
+    arrived labelled DE: the DD row written to handle Promotion A vs
+    Promotion B was covering 13 edges while 202 East German doctorates were
+    TRUSTed by the West German rule. A second credential inside a TRUST
+    window, reached by a code path nobody checked — the Greece/Belgium shape
+    exactly."""
+    v = classify_edge({}, _de(1975, "Leipzig University"), None)
+    assert v["degree_country"] == "DD"
+    assert v["country_basis"] == "gdr_institution_in_gdr_era"
+    assert v["tier"] == "REVIEW"
+
+
+def test_west_german_doctorates_are_untouched():
+    """The re-route must not cost the 3,952 DE edges it is not about."""
+    assert classify_edge({}, _de(1975, "University of Bonn"), None)["tier"] == "TRUST"
+    assert classify_edge({}, _de(1975, "LMU Munich"), None)["tier"] == "TRUST"
+
+
+def test_the_reroute_needs_BOTH_the_era_and_the_institution():
+    """Leipzig after reunification is an ordinary German university, and a
+    band that merely straddles the GDR era cannot be attributed to it. The
+    band must sit ENTIRELY inside 1949-1990, so a career spanning
+    reunification is never mislabelled."""
+    assert classify_edge({}, _de(2005, "Leipzig University"), None)["tier"] == "TRUST"
+    # BirthYear 1965 -> band 1988-2005, straddles reunification -> stays DE
+    straddle = S(
+        DegreeCountries=["DE"], BirthYear=1965, Institution="Leipzig University"
+    )
+    assert classify_edge({}, straddle, None)["degree_country"] == "DE"
+
+
+def test_a_missing_institution_cannot_trigger_the_reroute():
+    assert classify_edge({}, _de(1975, ""), None)["degree_country"] == "DE"
+    assert (
+        classify_edge({}, S(DegreeCountries=["DE"], DefenseYear=1975), None)[
+            "degree_country"
+        ]
+        == "DE"
+    )

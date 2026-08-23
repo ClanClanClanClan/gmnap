@@ -457,13 +457,26 @@ Two mechanisms feed it, and both are gated by tests because both had already
 failed silently once:
 
 - **`TRUST_ANCHOR`** — a TRUST row is the only thing that REMOVES a flag, so
-  every country with one must name the documented event that opens it, and
-  the anchor year must EQUAL the window start. Six countries were TRUSTed
-  wrongly (Greece ran the yfigesia to 1983, Belgium the agregation to 2010,
+  every country with one must name the event that opens it, and the anchor
+  year must EQUAL the window start. Six countries were TRUSTed wrongly
+  (Greece ran the yfigesia to 1983, Belgium the agregation to 2010,
   Norway/Denmark's higher doctorates are unsupervised by design) and each was
   caught only by a human fact-check that happened to be run. REVIEW needs no
-  anchor: "we cannot affirm this" asserts nothing. The count of anchors with
-  no external source is pinned, so it can only shrink.
+  anchor: "we cannot affirm this" asserts nothing. Each anchor records a
+  `basis`: **document** (a datable event — should carry a source, and the
+  count still missing one is pinned) or **judgement** (no such event exists;
+  nothing happened to the German Promotion in 1945, so chasing a citation
+  there is chasing nothing). A `source` is only accepted WITH the quote read
+  on the page and the retrieval date — a URL nobody opened looks like
+  evidence, which is worse than a blank.
+- **The sibling-credential test** — the rule whose absence caused every
+  failure this model has had. A second doctoral credential disqualifies a
+  country only if it is UNGATED (obtainable without already holding the
+  supervised doctorate) AND a material route. Gated ones — German
+  Habilitation, French HDR, the British higher doctorate — are post-doctoral
+  by construction and only annotate. This is what makes Portugal a
+  disqualification (art. 33 allows a thesis defended "sem a orientacao") and
+  what stops "a habilitation exists" from taking out most of Europe.
 - **Sudoc registry evidence** — France is REVIEW for 1810-1985 because several
   doctorates ran in parallel and a mathematician routinely held two under
   DIFFERENT advisors (Brezis: 3e cycle 1966 under Choquet, doctorat d'Etat
@@ -481,6 +494,14 @@ make regime-coverage        # parked population, by country, with the ceiling
 `era_unknown` is the single largest reason across the whole classified graph —
 larger than every country rule combined. **Date coverage, not country
 research, is the binding constraint.** See `docs/regime_coverage.md`.
+
+R71 verified the anchors themselves (25-agent adversarial pass: one agent
+re-deriving each year BLIND to the current value, another told it and tasked
+only with breaking it). It found that 202 East German doctorates were being
+TRUSTed by the WEST German rule — Wikidata P69→P17 returns modern Germany for
+Leipzig/Humboldt/Jena, so the DD row written for Promotion A vs B covered 13
+edges — and that Portugal keeps a statutory unsupervised route to the
+doctorate. 315 edges left TRUST, every movement toward more flagging.
 
 Corrections are append-only and applied on EVERY build, so a retraction
 survives the next harvest re-asserting the error (`docs/CORRECTIONS.md`).
