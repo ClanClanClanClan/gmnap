@@ -587,6 +587,17 @@ def mark_vetting_status(by_name: dict) -> dict:
         for e in rec.get("Advisors") or []:
             if not isinstance(e, dict) or not _traces_to_mgp(e):
                 continue
+            # R68: a human-adjudicated edge is settled — do not re-flag it.
+            # _traces_to_mgp is true if MGP appears in `source` OR the
+            # accumulated `sources` list OR `stated_in`, and
+            # merge_advisor_edges deliberately PRESERVES sources/stated_in
+            # across an override. So a correction that overrides an MGP claim
+            # still traces to MGP and would be re-stamped needs_vetting on
+            # every build — the adjudication would never stick. Stripping the
+            # provenance instead would destroy the audit trail, so bypass on
+            # the floor-locked source rather than on the trace.
+            if e.get("source") in FLOOR_LOCKED:
+                continue
             stats["mgp_derived"] += 1
             srcs = set(e.get("sources") or [])
             if e.get("source"):
@@ -861,6 +872,105 @@ def strip_mgp_derived_edges(by_name: dict) -> dict:
         dropped += len(edges) - len(kept)
         rec["Advisors"] = kept
     return {"dropped": dropped}
+
+
+CORRECTIONS = Path("data/adjudicated_corrections.json")
+
+
+def apply_corrections(by_name: dict, ledger_path: Path) -> dict:
+    """Apply human-adjudicated corrections. THE RETRACTION PRIMITIVE.
+
+    WHY THIS EXISTS. ``merge_advisor_edges`` is MONOTONE — fill, corroborate,
+    or override upward, never remove. So there was no way to express "this edge
+    is wrong". And since ~99% of our Wikidata advisor statements cite MGP, the
+    next harvest re-asserts every error: a one-off deletion is silently undone
+    by the very next build. That is structurally the failure the project exists
+    to escape ("months and dozens of emails" is just a slower version of "your
+    correction goes nowhere").
+
+    So this consults a committed, append-only ledger on EVERY build — exactly
+    the durability trick ``apply_suppression_list`` already uses for erasure.
+
+    Two actions:
+      * ``retract`` — drop an edge. Matching follows the same identity
+        precedence as ``_same_advisor`` (QID, then IdRef, then normalized
+        name). Name matching is permitted here because retraction REMOVES;
+        the failure mode is a missing edge, which is visible and reversible.
+      * ``assert``  — add/affirm an edge at the ``curated`` tier. This MINTS a
+        FLOOR_LOCKED edge that no automated source can dislodge, so it REQUIRES
+        a persistent identifier (qid or idref) on the advisor. Without that a
+        homonym — and French advisor surnames collide at ~10% — would mint a
+        permanently unremovable wrong edge. Entries lacking one are REFUSED and
+        reported, never silently downgraded.
+
+    Ordering matters and is fixed by four constraints: retractions must outlive
+    the harvests (so: after every merge), integrity must run on the corrected
+    graph (so: before ``apply_edge_integrity``), vetting must see the corrected
+    edges (before ``mark_vetting_status``), and erasure must beat correction
+    (``apply_suppression_list`` stays last).
+    """
+    stats = {"retracted": 0, "asserted": 0, "refused": 0, "unmatched": 0}
+    if not ledger_path.exists():
+        return stats
+    try:
+        entries = json.loads(ledger_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        print(f"WARNING: corrections ledger unparseable ({exc}); ignoring")
+        return stats
+    if not isinstance(entries, list):
+        print("WARNING: corrections ledger must be a JSON array; ignoring")
+        return stats
+
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        action = (entry.get("action") or "").strip().lower()
+        student = entry.get("student") or {}
+        advisor = entry.get("advisor") or {}
+        skey = normalize_key(student.get("name") or "")
+        if not skey or skey not in by_name:
+            stats["unmatched"] += 1
+            continue
+        rec = by_name[skey]
+        edges = rec.get("Advisors") or []
+        probe = {
+            "name": advisor.get("name") or "",
+            "qid": advisor.get("qid"),
+            "idref": advisor.get("idref"),
+        }
+
+        if action == "retract":
+            kept = [e for e in edges if not _same_advisor(e, probe)]
+            if len(kept) == len(edges):
+                stats["unmatched"] += 1
+                continue
+            rec["Advisors"] = kept
+            stats["retracted"] += 1
+        elif action == "assert":
+            if not (advisor.get("qid") or advisor.get("idref")):
+                # See the docstring: a floor-locked edge minted on a bare name
+                # is unremovable, so this is refused rather than downgraded.
+                print(
+                    f"REFUSED correction {entry.get('ticket', '?')}: 'assert' "
+                    f"needs a qid or idref on the advisor (got name only)"
+                )
+                stats["refused"] += 1
+                continue
+            new_edge = make_edge(
+                advisor["name"],
+                qid=advisor.get("qid"),
+                idref=advisor.get("idref"),
+                source="curated",
+                relation=entry.get("relation", "doctoral"),
+            )
+            new_edge["adjudication_ticket"] = entry.get("ticket")
+            if entry.get("evidence"):
+                new_edge["evidence"] = entry["evidence"]
+            rec["Advisors"] = merge_advisor_edges(edges, [new_edge])
+            stats["asserted"] += 1
+        else:
+            stats["refused"] += 1
+    return stats
 
 
 def build(no_mgp: bool = False) -> dict:
@@ -1294,6 +1404,18 @@ def build(no_mgp: bool = False) -> dict:
             f"--no-mgp: dropped {strip['dropped']} MGP-DERIVED edges "
             f"(source=MGP or stated_in=MGP) — these were previously kept, "
             f"making the 'CC0-clean' build mostly MGP-derived"
+        )
+
+    # 2e-corr. Human-adjudicated corrections — the ONLY way to say "this edge
+    # is wrong". Must run after every harvest merge (so a retraction is not
+    # undone by the next one) and before integrity + vetting (so those see the
+    # corrected graph). See apply_corrections().
+    corr = apply_corrections(by_name, CORRECTIONS)
+    if any(corr.values()):
+        print(
+            f"Corrections: {corr['retracted']} retracted, "
+            f"{corr['asserted']} asserted, {corr['refused']} refused, "
+            f"{corr['unmatched']} unmatched"
         )
 
     integ = apply_edge_integrity(by_name)
