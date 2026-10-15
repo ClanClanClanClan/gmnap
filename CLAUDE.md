@@ -29,7 +29,7 @@ tail). Region coverage 100 %; serial and parallel output byte-identical at
 **API Server**: FastAPI server with 8 endpoints (/healthz, /readyz, /api/v1/query, /api/v1/lineage, /api/v1/process, /api/v1/suggest, /metrics, /)
 **CLI**: full 7-command CLI (`query`, `lineage`, `process`, `sources`, `regions`, `validate`, `serve`) in `src/cli/gmnap.py`, wired to the `gmnap` console entry point via `gmnap = "src.cli.gmnap:cli"` in `pyproject.toml`'s `[project.scripts]`. (Earlier docs claimed the 7-command CLI was "NOT wired to the main entry point" and that only `serve`/`version` were exposed — that is stale; `pip install -e .` puts all seven subcommands behind `gmnap`.)
 **Diaspora Detection**: Implemented — split geo_region vs name_region with conflict flag
-**Testing**: ~2,376 tests collected across `tests/unit/` + 4 newly-triaged dirs (authority, cjk, db, v7) + memgraph e2e + F3 region tests. Coverage gate at `--cov-fail-under=20` with explicit floors at line ≥ 22 % / branch ≥ 18 % (current measured 23.93 % / 19.41 %). 843-entry adjudicated benchmark with deterministic 80/20 train/test split (`src/regions/benchmark_split.py`)
+**Testing**: **3,008 test items executed by CI's Core-tests step** across 140 files — `tests/unit/` + authority, cjk, db, stress, v7 + memgraph e2e + F3 region tests (R72; was 2,537 across 98 files, and the earlier "~2,376 collected" figure was a local count, not what CI ran). Coverage gate at `--cov-fail-under=20` with explicit floors at line ≥ 22 % / branch ≥ 18 % (current measured 23.93 % / 19.41 %). 843-entry adjudicated benchmark with deterministic 80/20 train/test split (`src/regions/benchmark_split.py`)
 **Test Fixtures**: 500 golden dataset + 843 name-origin benchmark + 10,724 Wikidata mathematicians
 
 ---
@@ -414,7 +414,7 @@ audit trail). See `docs/calibration.md` for the reliability diagrams.
 
 ## 📊 Testing
 
-- **3,295 tests across 145 files named by CI** (unit/, authority/, cjk/, db/, stress/, v7/, integration/, property/). The `test` job's Core-tests step enumerates 140 of them; the rest are the property-test step and the four files only the `coverage` job runs
+- **3,008 test items executed by CI's Core-tests step** across 140 files — 2,942 passed, 13 skipped, 8 xfailed, 45 xpassed, in 12 min 07 s. Measured from the CI log, not from a local collect (run `38784503534`). Up from **2,537 items across 98 files** on the last pre-R72 run of `main` (`32653784529`): **+471**. A plain local `pytest tests/` collects 124 files / 3,218 tests; the two populations differ, so always say which one a number refers to
 - **500 golden dataset entries** with verified regions
 - **843 adjudicated benchmark entries** from Wikidata (three-track evaluation)
 - **10,724 Wikidata mathematicians** + **15,120 OpenAlex entries** as training data
@@ -429,11 +429,13 @@ claim documented correctly and implemented wrongly, with a guard that
 measured the wrong thing*, and the guards themselves had never been
 audited.
 
-**The test population CI executes went from 2,821 tests across 103
-workflow-named files to 3,295 across 145.** `pytest tests/` collected
+**Measured in CI's own logs, Core-tests step: 2,537 test items before,
+3,008 after (+471); 2,459 passed → 2,942.** `pytest tests/` collected
 124 files; the workflows named 103; nothing checked the difference.
-44 files carrying **474 tests had never run in CI**. They are
-disproportionately the pin batteries of the most recent
+44 files carrying **474 tests had never run in CI** (474 locally vs
++471 in CI because `test_encryption.py` module-skips without
+requirements-dev, contributing one skip marker instead of four tests).
+They are disproportionately the pin batteries of the most recent
 rounds: `test_fetcher_contract.py` (R66.2), `test_vetting_risk.py`,
 `test_genealogy_integrity.py` (R64), `test_corrections_ledger.py`
 (R68), `test_licence_and_origin_leaks.py` (R67.1),
@@ -490,9 +492,9 @@ the environment of every test that would have followed it.
 **Three dead gates, handled:**
 | Gate | Was | Now |
 |------|-----|-----|
-| CI "Memory peak check" | Measured `RUSAGE_SELF` of a fresh `python3 -c` process (~0.015 GB) against a 6 GB limit — could not fail | Reads the peak RSS `/usr/bin/time` recorded for the Core-tests run, and **fails if the measurement is missing** rather than passing on an absent number |
+| CI "Memory peak check" | Measured `RUSAGE_SELF` of a fresh `python3 -c` process against a 6 GB limit — could not fail. Its last pre-R72 run on `main` printed, verbatim: `Peak RSS: 0.01 GB (limit: 6 GB)` | Reads the peak RSS `/usr/bin/time` recorded for the Core-tests run, and **fails if the measurement is missing** rather than passing on an absent number. First run with it: `Core tests peak RSS: 0.86 GB (limit: 6.0 GB)` — 86× the number the old gate was grading |
 | CI `cost-guard` job | Read `cache/api_costs.json` for a CHF 120 budget; `cache/` is gitignored, so the file cannot exist in a CI checkout and the budget was asserted against a constant `0.0` | **Deleted.** The population is structurally empty in CI (runs offline; prod spend lives in a mounted volume no checkout can see). Budget enforcement is operator-side against the deployment's `cache/` volume; the writer stays under test via `tests/unit/test_cost_tracker.py` |
-| ≥95 % leaf-precision floor | `pytest.skip`-ed in CI (gitignored model), and its CI sample reduced the denominator to ~14 | Model built in CI from the committed corpus; test `pytest.fail`s rather than skipping when `CI` is set; sample removed, so it measures the full 843 (**96.0 %**, see Detection KPIs) |
+| ≥95 % leaf-precision floor | `pytest.skip`-ed in CI (gitignored model), and its CI sample reduced the denominator to ~14. Pre-R72 the file reported `.sss.` — **two** gates skipping, leaf precision AND group accuracy | Model built in CI from the committed corpus (117 s, cached on corpus + build-script hash); test `pytest.fail`s rather than skipping when `CI` is set; sample removed, so it measures the full 843 (**96.0 %**, see Detection KPIs). The file now reports `...s.` — both gates run, and the one remaining skip is the unrelated ambiguity track |
 
 Round 34 phase 3's own note on `cost-guard` claimed it had ended that
 theatre — it wired the writer and left the reader pointed at a path CI
@@ -512,6 +514,18 @@ loaded), but it does mean CI's detection path changed, and the
 rules-only configuration that Docker's minimal mode ships is no longer
 what CI covers. If the minimal-mode path needs its own gate, that is a
 separate round.
+
+**What it costs, measured.** The `test` job went 11.2 → 16.2 min and
+the whole workflow 16.5 → 17.4 min, which is inside the historical
+6.5-16.5 min band. Breakdown of the added steps: fastText wheel 44 s,
+model build 117 s (cold cache only — keyed on corpus + build script,
+so it is skipped on any run that does not change either), and the
+Core-tests step 254 s → 728 s, which is the 471 extra items plus the
+now-active ML path. `audit-repo` went 0.8 → 0.9 min, i.e. G3's
+whole-tree collect costs about 6 s. If the critical path ever needs
+reclaiming, the move is to split the model build and the five
+model-dependent files into their own parallel job and leave the
+Core-tests step rules-only — not to weaken a gate.
 
 ---
 
@@ -638,7 +652,8 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 - ❌ "14 authority sources fully working" — 9 have real HTTP code; 2 need API keys; 3 deferred
 - ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly
 - ❌ "100% name-origin accuracy" — 100% emitted-leaf precision on adjudicated set, but 28% abstention rate; 56% on raw citizenship labels (wrong metric for name-origin)
-- ❌ "1,090 tests" / "~2,376 tests" — actual count is **3,295 run by CI's Core-tests step** (R72). And the old "all run by CI's Core-tests step" rider was itself false: at c68b734 the step named 103 files while `pytest tests/` collected 124, so 474 tests in 44 files never ran in CI. G3 in `tools/audit_repo.py` now makes that gap fail the build.
+- ❌ "1,090 tests" / "~2,376 tests" — CI's Core-tests step executes **3,008 items** (R72, measured in the CI log). And the old "all run by CI's Core-tests step" rider was itself false: at c68b734 the step named 98 files while `pytest tests/` collected 124, so 474 tests in 44 files never ran in CI. G3 in `tools/audit_repo.py` now makes that gap fail the build.
+- ❌ any test count without saying WHICH population — a local `pytest tests/` collect (124 files / 3,218 tests) and CI's Core-tests step (140 files / 3,008 items) are different numbers, and R72 shipped the wrong one in its own first draft before the CI log corrected it.
 - ❌ "Genealogy data for every mathematician" — enrichment covers ~67,500 entries (MGP + Wikidata P184 + theses.fr + OpenAlex affiliations). Only ~43,300 have a full advisor chain; the rest have Institution + Country only. Historical / obscure mathematicians without any of these sources pass through with no enrichment.
 - ❌ "1 M in 362 s / 2 763-per-s" — **RETRACTED (R54).** That was a no-op path
   that skipped region detection and the batch-global tail. Honest measured
