@@ -19,6 +19,7 @@ Checks:
   I5  no dangling advisor refs             (every advisor resolves to a node)
   I6  every record has a CanonicalLatin and a GlobalID
   I7  GlobalIDs unique + by_global_id reverse index consistent
+  I8  a shared GlobalID is LOSSLESS (alias keys agree on substance)
 
     PYTHONPATH=. python3 tools/validate_genealogy_integrity.py
 """
@@ -162,6 +163,69 @@ def validate(by_name: dict, by_gid: dict) -> list[str]:
             f"missing by_name key"
         )
 
+    # I8: a shared GlobalID must be an IDENTITY, not just an equivalence class.
+    #
+    # I7 deliberately PERMITS several by_name keys to carry one GlobalID — the
+    # alias design (ADVISOR_STUBS registers 'perelman, g.' and
+    # 'perelman, grigori' as one person so either spelling resolves). But I7
+    # only ever compares IDENTIFIERS to each other; it never asks whether the
+    # RECORDS those identifiers name agree. So an alias pair where one half got
+    # enriched from Wikidata (QID + advisors + institution) and the other stayed
+    # a bare curated stub satisfies I7 completely, while the two keys describe
+    # measurably different people — and because `by_global_id[gid] = key` is
+    # last-write-wins, which half the id resolves to is arbitrary. That is how
+    # "Perelman, G." returned 2 advisors and "Grigori Perelman" returned 0.
+    #
+    # I8 is the other half of the check: aliasing is allowed, LOSSY aliasing is
+    # not. Substance = the fields that make the record worth returning —
+    # an external identifier (QID), the institution, and whether the person has
+    # any advisor edges at all. If two keys share an id they must agree on all
+    # three, which they do only if the build actually merged them.
+    gid_keys: dict[str, list[str]] = defaultdict(list)
+    for k, r in by_name.items():
+        if r.get("GlobalID"):
+            gid_keys[r["GlobalID"]].append(k)
+
+    def _substance(rec: dict) -> tuple:
+        return (
+            rec.get("QID") or None,
+            rec.get("Institution") or None,
+            bool(_advisors(rec)),
+        )
+
+    lossy: list[str] = []
+    for gid, keys in gid_keys.items():
+        if len(keys) < 2:
+            continue
+        shapes = {k: _substance(by_name[k]) for k in keys}
+        if len(set(shapes.values())) > 1:
+            detail = "; ".join(
+                f"{k!r} QID={s[0]} Institution={s[1]} has_advisors={s[2]}"
+                for k, s in sorted(shapes.items())
+            )
+            lossy.append(f"{gid}: {detail}")
+    if lossy:
+        failures.append(
+            f"I8: {len(lossy)} GlobalID(s) shared by keys that DISAGREE on "
+            f"substance (QID/Institution/advisors) — aliasing is fine, lossy "
+            f"aliasing is not; the build must merge these into one record. "
+            f"First: {lossy[0]}"
+        )
+
+    # I8 (second half): the reverse index must be TOTAL. Every id a record
+    # carries has to be resolvable, or an id the API hands out 404s on lookup.
+    missing_gids = {
+        r["GlobalID"]
+        for r in by_name.values()
+        if r.get("GlobalID") and r["GlobalID"] not in by_gid
+    }
+    if missing_gids:
+        failures.append(
+            f"I8: {len(missing_gids)} GlobalID(s) carried by a record but absent "
+            f"from by_global_id — these ids resolve to nothing "
+            f"(e.g. {sorted(missing_gids)[:3]})"
+        )
+
     return failures
 
 
@@ -181,17 +245,33 @@ def main() -> int:
         return 1
 
     failures = validate(by_name, by_gid)
-    edges = sum(len(_advisors(r)) for r in by_name.values())
+    # Count distinct RELATIONSHIPS, not list entries. Several by_name keys can
+    # name one person (the alias design), and after the build's alias merge
+    # each of them carries that person's full advisor list — so summing the
+    # lists would report one edge once per spelling and inflate the headline
+    # number. Key the count on (person identity, advisor identity).
+    edges = len(
+        {
+            (r.get("GlobalID"), normalize_key(a["name"]))
+            for r in by_name.values()
+            for a in _advisors(r)
+        }
+    )
     if failures:
         print("GENEALOGY INTEGRITY: FAIL\n")
         for f in failures:
             print(f"  ✗ {f}")
         return 1
     print("GENEALOGY INTEGRITY: PASS")
-    print(f"  {len(by_name):,} nodes, {edges:,} advisor edges")
+    people = {r.get("GlobalID") for r in by_name.values() if r.get("GlobalID")}
+    print(
+        f"  {len(people):,} people under {len(by_name):,} name keys, "
+        f"{edges:,} advisor edges"
+    )
     print("  I1 no self-loops · I2 acyclic · I3 no dup advisors")
     print("  I4 every edge has provenance · I5 no dangling refs")
     print("  I6 CanonicalLatin+GlobalID present · I7 GlobalID index consistent")
+    print("  I8 shared GlobalIDs are lossless · reverse index total")
     return 0
 
 

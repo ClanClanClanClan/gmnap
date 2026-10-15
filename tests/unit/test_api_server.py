@@ -164,25 +164,33 @@ class TestLineageFormatContract:
 
 
 class TestGlobalIDConsistency:
-    """/query must mint GlobalIDs with the SAME scheme as the pipeline
-    (src.core.global_id), not the divergent src.core.globalid."""
+    """/query must return the id the graph RESOLVES, not one it minted.
 
-    def test_query_gid_matches_pipeline_scheme(self, client):
+    This test used to assert that /query minted with the same scheme as the
+    pipeline (src.core.global_id) rather than the divergent src.core.globalid.
+    That guarded the wrong thing. BOTH schemes hash the name alone, while the
+    corpus id for anyone carrying a BirthYear/DeathYear is a hash of the name
+    AND the dates — so the two mint schemes could agree perfectly and the
+    agreed id still was not the id by_global_id is keyed on. Measured on the
+    shipped corpus: 400/400 of a sample of the 26.0% of people who have dates
+    got an id that 404'd on /api/v1/lineage.
+
+    /query no longer mints at all. The assertion is now the property that
+    actually matters: the id comes back resolvable.
+    """
+
+    def test_query_returns_a_resolvable_id(self, client):
         import src.api.server as srv
         from src.core import global_id as GP
         from src.core import globalid as GA
-        from src.regions.manager_optimized import RegionManager
+        from src.core.genealogy_lookup import GenealogyLookup
 
         name = "Euler, Leonhard"
-        # Replicate the endpoint's entry construction + detection so we can
-        # compute the expected id under each scheme.
-        mgr = RegionManager()
         entry = {"CanonicalLatin": name}
-        mgr.detect_region(entry)
+        # Neither mint scheme may be what the endpoint hands out: both hash
+        # the bare name, and this person carries dates.
         pipeline_gid = GP.generate_global_id(dict(entry))
         divergent_gid = GA.generate_global_id(dict(entry))
-        # Precondition: the two schemes really do diverge for this shape.
-        assert pipeline_gid != divergent_gid
 
         srv._PAID_TOKENS.add("gid-token")
         try:
@@ -192,9 +200,23 @@ class TestGlobalIDConsistency:
                 headers={"Authorization": "Bearer gid-token"},
             )
             assert r.status_code == 200
-            got = r.json()["GlobalID"]
-            assert got == pipeline_gid, f"/query used the wrong GID scheme: {got}"
-            assert got != divergent_gid
+            body = r.json()
+            assert body["found"] is True
+            got = body["GlobalID"]
+            assert got, "/query returned no identifier for a known person"
+            assert got not in (
+                pipeline_gid,
+                divergent_gid,
+            ), f"/query is still minting the id it returns: {got}"
+            # The property the old assertion was a proxy for.
+            assert (
+                GenealogyLookup().lookup_by_gid(got) is not None
+            ), f"/query returned {got}, which resolves to nothing"
+            lineage = client.get(
+                f"/api/v1/lineage/{got}",
+                headers={"Authorization": "Bearer gid-token"},
+            )
+            assert lineage.status_code == 200, f"id from /query 404s on /lineage: {got}"
         finally:
             srv._PAID_TOKENS.discard("gid-token")
 

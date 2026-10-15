@@ -375,19 +375,32 @@
             .then(function (data) {
                 loadingEl.hidden = true;
                 var entries = data.entries || [];
-                lastSearchResults = entries;
-                if (entries.length === 0) {
+                // `entries.length === 0` was unreachable: /api/v1/process
+                // honours a 1:1 per-entry contract, so one name in always
+                // came back as one entry out — complete with a minted
+                // GlobalID — and ANY string typed into the search box
+                // rendered a result card for a person who does not exist.
+                // `found` is the server's answer to "does a source know this
+                // person", so filter on that instead of on array length.
+                var known = [];
+                for (var j = 0; j < entries.length; j++) {
+                    if (entries[j] && entries[j].found !== false) {
+                        known.push(entries[j]);
+                    }
+                }
+                lastSearchResults = known;
+                if (known.length === 0) {
                     noResults.hidden = false;
                     return;
                 }
-                for (var i = 0; i < entries.length; i++) {
-                    renderResultCard(entries[i]);
+                for (var i = 0; i < known.length; i++) {
+                    renderResultCard(known[i]);
                 }
-                if (options.autoOpenProfile && entries.length > 0) {
+                if (options.autoOpenProfile && known.length > 0) {
                     // Deep-link path: /p/<name> resolved to ≥ 1 result;
                     // open the first one without re-pushing the URL.
-                    renderProfile(entries[0], { fromUrl: true,
-                                               direction: options.direction });
+                    renderProfile(known[0], { fromUrl: true,
+                                              direction: options.direction });
                 }
             })
             .catch(function (err) {

@@ -168,10 +168,42 @@ def load(
     if not by_name:
         raise SystemExit("enrichment file has no 'by_name' records")
 
-    print(f"loading {len(by_name)} persons from {enrichment_path}")
+    # ONE NODE PER IDENTITY. Several by_name keys can name one person — the
+    # alias design, where 'perelman, g.' and 'perelman, grigori' share a
+    # CanonicalLatin and therefore a GlobalID. Every MERGE here keys on `key`,
+    # so loading all of them puts two :Person nodes in the graph for one
+    # human. That was already wrong (query.py resolves a root with
+    # `WHERE p.key = $key OR p.global_id = $gid` then `LIMIT 1`, so which
+    # half of the pair answered was arbitrary), and it got worse once the
+    # build's alias merge gave BOTH keys the person's full advisor list:
+    # every edge would be loaded once per spelling.
+    #
+    # Collapse each GlobalID to one representative key — the same
+    # first-key-wins choice by_global_id makes, so the graph and the reverse
+    # index name the same node — and rewrite advisor references onto it, or
+    # an edge pointing at a collapsed spelling would MERGE a fresh bare node
+    # straight back in.
+    representative: dict[str, str] = {}
+    for key, rec in by_name.items():
+        gid = rec.get("GlobalID")
+        if gid and gid not in representative:
+            representative[gid] = key
+    resolve_key: dict[str, str] = {
+        key: representative.get(rec.get("GlobalID") or "", key)
+        for key, rec in by_name.items()
+    }
+    persons: dict[str, dict] = {
+        rep: by_name[rep] for rep in dict.fromkeys(resolve_key.values())
+    }
+    aliases = len(by_name) - len(persons)
+
+    print(
+        f"loading {len(persons)} persons from {enrichment_path}"
+        + (f" ({aliases} alias spelling(s) collapsed)" if aliases else "")
+    )
     if dry_run:
         print("(dry run — connection not established)")
-        return {"persons": len(by_name), "dry_run": True}
+        return {"persons": len(persons), "dry_run": True}
 
     auth = (user, password) if user else None
     driver = GraphDatabase.driver(bolt_uri, auth=auth, connection_timeout=5)
@@ -208,7 +240,7 @@ def load(
             stats["persons"] += len(batch)
             batch.clear()
 
-        for key, rec in by_name.items():
+        for key, rec in persons.items():
             batch.append(
                 {
                     "key": key,
@@ -243,7 +275,7 @@ def load(
             stats["edges"] += len(edge_batch)
             edge_batch.clear()
 
-        for src_key, rec in by_name.items():
+        for src_key, rec in persons.items():
             for adv in rec.get("Advisors") or []:
                 adv_name = adv.get("name") if isinstance(adv, dict) else adv
                 if not adv_name:
@@ -251,6 +283,8 @@ def load(
                 adv_key = _normalize_key(adv_name)
                 if not adv_key:
                     continue
+                # Point the edge at the advisor's representative node.
+                adv_key = resolve_key.get(adv_key, adv_key)
                 # R67: the relationship was created with ZERO properties — `r`
                 # was bound and never SET — so when Memgraph is up (the
                 # PREFERRED lineage path) there was nothing for the API to

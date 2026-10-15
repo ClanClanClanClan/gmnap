@@ -540,16 +540,24 @@ def scenario_network_500(page: Page, base: str):
 
 
 def scenario_unknown_name(page: Page, base: str):
+    """A name in no source must show the empty state — not a result card.
+
+    This scenario used to accept EITHER outcome ("either there's a result
+    (the pipeline can still process it) or empty state"), which is precisely
+    the bug it should have caught. /api/v1/process honours a 1:1 per-entry
+    contract, so one name in always came back as one entry out, complete with
+    a minted GlobalID; `entries.length === 0` was therefore never true and
+    ANY string rendered a card for a person who does not exist. The server
+    now stamps `found` per entry and app.js filters on it, so the empty state
+    is reachable and this scenario demands it.
+    """
     page.goto(base)
     _search_and_wait(page, "Zzxqvwn, Notreal")
-    # Either there's a result (the pipeline can still process it) or empty state.
-    page.wait_for_selector(
-        # Visible terminal — `#results-list` is present in the initial
-        # HTML, so state="attached" is trivially satisfied. We must
-        # check for a *visible* terminal (result card, unhidden empty
-        # state, or unhidden error state) or we'd pass on 500s.
-        ".result-card, #no-results:not([hidden]), #error-msg:not([hidden])",
-        timeout=8000,
+    page.wait_for_selector("#no-results:not([hidden])", timeout=8000)
+    cards = page.query_selector_all(".result-card")
+    assert not cards, (
+        f"{len(cards)} result card(s) rendered for a name in no source — "
+        f"the API fabricated a record"
     )
 
 

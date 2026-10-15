@@ -104,19 +104,14 @@ def query(name: str, mode: str, as_json: bool, live: bool):
 
     # Curated genealogy enrichment (Advisors/Institution/BirthYear/...)
     try:
-        from src.core.genealogy_lookup import GenealogyLookup
+        from src.core.genealogy_lookup import _ENRICHMENT_FIELDS, GenealogyLookup
 
         enrichable = {"CanonicalLatin": name}
         GenealogyLookup().enrich(enrichable)
-        for field in (
-            "BirthYear",
-            "DeathYear",
-            "Institution",
-            "Country",
-            "Thesis",
-            "ThesisYear",
-            "Advisors",
-        ):
+        # Reuse the one list rather than restating it — this was a verbatim
+        # copy, so it silently dropped any field added to the canonical tuple
+        # (GlobalID, the citable identifier, among them).
+        for field in _ENRICHMENT_FIELDS:
             if field in enrichable:
                 result[field] = enrichable[field]
     except Exception:

@@ -34,10 +34,12 @@ Usage:
 
 from __future__ import annotations
 
+import copy
 import json
 import re
 import sys
 import unicodedata
+from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -786,6 +788,137 @@ def merge_advisor_edges(existing, incoming):
     return merged
 
 
+# ---------------------------------------------------------------------------
+# Alias-group collapse: make the GlobalID an IDENTITY, not an equivalence class.
+#
+# A GlobalID is derived from {CanonicalLatin, BirthYear, DeathYear}, so several
+# by_name keys can legitimately carry one — that is the alias design
+# (ADVISOR_STUBS deliberately registers "perelman, g." and "perelman, grigori"
+# with the same CanonicalLatin so either spelling resolves). What is NOT by
+# design is those keys holding DIFFERENT records. Wikidata enriched one half of
+# each pair and left the other a bare stub, so the id named two measurably
+# different people, and `by_global_id[gid] = key` picked between them by
+# insertion order. "Perelman, G." returned 2 advisors; "Grigori Perelman"
+# returned 0.
+#
+# This pass unions each group onto one record and gives every key in the group
+# a copy of it, so the aliasing survives (the spellings still resolve) while
+# the lossiness does not. Invariant I8 in tools/validate_genealogy_integrity.py
+# fails the build if a later harvest re-opens the gap.
+# ---------------------------------------------------------------------------
+
+# Sources that assert nothing beyond "this name was referenced". A record whose
+# provenance is only these loses every scalar conflict.
+_STUB_SOURCES = {"curated stub", "referenced advisor (no metadata)"}
+
+# Fields the blind field-union must not touch: Advisors goes through
+# merge_advisor_edges, Institution picks the richer value, Source accumulates,
+# and GlobalID is re-derived after the merge.
+_MERGE_SPECIAL = frozenset({"Advisors", "Institution", "Source", "GlobalID"})
+
+
+def _is_stub_source(source: str | None) -> bool:
+    """True when every component of a '+'-joined Source is a bare stub."""
+    parts = [p for p in (source or "").split("+") if p]
+    return bool(parts) and all(p in _STUB_SOURCES for p in parts)
+
+
+def _empty(value: object) -> bool:
+    return value is None or value == "" or value == [] or value == {}
+
+
+def _merge_rank(key: str, record: dict) -> tuple:
+    """Ascending sort key; the FIRST record is the one conflicts resolve to.
+
+    Precedence: a record carrying an external identifier (QID/IdRef — what
+    makes it citable and false-merge-resistant) outranks one that does not;
+    a named upstream source outranks a hand-written stub; then sheer field
+    count; then the key itself, so the order is total and the build
+    reproducible.
+    """
+    return (
+        0 if (record.get("QID") or record.get("IdRef")) else 1,
+        1 if _is_stub_source(record.get("Source")) else 0,
+        -len(record),
+        key,
+    )
+
+
+def merge_alias_groups(by_name: dict) -> tuple[int, int]:
+    """Union every set of by_name keys that share a GlobalID.
+
+    Returns ``(groups_changed, keys_affected)``. Idempotent: a group whose
+    keys already hold identical records is left alone, so the caller can run
+    this to a fixed point.
+    """
+    groups: dict[str, list[str]] = defaultdict(list)
+    for key, record in by_name.items():
+        gid = record.get("GlobalID")
+        if gid:
+            groups[gid].append(key)
+
+    groups_changed = 0
+    keys_affected = 0
+    for keys in groups.values():
+        if len(keys) < 2:
+            continue
+        # SAFETY GATE. A shared id is the alias case only when the records
+        # agree on the canonical form the id is DERIVED from. If they do not,
+        # this is a genuine hash collision between two different people and
+        # merging would fuse two humans into one. Leave it alone — I7 fails
+        # the build on exactly this shape.
+        if len({by_name[k].get("CanonicalLatin") for k in keys}) > 1:
+            continue
+        ordered = sorted(keys, key=lambda k: _merge_rank(k, by_name[k]))
+        primary_rec = by_name[ordered[0]]
+        if all(by_name[k] == primary_rec for k in ordered[1:]):
+            continue  # already one record under several keys
+
+        merged = copy.deepcopy(primary_rec)
+        advisors = [a for a in (merged.get("Advisors") or []) if isinstance(a, dict)]
+        sources = [p for p in (merged.get("Source") or "").split("+") if p]
+
+        for other_key in ordered[1:]:
+            other = by_name[other_key]
+            for field, value in other.items():
+                if field in _MERGE_SPECIAL or _empty(value):
+                    continue
+                # Fill-only. The ranked primary already won anything it has;
+                # notably DegreeCountries is NOT unioned — it drives the
+                # TRUST/REVIEW stratification, so adding a country the
+                # primary's evidence does not support would corrupt vetting.
+                if _empty(merged.get(field)):
+                    merged[field] = copy.deepcopy(value)
+            # Richer Institution: the longer non-empty string, primary on ties.
+            candidate = other.get("Institution")
+            if candidate and len(str(candidate)) > len(
+                str(merged.get("Institution") or "")
+            ):
+                merged["Institution"] = candidate
+            # Advisor edges go through the normal path so per-edge provenance
+            # (sources / qid / idref / confidence floors) survives the union.
+            incoming = [a for a in (other.get("Advisors") or []) if isinstance(a, dict)]
+            if incoming:
+                advisors = merge_advisor_edges(advisors, incoming)
+            for part in (other.get("Source") or "").split("+"):
+                if part and part not in sources:
+                    sources.append(part)
+
+        if advisors:
+            merged["Advisors"] = advisors
+        if sources:
+            merged["Source"] = "+".join(sources)
+
+        # One person, one record — under every key that names them. Each key
+        # gets its own copy so a later pass cannot mutate them apart (and the
+        # output stays plain JSON with no shared references).
+        for k in keys:
+            by_name[k] = copy.deepcopy(merged)
+        groups_changed += 1
+        keys_affected += len(keys)
+    return (groups_changed, keys_affected)
+
+
 def apply_edge_integrity(by_name: dict) -> dict:
     """Drop genealogically-impossible advisor edges from the merged graph.
 
@@ -1523,12 +1656,41 @@ def build(no_mgp: bool = False) -> dict:
             "Source": "referenced advisor (no metadata)",
         }
 
-    # 4. Assign GlobalIDs and build reverse index
+    # 4. Assign GlobalIDs, collapse alias groups, build the reverse index.
+    #
+    # The order is forced. The id is derived from the record's own canonical
+    # form + dates, so it can only be computed once the record is final — but
+    # the alias groups are DEFINED by a shared id, so grouping has to follow a
+    # first assignment. And the merge itself can complete a record's dates,
+    # which moves its id. So: assign, merge, re-assign, until the ids stop
+    # moving. Converges on the second pass in practice, because after a merge
+    # every key in a group holds identical content and so derives an identical
+    # id; the cap just stops a pathological harvest from looping forever.
+    for _ in range(8):
+        for record in by_name.values():
+            record["GlobalID"] = assign_global_id(record)
+        groups_changed, keys_affected = merge_alias_groups(by_name)
+        if not groups_changed:
+            break
+        print(
+            f"Alias merge: unioned {keys_affected} by_name key(s) sharing "
+            f"{groups_changed} GlobalID(s) into one record each "
+            f"(aliases keep resolving; the lossy divergence is gone)"
+        )
+    else:
+        raise SystemExit(
+            "alias merge did not reach a fixed point in 8 passes — a merge is "
+            "changing the ids it groups on; inspect merge_alias_groups"
+        )
+
+    # First-key-wins, over by_name's deterministic insertion order. The old
+    # `by_gid[gid] = key` was last-write-wins, which is what made an aliased
+    # id resolve to an arbitrary half of the pair; after the merge every key
+    # in a group holds the same record, so the choice no longer hides data —
+    # but it still has to be deterministic for the build to be reproducible.
     by_gid: dict[str, str] = {}
     for key, record in by_name.items():
-        gid = assign_global_id(record)
-        record["GlobalID"] = gid
-        by_gid[gid] = key
+        by_gid.setdefault(record["GlobalID"], key)
 
     # 5. Data-subject suppression list (PRIVACY.md, R55).
     apply_suppression_list(by_name, by_gid, Path("data/removal_requests.txt"))
@@ -1570,6 +1732,22 @@ def apply_suppression_list(
             key = normalize_key(line)
             if key:
                 suppressed_keys.add(key)
+    # Erasure applies to the PERSON, not to the spelling that was listed.
+    # Several by_name keys can name one person (the alias design), all of them
+    # carrying that person's GlobalID — so a name-matched removal has to take
+    # the whole identity with it. Before the alias merge this gap left the
+    # unlisted spelling holding a bare stub; after it, the alias key holds the
+    # FULL record, which would turn a half-honoured erasure into a complete
+    # failure to honour it. Collect the ids first, then sweep every key.
+    for key, rec in by_name.items():
+        if key in suppressed_keys and rec.get("GlobalID"):
+            suppressed_gids.add(rec["GlobalID"])
+    # ...and every OTHER spelling of a suppressed identity becomes suppressed
+    # too, so the advisor-reference scrub below catches edges that name the
+    # person under the alias rather than the listed form.
+    for key, rec in by_name.items():
+        if rec.get("GlobalID") in suppressed_gids:
+            suppressed_keys.add(key)
     removed = 0
     for key in list(by_name):
         rec = by_name[key]
@@ -1623,16 +1801,20 @@ def main() -> None:
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(output, indent=2, ensure_ascii=False, sort_keys=True))
     n = output["source_count"]
-    with_adv = sum(1 for r in output["by_name"].values() if r.get("Advisors"))
-    with_birth = sum(1 for r in output["by_name"].values() if r.get("BirthYear"))
-    with_inst = sum(1 for r in output["by_name"].values() if r.get("Institution"))
-    mgp_n = sum(
-        1 for r in output["by_name"].values() if "MGP" in (r.get("Source") or "")
-    )
+    # Count PEOPLE, not by_name keys. Several keys can name one person (the
+    # alias design), and each carries that person's full record, so counting
+    # keys reports an aliased person once per spelling.
+    people = {r["GlobalID"]: r for r in output["by_name"].values() if r.get("GlobalID")}
+    with_adv = sum(1 for r in people.values() if r.get("Advisors"))
+    with_birth = sum(1 for r in people.values() if r.get("BirthYear"))
+    with_inst = sum(1 for r in people.values() if r.get("Institution"))
+    mgp_n = sum(1 for r in people.values() if "MGP" in (r.get("Source") or ""))
+    aliases = n - len(people)
     print(
-        f"Wrote {OUTPUT}: {n} entries "
-        f"({with_adv} with Advisors, {with_birth} with BirthYear, "
-        f"{with_inst} with Institution, {mgp_n} MGP-derived)"
+        f"Wrote {OUTPUT}: {len(people)} people under {n} name keys "
+        f"({aliases} alias spelling(s)); "
+        f"{with_adv} with Advisors, {with_birth} with BirthYear, "
+        f"{with_inst} with Institution, {mgp_n} MGP-derived"
     )
     if args.no_mgp:
         # The old warning counted only node-level Source containing "MGP"

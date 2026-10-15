@@ -321,6 +321,7 @@ jobs:
           tests/unit/test_gdpr.py
           tests/unit/test_gdpr_comprehensive.py
           tests/unit/test_genealogy_lookup.py
+          tests/unit/test_globalid_identity.py
           tests/unit/test_genealogy_query.py
           tests/unit/test_global_id.py
           tests/unit/test_globalid.py
