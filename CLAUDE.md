@@ -292,14 +292,31 @@ Architecture: split geo/name-origin branches, hierarchical selective classificat
 ### Detection KPIs (843-entry adjudicated benchmark)
 *(R58-era adjudication snapshot. R59.3–R59.5 changes were A/B-gated per
 corpus: on the 843 the deltas are abstention→correct conversions plus one
-wrong→abstention kill (Grušas) — 0 new wrong. The ≥95 % high-confidence
-leaf-precision floor is `tests/unit/test_benchmark_evaluation.py:162`, but
-it is enforced LOCALLY ONLY: the assertion `pytest.skip`s when the
-gitignored fastText model is absent, and CI does not build the model
-(no `make model` step in ci.yml), so the CI run skips it. Rebuild the
-model and run pytest locally to actually enforce it; wiring the model
-build into CI is R61 material. Current held-out numbers live in
-docs/calibration.md R59.5.)*
+wrong→abstention kill (Grušas) — 0 new wrong. Current held-out numbers
+live in docs/calibration.md R59.5.)*
+
+**The ≥95 % leaf-precision floor is now ENFORCED IN CI (R72).**
+`tests/unit/test_benchmark_evaluation.py:162`. Until R72 it was
+local-only: the gitignored fastText model (101 MB) was absent on the
+runner, so the assertion `pytest.skip`-ed and no CI run ever evaluated
+it. R72 builds the model in CI from the committed corpus
+(`data/ml_training/ft_name_training_clean.txt`, 13 427 lines; the build
+is byte-deterministic at `thread=1`, R59.5), and the test now
+`pytest.fail`s instead of skipping when `CI` is set — a missing model on
+a runner is a broken build step, not a reduced-capability environment.
+R72 also deleted the fixture's CI down-sample to 100 entries: of those
+100, only ~14 emitted a leaf, so a "≥95 %" floor on n=14 admitted
+exactly one value (14/14) and duly failed at 13/14 = 92.9 % the first
+time a model was present. The gate now measures the full 843.
+
+What the gate actually constrains, measured on a fresh `make model`
+build at R72: **144/150 = 96.0 % leaf precision at 34.5 % coverage**
+(150 of 435 high-confidence entries emit a non-R0 leaf; group-level
+150/152 = 98.7 %). Read it as *precision with abstention*: of the
+answers the system is willing to give, 96 % are right. It says nothing
+about the 285 high-confidence entries it declines to label. "96 %
+precise at a third of coverage" is the honest phrasing; "96 % accurate"
+is not. Whole file: ~45 s against its 600 s ceiling.
 | Metric | Value | Notes |
 |--------|-------|-------|
 | MGP ground truth (15 names, no CC) | 15/15 = 100% | All via surname exact or fastText |
@@ -397,11 +414,104 @@ audit trail). See `docs/calibration.md` for the reliability diagrams.
 
 ## 📊 Testing
 
-- **~2,376 tests collected** across 50+ files in CI's Core-tests step (unit/, authority/, cjk/, db/, v7/, plus memgraph e2e + property tests)
+- **3,295 tests across 145 files named by CI** (unit/, authority/, cjk/, db/, stress/, v7/, integration/, property/). The `test` job's Core-tests step enumerates 140 of them; the rest are the property-test step and the four files only the `coverage` job runs
 - **500 golden dataset entries** with verified regions
 - **843 adjudicated benchmark entries** from Wikidata (three-track evaluation)
 - **10,724 Wikidata mathematicians** + **15,120 OpenAlex entries** as training data
-- CI: lint (black 26.3.1 + ruff 0.15.8 + isort), unit tests, property tests, secret scan, cost guard
+- CI: lint (black 26.3.1 + ruff 0.15.8 + isort), unit tests, property tests, secret scan, repo-invariant audit
+
+### Enforcement status (R72) — what the guards actually measure
+
+R72 was an enforcement-only round: **no product code changed.** (The
+*configuration* CI runs under did — see "One consequence" at the end of
+this section.) It exists because the repo's recurring defect is *a
+claim documented correctly and implemented wrongly, with a guard that
+measured the wrong thing*, and the guards themselves had never been
+audited.
+
+**The test population CI executes went from 2,821 tests across 103
+workflow-named files to 3,295 across 145.** `pytest tests/` collected
+124 files; the workflows named 103; nothing checked the difference.
+44 files carrying **474 tests had never run in CI**. They are
+disproportionately the pin batteries of the most recent
+rounds: `test_fetcher_contract.py` (R66.2), `test_vetting_risk.py`,
+`test_genealogy_integrity.py` (R64), `test_corrections_ledger.py`
+(R68), `test_licence_and_origin_leaks.py` (R67.1),
+`test_edge_provenance.py` (R67.5), `test_spec_gates_blocking.py` (R55).
+
+Two of those are cited in the docs *by name* as the evidence for a
+claim, and neither was executed by any CI run:
+- `tests/v7/test_spec_gates_blocking.py::test_all_eight_spec_gates_recorded`
+  — "pins the full set" for the 8-quality-gates claim above
+  (CLAUDE.md "Quality Gates" section).
+- `tests/unit/test_vetting_risk.py` — "Pinned by …",
+  `docs/regime_coverage.md:109`.
+
+The remaining five pin claims this file makes in prose without naming
+the file. Either way the shape is the same: the claim was documented,
+the test existed and passed locally, and CI never ran it.
+
+**`tools/audit_repo.py` now closes the direction that let that happen.**
+G1/G2/G4 walk CI → disk: every path CI names exists (G1), imports (G2),
+and *defines* at least one test (G4 — a static AST read, so it answers
+the same on every runner; a count would punish a file whose optional
+dep is simply absent). **G3 walks disk → CI**: every file `pytest
+tests/` collects must appear in some workflow. `_G3_UNWIRED_OK` is the
+only permitted exception, it is empty, and G3 fails on a stale entry —
+so a new test file cannot be added without running, and a guard cannot
+be silently un-wired. Adding a guard used to be a no-op; it is now
+checked. Both are gating in the `audit-repo` job; G4 is cheap enough to
+run in the `--fast` pre-commit hook too.
+
+**What the wiring cost to turn on — two latent bugs, no assertion
+changed.** Both are the same shape: a test file that passed only
+because nothing else ran in the process with it.
+- `tests/unit/test_api_privacy_gate.py` (the R57/R67 anonymous-origin
+  guard) set `GMNAP_REQUIRE_HASHCASH=0` and `GMNAP_API_TOKENS` at
+  **module level**, i.e. at pytest *collection* time, never undone.
+  Adding it to the Core-tests step broke **12 previously-green tests**
+  in `test_config.py` (the leaked token became
+  `config["api"]["tokens"]`; `APIConfig` has no such field) and
+  `test_api_server.py` (the leak disabled the hashcash gate those tests
+  assert). The leak broke the file in return — `server._PAID_TOKENS`
+  and `server._rate_limiter` are import-time globals, so it only ever
+  worked when this module imported the server first. Fixed by scoping
+  it into a module fixture.
+- `tests/unit/test_fetcher_contract.py` used the deprecated
+  `asyncio.get_event_loop()`, which raises once any earlier test has
+  called `asyncio.run`. All 7 of its tests failed on the harness.
+  Fixed to `asyncio.run`.
+
+That is the concrete answer to what the gap cost: these files were not
+merely untested, they were landmines that went off the moment anyone
+wired them in — and `test_api_privacy_gate.py` was silently corrupting
+the environment of every test that would have followed it.
+
+**Three dead gates, handled:**
+| Gate | Was | Now |
+|------|-----|-----|
+| CI "Memory peak check" | Measured `RUSAGE_SELF` of a fresh `python3 -c` process (~0.015 GB) against a 6 GB limit — could not fail | Reads the peak RSS `/usr/bin/time` recorded for the Core-tests run, and **fails if the measurement is missing** rather than passing on an absent number |
+| CI `cost-guard` job | Read `cache/api_costs.json` for a CHF 120 budget; `cache/` is gitignored, so the file cannot exist in a CI checkout and the budget was asserted against a constant `0.0` | **Deleted.** The population is structurally empty in CI (runs offline; prod spend lives in a mounted volume no checkout can see). Budget enforcement is operator-side against the deployment's `cache/` volume; the writer stays under test via `tests/unit/test_cost_tracker.py` |
+| ≥95 % leaf-precision floor | `pytest.skip`-ed in CI (gitignored model), and its CI sample reduced the denominator to ~14 | Model built in CI from the committed corpus; test `pytest.fail`s rather than skipping when `CI` is set; sample removed, so it measures the full 843 (**96.0 %**, see Detection KPIs) |
+
+Round 34 phase 3's own note on `cost-guard` claimed it had ended that
+theatre — it wired the writer and left the reader pointed at a path CI
+can never populate. Worth remembering when reading any "now wired"
+claim in this file: the question to ask is *which population does the
+assertion see on a runner*, not whether the code exists.
+
+**One consequence worth stating plainly.** No product code changed this
+round, but the *configuration CI exercises* did. Until R72 the `test`
+job had the fastText CLI binary and no model, so `FASTTEXT_AVAILABLE`
+was False and every CI run detected in rules-only mode — the ML
+tiebreaker documented throughout this file was never exercised by CI.
+It now installs the wheel and builds the model, so CI runs the same
+rules + ML path a developer gets after `make model`. That is the point
+(an accuracy floor cannot be enforced against a classifier that isn't
+loaded), but it does mean CI's detection path changed, and the
+rules-only configuration that Docker's minimal mode ships is no longer
+what CI covers. If the minimal-mode path needs its own gate, that is a
+separate round.
 
 ---
 
@@ -528,7 +638,7 @@ GMNAP_API_TOKENS=...    # Comma-separated Bearer tokens for paid tier
 - ❌ "14 authority sources fully working" — 9 have real HTTP code; 2 need API keys; 3 deferred
 - ❌ "Real-time authority enrichment" — OFFLINE=1 for tier 1+ by default; tier 0 calls APIs directly
 - ❌ "100% name-origin accuracy" — 100% emitted-leaf precision on adjudicated set, but 28% abstention rate; 56% on raw citizenship labels (wrong metric for name-origin)
-- ❌ "1,090 tests" — actual count is ~2,376 collected, all run by CI's Core-tests step
+- ❌ "1,090 tests" / "~2,376 tests" — actual count is **3,295 run by CI's Core-tests step** (R72). And the old "all run by CI's Core-tests step" rider was itself false: at c68b734 the step named 103 files while `pytest tests/` collected 124, so 474 tests in 44 files never ran in CI. G3 in `tools/audit_repo.py` now makes that gap fail the build.
 - ❌ "Genealogy data for every mathematician" — enrichment covers ~67,500 entries (MGP + Wikidata P184 + theses.fr + OpenAlex affiliations). Only ~43,300 have a full advisor chain; the rest have Institution + Country only. Historical / obscure mathematicians without any of these sources pass through with no enrichment.
 - ❌ "1 M in 362 s / 2 763-per-s" — **RETRACTED (R54).** That was a no-op path
   that skipped region detection and the batch-global tail. Honest measured
