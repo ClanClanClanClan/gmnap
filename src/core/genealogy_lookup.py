@@ -90,6 +90,7 @@ def _fold_particles(key: str) -> str:
 
 
 _ENRICHMENT_FIELDS = (
+    "GlobalID",
     "BirthYear",
     "DeathYear",
     "Institution",
@@ -98,6 +99,24 @@ _ENRICHMENT_FIELDS = (
     "ThesisYear",
     "Advisors",
 )
+
+# GlobalID is the ONE field enrichment overwrites instead of filling.
+#
+# The id is a hash of {CanonicalLatin, BirthYear, DeathYear}. A caller that
+# mints one before enrichment has, by definition, only the name — so for the
+# 17,516 people (26.0%) whose corpus record carries dates, the minted id is
+# the hash of a DIFFERENT, incomplete entry and does not match the id the
+# graph is keyed on. /api/v1/query did exactly that: it built
+# {"CanonicalLatin": name}, hashed it, and handed the result out as the
+# person's identifier; measured, that id differed from the corpus id for
+# 400/400 sampled dated people and 404'd on /api/v1/lineage.
+#
+# The corpus id is the identity of record — the one by_global_id resolves and
+# the graph is loaded with. A minted id is a guess made with less information,
+# so it loses. (Guaranteed to be an identity rather than a name-equivalence
+# class by the build's alias merge + invariant I8; see
+# tools/validate_genealogy_integrity.py.)
+_AUTHORITATIVE_FIELDS = frozenset({"GlobalID"})
 
 
 # R67: the provenance a lineage edge carries. traverse_lineage used to rebuild
@@ -325,7 +344,17 @@ class GenealogyLookup:
 
         Looks up by CanonicalLatin first (exact, then short-form), then by
         GlobalID. Never overwrites fields that are already populated
-        (truthy).
+        (truthy) — except GlobalID, see _AUTHORITATIVE_FIELDS.
+        """
+        self.enrich_reporting(entry)
+        return entry
+
+    def enrich_reporting(self, entry: Dict[str, Any]) -> bool:
+        """``enrich`` + whether any source actually knew this person.
+
+        Callers that must distinguish a hit from a miss use this instead of
+        re-running the lookup: resolution can cost an O(n) token-set scan, so
+        asking twice doubles the price of every miss in a batch.
         """
         record: Optional[Dict[str, Any]] = None
         canonical = entry.get("CanonicalLatin") or entry.get("name")
@@ -336,11 +365,16 @@ class GenealogyLookup:
             if gid:
                 record = self.lookup_by_gid(gid)
         if record is None:
-            return entry
+            return False
         for field in _ENRICHMENT_FIELDS:
-            if field in record and not entry.get(field):
+            if field not in record:
+                continue
+            if field in _AUTHORITATIVE_FIELDS:
+                if record[field]:
+                    entry[field] = record[field]
+            elif not entry.get(field):
                 entry[field] = record[field]
-        return entry
+        return True
 
     def traverse_lineage(
         self,
@@ -458,8 +492,16 @@ class GenealogyLookup:
         if getattr(self, "_children_cache", None) is not None:
             return self._children_cache  # type: ignore[return-value]
         cache: Dict[str, List[tuple]] = {}
+        # Dedupe on the STUDENT'S IDENTITY, not their by_name key. Several
+        # keys can name one person (the alias design: 'perelman, g.' and
+        # 'perelman, grigori'), and each carries that person's full advisor
+        # list — so without this an aliased student is emitted once per
+        # spelling and the descendants tree shows them twice under the same
+        # advisor. Falls back to the key when a record has no id.
+        seen: set[tuple[str, str]] = set()
         for child_key, record in self._by_name.items():
             child_label = record.get("CanonicalLatin") or child_key
+            child_id = record.get("GlobalID") or child_key
             for adv in record.get("Advisors", []) or []:
                 adv_name = adv.get("name") if isinstance(adv, dict) else adv
                 if not adv_name:
@@ -467,6 +509,9 @@ class GenealogyLookup:
                 parent_key = _normalize_key(adv_name)
                 if not parent_key:
                     continue
+                if (parent_key, child_id) in seen:
+                    continue
+                seen.add((parent_key, child_id))
                 # Third element is the edge object, so the descendants
                 # traversal can carry provenance the same way ancestors does.
                 cache.setdefault(parent_key, []).append((child_key, child_label, adv))

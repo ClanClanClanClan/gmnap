@@ -620,29 +620,37 @@ def create_app() -> FastAPI:
         if len(name) > 500:
             raise HTTPException(status_code=400, detail="Name too long (max 500 chars)")
         try:
-            # Use the SAME GlobalID scheme as the pipeline (src.core.global_id),
-            # NOT the divergent src.core.globalid. The two modules produce
-            # different IDs for the common {CanonicalLatin-only} entry shape,
-            # so the old import made /query hand out GIDs that never matched
-            # the ones /process and the batch pipeline assign — breaking
-            # lineage-by-GID and any cross-path correlation.
-            from src.core.global_id import generate_global_id
             from src.regions.manager_optimized import RegionManager
 
             manager = RegionManager()
             entry = {"CanonicalLatin": name}
             result = manager.detect_region(entry)
 
-            try:
-                gid = generate_global_id(entry)
-            except Exception:
-                gid = None
-
+            # /query does NOT mint identifiers any more; it reports the one the
+            # corpus holds, or none.
+            #
+            # It used to hash {"CanonicalLatin": name} right here and hand the
+            # result out as the person's GlobalID — before enrichment had
+            # attached the BirthYear/DeathYear the real id is derived from. Two
+            # defects fell out of that one line:
+            #
+            #  * for the 17,516 people (26.0%) whose record carries dates, the
+            #    minted id was the hash of a DIFFERENT, incomplete entry — not
+            #    the id by_global_id is keyed on. Measured: 400/400 mismatches
+            #    in a sample of that population, every one of them a 404 on
+            #    /api/v1/lineage. (The earlier fix here chased the wrong thing:
+            #    it made the two MINT schemes agree, which is not the same as
+            #    the id resolving.)
+            #  * for a name in no source at all, it was a well-formed
+            #    identifier for a person who does not exist — a 200 with a
+            #    plausible id, which is how a nonsense query rendered a result
+            #    card in the web UI.
+            #
+            # Both have the same fix: the identifier comes from the corpus or
+            # not at all, and a miss says so.
             response = {
                 "name": name,
                 "CanonicalLatin": name,
-                "global_id": gid,
-                "GlobalID": gid,
             }
 
             # R57 PRIVACY GATE. The name-origin classification is a DERIVED
@@ -676,14 +684,20 @@ def create_app() -> FastAPI:
                     "to authenticated research callers only (see PRIVACY.md)"
                 )
 
-            # Enrich with curated genealogy data (Advisors/Institution/BirthYear)
+            # Enrich with curated genealogy data (Advisors/Institution/
+            # BirthYear) — and with the GlobalID, which is where the returned
+            # identifier now comes from.
+            found = False
             try:
                 from src.core.genealogy_lookup import GenealogyLookup
 
-                GenealogyLookup().enrich(response)
+                found = GenealogyLookup().enrich_reporting(response)
             except Exception as exc:
                 logger.debug("Genealogy enrichment skipped: %s", exc)
 
+            response["found"] = found
+            response.setdefault("GlobalID", None)
+            response["global_id"] = response["GlobalID"]
             return response
         except Exception as e:
             logger.error(f"Query error: {e}", exc_info=True)
@@ -891,7 +905,17 @@ def create_app() -> FastAPI:
                 lookup = GenealogyLookup()
                 for entry in page:
                     if isinstance(entry, dict):
-                        lookup.enrich(entry)
+                        # A miss has to look like a miss. The pipeline honours a
+                        # 1:1 per-entry contract and assigns a GlobalID to
+                        # EVERY entry it is handed, so a name in no source
+                        # still comes back as a well-formed record with an
+                        # identifier. `entries` is therefore never empty, which
+                        # made the web UI's zero-results branch unreachable and
+                        # rendered a result card for any string typed into the
+                        # search box. `found` is what actually says whether a
+                        # source knows this person; the 1:1 contract is left
+                        # intact for batch callers that rely on it.
+                        entry["found"] = lookup.enrich_reporting(entry)
             except Exception as exc:
                 logger.debug("Genealogy enrichment skipped: %s", exc)
 

@@ -28,8 +28,18 @@
                      actually work (two were structurally dead), and the graph
                      is 67,469 people / 54,818 edges. The claim now leads with
                      what is genuinely distinctive: every edge carries its
-                     source and a trust tier. -->
-                <p class="subtitle">Trace doctoral advisor chains back through centuries. 67,469&nbsp;mathematicians, 54,818&nbsp;advisor edges &mdash; every edge carrying its source and how far we trust it.</p>
+                     source and a trust tier.
+
+                     Corrected again with the alias merge: 67,469 was the
+                     number of NAME KEYS, and three of those were second
+                     spellings of a person already counted (the alias design —
+                     'perelman, g.' and 'perelman, grigori' are one human).
+                     The graph holds 67,466 people under 67,469 name keys;
+                     `tools/validate_genealogy_integrity.py` now prints both.
+                     The edge count is unchanged: it is counted over distinct
+                     (person, advisor) pairs, so giving every alias key the
+                     full advisor list did not inflate it. -->
+                <p class="subtitle">Trace doctoral advisor chains back through centuries. 67,466&nbsp;mathematicians, 54,818&nbsp;advisor edges &mdash; every edge carrying its source and how far we trust it.</p>
             </div>
             <div class="feature-grid">
                 <div class="feature-card">
