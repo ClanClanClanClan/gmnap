@@ -72,7 +72,25 @@ GND_HILBERT = {
 
 
 def _run(coro):
-    return asyncio.get_event_loop().run_until_complete(coro)
+    """Drive a coroutine to completion.
+
+    R72: this was ``asyncio.get_event_loop().run_until_complete(coro)``,
+    which passed only while this file happened to run FIRST. Any earlier
+    test in the same pytest process that calls ``asyncio.run`` (e.g.
+    tests/unit/test_quota_wired.py, tests/unit/test_async_batch_agg.py)
+    leaves the thread with no current event loop and ``_set_called``
+    True, so the deprecated ``get_event_loop()`` raises
+    ``RuntimeError: There is no current event loop in thread
+    'MainThread'`` instead of making one. All 7 tests here then failed
+    on the harness, not on the contract they assert.
+
+    That stayed invisible because no workflow ran this file — it is one
+    of the 44 that R72 wired into CI, and CLAUDE.md cites it as the pin
+    behind the "the tier-1 fetchers really work" claim. ``asyncio.run``
+    creates and disposes of its own loop, so ordering no longer matters.
+    Every assertion below is unchanged.
+    """
+    return asyncio.run(coro)
 
 
 # ── the contract ────────────────────────────────────────────────────────

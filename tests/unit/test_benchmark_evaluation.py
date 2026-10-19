@@ -21,18 +21,23 @@ BENCHMARK_PATH = (
 
 @pytest.fixture(scope="module")
 def benchmark_data():
-    import os
-    import random
+    """The full 843-entry adjudicated benchmark. No sampling.
 
+    R72: this used to down-sample to 100 entries when ``CI`` was set,
+    "to avoid timeouts". The timeout it was avoiding does not exist —
+    measured, the whole file runs in 45 s against a 600 s ceiling (the
+    docstring below used to claim 7-9 min, contradicting its own
+    ~50 ms/entry figure: 843 x 50 ms = 42 s).
+
+    The sampling was not merely unnecessary, it destroyed the gate.
+    Of 100 sampled entries, 47 are high-confidence and only ~14 emit a
+    non-R0 leaf — so a ">= 95%" floor on n=14 admits exactly one value,
+    14/14. It duly failed at 13/14 = 92.9% the moment a model was
+    present, while the full population passes at 144/150 = 96.0%.
+    A floor measured on 14 points is not the floor the claim is about.
+    """
     with open(BENCHMARK_PATH) as f:
-        data = json.load(f)
-
-    # In CI: use a smaller sample to avoid timeouts
-    if os.environ.get("CI"):
-        random.seed(42)
-        data = random.sample(data, min(100, len(data)))
-
-    return data
+        return json.load(f)
 
 
 @pytest.fixture(scope="module")
@@ -127,19 +132,36 @@ def test_name_origin_leaf_precision(manager, benchmark_data):
     subset (immigrants, diaspora) requires human adjudication for proper
     name-origin labels. Until then, we report but don't gate on it.
 
-    Per-test timeout 600s: with the full fastText model present, the
-    pipeline takes ~50ms/entry on 843 entries (~ 7-9 min when the
-    classifier path is exercised, depending on hardware). On CI the
-    test is `pytest.skip`-ed because the fastText model isn't bundled
-    in the runner image — the 600s ceiling is for the local-dev-with-
-    fastText path, not CI.
+    Per-test timeout 600s: with the full fastText model present and the
+    fasttext wheel installed, this test measures 843 entries in ~43 s
+    (~50 ms/entry). The 600 s ceiling leaves headroom for the CLI-worker
+    fallback path, which is ~12x slower per call.
+
+    R72: this is the ONLY accuracy floor in the project, and until R72
+    it never ran in CI — ft_name_classifier.ftz is gitignored (101 MB),
+    so `_fasttext_ready()` was False and the test skipped. CI now BUILDS
+    the model from the committed corpus (ci.yml, "Build the fastText
+    name classifier"), and the skip below is refused when CI is set: on
+    a runner a missing model is a broken build step, not a
+    reduced-capability environment, and must not be reported as a pass.
     """
     from src.regions.manager_optimized import LEAF_TO_GROUP
 
     if not _fasttext_ready():
+        import os
+
+        if os.environ.get("CI"):
+            pytest.fail(
+                "fastText model missing in CI — the >=95% leaf-precision "
+                "floor cannot be evaluated. This is the project's only "
+                "accuracy gate; a skip here is the failure mode R72 "
+                "removed. Check ci.yml's 'Build the fastText name "
+                "classifier' step (expects "
+                "data/ml_training/ft_name_classifier.ftz)."
+            )
         pytest.skip(
             "fastText model not available — skipping strict leaf-precision "
-            "assertion (reduced-capability runtime)."
+            "assertion (reduced-capability local runtime; run `make model`)."
         )
 
     # High-confidence: system agreed with geo label

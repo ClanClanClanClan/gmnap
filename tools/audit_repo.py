@@ -19,7 +19,14 @@ Categories:
   D. Numerical-claim consistency — doc numbers == measured numbers
   E. Config-version consistency  — Memgraph + dep versions align
   F. Make-target integrity       — every advertised target resolves
-  G. CI-yaml file references     — every test file in CI exists
+  G. CI/test wiring (both ways)  — every test file CI names exists (G1),
+                                   imports (G2) and holds >= 1 test (G4);
+                                   and every test file a plain `pytest
+                                   tests/` collects is run by some
+                                   workflow (G3). G1/G2/G4 walk CI →
+                                   disk; G3 walks disk → CI, which is
+                                   the direction that let 474 tests sit
+                                   unrun until R72.
   H. Test-name uniqueness        — no shadowing module basenames
   I. Tool idempotency            — re-runs produce same output
   J. Doc cross-references        — links / paths actually resolve
@@ -539,6 +546,286 @@ def _check_ci_test_files_collect() -> Result:
             tail = (proc.stdout + proc.stderr).strip().splitlines()[-3:]
             errors.append("collect failed; tail: " + " | ".join(tail))
     return ("G2: CI test files collect cleanly", errors)
+
+
+# ── G3 helpers: the two populations, measured the same way CI does ─────
+
+_WORKFLOW_DIR = Path(".github") / "workflows"
+
+# Test files that `pytest tests/` collects but NO workflow runs, which
+# we accept. THE ONLY PERMITTED EXCEPTION to G3 — every entry needs a
+# reason, and G3 fails on a stale entry (one that is now wired, or no
+# longer collected), so the list cannot rot into a silent hole.
+#
+# Deliberately EMPTY as of R72: all 124 collected files are wired. If
+# you are tempted to add an entry, the bar is "this file cannot run on
+# a CI runner" (needs network, a GPU, a paid API key) — and the right
+# home for such a file is a `norecursedirs` tree in pyproject.toml
+# (tests/live, tests/performance, …), not this list.
+_G3_UNWIRED_OK: Dict[str, str] = {}
+
+# Workflow-named test files that legitimately contribute zero collected
+# tests. Same rules as above: G4 fails on a stale entry.
+_G4_ZERO_TEST_OK: Dict[str, str] = {}
+
+
+def _collect_counts(paths: List[str] | None) -> Tuple[Dict[str, int], List[str]]:
+    """Run `pytest --collect-only -q` and return {path: n_tests}, errors.
+
+    ``paths=None`` collects ``tests/`` the way a developer does (so
+    pyproject's ``norecursedirs`` and ``tests/conftest.py``'s
+    ``collect_ignore_glob`` both apply). A list collects those explicit
+    paths, the way CI's enumerated steps do (which bypasses
+    ``collect_ignore_glob``).
+
+    Shelling out to pytest is deliberate: re-implementing the
+    norecursedirs + collect_ignore_glob resolution in this file would
+    be a second, drifting copy of pytest's rules — i.e. the exact
+    "guard measures something adjacent to the real thing" failure this
+    check exists to catch.
+    """
+    errors: List[str] = []
+    sentinel = subprocess.run(
+        [sys.executable, "-c", "import pytest"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    if sentinel.returncode != 0:
+        errors.append(
+            "pytest is not installed in the current Python environment; "
+            "cannot enumerate tests. Install with `pip install pytest "
+            "pytest-timeout pytest-mock pytest-asyncio`."
+        )
+        return {}, errors
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "--collect-only",
+            "-q",
+            "--no-header",
+            "-p",
+            "no:cacheprovider",
+            *(paths if paths is not None else ["tests/"]),
+        ],
+        cwd=str(REPO),
+        env={**os.environ, "PYTHONPATH": str(REPO)},
+        capture_output=True,
+        text=True,
+        timeout=900,
+    )
+    counts: Dict[str, int] = {}
+    for line in proc.stdout.splitlines():
+        m = re.match(r"^(tests/[A-Za-z0-9_/.\-]+\.py): (\d+)$", line.strip())
+        if m:
+            counts[m.group(1)] = int(m.group(2))
+    if proc.returncode != 0:
+        # A non-zero collect is itself a finding — never swallow it,
+        # or the whole check degrades to "nothing to compare".
+        tail = (proc.stdout + proc.stderr).strip().splitlines()[-4:]
+        errors.append(
+            "`pytest --collect-only` exited "
+            f"{proc.returncode}; tail: " + " | ".join(t.strip() for t in tail)
+        )
+    if not counts and not errors:
+        errors.append("`pytest --collect-only` reported no test files at all")
+    return counts, errors
+
+
+def _workflow_named_tests() -> Dict[str, Set[str]]:
+    """Map every `tests/...py` path named in a workflow → the workflows.
+
+    Scans ALL of ``.github/workflows/*.yml``, not just ci.yml, because
+    "does this file run anywhere" is the question. YAML comments are
+    stripped first: a path mentioned only in a comment does not run,
+    and must not satisfy the check.
+    """
+    named: Dict[str, Set[str]] = {}
+    wf_dir = REPO / _WORKFLOW_DIR
+    for wf in sorted(wf_dir.glob("*.yml")) + sorted(wf_dir.glob("*.yaml")):
+        for raw in wf.read_text().splitlines():
+            line = re.sub(r"(^|\s)#.*$", "", raw)
+            for ref in re.findall(r"tests/[A-Za-z0-9_/.\-]+\.py", line):
+                named.setdefault(ref, set()).add(wf.name)
+    return named
+
+
+def _check_every_collected_test_runs_in_ci() -> Result:
+    """Every test file `pytest tests/` collects must run in some workflow.
+
+    THE DIRECTION NOTHING CHECKED BEFORE R72. G1 and G2 both start from
+    ci.yml and ask "does this path exist / import?" — they walk CI → disk.
+    Nothing walked disk → CI, so a test file that no workflow named was
+    invisible: it collected locally, passed locally, and was never run by
+    CI. Adding a guard was a silent no-op.
+
+    Measured at c68b734, before this check existed: `pytest tests/`
+    collected 124 files, the workflows named 103, and the 44-file
+    difference carried 474 tests that no CI run had ever executed. They
+    were disproportionately the pin batteries of the most recent rounds
+    (test_fetcher_contract.py, test_vetting_risk.py,
+    test_genealogy_integrity.py, test_corrections_ledger.py,
+    test_licence_and_origin_leaks.py, test_edge_provenance.py,
+    test_spec_gates_blocking.py), including the two the docs name as the
+    evidence for a claim: test_spec_gates_blocking.py ("pins the full
+    set" of the 8 quality gates, CLAUDE.md) and test_vetting_risk.py
+    ("Pinned by ...", docs/regime_coverage.md:109).
+
+    Scope note: the authority here is `pytest tests/`, so a file parked
+    under a ``norecursedirs`` tree in pyproject.toml (tests/live,
+    tests/performance, tests/security, …) is out of scope by
+    construction — parking is a visible, reviewed decision in a config
+    file. This check governs the files that a plain test run DOES pick
+    up, which is where a new guard lands by default.
+
+    Known limitation, deliberately on the safe side: matching is
+    FILE-level. A workflow that ran a whole directory (`pytest
+    tests/unit/`) would not satisfy G3 for the files inside it, and G3
+    would ask for them by name. That direction is a false ALARM, never a
+    false pass — the failure mode this check must never have. No
+    workflow does that today (ci.yml enumerates files; korean.yml runs
+    FST tooling, not pytest). If one ever should, teach this function
+    about directory prefixes rather than widening the allow-list.
+    """
+    errors: List[str] = []
+    counts, collect_errors = _collect_counts(None)
+    errors.extend(collect_errors)
+    if not counts:
+        return ("G3: every collected test file runs in CI", errors)
+
+    named = _workflow_named_tests()
+    collected = set(counts)
+
+    unwired = sorted(collected - set(named) - set(_G3_UNWIRED_OK))
+    if unwired:
+        total = sum(counts[f] for f in unwired)
+        errors.append(
+            f"{len(unwired)} test file(s) collect under `pytest tests/` but no "
+            f"workflow in {_WORKFLOW_DIR}/ runs them ({total} tests never "
+            f"execute in CI). Add them to ci.yml's `Core tests` step, or park "
+            f"the directory in pyproject.toml's norecursedirs, or add a "
+            f"documented entry to _G3_UNWIRED_OK in {Path(__file__).name}:"
+        )
+        for f in unwired:
+            errors.append(f"    {f}  ({counts[f]} tests)")
+
+    # A stale allow-list entry is the same silent hole one level up.
+    for f, why in sorted(_G3_UNWIRED_OK.items()):
+        if f in named:
+            errors.append(
+                f"_G3_UNWIRED_OK is stale: {f} IS now run by "
+                f"{sorted(named[f])} — drop the entry (reason given: {why})"
+            )
+        elif f not in collected:
+            errors.append(
+                f"_G3_UNWIRED_OK is stale: {f} is no longer collected by "
+                f"`pytest tests/` — drop the entry (reason given: {why})"
+            )
+    return ("G3: every collected test file runs in CI", errors)
+
+
+def _defines_a_test(path: Path) -> bool:
+    """True if the file DEFINES at least one pytest test, statically.
+
+    Deliberately an AST check, not a collection count. "pytest collected
+    zero items from this file" conflates two opposite situations:
+
+      (a) the file holds no test at all — a `__main__` demo script. A
+          real defect: CI runs it and asserts nothing.
+      (b) every test in it skipped at module level because an optional
+          dependency is missing in THAT environment. Legitimate, and
+          environment-dependent.
+
+    Measured: in the `audit-repo` job's narrower dep set (no fasttext
+    wheel, no requirements-dev), tests/unit/test_encryption.py and
+    tests/unit/test_ft_negative_battery.py both collect zero items via
+    `pytest.skip(allow_module_level=True)` — while defining 4 and 48
+    tests respectively. A collection-count G4 failed on exactly those
+    two and would have been "fixed" by allow-listing two healthy files.
+
+    Asking what the source DEFINES is environment-independent, so the
+    check gives the same answer on every runner, and needs no
+    subprocess.
+    """
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
+    except SyntaxError:
+        # B1 reports unparseable files; don't double-report here, and
+        # don't claim the file has no test when we could not look.
+        return True
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if node.name.startswith("test"):
+                return True
+        elif isinstance(node, ast.ClassDef) and node.name.startswith("Test"):
+            for sub in node.body:
+                if isinstance(sub, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    if sub.name.startswith("test"):
+                        return True
+    return False
+
+
+def _check_ci_test_files_contribute_tests() -> Result:
+    """Every test file a workflow names must DEFINE at least one test.
+
+    G1 says the path exists, G2 says it imports, G3 says nothing is
+    unwired — none of them asks whether the file actually holds a test.
+    A `__main__`-style script under tests/ satisfies all three and
+    contributes nothing: pytest collects zero items from it, the step
+    goes green, and the file reads in ci.yml like coverage that isn't
+    there.
+
+    Measured at c68b734: two of CI's 103 named files
+    (tests/v7/test_v7_full_pipeline.py and
+    tests/v7/test_v7_complete_integration.py) are async demo scripts
+    whose entry points sit behind `if __name__ == "__main__"`, with no
+    `test_*` function and no `Test*` class. CI "ran" both on every push
+    and asserted nothing. R72 removed them from ci.yml.
+
+    See ``_defines_a_test`` for why this is static rather than a
+    collection count — a count answers differently per environment and
+    punishes files whose optional dependency is simply absent.
+    """
+    errors: List[str] = []
+    named = _workflow_named_tests()
+    extant = sorted(f for f in named if (REPO / f).exists())
+    if not extant:
+        # G1 reports missing paths; an empty extant set here means the
+        # scan itself broke, which must not pass quietly.
+        errors.append(
+            f"no extant test files found in {_WORKFLOW_DIR}/ — the workflow "
+            f"scan is broken (named: {len(named)})"
+        )
+        return ("G4: CI-named test files hold tests", errors)
+
+    testless = sorted(
+        f for f in extant if f not in _G4_ZERO_TEST_OK and not _defines_a_test(REPO / f)
+    )
+    if testless:
+        errors.append(
+            f"{len(testless)} workflow-named test file(s) define NO test "
+            f"(no module-level `test_*` function, no `Test*` class with a "
+            f"`test_*` method) — the step runs them and asserts nothing. "
+            f"Give each a real test, drop it from the workflow, or add a "
+            f"documented entry to _G4_ZERO_TEST_OK:"
+        )
+        for f in testless:
+            errors.append(f"    {f}  (named in {sorted(named[f])})")
+
+    for f, why in sorted(_G4_ZERO_TEST_OK.items()):
+        if f in extant and _defines_a_test(REPO / f):
+            errors.append(
+                f"_G4_ZERO_TEST_OK is stale: {f} now defines a test — "
+                f"drop the entry (reason given: {why})"
+            )
+        elif f not in named:
+            errors.append(
+                f"_G4_ZERO_TEST_OK is stale: {f} is no longer named in any "
+                f"workflow — drop the entry (reason given: {why})"
+            )
+    return ("G4: CI-named test files hold tests", errors)
 
 
 # ─── H. Test-name uniqueness (shadowing) ───────────────────────────────
@@ -1273,6 +1560,8 @@ CHECKS: List[Callable[[], Result]] = [
     _check_make_targets_resolve,
     _check_ci_test_files_exist,
     _check_ci_test_files_collect,
+    _check_every_collected_test_runs_in_ci,
+    _check_ci_test_files_contribute_tests,
     _check_no_test_module_shadowing,
     _check_no_test_bandaid_swallows,
     _check_no_self_method_called_but_not_defined,
@@ -1285,12 +1574,18 @@ CHECKS: List[Callable[[], Result]] = [
 
 # Checks omitted from --fast mode (pre-commit hook). Each spawns a
 # subprocess and noticeably slows the hook (B2: 8 imports ≈ 1.5 s;
-# I1: 1 gen_api_reference run ≈ 1 s; G2: pytest --collect-only across
-# the whole CI list ≈ 5-10 s). CI runs the full battery.
+# I1: 1 gen_api_reference run ≈ 1 s; G2/G3: one pytest --collect-only
+# each, ≈ 5-15 s apiece). CI runs the full battery — G3 is gating
+# there, which is the binding enforcement; the hook stays fast.
+#
+# G4 is NOT here: it is a pure AST read of the workflow-named files
+# (see _defines_a_test), so it costs milliseconds and runs in the hook
+# too.
 _SLOW_CHECKS = {
     _check_production_imports,
     _check_gen_api_reference_idempotent,
     _check_ci_test_files_collect,
+    _check_every_collected_test_runs_in_ci,
 }
 
 

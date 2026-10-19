@@ -111,13 +111,19 @@ jobs:
             echo "::warning::requirements.lock has drifted from PyPI (not this PR's fault). The weekly lock-refresh workflow will open a bump PR; or run 'make lock' locally."
           fi
 
-  # Repository-invariant audit (tools/audit_repo.py). 18 checks across
+  # Repository-invariant audit (tools/audit_repo.py). 25 checks across
   # 10 categories — file-tree integrity, parse, JSON/YAML, doc-vs-data
   # numerical claims, version coherence, Make-target resolution, CI test
-  # references, test-module shadowing, generator idempotency, doc cross-
-  # references. Catches the kind of regression where a doc number drifts
-  # from a measured value, or someone deletes a file that another doc
-  # still references. Fast (~1 s) — runs in parallel with `test`.
+  # wiring in BOTH directions (G1-G4), test-module shadowing, generator
+  # idempotency, doc cross-references. Catches the kind of regression
+  # where a doc number drifts from a measured value, or someone deletes
+  # a file that another doc still references.
+  #
+  # R72: the count here said "18 checks" and the runtime said "~1 s" —
+  # both stale (it was 23 before this round). G3 spawns a
+  # `pytest tests/ --collect-only` over the whole tree, so the job is
+  # now ~1-2 min rather than seconds. Still runs in parallel with
+  # `test`, so it is not on the critical path.
   audit-repo:
     runs-on: ubuntu-latest
     needs: lint
@@ -134,13 +140,22 @@ jobs:
       - name: Install runtime deps (B2 imports production modules)
         run: pip install -r requirements.txt
 
-      - name: Install pytest (G2 spawns `pytest --collect-only` per CI list)
+      - name: Install pytest (G2/G3/G4 spawn `pytest --collect-only`)
         # Match the test job's pytest plugin set so the collection step
         # uses the same imports + plugin behaviour. Without these the
         # G2 check fails with "No module named pytest" (caught in CI
         # round 19) — a different kind of false positive than the
         # collection drift G2 is meant to catch.
-        run: pip install pytest pytest-timeout pytest-mock pytest-asyncio
+        #
+        # R72 adds hypothesis + duckdb here. G2/G4 collect only the
+        # paths CI names, but G3 collects the whole `tests/` tree, which
+        # reaches tests/property/ (18 `from hypothesis import ...`).
+        # Without hypothesis that collection errors out, and G3 would
+        # report an environment problem instead of the wiring gap it
+        # exists to measure.
+        run: >-
+          pip install pytest pytest-timeout pytest-mock pytest-asyncio
+          hypothesis duckdb
 
       - name: Privacy gate (R57 — no living person may carry an origin label)
         run: PYTHONPATH=. python3 tools/privacy_audit.py
@@ -172,13 +187,102 @@ jobs:
       - name: Compile fasttext CLI binary
         run: bash scripts/install_fasttext.sh /usr/local/bin/fasttext
 
+      # R72 — make the project's only accuracy floor actually run.
+      #
+      # `tests/unit/test_benchmark_evaluation.py::test_name_origin_leaf
+      # _precision` is the single accuracy gate in the repo (>= 95% leaf
+      # precision on the 843-entry adjudicated benchmark). In CI it
+      # pytest.skip-ed, because ft_name_classifier.ftz is gitignored
+      # (101 MB). A floor that skips is not a floor.
+      #
+      # The model does not need to be committed: it is REPRODUCIBLE from
+      # the committed corpus (data/ml_training/ft_name_training_clean.txt,
+      # 13 427 lines) and the build is byte-deterministic at thread=1
+      # (R59.5). So CI builds it. Measured on this corpus: 144/150 =
+      # 96.0% leaf precision at 34.5% coverage — the gate passes on
+      # merit, it was not tuned to pass.
+      #
+      # The wheel is installed unconditionally (not only on a cache
+      # miss) so the ML path is the same on warm and cold runs — the
+      # CLI-worker fallback is ~12x slower per call and several tests
+      # branch on which path is live.
+      - name: Install fasttext Python wheel (builder + consistent ML path)
+        run: pip install pybind11 'fasttext==0.9.3'
+
+      # Cache key = corpus + build script, so editing either forces a
+      # rebuild. A stale cache cannot mask a corpus change. Only the
+      # .ftz is cached; the 804 MB .bin is a build intermediate and the
+      # runtime prefers the .ftz.
+      - name: Cache the fastText name classifier
+        id: ftcache
+        uses: actions/cache@v4
+        with:
+          path: data/ml_training/ft_name_classifier.ftz
+          key: >-
+            ftmodel-${{ hashFiles('data/ml_training/ft_name_training_clean.txt',
+            'scripts/ml/build_name_classifier.py') }}
+
+      - name: Build the fastText name classifier (make model)
+        if: steps.ftcache.outputs.cache-hit != 'true'
+        run: PYTHONPATH=. python3 scripts/ml/build_name_classifier.py
+
+      # Belt-and-braces: if the model is absent the accuracy floor goes
+      # back to skipping, which is the exact failure mode R72 removed.
+      # Fail here, loudly, rather than let a green tick stand in for it.
+      # (test_benchmark_evaluation.py ALSO hard-fails instead of
+      # skipping when CI is set — two independent catches.)
+      - name: Assert the classifier exists (the accuracy floor needs it)
+        run: |
+          f=data/ml_training/ft_name_classifier.ftz
+          if [ ! -s "$f" ]; then
+            echo "::error::$f missing — the >=95% leaf-precision floor" \
+                 "would silently skip. Check the build step above."
+            exit 1
+          fi
+          ls -l "$f"
+
       - name: Setup cost tracking
         run: |
           mkdir -p cache
           echo '{}' > cache/api_costs.json
 
-      - name: Core tests (region detection + user workflows + security + CLI + web + nginx + golden)
+      # GNU time, not the bash `time` builtin — the Core tests step
+      # below runs under it so the memory gate has a real peak-RSS
+      # number to read. Installed explicitly rather than assumed: if it
+      # were missing the Core tests step would die on a bare
+      # "/usr/bin/time: not found", which is loud but needlessly
+      # confusing.
+      - name: Ensure GNU time is present (the memory gate measures with it)
+        run: test -x /usr/bin/time || sudo apt-get install -y -qq time
+
+      # NOTE: this list is the gating test population, and it is now
+      # enforced in BOTH directions by tools/audit_repo.py:
+      #   G1  every path here exists on disk
+      #   G2  every path here imports cleanly
+      #   G4  every path here holds >= 1 collected test
+      #   G3  every file `pytest tests/` collects appears here (or in
+      #       another workflow) — the disk → CI direction
+      # Before R72 only G1/G2 existed, so the list could silently omit
+      # a test file. It omitted 44 of them, carrying 474 tests —
+      # disproportionately the pin batteries of the most recent rounds,
+      # including the two that the docs name as the evidence for a
+      # claim: test_spec_gates_blocking.py ("pins the full set" of the
+      # 8 quality gates, CLAUDE.md) and test_vetting_risk.py ("Pinned
+      # by ...", docs/regime_coverage.md:109). The 44 are appended
+      # below, after tests/v7/test_v7_imports.py.
+      #
+      # Also removed in R72: tests/v7/test_v7_full_pipeline.py and
+      # tests/v7/test_v7_complete_integration.py. Both are async demo
+      # scripts behind `if __name__ == "__main__"` with no test_*
+      # function and no Test* class — pytest collected ZERO items from
+      # each, so CI "ran" them on every push and asserted nothing.
+      # G4 now fails if such a file is listed again.
+      #
+      # Do not add a path here by hand without running
+      # `make audit-repo` — and do not remove one to make CI green.
+      - name: Core tests (region detection + user workflows + security + CLI + web + nginx + golden + R72 pin batteries)
         run: >-
+          /usr/bin/time -o "$RUNNER_TEMP/core-tests.rss" -f '%M'
           pytest
           tests/unit/test_region_detection_accuracy.py
           tests/unit/test_user_workflows.py
@@ -275,9 +379,51 @@ jobs:
           tests/v7/test_stage1b_etd_extract.py
           tests/unit/test_cost_tracker.py
           tests/v7/test_v7_complete.py
-          tests/v7/test_v7_complete_integration.py
-          tests/v7/test_v7_full_pipeline.py
           tests/v7/test_v7_imports.py
+          tests/unit/test_fetcher_contract.py
+          tests/unit/test_vetting_risk.py
+          tests/unit/test_genealogy_integrity.py
+          tests/unit/test_corrections_ledger.py
+          tests/unit/test_licence_and_origin_leaks.py
+          tests/unit/test_edge_provenance.py
+          tests/v7/test_spec_gates_blocking.py
+          tests/unit/test_ft_negative_battery.py
+          tests/unit/test_ft_adversarial_pins.py
+          tests/unit/test_ortho_group_anchor.py
+          tests/unit/test_icu_weak_evidence_gate.py
+          tests/unit/test_build_runtime_parity.py
+          tests/unit/test_suffix_dimension_b.py
+          tests/unit/test_signature_suffixes_turkic_balkan.py
+          tests/unit/test_iberian_ruling.py
+          tests/unit/test_f1_f4_particles.py
+          tests/unit/test_diaspora_overlay.py
+          tests/unit/test_region_overlay_map.py
+          tests/unit/test_surname_yaml_supplement.py
+          tests/unit/test_spec_territory_consistency.py
+          tests/unit/test_api_privacy_gate.py
+          tests/unit/test_removal_requests.py
+          tests/unit/test_encryption.py
+          tests/unit/test_sudoc_evidence.py
+          tests/unit/test_dblp_arxiv_behavior.py
+          tests/unit/test_quota_wired.py
+          tests/unit/test_async_batch_agg.py
+          tests/unit/test_memgraph_loader_batching.py
+          tests/unit/test_sqlite_analytics.py
+          tests/unit/test_schema_validation.py
+          tests/unit/test_audit_and_bench_internals.py
+          tests/stress/test_database_stress.py
+          tests/test_korean_expert_implementation.py
+          tests/test_regions_b1.py
+          tests/test_schema_validator.py
+          tests/v7/test_attribution_wired.py
+          tests/v7/test_gdpr_wired.py
+          tests/v7/test_genealogy_edges_wired.py
+          tests/v7/test_input_name_resolution.py
+          tests/v7/test_licence_tiers.py
+          tests/v7/test_parallel_path.py
+          tests/v7/test_shortform_clusters.py
+          tests/v7/test_stage11_no_clobber.py
+          tests/v7/test_stage2_split_fields.py
           -v --tb=short --timeout=120 -p no:cacheprovider
 
       - name: Property tests
@@ -288,18 +434,49 @@ jobs:
           and not test_problematic_unicode_robustness
           and not test_specific_ligature_cases"
 
-      - name: Memory peak check
+      # R72: this gate used to run `python3 -c` and measure
+      # RUSAGE_SELF of that brand-new interpreter — a bare ~0.015 GB
+      # process — then assert it against a 6 GB limit. It measured the
+      # checker, not the test run, and could not fail by construction.
+      # It now reads the peak RSS that /usr/bin/time recorded for the
+      # Core tests step above, which is the population the gate's name
+      # has always claimed. If that measurement is missing (no
+      # /usr/bin/time on the runner, step reordered, file not written)
+      # the gate FAILS rather than passing on an absent number — a
+      # silent pass is the defect this round exists to kill.
+      - name: Memory peak check (peak RSS of the Core tests run)
+        if: always()
         run: |
+          set -euo pipefail
+          f="$RUNNER_TEMP/core-tests.rss"
+          if [ ! -s "$f" ]; then
+            echo "::error::no peak-RSS measurement at $f — the Core tests" \
+                 "step did not run under /usr/bin/time. Refusing to pass a" \
+                 "memory gate with nothing measured."
+            exit 1
+          fi
+          # `-f '%M'` writes the peak RSS in KiB on a line of its own.
+          # Match a digits-only line rather than stripping non-digits
+          # from the whole file: when the command dies on a signal GNU
+          # time also writes "Command terminated by signal N", and a
+          # blind strip would splice that 9 into the number.
+          kb="$(grep -m1 -oE '^[0-9]+$' "$f" || true)"
+          if [ -z "$kb" ]; then
+            echo "::error::unparseable peak-RSS measurement in $f: $(cat "$f")"
+            exit 1
+          fi
           python3 -c "
-          import resource, platform
-          ru = resource.getrusage(resource.RUSAGE_SELF)
-          if platform.system() == 'Darwin':
-              rss_gb = ru.ru_maxrss / (1024**3)
-          else:
-              rss_gb = ru.ru_maxrss / (1024**2)
-          limit = 6
-          print(f'Peak RSS: {rss_gb:.2f} GB (limit: {limit} GB)')
-          assert rss_gb <= limit, f'Memory peak {rss_gb:.2f} GB exceeds {limit} GB limit'
+          import sys
+          kb = int('$kb')
+          rss_gb = kb / (1024 ** 2)   # GNU time reports KiB on Linux
+          limit = 6.0
+          print(f'Core tests peak RSS: {rss_gb:.2f} GB (limit: {limit} GB)')
+          if rss_gb <= 0:
+              print('::error::measured 0 GB — measurement is not real')
+              sys.exit(1)
+          if rss_gb > limit:
+              print(f'::error::memory peak {rss_gb:.2f} GB exceeds {limit} GB')
+              sys.exit(1)
           "
 
   coverage:
@@ -647,12 +824,32 @@ jobs:
       - name: Run perf regression check (1k batch)
         run: PYTHONPATH=. python3 tools/perf_regression_check.py --size 1000
 
-  # Cost guard reads cache/api_costs.json — the file is the
-  # source-of-truth, written by src/core/cost_tracker.record(...)
-  # from every live-mode authority call (round 34 phase 3 wired the
-  # tracker; before that the file was reinitialized each CI run and
-  # the budget was theatre). For prod deploys, mount the cache/
-  # volume across container restarts so spend persists.
+  # R72 — the `cost-guard` job was DELETED here, not fixed.
+  #
+  # It read cache/api_costs.json against a CHF 120/month budget. But
+  # cache/ is gitignored (.gitignore:101), so the file cannot exist in
+  # a CI checkout: the job's own first line was `mkdir -p cache`, then
+  # cost_tracker.total() read a non-existent file and returned 0.0, and
+  # the budget was asserted against a constant 0. It could not fail.
+  #
+  # Round 34 phase 3's own note on the job claimed it had already fixed
+  # exactly this — quoted for the record: "round 34 phase 3 wired the
+  # tracker; before that the file was reinitialized each CI run and the
+  # budget was theatre". It wired the WRITER
+  # (src/core/cost_tracker.record) but left the reader pointed at a
+  # path CI can never populate. The theatre survived the fix that was
+  # documented as ending it.
+  #
+  # This population is structurally empty in CI and cannot be made
+  # non-empty there: CI runs offline (LIVE_AUTH=0), so no spend occurs,
+  # and production spend lives in a mounted volume on the deployed
+  # container, which no CI checkout can see. Budget enforcement is
+  # OPERATOR-SIDE, against the running deployment's cache/ volume.
+  # The writer stays under test — tests/unit/test_cost_tracker.py is in
+  # the Core tests step above — so deleting the job loses no coverage,
+  # only a green tick that measured nothing. See CLAUDE.md
+  # "Enforcement status" for where the budget is actually checked.
+
   # Helm chart validity (R53 §2b.8): deploy/helm/gmnap is the canonical
   # chart (3 dup charts were unified in R41) — nothing gated its
   # correctness, so a template typo would only surface at deploy time.
@@ -669,38 +866,3 @@ jobs:
           # `required` guard) — a dummy satisfies the render smoke
           helm template smoke deploy/helm/gmnap \
             --set memgraph.password=ci-smoke-only >/dev/null
-
-  cost-guard:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Check API spend against CHF 120/month limit
-        run: |
-          mkdir -p cache
-          # Standalone load of just cost_tracker, avoiding the
-          # src.core package __init__ chain which pulls in pyyaml +
-          # other runtime deps the cost-guard job doesn't need. This
-          # keeps the job under 5 s wall-clock.
-          PYTHONPATH=. python3 -c "
-          import importlib.util, sys
-          spec = importlib.util.spec_from_file_location(
-              'cost_tracker', 'src/core/cost_tracker.py'
-          )
-          mod = importlib.util.module_from_spec(spec)
-          spec.loader.exec_module(mod)
-          limit = float('${COST_GUARD_LIMIT_CHF:-120.0}')
-          total = mod.total()
-          print(f'Total API spend: CHF {total:.2f} / {limit:.2f}')
-          if total >= limit:
-              print(f'::error::API spend over CHF {limit:.2f} budget')
-              sys.exit(1)
-          print('Within budget')
-          "
